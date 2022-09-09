@@ -1,7 +1,7 @@
 // Created by moisrex on 9/9/22.
 
-#ifndef SMART_KEYBOARD_CONSTANTS_H
-#define SMART_KEYBOARD_CONSTANTS_H
+#ifndef SMART_KEYBOARD_TRANSLATE_H
+#define SMART_KEYBOARD_TRANSLATE_H
 
 #define KEY_RELEASE 0
 #define KEY_PRESS 1
@@ -65,4 +65,8 @@ static constexpr char visual_keys[]{
         '/'       // 53
 };
 
-#endif //SMART_KEYBOARD_CONSTANTS_H
+static char to_char(unsigned short c) {
+    return c >= sizeof(visual_keys) ? null_key : visual_keys[c];
+}
+
+#endif //SMART_KEYBOARD_TRANSLATE_H

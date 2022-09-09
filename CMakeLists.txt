@@ -4,4 +4,7 @@ project(smart_keyboard
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(smart_keyboard main.cpp)
+add_executable(smart_keyboard main.cpp eventio.cpp)
+target_link_libraries(smart_keyboard
+        PRIVATE spdlog
+        )
