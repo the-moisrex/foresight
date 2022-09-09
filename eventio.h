@@ -3,39 +3,23 @@
 #ifndef SMART_KEYBOARD_EVENTIO_H
 #define SMART_KEYBOARD_EVENTIO_H
 
-#include <linux/input.h>
-#include <map>
-#include <cstdio>
-#include <string>
-#include <vector>
 #include "translate.h"
+#include <memory>
 
 
-static constexpr std::size_t give_up_limit = 5;
+static constexpr unsigned long long give_up_limit = 5;
 
 struct eventio {
-
-    std::map<std::string, std::string> keys;
-    std::vector<input_event> events;
-    input_event event;
-    std::string str;
-
     eventio();
 
+    eventio(eventio const &) = delete;
+
+    eventio(eventio &&) = delete;
+
 private:
-    void to_string();
+    class impl;
 
-    void check();
-
-    void replace(std::pair<std::string, std::string> const &req);
-
-    void backspace(std::size_t i);
-
-    void put(std::string const &str);
-
-    void put(input_event event);
-
-    void buffer(input_event &ev);
+    std::unique_ptr<impl> pimpl;
 
 public:
     int loop() noexcept;

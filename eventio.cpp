@@ -2,27 +2,59 @@
 
 #include "eventio.h"
 #include <algorithm>
-#include <iostream>
 #include <spdlog/spdlog.h>
+#include <thread>
+#include <linux/input.h>
+#include <map>
+#include <cstdio>
+#include <string>
+#include <vector>
 
+class eventio::impl {
+public:
 
-eventio::eventio() {
+    impl();
+
+    std::map<std::string, std::string> keys;
+    std::vector<input_event> events;
+    input_event event;
+    std::string str;
+
+    void to_string();
+
+    void check();
+
+    void replace(std::pair<std::string, std::string> const &req);
+
+    void backspace(std::size_t i);
+
+    void put(std::string const &str);
+
+    void put(input_event event);
+
+    void buffer(input_event &ev);
+
+    // this loop is the main loop
+    int loop() noexcept;
+
+};
+
+eventio::impl::impl() {
     setbuf(stdin, NULL), setbuf(stdout, NULL);
 
     keys.emplace("namesp", "namespace");
 }
 
 
-void eventio::to_string() {
+void eventio::impl::to_string() {
     str.reserve(events.size());
     for (auto &event: events) {
         const char c = to_char(event.code);
         str.push_back(c);
     }
-    std::cerr << str << std::endl;
 }
 
-void eventio::check() {
+void eventio::impl::check() {
     to_string();
     auto it = std::find_if(keys.begin(), keys.end(), [this](auto const &p) {
         auto const &[key, value] = p;
@@ -33,19 +65,19 @@ void eventio::check() {
     }
 }
 
-void eventio::replace(const std::pair<std::string, std::string> &req) {
+void eventio::impl::replace(const std::pair<std::string, std::string> &req) {
     backspace(req.first.size());
     put(req.second);
     events.clear();
 }
 
-void eventio::backspace(std::size_t i) {
+void eventio::impl::backspace(std::size_t i) {
     for (; i != 0; i--) {
         put(input_event{.type = EV_KEY, .code = KEY_BACKSPACE});
     }
 }
 
-void eventio::put(const std::string &str) {
+void eventio::impl::put(const std::string &str) {
     for (auto const &c: str) {
         put(input_event{.type = EV_KEY,
                 .code = static_cast<unsigned short>(c),
@@ -53,14 +85,14 @@ void eventio::put(const std::string &str) {
     }
 }
 
-void eventio::put(input_event event) {
+void eventio::impl::put(input_event event) {
     event.value = KEY_PRESS;
     fwrite(&event, sizeof(event), 1, stdout);
     event.value = KEY_RELEASE;
     fwrite(&event, sizeof(event), 1, stdout);
 }
 
-void eventio::buffer(input_event &ev) {
+void eventio::impl::buffer(input_event &ev) {
     switch (ev.value) {
         case KEY_PRESS: {
 
@@ -95,7 +127,7 @@ bool handle_errors() {
     return true;
 };
 
-int eventio::loop() noexcept {
+int eventio::impl::loop() noexcept {
     try {
         while (fread(&event, sizeof(event), 1, stdin) == 1) {
             if (event.type == EV_KEY) {
@@ -114,7 +146,7 @@ int eventio::loop() noexcept {
         }
     } catch (...) {
         spdlog::error(
-                "Unknown error occurred. Try reporting this at https://github.com/the-moisrex/smart-keyboard."
+                "Unknown error occurred. Try reporting this at https://github.com/the-moisrex/foresight."
         );
         if (handle_errors()) {
             loop();
@@ -124,3 +156,13 @@ int eventio::loop() noexcept {
     }
     return 0;
 }
+
+
+int eventio::loop() noexcept {
+    return pimpl->loop();
+}
+
+eventio::eventio() : pimpl{std::make_unique<impl>()} {
+
+}
+
