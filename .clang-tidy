@@ -1,0 +1,41 @@
+# Generated from CLion Inspection settings
+---
+Checks: >
+  *,
+  bugprone-*,
+  readability-*,
+  performance-*,
+  modernize-*,
+    -modernize-use-trailing-return-type,
+  cppcoreguidelines-*,
+  google-*,
+  hicpp-*,
+  misc-*,
+    -misc-include-cleaner,
+  openmp-*,
+  portability-*,
+  mpi-*,
+  cert-*,
+    -cert-dcl21-cpp,
+  clang-analyzer-*,
+  -llvmlibc-*,
+  llvm-*,
+    -llvm-header-guard,
+  altera-*,
+    -altera-unroll-loops,
+    -altera-id-dependent-backward-branch,
+  android-*,
+  fuchsia-*,
+    -fuchsia-overloaded-operator,
+    -fuchsia-default-arguments-calls,
+    -fuchsia-default-arguments-declarations,
+  linuxkernel-*,
+CheckOptions:
+  - key:   readability-function-cognitive-complexity.Threshold
+    value: 50 # default is 25
+  - key:   readability-function-cognitive-complexity.IgnoreMacros
+    value: true # default is false
+InheritParentConfig: false
+HeaderFileExtensions:
+  - hpp
+  - h
