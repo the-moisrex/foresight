@@ -1,6 +1,6 @@
-#include "eventio.h"
+#include "keyboard.h"
 
 int main() {
-    eventio io;
+    keyboard io;
     return io.loop();
 }

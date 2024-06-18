@@ -11,25 +11,26 @@
 #include <string_view>
 #include <vector>
 
-
+#include "evdev.h"
 
 static constexpr std::size_t give_up_limit = 5;
 
-struct eventio {
-             eventio();
-             eventio(eventio const &)   = delete;
-             eventio(eventio &&)        = delete;
-    eventio &operator=(eventio const &) = delete;
-    eventio &operator=(eventio &&)      = delete;
+struct keyboard {
+              keyboard();
+              keyboard(keyboard const &)  = delete;
+              keyboard(keyboard &&)       = delete;
+    keyboard &operator=(keyboard const &) = delete;
+    keyboard &operator=(keyboard &&)      = delete;
 
     void to_string();
 
     void check();
 
-    void replace(std::pair<std::string, std::string> const &req);
+    void replace(std::string_view replace_it, std::string_view replace_with);
+    void remove(std::string_view text);
 
     void backspace(std::size_t count = 1);
-    void put(std::string_view str);
+    void put(std::string_view text);
     void put(input_event event);
 
     void buffer(input_event &event);
@@ -39,10 +40,9 @@ struct eventio {
 
 
   private:
-    std::map<std::string, std::string> keys;
-    std::vector<input_event>           events;
-    input_event                        event;
-    std::string                        str;
+    std::vector<input_event> events;
+    input_event              event;
+    std::string              str;
 };
 
 

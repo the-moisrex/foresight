@@ -71,7 +71,7 @@ inline constexpr std::array visual_keys{
 
 [[nodiscard]] inline char to_char(std::uint8_t const inp_char) noexcept {
     // NOLINTNEXTLINE(*-pro-bounds-constant-array-index)
-    return inp_char >= sizeof(visual_keys) ? null_key : visual_keys[inp_char];
+    return inp_char >= visual_keys.size() ? null_key : visual_keys[inp_char];
 }
 
 #endif // SMART_KEYBOARD_TRANSLATE_H
