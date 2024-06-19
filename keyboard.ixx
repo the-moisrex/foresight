@@ -1,21 +1,20 @@
 // Created by moisrex on 9/9/22.
 
-#ifndef SMART_KEYBOARD_EVENTIO_H
-#define SMART_KEYBOARD_EVENTIO_H
-
-#include "translate.h"
-
+module;
 #include <linux/input.h>
-#include <map>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include "evdev.h"
+export module foresight.keyboard;
 
-static constexpr std::size_t give_up_limit = 5;
+import foresight.translate;
+import foresight.evdev;
 
-struct keyboard {
+
+export constexpr std::size_t give_up_limit = 5;
+
+export struct keyboard {
               keyboard();
               keyboard(keyboard const &)  = delete;
               keyboard(keyboard &&)       = delete;
@@ -44,6 +43,3 @@ struct keyboard {
     input_event              event;
     std::string              str;
 };
-
-
-#endif // SMART_KEYBOARD_EVENTIO_H

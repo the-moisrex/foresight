@@ -1,9 +1,9 @@
 // Created by moisrex on 6/18/24.
 
-#include "evdev.h"
-
+module;
 #include <libevdev/libevdev.h>
 #include <spdlog/spdlog.h>
+module foresight.evdev;
 
 evdev::evdev(int const file_descriptor) {
     // init libevdev

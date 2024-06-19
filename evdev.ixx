@@ -1,15 +1,16 @@
 // Created by moisrex on 6/18/24.
 
-#ifndef FORESIGHT_EVDEV_H
-#define FORESIGHT_EVDEV_H
+module;
 
 #include <libevdev/libevdev.h>
 #include <string_view>
 
+export module foresight.evdev;
+
 /**
  * This is a wrapper for libevdev's related features
  */
-struct evdev {
+export struct evdev {
     explicit evdev(std::string_view file);
     explicit evdev(int file_descriptor);
              evdev(evdev&&)          = default;
@@ -33,5 +34,3 @@ struct evdev {
   private:
     libevdev* dev = nullptr;
 };
-
-#endif // FORESIGHT_EVDEV_H

@@ -1,12 +1,15 @@
 // Created by moisrex on 9/9/22.
 
-#include "keyboard.h"
+module;
 
 #include <algorithm>
 #include <cstdio>
+#include <linux/input.h>
 #include <ranges>
 #include <spdlog/spdlog.h>
 #include <thread>
+
+module foresight.keyboard;
 
 keyboard::keyboard() {
     setbuf(stdin, nullptr);
@@ -92,7 +95,7 @@ int keyboard::loop() noexcept {
         while (std::fread(&event, sizeof(event), 1, stdin) == 1) {
             if (event.type == EV_KEY) {
                 buffer(event);
-                check();
+                // check();
             }
 
             if (auto const out_res = std::fwrite(&event, sizeof(event), 1, stdout); out_res == 0) {

@@ -1,18 +1,19 @@
 // Created by moisrex on 9/9/22.
 
-#ifndef SMART_KEYBOARD_TRANSLATE_H
-#define SMART_KEYBOARD_TRANSLATE_H
+module;
 
 #include <array>
 #include <cstdint>
 
-static constexpr auto KEY_RELEASE         = 0;
-static constexpr auto KEY_PRESS           = 1;
-static constexpr auto KEY_KEEPING_PRESSED = 2;
+export module foresight.translate;
 
-inline constexpr char null_key = '\0';
+export constexpr auto KEY_RELEASE         = 0;
+export constexpr auto KEY_PRESS           = 1;
+export constexpr auto KEY_KEEPING_PRESSED = 2;
 
-inline constexpr std::array visual_keys{
+export constexpr char null_key = '\0';
+
+export constexpr std::array visual_keys{
   null_key, // 0
   null_key, // 1
   '1',      // 2
@@ -69,9 +70,8 @@ inline constexpr std::array visual_keys{
   '/'       // 53
 };
 
-[[nodiscard]] inline char to_char(std::uint8_t const inp_char) noexcept {
+export [[nodiscard]] char to_char(std::uint8_t const inp_char) noexcept {
     // NOLINTNEXTLINE(*-pro-bounds-constant-array-index)
     return inp_char >= visual_keys.size() ? null_key : visual_keys[inp_char];
 }
 
-#endif // SMART_KEYBOARD_TRANSLATE_H
