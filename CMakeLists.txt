@@ -14,12 +14,14 @@ target_sources(${PROJECT_NAME}
             keyboard.cxx
             provider.cxx
             evdev.cxx
+            intercept.cxx
         PUBLIC
             FILE_SET CXX_MODULES FILES
                 keyboard.ixx
                 provider.ixx
                 evdev.ixx
                 translate.ixx
+                intercept.ixx
 )
 
 # Libraries

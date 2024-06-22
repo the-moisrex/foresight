@@ -1,16 +1,23 @@
 #include <exception>
+#include <filesystem>
 #include <format>
 #include <print>
 #include <string_view>
 #include <utility>
 import foresight.keyboard;
+import foresight.intercept;
 
 struct options {
+    // NOLINTBEGIN(*-non-private-member-variables-in-classes)
     enum struct action_type : std::uint8_t {
         none = 0,
         help,
         intercept,
-    } action = action_type::none; // NOLINT(*-non-private-member-variables-in-classes)
+    } action = action_type::none;
+
+    /// intercept file
+    std::filesystem::path file;
+    // NOLINTEND(*-non-private-member-variables-in-classes)
 
     void set_action(action_type const inp_action) {
         if (action == inp_action) {
@@ -29,7 +36,7 @@ void print_help() {
         -h | --help          print help
 
   actions:
-        intercept            intercept the keyboard and print everything to stdout
+        intercept [file]     intercept the keyboard and print everything to stdout
         help                 print help
 )TEXT");
 }
@@ -56,6 +63,22 @@ options check_opts(int const argc, char const* const* argv) {
         if (opt == "--help" || opt == "-h") {
             opts.set_action(help);
         }
+
+        switch (opts.action) {
+            case intercept: {
+                opts.file = opt;
+                if (auto const status = std::filesystem::status(opts.file); !exists(status)) {
+                    throw std::invalid_argument(std::format("File does not exist: {}", opts.file.string()));
+                } else if (!is_character_file(status)) {
+                    throw std::invalid_argument(std::format("It's not a file: {}", opts.file.string()));
+                }
+                return opts;
+            }
+
+            default: {
+                throw std::invalid_argument(std::format("Invalid argument {}", opt));
+            }
+        }
     }
 
     return opts;
@@ -65,11 +88,10 @@ int run_action(options const opts) {
     using enum options::action_type;
     switch (opts.action) {
         case none:
-        case help: {
-            print_help();
-            return 0;
-        }
+        case help: print_help(); return EXIT_FAILURE;
+
         case intercept: {
+            interceptor inpor{opts.file};
             return EXIT_SUCCESS;
         }
         default: {

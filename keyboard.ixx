@@ -40,6 +40,6 @@ export struct keyboard {
 
   private:
     std::vector<input_event> events;
-    input_event              event;
+    input_event              event{};
     std::string              str;
 };

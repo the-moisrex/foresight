@@ -69,6 +69,7 @@ void keyboard::buffer(input_event &event) {
         case KEY_KEEPING_PRESSED: {
             return;
         }
+        default: return;
     }
     if (events.size() > 500) {
         events.clear();
