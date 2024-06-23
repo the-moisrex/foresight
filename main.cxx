@@ -1,8 +1,8 @@
 #include <exception>
 #include <filesystem>
 #include <fmt/core.h>
+#include <spdlog/spdlog.h>
 #include <string_view>
-#include <utility>
 import foresight.keyboard;
 import foresight.intercept;
 
@@ -16,6 +16,7 @@ struct options {
 
     /// intercept file
     std::filesystem::path file;
+    bool                  grab = false;
 
     // NOLINTEND(*-non-private-member-variables-in-classes)
 
@@ -33,11 +34,14 @@ struct options {
 void print_help() {
     fmt::println(R"TEXT(Usage: foresight [options] [action]
   arguments:
-        -h | --help          print help
+        -h | --help                  Print help.
 
   actions:
-        intercept [file]     intercept the keyboard and print everything to stdout
-        help                 print help
+        intercept [file]             Intercept the keyboard and print everything to stdout.
+                  -g | --grab        Grab the input (stops everyone else from using the input);
+                                          only use this if you know what you're doing!
+
+        help                         Print help.
 )TEXT");
 }
 
@@ -66,6 +70,10 @@ options check_opts(int const argc, char const* const* argv) {
 
         switch (opts.action) {
             case intercept: {
+                if (opt == "--grab" || opt == "-g") {
+                    opts.grab = true;
+                    break;
+                }
                 opts.file = opt;
                 if (auto const status = std::filesystem::status(opts.file); !exists(status)) {
                     throw std::invalid_argument(fmt::format("File does not exist: {}", opts.file.string()));
@@ -81,6 +89,15 @@ options check_opts(int const argc, char const* const* argv) {
         }
     }
 
+    switch (opts.action) {
+        case intercept:
+            if (opts.file.empty()) {
+                throw std::invalid_argument("Please provide /dev/input/eventX file as an argument.");
+            }
+            break;
+        default: break;
+    }
+
     return opts;
 }
 
@@ -88,11 +105,17 @@ int run_action(options const& opts) {
     using enum options::action_type;
     switch (opts.action) {
         case none:
-        case help: print_help(); return EXIT_FAILURE;
-
+        case help: {
+            print_help();
+            return EXIT_FAILURE;
+        }
         case intercept: {
             interceptor inpor{opts.file};
-            return EXIT_SUCCESS;
+            inpor.set_output(stderr);
+            if (opts.grab) {
+                inpor.grab_input();
+            }
+            return inpor.loop();
         }
         default: {
             keyboard kbd;
@@ -106,8 +129,10 @@ int main(int const argc, char const* const* argv) try
 {
     auto const opts = check_opts(argc, argv);
     return run_action(opts);
+} catch (std::invalid_argument const& err) {
+    fmt::println(stderr, "{}", err.what());
 } catch (std::exception const& err) {
-    fmt::println(stderr, "Fatal exception: {}", err.what());
+    spdlog::critical("Fatal exception: {}", err.what());
 } catch (...) {
-    fmt::println(stderr, "Fatal unknown exception.");
+    spdlog::critical("Fatal unknown exception.");
 }

@@ -27,6 +27,9 @@ evdev::evdev(std::filesystem::path const& file) {
 }
 
 evdev::~evdev() {
+    if (grabbed) {
+        libevdev_grab(dev, LIBEVDEV_UNGRAB);
+    }
     if (dev != nullptr) {
         libevdev_free(dev);
     }
@@ -50,6 +53,14 @@ void evdev::set_file(std::filesystem::path const& file) {
         close(file_descriptor);
         file_descriptor = -1;
         spdlog::critical("Failed to set file for libevdev ({})\n", strerror(-res_rc));
+    }
+}
+
+void evdev::grab_input() {
+    if (libevdev_grab(dev, LIBEVDEV_GRAB) < 0) {
+        spdlog::error("Grabbing the input failed.");
+    } else {
+        grabbed = true;
     }
 }
 

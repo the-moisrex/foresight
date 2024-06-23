@@ -27,6 +27,8 @@ export struct evdev {
         return dev == nullptr;
     }
 
+    void grab_input();
+
     /**
      * Retrieve the device's name, either as set by the caller or as read from
      * the kernel. The string returned is valid until libevdev_free() or until
@@ -39,4 +41,5 @@ export struct evdev {
   private:
     int file_descriptor = -1;
     libevdev* dev = nullptr;
+    bool grabbed = false;
 };
