@@ -1,7 +1,6 @@
 #include <exception>
 #include <filesystem>
-#include <format>
-#include <print>
+#include <fmt/core.h>
 #include <string_view>
 #include <utility>
 import foresight.keyboard;
@@ -17,6 +16,7 @@ struct options {
 
     /// intercept file
     std::filesystem::path file;
+
     // NOLINTEND(*-non-private-member-variables-in-classes)
 
     void set_action(action_type const inp_action) {
@@ -24,14 +24,14 @@ struct options {
             return;
         }
         if (action != action_type::none) {
-            throw std::invalid_argument(std::format("Invalid argument syntax, two actions provided."));
+            throw std::invalid_argument(fmt::format("Invalid argument syntax, two actions provided."));
         }
         action = inp_action;
     }
 };
 
 void print_help() {
-    std::println(R"TEXT(Usage: foresight [options] [action]
+    fmt::println(R"TEXT(Usage: foresight [options] [action]
   arguments:
         -h | --help          print help
 
@@ -68,15 +68,15 @@ options check_opts(int const argc, char const* const* argv) {
             case intercept: {
                 opts.file = opt;
                 if (auto const status = std::filesystem::status(opts.file); !exists(status)) {
-                    throw std::invalid_argument(std::format("File does not exist: {}", opts.file.string()));
+                    throw std::invalid_argument(fmt::format("File does not exist: {}", opts.file.string()));
                 } else if (!is_character_file(status)) {
-                    throw std::invalid_argument(std::format("It's not a file: {}", opts.file.string()));
+                    throw std::invalid_argument(fmt::format("It's not a file: {}", opts.file.string()));
                 }
                 return opts;
             }
 
             default: {
-                throw std::invalid_argument(std::format("Invalid argument {}", opt));
+                throw std::invalid_argument(fmt::format("Invalid argument {}", opt));
             }
         }
     }
@@ -84,7 +84,7 @@ options check_opts(int const argc, char const* const* argv) {
     return opts;
 }
 
-int run_action(options const opts) {
+int run_action(options const& opts) {
     using enum options::action_type;
     switch (opts.action) {
         case none:
@@ -99,7 +99,7 @@ int run_action(options const opts) {
             return kbd.loop();
         }
     }
-    std::unreachable();
+    // std::unreachable();
 }
 
 int main(int const argc, char const* const* argv) try
@@ -107,7 +107,7 @@ int main(int const argc, char const* const* argv) try
     auto const opts = check_opts(argc, argv);
     return run_action(opts);
 } catch (std::exception const& err) {
-    std::println(stderr, "Fatal exception: {}", err.what());
+    fmt::println(stderr, "Fatal exception: {}", err.what());
 } catch (...) {
-    std::println(stderr, "Fatal unknown exception.");
+    fmt::println(stderr, "Fatal unknown exception.");
 }

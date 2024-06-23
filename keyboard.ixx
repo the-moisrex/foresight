@@ -5,11 +5,9 @@ module;
 #include <string>
 #include <string_view>
 #include <vector>
-
 export module foresight.keyboard;
-
-import foresight.translate;
 import foresight.evdev;
+import foresight.translate;
 
 
 export constexpr std::size_t give_up_limit = 5;
