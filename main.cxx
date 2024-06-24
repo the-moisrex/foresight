@@ -35,16 +35,57 @@ struct options {
 };
 
 void print_help() {
-    fmt::println(R"TEXT(Usage: foresight [options] [action]
+    fmt::println("{}",   R"TEXT(Usage: foresight [options] [action]
   arguments:
-        -h | --help                  Print help.
+    -h | --help          Print help.
 
   actions:
-        intercept [file]             Intercept the keyboard and print everything to stdout.
-                  -g | --grab        Grab the input (stops everyone else from using the input);
-                                          only use this if you know what you're doing!
+    intercept [files...] Intercept the files and print everything to stdout.
+       -g | --grab       Grab the input.
+                         Stops everyone else from using the input.
+                         Only use this if you know what you're doing!
 
-        help                         Print help.
+    redirect [files...]  Redirect stdin to the specified files.
+
+    help                 Print help.
+
+  Example Usages:
+    $ export keyboard=/dev/input/event1
+    $ foresight intercept $keyboard | x2y | foresight redirect $keyboard
+      -----------------------------   ---   ----------------------------
+        |                              |      |
+        |                              |      |
+        |                              |      |
+        |                              |      |
+        `----> Intercept the input     |      `---> put the modified input back
+                                      /
+                                     /
+                                    /
+             -----------------------
+            /
+    $ cat x2y.c  # you can do it with any programming language you'd like
+      #include <stdio.h>
+      #include <stdlib.h>
+      #include <linux/input.h>
+
+      int main(void) {
+          setbuf(stdin, NULL);   // disable stdin buffer
+          setbuf(stdout, NULL);  // disable stdout buffer
+
+          struct input_event event;
+
+          // read from the input
+          while (fread(&event, sizeof(event), 1, stdin) == 1) {
+
+              // modify the input however you like
+              if (event.type == EV_KEY && event.code == KEY_X)
+                  event.code = KEY_Y;
+
+              // write it to stdout
+              fwrite(&event, sizeof(event), 1, stdout);
+          }
+      }
+
 )TEXT");
 }
 

@@ -1,12 +1,10 @@
 // Created by moisrex on 6/18/24.
 
 module;
-
+#include <atomic>
 #include <filesystem>
 #include <libevdev/libevdev.h>
 #include <string_view>
-#include <atomic>
-
 export module foresight.evdev;
 
 /**
@@ -14,10 +12,10 @@ export module foresight.evdev;
  */
 export struct evdev {
     explicit evdev(std::filesystem::path const& file);
-             evdev(evdev&&)          = default;
+             evdev(evdev&&)          = delete;
              evdev(evdev const&)     = delete;
     evdev&   operator=(evdev const&) = delete;
-    evdev&   operator=(evdev&&)      = default;
+    evdev&   operator=(evdev&&)      = delete;
     ~        evdev();
 
     /// change the input event file (for example /dev/input/eventX)
@@ -46,8 +44,8 @@ export struct evdev {
     [[nodiscard]] input_event next();
 
   private:
-    int file_descriptor = -1;
-    libevdev* dev = nullptr;
-    bool grabbed = false;
-    std::atomic_bool is_stopped = false;
+    int              file_descriptor = -1;
+    libevdev*        dev             = nullptr;
+    std::atomic_bool is_stopped      = false;
+    bool             grabbed         = false;
 };
