@@ -50,7 +50,7 @@ void print_help() {
     help                 Print help.
 
   Example Usages:
-    $ export keyboard=/dev/input/event1
+    $ keyboard=/dev/input/event1
     $ foresight intercept $keyboard | x2y | foresight redirect $keyboard
       -----------------------------   ---   ----------------------------
         |                              |      |
