@@ -18,8 +18,8 @@ struct options {
     } action = action_type::none;
 
     /// intercept file
-    std::filesystem::path file;
-    bool                  grab = false;
+    std::vector<std::filesystem::path> files;
+    bool                               grab = false;
 
     // NOLINTEND(*-non-private-member-variables-in-classes)
 
@@ -35,7 +35,7 @@ struct options {
 };
 
 void print_help() {
-    fmt::println("{}",   R"TEXT(Usage: foresight [options] [action]
+    fmt::println("{}", R"TEXT(Usage: foresight [options] [action]
   arguments:
     -h | --help          Print help.
 
@@ -63,7 +63,7 @@ void print_help() {
                                     /
              -----------------------
             /
-    $ cat x2y.c  # you can do it with any programming language you'd like
+    $ cat x2y.c  # you can do it with any programming language you like
       #include <stdio.h>
       #include <stdlib.h>
       #include <linux/input.h>
@@ -78,6 +78,7 @@ void print_help() {
           while (fread(&event, sizeof(event), 1, stdin) == 1) {
 
               // modify the input however you like
+              // here, we change "x" to "y"
               if (event.type == EV_KEY && event.code == KEY_X)
                   event.code = KEY_Y;
 
@@ -118,13 +119,15 @@ options check_opts(int const argc, char const* const* argv) {
                     opts.grab = true;
                     break;
                 }
-                opts.file = opt;
-                if (auto const status = std::filesystem::status(opts.file); !exists(status)) {
-                    throw std::invalid_argument(fmt::format("File does not exist: {}", opts.file.string()));
+                opts.files.emplace_back(opt);
+                if (auto const status = std::filesystem::status(opts.files.back()); !exists(status)) {
+                    throw std::invalid_argument(
+                      fmt::format("File does not exist: {}", opts.files.back().string()));
                 } else if (!is_character_file(status)) {
-                    throw std::invalid_argument(fmt::format("It's not a file: {}", opts.file.string()));
+                    throw std::invalid_argument(
+                      fmt::format("It's not a file: {}", opts.files.back().string()));
                 }
-                return opts;
+                break;
             }
 
             default: {
@@ -135,7 +138,7 @@ options check_opts(int const argc, char const* const* argv) {
 
     switch (opts.action) {
         case intercept:
-            if (opts.file.empty()) {
+            if (opts.files.empty()) {
                 throw std::invalid_argument("Please provide /dev/input/eventX file as an argument.");
             }
             break;
@@ -168,8 +171,8 @@ int run_action(options const& opts) {
             return EXIT_FAILURE;
         }
         case intercept: {
-            interceptor inpor{opts.file};
-            inpor.set_output(stderr);
+            interceptor inpor{opts.files};
+            inpor.set_output(stdout);
             if (opts.grab) {
                 inpor.grab_input();
             }

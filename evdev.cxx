@@ -72,28 +72,30 @@ std::string_view evdev::device_name() const noexcept {
     return libevdev_get_name(dev);
 }
 
-input_event evdev::next() {
+std::optional<input_event> evdev::next(bool const sync) {
     input_event input;
 
-    while (!is_stopped) {
+    for (;;) {
         switch (int const rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &input)) {
             case LIBEVDEV_READ_STATUS_SYNC:
-            case -EAGAIN: continue;
+            case -EAGAIN: break;
             // case LIBEVDEV_READ_STATUS_SYNC:
             //     while (rc == LIBEVDEV_READ_STATUS_SYNC) {
             //         rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_SYNC, &input);
             //     }
             //     break;
             case LIBEVDEV_READ_STATUS_SUCCESS: {
-                break;
+                return input;
             }
             default: {
                 spdlog::critical("Failed error from libevdev_next_event ({})\n", rc);
-                break;
+                return std::nullopt;
             }
         }
 
-        return input;
+        if (sync || !is_stopped) {
+            return std::nullopt;
+        }
     }
-    return input_event{};
+    return std::nullopt;
 }

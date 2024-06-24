@@ -4,7 +4,9 @@ module;
 #include <atomic>
 #include <filesystem>
 #include <libevdev/libevdev.h>
+#include <optional>
 #include <string_view>
+#include <utility>
 export module foresight.evdev;
 
 /**
@@ -12,11 +14,27 @@ export module foresight.evdev;
  */
 export struct evdev {
     explicit evdev(std::filesystem::path const& file);
-             evdev(evdev&&)          = delete;
-             evdev(evdev const&)     = delete;
-    evdev&   operator=(evdev const&) = delete;
-    evdev&   operator=(evdev&&)      = delete;
-    ~        evdev();
+
+    evdev(evdev&& inp) noexcept
+      : file_descriptor{std::exchange(inp.file_descriptor, -1)},
+        dev{std::exchange(inp.dev, nullptr)},
+        is_stopped{inp.is_stopped.load()},
+        grabbed{inp.grabbed} {}
+
+           evdev(evdev const&)     = delete;
+    evdev& operator=(evdev const&) = delete;
+
+    evdev& operator=(evdev&& other) noexcept {
+        if (this != &other) {
+            file_descriptor = std::exchange(other.file_descriptor, -1);
+            dev             = std::exchange(other.dev, nullptr);
+            is_stopped      = other.is_stopped.load();
+            grabbed         = other.grabbed;
+        }
+        return *this;
+    }
+
+    ~evdev();
 
     /// change the input event file (for example /dev/input/eventX)
     void set_file(std::filesystem::path const& file);
@@ -41,7 +59,11 @@ export struct evdev {
      */
     [[nodiscard]] std::string_view device_name() const noexcept;
 
-    [[nodiscard]] input_event next();
+    /**
+     * Get a new input_event form the input device
+     * @param sync set true if you don't want it to wait
+     */
+    [[nodiscard]] std::optional<input_event> next(bool sync = false);
 
   private:
     int              file_descriptor = -1;

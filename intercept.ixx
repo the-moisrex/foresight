@@ -2,6 +2,8 @@
 
 module;
 #include <filesystem>
+#include <span>
+#include <vector>
 export module foresight.intercept;
 import foresight.evdev;
 
@@ -9,7 +11,7 @@ import foresight.evdev;
  * Intercept the keyboard and print them into stdout
  */
 export struct interceptor {
-    explicit interceptor(std::filesystem::path const& inp_path);
+    interceptor(std::span<std::filesystem::path const> inp_paths);
 
     /**
      * Set output file descriptor
@@ -34,6 +36,6 @@ export struct interceptor {
     void stop(bool should_stop = true);
 
   private:
-    FILE*            out_fd = stdout;
-    evdev            dev;
+    FILE*              out_fd = stdout;
+    std::vector<evdev> devs;
 };
