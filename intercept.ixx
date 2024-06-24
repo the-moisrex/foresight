@@ -28,7 +28,12 @@ export struct interceptor {
      */
     int loop();
 
+    /**
+     * Stop the loop
+     */
+    void stop(bool should_stop = true);
+
   private:
-    FILE* out_fd = stdout;
-    evdev dev;
+    FILE*            out_fd = stdout;
+    evdev            dev;
 };

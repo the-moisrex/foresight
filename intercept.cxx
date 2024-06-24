@@ -20,13 +20,17 @@ void interceptor::grab_input() {
 }
 
 int interceptor::loop() {
-    for (;;) {
+    while (!dev.is_done()) {
         auto const input = dev.next();
         for (std::size_t retry_count = 0; std::fwrite(&input, sizeof(input), 1, out_fd) != 1; ++retry_count) {
-            if (retry_count == 5) {
+            if (dev.is_done() || retry_count == 5) {
                 break; // skip this write
             }
         }
     }
     return EXIT_SUCCESS;
+}
+
+void interceptor::stop(bool const should_stop) {
+    dev.stop(should_stop);
 }

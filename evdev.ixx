@@ -5,6 +5,7 @@ module;
 #include <filesystem>
 #include <libevdev/libevdev.h>
 #include <string_view>
+#include <atomic>
 
 export module foresight.evdev;
 
@@ -29,6 +30,12 @@ export struct evdev {
 
     void grab_input();
 
+    void stop(bool should_stop = true);
+
+    [[nodiscard]] bool is_done() const noexcept {
+        return is_stopped.load();
+    }
+
     /**
      * Retrieve the device's name, either as set by the caller or as read from
      * the kernel. The string returned is valid until libevdev_free() or until
@@ -42,4 +49,5 @@ export struct evdev {
     int file_descriptor = -1;
     libevdev* dev = nullptr;
     bool grabbed = false;
+    std::atomic_bool is_stopped = false;
 };

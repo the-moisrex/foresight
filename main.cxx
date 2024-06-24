@@ -1,8 +1,11 @@
+#include <csignal>
 #include <exception>
 #include <filesystem>
 #include <fmt/core.h>
+#include <functional>
 #include <spdlog/spdlog.h>
 #include <string_view>
+#include <vector>
 import foresight.keyboard;
 import foresight.intercept;
 
@@ -101,6 +104,20 @@ options check_opts(int const argc, char const* const* argv) {
     return opts;
 }
 
+namespace {
+    // NOLINTBEGIN(*-avoid-non-const-global-variables)
+    std::sig_atomic_t volatile sig;
+    std::vector<std::function<void(std::sig_atomic_t)>> actions{};
+    // NOLINTEND(*-avoid-non-const-global-variables)
+} // namespace
+
+void handle_signals(int const signal) {
+    sig = signal;
+    for (auto const& func : actions) {
+        func(sig);
+    }
+}
+
 int run_action(options const& opts) {
     using enum options::action_type;
     switch (opts.action) {
@@ -115,6 +132,14 @@ int run_action(options const& opts) {
             if (opts.grab) {
                 inpor.grab_input();
             }
+            actions.emplace_back([&inpor](std::sig_atomic_t const sig) {
+                switch (sig) {
+                    case SIGINT:
+                    case SIGKILL:
+                    case SIGTERM: inpor.stop(); break;
+                    default: break;
+                }
+            });
             return inpor.loop();
         }
         default: {
@@ -127,6 +152,10 @@ int run_action(options const& opts) {
 
 int main(int const argc, char const* const* argv) try
 {
+    std::ignore = std::signal(SIGINT, handle_signals);
+    std::ignore = std::signal(SIGTERM, handle_signals);
+    std::ignore = std::signal(SIGKILL, handle_signals);
+
     auto const opts = check_opts(argc, argv);
     return run_action(opts);
 } catch (std::invalid_argument const& err) {

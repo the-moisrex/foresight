@@ -8,7 +8,7 @@ module;
 module foresight.evdev;
 
 evdev::evdev(std::filesystem::path const& file) {
-    file_descriptor = open(file.c_str(), O_RDWR);
+    file_descriptor = open(file.c_str(), O_RDWR | O_NONBLOCK);
 
     if (file_descriptor < 0) {
         return;
@@ -43,7 +43,7 @@ void evdev::set_file(std::filesystem::path const& file) {
         close(file_descriptor);
     }
 
-    file_descriptor = open(file.c_str(), O_RDWR);
+    file_descriptor = open(file.c_str(), O_RDWR | O_NONBLOCK);
 
     if (file_descriptor < 0) {
         return;
@@ -64,23 +64,26 @@ void evdev::grab_input() {
     }
 }
 
+void evdev::stop(bool const should_stop) {
+    is_stopped = should_stop;
+}
+
 std::string_view evdev::device_name() const noexcept {
     return libevdev_get_name(dev);
 }
 
 input_event evdev::next() {
-    for (;;) {
-        // rc     = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &input);
-        input_event input;
-        int rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL | LIBEVDEV_READ_FLAG_BLOCKING, &input);
+    input_event input;
 
-        switch (rc) {
-            case -EAGAIN: continue;
+    while (!is_stopped) {
+        switch (int const rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &input)) {
             case LIBEVDEV_READ_STATUS_SYNC:
-                while (rc == LIBEVDEV_READ_STATUS_SYNC) {
-                    rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_SYNC, &input);
-                }
-                break;
+            case -EAGAIN: continue;
+            // case LIBEVDEV_READ_STATUS_SYNC:
+            //     while (rc == LIBEVDEV_READ_STATUS_SYNC) {
+            //         rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_SYNC, &input);
+            //     }
+            //     break;
             case LIBEVDEV_READ_STATUS_SUCCESS: {
                 break;
             }
@@ -92,12 +95,5 @@ input_event evdev::next() {
 
         return input;
     }
-
-
-    // if (rc == 0) {
-    //     printf("Event: %s %s %d\n",
-    //            libevdev_event_type_get_name(input.type),
-    //            libevdev_event_code_get_name(input.type, input.code),
-    //            input.value);
-    // }
+    return input_event{};
 }
