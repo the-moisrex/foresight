@@ -42,8 +42,8 @@ target_sources(${PROJECT_NAME}
             main.cxx
             keyboard.cxx
             provider.cxx
-            evdev.cxx
-            intercept.cxx
+            intercept/evdev.cxx
+            intercept/intercept.cxx
         PUBLIC
             FILE_SET foresight TYPE CXX_MODULES
             BASE_DIRS
@@ -51,9 +51,9 @@ target_sources(${PROJECT_NAME}
             FILES
                 keyboard.ixx
                 provider.ixx
-                evdev.ixx
+                intercept/evdev.ixx
                 translate.ixx
-                intercept.ixx
+                intercept/intercept.ixx
 )
 
 # Libraries
