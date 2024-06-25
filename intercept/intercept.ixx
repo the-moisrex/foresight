@@ -11,7 +11,7 @@ import foresight.evdev;
  * Intercept the keyboard and print them into stdout
  */
 export struct interceptor {
-    interceptor(std::span<std::filesystem::path const> inp_paths);
+    explicit interceptor(std::span<std::filesystem::path const> inp_paths);
 
     /**
      * Set output file descriptor
