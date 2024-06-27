@@ -51,17 +51,17 @@ void print_help() {
 
   Example Usages:
     $ keyboard=/dev/input/event1
-    $ foresight intercept $keyboard | x2y | foresight redirect $keyboard
-      -----------------------------   ---   ----------------------------
-        |                              |      |
-        |                              |      |
-        |                              |      |
-        |                              |      |
-        `----> Intercept the input     |      `---> put the modified input back
-                                      /
-                                     /
-                                    /
-             -----------------------
+    $ foresight intercept -g $keyboard | x2y | foresight redirect $keyboard
+      --------------------------------   ---   ----------------------------
+        |                                 |      |
+        |                                 |      |
+        |                                 |      |
+        |                                 |      |
+        `----> Intercept the input        |      `---> put input back to device
+                                         /
+                                        /
+                                       /
+             --------------------------
             /
     $ cat x2y.c  # you can do it with any programming language you like
       #include <stdio.h>
@@ -106,7 +106,7 @@ options check_opts(int const argc, char const* const* argv) {
         opts.set_action(help);
     }
 
-    for (std::size_t index = 2; index < argc; ++index) {
+    for (std::size_t index = 2; index < static_cast<std::size_t>(argc); ++index) {
         std::string_view const opt{argv[index]}; // NOLINT(*-pro-bounds-pointer-arithmetic)
 
         if (opt == "--help" || opt == "-h") {
@@ -123,7 +123,7 @@ options check_opts(int const argc, char const* const* argv) {
                 if (auto const status = std::filesystem::status(opts.files.back()); !exists(status)) {
                     throw std::invalid_argument(
                       fmt::format("File does not exist: {}", opts.files.back().string()));
-                } else if (!is_character_file(status)) {
+                } else if (!is_character_file(status)) { // NOLINT(*-else-after-return)
                     throw std::invalid_argument(
                       fmt::format("It's not a file: {}", opts.files.back().string()));
                 }
@@ -203,6 +203,10 @@ int main(int const argc, char const* const* argv) try
     auto const opts = check_opts(argc, argv);
     return run_action(opts);
 } catch (std::invalid_argument const& err) {
+    fmt::println(stderr, "{}", err.what());
+} catch (std::system_error const& err) {
+    fmt::println(stderr, "System Error ({} {}): {}", err.code().value(), err.code().message(), err.what());
+} catch (std::domain_error const& err) {
     fmt::println(stderr, "{}", err.what());
 } catch (std::exception const& err) {
     spdlog::critical("Fatal exception: {}", err.what());

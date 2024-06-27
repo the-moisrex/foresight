@@ -57,7 +57,7 @@ int interceptor::loop() {
                  std::fwrite(&input.value(), sizeof(input_event), 1, out_fd) != 1;
                  ++retry_count)
             {
-                if (dev.is_done() || retry_count == 5) {
+                if (dev.is_done() || retry_count == 3) {
                     break; // skip this write
                 }
             }

@@ -38,6 +38,7 @@ export struct evdev {
 
     /// change the input event file (for example /dev/input/eventX)
     void set_file(std::filesystem::path const& file);
+    void set_file(int file);
 
     /// check if everything is okay
     [[nodiscard]] bool ok() const noexcept {
@@ -63,7 +64,7 @@ export struct evdev {
      * Get a new input_event form the input device
      * @param sync set true if you don't want it to wait
      */
-    [[nodiscard]] std::optional<input_event> next(bool sync = false);
+    [[nodiscard]] std::optional<input_event> next(bool sync = false) noexcept;
 
   private:
     int              file_descriptor = -1;

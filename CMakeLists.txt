@@ -1,6 +1,17 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.23...3.29.6)
+
 project(foresight
         LANGUAGES CXX)
+
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(IS_DEBUG TRUE)
+    message(STATUS "Debug mode is enabled.")
+else ()
+    set(IS_DEBUG FALSE)
+    message(STATUS "Debug mode is disabled.")
+endif ()
+
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(IS_GCC TRUE)
@@ -42,7 +53,7 @@ target_sources(${PROJECT_NAME}
             main.cxx
             keyboard.cxx
             provider.cxx
-            intercept/evdev.cxx
+            evdev/evdev.cxx
             intercept/intercept.cxx
         PUBLIC
             FILE_SET foresight TYPE CXX_MODULES
@@ -51,15 +62,16 @@ target_sources(${PROJECT_NAME}
             FILES
                 keyboard.ixx
                 provider.ixx
-                intercept/evdev.ixx
+                evdev/evdev.ixx
                 translate.ixx
                 intercept/intercept.ixx
+                redirect/redirect.ixx
 )
 
 # Libraries
 find_package(Threads REQUIRED)
 find_package(fmt REQUIRED)
-find_package(spdlog REQUIRED)
+#find_package(spdlog REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBEVDEV REQUIRED libevdev)
 
@@ -70,6 +82,6 @@ target_link_options(${PROJECT_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
 target_link_libraries(${PROJECT_NAME}
         PRIVATE Threads::Threads
         PRIVATE fmt::fmt
-        PRIVATE spdlog::spdlog
+#        PRIVATE spdlog::spdlog
         PRIVATE evdev
 )
