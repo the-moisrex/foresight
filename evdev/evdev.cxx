@@ -75,6 +75,14 @@ void evdev::set_file(int const file) {
     }
 }
 
+int evdev::native_handle() const noexcept {
+    return file_descriptor;
+}
+
+libevdev* evdev::device_ptr() const noexcept {
+    return dev;
+}
+
 void evdev::grab_input() {
     if (libevdev_grab(dev, LIBEVDEV_GRAB) < 0) {
         throw std::domain_error("Grabbing the input failed.");

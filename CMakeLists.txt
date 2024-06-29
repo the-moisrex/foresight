@@ -54,6 +54,7 @@ target_sources(${PROJECT_NAME}
             keyboard.cxx
             provider.cxx
             evdev/evdev.cxx
+            uinput/uinput.cxx
             intercept/intercept.cxx
         PUBLIC
             FILE_SET foresight TYPE CXX_MODULES
@@ -65,7 +66,8 @@ target_sources(${PROJECT_NAME}
                 evdev/evdev.ixx
                 translate.ixx
                 intercept/intercept.ixx
-                redirect/redirect.ixx
+                uinput/redirect.ixx
+                uinput/uinput.ixx
 )
 
 # Libraries

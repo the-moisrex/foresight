@@ -40,6 +40,9 @@ export struct evdev {
     void set_file(std::filesystem::path const& file);
     void set_file(int file);
 
+    [[nodiscard]] int native_handle() const noexcept;
+    [[nodiscard]] libevdev* device_ptr() const noexcept;
+
     /// check if everything is okay
     [[nodiscard]] bool ok() const noexcept {
         return dev == nullptr;
