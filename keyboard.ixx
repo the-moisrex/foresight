@@ -28,9 +28,9 @@ export struct keyboard {
 
     void backspace(std::size_t count = 1);
     void put(std::string_view text);
-    void put(input_event event);
+    void put(input_event ev);
 
-    void buffer(input_event &event);
+    void buffer(input_event &ev);
 
     // this loop is the main loop
     int loop() noexcept;

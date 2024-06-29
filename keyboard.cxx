@@ -4,9 +4,9 @@ module;
 
 #include <algorithm>
 #include <cstdio>
+#include <fmt/core.h>
 #include <linux/input.h>
 #include <ranges>
-#include <spdlog/spdlog.h>
 #include <thread>
 
 module foresight.keyboard;
@@ -32,34 +32,35 @@ void keyboard::replace(std::string_view const replace_it, std::string_view const
 
 void keyboard::backspace(std::size_t count) {
     for (; count != 0; count--) {
-        put(input_event{.type = EV_KEY, .code = KEY_BACKSPACE});
+        put(input_event{.time = timeval{}, .type = EV_KEY, .code = KEY_BACKSPACE, .value = 0});
     }
 }
 
 void keyboard::put(std::string_view const text) {
     for (auto const cur_char : text) {
-        put(input_event{.type  = EV_KEY,                              // key type
+        put(input_event{.time  = timeval{},
+                        .type  = EV_KEY,                              // key type
                         .code  = static_cast<std::uint8_t>(cur_char), // code
                         .value = KEY_PRESS});
     }
 }
 
-void keyboard::put(input_event event) {
-    event.value = KEY_PRESS;
-    if (auto const press_res = std::fwrite(&event, sizeof(event), 1, stdout); press_res == 0) {
-        spdlog::error("Failed to press {:d}", event.code);
+void keyboard::put(input_event ev) {
+    ev.value = KEY_PRESS;
+    if (auto const press_res = std::fwrite(&ev, sizeof(ev), 1, stdout); press_res == 0) {
+        fmt::println(stderr, "Failed to press {:d}", ev.code);
         return;
     }
 
-    event.value = KEY_RELEASE;
-    if (auto const release_res = fwrite(&event, sizeof(event), 1, stdout); release_res == 0) {
+    ev.value = KEY_RELEASE;
+    if (auto const release_res = fwrite(&ev, sizeof(ev), 1, stdout); release_res == 0) {
         // todo: Oh, SH*T, should we put this in a retry loop until release?
-        spdlog::error("Failed to release {:d}", event.code);
+        fmt::println(stderr, "Failed to release {:d}", ev.code);
     }
 }
 
-void keyboard::buffer(input_event &event) {
-    switch (event.value) {
+void keyboard::buffer(input_event &ev) {
+    switch (ev.value) {
         case KEY_PRESS: {
             break;
         }
@@ -74,7 +75,7 @@ void keyboard::buffer(input_event &event) {
     if (events.size() > 500) {
         events.clear();
     }
-    events.push_back(event);
+    events.push_back(ev);
 }
 
 // true: try again
@@ -83,9 +84,9 @@ bool handle_errors() {
     static std::size_t tries = 1;
     ++tries;
     if (tries == give_up_limit + 1) {
-        spdlog::critical(
-          "Tried {0:d} times and failed everytime to start the loop (or in the loop); giving up!",
-          tries);
+        fmt::println(stderr,
+                     "Tried {0:d} times and failed everytime to start the loop (or in the loop); giving up!",
+                     tries);
         return false;
     }
     return true;
@@ -100,17 +101,18 @@ int keyboard::loop() noexcept {
             }
 
             if (auto const out_res = std::fwrite(&event, sizeof(event), 1, stdout); out_res == 0) {
-                spdlog::error("Can't send {}.", event.code);
+                fmt::println(stderr, "Can't send {}.", event.code);
             }
         }
     } catch (std::exception const &ex) {
-        spdlog::error("Error: \"{0:s}\" at the main loop.", ex.what());
+        fmt::println(stderr, "Error: \"{0:s}\" at the main loop.", ex.what());
         if (handle_errors()) {
             return loop();
         }
         return 1;
     } catch (...) {
-        spdlog::error(
+        fmt::println(
+          stderr,
           "Unknown error occurred. Try reporting this at https://github.com/the-moisrex/foresight.");
         if (handle_errors()) {
             return loop();

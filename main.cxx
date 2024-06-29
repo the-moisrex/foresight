@@ -3,7 +3,6 @@
 #include <filesystem>
 #include <fmt/core.h>
 #include <functional>
-#include <spdlog/spdlog.h>
 #include <string_view>
 #include <vector>
 import foresight.keyboard;
@@ -36,10 +35,10 @@ struct options {
 
 void print_help() {
     fmt::println("{}", R"TEXT(Usage: foresight [options] [action]
-  arguments:
+  Arguments:
     -h | --help          Print help.
 
-  actions:
+  Actions:
     intercept [files...] Intercept the files and print everything to stdout.
        -g | --grab       Grab the input.
                          Stops everyone else from using the input.
@@ -209,7 +208,7 @@ int main(int const argc, char const* const* argv) try
 } catch (std::domain_error const& err) {
     fmt::println(stderr, "{}", err.what());
 } catch (std::exception const& err) {
-    spdlog::critical("Fatal exception: {}", err.what());
+    fmt::println(stderr, "Fatal exception: {}", err.what());
 } catch (...) {
-    spdlog::critical("Fatal unknown exception.");
+    fmt::println(stderr, "Fatal unknown exception.");
 }
