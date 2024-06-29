@@ -7,6 +7,7 @@ module;
 #include <filesystem>
 #include <linux/input.h>
 #include <span>
+#include <thread>
 module foresight.intercept;
 
 interceptor::interceptor(std::span<std::filesystem::path const> inp_paths) {
@@ -53,11 +54,9 @@ int interceptor::loop() {
             }
 
             // write to the output, and retry if it doesn't work:
-            for (std::size_t retry_count = 0;
-                 std::fwrite(&input.value(), sizeof(input_event), 1, out_fd) != 1;
-                 ++retry_count)
-            {
-                if (dev.is_done() || retry_count == 3) {
+            while (std::fwrite(&input.value(), sizeof(input_event), 1, out_fd) != 1) {
+                std::this_thread::yield();
+                if (dev.is_done()) {
                     break; // skip this write
                 }
             }

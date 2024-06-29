@@ -53,9 +53,13 @@ void keyboard::put(input_event ev) {
     }
 
     ev.value = KEY_RELEASE;
-    if (auto const release_res = fwrite(&ev, sizeof(ev), 1, stdout); release_res == 0) {
-        // todo: Oh, SH*T, should we put this in a retry loop until release?
-        fmt::println(stderr, "Failed to release {:d}", ev.code);
+
+    // keep retrying
+    for (;;) {
+        if (auto const release_res = fwrite(&ev, sizeof(ev), 1, stdout); release_res == 1) {
+            break;
+        }
+        std::this_thread::yield();
     }
 }
 
