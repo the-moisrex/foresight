@@ -4,14 +4,21 @@ module;
 #include <filesystem>
 #include <span>
 #include <vector>
+#include <atomic>
 export module foresight.redirect;
-import foresight.evdev;
+export import foresight.uinput;
 
 /**
  * Intercept the keyboard and print them into stdout
  */
 export struct redirector {
-    explicit redirector(std::span<std::filesystem::path const> inp_paths);
+
+    struct device_pending {
+        uinput dev;
+        std::size_t pending = 0;
+    };
+
+    redirector() = default;
 
     /**
      * Set output file descriptor
@@ -24,6 +31,9 @@ export struct redirector {
      */
     int loop();
 
+
+    void append(uinput&& dev);
+
     /**
      * Stop the loop
      */
@@ -31,5 +41,6 @@ export struct redirector {
 
   private:
     FILE*              inp_fd = stdin;
-    std::vector<evdev> devs;
+    std::vector<device_pending> devs;
+    std::atomic_bool started = false;
 };

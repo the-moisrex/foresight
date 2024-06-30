@@ -7,6 +7,7 @@
 #include <vector>
 import foresight.keyboard;
 import foresight.intercept;
+import foresight.redirect;
 
 struct options {
     // NOLINTBEGIN(*-non-private-member-variables-in-classes)
@@ -14,6 +15,7 @@ struct options {
         none = 0,
         help,
         intercept,
+        redirect,
     } action = action_type::none;
 
     /// intercept file
@@ -103,6 +105,8 @@ options check_opts(int const argc, char const* const* argv) {
         opts.set_action(intercept);
     } else if (action_str == "help") {
         opts.set_action(help);
+    } else if (action_str == "redirect" || action_str == "to") {
+        opts.set_action(redirect);
     }
 
     for (std::size_t index = 2; index < static_cast<std::size_t>(argc); ++index) {
@@ -118,6 +122,18 @@ options check_opts(int const argc, char const* const* argv) {
                     opts.grab = true;
                     break;
                 }
+                opts.files.emplace_back(opt);
+                if (auto const status = std::filesystem::status(opts.files.back()); !exists(status)) {
+                    throw std::invalid_argument(
+                      fmt::format("File does not exist: {}", opts.files.back().string()));
+                } else if (!is_character_file(status)) { // NOLINT(*-else-after-return)
+                    throw std::invalid_argument(
+                      fmt::format("It's not a file: {}", opts.files.back().string()));
+                }
+                break;
+            }
+
+            case redirect: {
                 opts.files.emplace_back(opt);
                 if (auto const status = std::filesystem::status(opts.files.back()); !exists(status)) {
                     throw std::invalid_argument(
@@ -184,6 +200,12 @@ int run_action(options const& opts) {
                 }
             });
             return inpor.loop();
+        }
+
+        case redirect: {
+            redirector rdtor;
+            rdtor.set_input(stdin);
+            return rdtor.loop();
         }
         default: {
             keyboard kbd;

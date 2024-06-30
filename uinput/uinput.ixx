@@ -1,7 +1,6 @@
 // Created by moisrex on 6/29/24.
 
 module;
-#include <filesystem>
 #include <libevdev/libevdev-uinput.h>
 #include <system_error>
 export module foresight.uinput;

@@ -55,6 +55,7 @@ target_sources(${PROJECT_NAME}
             provider.cxx
             evdev/evdev.cxx
             uinput/uinput.cxx
+            uinput/redirect.cxx
             intercept/intercept.cxx
         PUBLIC
             FILE_SET foresight TYPE CXX_MODULES
