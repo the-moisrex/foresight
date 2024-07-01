@@ -201,10 +201,17 @@ int run_action(options const& opts) {
             });
             return inpor.loop();
         }
-
         case redirect: {
             redirector rdtor;
             rdtor.set_input(stdin);
+            actions.emplace_back([&rdtor](std::sig_atomic_t const sig) {
+                switch (sig) {
+                    case SIGINT:
+                    case SIGKILL:
+                    case SIGTERM: rdtor.stop(); break;
+                    default: break;
+                }
+            });
             return rdtor.loop();
         }
         default: {

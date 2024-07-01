@@ -1,10 +1,9 @@
 // Created by moisrex on 6/25/24.
 
 module;
-#include <filesystem>
-#include <span>
-#include <vector>
 #include <atomic>
+#include <filesystem>
+#include <vector>
 export module foresight.redirect;
 export import foresight.uinput;
 
@@ -12,9 +11,8 @@ export import foresight.uinput;
  * Intercept the keyboard and print them into stdout
  */
 export struct redirector {
-
     struct device_pending {
-        uinput dev;
+        uinput      dev;
         std::size_t pending = 0;
     };
 
@@ -37,10 +35,10 @@ export struct redirector {
     /**
      * Stop the loop
      */
-    void stop(bool should_stop = true);
+    void stop();
 
   private:
-    FILE*              inp_fd = stdin;
+    FILE*                       inp_fd = stdin;
     std::vector<device_pending> devs;
-    std::atomic_bool started = false;
+    std::atomic_bool            started = false;
 };

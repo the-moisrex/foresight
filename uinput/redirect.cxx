@@ -23,8 +23,12 @@ void redirector::append(uinput&& dev) {
     devs.emplace_back(std::move(dev));
 }
 
+void redirector::stop() {
+    started = false;
+}
+
 struct failure_type {
-    failure_type(device_pending& dev, input_event inp_input) noexcept
+    failure_type(device_pending& dev, input_event const& inp_input) noexcept
       : err{dev.dev.error()},
         dev_ptr{std::addressof(dev)},
         input{inp_input} {}
@@ -66,7 +70,7 @@ int redirector::loop() {
 
     while (std::fread(&input, sizeof(input), 1, inp_fd) == 1) {
         for (auto& dev : devs) {
-            // add it to the pendings list if the old events are not written:
+            // add it to the pending list if the old events are not written:
             if (dev.pending != 0) {
                 failures.emplace_back(dev, input);
                 continue; // skip writing
@@ -84,6 +88,9 @@ int redirector::loop() {
             return failure.retry();
         });
         failures.erase(first, last);
+        if (!started) {
+            break;
+        }
     }
 
     started = false;
