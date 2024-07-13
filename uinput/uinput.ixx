@@ -80,5 +80,5 @@ export class uinput {
 
   private:
     libevdev_uinput* dev = nullptr;
-    std::error_code  err; // you can use std::expected<..., error_code> instead of this, but we're in C++20
+    std::error_code  err; // we can use std::expected<..., error_code> instead of this, but we're using C++20
 };

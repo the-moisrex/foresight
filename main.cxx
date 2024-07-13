@@ -172,6 +172,8 @@ namespace {
     } // namespace
 
     void handle_signals(int const signal) {
+        // let's not care about race conditions here, shall we?
+        // I like to live dangerously here in `foresight` land.
         sig = signal;
         for (auto const& func : actions) {
             func(sig);

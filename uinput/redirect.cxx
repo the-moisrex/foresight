@@ -58,7 +58,7 @@ struct failure_type {
 
   private:
     std::error_code err;
-    device_pending* dev_ptr;
+    device_pending* dev_ptr = nullptr;
     input_event     input;
 };
 
