@@ -7,7 +7,6 @@ module foresight.redirect;
 
 using device_pending = redirector::device_pending;
 
-
 void redirector::set_input(FILE* inp_in_fd) noexcept {
     inp_fd = inp_in_fd;
 
@@ -27,40 +26,42 @@ void redirector::stop() {
     started = false;
 }
 
-struct failure_type {
-    failure_type(device_pending& dev, input_event const& inp_input) noexcept
-      : err{dev.dev.error()},
-        dev_ptr{std::addressof(dev)},
-        input{inp_input} {}
+namespace {
+    struct failure_type {
+        failure_type(device_pending& dev, input_event const& inp_input) noexcept
+          : err{dev.dev.error()},
+            dev_ptr{std::addressof(dev)},
+            input{inp_input} {}
 
-    bool retry() {
-        if (dev_ptr == nullptr) {
-            return true;
+        bool retry() {
+            if (dev_ptr == nullptr) {
+                return true;
+            }
+
+            if (dev_ptr->dev.write(input)) {
+                dev_ptr = nullptr;
+                err.clear();
+                --dev_ptr->pending;
+                return true;
+            }
+            err = dev_ptr->dev.error();
+            return false;
         }
 
-        if (dev_ptr->dev.write(input)) {
-            dev_ptr = nullptr;
-            err.clear();
-            --dev_ptr->pending;
-            return true;
+        [[maybe_unused]] [[nodiscard]] std::error_code error() const noexcept {
+            return err;
         }
-        err = dev_ptr->dev.error();
-        return false;
-    }
 
-    [[nodiscard]] std::error_code error() const noexcept {
-        return err;
-    }
+        [[maybe_unused]] [[nodiscard]] uinput* device_ptr() const noexcept {
+            return std::addressof(dev_ptr->dev);
+        }
 
-    [[nodiscard]] uinput* device_ptr() const noexcept {
-        return std::addressof(dev_ptr->dev);
-    }
-
-  private:
-    std::error_code err;
-    device_pending* dev_ptr = nullptr;
-    input_event     input;
-};
+      private:
+        std::error_code err;
+        device_pending* dev_ptr = nullptr;
+        input_event     input;
+    };
+} // namespace
 
 int redirector::loop() {
     started = true;

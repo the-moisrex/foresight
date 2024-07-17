@@ -164,12 +164,12 @@ namespace {
         return opts;
     }
 
-    namespace {
+    inline namespace signals {
         // NOLINTBEGIN(*-avoid-non-const-global-variables)
         std::sig_atomic_t volatile sig;
         std::vector<std::function<void(std::sig_atomic_t)>> actions{};
         // NOLINTEND(*-avoid-non-const-global-variables)
-    } // namespace
+    } // namespace signals
 
     void handle_signals(int const signal) {
         // let's not care about race conditions here, shall we?
