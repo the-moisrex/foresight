@@ -4,21 +4,27 @@ Smart Keyboard which intercepts your keystrokes and will help you type less, fas
 
 ## Features
 
-| Feature Name       | Description                                                         | Status |
-|--------------------|---------------------------------------------------------------------|--------|
-| Intercept          | Intercept the input events and print them                           | ✅      |
-| Redirect           | Read the input events from stdin, and write them to the event files | ❌      |
-| Device Info        | List kernel event devices (like evtest)                             | ❌      |
-| String Matching    | Figure out what the using is typing/editing right now               | ❌      |
-| Regular Expression | Use RegExp to find and replace selected/typing strings              | ❌      |
-| Auto-complete      | Auto complete the user input                                        | ❌      |
-| Auto-correct       | Auto correct                                                        | ❌      |
-| Number Scroll      | Shortcut + Scroll-wheel to update the number/date/color/...         | ❌      |
-| Shell cmds         | Run shell commands                                                  | ❌      |
-| Software Detection | Detect which app the user's in, so we can use custom commands       | ❌      |
-| Clang Tools        | Use clang tools to rename variables, show assembly, ...             | ❌      |
-| Config File        | Custom config file to customize by the user                         | ❌      |
-| GUI                | Graphical User Interface for ease of use                            | ❌      |
+| Feature Name        | Description                                                         | Status |
+|---------------------|---------------------------------------------------------------------|--------|
+| Intercept           | Intercept the input events and print them                           | ✅      |
+| Redirect            | Read the input events from stdin, and write them to the event files | ❌      |
+| Device Info         | List kernel event devices (like evtest)                             | ❌      |
+| String Matching     | Figure out what the using is typing/editing right now               | ❌      |
+| Regular Expression  | Use RegExp to find and replace selected/typing strings              | ❌      |
+| Auto-complete       | Auto complete the user input                                        | ❌      |
+| Auto-correct        | Auto correct                                                        | ❌      |
+| Number Scroll       | Shortcut + Scroll-wheel to update the number/date/color/...         | ❌      |
+| Shell cmds          | Run shell commands                                                  | ❌      |
+| Software Detection  | Detect which app the user's in, so we can use custom commands       | ❌      |
+| Clang Tools         | Use clang tools to rename variables, show assembly, ...             | ❌      |
+| Config File         | Custom config file to customize by the user                         | ❌      |
+| GUI                 | Graphical User Interface for ease of use                            | ❌      |
+| Remote Input        | Remotely control the keyboard and mouse (sharing keyboard & mouse)  | ❌      |
+| Auto translate      | Translate the input while typing                                    | ❌      |
+| Keyboard re-mapping | Remap any input to another or a combinations of others              | ❌      |
+| Unicode Support     | Emojis, ...                                                         | ❌      |
+| Macros              | Register a sequence of keys, and re-run them as needed              | ❌      |
+| Modes and Layers    | Like vim modes                                                      | ❌      |
 
 
 ## Help & Usage
