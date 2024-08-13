@@ -52,9 +52,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_EXTENSIONS OFF)
 target_sources(${PROJECT_NAME}
         PRIVATE
-            main.cxx
-            keyboard.cxx
-            provider.cxx
+            main/main.cxx
+            main/keyboard.cxx
+            main/provider.cxx
             evdev/evdev.cxx
             uinput/uinput.cxx
             uinput/redirect.cxx
@@ -64,10 +64,10 @@ target_sources(${PROJECT_NAME}
             BASE_DIRS
                 ${PROJECT_SOURCE_DIR}
             FILES
-                keyboard.ixx
-                provider.ixx
+                main/keyboard.ixx
+                main/provider.ixx
                 evdev/evdev.ixx
-                translate.ixx
+                main/translate.ixx
                 intercept/intercept.ixx
                 uinput/redirect.ixx
                 uinput/uinput.ixx

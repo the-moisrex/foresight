@@ -84,17 +84,20 @@ void keyboard::buffer(input_event &ev) {
 
 // true: try again
 // false: give up
-bool handle_errors() {
-    static std::size_t tries = 1;
-    ++tries;
-    if (tries == give_up_limit + 1) {
-        fmt::println(stderr,
-                     "Tried {0:d} times and failed everytime to start the loop (or in the loop); giving up!",
-                     tries);
-        return false;
+namespace {
+    bool handle_errors() {
+        static std::size_t tries = 1;
+        ++tries;
+        if (tries == give_up_limit + 1) {
+            fmt::println(
+              stderr,
+              "Tried {0:d} times and failed everytime to start the loop (or in the loop); giving up!",
+              tries);
+            return false;
+        }
+        return true;
     }
-    return true;
-}
+} // namespace
 
 int keyboard::loop() noexcept {
     try {
