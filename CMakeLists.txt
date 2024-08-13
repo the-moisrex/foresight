@@ -42,6 +42,8 @@ if (IS_CLANG)
 endif ()
 
 
+include(./cmake/import.cmake)
+
 add_executable(${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -88,3 +90,7 @@ target_link_libraries(${PROJECT_NAME}
 #        PRIVATE spdlog::spdlog
         PRIVATE evdev
 )
+
+if (IS_DEBUG)
+    add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif ()
