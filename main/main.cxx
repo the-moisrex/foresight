@@ -48,6 +48,7 @@ namespace {
                          Only use this if you know what you're doing!
 
     redirect [files...]  Redirect stdin to the specified files.
+    to       [files...]  Alias for 'redirect'
 
     help                 Print help.
 

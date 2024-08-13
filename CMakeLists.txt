@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 3.23...3.30)
 project(foresight
         LANGUAGES CXX)
 
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(IS_DEBUG TRUE)
@@ -42,8 +47,6 @@ if (IS_CLANG)
 endif ()
 
 
-include(./cmake/import.cmake)
-
 add_executable(${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -74,14 +77,14 @@ target_sources(${PROJECT_NAME}
 )
 
 # Libraries
-find_package(Threads REQUIRED)
-find_package(fmt REQUIRED)
 #find_package(spdlog REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBEVDEV REQUIRED libevdev)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+include(./cmake/import.cmake)
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBEVDEV_LIBRARIES})
 target_compile_options(${PROJECT_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
 target_link_options(${PROJECT_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
 target_link_libraries(${PROJECT_NAME}
@@ -89,8 +92,16 @@ target_link_libraries(${PROJECT_NAME}
         PRIVATE fmt::fmt
 #        PRIVATE spdlog::spdlog
         PRIVATE evdev
+        PRIVATE Qt${QT_VERSION_MAJOR}::Core
+        PRIVATE ${LIBEVDEV_LIBRARIES}
 )
 
 if (IS_DEBUG)
     add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
+
+include(GNUInstallDirs)
+install(TARGETS ${PROJECT_NAME}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
