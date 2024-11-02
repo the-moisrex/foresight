@@ -29,7 +29,7 @@ Smart Keyboard which intercepts your keystrokes and will help you type less, fas
 
 ## Help & Usage
 
-```c++
+```
 Usage: foresight [options] [action]
   arguments:
     -h | --help          Print help.

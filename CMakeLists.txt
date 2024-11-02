@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23...3.30)
 
 project(foresight
-        LANGUAGES CXX)
+        LANGUAGES CXX C)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
@@ -98,6 +98,7 @@ target_link_libraries(${PROJECT_NAME}
 
 if (IS_DEBUG)
     add_subdirectory(tests EXCLUDE_FROM_ALL)
+    add_subdirectory(examples EXCLUDE_FROM_ALL)
 endif ()
 
 include(GNUInstallDirs)
