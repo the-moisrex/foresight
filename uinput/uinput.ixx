@@ -9,13 +9,18 @@ export import foresight.evdev;
 
 /**
  * A virtual device
+ *
+ * If uinput_fd is LIBEVDEV_UINPUT_OPEN_MANAGED, we will open /dev/uinput in read/write mode and manage the
+ * file descriptor. Otherwise, uinput_fd must be opened by the caller and opened with the appropriate
+ * permissions.
  */
 export class uinput {
   public:
     uinput() noexcept = default;
     uinput(evdev& evdev_dev, std::filesystem::path const& file) noexcept;
     uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept;
-    uinput(libevdev const* evdev_dev, int file_descriptor) noexcept;
+    explicit uinput(libevdev const* evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
+    explicit uinput(evdev& evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
     uinput(uinput const&)                     = delete;
     uinput(uinput&&) noexcept                 = default;
     uinput& operator=(uinput const&) noexcept = delete;
@@ -34,7 +39,7 @@ export class uinput {
      * @param evdev_dev libevdev device to get the device info from
      * @param file_descriptor file descriptor of the output virtual device
      */
-    void set_device(libevdev const* evdev_dev, int file_descriptor) noexcept;
+    void set_device(libevdev const* evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
 
     /**
      * Return the file descriptor used to create this uinput device. This is the

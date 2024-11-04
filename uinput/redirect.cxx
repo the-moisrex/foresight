@@ -31,8 +31,12 @@ void redirector::stop() {
 }
 
 int redirector::loop() {
-    assert(dev.is_ok());
-    assert(!started);
+    if (!dev.is_ok()) {
+        throw std::system_error(dev.error());
+    }
+    if (started) {
+        throw std::logic_error("We're already running the redirector.");
+    }
 
     started = true;
 

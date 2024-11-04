@@ -220,11 +220,9 @@ namespace {
                     throw std::invalid_argument("Only pass one file for redirect.");
                 }
 
-                // this file is used for both getting the virtual device's properties, and also as the
-                // output device.
                 auto const file = opts.files.front();
                 evdev      dev{file};
-                redirector rdtor{dev, file};
+                redirector rdtor{dev};
 
                 register_stop_signal(rdtor);
                 return rdtor.loop();

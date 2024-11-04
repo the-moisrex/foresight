@@ -12,6 +12,9 @@ module foresight.uinput;
 uinput::uinput(evdev& evdev_dev, std::filesystem::path const& file) noexcept
   : uinput(evdev_dev.device_ptr(), file) {}
 
+uinput::uinput(evdev& evdev_dev, int const file_descriptor) noexcept
+  : uinput(evdev_dev.device_ptr(), file_descriptor) {}
+
 uinput::uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept {
     auto const file_descriptor = open(file.c_str(), O_RDWR | O_NONBLOCK);
     if (file_descriptor < 0) {
@@ -38,14 +41,20 @@ std::error_code uinput::error() const noexcept {
 }
 
 bool uinput::is_ok() const noexcept {
-    return static_cast<bool>(err) && dev != nullptr;
+    return !err && dev != nullptr;
 }
 
 void uinput::set_device(libevdev const* evdev_dev, int const file_descriptor) noexcept {
+    dev = nullptr;
+    err.clear();
+
+    // If uinput_fd is @ref LIBEVDEV_UINPUT_OPEN_MANAGED, libevdev_uinput_create_from_device()
+    // will open @c /dev/uinput in read/write mode and manage the file descriptor.
+    // Otherwise, uinput_fd must be opened by the caller and opened with the
+    // appropriate permissions.
     if (auto const ret = libevdev_uinput_create_from_device(evdev_dev, file_descriptor, &dev); ret != 0) {
         err = std::make_error_code(static_cast<std::errc>(-ret));
     }
-    err.clear();
 }
 
 int uinput::native_handle() const noexcept {
