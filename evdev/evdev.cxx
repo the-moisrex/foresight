@@ -21,7 +21,6 @@ evdev::evdev(std::filesystem::path const& file) {
     dev = libevdev_new();
     if (dev == nullptr) {
         throw std::domain_error("Failed to init libevdev.");
-        return;
     }
 
     set_file(file);
@@ -79,7 +78,7 @@ int evdev::native_handle() const noexcept {
     return file_descriptor;
 }
 
-libevdev* evdev::device_ptr() const noexcept {
+libevdev* evdev::device_ptr() noexcept {
     return dev;
 }
 

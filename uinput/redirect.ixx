@@ -8,20 +8,17 @@ export module foresight.redirect;
 export import foresight.uinput;
 
 /**
- * Intercept the keyboard and print them into stdout
+ * Redirect the already input events into the specified virtual device
  */
 export struct redirector {
-    struct device_pending {
-        uinput      dev;
-        std::size_t pending = 0;
-    };
-
     redirector() = default;
+
+    explicit redirector(uinput&& inp_dev) : dev{std::move(inp_dev)} {}
 
     /**
      * Set output file descriptor
      */
-    void set_input(FILE* inp_in_fd = stdin) noexcept;
+    void set_input(FILE* inp_in_fd = stdin);
 
     /**
      * Start running the interceptor
@@ -29,8 +26,10 @@ export struct redirector {
      */
     int loop();
 
-
-    void append(uinput&& dev);
+    /**
+     * Set the output virtual device
+     */
+    void set_output(uinput&& inp_dev);
 
     /**
      * Stop the loop
@@ -38,7 +37,7 @@ export struct redirector {
     void stop();
 
   private:
-    FILE*                       inp_fd = stdin;
-    std::vector<device_pending> devs;
-    std::atomic_bool            started = false;
+    FILE*            inp_fd = stdin;
+    uinput           dev{};
+    std::atomic_bool started = false;
 };

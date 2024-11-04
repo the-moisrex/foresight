@@ -21,7 +21,7 @@ export struct evdev {
         is_stopped{inp.is_stopped.load()},
         grabbed{inp.grabbed} {}
 
-           evdev(evdev const&)     = delete;
+    evdev(evdev const&)            = delete;
     evdev& operator=(evdev const&) = delete;
 
     evdev& operator=(evdev&& other) noexcept {
@@ -40,8 +40,8 @@ export struct evdev {
     void set_file(std::filesystem::path const& file);
     void set_file(int file);
 
-    [[nodiscard]] int native_handle() const noexcept;
-    [[nodiscard]] libevdev* device_ptr() const noexcept;
+    [[nodiscard]] int       native_handle() const noexcept;
+    [[nodiscard]] libevdev* device_ptr() noexcept;
 
     /// check if everything is okay
     [[nodiscard]] bool ok() const noexcept {

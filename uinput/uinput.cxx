@@ -1,19 +1,31 @@
 // Created by moisrex on 6/29/24.
 
 module;
+#include <cassert>
+#include <fcntl.h>
+#include <filesystem>
+#include <fmt/core.h>
 #include <libevdev/libevdev-uinput.h>
 #include <system_error>
 module foresight.uinput;
 
-uinput::uinput(libevdev const* evdev_dev, int const file_descriptor) {
-    if (auto const ret = libevdev_uinput_create_from_device(evdev_dev, file_descriptor, &dev); ret != 0) {
-        err = std::make_error_code(static_cast<std::errc>(-ret));
+uinput::uinput(evdev& evdev_dev, std::filesystem::path const& file) noexcept
+  : uinput(evdev_dev.device_ptr(), file) {}
+
+uinput::uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept {
+    auto const file_descriptor = open(file.c_str(), O_RDWR | O_NONBLOCK);
+    if (file_descriptor < 0) {
+        err = std::make_error_code(static_cast<std::errc>(errno));
+        return;
     }
+    set_device(evdev_dev, file_descriptor);
 }
 
-uinput::uinput(evdev const& evdev_dev) : uinput{evdev_dev.device_ptr(), evdev_dev.native_handle()} {}
+uinput::uinput(libevdev const* evdev_dev, int const file_descriptor) noexcept {
+    set_device(evdev_dev, file_descriptor);
+}
 
-uinput::~uinput() {
+uinput::~uinput() noexcept {
     if (dev != nullptr) {
         libevdev_uinput_destroy(dev);
         dev = nullptr;
@@ -27,6 +39,13 @@ std::error_code uinput::error() const noexcept {
 
 bool uinput::is_ok() const noexcept {
     return static_cast<bool>(err) && dev != nullptr;
+}
+
+void uinput::set_device(libevdev const* evdev_dev, int const file_descriptor) noexcept {
+    if (auto const ret = libevdev_uinput_create_from_device(evdev_dev, file_descriptor, &dev); ret != 0) {
+        err = std::make_error_code(static_cast<std::errc>(-ret));
+    }
+    err.clear();
 }
 
 int uinput::native_handle() const noexcept {
@@ -50,7 +69,8 @@ std::string_view uinput::devnode() const noexcept {
     return libevdev_uinput_get_devnode(dev);
 }
 
-bool uinput::write(unsigned int const type, unsigned int const code, int const value) {
+bool uinput::write(unsigned int const type, unsigned int const code, int const value) noexcept {
+    assert(is_ok());
     if (auto const ret = libevdev_uinput_write_event(dev, type, code, value); ret != 0) {
         err = std::make_error_code(static_cast<std::errc>(-ret));
         return false;
@@ -59,6 +79,7 @@ bool uinput::write(unsigned int const type, unsigned int const code, int const v
     return true;
 }
 
-bool uinput::write(input_event const& event) {
+bool uinput::write(input_event const& event) noexcept {
+    assert(is_ok());
     return write(event.type, event.code, event.value);
 }

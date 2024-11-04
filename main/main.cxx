@@ -1,13 +1,17 @@
+#include <algorithm>
 #include <csignal>
 #include <exception>
 #include <filesystem>
 #include <fmt/core.h>
 #include <functional>
+#include <ranges>
 #include <string_view>
 #include <vector>
 import foresight.keyboard;
 import foresight.intercept;
 import foresight.redirect;
+import foresight.evdev;
+import foresight.uinput;
 
 namespace {
     struct options {
@@ -195,8 +199,8 @@ namespace {
                 if (opts.grab) {
                     inpor.grab_input();
                 }
-                actions.emplace_back([&inpor](std::sig_atomic_t const sig) {
-                    switch (sig) {
+                actions.emplace_back([&inpor](std::sig_atomic_t const cur_sig) {
+                    switch (cur_sig) {
                         case SIGINT:
                         case SIGKILL:
                         case SIGTERM: inpor.stop(); break;
@@ -206,10 +210,20 @@ namespace {
                 return inpor.loop();
             }
             case redirect: {
-                redirector rdtor;
+                if (opts.files.size() != 1) {
+                    throw std::invalid_argument("Only pass one file for redirect.");
+                }
+
+                // this file is used for both getting the virtual device's properties, and also as the
+                // output device.
+                auto const file = opts.files.front();
+                evdev dev{file};
+                uinput virtual_dev{dev, file};
+                redirector         rdtor{std::move(virtual_dev)};
+
                 rdtor.set_input(stdin);
-                actions.emplace_back([&rdtor](std::sig_atomic_t const sig) {
-                    switch (sig) {
+                actions.emplace_back([&rdtor](std::sig_atomic_t const cur_sig) {
+                    switch (cur_sig) {
                         case SIGINT:
                         case SIGKILL:
                         case SIGTERM: rdtor.stop(); break;

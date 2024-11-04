@@ -1,6 +1,7 @@
 // Created by moisrex on 6/29/24.
 
 module;
+#include <filesystem>
 #include <libevdev/libevdev-uinput.h>
 #include <system_error>
 export module foresight.uinput;
@@ -11,13 +12,15 @@ export import foresight.evdev;
  */
 export class uinput {
   public:
-             uinput(libevdev const* evdev_dev, int file_descriptor);
-    explicit uinput(evdev const& evdev_dev);
-             uinput(uinput const&)             = delete;
-             uinput(uinput&&) noexcept         = default;
-    uinput&  operator=(uinput const&) noexcept = delete;
-    uinput&  operator=(uinput&&) noexcept      = default;
-    ~        uinput();
+    uinput() noexcept = default;
+    uinput(evdev& evdev_dev, std::filesystem::path const& file) noexcept;
+    uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept;
+    uinput(libevdev const* evdev_dev, int file_descriptor) noexcept;
+    uinput(uinput const&)                     = delete;
+    uinput(uinput&&) noexcept                 = default;
+    uinput& operator=(uinput const&) noexcept = delete;
+    uinput& operator=(uinput&&) noexcept      = default;
+    ~uinput() noexcept;
 
     [[nodiscard]] std::error_code error() const noexcept;
     [[nodiscard]] bool            is_ok() const noexcept;
@@ -25,6 +28,13 @@ export class uinput {
     [[nodiscard]] explicit operator bool() const noexcept {
         return is_ok();
     }
+
+    /**
+     * Configure the virtual device
+     * @param evdev_dev libevdev device to get the device info from
+     * @param file_descriptor file descriptor of the output virtual device
+     */
+    void set_device(libevdev const* evdev_dev, int file_descriptor) noexcept;
 
     /**
      * Return the file descriptor used to create this uinput device. This is the
@@ -75,10 +85,12 @@ export class uinput {
      */
     [[nodiscard]] std::string_view devnode() const noexcept;
 
-    bool write(unsigned int type, unsigned int code, int value);
-    bool write(input_event const& event);
+    bool write(unsigned int type, unsigned int code, int value) noexcept;
+    bool write(input_event const& event) noexcept;
 
   private:
     libevdev_uinput* dev = nullptr;
-    std::error_code  err; // we can use std::expected<..., error_code> instead of this, but we're using C++20
+
+    // we can use std::expected<..., error_code> instead of this, but we're using C++20
+    std::error_code err = std::make_error_code(std::errc::bad_file_descriptor);
 };
