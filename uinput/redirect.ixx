@@ -13,6 +13,9 @@ export import foresight.uinput;
 export struct redirector {
     redirector() = default;
 
+    template <typename... Args>
+    explicit redirector(Args&&... args) : dev{std::forward<Args>(args)...} {}
+
     explicit redirector(uinput&& inp_dev) : dev{std::move(inp_dev)} {}
 
     /**
@@ -30,6 +33,11 @@ export struct redirector {
      * Set the output virtual device
      */
     void set_output(uinput&& inp_dev);
+
+    template <typename... Args>
+    void init_device(Args&&... args) {
+        dev = uinput{std::forward<Args>(args)...};
+    }
 
     /**
      * Stop the loop

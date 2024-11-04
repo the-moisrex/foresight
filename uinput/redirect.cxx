@@ -32,6 +32,7 @@ void redirector::stop() {
 
 int redirector::loop() {
     assert(dev.is_ok());
+    assert(!started);
 
     started = true;
 

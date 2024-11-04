@@ -173,7 +173,20 @@ namespace {
         // NOLINTBEGIN(*-avoid-non-const-global-variables)
         std::sig_atomic_t volatile sig;
         std::vector<std::function<void(std::sig_atomic_t)>> actions{};
+
         // NOLINTEND(*-avoid-non-const-global-variables)
+
+        template <typename T>
+        void register_stop_signal(T& obj) {
+            actions.emplace_back([&obj](std::sig_atomic_t const cur_sig) {
+                switch (cur_sig) {
+                    case SIGINT:
+                    case SIGKILL:
+                    case SIGTERM: obj.stop(); break;
+                    default: break;
+                }
+            });
+        }
     } // namespace signals
 
     void handle_signals(int const signal) {
@@ -199,14 +212,7 @@ namespace {
                 if (opts.grab) {
                     inpor.grab_input();
                 }
-                actions.emplace_back([&inpor](std::sig_atomic_t const cur_sig) {
-                    switch (cur_sig) {
-                        case SIGINT:
-                        case SIGKILL:
-                        case SIGTERM: inpor.stop(); break;
-                        default: break;
-                    }
-                });
+                register_stop_signal(inpor);
                 return inpor.loop();
             }
             case redirect: {
@@ -217,19 +223,10 @@ namespace {
                 // this file is used for both getting the virtual device's properties, and also as the
                 // output device.
                 auto const file = opts.files.front();
-                evdev dev{file};
-                uinput virtual_dev{dev, file};
-                redirector         rdtor{std::move(virtual_dev)};
+                evdev      dev{file};
+                redirector rdtor{dev, file};
 
-                rdtor.set_input(stdin);
-                actions.emplace_back([&rdtor](std::sig_atomic_t const cur_sig) {
-                    switch (cur_sig) {
-                        case SIGINT:
-                        case SIGKILL:
-                        case SIGTERM: rdtor.stop(); break;
-                        default: break;
-                    }
-                });
+                register_stop_signal(rdtor);
                 return rdtor.loop();
             }
             default: {
