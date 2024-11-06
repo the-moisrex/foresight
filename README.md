@@ -2,28 +2,43 @@
 
 Smart Keyboard which intercepts your keystrokes and will help you type less, faster, and adds foresight.
 
+Even though we're trying to start from making the keyboard smarter, but the goal of the project is to help 
+the computer know what the user wants and just help them do it and also give the user a situational awareness
+of the system they're using.
+
 ## Features
 
-| Feature Name       | Description                                                         | Status |
-|--------------------|---------------------------------------------------------------------|--------|
-| Intercept          | Intercept the input events and print them                           | ✅      |
-| Redirect           | Read the input events from stdin, and write them to the event files | ❌      |
-| Device Info        | List kernel event devices (like evtest)                             | ❌      |
-| String Matching    | Figure out what the using is typing/editing right now               | ❌      |
-| Regular Expression | Use RegExp to find and replace selected/typing strings              | ❌      |
-| Auto-complete      | Auto complete the user input                                        | ❌      |
-| Auto-correct       | Auto correct                                                        | ❌      |
-| Number Scroll      | Shortcut + Scroll-wheel to update the number/date/color/...         | ❌      |
-| Shell cmds         | Run shell commands                                                  | ❌      |
-| Software Detection | Detect which app the user's in, so we can use custom commands       | ❌      |
-| Clang Tools        | Use clang tools to rename variables, show assembly, ...             | ❌      |
-| Config File        | Custom config file to customize by the user                         | ❌      |
-| GUI                | Graphical User Interface for ease of use                            | ❌      |
+| Feature Name            | Description                                                              | Status |
+|-------------------------|--------------------------------------------------------------------------|--------|
+| Intercept               | Intercept the input events and print them                                | ✅      |
+| \> Redirect             | Read the input events from stdin, and write them to the event files      | ✅      |
+| \> Common interceptors  | Common interceptors for use with `intercept \| ... \| redirect`          | ❌      |
+| Device Info             | List kernel event devices (like evtest)                                  | ❌      |
+| String Matching         | Figure out what the using is typing/editing right now                    | ❌      |
+| Regular Expression      | Use RegExp to find and replace selected/typing strings                   | ❌      |
+| Auto-complete           | Auto complete the user input                                             | ❌      |
+| Auto-correct            | Auto correct                                                             | ❌      |
+| Number Scroll           | Shortcut + Scroll-wheel to update the number/date/color/...              | ❌      |
+| Shell cmds              | Run shell commands (for eg: `$ whoami <ctrl-enter>`)                     | ❌      |
+| Software Detection      | Detect which app the user's in, so we can use custom commands            | ❌      |
+| Clang Tools             | Use clang tools to rename variables, show assembly, ...                  | ❌      |
+| Config File             | Custom config file to customize by the user                              | ❌      |
+| GUI                     | Graphical User Interface for ease of use                                 | ❌      |
+| Remote Input            | Remotely control the keyboard and mouse (sharing keyboard & mouse)       | ❌      |
+| Auto translate          | Translate the input while typing                                         | ❌      |
+| Keyboard re-mapping     | Remap any input to another or a combinations of others                   | ❌      |
+| Unicode Support         | Emojis, ...                                                              | ❌      |
+| Macros                  | Register a sequence of keys, and re-run them as needed                   | ❌      |
+| Modes and Layers        | Like vim modes                                                           | ❌      |
+| Audio                   | Add audio support for when events happen, we can configure special audio | ❌      |
+| Network Packet Matching | Fire events on network packets (use case: beep on loading ads)           | ❌      |
+| Habits                  | Machine-Learning based event-habit calculator                            | ❌      |
+| \> Anomaly Notifier     | Machine-Learning based anomaly notifier based on habits                  | ❌      |
 
 
 ## Help & Usage
 
-```c++
+```
 Usage: foresight [options] [action]
   arguments:
     -h | --help          Print help.
@@ -40,7 +55,7 @@ Usage: foresight [options] [action]
 
   Example Usages:
     $ keyboard=/dev/input/event1
-    $ foresight intercept $keyboard | x2y | foresight redirect $keyboard
+    $ foresight intercept -g $keyboard | x2y | foresight redirect $keyboard
       -----------------------------   ---   ----------------------------
         |                              |      |
         |                              |      |

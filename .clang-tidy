@@ -24,6 +24,7 @@ Checks: >
   altera-*,
     -altera-unroll-loops,
     -altera-id-dependent-backward-branch,
+    -altera-struct-pack-align,
   android-*,
   fuchsia-*,
     -fuchsia-overloaded-operator,

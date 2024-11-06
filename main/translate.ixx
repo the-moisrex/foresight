@@ -70,7 +70,8 @@ export constexpr std::array visual_keys{
   '/'       // 53
 };
 
-export [[nodiscard]] char to_char(std::uint8_t const inp_char) noexcept {
+export template <typename CharT = std::uint8_t>
+[[nodiscard]] char to_char(CharT const inp_char) noexcept {
     // NOLINTNEXTLINE(*-pro-bounds-constant-array-index)
     return inp_char >= visual_keys.size() ? null_key : visual_keys[inp_char];
 }
