@@ -93,8 +93,9 @@ Usage: foresight [options] [action]
 ```
 
 ---
-Inspired by these projects:
+Partially inspired by these projects:
 
 - [Interception Tools](https://gitlab.com/interception/linux/tools)
 - [keydogger](https://github.com/jarusll/keydogger/)
+- [Google Teller](https://github.com/berthubert/googerteller)
 - libevdev
