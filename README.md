@@ -6,6 +6,18 @@ Even though we're trying to start from making the keyboard smarter, but the goal
 the computer know what the user wants and just help them do it and also give the user a situational awareness
 of the system they're using.
 
+## Goals
+
+- Programming input devices to match your needs and wants.
+- Automation
+- Quick Actions
+- Creating models of your habits in order to predict the correct actions
+- A personal assistance that lets you focus and gives you the right information at the right time
+- Connecting related tools together to create useful pipelines of actions
+- Adding features to software that don't support them yet
+
+I understand these are a far reach goals, but we can't get there if we don't try.
+
 ## Features
 
 | Feature Name            | Description                                                              | Status |
