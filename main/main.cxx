@@ -70,7 +70,7 @@ namespace {
                                        /
              --------------------------
             /
-    $ cat x2y.c  # you can do it with any programming language you like
+    $ cat discard-fast-clicks.c  # you can do it with any programming language you like
       #include <stdio.h>
       #include <stdlib.h>
       #include <linux/input.h>

@@ -15,6 +15,7 @@ of the system they're using.
 - A personal assistance that lets you focus and gives you the right information at the right time
 - Connecting related tools together to create useful pipelines of actions
 - Adding features to software that don't support them yet
+- Do all of these things while considering "Privacy"
 
 I understand these are a far reach goals, but we can't get there if we don't try.
 
@@ -111,3 +112,4 @@ Partially inspired by these projects:
 - [keydogger](https://github.com/jarusll/keydogger/)
 - [Google Teller](https://github.com/berthubert/googerteller)
 - libevdev
+- [libxkbcommon](https://github.com/xkbcommon/libxkbcommon)

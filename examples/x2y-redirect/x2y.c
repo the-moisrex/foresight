@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(void) {
+int main() {
     setbuf(stdin, NULL);  // disable stdin buffer
     setbuf(stdout, NULL); // disable stdout buffer
 
