@@ -14,6 +14,8 @@ import foresight.evdev;
 import foresight.uinput;
 
 namespace {
+
+    /// Holds all the user options for everything situation that this software can handle
     struct options {
         // NOLINTBEGIN(*-non-private-member-variables-in-classes)
         enum struct action_type : std::uint8_t {
@@ -97,7 +99,7 @@ namespace {
 )TEXT");
     }
 
-    options check_opts(int const argc, char const* const* argv) {
+    options parse_arguments(int const argc, char const* const* argv) {
         using enum options::action_type;
 
         options opts{};
@@ -243,7 +245,7 @@ int main(int const argc, char const* const* argv) try
     std::ignore = std::signal(SIGTERM, handle_signals);
     std::ignore = std::signal(SIGKILL, handle_signals);
 
-    auto const opts = check_opts(argc, argv);
+    auto const opts = parse_arguments(argc, argv);
     return run_action(opts);
 } catch (std::invalid_argument const& err) {
     fmt::println(stderr, "{}", err.what());

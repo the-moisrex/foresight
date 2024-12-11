@@ -67,10 +67,11 @@ target_sources(${PROJECT_NAME}
             BASE_DIRS
                 ${PROJECT_SOURCE_DIR}
             FILES
+                main/liburing.ixx
                 main/keyboard.ixx
                 main/provider.ixx
-                evdev/evdev.ixx
                 main/translate.ixx
+                evdev/evdev.ixx
                 intercept/intercept.ixx
                 uinput/redirect.ixx
                 uinput/uinput.ixx
@@ -94,6 +95,7 @@ target_link_libraries(${PROJECT_NAME}
         PRIVATE evdev
         PRIVATE Qt${QT_VERSION_MAJOR}::Core
         PRIVATE ${LIBEVDEV_LIBRARIES}
+        PRIVATE liburing::liburing
 )
 
 if (IS_DEBUG)
