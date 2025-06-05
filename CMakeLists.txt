@@ -67,7 +67,8 @@ target_sources(${PROJECT_NAME}
             BASE_DIRS
                 ${PROJECT_SOURCE_DIR}
             FILES
-                main/liburing.ixx
+                io/liburing.ixx
+                io/io_ring.ixx
                 main/keyboard.ixx
                 main/provider.ixx
                 main/translate.ixx
@@ -100,8 +101,8 @@ target_link_libraries(${PROJECT_NAME}
 
 if (IS_DEBUG)
     add_subdirectory(tests EXCLUDE_FROM_ALL)
-    add_subdirectory(examples EXCLUDE_FROM_ALL)
 endif ()
+add_subdirectory(examples EXCLUDE_FROM_ALL)
 
 include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME}
