@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <concepts>
 #include <cstdio>
 #include <iostream>
@@ -181,6 +182,42 @@ struct keys_status {
     [[nodiscard]] bool is_pressed(T const... key_codes) const noexcept {
         return ((btns.at(key_codes) != 0) && ...);
     }
+
+    template <std::integral... T>
+    [[nodiscard]] bool is_released(T const... key_codes) const noexcept {
+        return ((btns.at(key_codes) == 0) && ...);
+    }
+};
+
+struct quantifier {
+  private:
+    value_type step     = 1;
+    value_type value    = 0;
+    value_type consumed = 0;
+
+  public:
+    explicit quantifier(value_type const step) noexcept : step{step} {
+        assert(step > 0);
+    }
+
+    quantifier(quantifier const&)                = default;
+    quantifier(quantifier&&) noexcept            = default;
+    quantifier& operator=(quantifier const&)     = default;
+    quantifier& operator=(quantifier&&) noexcept = default;
+    ~quantifier() noexcept                       = default;
+
+    void process(input_event const& event, code_type const btn_code) noexcept {
+        if (event.type != EV_REL || event.code != btn_code) {
+            return;
+        }
+        value += event.value;
+    }
+
+    [[nodiscard]] value_type consume_steps() noexcept {
+        auto const step_count  = std::abs(value) / step;
+        value                 %= step;
+        return step_count;
+    }
 };
 
 int main() {
@@ -203,42 +240,55 @@ int main() {
 
 
     keys_status keys;
+    quantifier  quantifier_x{10};
+    quantifier  quantifier_y{10};
+
+    bool        lock = false;
+
+    static constexpr value_type reverse = 1;
 
     for (;;) {
         std::ignore = read(STDIN_FILENO, &event, sizeof(event));
         keys.process(event);
+        quantifier_x.process(event, REL_X);
+        quantifier_y.process(event, REL_Y);
 
-        if (event.type == EV_REL) {
-            if (event.code == REL_X || event.code == REL_Y) {
-                if (keys.is_pressed(BTN_LEFT, BTN_MIDDLE)) {
-                    auto const val = event.value;
-                    // std::cerr << "Type: " << event.type << " Code: " << event.code
-                    //           << " Value: " << event.value << std::endl;
+        // Hold the lock, until both buttons are released.
+        // This helps to stop accidental clicks while scrolling.
+        if (keys.is_released(BTN_LEFT, BTN_MIDDLE)) {
+            lock = false;
+        }
 
-                    emit(event, EV_KEY, BTN_LEFT, 0);
-                    emit(event, EV_KEY, BTN_MIDDLE, 0);
-                    // emit_syn();
-
-                    switch (event.code) {
-                        case REL_X:
-                            emit(event, EV_REL, REL_HWHEEL, val > 0 ? 1 : val < 0 ? -1 : 0);
-                            emit(event, EV_REL, REL_HWHEEL_HI_RES, val > 0 ? 120 : val < 0 ? -120 : 0);
-                            emit_syn();
-                            break;
-                        case REL_Y:
-                            emit(event, EV_REL, REL_WHEEL, val > 0 ? 1 : val < 0 ? -1 : 0);
-                            emit(event, EV_REL, REL_WHEEL_HI_RES, val > 0 ? 120 : val < 0 ? -120 : 0);
-                            emit_syn();
-                            break;
-                        default: break;
-                    }
-
-                    // emit(event, EV_KEY, BTN_LEFT, 1);
-                    // emit(event, EV_KEY, BTN_RIGHT, 1);
-                    // emit_syn();
-                    continue;
-                }
+        if (keys.is_pressed(BTN_LEFT, BTN_MIDDLE)) {
+            if (event.type != EV_REL && event.code != REL_X && event.code != REL_Y) {
+                continue;
             }
+            auto const val = event.value;
+            // std::cerr << "Type: " << event.type << " Code: " << event.code
+            //           << " Value: " << event.value << std::endl;
+
+            emit(event, EV_KEY, BTN_LEFT, 0);
+            emit(event, EV_KEY, BTN_MIDDLE, 0);
+            // emit_syn();
+
+
+            if (auto const x_steps = quantifier_x.consume_steps(); x_steps > 0) {
+                emit(event, EV_REL, REL_HWHEEL, (val > 0 ? 1 : val < 0 ? -1 : 0) * reverse);
+                emit(event, EV_REL, REL_HWHEEL_HI_RES, (val > 0 ? 120 : val < 0 ? -120 : 0) * reverse);
+                emit_syn();
+            }
+            if (auto const y_steps = quantifier_y.consume_steps(); y_steps > 0) {
+                emit(event, EV_REL, REL_WHEEL, (val > 0 ? 1 : val < 0 ? -1 : 0) * reverse);
+                emit(event, EV_REL, REL_WHEEL_HI_RES, (val > 0 ? 120 : val < 0 ? -120 : 0) * reverse);
+                emit_syn();
+            }
+            lock = true;
+
+            continue;
+        }
+
+        if (lock) {
+            continue;
         }
 
 
