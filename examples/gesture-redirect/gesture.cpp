@@ -55,8 +55,8 @@ struct gesture_detector {
     std::span<code_type const> btns;
     bool                       is_pressed = false;
 
-    std::int32_t min_swipe_distance         = 50; // Pixels: Min movement on primary axis for a swipe
-    std::int32_t max_perpendicular_movement = 30; // Pixels: Max movement on secondary axis for a swap
+    std::int32_t min_swipe_distance         = 100; // Pixels: Min movement on primary axis for a swipe
+    std::int32_t max_perpendicular_movement = 50; // Pixels: Max movement on secondary axis for a swap
 
   public:
     explicit gesture_detector(std::span<code_type const> const inp_btns) noexcept : btns(inp_btns) {}
@@ -264,8 +264,6 @@ int main() {
                 continue;
             }
             auto const val = event.value;
-            // std::cerr << "Type: " << event.type << " Code: " << event.code
-            //           << " Value: " << event.value << std::endl;
 
             // emit(event, EV_KEY, BTN_LEFT, 0);
             emit(event, EV_KEY, BTN_MIDDLE, 0);

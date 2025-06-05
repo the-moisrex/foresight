@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23...3.30)
+cmake_minimum_required(VERSION 3.23...4.0)
 
 project(foresight
         LANGUAGES CXX C)
@@ -67,8 +67,8 @@ target_sources(${PROJECT_NAME}
             BASE_DIRS
                 ${PROJECT_SOURCE_DIR}
             FILES
-                io/liburing.ixx
-                io/io_ring.ixx
+#                io/liburing.ixx
+#                io/io_ring.ixx
                 main/keyboard.ixx
                 main/provider.ixx
                 main/translate.ixx
@@ -96,7 +96,7 @@ target_link_libraries(${PROJECT_NAME}
         PRIVATE evdev
         PRIVATE Qt${QT_VERSION_MAJOR}::Core
         PRIVATE ${LIBEVDEV_LIBRARIES}
-        PRIVATE liburing::liburing
+#        PRIVATE liburing::liburing
 )
 
 if (IS_DEBUG)
