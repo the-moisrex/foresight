@@ -61,7 +61,7 @@ struct key_status {
     }
 };
 
-static constexpr value_type threshold       = 100; // pixels to resistence to move
+static constexpr value_type threshold       = 10; // pixels to resistence to move
 static constexpr auto       long_press_time = std::chrono::milliseconds(500);
 
 int main() {
@@ -78,7 +78,8 @@ int main() {
 
     fd_set set{};
 
-    bool lock = false;
+    bool lock      = false;
+    bool move_lock = false;
 
     for (;;) {
         FD_ZERO(&set);
@@ -97,12 +98,15 @@ int main() {
             left_click.process(event);
             right_click.process(event);
 
-            if (left_click.is_pressed()) {
+            if (event.type == EV_KEY && event.code == BTN_LEFT && event.value == 1) {
                 start = std::chrono::steady_clock::now();
                 dx    = 0;
                 dy    = 0;
-            } else {
-                lock = false;
+            }
+
+            if (!left_click.is_pressed()) {
+                lock      = false;
+                move_lock = false;
             }
 
             if (event.type == EV_REL) {
@@ -110,6 +114,9 @@ int main() {
                     case REL_X: dx += event.value; break;
                     case REL_Y: dy += event.value; break;
                     default: break;
+                }
+                if (dx > threshold || dy > threshold) {
+                    move_lock = true;
                 }
             }
 
@@ -119,7 +126,9 @@ int main() {
         }
 
         auto const diff = std::chrono::steady_clock::now() - start;
-        if (!lock && !right_click.is_pressed() && left_click.is_pressed() && diff >= long_press_time) {
+        if (!move_lock && !lock && !right_click.is_pressed() && left_click.is_pressed() &&
+            diff >= long_press_time && dx <= threshold && dy <= threshold)
+        {
             emit(EV_KEY, BTN_LEFT, 0);
             emit_syn();
             emit(EV_KEY, BTN_RIGHT, 1);
