@@ -1,3 +1,4 @@
+add_subdirectory(ignore-big-jumps)
 add_subdirectory(x2y-redirect)
 add_subdirectory(scroll-redirect)
 #add_subdirectory(gesture-redirect)

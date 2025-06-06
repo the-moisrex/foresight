@@ -61,7 +61,7 @@ struct key_status {
     }
 };
 
-static constexpr value_type threshold       = 10; // pixels to resistence to move
+static constexpr value_type threshold       = 5; // pixels to resistence to move
 static constexpr auto       long_press_time = std::chrono::milliseconds(500);
 
 int main() {
