@@ -1,6 +1,6 @@
 set(name gesture)
 add_executable(gesture)
-target_sources(gesture PRIVATE gesture.cpp)
+target_sources(gesture PRIVATE on-gesture.cpp)
 set_target_properties(gesture PROPERTIES OUTPUT_NAME gesture)
 set_target_properties(gesture PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(gesture PROPERTIES COMPILER_LANGUAGE CXX)

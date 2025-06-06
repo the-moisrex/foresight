@@ -7,5 +7,5 @@ Usage:
 
 ```bash
 mouse=/dev/input/event29
-foresight intercept $mouse | scroll | foresight redirect $mouse
+foresight intercept $mouse | add-scroll | foresight redirect $mouse
 ```
