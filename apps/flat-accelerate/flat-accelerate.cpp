@@ -9,12 +9,12 @@ using value_type = decltype(input_event::value);
 
 // Threshold for mouse movement speed (absolute delta value).
 // Movements with `abs(delta)` less than or equal to this threshold will not be accelerated.
-static constexpr value_type SPEED_THRESHOLD = 5; // Pixels/units. Adjust this value to your preference.
+static constexpr value_type SPEED_THRESHOLD = 0; // Pixels/units. Adjust this value to your preference.
 
 // Acceleration exponent for fast movements.
 // A value > 1.0 means faster movements are accelerated more aggressively.
 // E.g., 1.5 means a 10-unit movement becomes 10^1.5 = ~31.6 units (if delta > SPEED_THRESHOLD).
-static constexpr double ACCELERATION_EXPONENT = 1.2; // Adjust this value to control acceleration intensity.
+static constexpr double ACCELERATION_EXPONENT = 1.3; // Adjust this value to control acceleration intensity.
 
 int main() {
     input_event event{};
