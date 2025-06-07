@@ -10,15 +10,14 @@ module;
 #include <thread>
 module foresight.intercept;
 
-interceptor::interceptor(std::span<std::filesystem::path const> inp_paths) {
+interceptor::interceptor(std::span<input_file_type const> inp_paths) {
     // convert to `evdev`s.
-    for (auto const& path : inp_paths) {
-        devs.emplace_back(path);
+    for (auto const& [file, grab] : inp_paths) {
+        auto& dev = devs.emplace_back(file);
+        if (grab) {
+            dev.grab_input();
+        }
     }
-    // This gives GCC internal error on G++ 14.1.1 20240522
-    // std::ranges::transform(inp_paths, std::back_inserter(devs), [](auto const& path) {
-    //     return evdev{path};
-    // });
 
     // default buffer
     set_output(out_fd);
@@ -29,12 +28,6 @@ void interceptor::set_output(FILE* inp_out_fd) noexcept {
 
     // disable output buffer
     std::setbuf(out_fd, nullptr);
-}
-
-void interceptor::grab_input() {
-    for (auto& dev : devs) {
-        dev.grab_input();
-    }
 }
 
 int interceptor::loop() {
