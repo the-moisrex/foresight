@@ -5,10 +5,24 @@ module;
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
+#include <libevdev/libevdev.h>
 #include <linux/input.h>
+#include <poll.h>
+#include <ranges>
 #include <span>
 #include <thread>
+#include <vector>
 module foresight.intercept;
+
+interceptor::interceptor(std::span<std::filesystem::path const> const inp_paths) {
+    // convert to `evdev`s.
+    for (auto const& file : inp_paths) {
+        devs.emplace_back(file);
+    }
+
+    // default buffer
+    set_output(out_fd);
+}
 
 interceptor::interceptor(std::span<input_file_type const> inp_paths) {
     // convert to `evdev`s.
@@ -23,34 +37,49 @@ interceptor::interceptor(std::span<input_file_type const> inp_paths) {
     set_output(out_fd);
 }
 
-void interceptor::set_output(FILE* inp_out_fd) noexcept {
+void interceptor::set_output(int const inp_out_fd) noexcept {
     out_fd = inp_out_fd;
 
     // disable output buffer
-    std::setbuf(out_fd, nullptr);
+    // std::setbuf(out_fd, nullptr);
 }
 
 int interceptor::loop() {
-    for (;;) {
-        for (auto& dev : devs) {
-            if (dev.is_done()) {
-                return EXIT_SUCCESS;
+    auto const fd_iter = devs | std::views::transform([](evdev const& dev) noexcept {
+                             return pollfd{dev.native_handle(), POLLIN, 0};
+                         });
+
+    std::vector<pollfd> fds{fd_iter.begin(), fd_iter.end()};
+
+    for (; !is_stopped;) {
+        auto const ret = poll(fds.data(), fds.size(), 100);
+        if (ret <= 0) {
+            // ignore errors
+            std::this_thread::yield();
+            continue;
+        }
+
+        for (std::size_t index = 0; index != fds.size(); ++index) {
+            auto&       dev = devs[index];
+            auto const& fd  = fds[index];
+            if ((fd.revents & POLLIN) == 0) {
+                continue;
             }
 
+            if (is_stopped) {
+                break;
+            }
             auto const input = dev.next(true);
 
             if (!input) {
-                if (dev.is_done()) {
-                    return EXIT_SUCCESS;
-                }
                 continue;
             }
 
             // write to the output, and retry if it doesn't work:
-            while (std::fwrite(&input.value(), sizeof(input_event), 1, out_fd) != 1) {
+            while (write(out_fd, &input.value(), sizeof(input_event)) != sizeof(input_event)) [[unlikely]] {
                 std::this_thread::yield();
-                if (dev.is_done()) {
-                    break; // skip this write
+                if (is_stopped) {
+                    break; // we're done
                 }
             }
         }
@@ -59,7 +88,5 @@ int interceptor::loop() {
 }
 
 void interceptor::stop(bool const should_stop) {
-    for (auto& dev : devs) {
-        dev.stop(should_stop);
-    }
+    is_stopped = should_stop;
 }

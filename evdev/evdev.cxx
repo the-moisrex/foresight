@@ -12,7 +12,7 @@ module;
 module foresight.evdev;
 
 evdev::evdev(std::filesystem::path const& file) {
-    file_descriptor = open(file.c_str(), O_RDWR | O_NONBLOCK);
+    file_descriptor = open(file.c_str(), O_RDONLY);
 
     if (file_descriptor < 0) {
         return;
@@ -44,7 +44,7 @@ void evdev::set_file(std::filesystem::path const& file) {
         file_descriptor = -1;
     }
 
-    auto const new_fd = open(file.c_str(), O_RDWR | O_NONBLOCK);
+    auto const new_fd = open(file.c_str(), O_RDONLY);
     if (new_fd < 0) {
         throw std::system_error();
     }
@@ -89,10 +89,6 @@ void evdev::grab_input() {
     grabbed = true;
 }
 
-void evdev::stop(bool const should_stop) {
-    is_stopped = should_stop;
-}
-
 std::string_view evdev::device_name() const noexcept {
     return libevdev_get_name(dev);
 }
@@ -102,15 +98,13 @@ std::optional<input_event> evdev::next(bool const sync) noexcept {
 
     for (;;) {
         switch (libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &input)) {
+            [[likely]] case LIBEVDEV_READ_STATUS_SUCCESS: { return input; }
             case LIBEVDEV_READ_STATUS_SYNC:
             case -EAGAIN: break;
-            case LIBEVDEV_READ_STATUS_SUCCESS: {
-                return input;
-            }
             default: return std::nullopt;
         }
 
-        if (sync || !is_stopped) {
+        if (sync) {
             break;
         }
     }

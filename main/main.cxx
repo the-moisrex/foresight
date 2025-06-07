@@ -115,16 +115,21 @@ namespace {
             set_action(opts, redirect);
         }
 
+        bool grab = false;
         for (std::size_t index = 2; index < argv.size(); ++index) {
             std::string_view const opt{argv[index]};
 
             if (opt == "--help" || opt == "-h") {
                 set_action(opts, help);
             }
+            if (opt == "--grab" || opt == "-g") {
+                grab = true;
+                continue;
+            }
 
             switch (opts.action) {
                 case intercept: {
-                    opts.files.emplace_back(opt, opt == "--grab" || opt == "-g");
+                    opts.files.emplace_back(opt, grab);
                     if (auto const status = std::filesystem::status(opts.files.back().file); !exists(status))
                     {
                         throw invalid_argument(
@@ -206,7 +211,7 @@ namespace {
             }
             case intercept: {
                 interceptor inpor{opts.files};
-                inpor.set_output(stdout);
+                inpor.set_output(STDOUT_FILENO);
                 register_stop_signal(inpor);
                 return inpor.loop();
             }

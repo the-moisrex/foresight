@@ -1,33 +1,30 @@
 // Created by moisrex on 6/22/24.
 
 module;
+#include <atomic>
 #include <filesystem>
 #include <span>
+#include <unistd.h>
 #include <vector>
 export module foresight.intercept;
 import foresight.evdev;
 
 export struct input_file_type {
     std::filesystem::path file;
-    bool grab = false;
+    bool                  grab = false;
 };
 
 /**
  * Intercept the keyboard and print them into stdout
  */
 export struct interceptor {
+    explicit interceptor(std::span<std::filesystem::path const> inp_paths);
     explicit interceptor(std::span<input_file_type const> inp_paths);
 
     /**
      * Set output file descriptor
      */
-    void set_output(FILE* inp_out_fd = stdout) noexcept;
-
-    /**
-     * Grab the input
-     * It's not recommended if you don't know what you're doing.
-     */
-    void grab_input();
+    void set_output(int inp_out_fd = STDOUT_FILENO) noexcept;
 
     /**
      * Start running the interceptor
@@ -41,6 +38,7 @@ export struct interceptor {
     void stop(bool should_stop = true);
 
   private:
-    FILE*              out_fd = stdout;
+    int                out_fd = STDOUT_FILENO;
+    std::atomic_bool is_stopped = false;
     std::vector<evdev> devs;
 };

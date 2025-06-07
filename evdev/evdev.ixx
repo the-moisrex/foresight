@@ -1,7 +1,6 @@
 // Created by moisrex on 6/18/24.
 
 module;
-#include <atomic>
 #include <filesystem>
 #include <libevdev/libevdev.h>
 #include <optional>
@@ -18,7 +17,6 @@ export struct evdev {
     evdev(evdev&& inp) noexcept
       : file_descriptor{std::exchange(inp.file_descriptor, -1)},
         dev{std::exchange(inp.dev, nullptr)},
-        is_stopped{inp.is_stopped.load()},
         grabbed{inp.grabbed} {}
 
     evdev(evdev const&)            = delete;
@@ -28,7 +26,6 @@ export struct evdev {
         if (this != &other) {
             file_descriptor = std::exchange(other.file_descriptor, -1);
             dev             = std::exchange(other.dev, nullptr);
-            is_stopped      = other.is_stopped.load();
             grabbed         = other.grabbed;
         }
         return *this;
@@ -50,11 +47,6 @@ export struct evdev {
 
     void grab_input();
 
-    void stop(bool should_stop = true);
-
-    [[nodiscard]] bool is_done() const noexcept {
-        return is_stopped.load();
-    }
 
     /**
      * Retrieve the device's name, either as set by the caller or as read from
@@ -70,8 +62,7 @@ export struct evdev {
     [[nodiscard]] std::optional<input_event> next(bool sync = false) noexcept;
 
   private:
-    int              file_descriptor = -1;
-    libevdev*        dev             = nullptr;
-    std::atomic_bool is_stopped      = false;
-    bool             grabbed         = false;
+    int       file_descriptor = -1;
+    libevdev* dev             = nullptr;
+    bool      grabbed         = false;
 };
