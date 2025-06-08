@@ -7,15 +7,16 @@ module;
 #include <vector>
 module foresight.redirect;
 import foresight.uinput;
+using foresight::redirector;
 
-void redirector::set_input(FILE* inp_in_fd) {
+void redirector::set_input(int const inp_in_fd) {
     if (started) {
         throw std::runtime_error("Stop the device first, then change the input source");
     }
     inp_fd = inp_in_fd;
 
     // disable the buffer
-    std::setbuf(inp_fd, nullptr);
+    // std::setbuf(inp_fd, nullptr);
 }
 
 void redirector::set_output(uinput&& inp_dev) {
@@ -42,7 +43,7 @@ int redirector::loop() {
 
     input_event input;
 
-    while (std::fread(&input, sizeof(input), 1, inp_fd) == 1) {
+    while (read(inp_fd, &input, sizeof(input)) == sizeof(input)) {
         // write the event:
         while (!dev.write(input)) [[unlikely]] {
             // todo: log?

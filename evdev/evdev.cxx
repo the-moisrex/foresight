@@ -5,11 +5,13 @@ module;
 #include <exception>
 #include <fcntl.h>
 #include <filesystem>
-#include <fmt/format.h>
+#include <format>
 #include <libevdev/libevdev.h>
 #include <optional>
 #include <unistd.h>
 module foresight.evdev;
+
+using foresight::evdev;
 
 evdev::evdev(std::filesystem::path const& file) {
     file_descriptor = open(file.c_str(), O_RDONLY);
@@ -70,7 +72,7 @@ void evdev::set_file(int const file) {
         close(file_descriptor);
         file_descriptor = -1;
         throw std::domain_error(
-          fmt::format("Failed to set file for libevdev ({})\n", std::strerror(-res_rc)));
+          std::format("Failed to set file for libevdev ({})\n", std::strerror(-res_rc)));
     }
 }
 

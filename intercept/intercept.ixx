@@ -9,36 +9,38 @@ module;
 export module foresight.intercept;
 import foresight.evdev;
 
-export struct input_file_type {
-    std::filesystem::path file;
-    bool                  grab = false;
-};
-
-/**
- * Intercept the keyboard and print them into stdout
- */
-export struct interceptor {
-    explicit interceptor(std::span<std::filesystem::path const> inp_paths);
-    explicit interceptor(std::span<input_file_type const> inp_paths);
+namespace foresight {
+    export struct input_file_type {
+        std::filesystem::path file;
+        bool                  grab = false;
+    };
 
     /**
-     * Set output file descriptor
+     * Intercept the keyboard and print them into stdout
      */
-    void set_output(int inp_out_fd = STDOUT_FILENO) noexcept;
+    export struct interceptor {
+        explicit interceptor(std::span<std::filesystem::path const> inp_paths);
+        explicit interceptor(std::span<input_file_type const> inp_paths);
 
-    /**
-     * Start running the interceptor
-     * @return the exit code
-     */
-    int loop();
+        /**
+         * Set output file descriptor
+         */
+        void set_output(int inp_out_fd = STDOUT_FILENO) noexcept;
 
-    /**
-     * Stop the loop
-     */
-    void stop(bool should_stop = true);
+        /**
+         * Start running the interceptor
+         * @return the exit code
+         */
+        int loop();
 
-  private:
-    int                out_fd = STDOUT_FILENO;
-    std::atomic_bool is_stopped = false;
-    std::vector<evdev> devs;
-};
+        /**
+         * Stop the loop
+         */
+        void stop(bool should_stop = true);
+
+      private:
+        int                out_fd     = STDOUT_FILENO;
+        std::atomic_bool   is_stopped = false;
+        std::vector<evdev> devs;
+    };
+} // namespace foresight

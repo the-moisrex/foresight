@@ -7,45 +7,47 @@ module;
 export module foresight.redirect;
 export import foresight.uinput;
 
-/**
- * Redirect the already input events into the specified virtual device
- */
-export struct redirector {
-    redirector() = default;
-
-    template <typename... Args>
-    explicit redirector(Args&&... args) : dev{std::forward<Args>(args)...} {}
-
-    explicit redirector(uinput&& inp_dev) : dev{std::move(inp_dev)} {}
-
+namespace foresight {
     /**
-     * Set output file descriptor
+     * Redirect the already input events into the specified virtual device
      */
-    void set_input(FILE* inp_in_fd = stdin);
+    export struct redirector {
+        redirector() = default;
 
-    /**
-     * Start running the interceptor
-     * @return the exit code
-     */
-    int loop();
+        template <typename... Args>
+        explicit redirector(Args&&... args) : dev{std::forward<Args>(args)...} {}
 
-    /**
-     * Set the output virtual device
-     */
-    void set_output(uinput&& inp_dev);
+        explicit redirector(uinput&& inp_dev) : dev{std::move(inp_dev)} {}
 
-    template <typename... Args>
-    void init_device(Args&&... args) {
-        dev = uinput{std::forward<Args>(args)...};
-    }
+        /**
+         * Set output file descriptor
+         */
+        void set_input(int inp_in_fd = STDIN_FILENO);
 
-    /**
-     * Stop the loop
-     */
-    void stop();
+        /**
+         * Start running the interceptor
+         * @return the exit code
+         */
+        int loop();
 
-  private:
-    FILE*            inp_fd = stdin;
-    uinput           dev{};
-    std::atomic_bool started = false;
-};
+        /**
+         * Set the output virtual device
+         */
+        void set_output(uinput&& inp_dev);
+
+        template <typename... Args>
+        void init_device(Args&&... args) {
+            dev = uinput{std::forward<Args>(args)...};
+        }
+
+        /**
+         * Stop the loop
+         */
+        void stop();
+
+      private:
+        int              inp_fd = STDIN_FILENO;
+        uinput           dev{};
+        std::atomic_bool started = false;
+    };
+} // namespace foresight

@@ -14,6 +14,8 @@ module;
 #include <vector>
 module foresight.intercept;
 
+using foresight::interceptor;
+
 interceptor::interceptor(std::span<std::filesystem::path const> const inp_paths) {
     // convert to `evdev`s.
     for (auto const& file : inp_paths) {

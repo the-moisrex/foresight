@@ -50,31 +50,32 @@ endif ()
 add_executable(${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 set_target_properties(${PROJECT_NAME} PROPERTIES
-        CXX_STANDARD 20
+        CXX_STANDARD 23
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF)
 target_sources(${PROJECT_NAME}
-        PRIVATE
-            main/main.cxx
-            main/keyboard.cxx
-            main/provider.cxx
-            evdev/evdev.cxx
-            uinput/uinput.cxx
-            uinput/redirect.cxx
-            intercept/intercept.cxx
-            mods/event.cxx
-        PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
-#            io/liburing.ixx
-#            io/io_ring.ixx
-            main/main.ixx
-            main/keyboard.ixx
-            main/provider.ixx
-            main/translate.ixx
-            evdev/evdev.ixx
-            intercept/intercept.ixx
-            uinput/redirect.ixx
-            uinput/uinput.ixx
-            mods/event.ixx
+    PRIVATE
+        main/main.cxx
+        main/keyboard.cxx
+        main/provider.cxx
+        evdev/evdev.cxx
+        uinput/uinput.cxx
+        uinput/redirect.cxx
+        intercept/intercept.cxx
+        mods/event.cxx
+    PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
+#       io/liburing.ixx
+#       io/io_ring.ixx
+        main/main.ixx
+        main/keyboard.ixx
+        main/provider.ixx
+        main/translate.ixx
+        evdev/evdev.ixx
+        intercept/intercept.ixx
+        uinput/redirect.ixx
+        uinput/uinput.ixx
+        mods/event.ixx
+        mods/context.ixx
 )
 
 # Libraries
@@ -90,7 +91,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
 target_link_options(${PROJECT_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
 target_link_libraries(${PROJECT_NAME}
         PRIVATE Threads::Threads
-        PRIVATE fmt::fmt
+#        PRIVATE fmt::fmt
 #        PRIVATE spdlog::spdlog
         PRIVATE evdev
         PRIVATE Qt${QT_VERSION_MAJOR}::Core

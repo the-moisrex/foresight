@@ -2,8 +2,9 @@
 #include <csignal>
 #include <exception>
 #include <filesystem>
-#include <fmt/core.h>
+#include <format>
 #include <functional>
+#include <print>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -25,7 +26,7 @@ namespace {
         } action = action_type::none;
 
         /// intercept file
-        std::vector<input_file_type> files;
+        std::vector<foresight::input_file_type> files;
     };
 
     void set_action(options& opt, options::action_type const inp_action) {
@@ -33,13 +34,13 @@ namespace {
             return;
         }
         if (opt.action != options::action_type::none) {
-            throw std::invalid_argument(fmt::format("Invalid argument syntax, two actions provided."));
+            throw std::invalid_argument(std::format("Invalid argument syntax, two actions provided."));
         }
         opt.action = inp_action;
     }
 
     void print_help() {
-        fmt::println("{}", R"TEXT(Usage: foresight [options] [action]
+        std::println("{}", R"TEXT(Usage: foresight [options] [action]
   Arguments:
     -h | --help          Print help.
 
@@ -97,7 +98,7 @@ namespace {
 
     options parse_arguments(std::span<char const* const> const argv) {
         using enum options::action_type;
-        using fmt::format;
+        using std::format;
         using std::invalid_argument;
 
         options opts{};
@@ -210,7 +211,7 @@ namespace {
                 return EXIT_FAILURE;
             }
             case intercept: {
-                interceptor inpor{opts.files};
+                foresight::interceptor inpor{opts.files};
                 inpor.set_output(STDOUT_FILENO);
                 register_stop_signal(inpor);
                 return inpor.loop();
@@ -220,8 +221,8 @@ namespace {
                     throw std::invalid_argument("Only pass one file for redirect.");
                 }
 
-                evdev      dev{opts.files.front().file};
-                redirector rdtor{dev};
+                foresight::evdev      dev{opts.files.front().file};
+                foresight::redirector rdtor{dev};
 
                 register_stop_signal(rdtor);
                 return rdtor.loop();
@@ -245,13 +246,13 @@ int main(int const argc, char const* const* argv) try
     auto const opts = parse_arguments(std::span{argv, argv + argc});
     return run_action(opts);
 } catch (std::invalid_argument const& err) {
-    fmt::println(stderr, "{}", err.what());
+    std::println(stderr, "{}", err.what());
 } catch (std::system_error const& err) {
-    fmt::println(stderr, "System Error ({} {}): {}", err.code().value(), err.code().message(), err.what());
+    std::println(stderr, "System Error ({} {}): {}", err.code().value(), err.code().message(), err.what());
 } catch (std::domain_error const& err) {
-    fmt::println(stderr, "Domain Error: {}", err.what());
+    std::println(stderr, "Domain Error: {}", err.what());
 } catch (std::exception const& err) {
-    fmt::println(stderr, "Fatal exception: {}", err.what());
+    std::println(stderr, "Fatal exception: {}", err.what());
 } catch (...) {
-    fmt::println(stderr, "Fatal unknown exception.");
+    std::println(stderr, "Fatal unknown exception.");
 }

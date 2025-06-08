@@ -23,14 +23,14 @@ export namespace foresight {
         using function_type = Func;
         static_assert(std::is_invocable_v<Func, basic_context<>>, "Function is not invokable.");
 
-        explicit basic_context(event &&inp_ev) noexcept : ev{std::move(inp_ev)} {}
+        explicit basic_context(event_type &&inp_ev) noexcept : ev{std::move(inp_ev)} {}
 
         void next() const noexcept(std::is_nothrow_invocable_v<Func, basic_context>) {
             func(*this);
         }
 
       private:
-        event                      ev;
+        event_type                 ev;
         [[no_unique_address]] Func func;
     };
 
@@ -38,30 +38,30 @@ export namespace foresight {
     struct basic_context<void> {
         using function_type = std::function<void(basic_context const &)>;
 
-        explicit basic_context(event &&inp_ev) : ev{std::move(inp_ev)} {}
+        explicit basic_context(event_type &&inp_ev) : ev{std::move(inp_ev)} {}
 
         void next() const {
             func(*this);
         }
 
-        [[nodiscard]] event const &event() const noexcept {
+        [[nodiscard]] event_type const &event() const noexcept {
             return ev;
         }
 
       private:
-        foresight::event ev;
-        function_type    func;
+        event_type    ev;
+        function_type func;
     };
 
-    [[nodiscard]] event::type_type type(context auto const &ctx) noexcept {
+    [[nodiscard]] event_type::type_type type(context auto const &ctx) noexcept {
         return ctx.event().type();
     }
 
-    [[nodiscard]] event::code_type code(context auto const &ctx) noexcept {
+    [[nodiscard]] event_type::code_type code(context auto const &ctx) noexcept {
         return ctx.event().code();
     }
 
-    [[nodiscard]] event::value_type value(context auto const &ctx) noexcept {
+    [[nodiscard]] event_type::value_type value(context auto const &ctx) noexcept {
         return ctx.event().value();
     }
 

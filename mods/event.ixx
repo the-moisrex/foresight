@@ -7,16 +7,16 @@ export module foresight.mods.event;
 
 export namespace foresight {
 
-    struct event {
+    struct event_type {
         using type_type  = decltype(input_event::type);
         using code_type  = decltype(input_event::code);
         using value_type = decltype(input_event::value);
 
-        explicit event(input_event const inp_ev) noexcept : ev{inp_ev} {}
+        explicit event_type(input_event const inp_ev) noexcept : ev{inp_ev} {}
 
-        event(event&&) noexcept            = default;
-        event& operator=(event&&) noexcept = default;
-        ~event()                           = default;
+        event_type(event_type&&) noexcept            = default;
+        event_type& operator=(event_type&&) noexcept = default;
+        ~event_type()                                = default;
 
         void type(uint16_t const inp_type) noexcept {
             ev.type = inp_type;
@@ -46,7 +46,7 @@ export namespace foresight {
         input_event ev;
     };
 
-    [[nodiscard]] bool is_mouse_movement(event const&) noexcept;
+    [[nodiscard]] bool is_mouse_movement(event_type const&) noexcept;
 
 
 } // namespace foresight

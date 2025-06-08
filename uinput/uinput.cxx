@@ -4,10 +4,12 @@ module;
 #include <cassert>
 #include <fcntl.h>
 #include <filesystem>
-#include <fmt/core.h>
+#include <format>
 #include <libevdev/libevdev-uinput.h>
 #include <system_error>
 module foresight.uinput;
+
+using foresight::uinput;
 
 uinput::uinput(evdev& evdev_dev, std::filesystem::path const& file) noexcept
   : uinput(evdev_dev.device_ptr(), file) {}
