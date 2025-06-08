@@ -7,7 +7,7 @@
 #include <span>
 #include <string_view>
 #include <vector>
-import foresight.keyboard;
+import foresight.main;
 import foresight.intercept;
 import foresight.redirect;
 import foresight.evdev;
@@ -227,7 +227,7 @@ namespace {
                 return rdtor.loop();
             }
             default: {
-                keyboard kbd;
+                foresight::keyboard kbd;
                 return kbd.loop();
             }
         }

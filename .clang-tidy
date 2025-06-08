@@ -24,13 +24,13 @@ Checks: >
   altera-*,
     -altera-unroll-loops,
     -altera-id-dependent-backward-branch,
-    -altera-struct-pack-align,
   android-*,
   fuchsia-*,
     -fuchsia-overloaded-operator,
     -fuchsia-default-arguments-calls,
     -fuchsia-default-arguments-declarations,
   linuxkernel-*,
+  -*-easily-swappable-parameters,
 CheckOptions:
   - key:   readability-function-cognitive-complexity.Threshold
     value: 50 # default is 25

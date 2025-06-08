@@ -7,7 +7,7 @@ using ev_type    = decltype(input_event::type);
 using value_type = decltype(input_event::value);
 
 
-static constexpr value_type threshold = 100; // pixels to resistence to move
+static constexpr value_type threshold = 50; // pixels to resistence to move
 
 int main() {
     input_event event{};

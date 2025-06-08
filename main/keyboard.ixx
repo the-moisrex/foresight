@@ -5,39 +5,40 @@ module;
 #include <string>
 #include <string_view>
 #include <vector>
-export module foresight.keyboard;
+export module foresight.main.keyboard;
 import foresight.evdev;
-import foresight.translate;
+import foresight.main.translate;
+
+namespace foresight {
+    export constexpr std::size_t give_up_limit = 5;
+
+    export struct keyboard {
+        keyboard();
+        keyboard(keyboard const &)            = delete;
+        keyboard(keyboard &&)                 = delete;
+        keyboard &operator=(keyboard const &) = delete;
+        keyboard &operator=(keyboard &&)      = delete;
+
+        void to_string();
+
+        void check();
+
+        void replace(std::string_view replace_it, std::string_view replace_with);
+        void remove(std::string_view text);
+
+        void backspace(std::size_t count = 1);
+        void put(std::string_view text);
+        void put(input_event ev);
+
+        void buffer(input_event &ev);
+
+        // this loop is the main loop
+        int loop() noexcept;
 
 
-export constexpr std::size_t give_up_limit = 5;
-
-export struct keyboard {
-              keyboard();
-              keyboard(keyboard const &)  = delete;
-              keyboard(keyboard &&)       = delete;
-    keyboard &operator=(keyboard const &) = delete;
-    keyboard &operator=(keyboard &&)      = delete;
-
-    void to_string();
-
-    void check();
-
-    void replace(std::string_view replace_it, std::string_view replace_with);
-    void remove(std::string_view text);
-
-    void backspace(std::size_t count = 1);
-    void put(std::string_view text);
-    void put(input_event ev);
-
-    void buffer(input_event &ev);
-
-    // this loop is the main loop
-    int loop() noexcept;
-
-
-  private:
-    std::vector<input_event> events;
-    input_event              event{};
-    std::string              str;
-};
+      private:
+        std::vector<input_event> events;
+        input_event              event{};
+        std::string              str;
+    };
+} // namespace foresight

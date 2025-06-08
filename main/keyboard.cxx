@@ -1,15 +1,16 @@
 // Created by moisrex on 9/9/22.
 
 module;
-
 #include <algorithm>
 #include <cstdio>
 #include <fmt/core.h>
 #include <linux/input.h>
 #include <ranges>
 #include <thread>
+module foresight.main.keyboard;
+import foresight.main.translate;
 
-module foresight.keyboard;
+using foresight::keyboard;
 
 keyboard::keyboard() {
     setbuf(stdin, nullptr);
@@ -19,7 +20,7 @@ keyboard::keyboard() {
 void keyboard::to_string() {
     str.reserve(events.size());
     for ([[maybe_unused]] auto const &[time, type, code, value] : events) {
-        char const cur = to_char(code);
+        char const cur = foresight::to_char(code);
         str.push_back(cur);
     }
 }
@@ -88,7 +89,7 @@ namespace {
     bool handle_errors() {
         static std::size_t tries = 1;
         ++tries;
-        if (tries == give_up_limit + 1) {
+        if (tries == foresight::give_up_limit + 1) {
             fmt::println(
               stderr,
               "Tried {0:d} times and failed everytime to start the loop (or in the loop); giving up!",

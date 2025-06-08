@@ -62,20 +62,19 @@ target_sources(${PROJECT_NAME}
             uinput/uinput.cxx
             uinput/redirect.cxx
             intercept/intercept.cxx
-        PUBLIC
-            FILE_SET foresight TYPE CXX_MODULES
-            BASE_DIRS
-                ${PROJECT_SOURCE_DIR}
-            FILES
-#                io/liburing.ixx
-#                io/io_ring.ixx
-                main/keyboard.ixx
-                main/provider.ixx
-                main/translate.ixx
-                evdev/evdev.ixx
-                intercept/intercept.ixx
-                uinput/redirect.ixx
-                uinput/uinput.ixx
+            mods/event.cxx
+        PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
+#            io/liburing.ixx
+#            io/io_ring.ixx
+            main/main.ixx
+            main/keyboard.ixx
+            main/provider.ixx
+            main/translate.ixx
+            evdev/evdev.ixx
+            intercept/intercept.ixx
+            uinput/redirect.ixx
+            uinput/uinput.ixx
+            mods/event.ixx
 )
 
 # Libraries
