@@ -8,6 +8,10 @@ export module foresight.mods.event;
 export namespace foresight {
 
     struct event {
+        using type_type  = decltype(input_event::type);
+        using code_type  = decltype(input_event::code);
+        using value_type = decltype(input_event::value);
+
         explicit event(input_event const inp_ev) noexcept : ev{inp_ev} {}
 
         event(event&&) noexcept            = default;
