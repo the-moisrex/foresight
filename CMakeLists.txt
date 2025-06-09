@@ -87,6 +87,7 @@ target_sources(${LIB_NAME}
         uinput/uinput.ixx
         mods/event.ixx
         mods/context.ixx
+        mods/inout.ixx
         mods/rel_jumps.ixx
         mods/mods.ixx
 )

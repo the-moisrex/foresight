@@ -2,87 +2,109 @@
 
 module;
 #include <concepts>
+#include <cstdint>
 #include <functional>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 export module foresight.mods.context;
 import foresight.mods.event;
 
 export namespace foresight {
-    template <typename Func = void>
+    template <typename... Funcs>
     struct basic_context;
 
     template <typename T>
-    concept context = requires(T ctx) {
-        ctx.next();
-        ctx.event();
+    concept Context = requires(T ctx) { ctx.event(); };
+
+    template <typename T>
+    concept modifier = std::copyable<std::remove_cvref_t<T>>;
+
+    enum struct context_action : std::uint8_t {
+        next,
+        ignore_event,
+        exit,
     };
 
-    template <typename Func>
-    struct basic_context {
-        using function_type = Func;
-        static_assert(std::is_invocable_v<Func, basic_context<>>, "Function is not invokable.");
-
-        explicit basic_context(event_type &&inp_ev) noexcept : ev{std::move(inp_ev)} {}
-
-        basic_context(basic_context &&inp_ctx) noexcept            = default;
-        basic_context &operator=(basic_context &&inp_ctx) noexcept = default;
-        ~basic_context() noexcept                                  = default;
-
-        void next() noexcept(std::is_nothrow_invocable_v<Func, basic_context>) {
-            func(*this);
+    template <typename ModT, typename CtxT>
+    [[nodiscard]] constexpr context_action invoke_mod(ModT &mod, CtxT &ctx) {
+        using enum context_action;
+        using result = std::invoke_result_t<ModT, CtxT &>;
+        if constexpr (std::same_as<result, bool>) {
+            return mod(ctx) ? next : ignore_event;
+        } else if constexpr (std::same_as<result, context_action>) {
+            return mod(ctx);
+        } else {
+            mod(ctx);
+            return next;
         }
+    }
 
-        [[nodiscard]] event_type const &event() const noexcept {
+    template <typename... Funcs>
+    struct [[nodiscard]] basic_context {
+        constexpr basic_context() noexcept = default;
+
+        template <typename... InpFuncs>
+        constexpr explicit basic_context(event_type inp_ev, InpFuncs &&...inp_funcs) noexcept
+          : ev{std::move(inp_ev)},
+            funcs{std::forward<InpFuncs>(inp_funcs)...} {}
+
+        constexpr basic_context(basic_context const &inp_ctx)                = default;
+        constexpr basic_context(basic_context &&inp_ctx) noexcept            = default;
+        constexpr basic_context &operator=(basic_context &&inp_ctx) noexcept = default;
+        constexpr basic_context &operator=(basic_context const &inp_ctx)     = default;
+        constexpr ~basic_context() noexcept                                  = default;
+
+        [[nodiscard]] constexpr event_type const &event() const noexcept {
             return ev;
         }
 
-      private:
-        event_type                 ev;
-        [[no_unique_address]] Func func;
-    };
-
-    template <>
-    struct basic_context<void> {
-        using function_type = std::function<void(basic_context &)>;
-
-        template <typename Func>
-            requires(!std::is_void_v<Func>)
-        explicit basic_context(basic_context<Func> &inp_ctx)
-          : ev{inp_ctx.ev},
-            func{[&](basic_context<> &ctx) {
-                inp_ctx.func(ctx);
-            }} {}
-
-        explicit basic_context(event_type &&inp_ev) : ev{std::move(inp_ev)} {}
-
-        basic_context(basic_context &&inp_ctx) noexcept            = default;
-        basic_context &operator=(basic_context &&inp_ctx) noexcept = default;
-        ~basic_context() noexcept                                  = default;
-
-        void next() {
-            func(*this);
-        }
-
-        [[nodiscard]] event_type const &event() const noexcept {
+        [[nodiscard]] constexpr event_type &event() noexcept {
             return ev;
         }
 
+        template <modifier Mod>
+        [[nodiscard]] consteval basic_context<Funcs..., Mod> operator|(Mod &&mod) const noexcept {
+            return std::apply(
+              [this, &mod]<typename... Fs>(Fs &&...the_funcs) {
+                  return basic_context<Funcs..., Mod>{ev, std::forward<Fs>(the_funcs)..., mod};
+              },
+              funcs);
+        }
+
+        constexpr decltype(auto) operator()() {
+            using enum context_action;
+            return std::apply(
+              [this](auto &...mods) {
+                  for (;;) {
+                      auto action = next;
+                      (((action = invoke_mod(mods, *this)), action == next) && ...);
+                      if (action == exit) {
+                          break;
+                      }
+                  }
+              },
+              funcs);
+        }
+
       private:
-        event_type    ev;
-        function_type func;
+        event_type           ev;
+        std::tuple<Funcs...> funcs;
     };
 
-    [[nodiscard]] event_type::type_type type(context auto const &ctx) noexcept {
+    constexpr basic_context<> context;
+
+    [[nodiscard]] constexpr event_type::type_type type(Context auto const &ctx) noexcept {
         return ctx.event().type();
     }
 
-    [[nodiscard]] event_type::code_type code(context auto const &ctx) noexcept {
+    [[nodiscard]] constexpr event_type::code_type code(Context auto const &ctx) noexcept {
         return ctx.event().code();
     }
 
-    [[nodiscard]] event_type::value_type value(context auto const &ctx) noexcept {
+    [[nodiscard]] constexpr event_type::value_type value(Context auto const &ctx) noexcept {
         return ctx.event().value();
     }
+
 
 } // namespace foresight
