@@ -1,10 +1,7 @@
 module;
-#include <algorithm>
 #include <cassert>
 #include <linux/input.h>
-#include <ranges>
 #include <thread>
-#include <vector>
 module foresight.redirect;
 import foresight.uinput;
 using foresight::redirector;

@@ -20,7 +20,7 @@ keyboard::keyboard() {
 void keyboard::to_string() {
     str.reserve(events.size());
     for ([[maybe_unused]] auto const &[time, type, code, value] : events) {
-        char const cur = foresight::to_char(code);
+        char const cur = foresight::to_char(static_cast<std::uint8_t>(code));
         str.push_back(cur);
     }
 }

@@ -5,7 +5,7 @@ module;
 #include <functional>
 #include <type_traits>
 #include <utility>
-export module context;
+export module foresight.mods.context;
 import foresight.mods.event;
 
 export namespace foresight {
@@ -25,8 +25,16 @@ export namespace foresight {
 
         explicit basic_context(event_type &&inp_ev) noexcept : ev{std::move(inp_ev)} {}
 
-        void next() const noexcept(std::is_nothrow_invocable_v<Func, basic_context>) {
+        basic_context(basic_context &&inp_ctx) noexcept            = default;
+        basic_context &operator=(basic_context &&inp_ctx) noexcept = default;
+        ~basic_context() noexcept                                  = default;
+
+        void next() noexcept(std::is_nothrow_invocable_v<Func, basic_context>) {
             func(*this);
+        }
+
+        [[nodiscard]] event_type const &event() const noexcept {
+            return ev;
         }
 
       private:
@@ -36,11 +44,23 @@ export namespace foresight {
 
     template <>
     struct basic_context<void> {
-        using function_type = std::function<void(basic_context const &)>;
+        using function_type = std::function<void(basic_context &)>;
+
+        template <typename Func>
+            requires(!std::is_void_v<Func>)
+        explicit basic_context(basic_context<Func> &inp_ctx)
+          : ev{inp_ctx.ev},
+            func{[&](basic_context<> &ctx) {
+                inp_ctx.func(ctx);
+            }} {}
 
         explicit basic_context(event_type &&inp_ev) : ev{std::move(inp_ev)} {}
 
-        void next() const {
+        basic_context(basic_context &&inp_ctx) noexcept            = default;
+        basic_context &operator=(basic_context &&inp_ctx) noexcept = default;
+        ~basic_context() noexcept                                  = default;
+
+        void next() {
             func(*this);
         }
 

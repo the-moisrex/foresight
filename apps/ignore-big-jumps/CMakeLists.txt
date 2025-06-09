@@ -10,4 +10,4 @@ target_compile_features(ignore-big-jumps PUBLIC cxx_std_23)
 set_target_properties(ignore-big-jumps PROPERTIES
         CXX_STANDARD 23
         CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF)
+        CXX_EXTENSIONS ON)

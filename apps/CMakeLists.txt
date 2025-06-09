@@ -5,3 +5,5 @@ add_subdirectory(add-scroll)
 #add_subdirectory(gesture-redirect)
 add_subdirectory(long-press)
 add_subdirectory(mouse-mode)
+
+add_subdirectory(pen2mice)

@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.23...4.0)
 
-project(foresight
-        LANGUAGES CXX C)
+project(foresight LANGUAGES CXX C)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+# set(CMAKE_AUTOUIC ON)
+# set(CMAKE_AUTOMOC ON)
+# set(CMAKE_AUTORCC ON)
 
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -45,30 +44,42 @@ endif ()
 if (IS_CLANG)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif ()
+include(./cmake/import.cmake)
+include(GNUInstallDirs)
+
+# Libraries
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBEVDEV REQUIRED libevdev)
+#find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+#find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets REQUIRED)
 
 
-add_executable(${PROJECT_NAME})
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
-set_target_properties(${PROJECT_NAME} PROPERTIES
+#############################################################
+########## ---------- Foresight Library ---------- ##########
+#############################################################
+
+set(LIB_NAME ${PROJECT_NAME}_lib)
+add_library(${LIB_NAME})
+add_library(${LIB_NAME}::${LIB_NAME} ALIAS ${LIB_NAME})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${LIB_NAME})
+
+set_target_properties(${LIB_NAME} PROPERTIES
         CXX_STANDARD 23
         CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF)
-target_sources(${PROJECT_NAME}
-    PRIVATE
-        main/main.cxx
+        CXX_EXTENSIONS ON)
+target_sources(${LIB_NAME}
+        PRIVATE
         main/keyboard.cxx
-        main/provider.cxx
         evdev/evdev.cxx
         uinput/uinput.cxx
         uinput/redirect.cxx
         intercept/intercept.cxx
         mods/event.cxx
-    PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
-#       io/liburing.ixx
-#       io/io_ring.ixx
+        PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
+        # io/liburing.ixx
+        # io/io_ring.ixx
         main/main.ixx
         main/keyboard.ixx
-        main/provider.ixx
         main/translate.ixx
         evdev/evdev.ixx
         intercept/intercept.ixx
@@ -76,36 +87,56 @@ target_sources(${PROJECT_NAME}
         uinput/uinput.ixx
         mods/event.ixx
         mods/context.ixx
+        mods/rel_jumps.ixx
+        mods/mods.ixx
+)
+target_compile_features(${LIB_NAME} PUBLIC cxx_std_23)
+set_target_properties(${LIB_NAME} PROPERTIES
+        CXX_STANDARD 23
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS ON)
+target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
+target_compile_options(${LIB_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
+target_link_options(${LIB_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
+target_link_libraries(${LIB_NAME}
+        PRIVATE evdev
+        PRIVATE ${LIBEVDEV_LIBRARIES}
+        # PRIVATE Threads::Threads
 )
 
-# Libraries
-#find_package(spdlog REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBEVDEV REQUIRED libevdev)
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
-include(./cmake/import.cmake)
+install(TARGETS ${LIB_NAME}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+
+#############################################################
+########## -------- Foresight Executable --------- ##########
+#############################################################
+
+add_executable(${PROJECT_NAME})
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
+target_sources(${PROJECT_NAME}
+        PRIVATE
+        main/main.cxx
+)
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
 target_compile_options(${PROJECT_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
 target_link_options(${PROJECT_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
 target_link_libraries(${PROJECT_NAME}
-        PRIVATE Threads::Threads
-#        PRIVATE fmt::fmt
-#        PRIVATE spdlog::spdlog
-        PRIVATE evdev
-        PRIVATE Qt${QT_VERSION_MAJOR}::Core
-        PRIVATE ${LIBEVDEV_LIBRARIES}
-#        PRIVATE liburing::liburing
+        PRIVATE ${LIB_NAME}::${LIB_NAME}
+#        PRIVATE Qt${QT_VERSION_MAJOR}::Core
 )
 
-if (IS_DEBUG)
-    add_subdirectory(tests EXCLUDE_FROM_ALL)
-endif ()
-add_subdirectory(apps)
-
-include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+#############################################################
+
+if (IS_DEBUG)
+    add_subdirectory(tests)
+endif ()
+add_subdirectory(apps)
