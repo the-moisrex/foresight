@@ -86,9 +86,12 @@ target_sources(${LIB_NAME}
         uinput/redirect.ixx
         uinput/uinput.ixx
         mods/event.ixx
+        mods/keys_status.ixx
+        mods/quantifier.ixx
         mods/context.ixx
         mods/inout.ixx
         mods/rel_jumps.ixx
+        mods/add_scroll.ixx
         mods/mods.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_23)
@@ -127,7 +130,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
 target_link_options(${PROJECT_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
 target_link_libraries(${PROJECT_NAME}
         PRIVATE ${LIB_NAME}::${LIB_NAME}
-#        PRIVATE Qt${QT_VERSION_MAJOR}::Core
+        #        PRIVATE Qt${QT_VERSION_MAJOR}::Core
 )
 
 install(TARGETS ${PROJECT_NAME}

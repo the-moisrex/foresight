@@ -3,17 +3,13 @@
 module;
 #include <concepts>
 #include <cstdint>
-#include <functional>
-#include <tuple>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 export module foresight.mods.context;
 import foresight.mods.event;
 
 export namespace foresight {
-    template <typename... Funcs>
-    struct basic_context;
-
     template <typename T>
     concept Context = requires(T ctx) { ctx.event(); };
 
@@ -25,6 +21,17 @@ export namespace foresight {
         ignore_event,
         exit,
     };
+
+    [[nodiscard]] constexpr std::string_view to_string(context_action const action) noexcept {
+        using enum context_action;
+        switch (action) {
+            case next: return {"Next"};
+            case ignore_event: return {"Ignore Event"};
+            case exit: return {"Exit"};
+            default: return {"<unknown>"};
+        }
+        std::unreachable();
+    }
 
     template <typename ModT, typename CtxT>
     [[nodiscard]] constexpr context_action invoke_mod(ModT &mod, CtxT &ctx) {
@@ -40,19 +47,21 @@ export namespace foresight {
         }
     }
 
-    template <typename... Funcs>
-    struct [[nodiscard]] basic_context {
+    template <modifier... Funcs>
+    struct [[nodiscard]] basic_context : std::remove_cvref_t<Funcs>... {
+        static constexpr bool is_nothrow =
+          (std::is_nothrow_invocable_v<std::remove_cvref_t<Funcs>, basic_context &> && ...);
+
         constexpr basic_context() noexcept = default;
 
-        template <typename... InpFuncs>
-        constexpr explicit basic_context(event_type inp_ev, InpFuncs &&...inp_funcs) noexcept
-          : ev{std::move(inp_ev)},
-            funcs{std::forward<InpFuncs>(inp_funcs)...} {}
+        constexpr explicit basic_context(event_type inp_ev, Funcs... inp_funcs) noexcept
+          : std::remove_cvref_t<Funcs>{inp_funcs}...,
+            ev{std::move(inp_ev)} {}
 
-        constexpr basic_context(basic_context const &inp_ctx)                = default;
+        consteval basic_context(basic_context const &inp_ctx)                = default;
         constexpr basic_context(basic_context &&inp_ctx) noexcept            = default;
         constexpr basic_context &operator=(basic_context &&inp_ctx) noexcept = default;
-        constexpr basic_context &operator=(basic_context const &inp_ctx)     = default;
+        consteval basic_context &operator=(basic_context const &inp_ctx)     = default;
         constexpr ~basic_context() noexcept                                  = default;
 
         [[nodiscard]] constexpr event_type const &event() const noexcept {
@@ -63,33 +72,39 @@ export namespace foresight {
             return ev;
         }
 
-        template <modifier Mod>
-        [[nodiscard]] consteval basic_context<Funcs..., Mod> operator|(Mod &&mod) const noexcept {
-            return std::apply(
-              [this, &mod]<typename... Fs>(Fs &&...the_funcs) {
-                  return basic_context<Funcs..., Mod>{ev, std::forward<Fs>(the_funcs)..., mod};
-              },
-              funcs);
+        template <typename Func>
+        [[nodiscard]] constexpr std::remove_cvref_t<Func> &mod() noexcept {
+            return static_cast<std::remove_cvref_t<Func> &>(*this);
         }
 
-        constexpr decltype(auto) operator()() {
+        template <typename Func>
+        [[nodiscard]] constexpr std::remove_cvref_t<Func> const &mod() const noexcept {
+            return static_cast<std::remove_cvref_t<Func> const &>(*this);
+        }
+
+        template <modifier Mod>
+        [[nodiscard]] consteval basic_context<Funcs..., Mod> operator|(Mod &&inp_mod) const noexcept {
+            static_assert(std::is_invocable_v<std::remove_cvref_t<Mod>, basic_context &>,
+                          "Mods must have a operator()(Context auto&) member function.");
+            return basic_context<Funcs..., Mod>{ev, mod<Funcs>()..., inp_mod};
+        }
+
+        constexpr void operator()() noexcept(is_nothrow) {
             using enum context_action;
-            return std::apply(
-              [this](auto &...mods) {
-                  for (;;) {
-                      auto action = next;
-                      (((action = invoke_mod(mods, *this)), action == next) && ...);
-                      if (action == exit) {
-                          break;
-                      }
-                  }
-              },
-              funcs);
+            static_assert((std::is_invocable_v<std::remove_cvref_t<Funcs>, basic_context &> && ...),
+                          "Mods must have a operator()(Context auto&) member function.");
+
+            for (;;) {
+                auto action = next;
+                (((action = invoke_mod(mod<Funcs>(), *this)), action == next) && ...);
+                if (action == exit) {
+                    break;
+                }
+            }
         }
 
       private:
-        event_type           ev;
-        std::tuple<Funcs...> funcs;
+        event_type ev;
     };
 
     constexpr basic_context<> context;
