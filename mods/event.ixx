@@ -46,6 +46,14 @@ export namespace foresight {
             return ev.value;
         }
 
+        [[nodiscard]] constexpr input_event& native() noexcept {
+            return ev;
+        }
+
+        [[nodiscard]] constexpr input_event const& native() const noexcept {
+            return ev;
+        }
+
       private:
         input_event ev{};
     };

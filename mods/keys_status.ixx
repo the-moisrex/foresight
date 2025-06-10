@@ -12,19 +12,19 @@ export namespace foresight {
     /**
      * If you need to check if a key is pressed or not, this is what you need to use.
      */
-    constexpr struct [[nodiscard]] keys_status_type {
+    constexpr struct [[nodiscard]] basic_keys_status {
       private:
         // we know this is wasteful, but we don't care :)
         std::array<event_type::value_type, KEY_MAX> btns{};
 
       public:
         // the copy ctor/assignment-op are marked consteval to stop from copying at run time.
-        constexpr keys_status_type() noexcept                              = default;
-        consteval keys_status_type(keys_status_type const&)                = default;
-        constexpr keys_status_type(keys_status_type&&) noexcept            = default;
-        consteval keys_status_type& operator=(keys_status_type const&)     = default;
-        constexpr keys_status_type& operator=(keys_status_type&&) noexcept = default;
-        constexpr ~keys_status_type() noexcept                             = default;
+        constexpr basic_keys_status() noexcept                               = default;
+        consteval basic_keys_status(basic_keys_status const&)                = default;
+        constexpr basic_keys_status(basic_keys_status&&) noexcept            = default;
+        consteval basic_keys_status& operator=(basic_keys_status const&)     = default;
+        constexpr basic_keys_status& operator=(basic_keys_status&&) noexcept = default;
+        constexpr ~basic_keys_status() noexcept                              = default;
 
         constexpr void process(event_type const& event) noexcept {
             if (event.type() != EV_KEY) {

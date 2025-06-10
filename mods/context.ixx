@@ -16,6 +16,13 @@ export namespace foresight {
     template <typename T>
     concept modifier = std::copyable<std::remove_cvref_t<T>>;
 
+    template <typename Mod, typename T>
+    concept has_mod = modifier<Mod> && Context<T> && requires(T ctx) {
+        {
+            ctx.template mod<Mod>()
+        } noexcept -> std::same_as<Mod &>;
+    };
+
     enum struct context_action : std::uint8_t {
         next,
         ignore_event,
@@ -54,7 +61,7 @@ export namespace foresight {
 
         constexpr basic_context() noexcept = default;
 
-        constexpr explicit basic_context(event_type inp_ev, Funcs... inp_funcs) noexcept
+        consteval explicit basic_context(event_type inp_ev, Funcs... inp_funcs) noexcept
           : std::remove_cvref_t<Funcs>{inp_funcs}...,
             ev{std::move(inp_ev)} {}
 
@@ -79,6 +86,17 @@ export namespace foresight {
 
         template <typename Func>
         [[nodiscard]] constexpr std::remove_cvref_t<Func> const &mod() const noexcept {
+            return static_cast<std::remove_cvref_t<Func> const &>(*this);
+        }
+
+        template <typename Func>
+        [[nodiscard]] constexpr std::remove_cvref_t<Func> &mod([[maybe_unused]] Func const &) noexcept {
+            return static_cast<std::remove_cvref_t<Func> &>(*this);
+        }
+
+        template <typename Func>
+        [[nodiscard]] constexpr std::remove_cvref_t<Func> const &mod(
+          [[maybe_unused]] Func const &) const noexcept {
             return static_cast<std::remove_cvref_t<Func> const &>(*this);
         }
 

@@ -51,6 +51,9 @@ export namespace foresight {
         }
     } quantifier;
 
+    /**
+     * If you want to quantify your mouse movements into steps, this is what you need.
+     */
     constexpr struct [[nodiscard]] basic_mice_quantifier {
         using value_type = event_type::value_type;
         using code_type  = event_type::code_type;
@@ -96,6 +99,12 @@ export namespace foresight {
             auto const step_count  = std::abs(y_value) / step;
             y_value               %= step;
             return step_count;
+        }
+
+        // This can be used like:
+        //    mise_quantifier(20)
+        consteval basic_mice_quantifier operator()(value_type const steps) const noexcept {
+            return basic_mice_quantifier{steps};
         }
 
         constexpr void operator()(Context auto& ctx) noexcept {
