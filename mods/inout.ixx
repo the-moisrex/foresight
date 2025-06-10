@@ -70,7 +70,7 @@ export namespace foresight {
 
     constexpr struct basic_input {
       private:
-        int file_descriptor = STDOUT_FILENO;
+        int file_descriptor = STDIN_FILENO;
 
       public:
         constexpr basic_input() noexcept = default;
@@ -85,7 +85,7 @@ export namespace foresight {
 
         [[nodiscard]] context_action operator()(Context auto& ctx) const noexcept {
             using enum context_action;
-            auto const res = read(file_descriptor, &ctx.event(), sizeof(event_type));
+            auto const res = read(file_descriptor, &ctx.event().native(), sizeof(event_type));
             if (res == 0) [[unlikely]] {
                 return exit;
             }

@@ -65,7 +65,7 @@ export namespace foresight::mods {
                     out.emit(event, EV_REL, REL_HWHEEL_HI_RES, cval * 120);
                     out.emit_syn();
                 }
-                if (auto const y_steps = quant.consume_x(); y_steps > 0) {
+                if (auto const y_steps = quant.consume_y(); y_steps > 0) {
                     out.emit(event, EV_REL, REL_WHEEL, cval);
                     out.emit(event, EV_REL, REL_WHEEL_HI_RES, cval * 120);
                     out.emit_syn();
