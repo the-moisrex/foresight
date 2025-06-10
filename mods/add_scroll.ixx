@@ -2,6 +2,7 @@
 
 module;
 #include <linux/uinput.h>
+#include <span>
 export module foresight.mods.add_scroll;
 import foresight.mods.context;
 import foresight.mods.keys_status;
@@ -11,17 +12,30 @@ import foresight.mods.event;
 
 export namespace foresight::mods {
 
+    template <typename... T>
+        requires((std::convertible_to<T, event_type::code_type> && ...))
+    consteval std::array<event_type::code_type, sizeof...(T)> key_pack(T... vals) noexcept {
+        return std::array<event_type::code_type, sizeof...(T)>{static_cast<event_type::code_type>(vals)...};
+    }
+
+    constexpr std::array<event_type::code_type, 1> default_scroll_keys{BTN_MIDDLE};
+
     constexpr struct [[nodiscard]] basic_add_scroll {
         using value_type = event_type::value_type;
+        using code_type  = event_type::code_type;
 
       private:
-        bool       lock    = false;
-        value_type reverse = 1;
+        bool                       lock    = false;
+        value_type                 reverse = 1;
+        std::span<code_type const> hold_keys{default_scroll_keys}; // buttons to be hold
 
       public:
         constexpr basic_add_scroll() noexcept = default;
 
-        constexpr explicit basic_add_scroll(bool const inp_reverse) noexcept : reverse{inp_reverse ? 1 : 0} {}
+        constexpr explicit basic_add_scroll(std::span<code_type const> const inp_hold_keys,
+                                            bool const                       inp_reverse = true) noexcept
+          : reverse{inp_reverse ? 1 : 0},
+            hold_keys{inp_hold_keys} {}
 
         consteval basic_add_scroll(basic_add_scroll const &) noexcept            = default;
         constexpr basic_add_scroll(basic_add_scroll &&) noexcept                 = default;
@@ -29,8 +43,9 @@ export namespace foresight::mods {
         constexpr basic_add_scroll &operator=(basic_add_scroll &&) noexcept      = default;
         constexpr ~basic_add_scroll() noexcept                                   = default;
 
-        consteval basic_add_scroll operator()(bool const inp_reverse) const noexcept {
-            return basic_add_scroll{inp_reverse};
+        [[nodiscard]] consteval auto operator()(std::span<code_type const> const inp_hold_keys,
+                                                bool const inp_reverse = true) const noexcept {
+            return basic_add_scroll{inp_hold_keys, inp_reverse};
         }
 
         template <Context CtxT>
@@ -47,18 +62,21 @@ export namespace foresight::mods {
 
             // Hold the lock, until both buttons are released.
             // This helps to stop accidental clicks while scrolling.
-            if (keys.is_released(BTN_MIDDLE)) {
+            if (keys.is_released(hold_keys)) {
                 lock = false;
             }
 
-            if (keys.is_pressed(BTN_MIDDLE)) {
+            if (keys.is_pressed(hold_keys)) {
                 if (!is_mouse_movement(event)) {
                     return ignore_event;
                 }
-                auto const val = event.value();
 
-                out.emit(event, EV_KEY, BTN_MIDDLE, 0);
+                // release the held keys:
+                for (auto const code : hold_keys) {
+                    out.emit(event, EV_KEY, code, 0);
+                }
 
+                auto const val  = event.value();
                 auto const cval = (val > 0 ? 1 : val < 0 ? -1 : 0) * reverse;
                 if (auto const x_steps = quant.consume_x(); x_steps > 0) {
                     out.emit(event, EV_REL, REL_HWHEEL, cval);

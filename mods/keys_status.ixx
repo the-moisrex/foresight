@@ -3,6 +3,7 @@
 module;
 #include <array>
 #include <linux/uinput.h>
+#include <span>
 export module foresight.mods.keys_status;
 import foresight.mods.event;
 import foresight.mods.context;
@@ -13,6 +14,8 @@ export namespace foresight {
      * If you need to check if a key is pressed or not, this is what you need to use.
      */
     constexpr struct [[nodiscard]] basic_keys_status {
+        using code_type = event_type::code_type;
+
       private:
         // we know this is wasteful, but we don't care :)
         std::array<event_type::value_type, KEY_MAX> btns{};
@@ -35,6 +38,24 @@ export namespace foresight {
                 return;
             }
             this->btns.at(event.code()) = event.value();
+        }
+
+        [[nodiscard]] constexpr bool is_pressed(std::span<code_type const> const key_codes) const noexcept {
+            for (auto const code : key_codes) {
+                if (code >= KEY_MAX || this->btns.at(code) == 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        [[nodiscard]] constexpr bool is_released(std::span<code_type const> const key_codes) const noexcept {
+            for (auto const code : key_codes) {
+                if (code >= KEY_MAX || this->btns.at(code) != 0) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         template <std::integral... T>

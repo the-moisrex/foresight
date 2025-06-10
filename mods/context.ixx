@@ -114,7 +114,7 @@ export namespace foresight {
 
             for (;;) {
                 auto action = next;
-                (((action = invoke_mod(mod<Funcs>(), *this)), action == next) && ...);
+                std::ignore = (((action = invoke_mod(mod<Funcs>(), *this)), action == next) && ...);
                 if (action == exit) {
                     break;
                 }

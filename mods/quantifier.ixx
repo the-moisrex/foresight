@@ -22,7 +22,6 @@ export namespace foresight {
       private:
         value_type step     = 10; // pixels/units
         value_type value    = 0;
-        value_type consumed = 0;
 
       public:
         constexpr basic_quantifier() noexcept = default;
@@ -61,9 +60,7 @@ export namespace foresight {
       private:
         value_type step       = 10; // pixels/units
         value_type x_value    = 0;
-        value_type x_consumed = 0;
         value_type y_value    = 0;
-        value_type y_consumed = 0;
 
       public:
         constexpr basic_mice_quantifier() noexcept = default;
