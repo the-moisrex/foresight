@@ -1,6 +1,6 @@
-import foresight.mods;
 #include <array>
 #include <linux/input-event-codes.h>
+import foresight.mods;
 
 int main() {
     using namespace foresight;

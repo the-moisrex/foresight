@@ -14,7 +14,7 @@ export namespace foresight {
 
         constexpr event_type() noexcept = default;
 
-        constexpr explicit event_type(input_event const inp_ev) noexcept : ev{inp_ev} {}
+        constexpr explicit event_type(input_event const& inp_ev) noexcept : ev{inp_ev} {}
 
         constexpr event_type(event_type&&) noexcept            = default;
         constexpr event_type(event_type const&)                = default;

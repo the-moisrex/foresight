@@ -61,7 +61,7 @@ export namespace foresight {
 
         constexpr basic_context() noexcept = default;
 
-        consteval explicit basic_context(event_type inp_ev, Funcs... inp_funcs) noexcept
+        consteval explicit basic_context(event_type inp_ev, std::remove_cvref_t<Funcs>... inp_funcs) noexcept
           : std::remove_cvref_t<Funcs>{inp_funcs}...,
             ev{std::move(inp_ev)} {}
 
@@ -90,21 +90,22 @@ export namespace foresight {
         }
 
         template <typename Func>
-        [[nodiscard]] constexpr std::remove_cvref_t<Func> &mod([[maybe_unused]] Func const &) noexcept {
+        [[nodiscard]] constexpr std::remove_cvref_t<Func> &mod(
+          [[maybe_unused]] Func const &inp_mod) noexcept {
             return static_cast<std::remove_cvref_t<Func> &>(*this);
         }
 
         template <typename Func>
         [[nodiscard]] constexpr std::remove_cvref_t<Func> const &mod(
-          [[maybe_unused]] Func const &) const noexcept {
+          [[maybe_unused]] Func const &inp_mod) const noexcept {
             return static_cast<std::remove_cvref_t<Func> const &>(*this);
         }
 
         template <modifier Mod>
-        [[nodiscard]] consteval basic_context<Funcs..., Mod> operator|(Mod &&inp_mod) const noexcept {
+        [[nodiscard]] consteval auto operator|(Mod &&inp_mod) const noexcept {
             static_assert(std::is_invocable_v<std::remove_cvref_t<Mod>, basic_context &>,
                           "Mods must have a operator()(Context auto&) member function.");
-            return basic_context<Funcs..., Mod>{ev, mod<Funcs>()..., inp_mod};
+            return basic_context<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Mod>>{ev, mod<Funcs>()..., inp_mod};
         }
 
         constexpr void operator()() noexcept(is_nothrow) {
