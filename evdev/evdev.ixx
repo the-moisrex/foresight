@@ -14,16 +14,19 @@ namespace foresight {
      */
     export struct evdev {
         explicit evdev(std::filesystem::path const& file);
+        consteval evdev()                                 = default;
+        consteval evdev(evdev const&) noexcept            = default;
+        consteval evdev& operator=(evdev const&) noexcept = default;
 
-        evdev(evdev&& inp) noexcept
+        // evdev(evdev const&)            = delete;
+        // evdev& operator=(evdev const&) = delete;
+
+        constexpr evdev(evdev&& inp) noexcept
           : file_descriptor{std::exchange(inp.file_descriptor, -1)},
             dev{std::exchange(inp.dev, nullptr)},
             grabbed{inp.grabbed} {}
 
-        evdev(evdev const&)            = delete;
-        evdev& operator=(evdev const&) = delete;
-
-        evdev& operator=(evdev&& other) noexcept {
+        constexpr evdev& operator=(evdev&& other) noexcept {
             if (this != &other) {
                 file_descriptor = std::exchange(other.file_descriptor, -1);
                 dev             = std::exchange(other.dev, nullptr);

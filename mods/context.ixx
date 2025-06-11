@@ -3,6 +3,7 @@
 module;
 #include <concepts>
 #include <cstdint>
+#include <linux/input.h>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -79,6 +80,14 @@ export namespace foresight {
             return ev;
         }
 
+        constexpr void event(input_event const inp_event) noexcept {
+            ev = inp_event;
+        }
+
+        constexpr void event(event_type const inp_event) noexcept {
+            ev = inp_event;
+        }
+
         template <typename Func>
         [[nodiscard]] constexpr std::remove_cvref_t<Func> &mod() noexcept {
             return static_cast<std::remove_cvref_t<Func> &>(*this);
@@ -105,7 +114,10 @@ export namespace foresight {
         [[nodiscard]] consteval auto operator|(Mod &&inp_mod) const noexcept {
             static_assert(std::is_invocable_v<std::remove_cvref_t<Mod>, basic_context &>,
                           "Mods must have a operator()(Context auto&) member function.");
-            return basic_context<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Mod>>{ev, mod<Funcs>()..., inp_mod};
+            return basic_context<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Mod>>{
+              ev,
+              mod<Funcs>()...,
+              inp_mod};
         }
 
         constexpr void operator()() noexcept(is_nothrow) {

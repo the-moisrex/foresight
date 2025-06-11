@@ -3,6 +3,7 @@
 module;
 #include <ctime>
 #include <linux/uinput.h>
+#include <oneapi/tbb/profiling.h>
 #include <unistd.h>
 #include <utility>
 export module foresight.mods.inout;
@@ -30,41 +31,46 @@ export namespace foresight {
         constexpr basic_output& operator=(basic_output&&) noexcept      = default;
         constexpr ~basic_output() noexcept                              = default;
 
-        void emit(event_type       event,
+        // NOLINTNEXTLINE(*-use-nodiscard)
+        bool emit(event_type       event,
                   ev_type const    type,
                   code_type const  code,
                   value_type const value) const noexcept {
             event.type(type);
             event.code(code);
             event.value(value);
-            std::ignore = write(file_descriptor, &event.native(), sizeof(event));
+            return write(file_descriptor, &event.native(), sizeof(input_event)) == sizeof(input_event);
         }
 
-        void emit(input_event      event,
+        // NOLINTNEXTLINE(*-use-nodiscard)
+        bool emit(input_event      event,
                   ev_type const    type,
                   code_type const  code,
                   value_type const value) const noexcept {
             event.type  = type;
             event.code  = code;
             event.value = value;
-            std::ignore = write(file_descriptor, &event, sizeof(event));
+            return write(file_descriptor, &event, sizeof(input_event)) == sizeof(input_event);
         }
 
-        void emit(ev_type const type, code_type const code, value_type const value) const noexcept {
+        // NOLINTNEXTLINE(*-use-nodiscard)
+        bool emit(ev_type const type, code_type const code, value_type const value) const noexcept {
             input_event event{};
             gettimeofday(&event.time, nullptr);
             event.type  = type;
             event.code  = code;
             event.value = value;
-            std::ignore = write(file_descriptor, &event, sizeof(event));
+            return write(file_descriptor, &event, sizeof(input_event)) == sizeof(input_event);
         }
 
-        void emit_syn() const noexcept {
-            emit(EV_SYN, SYN_REPORT, 0);
+        // NOLINTNEXTLINE(*-use-nodiscard)
+        bool emit_syn() const noexcept {
+            return emit(EV_SYN, SYN_REPORT, 0);
         }
 
-        void operator()(Context auto& ctx) const noexcept {
-            std::ignore = write(file_descriptor, &ctx.event().native(), sizeof(event_type));
+        // NOLINTNEXTLINE(*-use-nodiscard)
+        bool operator()(Context auto& ctx) const noexcept {
+            return write(file_descriptor, &ctx.event().native(), sizeof(input_event)) == sizeof(input_event);
         }
     } output;
 
@@ -85,11 +91,11 @@ export namespace foresight {
 
         [[nodiscard]] context_action operator()(Context auto& ctx) const noexcept {
             using enum context_action;
-            auto const res = read(file_descriptor, &ctx.event().native(), sizeof(event_type));
+            auto const res = read(file_descriptor, &ctx.event().native(), sizeof(input_event));
             if (res == 0) [[unlikely]] {
                 return exit;
             }
-            if (res != sizeof(event_type)) [[unlikely]] {
+            if (res != sizeof(input_event)) [[unlikely]] {
                 return ignore_event;
             }
             return next;

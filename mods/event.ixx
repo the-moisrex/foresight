@@ -22,6 +22,11 @@ export namespace foresight {
         constexpr event_type& operator=(event_type const&)     = default;
         constexpr ~event_type()                                = default;
 
+        constexpr event_type& operator=(input_event const& inp_event) noexcept {
+            ev = inp_event;
+            return *this;
+        }
+
         constexpr void type(uint16_t const inp_type) noexcept {
             ev.type = inp_type;
         }

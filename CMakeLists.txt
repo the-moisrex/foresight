@@ -73,8 +73,7 @@ target_sources(${LIB_NAME}
         evdev/evdev.cxx
         uinput/uinput.cxx
         uinput/redirect.cxx
-        intercept/intercept.cxx
-        mods/event.cxx
+        mods/intercept.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         # io/liburing.ixx
         # io/io_ring.ixx
@@ -82,10 +81,11 @@ target_sources(${LIB_NAME}
         main/keyboard.ixx
         main/translate.ixx
         evdev/evdev.ixx
-        intercept/intercept.ixx
         uinput/redirect.ixx
         uinput/uinput.ixx
         mods/event.ixx
+        mods/intercept.ixx
+        mods/stopper.ixx
         mods/keys_status.ixx
         mods/quantifier.ixx
         mods/context.ixx

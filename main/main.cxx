@@ -9,10 +9,13 @@
 #include <string_view>
 #include <vector>
 import foresight.main;
-import foresight.intercept;
+import foresight.mods.intercept;
 import foresight.redirect;
 import foresight.evdev;
 import foresight.uinput;
+import foresight.mods.context;
+import foresight.mods.stopper;
+import foresight.mods.inout;
 
 namespace {
 
@@ -211,10 +214,17 @@ namespace {
                 return EXIT_FAILURE;
             }
             case intercept: {
-                foresight::interceptor inpor{opts.files};
-                inpor.set_output(STDOUT_FILENO);
-                register_stop_signal(inpor);
-                return inpor.loop();
+                static constinit auto pipeline =
+                  foresight::context | foresight::stopper | foresight::intercept | foresight::output;
+
+                auto& sig_stopper = pipeline.mod(foresight::stopper);
+                auto& inpor       = pipeline.mod(foresight::intercept);
+
+                register_stop_signal(sig_stopper);
+                inpor.set_files(opts.files);
+
+                pipeline();
+                return EXIT_SUCCESS;
             }
             case redirect: {
                 if (opts.files.size() != 1) {
