@@ -36,24 +36,12 @@ export namespace foresight {
         }
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool emit(event_type       event,
-                  ev_type const    type,
-                  code_type const  code,
-                  value_type const value) const noexcept {
-            event.type(type);
-            event.code(code);
-            event.value(value);
+        bool emit(event_type const& event) const noexcept {
             return write(file_descriptor, &event.native(), sizeof(input_event)) == sizeof(input_event);
         }
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool emit(input_event      event,
-                  ev_type const    type,
-                  code_type const  code,
-                  value_type const value) const noexcept {
-            event.type  = type;
-            event.code  = code;
-            event.value = value;
+        bool emit(input_event const& event) const noexcept {
             return write(file_descriptor, &event, sizeof(input_event)) == sizeof(input_event);
         }
 
@@ -77,6 +65,8 @@ export namespace foresight {
             return write(file_descriptor, &ctx.event().native(), sizeof(input_event)) == sizeof(input_event);
         }
     } output;
+
+    static_assert(output_modifier<basic_output>, "Must be a output modifier.");
 
     constexpr struct basic_input {
       private:

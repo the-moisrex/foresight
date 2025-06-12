@@ -17,12 +17,55 @@ export namespace foresight {
     template <typename T>
     concept modifier = std::copyable<std::remove_cvref_t<T>>;
 
+    template <typename T>
+    concept output_modifier =
+      modifier<T> &&
+      requires(T                      out,
+               event_type             event,
+               event_type::code_type  code,
+               event_type::type_type  type,
+               event_type::value_type value) {
+          {
+              out.emit(event)
+          } noexcept -> std::same_as<bool>;
+
+          {
+              out.emit(type, code, value)
+          } noexcept -> std::same_as<bool>;
+
+          {
+              out.emit_syn()
+          } noexcept -> std::same_as<bool>;
+      };
+
+    constexpr struct output_mod_t {
+        template <typename T>
+        static constexpr bool value = output_modifier<T>;
+    } output_mod;
+
     template <typename Mod, typename T>
     concept has_mod = modifier<Mod> && Context<T> && requires(T ctx) {
         {
             ctx.template mod<Mod>()
         } noexcept -> std::same_as<Mod &>;
     };
+
+    template <typename ModConcept, typename...>
+    struct mod_of_t {
+        using type = std::remove_cvref_t<ModConcept>;
+    };
+
+    template <typename ModConcept, typename Func, typename... Funcs>
+        requires(std::remove_cvref_t<ModConcept>::template value<Func>)
+    struct mod_of_t<ModConcept, Func, Funcs...> {
+        using type = std::remove_cvref_t<Func>;
+    };
+
+    template <typename ModConcept, typename Func, typename... Funcs>
+    struct mod_of_t<ModConcept, Func, Funcs...> : mod_of_t<ModConcept, Funcs...> {};
+
+    template <typename ModConcept, typename... Funcs>
+    using mod_of = typename mod_of_t<ModConcept, Funcs...>::type;
 
     enum struct context_action : std::uint8_t {
         next,
@@ -89,25 +132,27 @@ export namespace foresight {
         }
 
         template <typename Func>
-        [[nodiscard]] constexpr std::remove_cvref_t<Func> &mod() noexcept {
-            return static_cast<std::remove_cvref_t<Func> &>(*this);
+            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
+        [[nodiscard]] constexpr auto &mod() noexcept {
+            return static_cast<mod_of<Func, Funcs...> &>(*this);
         }
 
         template <typename Func>
-        [[nodiscard]] constexpr std::remove_cvref_t<Func> const &mod() const noexcept {
-            return static_cast<std::remove_cvref_t<Func> const &>(*this);
+            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
+        [[nodiscard]] constexpr auto const &mod() const noexcept {
+            return static_cast<mod_of<Func, Funcs...> const &>(*this);
         }
 
         template <typename Func>
-        [[nodiscard]] constexpr std::remove_cvref_t<Func> &mod(
-          [[maybe_unused]] Func const &inp_mod) noexcept {
-            return static_cast<std::remove_cvref_t<Func> &>(*this);
+            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
+        [[nodiscard]] constexpr auto &mod([[maybe_unused]] Func const &inp_mod) noexcept {
+            return static_cast<mod_of<Func, Funcs...> &>(*this);
         }
 
         template <typename Func>
-        [[nodiscard]] constexpr std::remove_cvref_t<Func> const &mod(
-          [[maybe_unused]] Func const &inp_mod) const noexcept {
-            return static_cast<std::remove_cvref_t<Func> const &>(*this);
+            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
+        [[nodiscard]] constexpr auto const &mod([[maybe_unused]] Func const &inp_mod) const noexcept {
+            return static_cast<mod_of<Func, Funcs...> const &>(*this);
         }
 
         template <modifier Mod>

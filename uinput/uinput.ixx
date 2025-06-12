@@ -19,6 +19,10 @@ export namespace foresight {
      * permissions.
      */
     constexpr struct basic_uinput {
+        using ev_type    = event_type::type_type;
+        using code_type  = event_type::code_type;
+        using value_type = event_type::value_type;
+
         constexpr basic_uinput() noexcept = default;
         basic_uinput(evdev& evdev_dev, std::filesystem::path const& file) noexcept;
         basic_uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept;
@@ -54,7 +58,7 @@ export namespace foresight {
         void set_device(libevdev const* evdev_dev,
                         int             file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
 
-        void set_device(evdev const& dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
+        void set_device(evdev const& inp_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
 
 
         /**
@@ -106,14 +110,14 @@ export namespace foresight {
          */
         [[nodiscard]] std::string_view devnode() const noexcept;
 
-        bool write(unsigned int type, unsigned int code, int value) noexcept;
-        bool write(input_event const& event) noexcept;
-        bool write(event_type const& event) noexcept;
+        bool emit(ev_type type, code_type code, value_type value) noexcept;
+        bool emit(input_event const& event) noexcept;
+        bool emit(event_type const& event) noexcept;
+        bool emit_syn() noexcept;
 
         context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
-            assert(dev != nullptr);
-            if (!write(ctx.event())) [[unlikely]] {
+            if (!emit(ctx.event())) [[unlikely]] {
                 return ignore_event;
             }
             return next;
@@ -123,4 +127,6 @@ export namespace foresight {
         libevdev_uinput* dev      = nullptr;
         std::errc        err_code = std::errc{};
     } uinput;
+
+    static_assert(output_modifier<basic_uinput>, "Must be a output modifier.");
 } // namespace foresight

@@ -9,6 +9,7 @@ export import foresight.mods.event;
 export import foresight.mods.quantifier;
 
 // Mods:
+export import foresight.uinput;
 export import foresight.mods.intercept;
 export import foresight.mods.inout;
 export import foresight.mods.rel_jumps;

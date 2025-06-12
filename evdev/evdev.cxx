@@ -38,7 +38,7 @@ void evdev::set_file(std::filesystem::path const& file) {
 
     auto const new_fd = open(file.c_str(), O_RDWR);
     if (new_fd < 0) {
-        throw std::system_error();
+        throw std::invalid_argument(std::format("Failed to open file '{}'", file.string()));
     }
     set_file(new_fd);
 }

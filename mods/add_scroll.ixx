@@ -57,7 +57,7 @@ export namespace foresight::mods {
             // we don't need keys and quantifier mods taken like this, but it's done for readability
             auto &keys  = ctx.mod(keys_status);
             auto &quant = ctx.mod(mice_quantifier);
-            auto &out   = ctx.mod(output);
+            auto &out   = ctx.mod(output_mod);
             auto &event = ctx.event();
 
             // Hold the lock, until both buttons are released.
@@ -73,27 +73,27 @@ export namespace foresight::mods {
 
                 // release the held keys:
                 for (auto const code : hold_keys) {
-                    out.emit(event, EV_KEY, code, 0);
+                    out.emit(EV_KEY, code, 0);
                 }
 
                 auto const val  = event.value();
                 auto const cval = (val > 0 ? 1 : val < 0 ? -1 : 0) * reverse;
                 if (auto const x_steps = quant.consume_x(); x_steps > 0) {
-                    out.emit(event, EV_REL, REL_HWHEEL, cval);
+                    out.emit(EV_REL, REL_HWHEEL, cval);
                     // out.emit(event, EV_REL, REL_HWHEEL_HI_RES, cval * 120);
                     out.emit_syn();
                 }
                 if (auto const y_steps = quant.consume_y(); y_steps > 0) {
-                    out.emit(event, EV_REL, REL_WHEEL, cval);
+                    out.emit(EV_REL, REL_WHEEL, cval);
                     out.emit_syn();
                 }
 
                 if (event.code() == REL_X && val > 0) {
-                    out.emit(event, EV_REL, REL_HWHEEL_HI_RES, val * 8);
+                    out.emit(EV_REL, REL_HWHEEL_HI_RES, val * 8);
                     out.emit_syn();
                 }
                 if (event.code() == REL_Y && val > 0) {
-                    out.emit(event, EV_REL, REL_WHEEL_HI_RES, val * 8);
+                    out.emit(EV_REL, REL_WHEEL_HI_RES, val * 8);
                     out.emit_syn();
                 }
 

@@ -51,8 +51,8 @@ void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descript
     }
 }
 
-void basic_uinput::set_device(evdev const& dev, int const file_descriptor) noexcept {
-    set_device(dev.device_ptr(), file_descriptor);
+void basic_uinput::set_device(evdev const& inp_dev, int const file_descriptor) noexcept {
+    set_device(inp_dev.device_ptr(), file_descriptor);
 }
 
 int basic_uinput::native_handle() const noexcept {
@@ -76,7 +76,7 @@ std::string_view basic_uinput::devnode() const noexcept {
     return libevdev_uinput_get_devnode(dev);
 }
 
-bool basic_uinput::write(unsigned int const type, unsigned int const code, int const value) noexcept {
+bool basic_uinput::emit(ev_type const type, code_type const code, value_type const value) noexcept {
     assert(is_ok());
     if (auto const ret = libevdev_uinput_write_event(dev, type, code, value); ret != 0) {
         err_code = static_cast<std::errc>(-ret);
@@ -85,11 +85,16 @@ bool basic_uinput::write(unsigned int const type, unsigned int const code, int c
     return true;
 }
 
-bool basic_uinput::write(input_event const& event) noexcept {
+bool basic_uinput::emit(input_event const& event) noexcept {
     assert(is_ok());
-    return write(event.type, event.code, event.value);
+    return emit(event.type, event.code, event.value);
 }
 
-bool basic_uinput::write(event_type const& event) noexcept {
-    return write(event.native());
+bool basic_uinput::emit(event_type const& event) noexcept {
+    return emit(event.native());
+}
+
+
+bool basic_uinput::emit_syn() noexcept {
+    return emit(EV_SYN, SYN_REPORT, 0);
 }
