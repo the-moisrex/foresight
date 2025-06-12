@@ -14,17 +14,6 @@ module foresight.evdev;
 using foresight::evdev;
 
 evdev::evdev(std::filesystem::path const& file) {
-    file_descriptor = open(file.c_str(), O_RDONLY);
-
-    if (file_descriptor < 0) {
-        return;
-    }
-
-    dev = libevdev_new();
-    if (dev == nullptr) {
-        throw std::domain_error("Failed to init libevdev.");
-    }
-
     set_file(file);
 }
 
@@ -32,6 +21,7 @@ evdev::~evdev() {
     if (grabbed && dev != nullptr) {
         libevdev_grab(dev, LIBEVDEV_UNGRAB);
     }
+    auto const file_descriptor = native_handle();
     if (dev != nullptr) {
         libevdev_free(dev);
     }
@@ -41,12 +31,12 @@ evdev::~evdev() {
 }
 
 void evdev::set_file(std::filesystem::path const& file) {
+    auto const file_descriptor = native_handle();
     if (file_descriptor >= 0) {
         close(file_descriptor);
-        file_descriptor = -1;
     }
 
-    auto const new_fd = open(file.c_str(), O_RDONLY);
+    auto const new_fd = open(file.c_str(), O_RDWR);
     if (new_fd < 0) {
         throw std::system_error();
     }
@@ -54,6 +44,7 @@ void evdev::set_file(std::filesystem::path const& file) {
 }
 
 void evdev::set_file(int const file) {
+    auto const file_descriptor = native_handle();
     if (file_descriptor >= 0) {
         close(file_descriptor);
     }
@@ -66,21 +57,22 @@ void evdev::set_file(int const file) {
             throw std::domain_error("Unable to read the code.");
         }
     }
-    file_descriptor = file;
 
-    if (int const res_rc = libevdev_set_fd(dev, file_descriptor); res_rc < 0) {
-        close(file_descriptor);
-        file_descriptor = -1;
+    if (int const res_rc = libevdev_set_fd(dev, file); res_rc < 0) {
+        close(file);
         throw std::domain_error(
           std::format("Failed to set file for libevdev ({})\n", std::strerror(-res_rc)));
     }
 }
 
 int evdev::native_handle() const noexcept {
-    return file_descriptor;
+    if (dev == nullptr) [[unlikely]] {
+        return -1;
+    }
+    return libevdev_get_fd(dev);
 }
 
-libevdev* evdev::device_ptr() noexcept {
+libevdev* evdev::device_ptr() const noexcept {
     return dev;
 }
 
@@ -95,10 +87,9 @@ std::string_view evdev::device_name() const noexcept {
     return libevdev_get_name(dev);
 }
 
-std::optional<input_event> evdev::next(bool const sync) noexcept {
+std::optional<input_event> evdev::next() noexcept {
     input_event input;
 
-    for (;;) {
         switch (libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &input)) {
             [[likely]] case LIBEVDEV_READ_STATUS_SUCCESS: { return input; }
             case LIBEVDEV_READ_STATUS_SYNC:
@@ -106,9 +97,5 @@ std::optional<input_event> evdev::next(bool const sync) noexcept {
             default: return std::nullopt;
         }
 
-        if (sync) {
-            break;
-        }
-    }
     return std::nullopt;
 }

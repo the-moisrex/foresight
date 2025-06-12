@@ -2,6 +2,7 @@
 
 module;
 #include <filesystem>
+#include <format>
 #include <poll.h>
 #include <ranges>
 #include <span>
@@ -37,7 +38,10 @@ void basic_interceptor::set_files(std::span<std::filesystem::path const> const i
     fds.clear();
     devs.reserve(inp_paths.size());
     for (auto const& file : inp_paths) {
-        devs.emplace_back(file);
+        auto& dev = devs.emplace_back(file);
+        if (!dev.ok()) [[unlikely]] {
+            throw std::runtime_error(std::format("Failed to initialize event device {}", file.string()));
+        }
     }
     fds = get_pollfds(devs);
 }
@@ -49,8 +53,11 @@ void basic_interceptor::set_files(std::span<input_file_type const> const inp_pat
     // convert to `evdev`s.
     for (auto const& [file, grab] : inp_paths) {
         auto& dev = devs.emplace_back(file);
-        if (grab) {
+        if (dev.ok() && grab) {
             dev.grab_input();
+        }
+        if (!dev.ok()) [[unlikely]] {
+            throw std::runtime_error(std::format("Failed to initialize event device {}", file.string()));
         }
     }
     fds = get_pollfds(devs);

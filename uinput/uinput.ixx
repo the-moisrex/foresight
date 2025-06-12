@@ -1,13 +1,16 @@
 // Created by moisrex on 6/29/24.
 
 module;
+#include <cassert>
 #include <filesystem>
 #include <libevdev/libevdev-uinput.h>
 #include <system_error>
 export module foresight.uinput;
 export import foresight.evdev;
+export import foresight.mods.event;
+import foresight.mods.context;
 
-namespace foresight {
+export namespace foresight {
     /**
      * A virtual device
      *
@@ -15,19 +18,26 @@ namespace foresight {
      * the file descriptor. Otherwise, uinput_fd must be opened by the caller and opened with the appropriate
      * permissions.
      */
-    export class uinput {
-      public:
-        uinput() noexcept = default;
-        uinput(evdev& evdev_dev, std::filesystem::path const& file) noexcept;
-        uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept;
-        explicit uinput(libevdev const* evdev_dev,
-                        int             file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
-        explicit uinput(evdev& evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
-        uinput(uinput const&)                     = delete;
-        uinput(uinput&&) noexcept                 = default;
-        uinput& operator=(uinput const&) noexcept = delete;
-        uinput& operator=(uinput&&) noexcept      = default;
-        ~uinput() noexcept;
+    constexpr struct basic_uinput {
+        constexpr basic_uinput() noexcept = default;
+        basic_uinput(evdev& evdev_dev, std::filesystem::path const& file) noexcept;
+        basic_uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept;
+        explicit basic_uinput(libevdev const* evdev_dev,
+                              int             file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
+        explicit basic_uinput(evdev& evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
+        consteval basic_uinput(basic_uinput const&)                     = default;
+        constexpr basic_uinput(basic_uinput&&) noexcept                 = default;
+        consteval basic_uinput& operator=(basic_uinput const&) noexcept = default;
+        constexpr basic_uinput& operator=(basic_uinput&&) noexcept      = default;
+
+        constexpr ~basic_uinput() noexcept {
+            if !consteval {
+                if (dev != nullptr) {
+                    libevdev_uinput_destroy(dev);
+                    dev = nullptr;
+                }
+            }
+        }
 
         [[nodiscard]] std::error_code error() const noexcept;
         [[nodiscard]] bool            is_ok() const noexcept;
@@ -43,6 +53,9 @@ namespace foresight {
          */
         void set_device(libevdev const* evdev_dev,
                         int             file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
+
+        void set_device(evdev const& dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
+
 
         /**
          * Return the file descriptor used to create this uinput device. This is the
@@ -95,11 +108,19 @@ namespace foresight {
 
         bool write(unsigned int type, unsigned int code, int value) noexcept;
         bool write(input_event const& event) noexcept;
+        bool write(event_type const& event) noexcept;
+
+        context_action operator()(Context auto& ctx) noexcept {
+            using enum context_action;
+            assert(dev != nullptr);
+            if (!write(ctx.event())) [[unlikely]] {
+                return ignore_event;
+            }
+            return next;
+        }
 
       private:
-        libevdev_uinput* dev = nullptr;
-
-        // we can use std::expected<..., error_code> instead of this, but we're using C++20
-        std::error_code err = std::make_error_code(std::errc::bad_file_descriptor);
-    };
+        libevdev_uinput* dev      = nullptr;
+        std::errc        err_code = std::errc{};
+    } uinput;
 } // namespace foresight

@@ -50,13 +50,11 @@ export namespace foresight {
             }
 
             for (std::size_t index = 0; index != fds.size(); ++index) {
-                auto&       dev    = devs[index];
-                auto const& cur_fd = fds[index];
-                if ((cur_fd.revents & POLLIN) == 0) {
+                if ((fds[index].revents & POLLIN) == 0) {
                     continue;
                 }
 
-                auto const input = dev.next(true);
+                auto const input = devs[index].next();
                 if (!input) {
                     continue;
                 }

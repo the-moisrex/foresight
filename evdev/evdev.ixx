@@ -14,39 +14,27 @@ namespace foresight {
      */
     export struct evdev {
         explicit evdev(std::filesystem::path const& file);
-        consteval evdev()                                 = default;
-        consteval evdev(evdev const&) noexcept            = default;
-        consteval evdev& operator=(evdev const&) noexcept = default;
+        consteval evdev()                                  = default;
+        consteval evdev(evdev const&) noexcept             = default;
+        constexpr evdev(evdev&& inp) noexcept              = default;
+        constexpr evdev& operator=(evdev&& other) noexcept = default;
+        consteval evdev& operator=(evdev const&) noexcept  = default;
+        ~evdev();
 
         // evdev(evdev const&)            = delete;
         // evdev& operator=(evdev const&) = delete;
 
-        constexpr evdev(evdev&& inp) noexcept
-          : file_descriptor{std::exchange(inp.file_descriptor, -1)},
-            dev{std::exchange(inp.dev, nullptr)},
-            grabbed{inp.grabbed} {}
-
-        constexpr evdev& operator=(evdev&& other) noexcept {
-            if (this != &other) {
-                file_descriptor = std::exchange(other.file_descriptor, -1);
-                dev             = std::exchange(other.dev, nullptr);
-                grabbed         = other.grabbed;
-            }
-            return *this;
-        }
-
-        ~evdev();
 
         /// change the input event file (for example /dev/input/eventX)
         void set_file(std::filesystem::path const& file);
         void set_file(int file);
 
         [[nodiscard]] int       native_handle() const noexcept;
-        [[nodiscard]] libevdev* device_ptr() noexcept;
+        [[nodiscard]] libevdev* device_ptr() const noexcept;
 
         /// check if everything is okay
         [[nodiscard]] bool ok() const noexcept {
-            return dev == nullptr;
+            return dev != nullptr;
         }
 
         void grab_input();
@@ -61,13 +49,11 @@ namespace foresight {
 
         /**
          * Get a new input_event form the input device
-         * @param sync set true if you don't want it to wait
          */
-        [[nodiscard]] std::optional<input_event> next(bool sync = false) noexcept;
+        [[nodiscard]] std::optional<input_event> next() noexcept;
 
       private:
-        int       file_descriptor = -1;
-        libevdev* dev             = nullptr;
-        bool      grabbed         = false;
+        libevdev* dev     = nullptr;
+        bool      grabbed = false;
     };
 } // namespace foresight

@@ -31,6 +31,10 @@ export namespace foresight {
         constexpr basic_output& operator=(basic_output&&) noexcept      = default;
         constexpr ~basic_output() noexcept                              = default;
 
+        constexpr void set_output(int const inp_fd) noexcept {
+            file_descriptor = inp_fd;
+        }
+
         // NOLINTNEXTLINE(*-use-nodiscard)
         bool emit(event_type       event,
                   ev_type const    type,

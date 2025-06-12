@@ -10,12 +10,12 @@
 #include <vector>
 import foresight.main;
 import foresight.mods.intercept;
-import foresight.redirect;
 import foresight.evdev;
 import foresight.uinput;
 import foresight.mods.context;
 import foresight.mods.stopper;
 import foresight.mods.inout;
+import foresight.uinput;
 
 namespace {
 
@@ -231,11 +231,24 @@ namespace {
                     throw std::invalid_argument("Only pass one file for redirect.");
                 }
 
-                foresight::evdev      dev{opts.files.front().file};
-                foresight::redirector rdtor{dev};
+                static constinit auto pipeline =
+                  foresight::context | foresight::stopper | foresight::input | foresight::uinput;
 
-                register_stop_signal(rdtor);
-                return rdtor.loop();
+                auto& out         = pipeline.mod(foresight::uinput);
+                auto& sig_stopper = pipeline.mod(foresight::stopper);
+
+                auto const&            file = opts.files.front().file;
+                foresight::evdev const dev{file};
+                if (!dev.ok()) {
+                    throw std::runtime_error(
+                      std::format("Could not open device to write into {}", file.string()));
+                }
+                out.set_device(dev);
+                register_stop_signal(sig_stopper);
+
+                pipeline();
+
+                return EXIT_SUCCESS;
             }
             default: {
                 foresight::keyboard kbd;
