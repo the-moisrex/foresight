@@ -26,7 +26,7 @@ export namespace foresight::mods {
 
       private:
         bool                       lock    = false;
-        value_type                 reverse = 1;
+        value_type                 reverse = -1;
         std::span<code_type const> hold_keys{default_scroll_keys}; // buttons to be hold
 
       public:
@@ -34,7 +34,7 @@ export namespace foresight::mods {
 
         constexpr explicit basic_add_scroll(std::span<code_type const> const inp_hold_keys,
                                             bool const                       inp_reverse = true) noexcept
-          : reverse{inp_reverse ? 1 : 0},
+          : reverse{inp_reverse ? 1 : -1},
             hold_keys{inp_hold_keys} {}
 
         consteval basic_add_scroll(basic_add_scroll const &) noexcept            = default;
