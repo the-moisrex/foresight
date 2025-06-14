@@ -19,7 +19,7 @@ export namespace foresight {
     /**
      * Intercept the keyboard and print them into stdout
      */
-    constexpr struct basic_interceptor {
+    constexpr struct [[nodiscard]] basic_interceptor {
         constexpr explicit basic_interceptor(std::span<std::filesystem::path const> inp_paths);
         constexpr explicit basic_interceptor(std::span<input_file_type const> inp_paths);
         constexpr explicit basic_interceptor(std::vector<evdev>&& inp_devs);

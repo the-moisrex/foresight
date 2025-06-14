@@ -12,7 +12,7 @@ import foresight.mods.event;
 
 export namespace foresight {
 
-    constexpr struct basic_output {
+    constexpr struct [[nodiscard]] basic_output {
         using ev_type    = event_type::type_type;
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
@@ -68,7 +68,7 @@ export namespace foresight {
 
     static_assert(output_modifier<basic_output>, "Must be a output modifier.");
 
-    constexpr struct basic_input {
+    constexpr struct [[nodiscard]] basic_input {
       private:
         int file_descriptor = STDIN_FILENO;
 

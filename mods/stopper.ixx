@@ -4,7 +4,8 @@ export module foresight.mods.stopper;
 import foresight.mods.context;
 
 export namespace foresight {
-    constexpr struct basic_stopper {
+
+    constexpr struct [[nodiscard]] basic_stopper {
       private:
         bool stopped = false;
 
@@ -28,4 +29,5 @@ export namespace foresight {
             return next;
         }
     } stopper;
+
 } // namespace foresight

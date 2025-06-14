@@ -7,7 +7,7 @@ export module foresight.mods.event;
 
 export namespace foresight {
 
-    struct event_type {
+    struct [[nodiscard]] event_type {
         using type_type  = decltype(input_event::type);
         using code_type  = decltype(input_event::code);
         using value_type = decltype(input_event::value);
