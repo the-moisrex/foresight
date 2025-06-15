@@ -22,7 +22,7 @@ int main(int const argc, char** argv) {
           | mice_quantifier                 // Quantify the mouse movements
           | mods::ignore_big_jumps          // Ignore big mouse jumps
           | mods::add_scroll(scroll_button) // Make middle button, a scroll wheel
-          | mods::lerp                      // Smooth the mouse events
+          | mods::kalman_filter             // Smooth the mouse events
           | uinput;
 
 
