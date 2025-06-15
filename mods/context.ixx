@@ -67,7 +67,7 @@ export namespace foresight {
     template <typename ModConcept, typename... Funcs>
     using mod_of = typename mod_of_t<ModConcept, Funcs...>::type;
 
-    enum struct context_action : std::uint8_t {
+    enum struct [[nodiscard]] context_action : std::uint8_t {
         next,
         ignore_event,
         exit,
@@ -85,7 +85,7 @@ export namespace foresight {
     }
 
     template <typename ModT, typename CtxT>
-    [[nodiscard]] constexpr context_action invoke_mod(ModT &mod, CtxT &ctx) {
+    constexpr context_action invoke_mod(ModT &mod, CtxT &ctx) {
         using enum context_action;
         using result = std::invoke_result_t<ModT, CtxT &>;
         if constexpr (std::same_as<result, bool>) {

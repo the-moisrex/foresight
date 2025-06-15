@@ -85,11 +85,13 @@ target_sources(${LIB_NAME}
         mods/intercept.ixx
         mods/stopper.ixx
         mods/keys_status.ixx
+        mods/mouse_status.ixx
         mods/quantifier.ixx
         mods/context.ixx
         mods/inout.ixx
         mods/rel_jumps.ixx
         mods/add_scroll.ixx
+        mods/smooth.ixx
         mods/mods.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_23)

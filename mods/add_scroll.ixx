@@ -49,7 +49,7 @@ export namespace foresight::mods {
         }
 
         template <Context CtxT>
-        [[nodiscard]] constexpr context_action operator()(CtxT &ctx) noexcept {
+        [[nodiscard]] context_action operator()(CtxT &ctx) noexcept {
             using enum context_action;
             static_assert(has_mod<basic_keys_status, CtxT>, "We need access to keys' statuses.");
             static_assert(has_mod<basic_mice_quantifier, CtxT>, "We need access quantifier.");

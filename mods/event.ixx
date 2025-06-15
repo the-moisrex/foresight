@@ -1,5 +1,6 @@
 // Created by moisrex on 6/8/25.
 
+#include <linux/input-event-codes.h>
 module;
 #include <cstdint>
 #include <linux/uinput.h>
@@ -27,27 +28,27 @@ export namespace foresight {
             return *this;
         }
 
-        constexpr void type(uint16_t const inp_type) noexcept {
+        constexpr void type(type_type const inp_type) noexcept {
             ev.type = inp_type;
         }
 
-        constexpr void code(uint16_t const inp_code) noexcept {
+        constexpr void code(code_type const inp_code) noexcept {
             ev.code = inp_code;
         }
 
-        constexpr void value(int32_t const inp_value) noexcept {
+        constexpr void value(value_type const inp_value) noexcept {
             ev.value = inp_value;
         }
 
-        [[nodiscard]] constexpr uint16_t type() const noexcept {
+        [[nodiscard]] constexpr type_type type() const noexcept {
             return ev.type;
         }
 
-        [[nodiscard]] constexpr uint16_t code() const noexcept {
+        [[nodiscard]] constexpr code_type code() const noexcept {
             return ev.code;
         }
 
-        [[nodiscard]] constexpr int32_t value() const noexcept {
+        [[nodiscard]] constexpr value_type value() const noexcept {
             return ev.value;
         }
 
@@ -59,12 +60,20 @@ export namespace foresight {
             return ev;
         }
 
+        constexpr void reset_time() noexcept {
+            gettimeofday(&ev.time, nullptr);
+        }
+
       private:
         input_event ev{};
     };
 
     [[nodiscard]] constexpr bool is_mouse_movement(event_type const& event) noexcept {
         return event.type() == EV_REL && (event.code() == REL_X || event.code() == REL_Y);
+    }
+
+    [[nodiscard]] constexpr bool is_syn(event_type const& event) noexcept {
+        return event.type() == EV_SYN;
     }
 
 

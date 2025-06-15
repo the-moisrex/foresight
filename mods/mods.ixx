@@ -5,6 +5,7 @@ export module foresight.mods;
 // Utilities:
 export import foresight.mods.context;
 export import foresight.mods.keys_status;
+export import foresight.mods.mouse_status;
 export import foresight.mods.event;
 export import foresight.mods.quantifier;
 
@@ -14,3 +15,4 @@ export import foresight.mods.intercept;
 export import foresight.mods.inout;
 export import foresight.mods.rel_jumps;
 export import foresight.mods.add_scroll;
+export import foresight.mods.smooth;

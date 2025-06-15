@@ -18,9 +18,11 @@ int main(int const argc, char** argv) {
           context                           // Init Context
           | intercept                       // intercept the events
           | keys_status                     // Save key presses
+          | mouse_history                   // Save mouse events until syn arrives
           | mice_quantifier                 // Quantify the mouse movements
           | mods::ignore_big_jumps          // Ignore big mouse jumps
           | mods::add_scroll(scroll_button) // Make middle button, a scroll wheel
+          | mods::lerp                      // Smooth the mouse events
           | uinput;
 
 
