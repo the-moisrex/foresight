@@ -42,12 +42,12 @@ export namespace foresight {
         constexpr ~basic_mouse_history() noexcept                                = default;
 
         [[nodiscard]] constexpr position const& cur() const noexcept {
-            assert(index < hist.size());
+            assert(cur_index < hist.size());
             return hist.at(cur_index);
         }
 
         [[nodiscard]] constexpr position& cur() noexcept {
-            assert(index < hist.size());
+            assert(cur_index < hist.size());
             return hist.at(cur_index);
         }
 

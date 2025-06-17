@@ -1,7 +1,9 @@
 
 module;
+#include <algorithm> // For std::min
 #include <cmath>
 #include <linux/input-event-codes.h>
+#include <vector>
 export module foresight.mods.smooth;
 import foresight.mods.mouse_status;
 import foresight.mods.event;
@@ -15,7 +17,7 @@ export namespace foresight::mods {
      */
     constexpr struct [[nodiscard]] basic_lerp {
       private:
-        float t_val = 0.95;
+        float t_val = 0.95f;
 
       public:
         constexpr explicit basic_lerp(float const inp_t) noexcept : t_val{inp_t} {}
@@ -212,8 +214,5 @@ export namespace foresight::mods {
             return next;
         }
     } kalman_filter;
-
-
-
 
 } // namespace foresight::mods

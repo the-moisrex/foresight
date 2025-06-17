@@ -8,6 +8,7 @@ import foresight.mods;
 int main(int const argc, char** argv) {
     using namespace foresight;
     using std::filesystem::path;
+    using std::views::drop;
     using std::views::transform;
 
     static constexpr auto scroll_button = mods::key_pack(BTN_MIDDLE);
@@ -26,7 +27,7 @@ int main(int const argc, char** argv) {
           | uinput;
 
 
-        auto files = args | std::views::drop(1) | transform([index = 0](char const* const ptr) mutable {
+        auto files = args | drop(1) | transform([index = 0](char const* const ptr) mutable {
                          return input_file_type{.file = path{ptr}, .grab = index++ == 0};
                      });
         std::vector<input_file_type> const file_paths{files.begin(), files.end()};

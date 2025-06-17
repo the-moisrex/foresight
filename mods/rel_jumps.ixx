@@ -10,7 +10,7 @@ export namespace foresight::mods {
 
     constexpr struct [[nodiscard]] ignore_big_jumps_type {
       private:
-        event_type::value_type threshold = 30; // pixels to resistence to move
+        event_type::value_type threshold = 20; // pixels to resistence to move
       public:
         constexpr ignore_big_jumps_type() noexcept = default;
 

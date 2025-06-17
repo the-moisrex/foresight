@@ -10,6 +10,24 @@ module;
 export module foresight.mods.context;
 import foresight.mods.event;
 
+namespace foresight {
+    // Base case: index 0, type is the first type T
+    template <std::size_t I, typename T, typename... Ts>
+    struct type_at_impl {
+        using type = typename type_at_impl<I - 1, Ts...>::type;
+    };
+
+    // Specialization for index 0
+    template <typename T, typename... Ts>
+    struct type_at_impl<0, T, Ts...> {
+        using type = T;
+    };
+
+    template <std::size_t I, typename... Ts>
+    using type_at = typename type_at_impl<I, Ts...>::type;
+
+} // namespace foresight
+
 export namespace foresight {
     template <typename T>
     concept Context = requires(T ctx) { ctx.event(); };
@@ -155,6 +173,16 @@ export namespace foresight {
             return static_cast<mod_of<Func, Funcs...> const &>(*this);
         }
 
+        template <std::size_t Index = 0>
+        [[nodiscard]] constexpr auto const &mod() const noexcept {
+            return static_cast<type_at<Index, Funcs...> const &>(*this);
+        }
+
+        template <std::size_t Index = 0>
+        [[nodiscard]] constexpr auto &mod() noexcept {
+            return static_cast<type_at<Index, Funcs...> &>(*this);
+        }
+
         template <modifier Mod>
         [[nodiscard]] consteval auto operator|(Mod &&inp_mod) const noexcept {
             static_assert(std::is_invocable_v<std::remove_cvref_t<Mod>, basic_context &>,
@@ -165,15 +193,23 @@ export namespace foresight {
               inp_mod};
         }
 
+        // Re-Emit the context
+        constexpr context_action reemit() noexcept(is_nothrow) {
+            using enum context_action;
+            return [this]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(is_nothrow) {
+                auto action = next;
+                std::ignore = (((action = invoke_mod(mod<I>(), *this)), action == next) && ...);
+                return action;
+            }(std::make_index_sequence<sizeof...(Funcs)>{});
+        }
+
         constexpr void operator()() noexcept(is_nothrow) {
             using enum context_action;
             static_assert((std::is_invocable_v<std::remove_cvref_t<Funcs>, basic_context &> && ...),
                           "Mods must have a operator()(Context auto&) member function.");
 
             for (;;) {
-                auto action = next;
-                std::ignore = (((action = invoke_mod(mod<Funcs>(), *this)), action == next) && ...);
-                if (action == exit) {
+                if (reemit() == exit) {
                     break;
                 }
             }
