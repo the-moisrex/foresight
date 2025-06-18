@@ -16,14 +16,14 @@ int main(int const argc, char** argv) {
 
     if (args.size() > 1) {
         constinit static auto pipeline =
-          context                           // Init Context
-          | intercept                       // intercept the events
-          | keys_status                     // Save key presses
-          | mice_quantifier                 // Quantify the mouse movements
-          | mods::ignore_big_jumps          // Ignore big mouse jumps
-          | mods::add_scroll(scroll_button) // Make middle button, a scroll wheel
-          | mouse_history                   // Save mouse events until syn arrives
-          | mods::kalman_filter             // Smooth the mouse events
+          context                              // Init Context
+          | intercept                          // intercept the events
+          | keys_status                        // Save key presses
+          | mice_quantifier                    // Quantify the mouse movements
+          | mods::ignore_big_jumps             // Ignore big mouse jumps
+          | mods::add_scroll(scroll_button, 4) // Make middle button, a scroll wheel
+          | mouse_history                      // Save mouse events until syn arrives
+          // | mods::kalman_filter                // Smooth the mouse events
           | uinput;
 
 

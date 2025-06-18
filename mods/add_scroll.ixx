@@ -1,6 +1,7 @@
 // Created by moisrex on 6/9/25.
 
 module;
+#include <cassert>
 #include <linux/uinput.h>
 #include <span>
 export module foresight.mods.add_scroll;
@@ -26,16 +27,18 @@ export namespace foresight::mods {
 
       private:
         bool                       lock    = false;
-        value_type                 reverse = -1;
+        value_type                 reverse = 8;
         std::span<code_type const> hold_keys{default_scroll_keys}; // buttons to be hold
 
       public:
         constexpr basic_add_scroll() noexcept = default;
 
         constexpr explicit basic_add_scroll(std::span<code_type const> const inp_hold_keys,
-                                            bool const                       inp_reverse = true) noexcept
-          : reverse{inp_reverse ? 1 : -1},
-            hold_keys{inp_hold_keys} {}
+                                            value_type const                 inp_reverse = 8) noexcept
+          : reverse{inp_reverse},
+            hold_keys{inp_hold_keys} {
+            assert(reverse != 0);
+        }
 
         consteval basic_add_scroll(basic_add_scroll const &) noexcept            = default;
         constexpr basic_add_scroll(basic_add_scroll &&) noexcept                 = default;
@@ -43,9 +46,9 @@ export namespace foresight::mods {
         constexpr basic_add_scroll &operator=(basic_add_scroll &&) noexcept      = default;
         constexpr ~basic_add_scroll() noexcept                                   = default;
 
-        [[nodiscard]] consteval auto operator()(std::span<code_type const> const inp_hold_keys,
-                                                bool const inp_reverse = true) const noexcept {
-            return basic_add_scroll{inp_hold_keys, inp_reverse};
+        template <typename... Args>
+        [[nodiscard]] consteval auto operator()(Args &&...args) const noexcept {
+            return basic_add_scroll{std::forward<Args>(args)...};
         }
 
         template <Context CtxT>
@@ -66,36 +69,37 @@ export namespace foresight::mods {
                 lock = false;
             }
 
-            if (keys.is_pressed(hold_keys)) {
-                if (!is_mouse_movement(event)) {
-                    return ignore_event;
-                }
 
+            if (keys.is_pressed(hold_keys)) {
                 // release the held keys:
                 for (auto const code : hold_keys) {
                     std::ignore = ctx.fork_emit(*this, EV_KEY, code, 0);
+                    std::ignore = ctx.fork_emit(*this, syn());
                 }
 
-                auto const val  = event.value();
-                auto const cval = (val > 0 ? 1 : val < 0 ? -1 : 0) * reverse;
-                if (auto const x_steps = quant.consume_x(); x_steps > 0) {
-                    std::ignore = ctx.fork_emit(*this, EV_REL, REL_HWHEEL, cval);
-                    // out.emit(event, EV_REL, REL_HWHEEL_HI_RES, cval * 120);
-                }
-                if (auto const y_steps = quant.consume_y(); y_steps > 0) {
-                    std::ignore = ctx.fork_emit(*this, EV_REL, REL_WHEEL, cval);
-                }
+                if (is_mouse_movement(event)) {
+                    auto const val  = event.value();
+                    auto const code = event.code();
+                    auto const cval = (val > 0 ? 1 : val < 0 ? -1 : 0) * (reverse > 0 ? 1 : -1);
+                    if (auto const x_steps = quant.consume_x(); x_steps != 0) {
+                        std::ignore = ctx.fork_emit(*this, EV_REL, REL_HWHEEL, cval);
+                    }
+                    if (auto const y_steps = quant.consume_y(); y_steps != 0) {
+                        std::ignore = ctx.fork_emit(*this, EV_REL, REL_WHEEL, cval);
+                    }
 
-                if (event.code() == REL_X && val > 0) {
-                    std::ignore = ctx.fork_emit(*this, EV_REL, REL_HWHEEL_HI_RES, val * 8);
-                }
-                if (event.code() == REL_Y && val > 0) {
-                    std::ignore = ctx.fork_emit(*this, EV_REL, REL_WHEEL_HI_RES, val * 8);
-                }
-                std::ignore = ctx.fork_emit(*this, syn());
+                    auto const hval = val * reverse;
+                    switch (code) {
+                        case REL_X:
+                            std::ignore = ctx.fork_emit(*this, EV_REL, REL_HWHEEL_HI_RES, hval);
+                            break;
+                        case REL_Y: std::ignore = ctx.fork_emit(*this, EV_REL, REL_WHEEL_HI_RES, hval); break;
+                        default: break;
+                    }
 
-                lock = true;
-                return ignore_event;
+                    lock = true;
+                    return ignore_event;
+                }
             }
 
             if (lock && is_mouse_event(event)) {
