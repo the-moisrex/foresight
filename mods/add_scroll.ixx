@@ -81,27 +81,24 @@ export namespace foresight::mods {
                 if (auto const x_steps = quant.consume_x(); x_steps > 0) {
                     std::ignore = ctx.fork_emit(*this, EV_REL, REL_HWHEEL, cval);
                     // out.emit(event, EV_REL, REL_HWHEEL_HI_RES, cval * 120);
-                    std::ignore = ctx.fork_emit(*this, syn());
                 }
                 if (auto const y_steps = quant.consume_y(); y_steps > 0) {
                     std::ignore = ctx.fork_emit(*this, EV_REL, REL_WHEEL, cval);
-                    std::ignore = ctx.fork_emit(*this, syn());
                 }
 
                 if (event.code() == REL_X && val > 0) {
                     std::ignore = ctx.fork_emit(*this, EV_REL, REL_HWHEEL_HI_RES, val * 8);
-                    std::ignore = ctx.fork_emit(*this, syn());
                 }
                 if (event.code() == REL_Y && val > 0) {
                     std::ignore = ctx.fork_emit(*this, EV_REL, REL_WHEEL_HI_RES, val * 8);
-                    std::ignore = ctx.fork_emit(*this, syn());
                 }
+                std::ignore = ctx.fork_emit(*this, syn());
 
                 lock = true;
                 return ignore_event;
             }
 
-            if (lock) {
+            if (lock && is_mouse_event(event)) {
                 return ignore_event;
             }
             return next;

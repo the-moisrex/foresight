@@ -19,10 +19,10 @@ int main(int const argc, char** argv) {
           context                           // Init Context
           | intercept                       // intercept the events
           | keys_status                     // Save key presses
-          | mouse_history                   // Save mouse events until syn arrives
           | mice_quantifier                 // Quantify the mouse movements
           | mods::ignore_big_jumps          // Ignore big mouse jumps
           | mods::add_scroll(scroll_button) // Make middle button, a scroll wheel
+          | mouse_history                   // Save mouse events until syn arrives
           | mods::kalman_filter             // Smooth the mouse events
           | uinput;
 
@@ -32,8 +32,9 @@ int main(int const argc, char** argv) {
                      });
         std::vector<input_file_type> const file_paths{files.begin(), files.end()};
 
-        auto const  out_file_template = file_paths.front().file;
-        evdev const out_device{out_file_template};
+        auto const out_file_template = file_paths.front().file;
+        evdev      out_device{out_file_template};
+        out_device.enable_event_codes(EV_REL, REL_HWHEEL, REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES);
         pipeline.set_device(out_device);
         pipeline.set_files(file_paths);
         pipeline();

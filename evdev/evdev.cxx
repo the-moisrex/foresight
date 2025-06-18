@@ -87,15 +87,31 @@ std::string_view evdev::device_name() const noexcept {
     return libevdev_get_name(dev);
 }
 
+void evdev::device_name(std::string_view const new_name) noexcept {
+    libevdev_set_name(dev, new_name.data());
+}
+
+void evdev::enable_event_type(ev_type const type) noexcept {
+    libevdev_enable_event_type(dev, type);
+}
+
+void evdev::enable_event_code(ev_type const type, code_type const code) noexcept {
+    enable_event_code(type, code, nullptr);
+}
+
+void evdev::enable_event_code(ev_type const type, code_type const code, void const* const value) noexcept {
+    libevdev_enable_event_code(dev, type, code, nullptr);
+}
+
 std::optional<input_event> evdev::next() noexcept {
     input_event input;
 
-        switch (libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &input)) {
-            [[likely]] case LIBEVDEV_READ_STATUS_SUCCESS: { return input; }
-            case LIBEVDEV_READ_STATUS_SYNC:
-            case -EAGAIN: break;
-            default: return std::nullopt;
-        }
+    switch (libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &input)) {
+        [[likely]] case LIBEVDEV_READ_STATUS_SUCCESS: { return input; }
+        case LIBEVDEV_READ_STATUS_SYNC:
+        case -EAGAIN: break;
+        default: return std::nullopt;
+    }
 
     return std::nullopt;
 }
