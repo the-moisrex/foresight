@@ -37,13 +37,13 @@ export namespace foresight::mods {
             using enum context_action;
             using value_type = event_type::value_type;
 
-            auto&       out   = ctx.mod(output_mod);
             auto&       event = ctx.event();
             auto const& mhist = ctx.mod(mouse_history_mod);
 
             if (is_mouse_movement(event)) {
                 return ignore_event;
-            } else if (!is_syn(event)) {
+            }
+            if (!is_syn(event)) {
                 return next;
             }
 
@@ -54,8 +54,8 @@ export namespace foresight::mods {
             auto const  x_lerped       = static_cast<value_type>(std::round(x_interpolated));
             auto const  y_lerped       = static_cast<value_type>(std::round(y_interpolated));
 
-            out.emit(EV_REL, REL_X, x_lerped);
-            out.emit(EV_REL, REL_Y, y_lerped);
+            std::ignore = ctx.fork_emit(*this, EV_REL, REL_X, x_lerped);
+            std::ignore = ctx.fork_emit(*this, EV_REL, REL_Y, y_lerped);
 
             // Send Syn
             event.reset_time();
@@ -108,28 +108,30 @@ export namespace foresight::mods {
         context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
 
-            auto&       out   = ctx.mod(output_mod);
             auto&       event = ctx.event();
             auto const& mhist = ctx.mod(mouse_history_mod);
             auto const  cur   = mhist.cur();
 
             if (is_mouse_movement(event)) {
                 return ignore_event;
-            } else if (!is_syn(event)) {
+            }
+            if (!is_syn(event)) {
                 return next;
             }
 
             // Apply the low-pass filter
-            float const smoothed_x = alpha * static_cast<float>(cur.x) + (1.f - alpha) * prev_x;
-            float const smoothed_y = alpha * static_cast<float>(cur.y) + (1.f - alpha) * prev_y;
+            float const smoothed_x = (alpha * static_cast<float>(cur.x)) + ((1.f - alpha) * prev_x);
+            float const smoothed_y = (alpha * static_cast<float>(cur.y)) + ((1.f - alpha) * prev_y);
 
             // Update previous values
             prev_x = smoothed_x;
             prev_y = smoothed_y;
 
             // Emit the smoothed values
-            out.emit(EV_REL, REL_X, static_cast<value_type>(std::round(smoothed_x)));
-            out.emit(EV_REL, REL_Y, static_cast<value_type>(std::round(smoothed_y)));
+            std::ignore =
+              ctx.fork_emit(*this, EV_REL, REL_X, static_cast<value_type>(std::round(smoothed_x)));
+            std::ignore =
+              ctx.fork_emit(*this, EV_REL, REL_Y, static_cast<value_type>(std::round(smoothed_y)));
 
             // Send Syn
             event.reset_time();
@@ -174,14 +176,14 @@ export namespace foresight::mods {
         context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
 
-            auto&       out   = ctx.mod(output_mod);
             auto&       event = ctx.event();
             auto const& mhist = ctx.mod(mouse_history_mod);
             auto const  cur   = mhist.cur();
 
             if (is_mouse_movement(event)) {
                 return ignore_event;
-            } else if (!is_syn(event)) {
+            }
+            if (!is_syn(event)) {
                 return next;
             }
 
@@ -198,16 +200,18 @@ export namespace foresight::mods {
             k_y = uncertainty_y / (uncertainty_y + r);
 
             // Update step with new measurement
-            float const smoothed_x = predicted_x + k_x * (static_cast<float>(cur.x) - predicted_x);
-            float const smoothed_y = predicted_y + k_y * (static_cast<float>(cur.y) - predicted_y);
+            float const smoothed_x = predicted_x + (k_x * (static_cast<float>(cur.x) - predicted_x));
+            float const smoothed_y = predicted_y + (k_y * (static_cast<float>(cur.y) - predicted_y));
 
             // Update previous values
             prev_x = smoothed_x;
             prev_y = smoothed_y;
 
             // Emit the smoothed values
-            out.emit(EV_REL, REL_X, static_cast<value_type>(std::round(smoothed_x)));
-            out.emit(EV_REL, REL_Y, static_cast<value_type>(std::round(smoothed_y)));
+            auto const x_val = static_cast<value_type>(std::round(smoothed_x));
+            auto const y_val = static_cast<value_type>(std::round(smoothed_y));
+            std::ignore      = ctx.fork_emit(*this, EV_REL, REL_X, x_val);
+            std::ignore      = ctx.fork_emit(*this, EV_REL, REL_Y, y_val);
 
             // Send Syn
             event.reset_time();

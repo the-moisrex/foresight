@@ -1,6 +1,5 @@
 // Created by moisrex on 6/8/25.
 
-#include <linux/input-event-codes.h>
 module;
 #include <cstdint>
 #include <linux/uinput.h>
@@ -16,6 +15,16 @@ export namespace foresight {
         constexpr event_type() noexcept = default;
 
         constexpr explicit event_type(input_event const& inp_ev) noexcept : ev{inp_ev} {}
+
+        constexpr event_type(type_type const  inp_type,
+                             code_type const  inp_code,
+                             value_type const inp_val) noexcept
+           {
+            reset_time();
+            ev.type  = inp_type;
+            ev.code  = inp_code;
+            ev.value = inp_val;
+        }
 
         constexpr event_type(event_type&&) noexcept            = default;
         constexpr event_type(event_type const&)                = default;
@@ -61,12 +70,18 @@ export namespace foresight {
         }
 
         constexpr void reset_time() noexcept {
-            gettimeofday(&ev.time, nullptr);
+            if !consteval {
+                gettimeofday(&ev.time, nullptr);
+            }
         }
 
       private:
         input_event ev{};
     };
+
+    [[nodiscard]] constexpr event_type syn() noexcept {
+        return {EV_SYN, SYN_REPORT, 0};
+    }
 
     [[nodiscard]] constexpr bool is_mouse_movement(event_type const& event) noexcept {
         return event.type() == EV_REL && (event.code() == REL_X || event.code() == REL_Y);
