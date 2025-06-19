@@ -22,8 +22,11 @@ int main(int const argc, char** argv) {
           | mice_quantifier                    // Quantify the mouse movements
           | mods::ignore_big_jumps             // Ignore big mouse jumps
           | mods::add_scroll(scroll_button, 4) // Make middle button, a scroll wheel
-          | mouse_history                      // Save mouse events until syn arrives
+          // | mouse_history                      // Save mouse events until syn arrives
           // | mods::kalman_filter                // Smooth the mouse events
+          // | mods::on(mods::released{EV_KEY, BTN_LEFT}, [] {
+          //     std::println(stderr, "Left BTN");
+          // })
           | uinput;
 
 

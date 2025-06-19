@@ -92,6 +92,7 @@ target_sources(${LIB_NAME}
         mods/rel_jumps.ixx
         mods/add_scroll.ixx
         mods/smooth.ixx
+        mods/on.ixx
         mods/mods.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_23)

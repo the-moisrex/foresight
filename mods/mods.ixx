@@ -16,3 +16,4 @@ export import foresight.mods.inout;
 export import foresight.mods.rel_jumps;
 export import foresight.mods.add_scroll;
 export import foresight.mods.smooth;
+export import foresight.mods.on;
