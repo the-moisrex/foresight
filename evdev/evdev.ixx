@@ -60,7 +60,7 @@ namespace foresight {
         template <typename... T>
             requires(std::convertible_to<T, code_type> && ...)
         void enable_event_codes(ev_type const type, T const... codes) noexcept {
-            (enable_event_code(type, codes), ...);
+            (enable_event_code(type, static_cast<code_type>(codes)), ...);
         }
 
         /**

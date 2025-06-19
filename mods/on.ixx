@@ -3,11 +3,12 @@
 module;
 #include <linux/input-event-codes.h>
 #include <span>
+#include <tuple>
 export module foresight.mods.on;
 
 import foresight.mods.context;
 
-namespace foresight::mods {
+namespace foresight {
 
     using ev_type    = event_type::type_type;
     using code_type  = event_type::code_type;
@@ -22,30 +23,6 @@ namespace foresight::mods {
             return false;
         }
     } noop;
-
-    export struct [[nodiscard]] pressed {
-        ev_type   type = EV_MAX;
-        code_type code = KEY_MAX;
-
-        template <Context CtxT>
-        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
-            auto const& event = ctx.event();
-            return (event.type() == type || type == EV_MAX) && (event.code() == code || code == KEY_MAX) &&
-                   event.value() == 1;
-        }
-    };
-
-    export struct [[nodiscard]] released {
-        ev_type   type = EV_MAX;
-        code_type code = KEY_MAX;
-
-        template <Context CtxT>
-        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
-            auto const& event = ctx.event();
-            return (event.type() == type || type == EV_MAX) && (event.code() == code || code == KEY_MAX) &&
-                   event.value() == 0;
-        }
-    };
 
     export template <typename CondFunc = basic_noop, typename Func = basic_noop>
     struct [[nodiscard]] basic_on {
@@ -88,7 +65,124 @@ namespace foresight::mods {
         }
     };
 
+    export struct [[nodiscard]] pressed {
+        ev_type   type = EV_MAX;
+        code_type code = KEY_MAX;
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+            auto const& event = ctx.event();
+            return (event.type() == type || type == EV_MAX) && (event.code() == code || code == KEY_MAX) &&
+                   event.value() == 1;
+        }
+    };
+
+    export struct [[nodiscard]] released {
+        ev_type   type = EV_MAX;
+        code_type code = KEY_MAX;
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+            auto const& event = ctx.event();
+            return (event.type() == type || type == EV_MAX) && (event.code() == code || code == KEY_MAX) &&
+                   event.value() == 0;
+        }
+    };
+
+    export template <typename... Funcs>
+        requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
+    struct or_op;
+
+    export template <typename... Funcs>
+        requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
+    struct and_op {
+      private:
+        std::tuple<std::remove_cvref_t<Funcs>...> funcs;
+
+      public:
+        template <typename... InpFuncs>
+            requires((std::convertible_to<InpFuncs, Funcs> && ...))
+        explicit(false) constexpr and_op(InpFuncs&&... inp_funcs) noexcept
+          : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
+
+        constexpr and_op(and_op const&) noexcept            = default;
+        constexpr and_op& operator=(and_op const&) noexcept = default;
+        constexpr and_op& operator=(and_op&&) noexcept      = default;
+        constexpr and_op(and_op&&) noexcept                 = default;
+        constexpr ~and_op() noexcept                        = default;
+
+        template <typename Func>
+        [[nodiscard]] consteval auto operator&(Func func) const noexcept {
+            return std::apply(
+              [func](auto const&... conds) {
+                  return and_op<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Func>>{conds..., func};
+              },
+              funcs);
+        }
+
+        template <typename Func>
+        [[nodiscard]] consteval auto operator|(Func func) const noexcept {
+            return or_op<and_op, std::remove_cvref_t<Func>>{*this, func};
+        }
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+            static_assert((std::is_nothrow_invocable_r_v<bool, Funcs, CtxT&> && ...), "All must be nothrow");
+            return std::apply(
+              [&ctx](auto&... cond) constexpr noexcept {
+                  return (cond(ctx) && ... && false);
+              },
+              funcs);
+        }
+    };
+
+    export template <typename... Funcs>
+        requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
+    struct or_op {
+      private:
+        std::tuple<std::remove_cvref_t<Funcs>...> funcs;
+
+      public:
+        template <typename... InpFuncs>
+            requires((std::convertible_to<InpFuncs, Funcs> && ...))
+        explicit(false) constexpr or_op(InpFuncs&&... inp_funcs) noexcept
+          : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
+
+        constexpr or_op(or_op const&) noexcept            = default;
+        constexpr or_op& operator=(or_op const&) noexcept = default;
+        constexpr or_op& operator=(or_op&&) noexcept      = default;
+        constexpr or_op(or_op&&) noexcept                 = default;
+        constexpr ~or_op() noexcept                       = default;
+
+        template <typename Func>
+        [[nodiscard]] consteval auto operator&(Func func) const noexcept {
+            return and_op<or_op, std::remove_cvref_t<Func>>{*this, func};
+        }
+
+        template <typename Func>
+        [[nodiscard]] consteval auto operator|(Func func) const noexcept {
+            return std::apply(
+              [func](auto const&... conds) {
+                  return or_op<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Func>>{conds..., func};
+              },
+              funcs);
+        }
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+            static_assert((std::is_nothrow_invocable_r_v<bool, Funcs, CtxT&> && ...), "All must be nothrow");
+            return std::apply(
+              [&ctx](auto&... cond) constexpr noexcept {
+                  return (cond(ctx) || ... || false);
+              },
+              funcs);
+        }
+    };
+
+    /// usage: op & pressed{...} | ...
+    export constexpr and_op<> op;
+
+    /// usage: on(released{...}, [] { ... })
     export constexpr basic_on<> on;
 
-
-} // namespace foresight::mods
+} // namespace foresight

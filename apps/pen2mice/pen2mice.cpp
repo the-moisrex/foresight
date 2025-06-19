@@ -1,8 +1,8 @@
 #include <array>
 #include <filesystem>
 #include <linux/input-event-codes.h>
-#include <ranges>
 #include <print>
+#include <ranges>
 #include <span>
 import foresight.mods;
 
@@ -22,10 +22,10 @@ int main(int const argc, char** argv) {
           | keys_status                        // Save key presses
           | mice_quantifier                    // Quantify the mouse movements
           | mods::ignore_big_jumps             // Ignore big mouse jumps
-          | mods::add_scroll(scroll_button, 4) // Make middle button, a scroll wheel
+          | mods::add_scroll(scroll_button, 5) // Make middle button, a scroll wheel
           // | mouse_history                      // Save mouse events until syn arrives
           // | mods::kalman_filter                // Smooth the mouse events
-          // | mods::on(mods::released{EV_KEY, BTN_LEFT}, [] {
+          // | on(op | released{EV_KEY, BTN_LEFT} | released{EV_KEY, BTN_RIGHT}, [] {
           //     std::println(stderr, "Left BTN");
           // })
           | uinput;

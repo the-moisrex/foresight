@@ -100,7 +100,7 @@ void evdev::enable_event_code(ev_type const type, code_type const code) noexcept
 }
 
 void evdev::enable_event_code(ev_type const type, code_type const code, void const* const value) noexcept {
-    libevdev_enable_event_code(dev, type, code, nullptr);
+    libevdev_enable_event_code(dev, type, code, value);
 }
 
 std::optional<input_event> evdev::next() noexcept {
