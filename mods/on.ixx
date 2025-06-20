@@ -1,11 +1,15 @@
 // Created by moisrex on 6/18/25.
 
 module;
+#include <cmath>
+#include <cstdlib>
+#include <functional>
 #include <linux/input-event-codes.h>
-#include <span>
+#include <print>
 #include <tuple>
 export module foresight.mods.on;
 
+import foresight.mods.keys_status;
 import foresight.mods.context;
 
 namespace foresight {
@@ -52,6 +56,26 @@ namespace foresight {
             return basic_on<std::remove_cvref_t<EvTempl>, std::remove_cvref_t<InpFunc>>{templ, inp_func};
         }
 
+        template <typename EvTempl, typename InpFunc, typename... Args>
+            requires(sizeof...(Args) >= 1)
+        consteval auto operator()(EvTempl templ, InpFunc inp_func, Args&&... args) const noexcept {
+            auto const cmd = [inp_func, args...]() constexpr noexcept {
+                // static_assert(std::is_nothrow_invocable_v<InpFunc, Args...>, "Make it nothrow");
+                if constexpr (std::is_nothrow_invocable_v<InpFunc, Args...>) {
+                    std::invoke(inp_func, std::forward<Args>(args)...);
+                } else {
+                    try {
+                        std::invoke(inp_func, std::forward<Args>(args)...);
+                    } catch (...) {
+                        std::println(stderr, "Fatal Unknown error.");
+                        std::abort();
+                    }
+                }
+            };
+            using cmd_type = std::remove_cvref_t<decltype(cmd)>;
+            return basic_on<std::remove_cvref_t<EvTempl>, cmd_type>{templ, cmd};
+        }
+
         template <Context CtxT>
         constexpr context_action operator()(CtxT& ctx) noexcept(std::is_nothrow_invocable_v<Func, CtxT&>) {
             if (cond(ctx)) {
@@ -65,27 +89,38 @@ namespace foresight {
         }
     };
 
-    export struct [[nodiscard]] pressed {
+    export struct [[nodiscard]] keydown {
         ev_type   type = EV_MAX;
         code_type code = KEY_MAX;
 
         template <Context CtxT>
-        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
             auto const& event = ctx.event();
             return (event.type() == type || type == EV_MAX) && (event.code() == code || code == KEY_MAX) &&
                    event.value() == 1;
         }
     };
 
-    export struct [[nodiscard]] released {
+    export struct [[nodiscard]] keyup {
         ev_type   type = EV_MAX;
         code_type code = KEY_MAX;
 
         template <Context CtxT>
-        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
             auto const& event = ctx.event();
             return (event.type() == type || type == EV_MAX) && (event.code() == code || code == KEY_MAX) &&
                    event.value() == 0;
+        }
+    };
+
+    export struct [[nodiscard]] pressed {
+        code_type code = KEY_MAX;
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
+            static_assert(has_mod<basic_keys_status, CtxT>, "We need keys_status to be in the pipeline.");
+            auto const& keys = ctx.mod(keys_status);
+            return keys.is_pressed(code);
         }
     };
 
@@ -130,7 +165,7 @@ namespace foresight {
             static_assert((std::is_nothrow_invocable_r_v<bool, Funcs, CtxT&> && ...), "All must be nothrow");
             return std::apply(
               [&ctx](auto&... cond) constexpr noexcept {
-                  return (cond(ctx) && ... && false);
+                  return (cond(ctx) && ... && true);
               },
               funcs);
         }
@@ -184,5 +219,58 @@ namespace foresight {
 
     /// usage: on(released{...}, [] { ... })
     export constexpr basic_on<> on;
+
+    export struct [[nodiscard]] basic_swipe {
+      private:
+        value_type x_axis = 0;
+        value_type y_axis = 0;
+
+        value_type x = 0;
+        value_type y = 0;
+
+      public:
+        constexpr basic_swipe(value_type const inp_x_axis, value_type const inp_y_axis) noexcept
+          : x_axis{inp_x_axis},
+            y_axis{inp_y_axis} {}
+
+        constexpr basic_swipe() noexcept                              = default;
+        consteval basic_swipe(basic_swipe const&) noexcept            = default;
+        consteval basic_swipe& operator=(basic_swipe const&) noexcept = default;
+        constexpr basic_swipe(basic_swipe&&) noexcept                 = default;
+        constexpr basic_swipe& operator=(basic_swipe&&) noexcept      = default;
+        constexpr ~basic_swipe() noexcept                             = default;
+
+        [[nodiscard]] constexpr bool operator()(Context auto& ctx) noexcept {
+            using std::abs;
+            using std::signbit;
+            auto const& event = ctx.event();
+            if (event.type() == EV_KEY && event.code() == BTN_LEFT) {
+                x = 0;
+                y = 0;
+                return false;
+            }
+            if (is_mouse_movement(event)) {
+                switch (event.code()) {
+                    case REL_X: x += event.value(); break;
+                    case REL_Y: y += event.value(); break;
+                    default: break;
+                }
+                auto const res =
+                  abs(x) >= abs(x_axis) && (signbit(x) == signbit(x_axis) || x_axis == 0) && // x axis
+                  abs(y) >= abs(y_axis) && (signbit(y) == signbit(y_axis) || y_axis == 0);   // y axis
+                if (res) {
+                    x = 0;
+                    y = 0;
+                }
+                return res;
+            }
+            return false;
+        }
+    };
+
+    export constexpr basic_swipe swipe_left{-100, 0};
+    export constexpr basic_swipe swipe_right{100, 0};
+    export constexpr basic_swipe swipe_up{0, -100};
+    export constexpr basic_swipe swipe_down{0, 100};
 
 } // namespace foresight

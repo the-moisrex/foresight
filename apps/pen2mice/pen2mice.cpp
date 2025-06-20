@@ -17,19 +17,26 @@ int main(int const argc, char** argv) {
 
     if (args.size() > 1) {
         constinit static auto pipeline =
-          context                              // Init Context
-          | intercept                          // intercept the events
-          | keys_status                        // Save key presses
-          | mice_quantifier                    // Quantify the mouse movements
-          | mods::ignore_big_jumps             // Ignore big mouse jumps
+          context                  // Init Context
+          | intercept              // intercept the events
+          | keys_status            // Save key presses
+          | mice_quantifier        // Quantify the mouse movements
+          | mods::ignore_big_jumps // Ignore big mouse jumps
+          | on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_right,
+               []() {
+                   std::system("qdbus6 org.kde.KWin /KWin nextDesktop");
+                   return context_action::ignore_event;
+               })
+          | on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_left,
+               []() {
+                   std::system("qdbus6 org.kde.KWin /KWin previousDesktop");
+                   return context_action::ignore_event;
+               })
           | mods::add_scroll(scroll_button, 5) // Make middle button, a scroll wheel
-          // | mouse_history                      // Save mouse events until syn arrives
-          // | mods::kalman_filter                // Smooth the mouse events
-          // | on(op | released{EV_KEY, BTN_LEFT} | released{EV_KEY, BTN_RIGHT}, [] {
-          //     std::println(stderr, "Left BTN");
-          // })
-          | uinput;
+          | uinput;                          // put it in a virtual device
 
+        // | mouse_history                      // Save mouse events until syn arrives
+        // | mods::kalman_filter                // Smooth the mouse events
 
         auto files = args | drop(1) | transform([index = 0](char const* const ptr) mutable {
                          return input_file_type{.file = path{ptr}, .grab = index++ == 0};
