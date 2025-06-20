@@ -119,14 +119,39 @@ export namespace foresight {
     template <typename ModT, typename CtxT>
     constexpr context_action invoke_mod(ModT &mod, CtxT &ctx) {
         using enum context_action;
-        using result = std::invoke_result_t<ModT, CtxT &>;
-        if constexpr (std::same_as<result, bool>) {
-            return mod(ctx) ? next : ignore_event;
-        } else if constexpr (std::same_as<result, context_action>) {
-            return mod(ctx);
+        if constexpr (std::invocable<ModT, CtxT &>) {
+            using result = std::invoke_result_t<ModT, CtxT &>;
+            if constexpr (std::same_as<result, bool>) {
+                return mod(ctx) ? next : ignore_event;
+            } else if constexpr (std::same_as<result, context_action>) {
+                return mod(ctx);
+            } else {
+                mod(ctx);
+                return next;
+            }
+        } else if constexpr (std::invocable<ModT, event_type &>) {
+            auto &event  = ctx.event();
+            using result = std::invoke_result_t<ModT, event_type &>;
+            if constexpr (std::same_as<result, bool>) {
+                return mod(event) ? next : ignore_event;
+            } else if constexpr (std::same_as<result, context_action>) {
+                return mod(event);
+            } else {
+                mod(event);
+                return next;
+            }
+        } else if constexpr (std::invocable<ModT>) {
+            using result = std::invoke_result_t<ModT>;
+            if constexpr (std::same_as<result, bool>) {
+                return mod() ? next : ignore_event;
+            } else if constexpr (std::same_as<result, context_action>) {
+                return mod();
+            } else {
+                mod();
+                return next;
+            }
         } else {
-            mod(ctx);
-            return next;
+            static_assert(false, "We're not able to run this function.");
         }
     }
 

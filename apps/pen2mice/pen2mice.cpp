@@ -32,6 +32,9 @@ int main(int const argc, char** argv) {
                    std::system("qdbus6 org.kde.KWin /KWin previousDesktop");
                    return context_action::ignore_event;
                })
+          | on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT}, [] {
+              return context_action::ignore_event;
+          })
           | mods::add_scroll(scroll_button, 5) // Make middle button, a scroll wheel
           | uinput;                          // put it in a virtual device
 
