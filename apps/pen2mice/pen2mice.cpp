@@ -17,25 +17,27 @@ int main(int const argc, char** argv) {
 
     if (args.size() > 1) {
         constinit static auto pipeline =
-          context                  // Init Context
-          | intercept              // intercept the events
-          | keys_status            // Save key presses
-          | mice_quantifier        // Quantify the mouse movements
-          | mods::ignore_big_jumps // Ignore big mouse jumps
+          context                   // Init Context
+          | intercept               // intercept the events
+          | keys_status             // Save key presses
+          | mice_quantifier         // Quantify the mouse movements
+          | mods::ignore_big_jumps  // Ignore big mouse jumps
+          | mods::ignore_init_moves // Fix pen small moves
           | on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_right,
                []() {
                    std::system("qdbus6 org.kde.KWin /KWin nextDesktop");
                    return context_action::ignore_event;
-               })
-          | on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_left,
-               []() {
-                   std::system("qdbus6 org.kde.KWin /KWin previousDesktop");
-                   return context_action::ignore_event;
-               })
-          | on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT}, [] {
-              return context_action::ignore_event;
-          })
-          | mods::add_scroll(scroll_button, 5) // Make middle button, a scroll wheel
+               }) |
+          on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_left,
+             []() {
+                 std::system("qdbus6 org.kde.KWin /KWin previousDesktop");
+                 return context_action::ignore_event;
+             }) |
+          on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT},
+             [] {
+                 return context_action::ignore_event;
+             }) |
+          mods::add_scroll(scroll_button, 5) // Make middle button, a scroll wheel
           | uinput;                          // put it in a virtual device
 
         // | mouse_history                      // Save mouse events until syn arrives

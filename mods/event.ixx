@@ -11,6 +11,7 @@ export namespace foresight {
         using type_type  = decltype(input_event::type);
         using code_type  = decltype(input_event::code);
         using value_type = decltype(input_event::value);
+        using time_type = decltype(input_event::time);
 
         constexpr event_type() noexcept = default;
 
@@ -36,6 +37,10 @@ export namespace foresight {
             return *this;
         }
 
+        constexpr void time(time_type const inp_time) noexcept {
+            ev.time = inp_time;
+        }
+
         constexpr void type(type_type const inp_type) noexcept {
             ev.type = inp_type;
         }
@@ -46,6 +51,10 @@ export namespace foresight {
 
         constexpr void value(value_type const inp_value) noexcept {
             ev.value = inp_value;
+        }
+
+        [[nodiscard]] constexpr time_type time() const noexcept {
+            return ev.time;
         }
 
         [[nodiscard]] constexpr type_type type() const noexcept {

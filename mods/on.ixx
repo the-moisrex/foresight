@@ -1,6 +1,7 @@
 // Created by moisrex on 6/18/25.
 
 module;
+#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <functional>
@@ -79,11 +80,7 @@ namespace foresight {
         template <Context CtxT>
         constexpr context_action operator()(CtxT& ctx) noexcept(std::is_nothrow_invocable_v<Func, CtxT&>) {
             if (cond(ctx)) {
-                if constexpr (std::invocable<Func, CtxT&>) {
-                    return invoke_mod(func, ctx);
-                } else {
-                    func();
-                }
+                return invoke_mod(func, ctx);
             }
             return context_action::next;
         }
@@ -214,12 +211,6 @@ namespace foresight {
         }
     };
 
-    /// usage: op & pressed{...} | ...
-    export constexpr and_op<> op;
-
-    /// usage: on(released{...}, [] { ... })
-    export constexpr basic_on<> on;
-
     export struct [[nodiscard]] basic_swipe {
       private:
         value_type x_axis = 0;
@@ -268,9 +259,47 @@ namespace foresight {
         }
     };
 
-    export constexpr basic_swipe swipe_left{-100, 0};
-    export constexpr basic_swipe swipe_right{100, 0};
-    export constexpr basic_swipe swipe_up{0, -100};
-    export constexpr basic_swipe swipe_down{0, 100};
+    export template <std::size_t N>
+    struct [[nodiscard]] basic_emit {
+      private:
+        std::array<event_type, N> events;
+
+      public:
+        constexpr basic_emit() noexcept = default;
+
+        explicit constexpr basic_emit(std::array<event_type, N> inp_events) noexcept : events{inp_events} {}
+
+        constexpr basic_emit(basic_emit&&) noexcept                 = default;
+        constexpr basic_emit& operator=(basic_emit&&) noexcept      = default;
+        consteval basic_emit(basic_emit const&) noexcept            = default;
+        consteval basic_emit& operator=(basic_emit const&) noexcept = default;
+        constexpr ~basic_emit() noexcept                            = default;
+
+        template <std::size_t NN>
+        [[nodiscard]] consteval auto operator()(std::array<event_type, NN> inp_events) const noexcept {
+            return basic_emit<NN>{inp_events};
+        }
+
+        constexpr void operator()(Context auto& ctx) const noexcept {
+            for (auto event : events) {
+                event.reset_time();
+                ctx.fork_emit(*this, event);
+            }
+        }
+    };
+
+
+    /// usage: op & pressed{...} | ...
+    export constexpr and_op<> op;
+
+    /// usage: on(released{...}, [] { ... })
+    export constexpr basic_on<> on;
+
+    export constexpr basic_swipe swipe_left{-200, 0};
+    export constexpr basic_swipe swipe_right{200, 0};
+    export constexpr basic_swipe swipe_up{0, -200};
+    export constexpr basic_swipe swipe_down{0, 200};
+
+    export constexpr basic_emit<0> emit;
 
 } // namespace foresight
