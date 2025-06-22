@@ -47,7 +47,7 @@ export namespace foresight::mods {
       private:
         static constexpr msec_type default_time_threshold = std::chrono::milliseconds(1000);
         // user defined thresholds:
-        value_type threshold                              = 10; // pixels to resistance to move
+        value_type threshold                              = 7; // pixels to resistance to move
         msec_type  time_threshold{default_time_threshold};
 
         // active values:
