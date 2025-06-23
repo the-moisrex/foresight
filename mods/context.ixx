@@ -5,6 +5,7 @@ module;
 #include <cstdint>
 #include <linux/input.h>
 #include <string_view>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 export module foresight.mods.context;
@@ -38,7 +39,8 @@ namespace foresight {
     };
 
     template <typename F, typename... Ts>
-    constexpr std::size_t index_at = index_at_impl<0, F, Ts...>::value;
+    constexpr std::size_t index_at =
+      index_at_impl<0, std::remove_cvref_t<F>, std::remove_cvref_t<Ts>...>::value;
 
 } // namespace foresight
 
@@ -160,17 +162,21 @@ export namespace foresight {
     struct [[nodiscard]] basic_context_view;
 
     template <modifier... Funcs>
-    struct [[nodiscard]] basic_context : std::remove_cvref_t<Funcs>... {
+    struct [[nodiscard]] basic_context {
         // static constexpr bool is_nothrow =
         //   (std::is_nothrow_invocable_v<std::remove_cvref_t<Funcs>, basic_context &> && ...);
         static constexpr bool is_nothrow = true;
 
+      private:
+        event_type                                ev;
+        std::tuple<std::remove_cvref_t<Funcs>...> mods;
 
+      public:
         constexpr basic_context() noexcept = default;
 
         consteval explicit basic_context(event_type inp_ev, std::remove_cvref_t<Funcs>... inp_funcs) noexcept
-          : std::remove_cvref_t<Funcs>{inp_funcs}...,
-            ev{std::move(inp_ev)} {}
+          : ev{std::move(inp_ev)},
+            mods{inp_funcs...} {}
 
         consteval basic_context(basic_context const &inp_ctx)                = default;
         constexpr basic_context(basic_context &&inp_ctx) noexcept            = default;
@@ -186,63 +192,74 @@ export namespace foresight {
             return ev;
         }
 
-        constexpr void event(input_event const inp_event) noexcept {
+        constexpr void event(input_event const &inp_event) noexcept {
             ev = inp_event;
         }
 
-        constexpr void event(event_type const inp_event) noexcept {
+        constexpr void event(event_type const &inp_event) noexcept {
             ev = inp_event;
         }
 
         template <typename Func>
             requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
         [[nodiscard]] constexpr auto &mod() noexcept {
-            return static_cast<mod_of<Func, Funcs...> &>(*this);
+            using mod_type = mod_of<Func, Funcs...>;
+            // we're not using Func directly because we may have duplicate types in the tuple, and we want the
+            // first one to be returned instead of throwing error that there's multiple of that type.
+            return get<index_at<mod_type, Funcs...>>(mods);
         }
 
         template <typename Func>
             requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
         [[nodiscard]] constexpr auto const &mod() const noexcept {
-            return static_cast<mod_of<Func, Funcs...> const &>(*this);
+            using mod_type = mod_of<Func, Funcs...>;
+            return get<index_at<mod_type, Funcs...>>(mods);
         }
 
         template <typename Func>
             requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
-        [[nodiscard]] constexpr auto &mod([[maybe_unused]] Func const &inp_mod) noexcept {
-            return static_cast<mod_of<Func, Funcs...> &>(*this);
+        [[nodiscard]] constexpr auto &mod([[maybe_unused]] Func const &) noexcept {
+            using mod_type = mod_of<Func, Funcs...>;
+            return get<index_at<mod_type, Funcs...>>(mods);
         }
 
         template <typename Func>
             requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
-        [[nodiscard]] constexpr auto const &mod([[maybe_unused]] Func const &inp_mod) const noexcept {
-            return static_cast<mod_of<Func, Funcs...> const &>(*this);
+        [[nodiscard]] constexpr auto const &mod([[maybe_unused]] Func const &) const noexcept {
+            using mod_type = mod_of<Func, Funcs...>;
+            return get<index_at<mod_type, Funcs...>>(mods);
         }
 
         template <std::size_t Index = 0>
         [[nodiscard]] constexpr auto const &mod() const noexcept {
-            return static_cast<type_at<Index, Funcs...> const &>(*this);
+            return get<Index>(mods);
         }
 
         template <std::size_t Index = 0>
         [[nodiscard]] constexpr auto &mod() noexcept {
-            return static_cast<type_at<Index, Funcs...> &>(*this);
+            return get<Index>(mods);
         }
 
         template <modifier Mod>
         [[nodiscard]] consteval auto operator|(Mod &&inp_mod) const noexcept {
             static_assert(std::is_invocable_v<std::remove_cvref_t<Mod>, basic_context &>,
                           "Mods must have a operator()(Context auto&) member function.");
-            return basic_context<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Mod>>{
-              ev,
-              mod<Funcs>()...,
-              inp_mod};
+            return std::apply(
+              [&](auto const &...funcs) constexpr noexcept {
+                  return basic_context<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Mod>>{
+                    ev,
+                    funcs...,
+                    inp_mod};
+              },
+              mods);
         }
 
         template <std::size_t Index = 0, Context CtxT = basic_context>
             requires(Index <= sizeof...(Funcs) - 1)
         constexpr context_action reemit(CtxT &ctx) const noexcept(CtxT::is_nothrow) {
             using enum context_action;
-            auto const action = invoke_mod(ctx.template mod<Index>(), ctx);
+            auto ctx_view = ctx.template fork_view<Index>();
+            auto const action = invoke_mod(ctx.template mod<Index>(), ctx_view);
             if constexpr (Index >= sizeof...(Funcs) - 1) {
                 return action;
             } else {
@@ -258,42 +275,42 @@ export namespace foresight {
             return reemit<Index>(*this);
         }
 
-        /**
-         * Usage:
-         *   ctx.fork_emit(*this);
-         */
-        template <modifier Func>
-        constexpr context_action fork_emit([[maybe_unused]] Func const &inp_mod) noexcept(is_nothrow) {
-            return reemit<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U>();
-        }
-
-        template <modifier Func>
-        constexpr context_action fork_emit() noexcept(is_nothrow) {
-            return reemit<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U>();
-        }
-
-        template <modifier Func, Context CtxT = basic_context>
-        constexpr context_action fork_emit(CtxT &ctx, [[maybe_unused]] Func const &inp_mod) const
-          noexcept(CtxT::is_nothrow) {
-            return ctx.template reemit<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U>(ctx);
-        }
-
-        template <modifier Func>
-        constexpr context_action fork_emit([[maybe_unused]] Func const &inp_mod,
-                                           event_type const            &inp_event) noexcept(is_nothrow) {
-            auto const cur_ev = std::exchange(ev, inp_event);
-            auto const res    = fork_emit(inp_mod);
-            ev                = cur_ev;
-            return res;
-        }
-
-        template <modifier Func>
-        constexpr context_action fork_emit(event_type const &inp_event) noexcept(is_nothrow) {
-            auto const cur_ev = std::exchange(ev, inp_event);
-            auto const res    = fork_emit<Func>();
-            ev                = cur_ev;
-            return res;
-        }
+        // /**
+        //  * Usage:
+        //  *   ctx.fork_emit(*this);
+        //  */
+        // template <modifier Func>
+        // constexpr context_action fork_emit([[maybe_unused]] Func const &inp_mod) noexcept(is_nothrow) {
+        //     return reemit<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U>();
+        // }
+        //
+        // template <modifier Func>
+        // constexpr context_action fork_emit() noexcept(is_nothrow) {
+        //     return reemit<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U>();
+        // }
+        //
+        // template <modifier Func, Context CtxT = basic_context>
+        // constexpr context_action fork_emit(CtxT &ctx, [[maybe_unused]] Func const &inp_mod) const
+        //   noexcept(CtxT::is_nothrow) {
+        //     return ctx.template reemit<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U>(ctx);
+        // }
+        //
+        // template <modifier Func>
+        // constexpr context_action fork_emit([[maybe_unused]] Func const &inp_mod,
+        //                                    event_type const            &inp_event) noexcept(is_nothrow) {
+        //     auto const cur_ev = std::exchange(ev, inp_event);
+        //     auto const res    = fork_emit(inp_mod);
+        //     ev                = cur_ev;
+        //     return res;
+        // }
+        //
+        // template <modifier Func>
+        // constexpr context_action fork_emit(event_type const &inp_event) noexcept(is_nothrow) {
+        //     auto const cur_ev = std::exchange(ev, inp_event);
+        //     auto const res    = fork_emit<Func>();
+        //     ev                = cur_ev;
+        //     return res;
+        // }
 
         template <std::size_t Index>
         constexpr context_action fork_emit(event_type const &inp_event) noexcept(is_nothrow) {
@@ -303,16 +320,27 @@ export namespace foresight {
             return res;
         }
 
-        template <modifier Func, typename... Args>
+        template <std::size_t Index, typename... Args>
             requires(std::constructible_from<event_type, Args...> && sizeof...(Args) >= 2)
-        constexpr context_action fork_emit([[maybe_unused]] Func const &inp_mod, Args &&...args) noexcept(
-          is_nothrow) {
-            return fork_emit<Func>(inp_mod, event_type{std::forward<Args>(args)...});
+        constexpr context_action fork_emit(Args &&...args) noexcept(is_nothrow) {
+            return fork_emit<Index>(event_type{std::forward<Args>(args)...});
         }
 
-        template <modifier Func>
-        constexpr auto fork_view([[maybe_unused]] Func const &inp_mod) noexcept {
-            return basic_context_view<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U, Funcs...>{*this};
+        // template <modifier Func, typename... Args>
+        //     requires(std::constructible_from<event_type, Args...> && sizeof...(Args) >= 2)
+        // constexpr context_action fork_emit([[maybe_unused]] Func const &inp_mod, Args &&...args) noexcept(
+        //   is_nothrow) {
+        //     return fork_emit<Func>(inp_mod, event_type{std::forward<Args>(args)...});
+        // }
+
+        // template <modifier Func>
+        // constexpr auto fork_view([[maybe_unused]] Func const &) noexcept {
+        //     return basic_context_view<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U, Funcs...>{*this};
+        // }
+
+        template <std::size_t Index>
+        constexpr auto fork_view() noexcept {
+            return basic_context_view<Index + 1U, Funcs...>{*this};
         }
 
         // Re-Emit the context
@@ -320,7 +348,13 @@ export namespace foresight {
             using enum context_action;
             return [this]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(is_nothrow) {
                 auto action = next;
-                std::ignore = (((action = invoke_mod(mod<I>(), *this)), action == next) && ...);
+                std::ignore = (([this, &action]<std::size_t K>() constexpr noexcept(is_nothrow) {
+                                   auto current_fork_view = fork_view<K>();
+                                   action                 = invoke_mod(mod<K>(), current_fork_view);
+                                   return action == next;
+                               }).template operator()<I>() &&
+                               ...);
+                // std::ignore = (((action = invoke_mod(mod<I>(), fork_view<I>())), action == next) && ...);
                 return action;
             }(std::make_index_sequence<sizeof...(Funcs)>{});
         }
@@ -336,9 +370,6 @@ export namespace foresight {
                 }
             }
         }
-
-      private:
-        event_type ev;
     };
 
     template <std::size_t Index, modifier... Funcs>
@@ -374,12 +405,51 @@ export namespace foresight {
             return ctx->template fork_emit<Index>(event);
         }
 
+        template <typename... Args>
+            requires(std::constructible_from<event_type, Args...> && sizeof...(Args) >= 2)
+        constexpr context_action fork_emit(Args &&...args) noexcept(is_nothrow) {
+            return fork_emit(event_type{std::forward<Args>(args)...});
+        }
+
         [[nodiscard]] constexpr event_type const &event() const noexcept {
             return ctx->event();
         }
 
         [[nodiscard]] constexpr event_type &event() noexcept {
             return ctx->event();
+        }
+
+        constexpr void event(input_event const &inp_event) noexcept {
+            ctx->event(inp_event);
+        }
+
+        template <typename Func>
+            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
+        [[nodiscard]] constexpr auto &mod() noexcept {
+            return ctx->template mod<Func>();
+        }
+
+        template <typename Func>
+            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
+        [[nodiscard]] constexpr auto const &mod() const noexcept {
+            return ctx->template mod<Func>();
+        }
+
+        template <typename Func>
+            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
+        [[nodiscard]] constexpr auto &mod([[maybe_unused]] Func const &) noexcept {
+            return ctx->template mod<Func>();
+        }
+
+        template <typename Func>
+            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
+        [[nodiscard]] constexpr auto const &mod([[maybe_unused]] Func const &) const noexcept {
+            return ctx->template mod<Func>();
+        }
+
+        template <std::size_t NIndex = Index>
+        [[nodiscard]] constexpr auto const &mod() const noexcept {
+            return ctx->template mod<NIndex>();
         }
     };
 

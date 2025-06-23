@@ -25,16 +25,16 @@ int main(int const argc, char** argv) {
           | mods::ignore_init_moves // Fix pen small moves
           | on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_right,
                emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT))) |
-          // on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_left,
-          //    emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT))) |
-          // on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_up,
-          //    emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP))) |
-          // on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_down,
-          //    emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN))) |
-          on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT},
-             [] {
-                 return context_action::ignore_event;
-             }) |
+          on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_left,
+             emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT))) |
+          on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_up,
+             emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP))) |
+          on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_down,
+             emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN))) |
+          // on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT},
+          //    [] {
+          //        return context_action::ignore_event;
+          //    }) |
           mods::add_scroll(scroll_button, 5) // Make middle button, a scroll wheel
           | uinput;                          // put it in a virtual device
 
@@ -48,9 +48,11 @@ int main(int const argc, char** argv) {
 
         auto const out_file_template = file_paths.front().file;
         evdev      out_device{out_file_template};
+        auto&      out      = pipeline.mod(uinput);
+        auto&      intcptor = pipeline.mod(intercept);
         out_device.enable_event_codes(EV_REL, REL_HWHEEL, REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES);
-        pipeline.set_device(out_device);
-        pipeline.set_files(file_paths);
+        out.set_device(out_device);
+        intcptor.set_files(file_paths);
         pipeline();
     } else {
         (context                           // Init Context

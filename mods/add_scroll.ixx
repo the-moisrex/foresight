@@ -73,8 +73,8 @@ export namespace foresight::mods {
             if (keys.is_pressed(hold_keys)) {
                 // release the held keys:
                 for (auto const code : hold_keys) {
-                    std::ignore = ctx.fork_emit(*this, EV_KEY, code, 0);
-                    std::ignore = ctx.fork_emit(*this, syn());
+                    std::ignore = ctx.fork_emit(EV_KEY, code, 0);
+                    std::ignore = ctx.fork_emit(syn());
                 }
 
                 if (is_mouse_movement(event)) {
@@ -82,18 +82,16 @@ export namespace foresight::mods {
                     auto const code = event.code();
                     auto const cval = (val > 0 ? 1 : val < 0 ? -1 : 0) * (reverse > 0 ? 1 : -1);
                     if (auto const x_steps = quant.consume_x(); x_steps != 0) {
-                        std::ignore = ctx.fork_emit(*this, EV_REL, REL_HWHEEL, cval);
+                        std::ignore = ctx.fork_emit(EV_REL, REL_HWHEEL, cval);
                     }
                     if (auto const y_steps = quant.consume_y(); y_steps != 0) {
-                        std::ignore = ctx.fork_emit(*this, EV_REL, REL_WHEEL, cval);
+                        std::ignore = ctx.fork_emit(EV_REL, REL_WHEEL, cval);
                     }
 
                     auto const hval = val * reverse;
                     switch (code) {
-                        case REL_X:
-                            std::ignore = ctx.fork_emit(*this, EV_REL, REL_HWHEEL_HI_RES, hval);
-                            break;
-                        case REL_Y: std::ignore = ctx.fork_emit(*this, EV_REL, REL_WHEEL_HI_RES, hval); break;
+                        case REL_X: std::ignore = ctx.fork_emit(EV_REL, REL_HWHEEL_HI_RES, hval); break;
+                        case REL_Y: std::ignore = ctx.fork_emit(EV_REL, REL_WHEEL_HI_RES, hval); break;
                         default: break;
                     }
 

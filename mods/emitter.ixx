@@ -50,7 +50,7 @@ namespace foresight {
         template <Context CtxT>
         constexpr void operator()(CtxT& ctx) noexcept {
             for (auto const& usr_event : events) {
-                ctx.fork_emit(event_type{usr_event});
+                std::ignore = ctx.fork_emit(event_type{usr_event});
             }
         }
     };
@@ -84,8 +84,8 @@ namespace foresight {
     constexpr auto press(CT const... codes) noexcept {
         std::array<user_event, sizeof...(CT) * 2 + 1> events;
         auto                                          pos = events.begin();
-        ((*pos++ = user_event{EV_KEY, static_cast<event_type::code_type>(codes), 1}, 0), ...);
-        ((*pos++ = user_event{EV_KEY, static_cast<event_type::code_type>(codes), 0}, 0), ...);
+        ((*pos++ = user_event{EV_KEY, static_cast<event_type::code_type>(codes), 1}), ...);
+        ((*pos++ = user_event{EV_KEY, static_cast<event_type::code_type>(codes), 0}), ...);
         *pos = static_cast<user_event>(syn());
         return events;
     }

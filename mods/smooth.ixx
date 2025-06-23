@@ -54,8 +54,8 @@ export namespace foresight::mods {
             auto const  x_lerped       = static_cast<value_type>(std::round(x_interpolated));
             auto const  y_lerped       = static_cast<value_type>(std::round(y_interpolated));
 
-            std::ignore = ctx.fork_emit(*this, EV_REL, REL_X, x_lerped);
-            std::ignore = ctx.fork_emit(*this, EV_REL, REL_Y, y_lerped);
+            std::ignore = ctx.fork_emit( EV_REL, REL_X, x_lerped);
+            std::ignore = ctx.fork_emit( EV_REL, REL_Y, y_lerped);
 
             // Send Syn
             event.reset_time();
@@ -129,9 +129,9 @@ export namespace foresight::mods {
 
             // Emit the smoothed values
             std::ignore =
-              ctx.fork_emit(*this, EV_REL, REL_X, static_cast<value_type>(std::round(smoothed_x)));
+              ctx.fork_emit( EV_REL, REL_X, static_cast<value_type>(std::round(smoothed_x)));
             std::ignore =
-              ctx.fork_emit(*this, EV_REL, REL_Y, static_cast<value_type>(std::round(smoothed_y)));
+              ctx.fork_emit( EV_REL, REL_Y, static_cast<value_type>(std::round(smoothed_y)));
 
             // Send Syn
             event.reset_time();
@@ -210,8 +210,8 @@ export namespace foresight::mods {
             // Emit the smoothed values
             auto const x_val = static_cast<value_type>(std::round(smoothed_x));
             auto const y_val = static_cast<value_type>(std::round(smoothed_y));
-            std::ignore      = ctx.fork_emit(*this, EV_REL, REL_X, x_val);
-            std::ignore      = ctx.fork_emit(*this, EV_REL, REL_Y, y_val);
+            std::ignore      = ctx.fork_emit( EV_REL, REL_X, x_val);
+            std::ignore      = ctx.fork_emit( EV_REL, REL_Y, y_val);
 
             // Send Syn
             event.reset_time();

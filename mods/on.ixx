@@ -71,8 +71,7 @@ namespace foresight {
         template <Context CtxT>
         constexpr context_action operator()(CtxT& ctx) noexcept {
             if (cond(ctx)) {
-                auto view = ctx.fork_view(*this);
-                return invoke_mod(func, view);
+                return invoke_mod(func, ctx);
             }
             return context_action::next;
         }
