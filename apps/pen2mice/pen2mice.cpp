@@ -24,15 +24,13 @@ int main(int const argc, char** argv) {
           | mods::ignore_big_jumps  // Ignore big mouse jumps
           | mods::ignore_init_moves // Fix pen small moves
           | on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_right,
-               []() {
-                   std::system("qdbus6 org.kde.KWin /KWin nextDesktop");
-                   return context_action::ignore_event;
-               }) |
-          on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_left,
-             []() {
-                 std::system("qdbus6 org.kde.KWin /KWin previousDesktop");
-                 return context_action::ignore_event;
-             }) |
+               emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT))) |
+          // on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_left,
+          //    emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT))) |
+          // on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_up,
+          //    emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP))) |
+          // on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_down,
+          //    emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN))) |
           on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT},
              [] {
                  return context_action::ignore_event;

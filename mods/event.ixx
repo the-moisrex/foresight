@@ -3,19 +3,34 @@
 module;
 #include <cstdint>
 #include <linux/uinput.h>
+#include <oneapi/tbb/task_group.h>
+#include <tuple>
 export module foresight.mods.event;
 
 export namespace foresight {
+
+    struct [[nodiscard]] user_event {
+        using type_type  = decltype(input_event::type);
+        using code_type  = decltype(input_event::code);
+        using value_type = decltype(input_event::value);
+
+        type_type  type  = EV_MAX;
+        code_type  code  = KEY_MAX;
+        value_type value = 0;
+    };
 
     struct [[nodiscard]] event_type {
         using type_type  = decltype(input_event::type);
         using code_type  = decltype(input_event::code);
         using value_type = decltype(input_event::value);
-        using time_type = decltype(input_event::time);
+        using time_type  = decltype(input_event::time);
 
         constexpr event_type() noexcept = default;
 
         constexpr explicit event_type(input_event const& inp_ev) noexcept : ev{inp_ev} {}
+
+        constexpr explicit event_type(user_event const& inp_ev) noexcept
+          : event_type{inp_ev.type, inp_ev.code, inp_ev.value} {}
 
         constexpr event_type(type_type const  inp_type,
                              code_type const  inp_code,
@@ -77,6 +92,10 @@ export namespace foresight {
             return ev;
         }
 
+        [[nodiscard]] explicit constexpr operator user_event() const noexcept {
+            return user_event{.type = ev.type, .code = ev.code, .value = ev.value};
+        }
+
         constexpr void reset_time() noexcept {
             if !consteval {
                 gettimeofday(&ev.time, nullptr);
@@ -105,6 +124,4 @@ export namespace foresight {
     [[nodiscard]] constexpr bool is_syn(event_type const& event) noexcept {
         return event.type() == EV_SYN;
     }
-
-
 } // namespace foresight

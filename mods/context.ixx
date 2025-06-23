@@ -155,10 +155,16 @@ export namespace foresight {
         }
     }
 
+
+    template <std::size_t Index, modifier... Funcs>
+    struct [[nodiscard]] basic_context_view;
+
     template <modifier... Funcs>
     struct [[nodiscard]] basic_context : std::remove_cvref_t<Funcs>... {
-        static constexpr bool is_nothrow =
-          (std::is_nothrow_invocable_v<std::remove_cvref_t<Funcs>, basic_context &> && ...);
+        // static constexpr bool is_nothrow =
+        //   (std::is_nothrow_invocable_v<std::remove_cvref_t<Funcs>, basic_context &> && ...);
+        static constexpr bool is_nothrow = true;
+
 
         constexpr basic_context() noexcept = default;
 
@@ -261,6 +267,11 @@ export namespace foresight {
             return reemit<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U>();
         }
 
+        template <modifier Func>
+        constexpr context_action fork_emit() noexcept(is_nothrow) {
+            return reemit<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U>();
+        }
+
         template <modifier Func, Context CtxT = basic_context>
         constexpr context_action fork_emit(CtxT &ctx, [[maybe_unused]] Func const &inp_mod) const
           noexcept(CtxT::is_nothrow) {
@@ -276,11 +287,32 @@ export namespace foresight {
             return res;
         }
 
+        template <modifier Func>
+        constexpr context_action fork_emit(event_type const &inp_event) noexcept(is_nothrow) {
+            auto const cur_ev = std::exchange(ev, inp_event);
+            auto const res    = fork_emit<Func>();
+            ev                = cur_ev;
+            return res;
+        }
+
+        template <std::size_t Index>
+        constexpr context_action fork_emit(event_type const &inp_event) noexcept(is_nothrow) {
+            auto const cur_ev = std::exchange(ev, inp_event);
+            auto const res    = reemit<Index>();
+            ev                = cur_ev;
+            return res;
+        }
+
         template <modifier Func, typename... Args>
             requires(std::constructible_from<event_type, Args...> && sizeof...(Args) >= 2)
         constexpr context_action fork_emit([[maybe_unused]] Func const &inp_mod, Args &&...args) noexcept(
           is_nothrow) {
             return fork_emit<Func>(inp_mod, event_type{std::forward<Args>(args)...});
+        }
+
+        template <modifier Func>
+        constexpr auto fork_view([[maybe_unused]] Func const &inp_mod) noexcept {
+            return basic_context_view<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U, Funcs...>{*this};
         }
 
         // Re-Emit the context
@@ -307,6 +339,48 @@ export namespace foresight {
 
       private:
         event_type ev;
+    };
+
+    template <std::size_t Index, modifier... Funcs>
+    struct [[nodiscard]] basic_context_view {
+        using ctx_type                   = basic_context<Funcs...>;
+        static constexpr bool is_nothrow = ctx_type::is_nothrow;
+
+      private:
+        ctx_type *ctx;
+
+      public:
+        explicit constexpr basic_context_view(ctx_type &inp_ctx) noexcept : ctx(&inp_ctx) {}
+
+        constexpr basic_context_view(basic_context_view const &)                = default;
+        constexpr basic_context_view(basic_context_view &&) noexcept            = default;
+        constexpr basic_context_view &operator=(basic_context_view const &)     = default;
+        constexpr basic_context_view &operator=(basic_context_view &&) noexcept = default;
+        constexpr ~basic_context_view() noexcept                                = default;
+
+        [[nodiscard]] constexpr ctx_type &context() noexcept {
+            return *ctx;
+        }
+
+        [[nodiscard]] constexpr ctx_type const &context() const noexcept {
+            return *ctx;
+        }
+
+        constexpr context_action fork_emit() noexcept(is_nothrow) {
+            return ctx->template reemit<Index>();
+        }
+
+        constexpr context_action fork_emit(event_type const &event) noexcept(is_nothrow) {
+            return ctx->template fork_emit<Index>(event);
+        }
+
+        [[nodiscard]] constexpr event_type const &event() const noexcept {
+            return ctx->event();
+        }
+
+        [[nodiscard]] constexpr event_type &event() noexcept {
+            return ctx->event();
+        }
     };
 
     constexpr basic_context<> context;
