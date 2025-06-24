@@ -12,8 +12,13 @@ int main(int const argc, char** argv) {
     using std::views::drop;
     using std::views::transform;
 
-    static constexpr auto scroll_button = mods::key_pack(BTN_MIDDLE);
-    auto const            args          = std::span{argv, argv + argc};
+    static constexpr auto scroll_button    = mods::key_pack(BTN_MIDDLE);
+    auto const            args             = std::span{argv, argv + argc};
+    static constexpr auto mid_left         = op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT};
+    static constexpr auto ignore_mid_lefts = [](Context auto& ctx) noexcept {
+        using enum context_action;
+        return is_mouse_event(ctx.event()) ? ignore_event : next;
+    };
 
     if (args.size() > 1) {
         constinit static auto pipeline =
@@ -24,20 +29,13 @@ int main(int const argc, char** argv) {
           | swipe_detector          // Detects swipes
           | mods::ignore_big_jumps  // Ignore big mouse jumps
           | mods::ignore_init_moves // Fix pen small moves
-          | on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_right,
-               emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT))) |
-          on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_left,
-             emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT))) |
-          on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_up,
-             emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP))) |
-          on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_down,
-             emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN))) |
-          // on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT},
-          //    [] {
-          //        return context_action::ignore_event;
-          //    }) |
-          mods::add_scroll(scroll_button, 5) // Make middle button, a scroll wheel
-          | uinput;                          // put it in a virtual device
+          | on(mid_left & swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT))) //
+          | on(mid_left & swipe_left, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)))   //
+          | on(mid_left & swipe_up, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)))       //
+          | on(mid_left & swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)))   //
+          | on(mid_left, ignore_mid_lefts)     // ignore mouse movements
+          | mods::add_scroll(scroll_button, 5) // Make middle button, a scroll wheel
+          | uinput;                            // put it in a virtual device
 
         // | mouse_history                      // Save mouse events until syn arrives
         // | mods::kalman_filter                // Smooth the mouse events

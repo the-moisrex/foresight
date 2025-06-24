@@ -3,10 +3,10 @@
 module;
 #include <array>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <functional>
 #include <linux/input-event-codes.h>
-#include <print>
 #include <tuple>
 #include <utility>
 export module foresight.mods.on;
@@ -317,7 +317,6 @@ namespace foresight {
             auto const [cur_x_count, cur_y_count] =
               ctx.mod(swipe_detector).passed_threshold_count(x_axis, y_axis);
             auto const cur_count = cur_x_count + cur_y_count;
-            std::println(stderr, "{} {}", cur_x_count, cur_y_count);
             return cur_count > std::exchange(count, cur_count);
         }
     };
@@ -328,10 +327,11 @@ namespace foresight {
     /// usage: on(released{...}, [] { ... })
     export constexpr basic_on<> on;
 
-    export constexpr auto        no_axis = std::numeric_limits<value_type>::max();
-    export constexpr basic_swipe swipe_left{-200, no_axis};
-    export constexpr basic_swipe swipe_right{200, no_axis};
-    export constexpr basic_swipe swipe_up{no_axis, -200};
-    export constexpr basic_swipe swipe_down{no_axis, 200};
+    constexpr auto               no_axis           = std::numeric_limits<value_type>::max();
+    constexpr value_type         default_sipe_step = 150;
+    export constexpr basic_swipe swipe_left{-default_sipe_step, no_axis};
+    export constexpr basic_swipe swipe_right{default_sipe_step, no_axis};
+    export constexpr basic_swipe swipe_up{no_axis, -default_sipe_step};
+    export constexpr basic_swipe swipe_down{no_axis, default_sipe_step};
 
 } // namespace foresight
