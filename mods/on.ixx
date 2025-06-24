@@ -1,10 +1,9 @@
 // Created by moisrex on 6/18/25.
 
 module;
-#include <array>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
-#include <cstdlib>
 #include <functional>
 #include <linux/input-event-codes.h>
 #include <tuple>
@@ -321,6 +320,46 @@ namespace foresight {
         }
     };
 
+    export struct [[nodiscard]] basic_multi_click {
+        using duration_type = std::chrono::microseconds;
+
+      private:
+        user_event    usr;
+        std::uint8_t  count              = 2;
+        duration_type duration_threshold = std::chrono::milliseconds{300};
+
+        std::uint8_t  cur_count = 0;
+        duration_type last_click{};
+
+      public:
+        constexpr explicit basic_multi_click(
+          user_event const&   inp_usr_event,
+          std::uint8_t const  inp_count     = 2,
+          duration_type const dur_threshold = std::chrono::milliseconds{300}) noexcept
+          : usr{inp_usr_event},
+            count{inp_count},
+            duration_threshold{dur_threshold} {}
+
+        consteval basic_multi_click(basic_multi_click const&) noexcept            = default;
+        consteval basic_multi_click& operator=(basic_multi_click const&) noexcept = default;
+        constexpr basic_multi_click(basic_multi_click&&) noexcept                 = default;
+        constexpr basic_multi_click& operator=(basic_multi_click&&) noexcept      = default;
+        constexpr ~basic_multi_click() noexcept                                   = default;
+
+        [[nodiscard]] constexpr bool operator()(Context auto& ctx) noexcept {
+            auto const& event = ctx.event();
+            auto const  now   = event.micro_time();
+            if (event != usr) {
+                return false;
+            }
+            if ((now - std::exchange(last_click, now)) > duration_threshold) {
+                cur_count = 1;
+                return false;
+            }
+            return ++cur_count >= count;
+        }
+    };
+
     /// usage: op & pressed{...} | ...
     export constexpr and_op<> op;
 
@@ -334,4 +373,6 @@ namespace foresight {
     export constexpr basic_swipe swipe_up{no_axis, -default_sipe_step};
     export constexpr basic_swipe swipe_down{no_axis, default_sipe_step};
 
+    constexpr user_event               left_click{EV_KEY, BTN_LEFT, 0};
+    export constexpr basic_multi_click dbl_click{left_click};
 } // namespace foresight

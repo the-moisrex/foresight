@@ -72,6 +72,10 @@ export namespace foresight {
             return ev.time;
         }
 
+        [[nodiscard]] constexpr std::chrono::microseconds micro_time() const noexcept {
+            return std::chrono::seconds{ev.time.tv_sec} + std::chrono::microseconds{ev.time.tv_usec};
+        }
+
         [[nodiscard]] constexpr type_type type() const noexcept {
             return ev.type;
         }
@@ -100,6 +104,37 @@ export namespace foresight {
             if !consteval {
                 gettimeofday(&ev.time, nullptr);
             }
+        }
+
+        [[nodiscard]] constexpr bool is(type_type const inp_type) const noexcept {
+            return ev.type == inp_type;
+        }
+
+        [[nodiscard]] constexpr bool is(type_type const inp_type, code_type const inp_code) const noexcept {
+            return ev.type == inp_type && ev.code == inp_code;
+        }
+
+        [[nodiscard]] constexpr bool is_of(type_type const inp_type,
+                                           code_type const inp_code) const noexcept {
+            return ev.type == inp_type && ev.code == inp_code;
+        }
+
+        /// Only checks the type and the code, but not the value
+        [[nodiscard]] constexpr bool is_of(user_event const& rhs) const noexcept {
+            return ev.type == rhs.type && ev.code == rhs.code;
+        }
+
+        [[nodiscard]] constexpr bool
+        is(type_type const inp_type, code_type const inp_code, value_type const inp_value) const noexcept {
+            return ev.type == inp_type && ev.code == inp_code && ev.value == inp_value;
+        }
+
+        [[nodiscard]] constexpr bool is(user_event const& usr) const noexcept {
+            return ev.type == usr.type && ev.code == usr.code && ev.value == usr.value;
+        }
+
+        [[nodiscard]] constexpr bool operator==(user_event const& rhs) const noexcept {
+            return is(rhs);
         }
 
       private:

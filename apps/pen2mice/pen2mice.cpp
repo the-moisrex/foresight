@@ -28,12 +28,13 @@ int main(int const argc, char** argv) {
       | swipe_detector    // Detects swipes
       | ignore_big_jumps  // Ignore big mouse jumps
       | ignore_init_moves // Fix pen small moves
+      | on(op & pressed{BTN_MIDDLE} & dbl_click, emit(press(KEY_LEFTMETA, KEY_TAB))) // switch KDE activities
       | on(mid_left & swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT))) //
       | on(mid_left & swipe_left, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)))   //
       | on(mid_left & swipe_up, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)))       //
       | on(mid_left & swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)))   //
-      | on(mid_left, ignore_mid_lefts) // ignore mouse movements
-      | add_scroll(scroll_button, 5);  // Make middle button, a scroll wheel
+      | on(mid_left, ignore_mid_lefts)                                               // ignore mouse movements
+      | add_scroll(scroll_button, 5); // Make middle button, a scroll wheel
 
     if (args.size() > 1) {
         constinit static auto pipeline =
