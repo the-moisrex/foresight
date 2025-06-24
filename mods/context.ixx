@@ -192,6 +192,14 @@ export namespace foresight {
             return ev;
         }
 
+        [[nodiscard]] constexpr auto const &get_mods() const noexcept {
+            return mods;
+        }
+
+        [[nodiscard]] constexpr auto &get_mods() noexcept {
+            return mods;
+        }
+
         constexpr void event(input_event const &inp_event) noexcept {
             ev = inp_event;
         }
@@ -240,6 +248,23 @@ export namespace foresight {
             return get<Index>(mods);
         }
 
+        /// Unwrap basic_context
+        template <modifier... NMods>
+        [[nodiscard]] consteval auto operator|(basic_context<NMods...> const &ctx) const noexcept {
+            return std::apply(
+              [&](auto const &...funcs) constexpr noexcept {
+                  return std::apply(
+                    [&](auto const &...funcs2) constexpr noexcept {
+                        return basic_context<std::remove_cvref_t<Funcs>..., NMods...>{
+                          ev,
+                          funcs...,
+                          funcs2...};
+                    },
+                    ctx.get_mods());
+              },
+              mods);
+        }
+
         template <modifier Mod>
         [[nodiscard]] consteval auto operator|(Mod &&inp_mod) const noexcept {
             static_assert(std::is_invocable_v<std::remove_cvref_t<Mod>, basic_context &>,
@@ -258,8 +283,8 @@ export namespace foresight {
             requires(Index <= sizeof...(Funcs) - 1)
         constexpr context_action reemit(CtxT &ctx) const noexcept(CtxT::is_nothrow) {
             using enum context_action;
-            auto ctx_view = ctx.template fork_view<Index>();
-            auto const action = invoke_mod(ctx.template mod<Index>(), ctx_view);
+            auto       ctx_view = ctx.template fork_view<Index>();
+            auto const action   = invoke_mod(ctx.template mod<Index>(), ctx_view);
             if constexpr (Index >= sizeof...(Funcs) - 1) {
                 return action;
             } else {
@@ -272,7 +297,7 @@ export namespace foresight {
 
         template <std::size_t Index = 0>
         constexpr context_action reemit() noexcept(is_nothrow) {
-            return reemit<Index>(*this);
+            return reemit<Index, basic_context>(*this);
         }
 
         // /**
@@ -370,6 +395,15 @@ export namespace foresight {
                 }
             }
         }
+
+        /// Pass-through
+        constexpr context_action operator()(Context auto &ctx) noexcept(is_nothrow) {
+            using enum context_action;
+            ev             = ctx.event();
+            auto const res = reemit_all();
+            ctx.event(ev);
+            return res;
+        }
     };
 
     template <std::size_t Index, modifier... Funcs>
@@ -420,6 +454,10 @@ export namespace foresight {
         }
 
         constexpr void event(input_event const &inp_event) noexcept {
+            ctx->event(inp_event);
+        }
+
+        constexpr void event(event_type const &inp_event) noexcept {
             ctx->event(inp_event);
         }
 

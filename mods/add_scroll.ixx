@@ -11,7 +11,7 @@ import foresight.mods.quantifier;
 import foresight.mods.inout;
 import foresight.mods.event;
 
-export namespace foresight::mods {
+export namespace foresight {
 
     template <typename... T>
         requires((std::convertible_to<T, event_type::code_type> && ...))
@@ -60,7 +60,6 @@ export namespace foresight::mods {
             // we don't need keys and quantifier mods taken like this, but it's done for readability
             auto &keys  = ctx.mod(keys_status);
             auto &quant = ctx.mod(mice_quantifier);
-            auto &out   = ctx.mod(output_mod);
             auto &event = ctx.event();
 
             // Hold the lock, until both buttons are released.
@@ -106,4 +105,4 @@ export namespace foresight::mods {
             return next;
         }
     } add_scroll;
-} // namespace foresight::mods
+} // namespace foresight

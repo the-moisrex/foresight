@@ -8,7 +8,7 @@ export module foresight.mods.rel_jumps;
 import foresight.mods.event;
 import foresight.mods.context;
 
-export namespace foresight::mods {
+export namespace foresight {
 
     constexpr struct [[nodiscard]] ignore_big_jumps_type {
         using value_type = event_type::value_type;
@@ -99,4 +99,4 @@ export namespace foresight::mods {
         }
     } ignore_init_moves;
 
-} // namespace foresight::mods
+} // namespace foresight
