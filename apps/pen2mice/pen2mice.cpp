@@ -21,6 +21,7 @@ int main(int const argc, char** argv) {
           | intercept               // intercept the events
           | keys_status             // Save key presses
           | mice_quantifier         // Quantify the mouse movements
+          | swipe_detector          // Detects swipes
           | mods::ignore_big_jumps  // Ignore big mouse jumps
           | mods::ignore_init_moves // Fix pen small moves
           | on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT} & swipe_right,

@@ -8,6 +8,7 @@ module;
 #include <linux/input-event-codes.h>
 #include <print>
 #include <tuple>
+#include <utility>
 export module foresight.mods.on;
 
 import foresight.mods.keys_status;
@@ -202,13 +203,96 @@ namespace foresight {
         }
     };
 
+    export constexpr struct [[nodiscard]] basic_swipe_detector {
+      private:
+        value_type cur_x = 0;
+        value_type cur_y = 0;
+
+      public:
+        constexpr basic_swipe_detector() noexcept                                       = default;
+        consteval basic_swipe_detector(basic_swipe_detector const&) noexcept            = default;
+        consteval basic_swipe_detector& operator=(basic_swipe_detector const&) noexcept = default;
+        constexpr basic_swipe_detector(basic_swipe_detector&&) noexcept                 = default;
+        constexpr basic_swipe_detector& operator=(basic_swipe_detector&&) noexcept      = default;
+        constexpr ~basic_swipe_detector() noexcept                                      = default;
+
+        constexpr void reset() noexcept {
+            cur_x = 0;
+            cur_y = 0;
+        }
+
+        [[nodiscard]] constexpr value_type x() const noexcept {
+            return cur_x;
+        }
+
+        [[nodiscard]] constexpr value_type y() const noexcept {
+            return cur_y;
+        }
+
+        [[nodiscard]] constexpr bool is_active(value_type const x_axis,
+                                               value_type const y_axis) const noexcept {
+            using std::abs;
+            using std::signbit;
+            return abs(cur_x) >= abs(x_axis) && (signbit(cur_x) == signbit(x_axis) || x_axis == 0) && // X
+                   abs(cur_y) >= abs(y_axis) && (signbit(cur_y) == signbit(y_axis) || y_axis == 0);   // Y
+        }
+
+        /// Returns the number of times X and Y have passed
+        /// multiples of their respective thresholds.
+        /// Returns a std::pair where .first is x_multiples_passed and .second is y_multiples_passed.
+        [[nodiscard]] constexpr std::pair<std::uint16_t, std::uint16_t> passed_threshold_count(
+          value_type const x_axis,
+          value_type const y_axis) const noexcept {
+            using std::abs;
+            using std::signbit; // Required for checking signs
+
+            std::uint16_t x_multiples = 0;
+            std::uint16_t y_multiples = 0;
+
+            // Calculate multiples for X
+            if (x_axis != 0) {
+                // Check if cur_x and x_axis have the same sign (or if cur_x is zero)
+                // If they do, then calculate multiples. Otherwise, count is 0.
+                if (signbit(cur_x) == signbit(x_axis)) {
+                    x_multiples = static_cast<std::uint16_t>(abs(cur_x) / abs(x_axis));
+                }
+            }
+            // If x_axis is 0, x_multiples remains 0, which is correct.
+
+            // Calculate multiples for Y
+            if (y_axis != 0) {
+                // Check if cur_y and y_axis have the same sign (or if cur_y is zero)
+                if (signbit(cur_y) == signbit(y_axis)) {
+                    y_multiples = static_cast<std::uint16_t>(abs(cur_y) / abs(y_axis));
+                }
+            }
+            // If y_axis is 0, y_multiples remains 0, which is correct.
+
+            return {x_multiples, y_multiples};
+        }
+
+        constexpr void operator()(Context auto& ctx) noexcept {
+            auto const& event = ctx.event();
+            if (event.type() == EV_KEY && event.code() == BTN_LEFT) {
+                reset();
+                return;
+            }
+            if (is_mouse_movement(event)) {
+                switch (event.code()) {
+                    case REL_X: cur_x += event.value(); break;
+                    case REL_Y: cur_y += event.value(); break;
+                    default: break;
+                }
+            }
+        }
+    } swipe_detector;
+
     export struct [[nodiscard]] basic_swipe {
       private:
         value_type x_axis = 0;
         value_type y_axis = 0;
 
-        value_type x = 0;
-        value_type y = 0;
+        std::uint16_t count = 0;
 
       public:
         constexpr basic_swipe(value_type const inp_x_axis, value_type const inp_y_axis) noexcept
@@ -222,31 +306,19 @@ namespace foresight {
         constexpr basic_swipe& operator=(basic_swipe&&) noexcept      = default;
         constexpr ~basic_swipe() noexcept                             = default;
 
-        [[nodiscard]] constexpr bool operator()(Context auto& ctx) noexcept {
-            using std::abs;
-            using std::signbit;
-            auto const& event = ctx.event();
-            if (event.type() == EV_KEY && event.code() == BTN_LEFT) {
-                x = 0;
-                y = 0;
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+            static_assert(has_mod<basic_swipe_detector, CtxT>, "You need to enable swipe detector");
+
+            if (!is_mouse_movement(ctx.event())) {
                 return false;
             }
-            if (is_mouse_movement(event)) {
-                switch (event.code()) {
-                    case REL_X: x += event.value(); break;
-                    case REL_Y: y += event.value(); break;
-                    default: break;
-                }
-                auto const res =
-                  abs(x) >= abs(x_axis) && (signbit(x) == signbit(x_axis) || x_axis == 0) && // x axis
-                  abs(y) >= abs(y_axis) && (signbit(y) == signbit(y_axis) || y_axis == 0);   // y axis
-                if (res) {
-                    x = 0;
-                    y = 0;
-                }
-                return res;
-            }
-            return false;
+
+            auto const [cur_x_count, cur_y_count] =
+              ctx.mod(swipe_detector).passed_threshold_count(x_axis, y_axis);
+            auto const cur_count = cur_x_count + cur_y_count;
+            std::println(stderr, "{} {}", cur_x_count, cur_y_count);
+            return cur_count > std::exchange(count, cur_count);
         }
     };
 
@@ -256,9 +328,10 @@ namespace foresight {
     /// usage: on(released{...}, [] { ... })
     export constexpr basic_on<> on;
 
-    export constexpr basic_swipe swipe_left{-200, 0};
-    export constexpr basic_swipe swipe_right{200, 0};
-    export constexpr basic_swipe swipe_up{0, -200};
-    export constexpr basic_swipe swipe_down{0, 200};
+    export constexpr auto        no_axis = std::numeric_limits<value_type>::max();
+    export constexpr basic_swipe swipe_left{-200, no_axis};
+    export constexpr basic_swipe swipe_right{200, no_axis};
+    export constexpr basic_swipe swipe_up{no_axis, -200};
+    export constexpr basic_swipe swipe_down{no_axis, 200};
 
 } // namespace foresight
