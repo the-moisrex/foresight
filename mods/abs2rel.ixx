@@ -1,5 +1,6 @@
 module;
 #include <linux/uinput.h>
+#include <print>
 export module foresight.mods.abs2rel;
 import foresight.mods.context;
 
@@ -11,6 +12,17 @@ namespace foresight {
       private:
         value_type last_abs_x = 0;
         value_type last_abs_y = 0;
+
+        //=======================================================================
+        // SENSITIVITY ADJUSTMENT
+        //=======================================================================
+        // Increase this value to make the mouse move slower.
+        // Decrease it to make the mouse move faster.
+        // This is the most important value to tune for a good user experience.
+        // Start with a value like 5.0 and adjust as needed. For a very
+        // high-resolution tablet, you might need a value of 10.0, 20.0, or even higher.
+        static constexpr double sensitivity_divisor = 15.0;
+
 
       public:
         constexpr basic_abs2rel() noexcept                                = default;
@@ -27,43 +39,48 @@ namespace foresight {
             auto const code  = event.code();
             auto const value = event.value();
 
-            // std::println(stderr, "{} {} {}", event.type(), event.code(), event.value());
             if (EV_ABS == type) {
                 // Absolute position event from tablet
                 switch (code) {
                     case ABS_X: {
                         auto const delta_x = value - last_abs_x;
+                        auto const scaled_delta_x =
+                          static_cast<value_type>(static_cast<double>(delta_x) / sensitivity_divisor);
                         event.type(EV_REL);
-                        event.value(REL_X);
-                        event.value(delta_x);
+                        event.code(REL_X);
+                        event.value(scaled_delta_x);
                         last_abs_x = value;
                         break;
                     }
                     case ABS_Y: {
                         auto const delta_y = value - last_abs_y;
+                        auto const scaled_delta_y =
+                          static_cast<value_type>(static_cast<double>(delta_y) / sensitivity_divisor);
                         event.type(EV_REL);
-                        event.value(REL_Y);
-                        event.value(delta_y);
+                        event.code(REL_Y);
+                        event.value(scaled_delta_y);
                         last_abs_y = value;
                         break;
                     }
-                    // case ABS_TILT_X:
-                    // case ABS_TILT_Y:
-                    // case ABS_PRESSURE: return ignore_event;
+                    case ABS_TILT_X:
+                    case ABS_TILT_Y:
+                    case ABS_PRESSURE: return ignore_event;
                     default: break;
                 }
             } else if (EV_KEY == type) {
                 switch (code) {
-                    case BTN_TOUCH:
-                        // Map pen tip contact to left mouse button
-                        event.code(BTN_LEFT);
-                        break;
-                    // case BTN_TOOL_RUBBER:
-                    // case BTN_TOOL_BRUSH:
-                    // case BTN_TOOL_PEN: return ignore_event;
+                    case BTN_STYLUS: event.code(BTN_RIGHT); break;
+                    case BTN_TOUCH: event.code(BTN_LEFT); break;
+                    case BTN_TOOL_RUBBER: event.code(BTN_MIDDLE); break;
+                    case BTN_STYLUS2:
+                    case BTN_STYLUS3:
+                    case BTN_TOOL_BRUSH:
+                    case BTN_TOOL_PEN: return ignore_event;
                     default: break;
                 }
             } else if (EV_REL == type) {
+                // The EV_REL block for updating last_abs is likely not needed if the primary
+                // input is the tablet, but we leave it for mixed-device scenarios.
                 switch (code) {
                     case REL_X: last_abs_x += value; break;
                     case REL_Y: last_abs_y += value; break;
@@ -71,8 +88,6 @@ namespace foresight {
                 }
             }
 
-            // std::println(stderr, "{} {} {}", event.type(), event.code(), event.value());
-            // std::println(stderr, "");
             return next;
         }
 
@@ -120,6 +135,40 @@ namespace foresight {
     //       Min      -63
     //       Max       64
 
+    //    Supported events:
+    //  Event type 0 (EV_SYN)
+    //  Event type 1 (EV_KEY)
+    //    Event code 320 (BTN_TOOL_PEN)
+    //    Event code 321 (BTN_TOOL_RUBBER)
+    //    Event code 330 (BTN_TOUCH)
+    //    Event code 331 (BTN_STYLUS)
+    //  Event type 3 (EV_ABS)
+    //    Event code 0 (ABS_X)
+    //      Value  18090
+    //      Min        0
+    //      Max    32767
+    //      Resolution     205
+    //    Event code 1 (ABS_Y)
+    //      Value  14269
+    //      Min        0
+    //      Max    32767
+    //      Resolution     328
+    //    Event code 24 (ABS_PRESSURE)
+    //      Value      0
+    //      Min        0
+    //      Max     8191
+    //    Event code 26 (ABS_TILT_X)
+    //      Value      0
+    //      Min     -127
+    //      Max      127
+    //    Event code 27 (ABS_TILT_Y)
+    //      Value      0
+    //      Min     -127
+    //      Max      127
+    //  Event type 4 (EV_MSC)
+    //    Event code 4 (MSC_SCAN)
+
+
     // Example input:
     // Event: type 1 (EV_KEY), code 320 (BTN_TOOL_PEN), value 1
     // Event: type 3 (EV_ABS), code 0 (ABS_X), value 30694
@@ -153,6 +202,22 @@ namespace foresight {
     // Event: type 1 (EV_KEY), code 320 (BTN_TOOL_PEN), value 0
     // Event: type 3 (EV_ABS), code 26 (ABS_TILT_X), value 0
     // Event: -------------- SYN_REPORT ------------
+
+    // Event: type 3 (EV_ABS), code 24 (ABS_PRESSURE), value 857
+    // Event: -------------- SYN_REPORT ------------
+    // Event: type 4 (EV_MSC), code 4 (MSC_SCAN), value d0042
+    // Event: type 1 (EV_KEY), code 330 (BTN_TOUCH), value 0
+    // Event: type 3 (EV_ABS), code 24 (ABS_PRESSURE), value 0
+    // Event: type 3 (EV_ABS), code 26 (ABS_TILT_X), value 15
+    // Event: -------------- SYN_REPORT ------------
+    // Event: type 3 (EV_ABS), code 26 (ABS_TILT_X), value 14
+    // Event: -------------- SYN_REPORT ------------
+    // Event: type 3 (EV_ABS), code 26 (ABS_TILT_X), value 13
+    // Event: -------------- SYN_REPORT ------------
+    // Event: type 3 (EV_ABS), code 26 (ABS_TILT_X), value 12
+    // Event: -------------- SYN_REPORT ------------
+    // Event: type 3 (EV_ABS), code 26 (ABS_TILT_X), value 10
+
 
     // AI Generated info about Linux events:
     /****************************************************************************

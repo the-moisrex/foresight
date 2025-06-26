@@ -63,6 +63,15 @@ namespace foresight {
             (enable_event_code(type, static_cast<code_type>(codes)), ...);
         }
 
+        void disable_event_type(ev_type) noexcept;
+        void disable_event_code(ev_type, code_type) noexcept;
+
+        template <typename... T>
+            requires(std::convertible_to<T, code_type> && ...)
+        void disable_event_codes(ev_type const type, T const... codes) noexcept {
+            (disable_event_code(type, static_cast<code_type>(codes)), ...);
+        }
+
         /**
          * Get a new input_event form the input device
          */
