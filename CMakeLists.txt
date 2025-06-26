@@ -95,6 +95,7 @@ target_sources(${LIB_NAME}
         mods/on.ixx
         mods/emitter.ixx
         mods/abs2rel.ixx
+        mods/ignore.ixx
         mods/mods.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_23)

@@ -1,6 +1,5 @@
 module;
 #include <linux/uinput.h>
-#include <print>
 export module foresight.mods.abs2rel;
 import foresight.mods.context;
 
@@ -14,6 +13,13 @@ namespace foresight {
         value_type last_abs_y = 0;
 
       public:
+        constexpr basic_abs2rel() noexcept                                = default;
+        consteval basic_abs2rel(basic_abs2rel const&) noexcept            = default;
+        constexpr basic_abs2rel(basic_abs2rel&&) noexcept                 = default;
+        consteval basic_abs2rel& operator=(basic_abs2rel const&) noexcept = default;
+        constexpr basic_abs2rel& operator=(basic_abs2rel&&) noexcept      = default;
+        constexpr ~basic_abs2rel() noexcept                               = default;
+
         constexpr context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
             auto&      event = ctx.event();
@@ -21,7 +27,7 @@ namespace foresight {
             auto const code  = event.code();
             auto const value = event.value();
 
-            std::println(stderr, "{} {} {}", event.type(), event.code(), event.value());
+            // std::println(stderr, "{} {} {}", event.type(), event.code(), event.value());
             if (EV_ABS == type) {
                 // Absolute position event from tablet
                 switch (code) {
@@ -41,9 +47,9 @@ namespace foresight {
                         last_abs_y = value;
                         break;
                     }
-                    case ABS_TILT_X:
-                    case ABS_TILT_Y:
-                    case ABS_PRESSURE: return ignore_event;
+                    // case ABS_TILT_X:
+                    // case ABS_TILT_Y:
+                    // case ABS_PRESSURE: return ignore_event;
                     default: break;
                 }
             } else if (EV_KEY == type) {
@@ -52,9 +58,9 @@ namespace foresight {
                         // Map pen tip contact to left mouse button
                         event.code(BTN_LEFT);
                         break;
-                    case BTN_TOOL_RUBBER:
-                    case BTN_TOOL_BRUSH:
-                    case BTN_TOOL_PEN: return ignore_event;
+                    // case BTN_TOOL_RUBBER:
+                    // case BTN_TOOL_BRUSH:
+                    // case BTN_TOOL_PEN: return ignore_event;
                     default: break;
                 }
             } else if (EV_REL == type) {
@@ -65,8 +71,8 @@ namespace foresight {
                 }
             }
 
-            std::println(stderr, "{} {} {}", event.type(), event.code(), event.value());
-            std::println(stderr, "");
+            // std::println(stderr, "{} {} {}", event.type(), event.code(), event.value());
+            // std::println(stderr, "");
             return next;
         }
 
