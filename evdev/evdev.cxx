@@ -111,6 +111,18 @@ void evdev::disable_event_code(ev_type const type, code_type const code) noexcep
     libevdev_disable_event_code(dev, type, code);
 }
 
+bool evdev::has_event_type(ev_type const type) const noexcept {
+    return libevdev_has_event_type(dev, type);
+}
+
+bool evdev::has_event_code(ev_type const type, code_type const code) const noexcept {
+    return libevdev_has_event_code(dev, type, code);
+}
+
+input_absinfo const* evdev::abs_info(code_type const code) const noexcept {
+    return libevdev_get_abs_info(dev, code);
+}
+
 std::optional<input_event> evdev::next() noexcept {
     input_event input;
 

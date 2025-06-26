@@ -72,6 +72,18 @@ namespace foresight {
             (disable_event_code(type, static_cast<code_type>(codes)), ...);
         }
 
+        [[nodiscard]] bool has_event_type(ev_type) const noexcept;
+        [[nodiscard]] bool has_event_code(ev_type, code_type) const noexcept;
+
+        template <typename... T>
+            requires((std::convertible_to<T, code_type> && ...) && sizeof...(T) >= 1)
+        [[nodiscard]] bool has_event_codes(ev_type const type, T const... codes) const noexcept {
+            return (has_event_code(type, static_cast<code_type>(codes)) && ...);
+        }
+
+        /// May return nullptr
+        [[nodiscard]] input_absinfo const* abs_info(code_type code) const noexcept;
+
         /**
          * Get a new input_event form the input device
          */

@@ -1,8 +1,13 @@
 module;
-#include <linux/uinput.h>
+#include <cassert>
+#include <cstdint>
+#include <libevdev/libevdev.h>
+#include <linux/input-event-codes.h>
 #include <print>
+#include <utility>
 export module foresight.mods.abs2rel;
 import foresight.mods.context;
+import foresight.evdev;
 
 namespace foresight {
 
@@ -13,15 +18,19 @@ namespace foresight {
         value_type last_abs_x = 0;
         value_type last_abs_y = 0;
 
-        //=======================================================================
+        // ======================================================================
         // SENSITIVITY ADJUSTMENT
-        //=======================================================================
+        // ======================================================================
         // Increase this value to make the mouse move slower.
         // Decrease it to make the mouse move faster.
         // This is the most important value to tune for a good user experience.
         // Start with a value like 5.0 and adjust as needed. For a very
         // high-resolution tablet, you might need a value of 10.0, 20.0, or even higher.
-        static constexpr double sensitivity_divisor = 15.0;
+        double x_sensitivity_divisor = 15.0;
+        double y_sensitivity_divisor = 15.0;
+
+        // events sent between each syn
+        std::uint8_t events_sent = 0;
 
 
       public:
@@ -32,6 +41,49 @@ namespace foresight {
         constexpr basic_abs2rel& operator=(basic_abs2rel&&) noexcept      = default;
         constexpr ~basic_abs2rel() noexcept                               = default;
 
+
+      private:
+        [[nodiscard]] constexpr static double calculate_baseline(input_absinfo const* info,
+                                                                 std::uint32_t const  screen_dim) {
+            assert(info != nullptr);
+            auto const range = static_cast<double>(info->maximum - info->minimum);
+            if (range <= 0) {
+                return 20.0;
+            }
+            return range / screen_dim;
+        }
+
+      public:
+        void init(evdev const&        dev,
+                  std::uint32_t const screen_with,
+                  std::uint32_t const screen_height) noexcept {
+            auto const* x_absinfo = dev.abs_info(ABS_X);
+            auto const* y_absinfo = dev.abs_info(ABS_Y);
+            if (x_absinfo == nullptr || y_absinfo == nullptr) {
+                return;
+            }
+            x_sensitivity_divisor = calculate_baseline(x_absinfo, screen_with);
+            x_sensitivity_divisor = calculate_baseline(y_absinfo, screen_height);
+        }
+
+        /// The ratio is the "tablet size" to "screen size" ratio.
+        /// The higher the ratio, the faster the cursor will move.
+        void init(evdev const& dev, double const screen_ratio = 1.0) noexcept {
+            auto const* x_absinfo = dev.abs_info(ABS_X);
+            auto const* y_absinfo = dev.abs_info(ABS_Y);
+            if (x_absinfo == nullptr || y_absinfo == nullptr) {
+                return;
+            }
+            auto const tablet_width  = static_cast<double>(x_absinfo->maximum - x_absinfo->minimum);
+            auto const tablet_height = static_cast<double>(y_absinfo->maximum - y_absinfo->minimum);
+            x_sensitivity_divisor =
+              calculate_baseline(x_absinfo, static_cast<std::uint32_t>(screen_ratio * tablet_width));
+            y_sensitivity_divisor =
+              calculate_baseline(y_absinfo, static_cast<std::uint32_t>(screen_ratio * tablet_height));
+            std::println(stderr, "X: {}", x_sensitivity_divisor);
+            std::println(stderr, "Y: {}", y_sensitivity_divisor);
+        }
+
         constexpr context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
             auto&      event = ctx.event();
@@ -39,13 +91,17 @@ namespace foresight {
             auto const code  = event.code();
             auto const value = event.value();
 
+            if (is_syn(event) && std::exchange(events_sent, 0) == 0) {
+                return ignore_event;
+            }
+
             if (EV_ABS == type) {
                 // Absolute position event from tablet
                 switch (code) {
                     case ABS_X: {
                         auto const delta_x = value - last_abs_x;
                         auto const scaled_delta_x =
-                          static_cast<value_type>(static_cast<double>(delta_x) / sensitivity_divisor);
+                          static_cast<value_type>(static_cast<double>(delta_x) / x_sensitivity_divisor);
                         event.type(EV_REL);
                         event.code(REL_X);
                         event.value(scaled_delta_x);
@@ -55,7 +111,7 @@ namespace foresight {
                     case ABS_Y: {
                         auto const delta_y = value - last_abs_y;
                         auto const scaled_delta_y =
-                          static_cast<value_type>(static_cast<double>(delta_y) / sensitivity_divisor);
+                          static_cast<value_type>(static_cast<double>(delta_y) / y_sensitivity_divisor);
                         event.type(EV_REL);
                         event.code(REL_Y);
                         event.value(scaled_delta_y);
@@ -88,6 +144,8 @@ namespace foresight {
                 }
             }
 
+
+            ++events_sent;
             return next;
         }
 

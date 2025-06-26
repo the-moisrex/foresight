@@ -1,10 +1,10 @@
 // Created by moisrex on 6/8/25.
 
 module;
+#include <chrono>
 #include <cstdint>
+#include <libevdev/libevdev.h>
 #include <linux/uinput.h>
-#include <oneapi/tbb/task_group.h>
-#include <tuple>
 export module foresight.mods.event;
 
 export namespace foresight {
@@ -106,8 +106,20 @@ export namespace foresight {
             }
         }
 
+        [[nodiscard]] std::string_view code_name() const noexcept {
+            return libevdev_event_code_get_name(ev.type, ev.code);
+        }
+
+        [[nodiscard]] std::string_view type_name() const noexcept {
+            return libevdev_event_type_get_name(ev.type);
+        }
+
+        [[nodiscard]] std::string_view value_name() const noexcept {
+            return libevdev_event_value_get_name(ev.type, ev.code, ev.value);
+        }
+
         [[nodiscard]] constexpr bool is(type_type const inp_type) const noexcept {
-            return ev.type == inp_type;
+            return libevdev_event_is_type(&ev, inp_type) == 1;
         }
 
         [[nodiscard]] constexpr bool is(type_type const inp_type, code_type const inp_code) const noexcept {
@@ -116,12 +128,12 @@ export namespace foresight {
 
         [[nodiscard]] constexpr bool is_of(type_type const inp_type,
                                            code_type const inp_code) const noexcept {
-            return ev.type == inp_type && ev.code == inp_code;
+            return libevdev_event_is_code(&ev, inp_type, inp_code) == 1;
         }
 
         /// Only checks the type and the code, but not the value
         [[nodiscard]] constexpr bool is_of(user_event const& rhs) const noexcept {
-            return ev.type == rhs.type && ev.code == rhs.code;
+            return libevdev_event_is_code(&ev, rhs.type, rhs.code) == 1;
         }
 
         [[nodiscard]] constexpr bool
