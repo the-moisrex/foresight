@@ -1,5 +1,4 @@
 module;
-#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <libevdev/libevdev.h>
@@ -24,9 +23,9 @@ namespace foresight {
         double y_scale_factor = 10.0;
 
         // events sent between each syn
-        std::uint8_t events_sent  = 0;
-        code_type    active_tool  = BTN_TOOL_PEN;
-        bool         is_left_down = false;
+        std::int8_t events_sent  = 0;
+        code_type   active_tool  = BTN_TOOL_PEN;
+        bool        is_left_down = false;
 
         value_type pressure_to_click = 500;
 
@@ -55,7 +54,8 @@ namespace foresight {
             auto const code  = event.code();
             auto const value = event.value();
 
-            if (is_syn(event) && std::exchange(events_sent, 0) == 0) {
+            // -1 is given because the syn itself is an event that's being sent
+            if (is_syn(event) && std::exchange(events_sent, -1) <= 0) {
                 return ignore_event;
             }
 
@@ -87,8 +87,7 @@ namespace foresight {
                         break;
                     }
                     case ABS_TILT_X:
-                    case ABS_TILT_Y:
-                        return ignore_event;
+                    case ABS_TILT_Y: return ignore_event;
                     case ABS_PRESSURE:
                         // use pressure as the left button click
                         if (value >= pressure_to_click && !is_left_down) {
@@ -114,9 +113,7 @@ namespace foresight {
                     case BTN_TOUCH: return ignore_event;
                     case BTN_STYLUS2:
                     case BTN_STYLUS3: return ignore_event;
-                    case BTN_TOOL_RUBBER:
-                        event.code(BTN_MIDDLE);
-                        break;
+                    case BTN_TOOL_RUBBER: event.code(BTN_MIDDLE); break;
                     case BTN_TOOL_PEN:
                     case BTN_TOOL_BRUSH:
                     case BTN_TOOL_PENCIL:

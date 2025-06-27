@@ -14,7 +14,7 @@ int main(int const argc, char** argv) {
 
     static constexpr auto scroll_button    = key_pack(BTN_MIDDLE);
     static constexpr auto mid_left         = op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT};
-    static constexpr auto ignore_mid_lefts = [](Context auto& ctx) noexcept {
+    static constexpr auto ignore_mid_lefts = [](Context auto& ctx) constexpr noexcept {
         using enum context_action;
         return is_mouse_event(ctx.event()) ? ignore_event : next;
     };
@@ -27,17 +27,14 @@ int main(int const argc, char** argv) {
       | mice_quantifier   // Quantify the mouse movements
       | ignore_big_jumps  // Ignore big mouse jumps
       | ignore_init_moves // Fix pen small moves
+      | swipe_detector    // Detects swipes
       | on(op & pressed{BTN_MIDDLE} & dbl_click, emit(press(KEY_LEFTMETA, KEY_TAB))) // switch KDE activities
-      | on(mid_left,
-           context                                                                   // new context
-             | swipe_detector                                                        // Detects swipes
-             | on(swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT)))   //
-             | on(swipe_left, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)))     //
-             | on(swipe_up, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)))         //
-             | on(swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)))     //
-             | ignore_mid_lefts                                                      // ignore mouse movements
-           )                                                                         //
-      | add_scroll(scroll_button, 5); // Make middle button, a scroll wheel
+      | on(mid_left & swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT))) //
+      | on(mid_left & swipe_left, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)))   //
+      | on(mid_left & swipe_up, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)))       //
+      | on(mid_left & swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)))   //
+      | on(mid_left, ignore_mid_lefts) // ignore mouse movements
+      | add_scroll(scroll_button, 5);  // Make middle button, a scroll wheel
 
     if (args.size() > 1) {
         constinit static auto pipeline =

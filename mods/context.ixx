@@ -280,8 +280,8 @@ export namespace foresight {
         }
 
         template <std::size_t Index = 0, Context CtxT = basic_context>
-            requires(Index <= sizeof...(Funcs) - 1)
         constexpr context_action reemit(CtxT &ctx) const noexcept(CtxT::is_nothrow) {
+            static_assert(Index <= sizeof...(Funcs) - 1, "Index out of range.");
             using enum context_action;
             auto       ctx_view = ctx.template fork_view<Index>();
             auto const action   = invoke_mod(ctx.template mod<Index>(), ctx_view);
@@ -365,6 +365,7 @@ export namespace foresight {
 
         template <std::size_t Index>
         constexpr auto fork_view() noexcept {
+            static_assert(Index <= sizeof...(Funcs) - 1, "Index out of range.");
             return basic_context_view<Index + 1U, Funcs...>{*this};
         }
 
