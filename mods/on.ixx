@@ -374,5 +374,6 @@ namespace foresight {
     export constexpr basic_swipe swipe_down{no_axis, default_sipe_step};
 
     constexpr user_event               left_click{EV_KEY, BTN_LEFT, 0};
-    export constexpr basic_multi_click dbl_click{left_click};
+    export constexpr basic_multi_click double_click{left_click};
+    export constexpr basic_multi_click triple_click{left_click, 3};
 } // namespace foresight

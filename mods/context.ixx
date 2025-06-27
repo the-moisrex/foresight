@@ -410,6 +410,9 @@ export namespace foresight {
     template <std::size_t Index, modifier... Funcs>
     struct [[nodiscard]] basic_context_view {
         using ctx_type                   = basic_context<Funcs...>;
+        using type_type                  = event_type::type_type;
+        using code_type                  = event_type::code_type;
+        using value_type                 = event_type::value_type;
         static constexpr bool is_nothrow = ctx_type::is_nothrow;
 
       private:
@@ -440,10 +443,15 @@ export namespace foresight {
             return ctx->template fork_emit<Index>(event);
         }
 
-        template <typename... Args>
-            requires(std::constructible_from<event_type, Args...> && sizeof...(Args) >= 2)
-        constexpr context_action fork_emit(Args &&...args) noexcept(is_nothrow) {
-            return fork_emit(event_type{std::forward<Args>(args)...});
+        constexpr context_action fork_emit(user_event const &inp_ev) noexcept(is_nothrow) {
+            return fork_emit(event_type{inp_ev});
+        }
+
+        constexpr context_action fork_emit(
+          type_type const  inp_type,
+          code_type const  inp_code,
+          value_type const inp_val) noexcept(is_nothrow) {
+            return fork_emit(event_type{inp_type, inp_code, inp_val});
         }
 
         [[nodiscard]] constexpr event_type const &event() const noexcept {
