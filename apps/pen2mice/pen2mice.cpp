@@ -51,7 +51,7 @@ int main(int const argc, char** argv) {
         std::vector<input_file_type> const file_paths{files.begin(), files.end()};
         evdev                              out_device{file_paths.front().file};
 
-        pipeline.mod(abs2rel).init(out_device, 0.08);
+        pipeline.mod(abs2rel).init(out_device);
         out_device.enable_event_codes(
           EV_REL,
           REL_WHEEL,
