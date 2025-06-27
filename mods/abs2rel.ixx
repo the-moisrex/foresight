@@ -24,8 +24,11 @@ namespace foresight {
         double y_scale_factor = 5.0;
 
         // events sent between each syn
-        std::uint8_t events_sent = 0;
-        code_type    active_tool = BTN_TOOL_PEN;
+        std::uint8_t events_sent  = 0;
+        code_type    active_tool  = BTN_TOOL_PEN;
+        bool         is_left_down = false;
+
+        value_type pressure_to_click = 500;
 
       public:
         constexpr basic_abs2rel() noexcept                                = default;
@@ -85,17 +88,37 @@ namespace foresight {
                     }
                     case ABS_TILT_X:
                     case ABS_TILT_Y:
-                    case ABS_PRESSURE: return ignore_event;
+                        return ignore_event;
+                    case ABS_PRESSURE:
+                        // use pressure as the left button click
+                        if (value >= pressure_to_click && !is_left_down) {
+                            event.type(EV_KEY);
+                            event.code(BTN_LEFT);
+                            event.value(1);
+                            is_left_down = true;
+                            break;
+                        }
+                        if (value < pressure_to_click && is_left_down) {
+                            event.code(BTN_LEFT);
+                            event.type(EV_KEY);
+                            event.value(0);
+                            is_left_down = false;
+                            break;
+                        }
+                        return ignore_event;
                     default: break;
                 }
             } else if (EV_KEY == type) {
                 switch (code) {
                     case BTN_STYLUS: event.code(BTN_RIGHT); break;
-                    case BTN_TOUCH: event.code(active_tool == BTN_TOOL_RUBBER ? BTN_MIDDLE : BTN_LEFT); break;
+                    case BTN_TOUCH: return ignore_event;
                     case BTN_STYLUS2:
                     case BTN_STYLUS3: return ignore_event;
-                    case BTN_TOOL_PEN:
                     case BTN_TOOL_RUBBER:
+                        event.code(BTN_MIDDLE);
+                        event.value(value);
+                        break;
+                    case BTN_TOOL_PEN:
                     case BTN_TOOL_BRUSH:
                     case BTN_TOOL_PENCIL:
                     case BTN_TOOL_AIRBRUSH:
