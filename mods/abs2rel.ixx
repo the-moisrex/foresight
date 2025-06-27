@@ -20,8 +20,8 @@ namespace foresight {
         value_type last_abs_y = 0;
 
         // pixel per millimeter
-        double x_scale_factor = 5.0;
-        double y_scale_factor = 5.0;
+        double x_scale_factor = 10.0;
+        double y_scale_factor = 10.0;
 
         // events sent between each syn
         std::uint8_t events_sent  = 0;
@@ -116,7 +116,6 @@ namespace foresight {
                     case BTN_STYLUS3: return ignore_event;
                     case BTN_TOOL_RUBBER:
                         event.code(BTN_MIDDLE);
-                        event.value(value);
                         break;
                     case BTN_TOOL_PEN:
                     case BTN_TOOL_BRUSH:

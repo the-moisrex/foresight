@@ -82,9 +82,10 @@ namespace foresight {
 
     export template <typename... CT>
     constexpr auto press(CT const... codes) noexcept {
-        std::array<user_event, sizeof...(CT) * 2 + 1> events;
+        std::array<user_event, sizeof...(CT) * 2 + 2> events;
         auto                                          pos = events.begin();
         ((*pos++ = user_event{EV_KEY, static_cast<event_type::code_type>(codes), 1}), ...);
+        *pos++ = static_cast<user_event>(syn());
         ((*pos++ = user_event{EV_KEY, static_cast<event_type::code_type>(codes), 0}), ...);
         *pos = static_cast<user_event>(syn());
         return events;

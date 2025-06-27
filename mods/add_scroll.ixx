@@ -58,22 +58,18 @@ export namespace foresight {
             static_assert(has_mod<basic_mice_quantifier, CtxT>, "We need access quantifier.");
 
             // we don't need keys and quantifier mods taken like this, but it's done for readability
-            auto &keys  = ctx.mod(keys_status);
-            auto &quant = ctx.mod(mice_quantifier);
-            auto &event = ctx.event();
-
-            // Hold the lock, until both buttons are released.
-            // This helps to stop accidental clicks while scrolling.
-            if (keys.is_released(hold_keys)) {
-                lock = false;
-            }
+            auto const &keys  = ctx.mod(keys_status);
+            auto       &quant = ctx.mod(mice_quantifier);
+            auto const &event = ctx.event();
 
 
             if (keys.is_pressed(hold_keys)) {
                 // release the held keys:
-                for (auto const code : hold_keys) {
-                    std::ignore = ctx.fork_emit(EV_KEY, code, 0);
-                    std::ignore = ctx.fork_emit(syn());
+                if (!lock) {
+                    for (auto const code : hold_keys) {
+                        std::ignore = ctx.fork_emit(EV_KEY, code, 0);
+                        std::ignore = ctx.fork_emit(syn());
+                    }
                 }
 
                 if (is_mouse_movement(event)) {
@@ -97,9 +93,12 @@ export namespace foresight {
                     lock = true;
                     return ignore_event;
                 }
+            } else {
+                lock = false;
+                return next;
             }
 
-            if (lock && is_mouse_event(event)) {
+            if (lock && is_mouse_movement(event)) {
                 return ignore_event;
             }
             return next;
