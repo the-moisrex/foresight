@@ -68,6 +68,19 @@ export namespace foresight {
             ev.value = inp_value;
         }
 
+        constexpr void set(type_type const inp_type, code_type const inp_code) noexcept {
+            ev.type = inp_type;
+            ev.code = inp_code;
+        }
+
+        constexpr void set(type_type const  inp_type,
+                           code_type const  inp_code,
+                           value_type const inp_value) noexcept {
+            ev.type  = inp_type;
+            ev.code  = inp_code;
+            ev.value = inp_value;
+        }
+
         [[nodiscard]] constexpr time_type time() const noexcept {
             return ev.time;
         }

@@ -91,4 +91,49 @@ namespace foresight {
         return events;
     }
 
+    constexpr struct [[nodiscard]] basic_replace {
+        using ev_type   = event_type::type_type;
+        using code_type = event_type::code_type;
+
+      private:
+        ev_type   find_type = EV_MAX;
+        code_type find_code = KEY_MAX;
+
+        ev_type   rep_type = EV_MAX;
+        code_type rep_code = KEY_MAX;
+
+      public:
+        constexpr basic_replace(
+          ev_type const   inp_find_type,
+          code_type const inp_find_code,
+          ev_type const   inp_rep_type,
+          code_type const inp_rep_code) noexcept
+          : find_type{inp_find_type},
+            find_code{inp_find_code},
+            rep_type{inp_rep_type},
+            rep_code{inp_rep_code} {}
+
+        constexpr basic_replace() noexcept                                = default;
+        consteval basic_replace(basic_replace const&) noexcept            = default;
+        consteval basic_replace& operator=(basic_replace const&) noexcept = default;
+        constexpr basic_replace& operator=(basic_replace&&) noexcept      = default;
+        constexpr ~basic_replace() noexcept                               = default;
+
+        consteval basic_replace operator()(
+          ev_type const   inp_find_type,
+          code_type const inp_find_code,
+          ev_type const   inp_rep_type,
+          code_type const inp_rep_code) const noexcept {
+            return basic_replace{inp_find_type, inp_find_code, inp_rep_type, inp_rep_code};
+        }
+
+        constexpr void operator()(Context auto& ctx) const noexcept {
+            if (auto& event = ctx.event(); event.is_of(find_type, find_code)) {
+                event.set(rep_type, rep_code);
+            }
+        }
+    } replace;
+
+    // todo: implement replace_all which used table lookup
+
 } // namespace foresight
