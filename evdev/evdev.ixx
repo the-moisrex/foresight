@@ -82,27 +82,15 @@ namespace foresight {
             return (has_event_code(type, static_cast<code_type>(codes)) && ...);
         }
 
-        template <std::size_t N>
-        [[nodiscard]] bool has_cap(dev_cap<N> const& inp_cap) const noexcept {
-            for (code_type const code : inp_cap.codes) {
-                if (!has_event_code(inp_cap.type, code)) {
-                    return false;
-                }
-            }
-            return true;
-        }
+        [[nodiscard]] bool has_cap(dev_cap_view const& inp_cap) const noexcept;
 
         /// returns a percentage of matches
-        template <std::size_t N>
-        [[nodiscard]] std::uint8_t match_cap(dev_cap<N> const& inp_cap) const noexcept {
-            double count = 0;
-            for (code_type const code : inp_cap.codes) {
-                if (has_event_code(inp_cap.type, code)) {
-                    ++count;
-                }
-            }
-            return static_cast<std::uint8_t>(count / static_cast<double>(inp_cap.count) * 100);
-        }
+        [[nodiscard]] std::uint8_t match_cap(dev_cap_view const& inp_cap) const noexcept;
+
+        [[nodiscard]] bool has_caps(dev_caps_view inp_caps) const noexcept;
+
+        /// returns a percentage of matches
+        [[nodiscard]] std::uint8_t match_caps(dev_caps_view inp_caps) const noexcept;
 
         /// May return nullptr
         [[nodiscard]] input_absinfo const* abs_info(code_type code) const noexcept;

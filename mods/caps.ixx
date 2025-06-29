@@ -28,6 +28,8 @@ namespace foresight {
     export template <std::size_t N>
     using dev_caps = std::array<dev_cap_view, N>;
 
+    export using dev_caps_view = std::span<dev_cap_view const>;
+
     export template <ev_type Type, code_type Start, code_type End>
     [[nodiscard]] consteval dev_cap<End - Start> caps_range() noexcept {
         dev_cap<End - Start> res;

@@ -119,6 +119,49 @@ bool evdev::has_event_code(ev_type const type, code_type const code) const noexc
     return libevdev_has_event_code(dev, type, code);
 }
 
+bool evdev::has_cap(dev_cap_view const& inp_cap) const noexcept {
+    for (code_type const code : inp_cap.codes) {
+        if (!has_event_code(inp_cap.type, code)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// returns percentage
+std::uint8_t evdev::match_cap(dev_cap_view const& inp_cap) const noexcept {
+    double count = 0;
+    for (code_type const code : inp_cap.codes) {
+        if (has_event_code(inp_cap.type, code)) {
+            ++count;
+        }
+    }
+    return static_cast<std::uint8_t>(count / static_cast<double>(inp_cap.codes.size()) * 100);
+}
+
+bool evdev::has_caps(dev_caps_view const inp_caps) const noexcept {
+    for (auto const& cap_view : inp_caps) {
+        if (!has_cap(cap_view)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {
+    double count = 0;
+    double all   = 0;
+    for (auto const& cap_view : inp_caps) {
+        for (code_type const code : cap_view.codes) {
+            if (has_event_code(cap_view.type, code)) {
+                ++count;
+            }
+        }
+        all += static_cast<double>(cap_view.codes.size());
+    }
+    return static_cast<std::uint8_t>(count / all * 100); // NOLINT(*-magic-numbers)
+}
+
 input_absinfo const* evdev::abs_info(code_type const code) const noexcept {
     return libevdev_get_abs_info(dev, code);
 }
