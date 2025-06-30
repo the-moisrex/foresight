@@ -81,9 +81,7 @@ namespace foresight {
         ev_type   type = EV_MAX;
         code_type code = KEY_MAX;
 
-        template <Context CtxT>
-        [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
-            auto const& event = ctx.event();
+        [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
             return (event.type() == type || type == EV_MAX) && (event.code() == code || code == KEY_MAX) &&
                    event.value() == 1;
         }
@@ -93,9 +91,7 @@ namespace foresight {
         ev_type   type = EV_MAX;
         code_type code = KEY_MAX;
 
-        template <Context CtxT>
-        [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
-            auto const& event = ctx.event();
+        [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
             return (event.type() == type || type == EV_MAX) && (event.code() == code || code == KEY_MAX) &&
                    event.value() == 0;
         }
@@ -150,10 +146,9 @@ namespace foresight {
 
         template <Context CtxT>
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
-            static_assert((std::is_nothrow_invocable_r_v<bool, Funcs, CtxT&> && ...), "All must be nothrow");
             return std::apply(
               [&ctx](auto&... cond) constexpr noexcept {
-                  return (cond(ctx) && ... && true);
+                  return ((invoke_mod(cond, ctx) == context_action::next) && ... && true);
               },
               funcs);
         }
@@ -270,8 +265,7 @@ namespace foresight {
             return {x_multiples, y_multiples};
         }
 
-        constexpr void operator()(Context auto& ctx) noexcept {
-            auto const& event = ctx.event();
+        constexpr void operator()(event_type const& event) noexcept {
             if (event.type() == EV_KEY && event.code() == BTN_LEFT) {
                 reset();
                 return;
@@ -346,9 +340,8 @@ namespace foresight {
         constexpr basic_multi_click& operator=(basic_multi_click&&) noexcept      = default;
         constexpr ~basic_multi_click() noexcept                                   = default;
 
-        [[nodiscard]] constexpr bool operator()(Context auto& ctx) noexcept {
-            auto const& event = ctx.event();
-            auto const  now   = event.micro_time();
+        [[nodiscard]] constexpr bool operator()(event_type const& event) noexcept {
+            auto const now = event.micro_time();
             if (event != usr) {
                 return false;
             }

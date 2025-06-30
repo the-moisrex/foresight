@@ -2,8 +2,6 @@
 
 module;
 #include <chrono>
-#include <cmath>
-#include <linux/input-event-codes.h>
 export module foresight.mods.rel_jumps;
 import foresight.mods.event;
 import foresight.mods.context;
@@ -31,13 +29,7 @@ export namespace foresight {
             return ignore_big_jumps_type{inp_threshold};
         }
 
-        constexpr context_action operator()(Context auto& ctx) const noexcept {
-            using enum context_action;
-            if (is_mouse_movement(ctx.event()) && std::abs(value(ctx)) > threshold) {
-                return ignore_event;
-            }
-            return next;
-        }
+        context_action operator()(event_type const& event) const noexcept;
     } ignore_big_jumps;
 
     constexpr struct [[nodiscard]] ignore_init_moves_type {
@@ -76,27 +68,8 @@ export namespace foresight {
             return ignore_init_moves_type{inp_threshold, inp_time_threshold};
         }
 
-        constexpr context_action operator()(Context auto& ctx) noexcept {
-            using enum context_action;
-            auto const& event = ctx.event();
-            if (event.type() == EV_KEY && event.code() == BTN_LEFT) {
-                init_distance    = 0;
-                is_left_btn_down = event.value() == 1;
-                return next;
-            }
-            if (is_left_btn_down && is_mouse_movement(event)) {
-                init_distance           += event.value(); // no need for abs
-                auto const      ev_time  = event.time();
-                msec_type const now_time{std::chrono::seconds{ev_time.tv_sec} + msec_type{ev_time.tv_usec}};
-
-                if (std::abs(init_distance) < threshold && (now_time - last_moved) >= time_threshold) {
-                    return ignore_event;
-                }
-                last_moved       = now_time;
-                is_left_btn_down = false;
-            }
-            return next;
-        }
+        context_action operator()(event_type const& event) noexcept;
     } ignore_init_moves;
+
 
 } // namespace foresight
