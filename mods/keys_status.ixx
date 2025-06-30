@@ -2,7 +2,7 @@
 
 module;
 #include <array>
-#include <linux/uinput.h>
+#include <linux/input-event-codes.h>
 #include <span>
 export module foresight.mods.keys_status;
 import foresight.mods.event;

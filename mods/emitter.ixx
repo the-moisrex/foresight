@@ -57,28 +57,9 @@ namespace foresight {
 
     export constexpr emitter<0> emit;
 
-    export constexpr auto keyup(event_type::code_type const code) noexcept {
-        return std::array{
-          user_event{EV_KEY, code, 0},
-          static_cast<user_event>(syn())
-        };
-    }
-
-    export constexpr auto keydown(event_type::code_type const code) noexcept {
-        return std::array{
-          user_event{EV_KEY, code, 1},
-          static_cast<user_event>(syn())
-        };
-    }
-
-    export constexpr auto keypress(event_type::code_type const code) noexcept {
-        return std::array{
-          user_event{EV_KEY, code, 1},
-          static_cast<user_event>(syn()),
-          user_event{EV_KEY, code, 0},
-          static_cast<user_event>(syn()),
-        };
-    }
+    export constexpr std::array<user_event, 2> keyup(event_type::code_type code) noexcept;
+    export constexpr std::array<user_event, 2> keydown(event_type::code_type code) noexcept;
+    export constexpr std::array<user_event, 4> keypress(event_type::code_type code) noexcept;
 
     export template <typename... CT>
     constexpr auto press(CT const... codes) noexcept {
@@ -127,11 +108,7 @@ namespace foresight {
             return basic_replace{inp_find_type, inp_find_code, inp_rep_type, inp_rep_code};
         }
 
-        constexpr void operator()(Context auto& ctx) const noexcept {
-            if (auto& event = ctx.event(); event.is_of(find_type, find_code)) {
-                event.set(rep_type, rep_code);
-            }
-        }
+        constexpr void operator()(event_type& event) const noexcept;
     } replace;
 
     // todo: implement replace_all which used table lookup

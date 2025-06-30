@@ -148,7 +148,8 @@ namespace foresight {
     export [[nodiscard]] auto match_devices(dev_caps_view const inp_caps, std::ranges::range auto&& devs) {
         using std::ranges::views::transform;
         return devs | transform([&](evdev&& dev) {
-                   return evdev_rank{dev.match_caps(inp_caps), std::move(dev)};
+                   auto const percentage = dev.match_caps(inp_caps);
+                   return evdev_rank{percentage, std::move(dev)};
                });
     }
 

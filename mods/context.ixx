@@ -267,8 +267,6 @@ export namespace foresight {
 
         template <modifier Mod>
         [[nodiscard]] consteval auto operator|(Mod &&inp_mod) const noexcept {
-            static_assert(std::is_invocable_v<std::remove_cvref_t<Mod>, basic_context &>,
-                          "Mods must have a operator()(Context auto&) member function.");
             return std::apply(
               [&](auto const &...funcs) constexpr noexcept {
                   return basic_context<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Mod>>{
@@ -387,9 +385,6 @@ export namespace foresight {
 
         constexpr void operator()() noexcept(is_nothrow) {
             using enum context_action;
-            static_assert((std::is_invocable_v<std::remove_cvref_t<Funcs>, basic_context &> && ...),
-                          "Mods must have a operator()(Context auto&) member function.");
-
             for (;;) {
                 if (reemit_all() == exit) {
                     break;

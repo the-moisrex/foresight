@@ -73,6 +73,8 @@ target_sources(${LIB_NAME}
         evdev/evdev.cxx
         uinput/uinput.cxx
         mods/intercept.cxx
+        mods/ignore.cxx
+        mods/emitter.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         # io/liburing.ixx
         # io/io_ring.ixx
@@ -82,6 +84,7 @@ target_sources(${LIB_NAME}
         evdev/evdev.ixx
         uinput/uinput.ixx
         mods/event.ixx
+        mods/ignore.ixx
         mods/intercept.ixx
         mods/stopper.ixx
         mods/keys_status.ixx
@@ -95,7 +98,6 @@ target_sources(${LIB_NAME}
         mods/on.ixx
         mods/emitter.ixx
         mods/abs2rel.ixx
-        mods/ignore.ixx
         mods/output.ixx
         mods/caps.ixx
         mods/mods.ixx

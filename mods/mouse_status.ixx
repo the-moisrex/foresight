@@ -4,7 +4,7 @@ module;
 #include <cassert>
 #include <cstdint>
 #include <limits>
-#include <linux/uinput.h>
+#include <linux/input-event-codes.h>
 #include <type_traits>
 export module foresight.mods.mouse_status;
 import foresight.mods.event;
