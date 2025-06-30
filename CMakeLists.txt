@@ -75,6 +75,7 @@ target_sources(${LIB_NAME}
         mods/intercept.cxx
         mods/ignore.cxx
         mods/emitter.cxx
+        mods/abs2rel.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         # io/liburing.ixx
         # io/io_ring.ixx
