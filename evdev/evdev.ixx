@@ -5,6 +5,7 @@ module;
 #include <filesystem>
 #include <libevdev/libevdev.h>
 #include <optional>
+#include <ranges>
 #include <string_view>
 #include <utility>
 export module foresight.evdev;
@@ -15,7 +16,7 @@ namespace foresight {
     /**
      * This is a wrapper for libevdev's related features
      */
-    export struct evdev {
+    export struct [[nodiscard]] evdev {
         using ev_type   = event_type::type_type;
         using code_type = event_type::code_type;
 
@@ -104,5 +105,54 @@ namespace foresight {
         libevdev* dev     = nullptr;
         bool      grabbed = false;
     };
+
+    /**
+     * @brief Factory function to create a view over all valid input devices.
+     *
+     * @param dir The path to the input device directory. Defaults to "/dev/input".
+     * @return A lazy view object that can be used in a range-based for loop.
+     */
+    export [[nodiscard]] auto all_input_devices(std::filesystem::path const& dir = "/dev/input") {
+        using std::filesystem::directory_entry;
+        using std::filesystem::directory_iterator;
+        using std::ranges::views::filter;
+        using std::ranges::views::transform;
+
+        // Create a view over the directory entries. This may throw if the path is invalid.
+        // We wrap it to return an empty view on error, making it safer for the caller.
+        auto dir_view = is_directory(dir) ? directory_iterator{dir} : directory_iterator{};
+
+        // Define the pipeline of operations:
+        return dir_view
+               // 1. Filter the directory entries to find potential device files.
+               | filter([](directory_entry const& entry) {
+                     std::string const file = entry.path().filename().string();
+                     return entry.is_character_file() && file.starts_with("event");
+                 })
+               // 2. Transform the valid directory entries into evdev objects.
+               | transform([](directory_entry const& entry) {
+                     return evdev{entry.path()};
+                 })
+               // 3. Filter again to discard any evdev objects that failed initialization.
+               //    (e.g., due to permissions issues when calling `open`).
+               | filter([](evdev const& dev) noexcept {
+                     return dev.ok();
+                 });
+    }
+
+    export struct [[nodiscard]] evdev_rank {
+        std::uint8_t match = 0; // in percentage
+        evdev        dev;
+    };
+
+    export [[nodiscard]] auto match_devices(dev_caps_view const inp_caps, std::ranges::range auto&& devs) {
+        using std::ranges::views::transform;
+        return devs | transform([&](evdev&& dev) {
+                   return evdev_rank{dev.match_caps(inp_caps), std::move(dev)};
+               });
+    }
+
+    export [[nodiscard]] auto       devices(dev_caps_view inp_caps);
+    export [[nodiscard]] evdev_rank device(dev_caps_view inp_caps);
 
 } // namespace foresight

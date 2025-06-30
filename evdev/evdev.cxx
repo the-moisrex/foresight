@@ -1,6 +1,7 @@
 // Created by moisrex on 6/18/24.
 
 module;
+#include <algorithm>
 #include <cstring>
 #include <exception>
 #include <fcntl.h>
@@ -177,4 +178,20 @@ std::optional<input_event> evdev::next() noexcept {
     }
 
     return std::nullopt;
+}
+
+auto foresight::devices(dev_caps_view const inp_caps) {
+    return match_devices(inp_caps, all_input_devices());
+}
+
+foresight::evdev_rank foresight::device(dev_caps_view const inp_caps) {
+    auto       devs = devices(inp_caps);
+    evdev_rank res;
+
+    for (evdev_rank&& rank : devs) {
+        if (rank.match > res.match) {
+            res = std::move(rank);
+        }
+    }
+    return res;
 }
