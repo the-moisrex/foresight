@@ -94,7 +94,14 @@ bool basic_uinput::emit(event_type const& event) noexcept {
     return emit(event.native());
 }
 
-
 bool basic_uinput::emit_syn() noexcept {
     return emit(EV_SYN, SYN_REPORT, 0);
+}
+
+foresight::context_action basic_uinput::operator()(event_type const& event) noexcept {
+    using enum context_action;
+    if (!emit(event)) [[unlikely]] {
+        return ignore_event;
+    }
+    return next;
 }

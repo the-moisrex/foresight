@@ -1,7 +1,6 @@
 // Created by moisrex on 6/29/24.
 
 module;
-#include <cassert>
 #include <filesystem>
 #include <libevdev/libevdev-uinput.h>
 #include <system_error>
@@ -115,13 +114,7 @@ export namespace foresight {
         bool emit(event_type const& event) noexcept;
         bool emit_syn() noexcept;
 
-        context_action operator()(Context auto& ctx) noexcept {
-            using enum context_action;
-            if (!emit(ctx.event())) [[unlikely]] {
-                return ignore_event;
-            }
-            return next;
-        }
+        context_action operator()(event_type const& event) noexcept;
 
       private:
         libevdev_uinput* dev      = nullptr;

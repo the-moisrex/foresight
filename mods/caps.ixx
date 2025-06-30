@@ -4,6 +4,7 @@ module;
 #include <array>
 #include <linux/input-event-codes.h>
 #include <span>
+#include <string_view>
 export module foresight.mods.caps;
 import foresight.mods.event;
 
@@ -184,6 +185,23 @@ namespace foresight {
         // A graphics tablet for drawing
         constexpr auto tablet = syn + touch_abs_axes + tablet_abs_axes + tablet_tool_btns + touch_btns;
 
+        constexpr std::array<std::pair<std::string_view, dev_caps_view>, 4U> cap_maps{
+          {
+           {{"mouse"}, mouse},
+           {{"keyboard"}, keyboard},
+           {{"touchpad"}, touchpad},
+           {{"tablet"}, tablet},
+           }
+        };
     } // namespace caps
+
+    [[nodiscard]] constexpr dev_caps_view caps_of(std::string_view const query) noexcept {
+        for (auto const [name, cap_view] : caps::cap_maps) {
+            if (query == name) {
+                return cap_view;
+            }
+        }
+        return dev_caps_view{};
+    }
 
 } // namespace foresight
