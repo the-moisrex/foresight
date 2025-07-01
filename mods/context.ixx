@@ -383,8 +383,28 @@ export namespace foresight {
             }(std::make_index_sequence<sizeof...(Funcs)>{});
         }
 
+        constexpr void init() noexcept(is_nothrow) {
+            using enum context_action;
+            std::apply(
+              [this](auto &...actions) constexpr noexcept(is_nothrow) {
+                  (
+                    [this]<typename Func>(Func &action) constexpr noexcept(is_nothrow) {
+                        if constexpr (requires { action.init(*this); }) {
+                            static_cast<void>(action.init(*this));
+                        } else if constexpr (requires { action.init(); }) {
+                            static_cast<void>(action.init());
+                        } else {
+                            // Intentionally Ignored since most mods don't need init.
+                        }
+                    }(actions),
+                    ...);
+              },
+              mods);
+        }
+
         constexpr void operator()() noexcept(is_nothrow) {
             using enum context_action;
+            init();
             for (;;) {
                 if (reemit_all() == exit) {
                     break;
