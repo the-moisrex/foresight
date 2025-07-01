@@ -24,7 +24,7 @@ export namespace foresight {
         code_type   active_tool  = BTN_TOOL_PEN;
         bool        is_left_down = false;
 
-        value_type pressure_to_click = 500;
+        value_type pressure_threshold = 300;
 
       public:
         constexpr basic_abs2rel() noexcept                                = default;
@@ -33,6 +33,12 @@ export namespace foresight {
         consteval basic_abs2rel& operator=(basic_abs2rel const&) noexcept = default;
         constexpr basic_abs2rel& operator=(basic_abs2rel&&) noexcept      = default;
         constexpr ~basic_abs2rel() noexcept                               = default;
+
+        consteval basic_abs2rel operator()(value_type const inp_pressure_threshold) const noexcept {
+            auto res{*this};
+            res.pressure_threshold = inp_pressure_threshold;
+            return res;
+        }
 
         void init(evdev const& dev, double scale = 18.0) noexcept;
 

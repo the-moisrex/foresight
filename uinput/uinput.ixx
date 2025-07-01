@@ -3,6 +3,7 @@
 module;
 #include <filesystem>
 #include <libevdev/libevdev-uinput.h>
+#include <string_view>
 #include <system_error>
 export module foresight.uinput;
 export import foresight.evdev;

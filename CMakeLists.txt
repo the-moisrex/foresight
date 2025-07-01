@@ -77,7 +77,6 @@ target_sources(${LIB_NAME}
         mods/emitter.cxx
         mods/abs2rel.cxx
         mods/quantifier.cxx
-        mods/rel_jumps.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         # io/liburing.ixx
         # io/io_ring.ixx
@@ -95,7 +94,6 @@ target_sources(${LIB_NAME}
         mods/quantifier.ixx
         mods/context.ixx
         mods/inout.ixx
-        mods/rel_jumps.ixx
         mods/add_scroll.ixx
         mods/smooth.ixx
         mods/on.ixx

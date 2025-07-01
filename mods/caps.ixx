@@ -196,7 +196,7 @@ namespace foresight {
     } // namespace caps
 
     [[nodiscard]] constexpr dev_caps_view caps_of(std::string_view const query) noexcept {
-        for (auto const [name, cap_view] : caps::cap_maps) {
+        for (auto const& [name, cap_view] : caps::cap_maps) {
             if (query == name) {
                 return cap_view;
             }

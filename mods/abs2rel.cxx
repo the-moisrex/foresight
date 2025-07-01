@@ -63,14 +63,14 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
             case ABS_TILT_Y: return ignore_event;
             case ABS_PRESSURE:
                 // use pressure as the left button click
-                if (value >= pressure_to_click && !is_left_down) {
+                if (value >= pressure_threshold && !is_left_down) {
                     event.type(EV_KEY);
                     event.code(BTN_LEFT);
                     event.value(1);
                     is_left_down = true;
                     break;
                 }
-                if (value < pressure_to_click && is_left_down) {
+                if (value < pressure_threshold && is_left_down) {
                     event.code(BTN_LEFT);
                     event.type(EV_KEY);
                     event.value(0);
