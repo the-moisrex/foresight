@@ -4,13 +4,15 @@ module;
 #include <chrono>
 #include <cmath>
 #include <linux/input-event-codes.h>
+#include <utility>
 module foresight.mods.ignore;
 
 using foresight::basic_ignore_abs;
+using foresight::basic_ignore_big_jumps;
+using foresight::basic_ignore_fast_repeats;
+using foresight::basic_ignore_init_moves;
 using foresight::context_action;
 using foresight::event_type;
-using foresight::ignore_big_jumps_type;
-using foresight::ignore_init_moves_type;
 
 context_action basic_ignore_abs::operator()(event_type const& event) const noexcept {
     using enum context_action;
@@ -31,7 +33,7 @@ context_action basic_ignore_abs::operator()(event_type const& event) const noexc
     return next;
 }
 
-context_action ignore_big_jumps_type::operator()(event_type const& event) const noexcept {
+context_action basic_ignore_big_jumps::operator()(event_type const& event) const noexcept {
     using enum context_action;
     if (is_mouse_movement(event) && std::abs(event.value()) > threshold) {
         return ignore_event;
@@ -39,7 +41,7 @@ context_action ignore_big_jumps_type::operator()(event_type const& event) const 
     return next;
 }
 
-context_action ignore_init_moves_type::operator()(event_type const& event) noexcept {
+context_action basic_ignore_init_moves::operator()(event_type const& event) noexcept {
     using enum context_action;
     if (event.type() == EV_KEY && event.code() == BTN_LEFT) {
         init_distance    = 0;
@@ -57,5 +59,20 @@ context_action ignore_init_moves_type::operator()(event_type const& event) noexc
         last_moved       = now_time;
         is_left_btn_down = false;
     }
+    return next;
+}
+
+context_action basic_ignore_fast_repeats::operator()(event_type const& event) noexcept {
+    using enum context_action;
+
+    if (!event.is(code)) {
+        return next;
+    }
+
+    auto const now = event.micro_time();
+    if (now - std::exchange(last_emitted, now) < time_threshold) [[unlikely]] {
+        return ignore_event;
+    }
+
     return next;
 }

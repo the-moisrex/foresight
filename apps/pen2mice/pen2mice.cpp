@@ -20,14 +20,16 @@ int main(int const argc, char** argv) {
     };
 
     static constexpr auto main_pipeline =
-      context             // Init Context
-      | abs2rel           // Convert Pen events into Mouse events if any
-      | ignore_abs        // Ignore absolute movements
-      | keys_status       // Save key presses
-      | mice_quantifier   // Quantify the mouse movements
-      | ignore_big_jumps  // Ignore big mouse jumps
-      | ignore_init_moves // Fix pen small moves
-      | swipe_detector    // Detects swipes
+      context                                        // Init Context
+      | abs2rel                                      // Convert Pen events into Mouse events if any
+      | ignore_abs                                   // Ignore absolute movements
+      | keys_status                                  // Save key presses
+      | mice_quantifier                              // Quantify the mouse movements
+      | ignore_big_jumps                             // Ignore big mouse jumps
+      | ignore_fast_left_clicks                      // Ignore fast left clicks
+      | ignore_init_moves                            // Fix pen small moves
+      | swipe_detector                               // Detects swipes
+      | on(pressed(BTN_RIGHT), ignore_big_jumps(10)) // fix right click jumps
       | on(op & pressed{BTN_MIDDLE} & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB))) //
       | on(mid_left & swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT)))  //
       | on(mid_left & swipe_left, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)))    //

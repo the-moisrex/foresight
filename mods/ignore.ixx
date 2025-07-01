@@ -2,6 +2,7 @@
 
 module;
 #include <chrono>
+#include <linux/input-event-codes.h>
 export module foresight.mods.ignore;
 import foresight.mods.context;
 
@@ -11,32 +12,31 @@ export namespace foresight {
         context_action operator()(event_type const& event) const noexcept;
     } ignore_abs;
 
-
-    constexpr struct [[nodiscard]] ignore_big_jumps_type {
+    constexpr struct [[nodiscard]] basic_ignore_big_jumps {
         using value_type = event_type::value_type;
 
       private:
         value_type threshold = 20; // pixels to resistance to move
       public:
-        constexpr ignore_big_jumps_type() noexcept = default;
+        constexpr basic_ignore_big_jumps() noexcept = default;
 
-        constexpr explicit ignore_big_jumps_type(value_type const inp_threshold) noexcept
+        constexpr explicit basic_ignore_big_jumps(value_type const inp_threshold) noexcept
           : threshold{inp_threshold} {}
 
-        consteval ignore_big_jumps_type(ignore_big_jumps_type const&) noexcept            = default;
-        constexpr ignore_big_jumps_type(ignore_big_jumps_type&&) noexcept                 = default;
-        consteval ignore_big_jumps_type& operator=(ignore_big_jumps_type const&) noexcept = default;
-        constexpr ignore_big_jumps_type& operator=(ignore_big_jumps_type&&) noexcept      = default;
-        constexpr ~ignore_big_jumps_type() noexcept                                       = default;
+        consteval basic_ignore_big_jumps(basic_ignore_big_jumps const&) noexcept            = default;
+        constexpr basic_ignore_big_jumps(basic_ignore_big_jumps&&) noexcept                 = default;
+        consteval basic_ignore_big_jumps& operator=(basic_ignore_big_jumps const&) noexcept = default;
+        constexpr basic_ignore_big_jumps& operator=(basic_ignore_big_jumps&&) noexcept      = default;
+        constexpr ~basic_ignore_big_jumps() noexcept                                        = default;
 
-        consteval ignore_big_jumps_type operator()(value_type const inp_threshold) const noexcept {
-            return ignore_big_jumps_type{inp_threshold};
+        consteval basic_ignore_big_jumps operator()(value_type const inp_threshold) const noexcept {
+            return basic_ignore_big_jumps{inp_threshold};
         }
 
         context_action operator()(event_type const& event) const noexcept;
     } ignore_big_jumps;
 
-    constexpr struct [[nodiscard]] ignore_init_moves_type {
+    constexpr struct [[nodiscard]] basic_ignore_init_moves {
         using value_type = event_type::value_type;
         using msec_type  = std::chrono::microseconds;
 
@@ -52,30 +52,70 @@ export namespace foresight {
         msec_type  last_moved{0};
 
       public:
-        constexpr ignore_init_moves_type() noexcept = default;
+        constexpr basic_ignore_init_moves() noexcept = default;
 
-        constexpr explicit ignore_init_moves_type(
+        constexpr explicit basic_ignore_init_moves(
           value_type const inp_threshold,
           msec_type const  inp_time_threshold = default_time_threshold) noexcept
           : threshold{inp_threshold},
             time_threshold{inp_time_threshold} {}
 
-        constexpr ignore_init_moves_type(ignore_init_moves_type const&) noexcept            = default;
-        constexpr ignore_init_moves_type(ignore_init_moves_type&&) noexcept                 = default;
-        constexpr ignore_init_moves_type& operator=(ignore_init_moves_type const&) noexcept = default;
-        constexpr ignore_init_moves_type& operator=(ignore_init_moves_type&&) noexcept      = default;
-        constexpr ~ignore_init_moves_type() noexcept                                        = default;
+        consteval basic_ignore_init_moves(basic_ignore_init_moves const&) noexcept            = default;
+        constexpr basic_ignore_init_moves(basic_ignore_init_moves&&) noexcept                 = default;
+        consteval basic_ignore_init_moves& operator=(basic_ignore_init_moves const&) noexcept = default;
+        constexpr basic_ignore_init_moves& operator=(basic_ignore_init_moves&&) noexcept      = default;
+        constexpr ~basic_ignore_init_moves() noexcept                                         = default;
 
-        consteval ignore_init_moves_type operator()(
+        consteval basic_ignore_init_moves operator()(
           value_type const inp_threshold,
           msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
-            return ignore_init_moves_type{inp_threshold, inp_time_threshold};
+            return basic_ignore_init_moves{inp_threshold, inp_time_threshold};
         }
 
         context_action operator()(event_type const& event) noexcept;
     } ignore_init_moves;
 
+    constexpr struct [[nodiscard]] basic_ignore_fast_repeats {
+        using msec_type = std::chrono::microseconds;
 
+      private:
+        static constexpr msec_type default_time_threshold = std::chrono::milliseconds(30);
+
+        event_code code{};
+        msec_type  time_threshold{default_time_threshold};
+        msec_type  last_emitted{0};
+
+      public:
+        constexpr basic_ignore_fast_repeats() noexcept = default;
+
+        constexpr explicit basic_ignore_fast_repeats(
+          event_code const inp_code,
+          msec_type const  inp_time_threshold = default_time_threshold) noexcept
+          : code{inp_code},
+            time_threshold{inp_time_threshold} {}
+
+        consteval basic_ignore_fast_repeats(basic_ignore_fast_repeats const&) noexcept            = default;
+        constexpr basic_ignore_fast_repeats(basic_ignore_fast_repeats&&) noexcept                 = default;
+        consteval basic_ignore_fast_repeats& operator=(basic_ignore_fast_repeats const&) noexcept = default;
+        constexpr basic_ignore_fast_repeats& operator=(basic_ignore_fast_repeats&&) noexcept      = default;
+        constexpr ~basic_ignore_fast_repeats() noexcept                                           = default;
+
+        consteval basic_ignore_fast_repeats operator()(
+          event_code const inp_code,
+          msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
+            return basic_ignore_fast_repeats{inp_code, inp_time_threshold};
+        }
+
+        context_action operator()(event_type const& event) noexcept;
+    } ignore_fast_repeats;
+
+    constexpr basic_ignore_fast_repeats ignore_fast_left_clicks{
+      {EV_KEY, BTN_LEFT}
+    };
+
+    constexpr basic_ignore_fast_repeats ignore_fast_right_clicks{
+      {EV_KEY, BTN_RIGHT}
+    };
 
     // todo: ignore_types(EV_ABS)
     // todo: ignore_codes(EV_BTN_TOOL_RUBBER)

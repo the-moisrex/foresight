@@ -19,6 +19,15 @@ export namespace foresight {
         value_type value = 0;
     };
 
+    struct [[nodiscard]] event_code {
+        using type_type  = decltype(input_event::type);
+        using code_type  = decltype(input_event::code);
+        using value_type = decltype(input_event::value);
+
+        type_type type = EV_MAX;
+        code_type code = KEY_MAX;
+    };
+
     struct [[nodiscard]] event_type {
         using type_type  = decltype(input_event::type);
         using code_type  = decltype(input_event::code);
@@ -113,6 +122,10 @@ export namespace foresight {
             return user_event{.type = ev.type, .code = ev.code, .value = ev.value};
         }
 
+        [[nodiscard]] explicit constexpr operator event_code() const noexcept {
+            return event_code{.type = ev.type, .code = ev.code};
+        }
+
         constexpr void reset_time() noexcept {
             if !consteval {
                 gettimeofday(&ev.time, nullptr);
@@ -149,6 +162,11 @@ export namespace foresight {
             return libevdev_event_is_code(&ev, rhs.type, rhs.code) == 1;
         }
 
+        /// Only checks the type and the code, but not the value
+        [[nodiscard]] constexpr bool is_of(event_code const& rhs) const noexcept {
+            return libevdev_event_is_code(&ev, rhs.type, rhs.code) == 1;
+        }
+
         [[nodiscard]] constexpr bool
         is(type_type const inp_type, code_type const inp_code, value_type const inp_value) const noexcept {
             return ev.type == inp_type && ev.code == inp_code && ev.value == inp_value;
@@ -158,9 +176,18 @@ export namespace foresight {
             return ev.type == usr.type && ev.code == usr.code && ev.value == usr.value;
         }
 
+        [[nodiscard]] constexpr bool is(event_code const& usr) const noexcept {
+            return ev.type == usr.type && ev.code == usr.code;
+        }
+
         [[nodiscard]] constexpr bool operator==(user_event const& rhs) const noexcept {
             return is(rhs);
         }
+
+        [[nodiscard]] constexpr bool operator==(event_code const& rhs) const noexcept {
+            return is(rhs);
+        }
+
 
       private:
         input_event ev{};

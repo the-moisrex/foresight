@@ -509,5 +509,4 @@ export namespace foresight {
         return ctx.event().value();
     }
 
-
 } // namespace foresight
