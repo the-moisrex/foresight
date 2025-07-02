@@ -180,10 +180,6 @@ std::optional<input_event> evdev::next() noexcept {
     return std::nullopt;
 }
 
-auto foresight::devices(dev_caps_view const inp_caps) {
-    return match_devices(inp_caps, all_input_devices());
-}
-
 foresight::evdev_rank foresight::device(dev_caps_view const inp_caps) {
     auto       devs = devices(inp_caps);
     evdev_rank res;

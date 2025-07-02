@@ -1,14 +1,18 @@
 // Created by moisrex on 6/29/24.
 
 module;
+#include <bit>
+#include <cassert>
 #include <filesystem>
 #include <libevdev/libevdev-uinput.h>
+#include <limits>
 #include <string_view>
 #include <system_error>
 export module foresight.uinput;
 export import foresight.evdev;
 export import foresight.mods.event;
 import foresight.mods.context;
+import foresight.mods.caps;
 
 export namespace foresight {
     /**
@@ -121,6 +125,61 @@ export namespace foresight {
         libevdev_uinput* dev      = nullptr;
         std::errc        err_code = std::errc{};
     } uinput;
+
+    template <std::size_t N>
+        requires(N < std::numeric_limits<std::uint8_t>::max())
+    struct [[nodiscard]] basic_uinput_picker {
+      private:
+        // equals to 9
+        static constexpr std::uint16_t shift = std::bit_width<std::uint16_t>(KEY_MAX) - 1U;
+
+        [[nodiscard]] static constexpr std::uint16_t hash(event_code const event) noexcept {
+            return static_cast<std::uint16_t>(event.type << shift) | static_cast<std::uint16_t>(event.code);
+        }
+
+        // returns 16127 or 0x3EFF
+        static constexpr std::uint16_t max_hash = hash({.type = EV_MAX, .code = KEY_MAX});
+
+
+        // the size is ~15KiB
+        std::array<std::uint8_t, max_hash> hashes{};
+
+        // the uinput devices
+        std::array<basic_uinput, N> uinputs{};
+
+      public:
+        consteval explicit basic_uinput_picker(dev_caps_view const caps_view) noexcept {
+            assert(caps_view.size() < std::numeric_limits<std::uint8_t>::max());
+
+            // Declaring which hash belongs to which uinput device
+            std::uint8_t input_pick = 0;
+            for (auto const [type, codes] : caps_view) {
+                for (auto const code : codes) {
+                    auto const index = hash({.type = type, .code = code});
+                    hashes.at(index) = input_pick;
+                }
+                ++input_pick;
+            }
+        }
+
+        basic_uinput_picker() noexcept                                      = default;
+        basic_uinput_picker(basic_uinput_picker const&) noexcept            = default;
+        basic_uinput_picker(basic_uinput_picker&&) noexcept                 = default;
+        basic_uinput_picker& operator=(basic_uinput_picker const&) noexcept = default;
+        basic_uinput_picker& operator=(basic_uinput_picker&&) noexcept      = default;
+        ~basic_uinput_picker() noexcept                                     = default;
+
+        // void init() {
+        //     auto devs = devices();
+        // }
+
+        context_action operator()(event_type const& event) noexcept {
+            auto const index = hash(static_cast<event_code>(event));
+            return uinputs.at(index)(event);
+        }
+    };
+
+    constexpr basic_uinput_picker<1> uinput_picker;
 
     static_assert(output_modifier<basic_uinput>, "Must be a output modifier.");
 } // namespace foresight

@@ -99,7 +99,6 @@ target_sources(${LIB_NAME}
         mods/on.ixx
         mods/emitter.ixx
         mods/abs2rel.ixx
-        mods/output.ixx
         mods/caps.ixx
         mods/mods.ixx
 )

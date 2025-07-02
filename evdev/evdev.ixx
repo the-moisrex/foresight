@@ -153,7 +153,12 @@ namespace foresight {
                });
     }
 
-    export [[nodiscard]] auto       devices(dev_caps_view inp_caps);
+    /// Get the list of devices and their ranks
+    export [[nodiscard]] auto devices(dev_caps_view const inp_caps) {
+        return match_devices(inp_caps, all_input_devices());
+    }
+
+    /// Get the first device and its rank
     export [[nodiscard]] evdev_rank device(dev_caps_view inp_caps);
 
 } // namespace foresight

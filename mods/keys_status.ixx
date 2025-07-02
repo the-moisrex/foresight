@@ -17,7 +17,8 @@ export namespace foresight {
         using code_type = event_type::code_type;
 
       private:
-        // we know this is wasteful, but we don't care :)
+        // We know this is wasteful, but we don't care :)
+        // It's about ~3KiB of storage
         std::array<event_type::value_type, KEY_MAX> btns{};
 
       public:
