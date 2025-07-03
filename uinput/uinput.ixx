@@ -129,6 +129,10 @@ export namespace foresight {
     template <std::size_t N>
         requires(N < std::numeric_limits<std::uint8_t>::max())
     struct [[nodiscard]] basic_uinput_picker {
+        using ev_type    = event_type::type_type;
+        using code_type  = event_type::code_type;
+        using value_type = event_type::value_type;
+
       private:
         // equals to 9
         static constexpr std::uint16_t shift = std::bit_width<std::uint16_t>(KEY_MAX) - 1U;
@@ -169,9 +173,32 @@ export namespace foresight {
         basic_uinput_picker& operator=(basic_uinput_picker&&) noexcept      = default;
         ~basic_uinput_picker() noexcept                                     = default;
 
-        // void init() {
-        //     auto devs = devices();
-        // }
+        void init() {
+            // regenerate dev_caps_view:
+            std::array<dev_cap_view, EV_MAX> views{};
+
+            // todo: this includes some invalid types as well
+            for (ev_type type = 0; type != EV_MAX; ++type) {
+                views.at(type) = dev_cap_view{
+                  .type  = type,
+                  .codes = std::span{std::next(hashes.begin(), hash({.type = type, .code = 0})),
+                                     std::next(hashes.begin(), hash({.type = type, .code = KEY_MAX}))},
+                };
+            }
+
+            // replace uinputs with the input devices with the highest percentage of matching:
+            for (auto& cur_uinput : uinputs) {
+                evdev_rank best{};
+                for (evdev_rank cur : devices(views)) {
+                    if (cur.match >= best.match) {
+                        best = std::move(cur);
+                    }
+                }
+                if (best.match != 0) {
+                    cur_uinput = std::move(best);
+                }
+            }
+        }
 
         context_action operator()(event_type const& event) noexcept {
             auto const index = hash(static_cast<event_code>(event));
