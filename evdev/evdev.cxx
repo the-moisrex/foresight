@@ -104,12 +104,28 @@ void evdev::enable_event_code(ev_type const type, code_type const code, void con
     libevdev_enable_event_code(dev, type, code, value);
 }
 
+void evdev::enable_caps(dev_caps_view const inp_caps) noexcept {
+    for (auto const& [type, codes] : inp_caps) {
+        for (auto const code : codes) {
+            enable_event_code(type, code);
+        }
+    }
+}
+
 void evdev::disable_event_type(ev_type const type) noexcept {
     libevdev_disable_event_type(dev, type);
 }
 
 void evdev::disable_event_code(ev_type const type, code_type const code) noexcept {
     libevdev_disable_event_code(dev, type, code);
+}
+
+void evdev::disable_caps(dev_caps_view const inp_caps) noexcept {
+    for (auto const& [type, codes] : inp_caps) {
+        for (auto const code : codes) {
+            disable_event_code(type, code);
+        }
+    }
 }
 
 bool evdev::has_event_type(ev_type const type) const noexcept {

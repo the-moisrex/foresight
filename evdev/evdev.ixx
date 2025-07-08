@@ -58,6 +58,7 @@ namespace foresight {
         void enable_event_type(ev_type) noexcept;
         void enable_event_code(ev_type, code_type) noexcept;
         void enable_event_code(ev_type, code_type, void const*) noexcept;
+        void enable_caps(dev_caps_view) noexcept;
 
         template <typename... T>
             requires(std::convertible_to<T, code_type> && ...)
@@ -67,6 +68,7 @@ namespace foresight {
 
         void disable_event_type(ev_type) noexcept;
         void disable_event_code(ev_type, code_type) noexcept;
+        void disable_caps(dev_caps_view) noexcept;
 
         template <typename... T>
             requires(std::convertible_to<T, code_type> && ...)
