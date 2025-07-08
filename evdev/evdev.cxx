@@ -168,13 +168,13 @@ bool evdev::has_caps(dev_caps_view const inp_caps) const noexcept {
 std::uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {
     double count = 0;
     double all   = 0;
-    for (auto const& cap_view : inp_caps) {
-        for (code_type const code : cap_view.codes) {
-            if (has_event_code(cap_view.type, code)) {
+    for (auto const& [type, codes] : inp_caps) {
+        for (code_type const code : codes) {
+            if (has_event_code(type, code)) {
                 ++count;
             }
         }
-        all += static_cast<double>(cap_view.codes.size());
+        all += static_cast<double>(codes.size());
     }
     return static_cast<std::uint8_t>(count / all * 100); // NOLINT(*-magic-numbers)
 }

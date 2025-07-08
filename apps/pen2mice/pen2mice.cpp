@@ -54,14 +54,7 @@ int main(int const argc, char** argv) {
         evdev                              out_device{file_paths.front().file};
 
         pipeline.mod(abs2rel).init(out_device);
-        out_device.enable_event_codes(
-          EV_REL,
-          REL_WHEEL,
-          REL_HWHEEL,
-          REL_WHEEL_HI_RES,
-          REL_HWHEEL_HI_RES,
-          REL_X,
-          REL_Y);
+        out_device.enable_caps(views(caps::pointer_wheels));
         out_device.enable_event_codes(
           EV_KEY,
           BTN_LEFT,

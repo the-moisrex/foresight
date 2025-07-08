@@ -71,6 +71,17 @@ namespace foresight {
         return res;
     }
 
+    export template <std::size_t N>
+    [[nodiscard]] constexpr dev_cap_view view(dev_cap<N> const& inp_cap) noexcept {
+        return dev_cap_view{.type = inp_cap.type, .codes = inp_cap.codes};
+    }
+
+    /// The return type is convertible to dev_caps_view
+    export template <std::size_t N>
+    [[nodiscard]] constexpr auto views(dev_cap<N> const& inp_cap) noexcept {
+        return std::array<dev_cap_view, 1>{view(inp_cap)};
+    }
+
     export namespace caps {
         // Synchronization
         constexpr auto syn = cap(EV_SYN, SYN_REPORT);
@@ -109,6 +120,8 @@ namespace foresight {
           KEY_MICMUTE);
 
         // Pointer (Mouse/Trackball)
+        constexpr auto pointer_wheels =
+          cap(EV_REL, REL_WHEEL, REL_HWHEEL, REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES);
         constexpr auto pointer_rel_axes = caps_range<EV_REL, REL_X, REL_MAX + 1>();
         constexpr auto pointer_btns =
           cap(EV_KEY, BTN_LEFT, BTN_RIGHT, BTN_MIDDLE, BTN_SIDE, BTN_EXTRA, BTN_FORWARD, BTN_BACK, BTN_TASK);
