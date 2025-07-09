@@ -46,17 +46,23 @@ int main(int const argc, char** argv) {
           | uinput;       // put it in a virtual device
 
 
-        auto files = args | drop(1) | transform([index = 0](char const* const ptr) mutable {
+        auto vfiles = args | drop(1) | transform([index = 0](char const* const ptr) mutable {
                          return input_file_type{.file = path{ptr}, .grab = index++ == 0};
                      });
+        auto files = args | drop(1) | transform([](char const* const ptr) {
+                         return std::string_view{ptr};
+                     });
 
-        std::vector<input_file_type> const file_paths{files.begin(), files.end()};
-        evdev                              out_device{file_paths.front().file};
+
+        std::vector<input_file_type> const file_paths{vfiles.begin(), vfiles.end()};
+        // evdev out_device{file_paths.front().file};
+        evdev out_device{(files | std::views::take(1)).front()};
 
         pipeline.mod(abs2rel).init(out_device);
         out_device.enable_caps(caps::pointer + caps::keyboard + caps::pointer_wheels);
         out_device.disable_event_type(EV_ABS);
         pipeline.mod(uinput).set_device(out_device);
+        // pipeline.mod(intercept).add_devs(to_evdevs(files));
         pipeline.mod(intercept).set_files(file_paths);
 
         pipeline();

@@ -3,7 +3,6 @@
 module;
 #include <algorithm>
 #include <cstring>
-#include <exception>
 #include <fcntl.h>
 #include <filesystem>
 #include <format>
@@ -15,12 +14,26 @@ import foresight.mods.caps;
 
 using foresight::evdev;
 
-evdev::evdev(std::filesystem::path const& file) {
+std::string_view foresight::to_string(evdev_status const status) noexcept {
+    using enum evdev_status;
+    switch (status) {
+        case unknown: return {"Unknown state."};
+        case success: return {"Success."};
+        case grab_failure: return {"Grabbing the input failed."};
+        case invalid_file_descriptor: return {"The file descriptor specified is not valid."};
+        case invalid_device: return {"The device is not valid."};
+        case failed_setting_file_descriptor: return {"Failed to set the file descriptor."};
+        case failed_to_open_file: return {"Failed to open the file."};
+        default: return {"Invalid state."};
+    }
+}
+
+evdev::evdev(std::filesystem::path const& file) noexcept {
     set_file(file);
 }
 
-evdev::~evdev() {
-    if (grabbed && dev != nullptr) {
+evdev::~evdev() noexcept {
+    if (dev != nullptr) {
         libevdev_grab(dev, LIBEVDEV_UNGRAB);
     }
     auto const file_descriptor = native_handle();
@@ -32,7 +45,7 @@ evdev::~evdev() {
     }
 }
 
-void evdev::set_file(std::filesystem::path const& file) {
+void evdev::set_file(std::filesystem::path const& file)  noexcept {
     auto const file_descriptor = native_handle();
     if (file_descriptor >= 0) {
         close(file_descriptor);
@@ -40,31 +53,39 @@ void evdev::set_file(std::filesystem::path const& file) {
 
     auto const new_fd = open(file.c_str(), O_RDWR);
     if (new_fd < 0) {
-        throw std::invalid_argument(std::format("Failed to open file '{}'", file.string()));
+        dev = nullptr;
+        status = evdev_status::failed_to_open_file;
+        return;
+        // throw std::invalid_argument(std::format("Failed to open file '{}'", file.string()));
     }
     set_file(new_fd);
 }
 
-void evdev::set_file(int const file) {
+void evdev::set_file(int const file) noexcept {
     auto const file_descriptor = native_handle();
     if (file_descriptor >= 0) {
         close(file_descriptor);
     }
     if (file < 0) {
-        throw std::invalid_argument("The file descriptor specified is not valid.");
+        status = evdev_status::invalid_file_descriptor;
+        return;
     }
     if (dev == nullptr) {
         dev = libevdev_new();
         if (dev == nullptr) {
-            throw std::domain_error("Unable to read the code.");
+            status = evdev_status::invalid_device;
+            return;
         }
     }
 
     if (int const res_rc = libevdev_set_fd(dev, file); res_rc < 0) {
         close(file);
-        throw std::domain_error(
-          std::format("Failed to set file for libevdev ({})\n", std::strerror(-res_rc)));
+        status = evdev_status::failed_setting_file_descriptor;
+        return;
+        // throw std::domain_error(
+        //   std::format("Failed to set file for libevdev ({})\n", std::strerror(-res_rc)));
     }
+    status = evdev_status::success;
 }
 
 int evdev::native_handle() const noexcept {
@@ -78,11 +99,10 @@ libevdev* evdev::device_ptr() const noexcept {
     return dev;
 }
 
-void evdev::grab_input() {
+void evdev::grab_input() noexcept {
     if (libevdev_grab(dev, LIBEVDEV_GRAB) < 0) {
-        throw std::domain_error("Grabbing the input failed.");
+        status = evdev_status::grab_failure;
     }
-    grabbed = true;
 }
 
 std::string_view evdev::device_name() const noexcept {

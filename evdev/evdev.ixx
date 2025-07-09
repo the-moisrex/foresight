@@ -13,6 +13,19 @@ export import foresight.mods.event;
 import foresight.mods.caps;
 
 namespace foresight {
+
+    export enum struct evdev_status {
+        unknown,
+        success,
+        grab_failure,
+        invalid_file_descriptor,
+        invalid_device,
+        failed_setting_file_descriptor,
+        failed_to_open_file,
+    };
+
+    export std::string_view to_string(evdev_status) noexcept;
+
     /**
      * This is a wrapper for libevdev's related features
      */
@@ -20,7 +33,7 @@ namespace foresight {
         using ev_type   = event_type::type_type;
         using code_type = event_type::code_type;
 
-        explicit evdev(std::filesystem::path const& file);
+        explicit evdev(std::filesystem::path const& file) noexcept;
         consteval evdev()                                  = default;
         consteval evdev(evdev const&) noexcept             = default;
         constexpr evdev(evdev&& inp) noexcept              = default;
@@ -33,18 +46,18 @@ namespace foresight {
 
 
         /// change the input event file (for example /dev/input/eventX)
-        void set_file(std::filesystem::path const& file);
-        void set_file(int file);
+        void set_file(std::filesystem::path const& file) noexcept;
+        void set_file(int file) noexcept;
 
         [[nodiscard]] int       native_handle() const noexcept;
         [[nodiscard]] libevdev* device_ptr() const noexcept;
 
         /// check if everything is okay
         [[nodiscard]] bool ok() const noexcept {
-            return dev != nullptr;
+            return dev != nullptr && status == evdev_status::success;
         }
 
-        void grab_input();
+        void grab_input() noexcept;
 
 
         /**
@@ -104,8 +117,8 @@ namespace foresight {
         [[nodiscard]] std::optional<input_event> next() noexcept;
 
       private:
-        libevdev* dev     = nullptr;
-        bool      grabbed = false;
+        libevdev*    dev    = nullptr;
+        evdev_status status = evdev_status::unknown;
     };
 
     /**
@@ -164,6 +177,70 @@ namespace foresight {
     export [[nodiscard]] evdev_rank device(dev_caps_view inp_caps);
 
 
+    /// Get the first device based on the query
+    /// Example: /dev/input/event10
+    /// Example: keyboard
+    /// Example: tablet
     export [[nodiscard]] evdev_rank device(std::string_view);
+
+    export [[nodiscard]] auto devices(std::string_view const query_all) {
+        using std::views::filter;
+        using std::views::split;
+        using std::views::transform;
+        return query_all
+               // split the strings
+               | split(' ')
+
+               // turn it back to string views
+               | transform([](auto&& rng) {
+                     return std::string_view{rng.begin(), rng.end()};
+                 })
+
+               // exclude bad inputs
+               | filter([](std::string_view const query) {
+                     return !query.empty();
+                 })
+
+               // Get a device
+               | transform([](std::string_view const query) {
+                     return device(query);
+                 })
+
+               // exclude badly initilized devices or with low matching percentage
+               | filter([](evdev_rank const& ranker) {
+                     return ranker.match >= 80 && ranker.dev.ok();
+                 });
+    }
+
+    export [[nodiscard]] auto devices(std::span<std::string_view const> const query_all) {
+        return query_all
+
+               // convert each piece into devices
+               | std::views::transform([](std::string_view const query) {
+                     return devices(query);
+                 })
+
+               // flatten the range
+               | std::views::join;
+    }
+
+    // std::span<std::string_view const>
+    export [[nodiscard]] auto to_devices(std::ranges::input_range auto& query_all) {
+        return query_all
+
+               // convert each piece into devices
+               | std::views::transform([](std::string_view const query) {
+                     return devices(query);
+                 })
+
+               // flatten the range
+               | std::views::join;
+    }
+
+    export [[nodiscard]] auto to_evdevs(std::ranges::input_range auto& rng) {
+        return to_devices(rng) | std::views::transform([](evdev_rank&& ranker) {
+                   return std::move(ranker.dev);
+               });
+    }
 
 } // namespace foresight

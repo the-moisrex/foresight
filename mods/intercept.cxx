@@ -12,12 +12,18 @@ module foresight.mods.intercept;
 using foresight::basic_interceptor;
 
 namespace {
+
+    pollfd get_pollfd(foresight::evdev const& dev) {
+        return pollfd{dev.native_handle(), POLLIN, 0};
+    }
+
     auto get_pollfds(std::span<foresight::evdev const> devs) {
         auto const fd_iter = devs | std::views::transform([](foresight::evdev const& dev) noexcept {
                                  return pollfd{dev.native_handle(), POLLIN, 0};
                              });
         return std::vector<pollfd>{fd_iter.begin(), fd_iter.end()};
     }
+
 } // namespace
 
 basic_interceptor::basic_interceptor(std::span<std::filesystem::path const> const inp_paths) {
@@ -61,6 +67,52 @@ void basic_interceptor::set_files(std::span<input_file_type const> const inp_pat
         }
     }
     fds = get_pollfds(devs);
+}
+
+void basic_interceptor::add_file(input_file_type const inp_path) {
+    auto const& [file, grab] = inp_path;
+    auto& dev                = devs.emplace_back(file);
+    if (dev.ok() && grab) {
+        dev.grab_input();
+    }
+    if (!dev.ok()) [[unlikely]] {
+        throw std::runtime_error(std::format("Failed to initialize event device {}", file.string()));
+    }
+    fds.emplace_back(get_pollfd(dev));
+}
+
+void basic_interceptor::add_dev(evdev&& inp_dev) {
+    auto& dev = devs.emplace_back(std::move(inp_dev));
+    if (!dev.ok()) [[unlikely]] {
+        throw std::runtime_error(std::format("Failed to initialize event device {}", dev.device_name()));
+    }
+    fds.emplace_back(get_pollfd(dev));
+}
+
+void basic_interceptor::add_files(std::string_view const query_all) {
+    for (auto [match, dev] : devices(query_all)) {
+        add_dev(std::move(dev));
+    }
+}
+
+void basic_interceptor::set_files(std::string_view const query_all) {
+    devs.clear();
+    fds.clear();
+    add_files(query_all);
+}
+
+void basic_interceptor::add_files(std::span<std::string_view const> const query_all) {
+    for (auto const query : query_all) {
+        for (auto [match, dev] : devices(query)) {
+            add_dev(std::move(dev));
+        }
+    }
+}
+
+void basic_interceptor::set_files(std::span<std::string_view const> const query_all) {
+    devs.clear();
+    fds.clear();
+    add_files(query_all);
 }
 
 foresight::context_action basic_interceptor::operator()(event_type& event) noexcept {

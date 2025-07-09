@@ -8,7 +8,6 @@ module;
 export module foresight.mods.intercept;
 import foresight.evdev;
 import foresight.mods.context;
-import foresight.mods.caps;
 
 export namespace foresight {
     struct input_file_type {
@@ -33,6 +32,19 @@ export namespace foresight {
 
         void set_files(std::span<std::filesystem::path const>);
         void set_files(std::span<input_file_type const>);
+        void set_files(std::string_view);
+        void set_files(std::span<std::string_view const>);
+
+        void add_dev(evdev&& dev);
+        void add_file(input_file_type);
+        void add_files(std::string_view);
+        void add_files(std::span<std::string_view const>);
+
+        void add_devs(std::ranges::range auto&& inp_devs) {
+            for (evdev&& dev : inp_devs) {
+                add_dev(std::move(dev));
+            }
+        }
 
         /**
          * Start running the interceptor
