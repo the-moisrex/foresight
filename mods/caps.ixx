@@ -122,7 +122,8 @@ namespace foresight {
         // Pointer (Mouse/Trackball)
         constexpr auto pointer_wheels =
           cap(EV_REL, REL_WHEEL, REL_HWHEEL, REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES);
-        constexpr auto pointer_rel_axes = caps_range<EV_REL, REL_X, REL_MAX + 1>();
+        constexpr auto pointer_rel_all = caps_range<EV_REL, REL_X, REL_MAX + 1>();
+        constexpr auto pointer_rel_axes = cap(EV_REL, REL_X, REL_Y);
         constexpr auto pointer_btns =
           cap(EV_KEY, BTN_LEFT, BTN_RIGHT, BTN_MIDDLE, BTN_SIDE, BTN_EXTRA, BTN_FORWARD, BTN_BACK, BTN_TASK);
 
@@ -208,7 +209,7 @@ namespace foresight {
         };
     } // namespace caps
 
-    [[nodiscard]] constexpr dev_caps_view caps_of(std::string_view const query) noexcept {
+    export [[nodiscard]] constexpr dev_caps_view caps_of(std::string_view const query) noexcept {
         for (auto const& [name, cap_view] : caps::cap_maps) {
             if (query == name) {
                 return cap_view;

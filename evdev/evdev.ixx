@@ -163,4 +163,7 @@ namespace foresight {
     /// Get the first device and its rank
     export [[nodiscard]] evdev_rank device(dev_caps_view inp_caps);
 
+
+    export [[nodiscard]] evdev_rank device(std::string_view);
+
 } // namespace foresight

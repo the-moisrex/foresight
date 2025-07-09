@@ -11,6 +11,7 @@ module;
 #include <optional>
 #include <unistd.h>
 module foresight.evdev;
+import foresight.mods.caps;
 
 using foresight::evdev;
 
@@ -206,4 +207,26 @@ foresight::evdev_rank foresight::device(dev_caps_view const inp_caps) {
         }
     }
     return res;
+}
+
+namespace {
+    void trim(std::string_view& str) noexcept {
+        auto const start = str.find_first_not_of(' ');
+        auto const end   = str.find_last_not_of(' ');
+        str              = str.substr(start, end - start + 1);
+    }
+} // namespace
+
+foresight::evdev_rank foresight::device(std::string_view query) {
+    trim(query);
+    bool const is_path = query.starts_with('/');
+
+    if (is_path) {
+        std::filesystem::path const path{query};
+        if (exists(path)) {
+            return {.match = 100, .dev = evdev{path}};
+        }
+    }
+
+    return device(caps_of(query));
 }

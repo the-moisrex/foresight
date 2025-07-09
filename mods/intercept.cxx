@@ -20,15 +20,15 @@ namespace {
     }
 } // namespace
 
-constexpr basic_interceptor::basic_interceptor(std::span<std::filesystem::path const> const inp_paths) {
+basic_interceptor::basic_interceptor(std::span<std::filesystem::path const> const inp_paths) {
     set_files(inp_paths);
 }
 
-constexpr basic_interceptor::basic_interceptor(std::span<input_file_type const> const inp_paths) {
+basic_interceptor::basic_interceptor(std::span<input_file_type const> const inp_paths) {
     set_files(inp_paths);
 }
 
-constexpr basic_interceptor::basic_interceptor(std::vector<evdev>&& inp_devs)
+basic_interceptor::basic_interceptor(std::vector<evdev>&& inp_devs)
   : devs{std::move(inp_devs)},
     fds{get_pollfds(devs)} {}
 
@@ -61,4 +61,26 @@ void basic_interceptor::set_files(std::span<input_file_type const> const inp_pat
         }
     }
     fds = get_pollfds(devs);
+}
+
+foresight::context_action basic_interceptor::operator()(event_type& event) noexcept {
+    using enum context_action;
+
+    if (poll(fds.data(), fds.size(), 1000) <= 0) {
+        return ignore_event;
+    }
+
+    for (std::size_t index = 0; index != fds.size(); ++index) {
+        if ((fds[index].revents & POLLIN) == 0) {
+            continue;
+        }
+
+        auto const input = devs[index].next();
+        if (!input) {
+            continue;
+        }
+        event = input.value();
+        return next;
+    }
+    return ignore_event;
 }

@@ -54,19 +54,7 @@ int main(int const argc, char** argv) {
         evdev                              out_device{file_paths.front().file};
 
         pipeline.mod(abs2rel).init(out_device);
-        out_device.enable_caps(views(caps::pointer_wheels));
-        out_device.enable_event_codes(
-          EV_KEY,
-          BTN_LEFT,
-          BTN_RIGHT,
-          BTN_MIDDLE,
-          KEY_LEFT,
-          KEY_RIGHT,
-          KEY_UP,
-          KEY_DOWN,
-          KEY_LEFTMETA,
-          KEY_LEFTCTRL,
-          KEY_TAB);
+        out_device.enable_caps(caps::pointer + caps::keyboard + caps::pointer_wheels);
         out_device.disable_event_type(EV_ABS);
         pipeline.mod(uinput).set_device(out_device);
         pipeline.mod(intercept).set_files(file_paths);
