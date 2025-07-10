@@ -41,6 +41,10 @@ bool basic_uinput::is_ok() const noexcept {
 
 void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descriptor) noexcept {
     dev = nullptr;
+    if (evdev_dev == nullptr) [[unlikely]] {
+        err_code = std::errc::invalid_argument;
+        return;
+    }
 
     // If uinput_fd is @ref LIBEVDEV_UINPUT_OPEN_MANAGED, libevdev_uinput_create_from_device()
     // will open @c /dev/uinput in read/write mode and manage the file descriptor.

@@ -34,11 +34,11 @@ namespace foresight {
         using code_type = event_type::code_type;
 
         explicit evdev(std::filesystem::path const& file) noexcept;
-        consteval evdev()                                  = default;
-        consteval evdev(evdev const&) noexcept             = default;
-        constexpr evdev(evdev&& inp) noexcept              = default;
-        constexpr evdev& operator=(evdev&& other) noexcept = default;
-        consteval evdev& operator=(evdev const&) noexcept  = default;
+        consteval evdev()                      = default;
+        consteval evdev(evdev const&) noexcept = default;
+        evdev(evdev&& inp) noexcept;
+        evdev&           operator=(evdev&& other) noexcept;
+        consteval evdev& operator=(evdev const&) noexcept = default;
         ~evdev();
 
         // evdev(evdev const&)            = delete;
@@ -162,7 +162,7 @@ namespace foresight {
 
     export [[nodiscard]] auto match_devices(dev_caps_view const inp_caps, std::ranges::range auto&& devs) {
         using std::ranges::views::transform;
-        return devs | transform([&](evdev&& dev) {
+        return devs | transform([=](evdev&& dev) {
                    auto const percentage = dev.match_caps(inp_caps);
                    return evdev_rank{percentage, std::move(dev)};
                });

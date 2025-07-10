@@ -9,6 +9,7 @@ module;
 #include <libevdev/libevdev.h>
 #include <optional>
 #include <unistd.h>
+#include <utility>
 module foresight.evdev;
 import foresight.mods.caps;
 
@@ -32,6 +33,18 @@ evdev::evdev(std::filesystem::path const& file) noexcept {
     set_file(file);
 }
 
+evdev::evdev(evdev&& inp) noexcept
+  : dev{std::exchange(inp.dev, nullptr)},
+    status{std::exchange(inp.status, evdev_status::unknown)} {}
+
+evdev& evdev::operator=(evdev&& other) noexcept {
+    if (&other != this) {
+        dev    = std::exchange(other.dev, nullptr);
+        status = std::exchange(other.status, evdev_status::unknown);
+    }
+    return *this;
+}
+
 evdev::~evdev() noexcept {
     if (dev != nullptr) {
         libevdev_grab(dev, LIBEVDEV_UNGRAB);
@@ -39,13 +52,14 @@ evdev::~evdev() noexcept {
     auto const file_descriptor = native_handle();
     if (dev != nullptr) {
         libevdev_free(dev);
+        dev = nullptr;
     }
     if (file_descriptor >= 0) {
         close(file_descriptor);
     }
 }
 
-void evdev::set_file(std::filesystem::path const& file)  noexcept {
+void evdev::set_file(std::filesystem::path const& file) noexcept {
     auto const file_descriptor = native_handle();
     if (file_descriptor >= 0) {
         close(file_descriptor);
@@ -53,7 +67,7 @@ void evdev::set_file(std::filesystem::path const& file)  noexcept {
 
     auto const new_fd = open(file.c_str(), O_RDWR);
     if (new_fd < 0) {
-        dev = nullptr;
+        dev    = nullptr;
         status = evdev_status::failed_to_open_file;
         return;
         // throw std::invalid_argument(std::format("Failed to open file '{}'", file.string()));
@@ -100,20 +114,32 @@ libevdev* evdev::device_ptr() const noexcept {
 }
 
 void evdev::grab_input() noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return;
+    }
     if (libevdev_grab(dev, LIBEVDEV_GRAB) < 0) {
         status = evdev_status::grab_failure;
     }
 }
 
 std::string_view evdev::device_name() const noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return {};
+    }
     return libevdev_get_name(dev);
 }
 
 void evdev::device_name(std::string_view const new_name) noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return;
+    }
     libevdev_set_name(dev, new_name.data());
 }
 
 void evdev::enable_event_type(ev_type const type) noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return;
+    }
     libevdev_enable_event_type(dev, type);
 }
 
@@ -122,6 +148,9 @@ void evdev::enable_event_code(ev_type const type, code_type const code) noexcept
 }
 
 void evdev::enable_event_code(ev_type const type, code_type const code, void const* const value) noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return;
+    }
     libevdev_enable_event_code(dev, type, code, value);
 }
 
@@ -134,10 +163,16 @@ void evdev::enable_caps(dev_caps_view const inp_caps) noexcept {
 }
 
 void evdev::disable_event_type(ev_type const type) noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return;
+    }
     libevdev_disable_event_type(dev, type);
 }
 
 void evdev::disable_event_code(ev_type const type, code_type const code) noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return;
+    }
     libevdev_disable_event_code(dev, type, code);
 }
 
@@ -150,10 +185,16 @@ void evdev::disable_caps(dev_caps_view const inp_caps) noexcept {
 }
 
 bool evdev::has_event_type(ev_type const type) const noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return false;
+    }
     return libevdev_has_event_type(dev, type);
 }
 
 bool evdev::has_event_code(ev_type const type, code_type const code) const noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return false;
+    }
     return libevdev_has_event_code(dev, type, code);
 }
 
@@ -201,6 +242,9 @@ std::uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {
 }
 
 input_absinfo const* evdev::abs_info(code_type const code) const noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return nullptr;
+    }
     return libevdev_get_abs_info(dev, code);
 }
 

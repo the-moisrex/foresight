@@ -2,6 +2,7 @@
 #include <linux/input-event-codes.h>
 #include <ranges>
 #include <span>
+#include <print>
 import foresight.mods;
 
 int main(int const argc, char** argv) {
@@ -53,6 +54,9 @@ int main(int const argc, char** argv) {
                          return std::string_view{ptr};
                      });
 
+        for (auto const dev : to_evdevs(files)) {
+            std::println("{}", dev.device_name());
+        }
 
         std::vector<input_file_type> const file_paths{vfiles.begin(), vfiles.end()};
         // evdev out_device{file_paths.front().file};
