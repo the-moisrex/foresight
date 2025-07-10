@@ -136,6 +136,20 @@ void evdev::device_name(std::string_view const new_name) noexcept {
     libevdev_set_name(dev, new_name.data());
 }
 
+std::string_view evdev::physical_location() const noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return {};
+    }
+    return libevdev_get_phys(dev);
+}
+
+void evdev::physical_location(std::string_view const new_name) noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return;
+    }
+    libevdev_set_phys(dev, new_name.data());
+}
+
 void evdev::enable_event_type(ev_type const type) noexcept {
     if (dev == nullptr) [[unlikely]] {
         return;

@@ -55,7 +55,7 @@ int main(int const argc, char** argv) {
                      });
 
         for (auto const dev : to_evdevs(files)) {
-            std::println("{}", dev.device_name());
+            std::println("Input device({}): {}", dev.physical_location(), dev.device_name());
         }
 
         std::vector<input_file_type> const file_paths{vfiles.begin(), vfiles.end()};

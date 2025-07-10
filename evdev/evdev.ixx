@@ -68,6 +68,17 @@ namespace foresight {
         [[nodiscard]] std::string_view device_name() const noexcept;
         void                           device_name(std::string_view) noexcept;
 
+
+        /**
+         * Retrieve the device's physical location, either as set by the caller or
+         * as read from the kernel. The string returned is valid until
+         * libevdev_free() or until libevdev_set_phys(), whichever comes earlier.
+         *
+         * Virtual devices such as uinput devices have no phys location.
+         */
+        [[nodiscard]] std::string_view physical_location() const noexcept;
+        void                           physical_location(std::string_view) noexcept;
+
         void enable_event_type(ev_type) noexcept;
         void enable_event_code(ev_type, code_type) noexcept;
         void enable_event_code(ev_type, code_type, void const*) noexcept;
