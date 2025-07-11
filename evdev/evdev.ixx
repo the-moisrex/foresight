@@ -100,6 +100,10 @@ namespace foresight {
             (disable_event_code(type, static_cast<code_type>(codes)), ...);
         }
 
+
+        /// Enable/Disable the caps for this device
+        void apply_caps(dev_caps_view) noexcept;
+
         [[nodiscard]] bool has_event_type(ev_type) const noexcept;
         [[nodiscard]] bool has_event_code(ev_type, code_type) const noexcept;
 
@@ -215,12 +219,25 @@ namespace foresight {
                // Get a device
                | transform([](std::string_view const query) {
                      return device(query);
-                 })
-
-               // exclude badly initialized devices or with low-matching percentage
-               | filter([](evdev_rank const& ranker) {
-                     return ranker.match >= 80 && ranker.dev.ok();
                  });
+    }
+
+    export [[nodiscard]] constexpr auto only_matching(std::uint8_t const percentage = 80) {
+        return std::views::filter([=](evdev_rank const& ranker) {
+            return ranker.match >= percentage;
+        });
+    }
+
+    export [[nodiscard]] constexpr auto only_ok() {
+        return std::views::filter([=]<typename R>(R const& obj) {
+            if constexpr (std::same_as<R, evdev_rank>) {
+                return obj.dev.ok();
+            } else if constexpr (std::same_as<R, evdev>) {
+                return obj.ok();
+            } else {
+                return true;
+            }
+        });
     }
 
     export [[nodiscard]] auto devices(std::span<std::string_view const> const query_all) {
@@ -249,12 +266,16 @@ namespace foresight {
                | std::views::join;
     }
 
+    export [[nodiscard]] auto to_evdev() {
+        return std::views::transform([](evdev_rank&& ranker) {
+            return std::move(ranker.dev);
+        });
+    }
+
     export template <std::ranges::input_range R>
         requires std::convertible_to<std::ranges::range_value_t<R>, std::string_view>
     [[nodiscard]] auto to_evdevs(R& rng) {
-        return to_devices(rng) | std::views::transform([](evdev_rank&& ranker) {
-                   return std::move(ranker.dev);
-               });
+        return to_devices(rng) | to_evdev();
     }
 
 } // namespace foresight

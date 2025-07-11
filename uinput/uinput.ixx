@@ -13,6 +13,7 @@ export import foresight.evdev;
 export import foresight.mods.event;
 import foresight.mods.context;
 import foresight.mods.caps;
+import foresight.mods.intercept;
 
 export namespace foresight {
     /**
@@ -28,11 +29,12 @@ export namespace foresight {
         using value_type = event_type::value_type;
 
         constexpr basic_uinput() noexcept = default;
-        basic_uinput(evdev& evdev_dev, std::filesystem::path const& file) noexcept;
+        basic_uinput(evdev const& evdev_dev, std::filesystem::path const& file) noexcept;
         basic_uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept;
         explicit basic_uinput(libevdev const* evdev_dev,
                               int             file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
-        explicit basic_uinput(evdev& evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
+        explicit basic_uinput(evdev const& evdev_dev,
+                              int          file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
         consteval basic_uinput(basic_uinput const&)                     = default;
         constexpr basic_uinput(basic_uinput&&) noexcept                 = default;
         consteval basic_uinput& operator=(basic_uinput const&) noexcept = default;
@@ -126,14 +128,22 @@ export namespace foresight {
         std::errc        err_code = std::errc{};
     } uinput;
 
-    template <std::size_t N>
-        requires(N < std::numeric_limits<std::uint8_t>::max())
+    /**
+     * This struct helps to pick which virtual device should be chosen as output based on the even type.
+     */
+    template <std::size_t N = std::numeric_limits<std::uint8_t>::max()>
+        requires(N <= std::numeric_limits<std::uint8_t>::max())
     struct [[nodiscard]] basic_uinput_picker {
         using ev_type    = event_type::type_type;
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
+        static constexpr bool is_dynamic = N == std::numeric_limits<std::uint8_t>::max();
+
       private:
+        using container_type =
+          std::conditional_t<is_dynamic, std::vector<basic_uinput>, std::array<basic_uinput, N>>;
+
         // equals to 9
         static constexpr std::uint16_t shift = std::bit_width<std::uint16_t>(KEY_MAX) - 1U;
 
@@ -146,24 +156,25 @@ export namespace foresight {
 
 
         // the size is ~15KiB
-        std::array<std::uint8_t, max_hash> hashes{};
+        std::array<std::int8_t, max_hash> hashes{};
 
         // the uinput devices
-        std::array<basic_uinput, N> uinputs{};
+        container_type uinputs{};
+
+        bool inherit = false;
 
       public:
-        consteval explicit basic_uinput_picker(dev_caps_view const caps_view) noexcept {
-            assert(caps_view.size() < std::numeric_limits<std::uint8_t>::max());
+        template <typename... C>
+            requires(std::convertible_to<C, dev_caps_view> && ...)
+        consteval explicit basic_uinput_picker(C const&... caps_views) noexcept {
+            set_caps(caps_views...);
+        }
 
-            // Declaring which hash belongs to which uinput device
-            std::uint8_t input_pick = 0;
-            for (auto const [type, codes] : caps_view) {
-                for (auto const code : codes) {
-                    auto const index = hash({.type = type, .code = code});
-                    hashes.at(index) = input_pick;
-                }
-                ++input_pick;
-            }
+        template <typename... C>
+            requires(std::convertible_to<C, dev_caps_view> && ...)
+        consteval explicit basic_uinput_picker(bool const inp_inherit, C const&... caps_views) noexcept
+          : inherit{inp_inherit} {
+            set_caps(caps_views...);
         }
 
         basic_uinput_picker() noexcept                                      = default;
@@ -173,44 +184,146 @@ export namespace foresight {
         basic_uinput_picker& operator=(basic_uinput_picker&&) noexcept      = default;
         ~basic_uinput_picker() noexcept                                     = default;
 
-        void init() {
-            // regenerate dev_caps_view:
-            std::array<dev_cap_view, EV_MAX> views{};
+        // void init() {
+        //     if constexpr (is_dynamic) {
+        //         // todo
+        //     } else {
+        //         // regenerate dev_caps_view:
+        //         std::array<dev_cap_view, EV_MAX> views{};
+        //
+        //         // todo: this includes some invalid types as well
+        //         for (ev_type type = 0; type != EV_MAX; ++type) {
+        //             views.at(type) = dev_cap_view{
+        //               .type = type,
+        //               .codes =
+        //                 std::span<event_type::code_type const>{
+        //                                                        std::next(hashes.begin(), hash({.type =
+        //                                                        type, .code = 0})),
+        //                                                        std::next(hashes.begin(), hash({.type =
+        //                                                        type, .code = KEY_MAX}))},
+        //             };
+        //         }
+        //
+        //         // replace uinputs with the input devices with the highest percentage of matching:
+        //         for (auto& cur_uinput : uinputs) {
+        //             evdev_rank best{};
+        //             for (evdev_rank cur : foresight::devices(views)) {
+        //                 if (cur.match >= best.match) {
+        //                     best = std::move(cur);
+        //                 }
+        //             }
+        //             if (best.match != 0) {
+        //                 cur_uinput = std::move(best);
+        //             }
+        //         }
+        //     }
+        // }
 
-            // todo: this includes some invalid types as well
-            for (ev_type type = 0; type != EV_MAX; ++type) {
-                views.at(type) = dev_cap_view{
-                  .type  = type,
-                  .codes = std::span{std::next(hashes.begin(), hash({.type = type, .code = 0})),
-                                     std::next(hashes.begin(), hash({.type = type, .code = KEY_MAX}))},
-                };
-            }
-
-            // replace uinputs with the input devices with the highest percentage of matching:
-            for (auto& cur_uinput : uinputs) {
-                evdev_rank best{};
-                for (evdev_rank cur : devices(views)) {
-                    if (cur.match >= best.match) {
-                        best = std::move(cur);
-                    }
+        /// Auto Initialize
+        template <Context CtxT>
+        void init(CtxT& ctx) {
+            if constexpr (has_mod<CtxT, basic_interceptor>) {
+                if (!inherit) {
+                    return;
                 }
-                if (best.match != 0) {
-                    cur_uinput = std::move(best);
+
+                init_uinputs_from(ctx.mod(intercept).devices());
+            } else {
+                // init();
+            }
+        }
+
+        template <typename... C>
+            requires(std::convertible_to<C, dev_caps_view> && ...)
+        constexpr void set_caps(C const&... caps_views) noexcept {
+            hashes.fill(0);
+
+            // Declaring which hash belongs to which uinput device
+            (
+              [this, input_pick = static_cast<std::int8_t>(0)](dev_caps_view const caps_view) mutable {
+                  for (auto const [type, codes, addition] : caps_view) {
+                      for (auto const code : codes) {
+                          auto const index = hash({.type = type, .code = code});
+                          hashes.at(index) = addition ? input_pick : -1;
+                      }
+                  }
+                  ++input_pick;
+              }(caps_views),
+              ...);
+        }
+
+        template <std::ranges::input_range R>
+            requires std::convertible_to<std::ranges::range_value_t<R>, evdev>
+        void init_uinputs_from(R&& devs) {
+            if constexpr (is_dynamic) {
+                uinputs.clear();
+                if constexpr (std::ranges::sized_range<R>) {
+                    uinputs.reserve(devs.size());
+                }
+                for (evdev const& dev : devs) {
+                    uinputs.emplace_back(dev);
+                }
+            } else {
+                std::uint8_t index = 0;
+                for (evdev const& dev : devs) {
+                    if (index >= uinputs.size()) {
+                        throw std::invalid_argument("Too many devices has been given to us.");
+                    }
+                    uinputs.at(index++) = basic_uinput{dev};
                 }
             }
         }
 
-        [[nodiscard]] const auto& devices() const noexcept {
-            return uinputs;
+        [[nodiscard]] std::span<basic_uinput const> devices() const noexcept {
+            return std::span{uinputs};
+        }
+
+        [[nodiscard]] std::span<basic_uinput> devices() noexcept {
+            return std::span{uinputs};
+        }
+
+        consteval basic_uinput_picker operator()(bool const inp_inherit) const noexcept {
+            basic_uinput_picker picker;
+            picker.inherit = inp_inherit;
+            return picker;
+        }
+
+        template <typename... C>
+            requires(std::convertible_to<C, dev_caps_view> && ...)
+        consteval auto operator()(C const&... caps_views) const noexcept {
+            return basic_uinput_picker<sizeof...(C)>{caps_views...};
+        }
+
+        template <typename... C>
+            requires(std::convertible_to<C, dev_caps_view> && ...)
+        consteval auto operator()(bool const inp_inherits, C const&... caps_views) const noexcept {
+            return basic_uinput_picker<sizeof...(C)>{inp_inherits, caps_views...};
+        }
+
+        bool emit(ev_type const type, code_type const code, value_type const value) noexcept {
+            return emit(event_type{type, code, value});
+        }
+        bool emit(input_event const& event) noexcept {
+            return emit(event_type{event});
+        }
+        bool emit(event_type const& event) noexcept {
+            return operator()(event) == context_action::next;
+        }
+        bool emit_syn() noexcept {
+            return emit(syn());
         }
 
         context_action operator()(event_type const& event) noexcept {
-            auto const index = hash(static_cast<event_code>(event));
+            auto const index = hashes.at(hash(static_cast<event_code>(event)));
+            if (index < 0) [[unlikely]] {
+                return context_action::ignore_event;
+            }
             return uinputs.at(index)(event);
         }
     };
 
-    constexpr basic_uinput_picker<1> uinput_picker;
+    constexpr basic_uinput_picker<> uinput_picker;
 
-    static_assert(output_modifier<basic_uinput>, "Must be a output modifier.");
+    static_assert(output_modifier<basic_uinput>, "Must be an output modifier.");
+    static_assert(output_modifier<basic_uinput_picker<>>, "Must be an output modifier.");
 } // namespace foresight

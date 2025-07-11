@@ -95,6 +95,18 @@ export namespace foresight {
         using type = std::remove_cvref_t<Func>;
     };
 
+    // For something<X, Y, Z>
+    template <template <typename...> typename TT, typename... T, typename... U, typename... Funcs>
+    struct mod_of_t<TT<T...>, TT<U...>, Funcs...> {
+        using type = TT<U...>;
+    };
+
+    /// For uinput_picker<N>
+    template <template <auto...> typename TT, auto... T, auto... U, typename... Funcs>
+    struct mod_of_t<TT<T...>, TT<U...>, Funcs...> {
+        using type = TT<U...>;
+    };
+
     template <typename ModConcept, typename Func, typename... Funcs>
     struct mod_of_t<ModConcept, Func, Funcs...> : mod_of_t<ModConcept, Funcs...> {};
 

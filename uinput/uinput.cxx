@@ -12,10 +12,10 @@ import foresight.mods.event;
 
 using foresight::basic_uinput;
 
-basic_uinput::basic_uinput(evdev& evdev_dev, std::filesystem::path const& file) noexcept
+basic_uinput::basic_uinput(evdev const& evdev_dev, std::filesystem::path const& file) noexcept
   : basic_uinput(evdev_dev.device_ptr(), file) {}
 
-basic_uinput::basic_uinput(evdev& evdev_dev, int const file_descriptor) noexcept
+basic_uinput::basic_uinput(evdev const& evdev_dev, int const file_descriptor) noexcept
   : basic_uinput(evdev_dev.device_ptr(), file_descriptor) {}
 
 basic_uinput::basic_uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept {

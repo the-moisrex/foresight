@@ -169,7 +169,7 @@ void evdev::enable_event_code(ev_type const type, code_type const code, void con
 }
 
 void evdev::enable_caps(dev_caps_view const inp_caps) noexcept {
-    for (auto const& [type, codes] : inp_caps) {
+    for (auto const& [type, codes, _] : inp_caps) {
         for (auto const code : codes) {
             enable_event_code(type, code);
         }
@@ -191,9 +191,23 @@ void evdev::disable_event_code(ev_type const type, code_type const code) noexcep
 }
 
 void evdev::disable_caps(dev_caps_view const inp_caps) noexcept {
-    for (auto const& [type, codes] : inp_caps) {
+    for (auto const& [type, codes, _] : inp_caps) {
         for (auto const code : codes) {
             disable_event_code(type, code);
+        }
+    }
+}
+
+void evdev::apply_caps(dev_caps_view const inp_caps) noexcept {
+    for (auto const& [type, codes, addition] : inp_caps) {
+        if (addition) {
+            for (auto const code : codes) {
+                enable_event_code(type, code);
+            }
+        } else {
+            for (auto const code : codes) {
+                disable_event_code(type, code);
+            }
         }
     }
 }
@@ -244,7 +258,7 @@ bool evdev::has_caps(dev_caps_view const inp_caps) const noexcept {
 std::uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {
     double count = 0;
     double all   = 0;
-    for (auto const& [type, codes] : inp_caps) {
+    for (auto const& [type, codes, _] : inp_caps) {
         for (code_type const code : codes) {
             if (has_event_code(type, code)) {
                 ++count;
@@ -276,7 +290,7 @@ std::optional<input_event> evdev::next() noexcept {
 }
 
 foresight::evdev_rank foresight::device(dev_caps_view const inp_caps) {
-    auto       devs = devices(inp_caps);
+    auto       devs = foresight::devices(inp_caps);
     evdev_rank res;
 
     for (evdev_rank&& rank : devs) {

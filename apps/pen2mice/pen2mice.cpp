@@ -43,7 +43,7 @@ int main(int const argc, char** argv) {
 
     static constexpr auto main_pipeline =
       context                   // Init Context
-      | abs2rel                 // Convert Pen events into Mouse events if any
+      | abs2rel(true)           // Convert Pen events into Mouse events if any
       | ignore_abs              // Ignore absolute movements
       | keys_status             // Save key presses
       | mice_quantifier         // Quantify the mouse movements
@@ -62,25 +62,30 @@ int main(int const argc, char** argv) {
 
     if (args.size() > 1) {
         constinit static auto pipeline =
-          context         // Init Context
-          | intercept     // intercept the events
-          | main_pipeline // main
-          | uinput;       // put it in a virtual device
+          context          // Init Context
+          | intercept      // Intercept the events
+          | main_pipeline  // Main
+          | uinput_picker( // Put them into newly created virtual devices
+              true,
+              caps::pointer + caps::keyboard + caps::pointer_wheels - caps::abs_all, // first
+              caps::tablet - caps::pointer_rel_all                                   // second virtual device
+            );
 
-        auto  files = args | drop(1) | transform_to<std::string_view>();
-        evdev out_device{(files | std::views::take(1)).front()};
+        auto files = args | drop(1) | transform_to<std::string_view>();
 
-        pipeline.mod(abs2rel).init(out_device);
-        out_device.enable_caps(caps::pointer + caps::keyboard + caps::pointer_wheels);
-        out_device.disable_event_type(EV_ABS);
-        pipeline.mod(uinput).set_device(out_device);
-        pipeline.mod(intercept).add_devs(to_evdevs(files), true);
+        pipeline.mod(intercept).add_devs(to_devices(files) | only_matching() | only_ok() | to_evdev());
 
-        for (auto const dev : to_evdevs(files)) {
+        for (evdev& dev : pipeline.mod(intercept).devices()) {
+            if (dev.has_caps(caps::tablet)) {
+                dev.grab_input();
+            }
             std::println("Input device: ({}) {}", dev.physical_location(), dev.device_name());
         }
+        pipeline.mod(intercept).commit();
 
-        std::println("Output device: {}", pipeline.mod(uinput).syspath());
+        for (auto const& dev : pipeline.mod(uinput_picker).devices()) {
+            std::println("Output device: {}", dev.syspath());
+        }
 
         pipeline();
     } else {

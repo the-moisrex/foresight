@@ -21,6 +21,7 @@ namespace foresight {
     export struct [[nodiscard]] dev_cap_view {
         ev_type                    type;
         std::span<code_type const> codes;
+        bool                       addition = true; // true = add them, false = remove them
     };
 
     export template <std::size_t N>
@@ -68,6 +69,33 @@ namespace foresight {
         dev_caps<N1 + N2> res;
         std::copy(lhs.begin(), lhs.end(), res.begin());
         std::copy(rhs.begin(), rhs.end(), std::next(res.begin(), N1));
+        return res;
+    }
+
+    export template <std::size_t N1, std::size_t N2>
+    [[nodiscard]] consteval auto operator-(dev_cap<N1> const& lhs, dev_cap<N2> const& rhs) noexcept {
+        return dev_caps<2>{
+          dev_cap_view{.type = lhs.type, .codes = lhs.codes,  .addition = true},
+          dev_cap_view{.type = rhs.type, .codes = rhs.codes, .addition = false}
+        };
+    }
+
+    export template <std::size_t N1, std::size_t N2>
+    [[nodiscard]] consteval auto operator-(dev_caps<N1> const& lhs, dev_cap<N2> const& rhs) noexcept {
+        dev_caps<N1 + 1> res;
+        std::copy(lhs.begin(), lhs.end(), res.begin());
+        res[N1] = dev_cap_view{.type = rhs.type, .codes = rhs.codes, .addition = false};
+        return res;
+    }
+
+    export template <std::size_t N1, std::size_t N2>
+    [[nodiscard]] consteval auto operator-(dev_caps<N1> const& lhs, dev_caps<N2> const& rhs) noexcept {
+        dev_caps<N1 + N2> res;
+        std::copy(lhs.begin(), lhs.end(), res.begin());
+        std::copy(rhs.begin(), rhs.end(), std::next(res.begin(), N1));
+        for (auto cur = std::next(res.begin(), N1); cur != res.end(); ++cur) {
+            cur->addition = false;
+        }
         return res;
     }
 
@@ -122,7 +150,7 @@ namespace foresight {
         // Pointer (Mouse/Trackball)
         constexpr auto pointer_wheels =
           cap(EV_REL, REL_WHEEL, REL_HWHEEL, REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES);
-        constexpr auto pointer_rel_all = caps_range<EV_REL, REL_X, REL_MAX + 1>();
+        constexpr auto pointer_rel_all  = caps_range<EV_REL, REL_X, REL_MAX + 1>();
         constexpr auto pointer_rel_axes = cap(EV_REL, REL_X, REL_Y);
         constexpr auto pointer_btns =
           cap(EV_KEY, BTN_LEFT, BTN_RIGHT, BTN_MIDDLE, BTN_SIDE, BTN_EXTRA, BTN_FORWARD, BTN_BACK, BTN_TASK);
@@ -161,6 +189,8 @@ namespace foresight {
           BTN_TOOL_PENCIL,
           BTN_TOOL_AIRBRUSH);
         constexpr auto tablet_abs_axes = cap(EV_ABS, ABS_PRESSURE, ABS_DISTANCE, ABS_TILT_X, ABS_TILT_Y);
+
+        constexpr auto abs_all = caps_range<EV_ABS, ABS_X, ABS_MAX + 1>();
 
         // Switches
         constexpr auto switches = caps_range<EV_SW, SW_LID, SW_MAX + 1>();

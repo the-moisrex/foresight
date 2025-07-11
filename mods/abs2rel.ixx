@@ -4,6 +4,8 @@ module;
 export module foresight.mods.abs2rel;
 import foresight.mods.context;
 import foresight.evdev;
+import foresight.mods.intercept;
+import foresight.mods.caps;
 
 export namespace foresight {
 
@@ -26,7 +28,11 @@ export namespace foresight {
 
         value_type pressure_threshold = 300;
 
+        bool inherit = false;
+
       public:
+        explicit constexpr basic_abs2rel(bool const inp_inherit) noexcept : inherit(inp_inherit) {}
+
         constexpr basic_abs2rel() noexcept                                = default;
         consteval basic_abs2rel(basic_abs2rel const&) noexcept            = default;
         constexpr basic_abs2rel(basic_abs2rel&&) noexcept                 = default;
@@ -41,6 +47,25 @@ export namespace foresight {
         }
 
         void init(evdev const& dev, double scale = 18.0) noexcept;
+
+        /// Auto Initialize
+        template <Context CtxT>
+            requires has_mod<CtxT, basic_interceptor>
+        void init(CtxT& ctx) noexcept {
+            if (!inherit) {
+                return;
+            }
+            for (evdev const& dev : ctx.mod(intercept).devices()) {
+                if (dev.has_cap(view(caps::tablet_abs_axes))) {
+                    init(dev);
+                    break;
+                }
+            }
+        }
+
+        consteval basic_abs2rel operator()(bool const inp_inherit) const noexcept {
+            return basic_abs2rel{inp_inherit};
+        }
 
         context_action operator()(event_type& event) noexcept;
 

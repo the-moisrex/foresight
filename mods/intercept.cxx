@@ -90,7 +90,7 @@ void basic_interceptor::add_dev(evdev&& inp_dev) {
 }
 
 void basic_interceptor::add_files(std::string_view const query_all) {
-    for (auto [match, dev] : devices(query_all)) {
+    for (auto [match, dev] : foresight::devices(query_all)) {
         add_dev(std::move(dev));
     }
 }
@@ -103,7 +103,7 @@ void basic_interceptor::set_files(std::string_view const query_all) {
 
 void basic_interceptor::add_files(std::span<std::string_view const> const query_all) {
     for (auto const query : query_all) {
-        for (auto [match, dev] : devices(query)) {
+        for (auto [match, dev] : foresight::devices(query)) {
             add_dev(std::move(dev));
         }
     }
@@ -113,6 +113,18 @@ void basic_interceptor::set_files(std::span<std::string_view const> const query_
     devs.clear();
     fds.clear();
     add_files(query_all);
+}
+
+std::span<foresight::evdev const> basic_interceptor::devices() const noexcept {
+    return std::span{devs.begin(), devs.end()};
+}
+
+std::span<foresight::evdev> basic_interceptor::devices() noexcept {
+    return std::span{devs.begin(), devs.end()};
+}
+
+void basic_interceptor::commit() {
+    fds = get_pollfds(this->devices());
 }
 
 foresight::context_action basic_interceptor::operator()(event_type& event) noexcept {
