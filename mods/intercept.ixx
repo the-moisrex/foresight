@@ -40,8 +40,11 @@ export namespace foresight {
         void add_files(std::string_view);
         void add_files(std::span<std::string_view const>);
 
-        void add_devs(std::ranges::range auto&& inp_devs) {
+        template <std::ranges::range R>
+            requires std::convertible_to<std::ranges::range_value_t<R>, evdev&&>
+        void add_devs(R&& inp_devs, bool const grab = false) {
             for (evdev&& dev : inp_devs) {
+                dev.grab_input(grab);
                 add_dev(std::move(dev));
             }
         }

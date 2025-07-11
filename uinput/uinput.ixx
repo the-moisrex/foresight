@@ -200,6 +200,10 @@ export namespace foresight {
             }
         }
 
+        [[nodiscard]] const auto& devices() const noexcept {
+            return uinputs;
+        }
+
         context_action operator()(event_type const& event) noexcept {
             auto const index = hash(static_cast<event_code>(event));
             return uinputs.at(index)(event);

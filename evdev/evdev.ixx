@@ -57,7 +57,7 @@ namespace foresight {
             return dev != nullptr && status == evdev_status::success;
         }
 
-        void grab_input() noexcept;
+        void grab_input(bool grab = true) noexcept;
 
 
         /**
@@ -217,7 +217,7 @@ namespace foresight {
                      return device(query);
                  })
 
-               // exclude badly initilized devices or with low matching percentage
+               // exclude badly initialized devices or with low-matching percentage
                | filter([](evdev_rank const& ranker) {
                      return ranker.match >= 80 && ranker.dev.ok();
                  });
@@ -235,8 +235,9 @@ namespace foresight {
                | std::views::join;
     }
 
-    // std::span<std::string_view const>
-    export [[nodiscard]] auto to_devices(std::ranges::input_range auto& query_all) {
+    export template <std::ranges::input_range R>
+        requires std::convertible_to<std::ranges::range_value_t<R>, std::string_view>
+    [[nodiscard]] auto to_devices(R& query_all) {
         return query_all
 
                // convert each piece into devices
@@ -248,7 +249,9 @@ namespace foresight {
                | std::views::join;
     }
 
-    export [[nodiscard]] auto to_evdevs(std::ranges::input_range auto& rng) {
+    export template <std::ranges::input_range R>
+        requires std::convertible_to<std::ranges::range_value_t<R>, std::string_view>
+    [[nodiscard]] auto to_evdevs(R& rng) {
         return to_devices(rng) | std::views::transform([](evdev_rank&& ranker) {
                    return std::move(ranker.dev);
                });

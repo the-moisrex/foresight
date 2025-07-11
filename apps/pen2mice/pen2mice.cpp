@@ -1,9 +1,30 @@
 #include <filesystem>
 #include <linux/input-event-codes.h>
+#include <print>
 #include <ranges>
 #include <span>
-#include <print>
 import foresight.mods;
+
+namespace {
+    template <typename T>
+    struct construct_it_from {
+        template <typename... Args>
+        [[nodiscard]] constexpr T operator()(Args&&... args) noexcept(std::constructible_from<T>) {
+            return T{std::forward<Args>(args)...};
+        }
+    };
+
+    template <typename T>
+    [[nodiscard]] constexpr auto transform_to() {
+        return std::views::transform(construct_it_from<T>{});
+    }
+
+    template <typename Inp, typename T>
+        requires(std::is_invocable_v<T, construct_it_from<Inp>>)
+    [[nodiscard]] constexpr auto into(T&& obj) {
+        return std::forward<T>(obj)(construct_it_from<Inp>{});
+    }
+} // namespace
 
 int main(int const argc, char** argv) {
     using namespace foresight;
@@ -46,28 +67,20 @@ int main(int const argc, char** argv) {
           | main_pipeline // main
           | uinput;       // put it in a virtual device
 
-
-        auto vfiles = args | drop(1) | transform([index = 0](char const* const ptr) mutable {
-                         return input_file_type{.file = path{ptr}, .grab = index++ == 0};
-                     });
-        auto files = args | drop(1) | transform([](char const* const ptr) {
-                         return std::string_view{ptr};
-                     });
-
-        for (auto const dev : to_evdevs(files)) {
-            std::println("Input device({}): {}", dev.physical_location(), dev.device_name());
-        }
-
-        std::vector<input_file_type> const file_paths{vfiles.begin(), vfiles.end()};
-        // evdev out_device{file_paths.front().file};
+        auto  files = args | drop(1) | transform_to<std::string_view>();
         evdev out_device{(files | std::views::take(1)).front()};
 
         pipeline.mod(abs2rel).init(out_device);
         out_device.enable_caps(caps::pointer + caps::keyboard + caps::pointer_wheels);
         out_device.disable_event_type(EV_ABS);
         pipeline.mod(uinput).set_device(out_device);
-        // pipeline.mod(intercept).add_devs(to_evdevs(files));
-        pipeline.mod(intercept).set_files(file_paths);
+        pipeline.mod(intercept).add_devs(to_evdevs(files), true);
+
+        for (auto const dev : to_evdevs(files)) {
+            std::println("Input device: ({}) {}", dev.physical_location(), dev.device_name());
+        }
+
+        std::println("Output device: {}", pipeline.mod(uinput).syspath());
 
         pipeline();
     } else {

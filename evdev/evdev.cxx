@@ -113,11 +113,11 @@ libevdev* evdev::device_ptr() const noexcept {
     return dev;
 }
 
-void evdev::grab_input() noexcept {
+void evdev::grab_input(bool const grab) noexcept {
     if (dev == nullptr) [[unlikely]] {
         return;
     }
-    if (libevdev_grab(dev, LIBEVDEV_GRAB) < 0) {
+    if (libevdev_grab(dev, grab ? LIBEVDEV_GRAB : LIBEVDEV_UNGRAB) < 0) {
         status = evdev_status::grab_failure;
     }
 }
