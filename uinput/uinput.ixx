@@ -16,6 +16,9 @@ import foresight.mods.caps;
 import foresight.mods.intercept;
 
 export namespace foresight {
+
+    constexpr std::string_view invalid_syspath = "/dev/null";
+
     /**
      * A virtual device
      *

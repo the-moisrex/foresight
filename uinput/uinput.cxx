@@ -68,7 +68,7 @@ int basic_uinput::native_handle() const noexcept {
 
 std::string_view basic_uinput::syspath() const noexcept {
     if (!is_ok()) {
-        return {};
+        return invalid_syspath;
     }
     return libevdev_uinput_get_syspath(dev);
 }
