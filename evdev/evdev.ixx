@@ -26,6 +26,10 @@ namespace foresight {
 
     export std::string_view to_string(evdev_status) noexcept;
 
+
+    export constexpr std::string_view invalid_device_name = "UNKNOWN";
+    export constexpr std::string_view invalid_device_location = "/dev/null";
+
     /**
      * This is a wrapper for libevdev's related features
      */
@@ -44,6 +48,7 @@ namespace foresight {
         // evdev(evdev const&)            = delete;
         // evdev& operator=(evdev const&) = delete;
 
+        void close() noexcept;
 
         /// change the input event file (for example /dev/input/eventX)
         void set_file(std::filesystem::path const& file) noexcept;

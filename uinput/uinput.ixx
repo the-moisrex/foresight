@@ -2,6 +2,7 @@
 
 module;
 #include <bit>
+#include <print>
 #include <cassert>
 #include <filesystem>
 #include <libevdev/libevdev-uinput.h>
@@ -45,12 +46,11 @@ export namespace foresight {
 
         constexpr ~basic_uinput() noexcept {
             if !consteval {
-                if (dev != nullptr) {
-                    libevdev_uinput_destroy(dev);
-                    dev = nullptr;
-                }
+                close();
             }
         }
+
+        void close() noexcept;
 
         [[nodiscard]] std::error_code error() const noexcept;
         [[nodiscard]] bool            is_ok() const noexcept;
@@ -273,6 +273,7 @@ export namespace foresight {
                         throw std::invalid_argument("Too many devices has been given to us.");
                     }
                     uinputs.at(index++) = basic_uinput{dev};
+                    std::println("Dev: {} {} {}", dev.device_name(), uinputs.at(index - 1).syspath(), uinputs.at(index - 1).devnode());
                 }
             }
         }

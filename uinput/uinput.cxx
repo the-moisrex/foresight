@@ -22,6 +22,7 @@ basic_uinput::basic_uinput(libevdev const* evdev_dev, std::filesystem::path cons
     auto const file_descriptor = open(file.c_str(), O_RDWR | O_NONBLOCK);
     if (file_descriptor < 0) {
         err_code = static_cast<std::errc>(errno);
+        dev = nullptr;
         return;
     }
     set_device(evdev_dev, file_descriptor);
@@ -29,6 +30,13 @@ basic_uinput::basic_uinput(libevdev const* evdev_dev, std::filesystem::path cons
 
 basic_uinput::basic_uinput(libevdev const* evdev_dev, int const file_descriptor) noexcept {
     set_device(evdev_dev, file_descriptor);
+}
+
+void basic_uinput::close() noexcept {
+    if (dev != nullptr) {
+        libevdev_uinput_destroy(dev);
+        dev = nullptr;
+    }
 }
 
 std::error_code basic_uinput::error() const noexcept {
@@ -40,7 +48,7 @@ bool basic_uinput::is_ok() const noexcept {
 }
 
 void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descriptor) noexcept {
-    dev = nullptr;
+    close();
     if (evdev_dev == nullptr) [[unlikely]] {
         err_code = std::errc::invalid_argument;
         return;
@@ -52,6 +60,7 @@ void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descript
     // appropriate permissions.
     if (auto const ret = libevdev_uinput_create_from_device(evdev_dev, file_descriptor, &dev); ret != 0) {
         err_code = static_cast<std::errc>(-ret);
+        dev = nullptr;
     }
 }
 

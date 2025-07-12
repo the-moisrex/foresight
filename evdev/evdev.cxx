@@ -46,6 +46,10 @@ evdev& evdev::operator=(evdev&& other) noexcept {
 }
 
 evdev::~evdev() noexcept {
+    this->close();
+}
+
+void evdev::close() noexcept {
     if (dev != nullptr) {
         libevdev_grab(dev, LIBEVDEV_UNGRAB);
     }
@@ -55,19 +59,15 @@ evdev::~evdev() noexcept {
         dev = nullptr;
     }
     if (file_descriptor >= 0) {
-        close(file_descriptor);
+        ::close(file_descriptor);
     }
+    status = evdev_status::unknown;
 }
 
 void evdev::set_file(std::filesystem::path const& file) noexcept {
-    auto const file_descriptor = native_handle();
-    if (file_descriptor >= 0) {
-        close(file_descriptor);
-    }
-
     auto const new_fd = open(file.c_str(), O_RDWR);
-    if (new_fd < 0) {
-        dev    = nullptr;
+    if (new_fd < 0) [[unlikely]] {
+        this->close();
         status = evdev_status::failed_to_open_file;
         return;
         // throw std::invalid_argument(std::format("Failed to open file '{}'", file.string()));
@@ -76,24 +76,23 @@ void evdev::set_file(std::filesystem::path const& file) noexcept {
 }
 
 void evdev::set_file(int const file) noexcept {
-    auto const file_descriptor = native_handle();
-    if (file_descriptor >= 0) {
-        close(file_descriptor);
-    }
-    if (file < 0) {
+    this->close();
+    if (file < 0) [[unlikely]] {
         status = evdev_status::invalid_file_descriptor;
         return;
     }
     if (dev == nullptr) {
         dev = libevdev_new();
-        if (dev == nullptr) {
+        if (dev == nullptr) [[unlikely]] {
+            this->close();
             status = evdev_status::invalid_device;
             return;
         }
     }
 
-    if (int const res_rc = libevdev_set_fd(dev, file); res_rc < 0) {
-        close(file);
+    if (int const res_rc = libevdev_set_fd(dev, file); res_rc < 0) [[unlikely]] {
+        ::close(file);
+        this->close();
         status = evdev_status::failed_setting_file_descriptor;
         return;
         // throw std::domain_error(
@@ -124,7 +123,7 @@ void evdev::grab_input(bool const grab) noexcept {
 
 std::string_view evdev::device_name() const noexcept {
     if (dev == nullptr) [[unlikely]] {
-        return {};
+        return invalid_device_name;
     }
     return libevdev_get_name(dev);
 }
@@ -138,7 +137,7 @@ void evdev::device_name(std::string_view const new_name) noexcept {
 
 std::string_view evdev::physical_location() const noexcept {
     if (dev == nullptr) [[unlikely]] {
-        return {};
+        return invalid_device_location;
     }
     return libevdev_get_phys(dev);
 }
@@ -278,6 +277,10 @@ input_absinfo const* evdev::abs_info(code_type const code) const noexcept {
 
 std::optional<input_event> evdev::next() noexcept {
     input_event input;
+
+    if (dev == nullptr) [[unlikely]] {
+        return std::nullopt;
+    }
 
     switch (libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &input)) {
         [[likely]] case LIBEVDEV_READ_STATUS_SUCCESS: { return input; }
