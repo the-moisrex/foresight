@@ -77,8 +77,8 @@ export namespace foresight {
         static constexpr bool value = output_modifier<T>;
     } output_mod;
 
-    template <typename Mod, typename T>
-    concept has_mod = modifier<Mod> && Context<T> && requires(T ctx) {
+    template <typename Mod, typename CtxT>
+    concept has_mod = modifier<Mod> && Context<CtxT> && requires(CtxT ctx) {
         {
             ctx.template mod<Mod>()
         } noexcept -> std::same_as<Mod &>;
@@ -419,19 +419,13 @@ export namespace foresight {
         constexpr void operator()() noexcept(is_nothrow) {
             using enum context_action;
             init();
-            for (;;) {
-                if (reemit_all() == exit) {
-                    break;
-                }
-            }
+            operator()(no_init);
         }
 
         constexpr void operator()([[maybe_unused]] no_init_type) noexcept(is_nothrow) {
             using enum context_action;
-            for (;;) {
-                if (reemit_all() == exit) {
-                    break;
-                }
+            while (reemit_all() != exit) {
+                // keep going
             }
         }
 

@@ -222,7 +222,7 @@ export namespace foresight {
         /// Auto Initialize
         template <Context CtxT>
         void init(CtxT& ctx) {
-            if constexpr (has_mod<CtxT, basic_interceptor>) {
+            if constexpr (has_mod<basic_interceptor, CtxT>) {
                 if (!inherit) {
                     return;
                 }

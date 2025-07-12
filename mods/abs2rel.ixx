@@ -50,7 +50,7 @@ export namespace foresight {
 
         /// Auto Initialize
         template <Context CtxT>
-            requires has_mod<CtxT, basic_interceptor>
+            requires has_mod<basic_interceptor, CtxT>
         void init(CtxT& ctx) noexcept {
             if (!inherit) {
                 return;
