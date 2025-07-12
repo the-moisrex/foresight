@@ -360,7 +360,7 @@ namespace foresight {
     export constexpr basic_on<> on;
 
     constexpr auto               no_axis           = std::numeric_limits<value_type>::max();
-    constexpr value_type         default_sipe_step = 150;
+    constexpr value_type         default_sipe_step = 120;
     export constexpr basic_swipe swipe_left{-default_sipe_step, no_axis};
     export constexpr basic_swipe swipe_right{default_sipe_step, no_axis};
     export constexpr basic_swipe swipe_up{no_axis, -default_sipe_step};

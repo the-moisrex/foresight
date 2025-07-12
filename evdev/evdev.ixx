@@ -100,7 +100,6 @@ namespace foresight {
             (disable_event_code(type, static_cast<code_type>(codes)), ...);
         }
 
-
         /// Enable/Disable the caps for this device
         void apply_caps(dev_caps_view) noexcept;
 
@@ -252,15 +251,11 @@ namespace foresight {
                | std::views::join;
     }
 
-    export template <std::ranges::input_range R>
-        requires std::convertible_to<std::ranges::range_value_t<R>, std::string_view>
-    [[nodiscard]] auto to_devices(R& query_all) {
-        return query_all
-
-               // convert each piece into devices
-               | std::views::transform([](std::string_view const query) {
-                     return devices(query);
-                 })
+    export [[nodiscard]] auto to_devices() noexcept {
+        // convert each piece into devices
+        return std::views::transform([](std::string_view const query) {
+                   return devices(query);
+               })
 
                // flatten the range
                | std::views::join;
@@ -270,12 +265,6 @@ namespace foresight {
         return std::views::transform([](evdev_rank&& ranker) {
             return std::move(ranker.dev);
         });
-    }
-
-    export template <std::ranges::input_range R>
-        requires std::convertible_to<std::ranges::range_value_t<R>, std::string_view>
-    [[nodiscard]] auto to_evdevs(R& rng) {
-        return to_devices(rng) | to_evdev();
     }
 
 } // namespace foresight

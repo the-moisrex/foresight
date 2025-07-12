@@ -32,7 +32,7 @@ int main(int const argc, char** argv) {
     using std::views::drop;
     using std::views::transform;
 
-    auto const args = std::span{argv, argv + argc};
+    auto args = std::span{argv, argv + argc} | drop(1) | transform_to<std::string_view>();
 
     static constexpr auto scroll_button    = key_pack(BTN_MIDDLE);
     static constexpr auto mid_left         = op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT};
@@ -60,7 +60,7 @@ int main(int const argc, char** argv) {
       | on(mid_left, ignore_mid_lefts) // ignore mouse movements
       | add_scroll(scroll_button, 5);  // Make middle button, a scroll wheel
 
-    if (args.size() > 1) {
+    if (args.size() > 0) {
         constinit static auto pipeline =
           context          // Init Context
           | intercept      // Intercept the events
@@ -71,9 +71,8 @@ int main(int const argc, char** argv) {
               caps::tablet - caps::pointer_rel_all                                   // second virtual device
             );
 
-        auto files = args | drop(1) | transform_to<std::string_view>();
 
-        pipeline.mod(intercept).add_devs(to_devices(files) | only_matching() | only_ok() | to_evdev());
+        pipeline.mod(intercept).add_devs(args | to_devices() | only_matching() | only_ok() | to_evdev());
 
         for (evdev& dev : pipeline.mod(intercept).devices()) {
             if (dev.has_caps(caps::tablet)) {
