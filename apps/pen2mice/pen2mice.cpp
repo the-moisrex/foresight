@@ -80,13 +80,15 @@ int main(int const argc, char** argv) {
             }
             std::println("Input device: ({}) {}", dev.physical_location(), dev.device_name());
         }
+
         pipeline.mod(intercept).commit();
+        pipeline.init();
 
         for (auto const& dev : pipeline.mod(uinput_picker).devices()) {
             std::println("Output device: {}", dev.syspath());
         }
 
-        pipeline();
+        pipeline(no_init);
     } else {
         (context         // Init Context
          | input         // Get the events from stdin

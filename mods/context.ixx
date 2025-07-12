@@ -169,6 +169,8 @@ export namespace foresight {
         }
     }
 
+    constexpr struct no_init_type{} no_init;
+
 
     template <std::size_t Index, modifier... Funcs>
     struct [[nodiscard]] basic_context_view;
@@ -417,6 +419,15 @@ export namespace foresight {
         constexpr void operator()() noexcept(is_nothrow) {
             using enum context_action;
             init();
+            for (;;) {
+                if (reemit_all() == exit) {
+                    break;
+                }
+            }
+        }
+
+        constexpr void operator()([[maybe_unused]] no_init_type) noexcept(is_nothrow) {
+            using enum context_action;
             for (;;) {
                 if (reemit_all() == exit) {
                     break;
