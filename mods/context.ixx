@@ -49,11 +49,11 @@ export namespace foresight {
     concept Context = requires(T ctx) { ctx.event(); };
 
     template <typename T>
-    concept modifier = std::copyable<std::remove_cvref_t<T>>;
+    concept Modifier = std::copyable<std::remove_cvref_t<T>>;
 
     template <typename T>
-    concept output_modifier =
-      modifier<T> &&
+    concept OutputModifier =
+      Modifier<T> &&
       requires(T                      out,
                event_type             event,
                event_type::code_type  code,
@@ -74,15 +74,22 @@ export namespace foresight {
 
     constexpr struct output_mod_t {
         template <typename T>
-        static constexpr bool value = output_modifier<T>;
+        static constexpr bool value = OutputModifier<T>;
     } output_mod;
 
+    template <bool... T>
+    [[nodiscard]] consteval bool blowup_if(bool const res = true) noexcept {
+        static_assert(!static_cast<bool>((T && ...)), "Reverse the order of params.");
+        return res;
+    }
+
     template <typename Mod, typename CtxT>
-    concept has_mod = modifier<Mod> && Context<CtxT> && requires(CtxT ctx) {
-        {
-            ctx.template mod<Mod>()
-        } noexcept -> std::same_as<Mod &>;
-    };
+    concept has_mod =
+      blowup_if<Modifier<CtxT>, Context<Mod>>() && Modifier<Mod> && Context<CtxT> && requires(CtxT ctx) {
+          {
+              ctx.template mod<Mod>()
+          } noexcept -> std::same_as<Mod &>;
+      };
 
     template <typename ModConcept, typename...>
     struct mod_of_t {
@@ -169,13 +176,14 @@ export namespace foresight {
         }
     }
 
-    constexpr struct no_init_type{} no_init;
+    constexpr struct no_init_type {
+    } no_init;
 
 
-    template <std::size_t Index, modifier... Funcs>
+    template <std::size_t Index, Modifier... Funcs>
     struct [[nodiscard]] basic_context_view;
 
-    template <modifier... Funcs>
+    template <Modifier... Funcs>
     struct [[nodiscard]] basic_context {
         // static constexpr bool is_nothrow =
         //   (std::is_nothrow_invocable_v<std::remove_cvref_t<Funcs>, basic_context &> && ...);
@@ -263,7 +271,7 @@ export namespace foresight {
         }
 
         /// Unwrap basic_context
-        template <modifier... NMods>
+        template <Modifier... NMods>
         [[nodiscard]] consteval auto operator|(basic_context<NMods...> const &ctx) const noexcept {
             return std::apply(
               [&](auto const &...funcs) constexpr noexcept {
@@ -279,7 +287,7 @@ export namespace foresight {
               mods);
         }
 
-        template <modifier Mod>
+        template <Modifier Mod>
         [[nodiscard]] consteval auto operator|(Mod &&inp_mod) const noexcept {
             return std::apply(
               [&](auto const &...funcs) constexpr noexcept {
@@ -439,7 +447,7 @@ export namespace foresight {
         }
     };
 
-    template <std::size_t Index, modifier... Funcs>
+    template <std::size_t Index, Modifier... Funcs>
     struct [[nodiscard]] basic_context_view {
         using ctx_type                   = basic_context<Funcs...>;
         using type_type                  = event_type::type_type;

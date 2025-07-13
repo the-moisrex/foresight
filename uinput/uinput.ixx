@@ -19,6 +19,7 @@ import foresight.mods.intercept;
 export namespace foresight {
 
     constexpr std::string_view invalid_syspath = "/dev/null";
+    constexpr std::string_view invalid_devnode = "/dev/null";
 
     /**
      * A virtual device
@@ -328,6 +329,6 @@ export namespace foresight {
 
     constexpr basic_uinput_picker<> uinput_picker;
 
-    static_assert(output_modifier<basic_uinput>, "Must be an output modifier.");
-    static_assert(output_modifier<basic_uinput_picker<>>, "Must be an output modifier.");
+    static_assert(OutputModifier<basic_uinput>, "Must be an output modifier.");
+    static_assert(OutputModifier<basic_uinput_picker<>>, "Must be an output modifier.");
 } // namespace foresight

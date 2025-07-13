@@ -66,7 +66,7 @@ export namespace foresight {
         }
     } output;
 
-    static_assert(output_modifier<basic_output>, "Must be a output modifier.");
+    static_assert(OutputModifier<basic_output>, "Must be a output modifier.");
 
     constexpr struct [[nodiscard]] basic_input {
       private:
