@@ -9,6 +9,7 @@ export import foresight.mods.mouse_status;
 export import foresight.mods.event;
 export import foresight.mods.quantifier;
 export import foresight.mods.caps;
+export import foresight.mods.router;
 
 // Mods:
 export import foresight.uinput;

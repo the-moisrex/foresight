@@ -2,6 +2,7 @@
 
 module;
 #include <cassert>
+#include <print>
 #include <fcntl.h>
 #include <filesystem>
 #include <format>
@@ -20,9 +21,9 @@ basic_uinput::basic_uinput(evdev const& evdev_dev, int const file_descriptor) no
 
 basic_uinput::basic_uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept {
     auto const file_descriptor = open(file.c_str(), O_RDWR | O_NONBLOCK);
-    if (file_descriptor < 0) {
+    if (file_descriptor < 0) [[unlikely]] {
         err_code = static_cast<std::errc>(errno);
-        dev = nullptr;
+        dev      = nullptr;
         return;
     }
     set_device(evdev_dev, file_descriptor);
@@ -33,6 +34,8 @@ basic_uinput::basic_uinput(libevdev const* evdev_dev, int const file_descriptor)
 }
 
 void basic_uinput::close() noexcept {
+    std::println("Dev Closed: {}", this->devnode());
+    err_code = std::errc{};
     if (dev != nullptr) {
         libevdev_uinput_destroy(dev);
         dev = nullptr;
@@ -58,10 +61,13 @@ void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descript
     // will open @c /dev/uinput in read/write mode and manage the file descriptor.
     // Otherwise, uinput_fd must be opened by the caller and opened with the
     // appropriate permissions.
-    if (auto const ret = libevdev_uinput_create_from_device(evdev_dev, file_descriptor, &dev); ret != 0) {
+    if (auto const ret = libevdev_uinput_create_from_device(evdev_dev, file_descriptor, &dev); ret != 0)
+      [[unlikely]]
+    {
+        close();
         err_code = static_cast<std::errc>(-ret);
-        dev = nullptr;
     }
+    std::println("Set Uinput: {} | {}", this->syspath(), this->devnode());
 }
 
 void basic_uinput::set_device(evdev const& inp_dev, int const file_descriptor) noexcept {
@@ -69,29 +75,29 @@ void basic_uinput::set_device(evdev const& inp_dev, int const file_descriptor) n
 }
 
 int basic_uinput::native_handle() const noexcept {
-    if (!is_ok()) {
+    if (!is_ok()) [[unlikely]] {
         return -1;
     }
     return libevdev_uinput_get_fd(dev);
 }
 
 std::string_view basic_uinput::syspath() const noexcept {
-    if (!is_ok()) {
+    if (!is_ok()) [[unlikely]] {
         return invalid_syspath;
     }
     return libevdev_uinput_get_syspath(dev);
 }
 
 std::string_view basic_uinput::devnode() const noexcept {
-    if (!is_ok()) {
-        return {};
+    if (!is_ok()) [[unlikely]] {
+        return invalid_devnode;
     }
     return libevdev_uinput_get_devnode(dev);
 }
 
 bool basic_uinput::emit(ev_type const type, code_type const code, value_type const value) noexcept {
     assert(is_ok());
-    if (auto const ret = libevdev_uinput_write_event(dev, type, code, value); ret != 0) {
+    if (auto const ret = libevdev_uinput_write_event(dev, type, code, value); ret != 0) [[unlikely]] {
         err_code = static_cast<std::errc>(-ret);
         return false;
     }

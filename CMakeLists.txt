@@ -64,14 +64,14 @@ add_library(${LIB_NAME}::${LIB_NAME} ALIAS ${LIB_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${LIB_NAME})
 
 set_target_properties(${LIB_NAME} PROPERTIES
-        CXX_STANDARD 23
+        CXX_STANDARD 26
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS ON)
 target_sources(${LIB_NAME}
         PRIVATE
         main/keyboard.cxx
-        evdev/evdev.cxx
-        uinput/uinput.cxx
+        devices/evdev.cxx
+        devices/uinput.cxx
         mods/intercept.cxx
         mods/ignore.cxx
         mods/emitter.cxx
@@ -83,8 +83,9 @@ target_sources(${LIB_NAME}
         main/main.ixx
         main/keyboard.ixx
         main/translate.ixx
-        evdev/evdev.ixx
-        uinput/uinput.ixx
+        devices/evdev.ixx
+        devices/uinput.ixx
+        mods/router.ixx
         mods/event.ixx
         mods/ignore.ixx
         mods/intercept.ixx
@@ -102,9 +103,9 @@ target_sources(${LIB_NAME}
         mods/caps.ixx
         mods/mods.ixx
 )
-target_compile_features(${LIB_NAME} PUBLIC cxx_std_23)
+target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)
 set_target_properties(${LIB_NAME} PROPERTIES
-        CXX_STANDARD 23
+        CXX_STANDARD 26
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS ON)
 target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
@@ -127,7 +128,7 @@ install(TARGETS ${LIB_NAME}
 #############################################################
 
 add_executable(${PROJECT_NAME})
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_26)
 target_sources(${PROJECT_NAME}
         PRIVATE
         main/main.cxx

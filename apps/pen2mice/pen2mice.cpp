@@ -62,13 +62,12 @@ int main(int const argc, char** argv) {
 
     if (args.size() > 0) {
         constinit static auto pipeline =
-          context          // Init Context
-          | intercept      // Intercept the events
-          | main_pipeline  // Main
-          | uinput_picker( // Put them into newly created virtual devices
-              true,
-              caps::pointer + caps::keyboard + caps::pointer_wheels - caps::abs_all, // first
-              caps::tablet - caps::pointer_rel_all                                   // second virtual device
+          context         // Init Context
+          | intercept     // Intercept the events
+          | main_pipeline // Main
+          | router(       // Put them into newly created virtual devices
+              (caps::pointer + caps::keyboard + caps::pointer_wheels - caps::abs_all) >> uinput, // first
+              (caps::tablet - caps::pointer_rel_all) >> uinput // second virtual device
             );
 
 
@@ -84,7 +83,7 @@ int main(int const argc, char** argv) {
         pipeline.mod(intercept).commit();
         pipeline.init();
 
-        for (auto const& dev : pipeline.mod(uinput_picker).devices()) {
+        for (auto const& dev : pipeline.mod(router).uinput_devices()) {
             std::println("Output device: {}", dev.syspath());
         }
 
