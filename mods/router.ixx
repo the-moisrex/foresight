@@ -219,7 +219,7 @@ export namespace foresight {
 
                          // exclude non-RouteTypes
                          | std::views::filter([](auto* route) {
-                               return route == nullptr;
+                               return route != nullptr;
                            })
 
                          // convert to reference
