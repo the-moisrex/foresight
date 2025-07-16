@@ -2,11 +2,11 @@
 
 module;
 #include <cassert>
-#include <print>
 #include <fcntl.h>
 #include <filesystem>
 #include <format>
 #include <libevdev/libevdev-uinput.h>
+#include <ranges>
 #include <system_error>
 module foresight.uinput;
 import foresight.mods.event;
@@ -34,7 +34,7 @@ basic_uinput::basic_uinput(libevdev const* evdev_dev, int const file_descriptor)
 }
 
 void basic_uinput::close() noexcept {
-    std::println("Dev Closed: {}", this->devnode());
+    // std::println("Dev Closed: {}", this->devnode());
     err_code = std::errc{};
     if (dev != nullptr) {
         libevdev_uinput_destroy(dev);
@@ -67,7 +67,7 @@ void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descript
         close();
         err_code = static_cast<std::errc>(-ret);
     }
-    std::println("Set Uinput: {} | {}", this->syspath(), this->devnode());
+    // std::println("Set Uinput: {} | {}", this->syspath(), this->devnode());
 }
 
 void basic_uinput::set_device(evdev const& inp_dev, int const file_descriptor) noexcept {
@@ -115,6 +115,15 @@ bool basic_uinput::emit(event_type const& event) noexcept {
 
 bool basic_uinput::emit_syn() noexcept {
     return emit(EV_SYN, SYN_REPORT, 0);
+}
+
+void basic_uinput::init(dev_caps_view const caps_view) noexcept {
+    auto devs = devices(caps_view) | only_matching() | only_ok() | to_evdev();
+    auto dev_iter = devs.begin();
+    if (dev_iter == devs.end()) [[unlikely]] {
+        return;
+    }
+    set_device(*dev_iter);
 }
 
 foresight::context_action basic_uinput::operator()(event_type const& event) noexcept {

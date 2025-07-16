@@ -121,6 +121,8 @@ export namespace foresight {
         bool emit(event_type const& event) noexcept;
         bool emit_syn() noexcept;
 
+        void init(dev_caps_view caps_view) noexcept;
+
         context_action operator()(event_type const& event) noexcept;
 
       private:

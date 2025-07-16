@@ -27,7 +27,7 @@ namespace foresight {
     export std::string_view to_string(evdev_status) noexcept;
 
 
-    export constexpr std::string_view invalid_device_name = "UNKNOWN";
+    export constexpr std::string_view invalid_device_name     = "UNKNOWN";
     export constexpr std::string_view invalid_device_location = "/dev/null";
 
     /**
@@ -183,7 +183,7 @@ namespace foresight {
         using std::ranges::views::transform;
         return devs | transform([=](evdev&& dev) {
                    auto const percentage = dev.match_caps(inp_caps);
-                   return evdev_rank{percentage, std::move(dev)};
+                   return evdev_rank{.match = percentage, .dev = std::move(dev)};
                });
     }
 
