@@ -81,24 +81,25 @@ void evdev::set_file(int const file) noexcept {
         status = evdev_status::invalid_file_descriptor;
         return;
     }
-    if (dev == nullptr) {
-        dev = libevdev_new();
-        if (dev == nullptr) [[unlikely]] {
-            this->close();
-            status = evdev_status::invalid_device;
-            return;
-        }
+    int const res_rc = libevdev_new_from_fd(file, &dev);
+    if (dev == nullptr) [[unlikely]] {
+        this->close();
+        status = evdev_status::invalid_device;
+        return;
     }
-
-    if (int const res_rc = libevdev_set_fd(dev, file); res_rc < 0) [[unlikely]] {
+    if (res_rc < 0) [[unlikely]] {
+        // res_rc is now -errno
         ::close(file);
         this->close();
         status = evdev_status::failed_setting_file_descriptor;
         return;
-        // throw std::domain_error(
-        //   std::format("Failed to set file for libevdev ({})\n", std::strerror(-res_rc)));
     }
     status = evdev_status::success;
+}
+
+void evdev::init_new() noexcept {
+    this->close();
+    dev = libevdev_new();
 }
 
 int evdev::native_handle() const noexcept {
@@ -112,8 +113,12 @@ libevdev* evdev::device_ptr() const noexcept {
     return dev;
 }
 
+bool evdev::is_fd_initialized() const noexcept {
+    return native_handle() != -1;
+}
+
 void evdev::grab_input(bool const grab) noexcept {
-    if (dev == nullptr) [[unlikely]] {
+    if (!is_fd_initialized()) [[unlikely]] {
         return;
     }
     if (libevdev_grab(dev, grab ? LIBEVDEV_GRAB : LIBEVDEV_UNGRAB) < 0) {
@@ -215,23 +220,20 @@ bool evdev::has_event_type(ev_type const type) const noexcept {
     if (dev == nullptr) [[unlikely]] {
         return false;
     }
-    return libevdev_has_event_type(dev, type);
+    return libevdev_has_event_type(dev, type) == 1;
 }
 
 bool evdev::has_event_code(ev_type const type, code_type const code) const noexcept {
     if (dev == nullptr) [[unlikely]] {
         return false;
     }
-    return libevdev_has_event_code(dev, type, code);
+    return libevdev_has_event_code(dev, type, code) == 1;
 }
 
 bool evdev::has_cap(dev_cap_view const& inp_cap) const noexcept {
-    for (code_type const code : inp_cap.codes) {
-        if (!has_event_code(inp_cap.type, code)) {
-            return false;
-        }
-    }
-    return true;
+    return std::ranges::all_of(inp_cap.codes, [this, type = inp_cap.type](auto const code) {
+        return has_event_code(type, code);
+    });
 }
 
 // returns percentage
@@ -246,12 +248,9 @@ std::uint8_t evdev::match_cap(dev_cap_view const& inp_cap) const noexcept {
 }
 
 bool evdev::has_caps(dev_caps_view const inp_caps) const noexcept {
-    for (auto const& cap_view : inp_caps) {
-        if (!has_cap(cap_view)) {
-            return false;
-        }
-    }
-    return true;
+    return std::ranges::all_of(inp_caps, [this](auto const& inp_cap) noexcept {
+        return has_cap(inp_cap);
+    });
 }
 
 std::uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {

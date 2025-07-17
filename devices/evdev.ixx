@@ -53,9 +53,13 @@ namespace foresight {
         /// change the input event file (for example /dev/input/eventX)
         void set_file(std::filesystem::path const& file) noexcept;
         void set_file(int file) noexcept;
+        void init_new() noexcept;
 
         [[nodiscard]] int       native_handle() const noexcept;
         [[nodiscard]] libevdev* device_ptr() const noexcept;
+
+        /// Check if the device has initialized with a file descriptor
+        [[nodiscard]] bool is_fd_initialized() const noexcept;
 
         /// check if everything is okay
         [[nodiscard]] bool ok() const noexcept {
@@ -63,6 +67,7 @@ namespace foresight {
         }
 
         void grab_input(bool grab = true) noexcept;
+
 
 
         /**

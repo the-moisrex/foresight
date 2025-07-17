@@ -86,8 +86,8 @@ int main(int const argc, char** argv) {
         pipeline.mod(intercept).commit();
         pipeline.init();
 
-        for (auto const& dev : pipeline.mod(router).uinput_devices()) {
-            std::println("Output device: {}", dev.syspath());
+        for (basic_uinput const& dev : pipeline.mod(router).uinput_devices()) {
+            std::println("Output device: {} | {}", dev.devnode(), dev.syspath());
         }
 
         pipeline(no_init);

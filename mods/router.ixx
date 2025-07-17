@@ -3,6 +3,7 @@
 module;
 #include <cassert>
 #include <linux/uinput.h>
+#include <print>
 #include <ranges>
 #include <type_traits>
 export module foresight.mods.router;
@@ -118,7 +119,7 @@ export namespace foresight {
                      if constexpr (requires { route.init(ctx); }) {
                          static_cast<void>(route.init(ctx));
                      } else if constexpr (requires(dev_caps_view caps_view) { route.init(caps_view); }) {
-                         static_cast<void>(route.init(caps.at(I)));
+                         static_cast<void>(route.init(caps[I]));
                      } else if constexpr (requires { route.init(); }) {
                          static_cast<void>(route.init());
                      } else {
@@ -132,7 +133,7 @@ export namespace foresight {
         template <typename... C>
             requires(std::convertible_to<C, dev_caps_view> && ...)
         constexpr void set_caps(C const&... caps_views) noexcept {
-            hashes.fill(0);
+            hashes.fill(-1);
 
             // Declaring which hash belongs to which uinput device
             (
@@ -140,7 +141,9 @@ export namespace foresight {
                   for (auto const [type, codes, addition] : caps_view) {
                       for (auto const code : codes) {
                           auto const index = hash({.type = type, .code = code});
-                          hashes.at(index) = addition ? input_pick : -1;
+                          if (addition) {
+                              hashes.at(index) = input_pick;
+                          }
                       }
                   }
                   ++input_pick;
@@ -212,8 +215,10 @@ export namespace foresight {
 
         constexpr context_action operator()(Context auto& ctx) {
             auto const& event = ctx.event();
-            auto const  index = hashes.at(hash(static_cast<event_code>(event)));
+            auto const hashed_value = hash(static_cast<event_code>(event));
+            auto const  index = hashes.at(hashed_value);
             if (index < 0) [[unlikely]] {
+                std::println("Ignored ({}|{}): {} {} {}", index, hashed_value, event.type_name(), event.code_name(), event.value());
                 return context_action::ignore_event;
             }
             return visit_at(routes, index, [&](auto& route) {
