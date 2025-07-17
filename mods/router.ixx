@@ -51,11 +51,14 @@ export namespace foresight {
 
     template <typename T>
     struct route {
-        using route_type = T;
+        using route_type = std::remove_cvref_t<T>;
 
         dev_caps_view caps;
-        T             mod;
+        route_type    mod;
     };
+
+    template <typename T>
+    route(dev_caps_view, T) -> route<std::remove_cvref_t<T>>;
 
     template <typename T>
     [[nodiscard]] consteval auto operator>>(dev_caps_view lhs, T&& rhs) noexcept {
