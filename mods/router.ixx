@@ -90,12 +90,14 @@ export namespace foresight {
         std::array<std::int8_t, max_hash> hashes{};
 
         // outputs
-        std::tuple<Routes...> routes;
+        std::array<dev_caps_view, sizeof...(Routes)> caps{};
+        std::tuple<Routes...>                        routes;
 
       public:
         template <typename... C>
         consteval explicit basic_router(route<C>&&... inp_routes) noexcept
-          : routes{std::move(inp_routes.mod)...} {
+          : caps{inp_routes.caps...},
+            routes{std::move(inp_routes.mod)...} {
             set_caps(inp_routes.caps...);
         }
 
@@ -106,40 +108,23 @@ export namespace foresight {
         basic_router& operator=(basic_router&&) noexcept      = default;
         ~basic_router() noexcept                              = default;
 
-        // void init() {
-        //     if constexpr (is_dynamic) {
-        //         // todo
-        //     } else {
-        //         // regenerate dev_caps_view:
-        //         std::array<dev_cap_view, EV_MAX> views{};
-        //
-        //         // todo: this includes some invalid types as well
-        //         for (ev_type type = 0; type != EV_MAX; ++type) {
-        //             views.at(type) = dev_cap_view{
-        //               .type = type,
-        //               .codes =
-        //                 std::span<event_type::code_type const>{
-        //                                                        std::next(hashes.begin(), hash({.type =
-        //                                                        type, .code = 0})),
-        //                                                        std::next(hashes.begin(), hash({.type =
-        //                                                        type, .code = KEY_MAX}))},
-        //             };
-        //         }
-        //
-        //         // replace uinputs with the input devices with the highest percentage of matching:
-        //         for (auto& cur_uinput : uinputs) {
-        //             evdev_rank best{};
-        //             for (evdev_rank cur : foresight::devices(views)) {
-        //                 if (cur.match >= best.match) {
-        //                     best = std::move(cur);
-        //                 }
-        //             }
-        //             if (best.match != 0) {
-        //                 cur_uinput = std::move(best);
-        //             }
-        //         }
-        //     }
-        // }
+        template <Context CtxT>
+        constexpr void init(CtxT& ctx) {
+            [&]<std::size_t... I>(std::index_sequence<I...>) constexpr {
+                (([&]<typename Func>(Func& route) constexpr {
+                     if constexpr (requires { route.init(ctx); }) {
+                         static_cast<void>(route.init(ctx));
+                     } else if constexpr (requires(dev_caps_view caps_view) { route.init(caps_view); }) {
+                         static_cast<void>(route.init(caps.at(I)));
+                     } else if constexpr (requires { route.init(); }) {
+                         static_cast<void>(route.init());
+                     } else {
+                         // Intentionally Ignored since most mods don't need init.
+                     }
+                 }(get<I>(routes))),
+                 ...);
+            }(std::make_index_sequence<sizeof...(Routes)>{});
+        }
 
         template <typename... C>
             requires(std::convertible_to<C, dev_caps_view> && ...)
@@ -160,32 +145,20 @@ export namespace foresight {
               ...);
         }
 
-        // template <std::ranges::input_range R>
-        //     requires std::convertible_to<std::ranges::range_value_t<R>, evdev>
-        // void init_uinputs_from(R&& devs) {
-        //     if constexpr (is_dynamic) {
-        //         uinputs.clear();
-        //         if constexpr (std::ranges::sized_range<R>) {
-        //             uinputs.reserve(devs.size());
-        //         }
-        //         for (evdev const& dev : devs) {
-        //             uinputs.emplace_back(dev);
-        //         }
-        //     } else {
-        //         std::uint8_t index = 0;
-        //         for (evdev const& dev : devs) {
-        //             if (index >= uinputs.size()) {
-        //                 throw std::invalid_argument("Too many devices has been given to us.");
-        //             }
-        //             uinputs.at(index++) = basic_uinput{dev};
-        //             std::println("Dev: {} {} {}", dev.device_name(), uinputs.at(index - 1).syspath(),
-        //             uinputs.at(index - 1).devnode());
-        //         }
-        //     }
-        // }
+        template <std::ranges::input_range R>
+            requires std::convertible_to<std::ranges::range_value_t<R>, evdev>
+        void set_uinputs_from(R&& devs) {
+            auto dev_iter = std::ranges::begin(devs);
+            for (auto& udev : uinput_devices()) {
+                if (dev_iter == std::ranges::end(devs)) {
+                    break;
+                }
+                udev.set_device(*dev_iter++);
+            }
+        }
 
         template <typename... C>
-        consteval auto operator()(route<C>&&... inp_rotues) const noexcept {
+        consteval auto operator()(route<C>... inp_rotues) const noexcept {
             return basic_router<std::remove_cvref_t<C>...>{std::move(inp_rotues)...};
         }
 

@@ -61,13 +61,16 @@ int main(int const argc, char** argv) {
       | add_scroll(scroll_button, 5);  // Make middle button, a scroll wheel
 
     if (args.size() > 0) {
+        static constexpr auto first = (caps::pointer + caps::keyboard + caps::pointer_wheels - caps::abs_all) >> uinput; // first
+        static constexpr auto second =
+              (caps::tablet - caps::pointer_rel_all) >> uinput; // second virtual device
         constinit static auto pipeline =
           context         // Init Context
           | intercept     // Intercept the events
           | main_pipeline // Main
           | router(       // Put them into newly created virtual devices
-              (caps::pointer + caps::keyboard + caps::pointer_wheels - caps::abs_all) >> uinput, // first
-              (caps::tablet - caps::pointer_rel_all) >> uinput // second virtual device
+              first,
+              second
             );
 
 

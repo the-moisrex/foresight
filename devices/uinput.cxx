@@ -118,12 +118,24 @@ bool basic_uinput::emit_syn() noexcept {
 }
 
 void basic_uinput::init(dev_caps_view const caps_view) noexcept {
-    auto devs = devices(caps_view) | only_matching() | only_ok() | to_evdev();
-    auto dev_iter = devs.begin();
-    if (dev_iter == devs.end()) [[unlikely]] {
-        return;
+    evdev_rank best{};
+    for (evdev_rank&& cur : devices(caps_view) | only_matching() | only_ok()) {
+        if (cur.match >= best.match) {
+            best = std::move(cur);
+        }
     }
-    set_device(*dev_iter);
+    if (best.match != 100) { // 100%
+        best.dev.apply_caps(caps_view);
+    }
+    std::string new_name;
+    new_name += best.dev.device_name();
+    if (new_name.empty()) {
+        new_name += "Virtual Device";
+    } else {
+        new_name += " (Copied)";
+    }
+    best.dev.device_name(new_name);
+    this->set_device(best.dev);
 }
 
 foresight::context_action basic_uinput::operator()(event_type const& event) noexcept {

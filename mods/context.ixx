@@ -406,7 +406,6 @@ export namespace foresight {
         }
 
         constexpr void init() noexcept(is_nothrow) {
-            using enum context_action;
             std::apply(
               [this](auto &...actions) constexpr noexcept(is_nothrow) {
                   (
