@@ -273,7 +273,7 @@ input_absinfo const* evdev::abs_info(code_type const code) const noexcept {
 }
 
 std::optional<input_event> evdev::next() noexcept {
-    input_event input;
+    input_event input{};
 
     if (dev == nullptr) [[unlikely]] {
         return std::nullopt;

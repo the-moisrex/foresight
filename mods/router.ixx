@@ -3,7 +3,6 @@
 module;
 #include <cassert>
 #include <linux/uinput.h>
-#include <print>
 #include <ranges>
 #include <type_traits>
 export module foresight.mods.router;
@@ -169,8 +168,8 @@ export namespace foresight {
         }
 
         template <typename... C>
-        consteval auto operator()(route<C>... inp_rotues) const noexcept {
-            return basic_router<std::remove_cvref_t<C>...>{std::move(inp_rotues)...};
+        consteval auto operator()(route<C>... inp_routes) const noexcept {
+            return basic_router<std::remove_cvref_t<C>...>{std::move(inp_routes)...};
         }
 
         bool emit(ev_type const type, code_type const code, value_type const value) noexcept {
@@ -223,12 +222,12 @@ export namespace foresight {
             auto const  hashed_value = hash(static_cast<event_code>(event));
             auto const  index        = hashes.at(hashed_value);
             if (index < 0) [[unlikely]] {
-                std::println("Ignored ({}|{}): {} {} {}",
-                             index,
-                             hashed_value,
-                             event.type_name(),
-                             event.code_name(),
-                             event.value());
+                // std::println("Ignored ({}|{}): {} {} {}",
+                //              index,
+                //              hashed_value,
+                //              event.type_name(),
+                //              event.code_name(),
+                //              event.value());
                 return context_action::ignore_event;
             }
             return visit_at(routes, index, [&](auto& route) {

@@ -6,7 +6,6 @@ module;
 #include <filesystem>
 #include <format>
 #include <libevdev/libevdev-uinput.h>
-#include <print>
 #include <ranges>
 #include <system_error>
 module foresight.uinput;
@@ -35,7 +34,6 @@ basic_uinput::basic_uinput(libevdev const* evdev_dev, int const file_descriptor)
 }
 
 void basic_uinput::close() noexcept {
-    std::println("Dev Closed: {}", this->devnode());
     err_code = std::errc{};
     if (dev != nullptr) {
         libevdev_uinput_destroy(dev);
@@ -68,7 +66,7 @@ void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descript
         close();
         err_code = static_cast<std::errc>(-ret);
     }
-    std::println("Set Uinput: {} | {}", this->syspath(), this->devnode());
+    // std::println("Set Uinput: {} | {}", this->syspath(), this->devnode());
 }
 
 void basic_uinput::set_device(evdev const& inp_dev, int const file_descriptor) noexcept {
@@ -137,13 +135,13 @@ void basic_uinput::init(dev_caps_view const caps_view) noexcept {
         best.dev.init_new();
     }
     best.dev.device_name(new_name);
-    std::println("Init uinput {}", new_name);
+    // std::println("Init uinput {}", new_name);
     this->set_device(best.dev);
 }
 
 foresight::context_action basic_uinput::operator()(event_type const& event) noexcept {
     using enum context_action;
-    std::println("{}: {} {} {}", devnode(), event.type_name(), event.code_name(), event.value());
+    // std::println("{}: {} {} {}", devnode(), event.type_name(), event.code_name(), event.value());
     if (!emit(event)) [[unlikely]] {
         return ignore_event;
     }

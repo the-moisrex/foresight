@@ -62,8 +62,8 @@ int main(int const argc, char** argv) {
 
     if (args.size() > 0) {
         static constexpr auto first_caps =
-          caps::pointer + caps::keyboard + caps::pointer_wheels - caps::abs_all;
-        static constexpr auto second_caps = caps::tablet - caps::pointer_rel_all;
+          caps::pointer + caps::keyboard + caps::pointer_wheels - caps::abs_all + caps::misc;
+        static constexpr auto second_caps = caps::tablet - caps::pointer_rel_all + caps::misc;
         constinit static auto pipeline =
           context                   // Init Context
           | intercept               // Intercept the events
@@ -77,9 +77,7 @@ int main(int const argc, char** argv) {
         pipeline.mod(intercept).add_devs(args | to_devices() | only_matching() | only_ok() | to_evdev());
 
         for (evdev& dev : pipeline.mod(intercept).devices()) {
-            if (dev.has_caps(caps::tablet)) {
-                dev.grab_input();
-            }
+            dev.grab_input();
             std::println("Input device: ({}) {}", dev.physical_location(), dev.device_name());
         }
 

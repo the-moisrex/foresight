@@ -34,7 +34,7 @@ namespace foresight {
 
     export template <ev_type Type, code_type Start, code_type End>
     [[nodiscard]] consteval dev_cap<End - Start> caps_range() noexcept {
-        dev_cap<End - Start> res;
+        dev_cap<End - Start> res{};
         res.type = Type;
         for (code_type code = Start; code < End; ++code) {
             auto const index    = static_cast<std::size_t>(code - Start);
@@ -194,6 +194,8 @@ namespace foresight {
 
         // Switches
         constexpr auto switches = caps_range<EV_SW, SW_LID, SW_MAX + 1>();
+
+        constexpr auto misc = caps_range<EV_MSC, MSC_SERIAL, MSC_MAX + 1>();
 
 
         // -- Composite Device Capabilities --
