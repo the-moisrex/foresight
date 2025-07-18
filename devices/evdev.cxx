@@ -5,7 +5,6 @@ module;
 #include <cstring>
 #include <fcntl.h>
 #include <filesystem>
-#include <format>
 #include <libevdev/libevdev.h>
 #include <optional>
 #include <unistd.h>
@@ -50,7 +49,7 @@ evdev::~evdev() noexcept {
 }
 
 void evdev::close() noexcept {
-    if (dev != nullptr) {
+    if (is_fd_initialized()) {
         libevdev_grab(dev, LIBEVDEV_UNGRAB);
     }
     auto const file_descriptor = native_handle();
@@ -70,7 +69,6 @@ void evdev::set_file(std::filesystem::path const& file) noexcept {
         this->close();
         status = evdev_status::failed_to_open_file;
         return;
-        // throw std::invalid_argument(std::format("Failed to open file '{}'", file.string()));
     }
     set_file(new_fd);
 }
