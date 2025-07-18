@@ -64,7 +64,7 @@ void evdev::close() noexcept {
 }
 
 void evdev::set_file(std::filesystem::path const& file) noexcept {
-    auto const new_fd = open(file.c_str(), O_RDWR);
+    auto const new_fd = ::open(file.c_str(), O_RDWR);
     if (new_fd < 0) [[unlikely]] {
         this->close();
         status = evdev_status::failed_to_open_file;
@@ -290,10 +290,9 @@ std::optional<input_event> evdev::next() noexcept {
 }
 
 foresight::evdev_rank foresight::device(dev_caps_view const inp_caps) {
-    auto       devs = foresight::devices(inp_caps);
     evdev_rank res;
 
-    for (evdev_rank&& rank : devs) {
+    for (evdev_rank&& rank : foresight::devices(inp_caps)) {
         if (rank.match > res.match) {
             res = std::move(rank);
         }
