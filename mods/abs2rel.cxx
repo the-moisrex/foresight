@@ -7,6 +7,7 @@ module;
 #include <print>
 #include <utility>
 module foresight.mods.abs2rel;
+import foresight.main.log;
 
 using foresight::basic_abs2rel;
 using foresight::context_action;
@@ -21,11 +22,11 @@ void basic_abs2rel::init(evdev const& dev, double const scale) noexcept {
     x_scale_factor = static_cast<double>(x_absinfo->resolution) / scale;
     y_scale_factor = static_cast<double>(y_absinfo->resolution) / scale;
 
-    std::println("Init abs2rel: ({}, {}) with resolution ({}, {})",
-                 x_scale_factor,
-                 y_scale_factor,
-                 x_absinfo->resolution,
-                 y_absinfo->resolution);
+    log("Init abs2rel: ({}, {}) with resolution ({}, {})",
+        x_scale_factor,
+        y_scale_factor,
+        x_absinfo->resolution,
+        y_absinfo->resolution);
 }
 
 context_action basic_abs2rel::operator()(event_type& event) noexcept {

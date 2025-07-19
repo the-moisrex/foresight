@@ -11,6 +11,7 @@ import foresight.mods.caps;
 import foresight.mods.context;
 import foresight.uinput;
 import foresight.mods.event;
+import foresight.main.log;
 
 namespace foresight {
 
@@ -223,12 +224,12 @@ export namespace foresight {
             auto const  hashed_value = hash(static_cast<event_code>(event));
             auto const  index        = hashes.at(hashed_value);
             if (index < 0) [[unlikely]] {
-                std::println("Ignored ({}|{}): {} {} {}",
-                             index,
-                             hashed_value,
-                             event.type_name(),
-                             event.code_name(),
-                             event.value());
+                log("Ignored ({}|{}): {} {} {}",
+                    index,
+                    hashed_value,
+                    event.type_name(),
+                    event.code_name(),
+                    event.value());
                 return context_action::ignore_event;
             }
             return visit_at(routes, index, [&](auto& route) {

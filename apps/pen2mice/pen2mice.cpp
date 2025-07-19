@@ -4,6 +4,7 @@
 #include <ranges>
 #include <span>
 import foresight.mods;
+import foresight.main.log;
 
 namespace {
     template <typename T>
@@ -78,14 +79,14 @@ int main(int const argc, char** argv) {
 
         for (evdev& dev : pipeline.mod(intercept).devices()) {
             dev.grab_input();
-            std::println("Input device: ({}) {}", dev.physical_location(), dev.device_name());
+            log("Input device: ({}) {}", dev.physical_location(), dev.device_name());
         }
 
         pipeline.mod(intercept).commit();
         pipeline.init();
 
         for (basic_uinput const& dev : pipeline.mod(router).uinput_devices()) {
-            std::println("Output device: {} | {}", dev.devnode(), dev.syspath());
+            log("Output device: {} | {}", dev.devnode(), dev.syspath());
         }
 
         pipeline(no_init);

@@ -4,11 +4,11 @@ module;
 #include <algorithm>
 #include <cstdio>
 #include <linux/input.h>
-#include <print>
 #include <ranges>
 #include <thread>
 module foresight.main.keyboard;
 import foresight.main.translate;
+import foresight.main.log;
 
 using foresight::keyboard;
 
@@ -49,7 +49,7 @@ void keyboard::put(std::string_view const text) {
 void keyboard::put(input_event ev) {
     ev.value = KEY_PRESS;
     if (auto const press_res = std::fwrite(&ev, sizeof(ev), 1, stdout); press_res == 0) {
-        std::println(stderr, "Failed to press {:d}", ev.code);
+        log("Failed to press {:d}", ev.code);
         return;
     }
 
@@ -90,8 +90,7 @@ namespace {
         static std::size_t tries = 1;
         ++tries;
         if (tries == foresight::give_up_limit + 1) {
-            std::println(
-              stderr,
+            foresight::log(
               "Tried {0:d} times and failed everytime to start the loop (or in the loop); giving up!",
               tries);
             return false;
@@ -109,19 +108,17 @@ int keyboard::loop() noexcept {
             }
 
             if (auto const out_res = std::fwrite(&event, sizeof(event), 1, stdout); out_res == 0) {
-                std::println(stderr, "Can't send {}.", event.code);
+                log("Can't send {}.", event.code);
             }
         }
     } catch (std::exception const &ex) {
-        std::println(stderr, "Error: \"{0:s}\" at the main loop.", ex.what());
+        log("Error: \"{0:s}\" at the main loop.", ex.what());
         if (handle_errors()) {
             return loop();
         }
         return 1;
     } catch (...) {
-        std::println(
-          stderr,
-          "Unknown error occurred. Try reporting this at https://github.com/the-moisrex/foresight.");
+        log("Unknown error occurred. Try reporting this at https://github.com/the-moisrex/foresight.");
         if (handle_errors()) {
             return loop();
         }

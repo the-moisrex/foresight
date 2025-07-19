@@ -134,7 +134,7 @@ namespace foresight {
 
         /// May return nullptr
         [[nodiscard]] input_absinfo const* abs_info(code_type code) const noexcept;
-        [[nodiscard]] bool has_abs_info(code_type code = ABS_X) const noexcept;
+        [[nodiscard]] bool                 has_abs_info(code_type code = ABS_X) const noexcept;
 
         /**
          * Get a new input_event form the input device
@@ -262,7 +262,7 @@ namespace foresight {
                | std::views::join;
     }
 
-    export [[nodiscard]] auto to_devices() noexcept {
+    export [[nodiscard]] consteval auto to_devices() noexcept {
         // convert each piece into devices
         return std::views::transform([](std::string_view const query) {
                    return devices(query);
@@ -272,7 +272,7 @@ namespace foresight {
                | std::views::join;
     }
 
-    export [[nodiscard]] auto to_evdev() {
+    export [[nodiscard]] consteval auto to_evdev() {
         return std::views::transform([](evdev_rank&& ranker) {
             return std::move(ranker.dev);
         });

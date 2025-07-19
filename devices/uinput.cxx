@@ -11,6 +11,7 @@ module;
 #include <system_error>
 module foresight.uinput;
 import foresight.mods.event;
+import foresight.main.log;
 
 using foresight::basic_uinput;
 
@@ -67,7 +68,7 @@ void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descript
         close();
         err_code = static_cast<std::errc>(-ret);
     }
-    // std::println("Set Uinput: {} | {}", this->syspath(), this->devnode());
+    // log("Set Uinput: {} | {}", this->syspath(), this->devnode());
 }
 
 void basic_uinput::set_device(evdev const& inp_dev, int const file_descriptor) noexcept {
@@ -136,13 +137,13 @@ void basic_uinput::init(dev_caps_view const caps_view) noexcept {
         best.dev.init_new();
     }
     best.dev.device_name(new_name);
-    std::println("Init uinput {} {}", new_name, caps_view.size());
+    log("Init uinput {} {}", new_name, caps_view.size());
     this->set_device(best.dev);
 }
 
 foresight::context_action basic_uinput::operator()(event_type const& event) noexcept {
     using enum context_action;
-    // std::println("{}: {} {} {}", devnode(), event.type_name(), event.code_name(), event.value());
+    // log("{}: {} {} {}", devnode(), event.type_name(), event.code_name(), event.value());
     if (!emit(event)) [[unlikely]] {
         return ignore_event;
     }
