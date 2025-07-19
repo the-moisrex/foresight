@@ -2,9 +2,9 @@
 
 module;
 #include <cmath>
-#include <cstdint>
 #include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
+#include <print>
 #include <utility>
 module foresight.mods.abs2rel;
 
@@ -20,6 +20,12 @@ void basic_abs2rel::init(evdev const& dev, double const scale) noexcept {
     }
     x_scale_factor = static_cast<double>(x_absinfo->resolution) / scale;
     y_scale_factor = static_cast<double>(y_absinfo->resolution) / scale;
+
+    std::println("Init abs2rel: ({}, {}) with resolution ({}, {})",
+                 x_scale_factor,
+                 y_scale_factor,
+                 x_absinfo->resolution,
+                 y_absinfo->resolution);
 }
 
 context_action basic_abs2rel::operator()(event_type& event) noexcept {

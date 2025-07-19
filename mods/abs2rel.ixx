@@ -26,7 +26,7 @@ export namespace foresight {
         code_type   active_tool  = BTN_TOOL_PEN;
         bool        is_left_down = false;
 
-        value_type pressure_threshold = 300;
+        value_type pressure_threshold = 100;
 
         bool inherit = false;
 
@@ -46,7 +46,7 @@ export namespace foresight {
             return res;
         }
 
-        void init(evdev const& dev, double scale = 18.0) noexcept;
+        void init(evdev const& dev, double scale = 20.0) noexcept;
 
         /// Auto Initialize
         template <Context CtxT>
@@ -56,7 +56,7 @@ export namespace foresight {
                 return;
             }
             for (evdev const& dev : ctx.mod(intercept).devices()) {
-                if (dev.has_cap(view(caps::tablet_abs_axes))) {
+                if (dev.has_abs_info()) {
                     init(dev);
                     break;
                 }

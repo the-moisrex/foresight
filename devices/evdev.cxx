@@ -272,6 +272,10 @@ input_absinfo const* evdev::abs_info(code_type const code) const noexcept {
     return libevdev_get_abs_info(dev, code);
 }
 
+bool evdev::has_abs_info(code_type const code) const noexcept {
+    return this->abs_info(code) != nullptr;
+}
+
 std::optional<input_event> evdev::next() noexcept {
     input_event input{};
 

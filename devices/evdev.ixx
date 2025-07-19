@@ -134,6 +134,7 @@ namespace foresight {
 
         /// May return nullptr
         [[nodiscard]] input_absinfo const* abs_info(code_type code) const noexcept;
+        [[nodiscard]] bool has_abs_info(code_type code = ABS_X) const noexcept;
 
         /**
          * Get a new input_event form the input device

@@ -6,6 +6,7 @@ module;
 #include <filesystem>
 #include <format>
 #include <libevdev/libevdev-uinput.h>
+#include <print>
 #include <ranges>
 #include <system_error>
 module foresight.uinput;
@@ -135,7 +136,7 @@ void basic_uinput::init(dev_caps_view const caps_view) noexcept {
         best.dev.init_new();
     }
     best.dev.device_name(new_name);
-    // std::println("Init uinput {}", new_name);
+    std::println("Init uinput {} {}", new_name, caps_view.size());
     this->set_device(best.dev);
 }
 

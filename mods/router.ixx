@@ -3,6 +3,7 @@
 module;
 #include <cassert>
 #include <linux/uinput.h>
+#include <print>
 #include <ranges>
 #include <type_traits>
 export module foresight.mods.router;
@@ -145,7 +146,7 @@ export namespace foresight {
                   for (auto const [type, codes, addition] : caps_view) {
                       for (auto const code : codes) {
                           auto const index = hash({.type = type, .code = code});
-                          if (addition) {
+                          if (addition && hashes.at(index) == -1) {
                               hashes.at(index) = input_pick;
                           }
                       }
@@ -222,12 +223,12 @@ export namespace foresight {
             auto const  hashed_value = hash(static_cast<event_code>(event));
             auto const  index        = hashes.at(hashed_value);
             if (index < 0) [[unlikely]] {
-                // std::println("Ignored ({}|{}): {} {} {}",
-                //              index,
-                //              hashed_value,
-                //              event.type_name(),
-                //              event.code_name(),
-                //              event.value());
+                std::println("Ignored ({}|{}): {} {} {}",
+                             index,
+                             hashed_value,
+                             event.type_name(),
+                             event.code_name(),
+                             event.value());
                 return context_action::ignore_event;
             }
             return visit_at(routes, index, [&](auto& route) {

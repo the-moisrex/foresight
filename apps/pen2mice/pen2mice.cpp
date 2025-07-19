@@ -63,7 +63,7 @@ int main(int const argc, char** argv) {
     if (args.size() > 0) {
         static constexpr auto first_caps =
           caps::pointer + caps::keyboard + caps::pointer_wheels - caps::abs_all + caps::misc;
-        static constexpr auto second_caps = caps::tablet - caps::pointer_rel_all + caps::misc;
+        static constexpr auto second_caps = caps::tablet - caps::pointer_rel_all;
         constinit static auto pipeline =
           context                   // Init Context
           | intercept               // Intercept the events
