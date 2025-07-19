@@ -185,7 +185,8 @@ namespace foresight {
         evdev        dev;
     };
 
-    export [[nodiscard]] auto match_devices(dev_caps_view const inp_caps, std::ranges::range auto&& devs) {
+    export [[nodiscard]] constexpr auto match_devices(dev_caps_view const       inp_caps,
+                                                      std::ranges::range auto&& devs) {
         using std::ranges::views::transform;
         return devs | transform([=](evdev&& dev) {
                    auto const percentage = dev.match_caps(inp_caps);
@@ -208,7 +209,7 @@ namespace foresight {
     /// Example: tablet
     export [[nodiscard]] evdev_rank device(std::string_view);
 
-    export [[nodiscard]] auto devices(std::string_view const query_all) {
+    export [[nodiscard]] constexpr auto devices(std::string_view const query_all) {
         using std::views::filter;
         using std::views::split;
         using std::views::transform;
@@ -232,13 +233,13 @@ namespace foresight {
                  });
     }
 
-    export [[nodiscard]] constexpr auto only_matching(std::uint8_t const percentage = 80) {
+    export [[nodiscard]] consteval auto only_matching(std::uint8_t const percentage = 80) {
         return std::views::filter([=](evdev_rank const& ranker) {
             return ranker.match >= percentage;
         });
     }
 
-    export [[nodiscard]] constexpr auto only_ok() {
+    export [[nodiscard]] consteval auto only_ok() {
         return std::views::filter([=]<typename R>(R const& obj) {
             if constexpr (std::same_as<R, evdev_rank>) {
                 return obj.dev.ok();
@@ -250,7 +251,7 @@ namespace foresight {
         });
     }
 
-    export [[nodiscard]] auto devices(std::span<std::string_view const> const query_all) {
+    export [[nodiscard]] constexpr auto devices(std::span<std::string_view const> const query_all) {
         return query_all
 
                // convert each piece into devices

@@ -137,7 +137,7 @@ void basic_uinput::init(dev_caps_view const caps_view) noexcept {
         best.dev.init_new();
     }
     best.dev.device_name(new_name);
-    log("Init uinput {} {}", new_name, caps_view.size());
+    log("Init uinput: {}", new_name);
     this->set_device(best.dev);
 }
 
