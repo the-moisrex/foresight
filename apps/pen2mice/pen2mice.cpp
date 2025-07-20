@@ -43,27 +43,28 @@ int main(int const argc, char** argv) {
     };
 
     static constexpr auto main_pipeline =
-      context                      // Init Context
-      | led_status                 // store LED status
-      | on(                        // Switch
-          led_off(LED_CAPSL),      // Condition
-          abs2rel(true),           // Convert Pen events into Mouse events if any
-          ignore_abs,              // Ignore absolute movements
-          ignore_big_jumps,        // Ignore big mouse jumps
-          ignore_fast_left_clicks, // Ignore fast left clicks
-          ignore_init_moves        // Fix pen small moves
-          )                        //
-      | keys_status                // Save key presses
-      | mice_quantifier            // Quantify the mouse movements
-      | swipe_detector             // Detects swipes
+      context                       // Init Context
+      | led_status                  // store LED status
+      | on(led_off(LED_CAPSL),      // Condition
+           abs2rel(true),           // Convert Pen events into Mouse events if any
+           ignore_abs,              // Ignore absolute movements
+           ignore_big_jumps,        // Ignore big mouse jumps
+           ignore_fast_left_clicks, // Ignore fast left clicks
+           ignore_init_moves        // Fix pen small moves
+           )                        //
+      | keys_status                 // Save key presses
+      | mice_quantifier             // Quantify the mouse movements
+      | swipe_detector              // Detects swipes
       | on(pressed(BTN_RIGHT), context | ignore_big_jumps(10) | ignore_start_moves) // fix right click jumps
       | on(op & pressed{BTN_MIDDLE} & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB))) //
-      | on(mid_left & swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT)))  //
-      | on(mid_left & swipe_left, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)))    //
-      | on(mid_left & swipe_up, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)))        //
-      | on(mid_left & swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)))    //
-      | on(mid_left, ignore_mid_lefts) // ignore mouse movements
-      | add_scroll(scroll_button, 5);  // Make middle button, a scroll wheel
+      | on(mid_left,
+           on(swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT))),
+           on(swipe_left, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT))),
+           on(swipe_up, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP))),
+           on(swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN))),
+           ignore_mid_lefts           // ignore mouse movements
+           )                          //
+      | add_scroll(scroll_button, 5); // Make middle button, a scroll wheel
 
     if (args.size() > 0) {
         static constexpr auto first_caps =

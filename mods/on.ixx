@@ -69,16 +69,16 @@ namespace foresight {
               std::forward<NFuncs>(n_funcs)...};
         }
 
-        template <typename EvTempl, typename InpFunc, typename... Args>
-            requires(sizeof...(Args) >= 1 && std::invocable<InpFunc, Args...>)
-        consteval auto operator()(EvTempl templ, InpFunc inp_func, Args&&... args) const noexcept {
-            auto const cmd = [inp_func, args...]() constexpr noexcept {
-                static_assert(std::is_nothrow_invocable_v<InpFunc, Args...>, "Make it nothrow");
-                return std::invoke(inp_func, std::forward<Args>(args)...);
-            };
-            using cmd_type = std::remove_cvref_t<decltype(cmd)>;
-            return basic_on<std::remove_cvref_t<EvTempl>, cmd_type>{templ, cmd};
-        }
+        // template <typename EvTempl, typename InpFunc, typename... Args>
+        //     requires(sizeof...(Args) >= 1 && std::invocable<InpFunc, Args...>)
+        // consteval auto operator()(EvTempl templ, InpFunc inp_func, Args&&... args) const noexcept {
+        //     auto const cmd = [inp_func, args...]() constexpr noexcept {
+        //         static_assert(std::is_nothrow_invocable_v<InpFunc, Args...>, "Make it nothrow");
+        //         return std::invoke(inp_func, std::forward<Args>(args)...);
+        //     };
+        //     using cmd_type = std::remove_cvref_t<decltype(cmd)>;
+        //     return basic_on<std::remove_cvref_t<EvTempl>, cmd_type>{templ, cmd};
+        // }
 
         constexpr void init(Context auto& ctx) {
             invoke_init(ctx, funcs);
