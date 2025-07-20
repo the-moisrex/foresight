@@ -176,8 +176,84 @@ export namespace foresight {
         }
     }
 
+    /// Invoke Condition
+    template <typename CondT, typename CtxT>
+    constexpr bool invoke_cond(CondT &cond, CtxT &ctx) {
+        using enum context_action;
+        if constexpr (std::invocable<CondT, CtxT &>) {
+            using result = std::invoke_result_t<CondT, CtxT &>;
+            if constexpr (std::same_as<result, bool>) {
+                return cond(ctx);
+            } else if constexpr (std::same_as<result, context_action>) {
+                return cond(ctx) == next;
+            } else {
+                cond(ctx);
+                return true;
+            }
+        } else if constexpr (std::invocable<CondT, event_type &>) {
+            auto &event  = ctx.event();
+            using result = std::invoke_result_t<CondT, event_type &>;
+            if constexpr (std::same_as<result, bool>) {
+                return cond(event);
+            } else if constexpr (std::same_as<result, context_action>) {
+                return cond(event) == next;
+            } else {
+                cond(event);
+                return true;
+            }
+        } else if constexpr (std::invocable<CondT>) {
+            using result = std::invoke_result_t<CondT>;
+            if constexpr (std::same_as<result, bool>) {
+                return cond();
+            } else if constexpr (std::same_as<result, context_action>) {
+                return cond() == next;
+            } else {
+                cond();
+                return true;
+            }
+        } else {
+            static_assert(false, "We're not able to run this function.");
+        }
+    }
+
     constexpr struct no_init_type {
     } no_init;
+
+    /// Run the functions and give them the specified context
+    template <Context CtxT, typename... Funcs>
+    constexpr context_action invoke_mods(CtxT &ctx, std::tuple<Funcs...> &funcs) noexcept(CtxT::is_nothrow) {
+        using enum context_action;
+        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
+            auto action = next;
+            std::ignore = (([&]<std::size_t K>() constexpr noexcept(CtxT::is_nothrow) {
+                               auto current_fork_view = ctx.template fork_view<K>();
+                               action                 = invoke_mod(get<K>(funcs), current_fork_view);
+                               return action == next;
+                           }).template operator()<I>() &&
+                           ...);
+            return action;
+        }(std::make_index_sequence<sizeof...(Funcs)>{});
+    }
+
+    /// Invoke .init() functions
+    template <Context CtxT, typename... Funcs>
+    constexpr void invoke_init(CtxT &ctx, std::tuple<Funcs...> &mods) noexcept(CtxT::is_nothrow) {
+        std::apply(
+          [&](auto &...actions) constexpr noexcept(CtxT::is_nothrow) {
+              (
+                [&]<typename Func>(Func &action) constexpr noexcept(CtxT::is_nothrow) {
+                    if constexpr (requires { action.init(ctx); }) {
+                        static_cast<void>(action.init(ctx));
+                    } else if constexpr (requires { action.init(); }) {
+                        static_cast<void>(action.init());
+                    } else {
+                        // Intentionally Ignored since most mods don't need init.
+                    }
+                }(actions),
+                ...);
+          },
+          mods);
+    }
 
 
     template <std::size_t Index, Modifier... Funcs>
@@ -391,36 +467,11 @@ export namespace foresight {
 
         // Re-Emit the context
         constexpr context_action reemit_all() noexcept(is_nothrow) {
-            using enum context_action;
-            return [this]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(is_nothrow) {
-                auto action = next;
-                std::ignore = (([this, &action]<std::size_t K>() constexpr noexcept(is_nothrow) {
-                                   auto current_fork_view = fork_view<K>();
-                                   action                 = invoke_mod(mod<K>(), current_fork_view);
-                                   return action == next;
-                               }).template operator()<I>() &&
-                               ...);
-                // std::ignore = (((action = invoke_mod(mod<I>(), fork_view<I>())), action == next) && ...);
-                return action;
-            }(std::make_index_sequence<sizeof...(Funcs)>{});
+            return invoke_mods(*this, mods);
         }
 
         constexpr void init() noexcept(is_nothrow) {
-            std::apply(
-              [this](auto &...actions) constexpr noexcept(is_nothrow) {
-                  (
-                    [this]<typename Func>(Func &action) constexpr noexcept(is_nothrow) {
-                        if constexpr (requires { action.init(*this); }) {
-                            static_cast<void>(action.init(*this));
-                        } else if constexpr (requires { action.init(); }) {
-                            static_cast<void>(action.init());
-                        } else {
-                            // Intentionally Ignored since most mods don't need init.
-                        }
-                    }(actions),
-                    ...);
-              },
-              mods);
+            invoke_init(*this, mods);
         }
 
         constexpr void operator()() noexcept(is_nothrow) {
@@ -536,6 +587,13 @@ export namespace foresight {
         template <std::size_t NIndex = Index>
         [[nodiscard]] constexpr auto const &mod() const noexcept {
             return ctx->template mod<NIndex>();
+        }
+
+        // Re-Forking
+        template <std::size_t NIndex>
+        constexpr auto fork_view() noexcept {
+            static_assert(NIndex <= sizeof...(Funcs) - 1, "Index out of range.");
+            return basic_context_view<NIndex + 1U, Funcs...>{*ctx};
         }
     };
 

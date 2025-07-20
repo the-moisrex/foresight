@@ -30,48 +30,54 @@ export namespace foresight {
         constexpr basic_keys_status& operator=(basic_keys_status&&) noexcept = default;
         constexpr ~basic_keys_status() noexcept                              = default;
 
-        constexpr void process(event_type const& event) noexcept {
-            if (event.type() != EV_KEY) {
-                return;
-            }
-            if (event.code() >= KEY_MAX) [[unlikely]] {
-                // Just in case
-                return;
-            }
-            this->btns.at(event.code()) = event.value();
-        }
-
-        [[nodiscard]] constexpr bool is_pressed(std::span<code_type const> const key_codes) const noexcept {
-            for (auto const code : key_codes) {
-                if (code >= KEY_MAX || this->btns.at(code) == 0) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        [[nodiscard]] constexpr bool is_released(std::span<code_type const> const key_codes) const noexcept {
-            for (auto const code : key_codes) {
-                if (code >= KEY_MAX || this->btns.at(code) != 0) {
-                    return false;
-                }
-            }
-            return true;
-        }
+        [[nodiscard]] bool is_pressed(std::span<code_type const> key_codes) const noexcept;
+        [[nodiscard]] bool is_released(std::span<code_type const> key_codes) const noexcept;
 
         template <std::integral... T>
-        [[nodiscard]] constexpr bool is_pressed(T const... key_codes) const noexcept {
+        [[nodiscard]] bool is_pressed(T const... key_codes) const noexcept {
             return ((key_codes < KEY_MAX && btns.at(key_codes) != 0) && ...);
         }
 
         template <std::integral... T>
-        [[nodiscard]] constexpr bool is_released(T const... key_codes) const noexcept {
+        [[nodiscard]] bool is_released(T const... key_codes) const noexcept {
             return ((key_codes < KEY_MAX && btns.at(key_codes) == 0) && ...);
         }
 
-        constexpr void operator()(Context auto& ctx) noexcept {
-            process(ctx.event());
-        }
+        void operator()(event_type const& event) noexcept;
     } keys_status;
 
+    /**
+     * Keeps the track of LEDs
+     */
+    constexpr struct [[nodiscard]] basic_led_status {
+        using code_type = event_type::code_type;
+
+      private:
+        // this is not wasteful, it's only 11 of them:
+        std::array<event_type::value_type, LED_MAX> leds{};
+
+      public:
+        // the copy ctor/assignment-op are marked consteval to stop from copying at run time.
+        constexpr basic_led_status() noexcept                               = default;
+        consteval basic_led_status(basic_led_status const&)                = default;
+        constexpr basic_led_status(basic_led_status&&) noexcept            = default;
+        consteval basic_led_status& operator=(basic_led_status const&)     = default;
+        constexpr basic_led_status& operator=(basic_led_status&&) noexcept = default;
+        constexpr ~basic_led_status() noexcept                              = default;
+
+        [[nodiscard]] bool is_on(std::span<code_type const> key_codes) const noexcept;
+        [[nodiscard]] bool is_off(std::span<code_type const> key_codes) const noexcept;
+
+        template <std::integral... T>
+        [[nodiscard]] bool is_on(T const... key_codes) const noexcept {
+            return ((key_codes < LED_MAX && leds.at(key_codes) != 0) && ...);
+        }
+
+        template <std::integral... T>
+        [[nodiscard]] bool is_off(T const... key_codes) const noexcept {
+            return ((key_codes < LED_MAX && leds.at(key_codes) == 0) && ...);
+        }
+
+        void operator()(event_type const& event) noexcept;
+    } led_status;
 } // namespace foresight

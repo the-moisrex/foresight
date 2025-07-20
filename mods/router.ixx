@@ -238,7 +238,8 @@ export namespace foresight {
         }
     };
 
-    constexpr basic_router<> router;
+
+    constexpr basic_router<>      router;
 
     static_assert(OutputModifier<basic_router<>>, "Must be an output modifier.");
 

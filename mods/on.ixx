@@ -29,51 +29,67 @@ namespace foresight {
         }
     } noop;
 
-    export template <typename CondFunc = basic_noop, typename Func = basic_noop>
+    export constexpr struct [[nodiscard]] basic_always_enable {
+        constexpr bool operator()() const noexcept {
+            return true;
+        }
+    } always_enable;
+
+    export constexpr struct [[nodiscard]] basic_always_disable {
+        constexpr bool operator()() const noexcept {
+            return true;
+        }
+    } always_disable;
+
+    export template <typename CondT = basic_always_enable, typename... Funcs>
     struct [[nodiscard]] basic_on {
       private:
-        [[no_unique_address]] CondFunc cond;
-        [[no_unique_address]] Func     func; // action to be called
-
-        template <typename, typename>
-        friend struct basic_on;
+        [[no_unique_address]] CondT                cond;
+        [[no_unique_address]] std::tuple<Funcs...> funcs;
 
       public:
-        template <typename InpCond, typename InpFunc>
-            requires(std::convertible_to<InpCond, CondFunc> && std::convertible_to<InpFunc, Func>)
-        constexpr explicit basic_on(InpCond&& inp_cond, InpFunc&& inp_func) noexcept
+        constexpr basic_on() noexcept = default;
+
+        template <typename InpCond, typename... InpFunc>
+            requires(std::convertible_to<InpCond, CondT>)
+        explicit constexpr basic_on(InpCond&& inp_cond, InpFunc&&... inp_funcs) noexcept
           : cond{std::forward<InpCond>(inp_cond)},
-            func{std::forward<InpFunc>(inp_func)} {}
+            funcs{std::forward<InpFunc>(inp_funcs)...} {}
 
-        constexpr basic_on() noexcept(std::is_nothrow_constructible_v<Func>) = default;
-        constexpr basic_on(basic_on&&) noexcept                              = default;
-        consteval basic_on(basic_on const&) noexcept                         = default;
-        constexpr basic_on& operator=(basic_on&&) noexcept                   = default;
-        consteval basic_on& operator=(basic_on const&) noexcept              = default;
-        constexpr ~basic_on()                                                = default;
+        consteval basic_on(basic_on const&)                = default;
+        consteval basic_on& operator=(basic_on const&)     = default;
+        constexpr basic_on(basic_on&&) noexcept            = default;
+        constexpr basic_on& operator=(basic_on&&) noexcept = default;
+        constexpr ~basic_on() noexcept                     = default;
 
-        template <typename EvTempl, typename InpFunc>
-        consteval auto operator()(EvTempl templ, InpFunc inp_func) const noexcept {
-            return basic_on<std::remove_cvref_t<EvTempl>, std::remove_cvref_t<InpFunc>>{templ, inp_func};
+        template <typename NCondT, typename... NFuncs>
+        consteval auto operator()(NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
+            return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{
+              std::forward<NCondT>(n_cond),
+              std::forward<NFuncs>(n_funcs)...};
         }
 
         template <typename EvTempl, typename InpFunc, typename... Args>
-            requires(sizeof...(Args) >= 1)
+            requires(sizeof...(Args) >= 1 && std::invocable<InpFunc, Args...>)
         consteval auto operator()(EvTempl templ, InpFunc inp_func, Args&&... args) const noexcept {
             auto const cmd = [inp_func, args...]() constexpr noexcept {
                 static_assert(std::is_nothrow_invocable_v<InpFunc, Args...>, "Make it nothrow");
-                std::invoke(inp_func, std::forward<Args>(args)...);
+                return std::invoke(inp_func, std::forward<Args>(args)...);
             };
             using cmd_type = std::remove_cvref_t<decltype(cmd)>;
             return basic_on<std::remove_cvref_t<EvTempl>, cmd_type>{templ, cmd};
         }
 
-        template <Context CtxT>
-        constexpr context_action operator()(CtxT& ctx) noexcept {
-            if (cond(ctx)) {
-                return invoke_mod(func, ctx);
+        constexpr void init(Context auto& ctx) {
+            invoke_init(ctx, funcs);
+        }
+
+        constexpr context_action operator()(Context auto& ctx) noexcept {
+            using enum context_action;
+            if (!invoke_cond(cond, ctx)) {
+                return next;
             }
-            return context_action::next;
+            return invoke_mods(ctx, funcs);
         }
     };
 
@@ -103,8 +119,27 @@ namespace foresight {
         template <Context CtxT>
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
             static_assert(has_mod<basic_keys_status, CtxT>, "We need keys_status to be in the pipeline.");
-            auto const& keys = ctx.mod(keys_status);
-            return keys.is_pressed(code);
+            return ctx.mod(keys_status).is_pressed(code);
+        }
+    };
+
+    export struct [[nodiscard]] led_on {
+        code_type code = LED_MAX;
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
+            static_assert(has_mod<basic_led_status, CtxT>, "We need keys_status to be in the pipeline.");
+            return ctx.mod(led_status).is_on(code);
+        }
+    };
+
+    export struct [[nodiscard]] led_off {
+        code_type code = LED_MAX;
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
+            static_assert(has_mod<basic_led_status, CtxT>, "We need keys_status to be in the pipeline.");
+            return ctx.mod(led_status).is_off(code);
         }
     };
 
@@ -148,7 +183,7 @@ namespace foresight {
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
             return std::apply(
               [&ctx](auto&... cond) constexpr noexcept {
-                  return ((invoke_mod(cond, ctx) == context_action::next) && ... && true);
+                  return (invoke_cond(cond, ctx) && ... && true);
               },
               funcs);
         }
@@ -191,7 +226,7 @@ namespace foresight {
             static_assert((std::is_nothrow_invocable_r_v<bool, Funcs, CtxT&> && ...), "All must be nothrow");
             return std::apply(
               [&ctx](auto&... cond) constexpr noexcept {
-                  return (cond(ctx) || ... || false);
+                  return (invoke_cond(cond, ctx) || ... || false);
               },
               funcs);
         }
@@ -352,6 +387,8 @@ namespace foresight {
             return ++cur_count >= count;
         }
     };
+
+    constexpr basic_on<> enable_only;
 
     /// usage: op & pressed{...} | ...
     export constexpr and_op<> op;
