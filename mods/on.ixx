@@ -56,6 +56,12 @@ namespace foresight {
           : cond{std::forward<InpCond>(inp_cond)},
             funcs{std::forward<InpFunc>(inp_funcs)...} {}
 
+        template <typename InpCond>
+            requires(std::convertible_to<InpCond, CondT>)
+        explicit constexpr basic_on(InpCond&& inp_cond, std::tuple<Funcs...> const& inp_funcs) noexcept
+          : cond{std::forward<InpCond>(inp_cond)},
+            funcs{inp_funcs} {}
+
         consteval basic_on(basic_on const&)                = default;
         consteval basic_on& operator=(basic_on const&)     = default;
         constexpr basic_on(basic_on&&) noexcept            = default;
@@ -67,6 +73,17 @@ namespace foresight {
             return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{
               std::forward<NCondT>(n_cond),
               std::forward<NFuncs>(n_funcs)...};
+        }
+
+        template <typename NCondT, Context CtxT>
+        consteval auto operator()(NCondT&& n_cond, CtxT&& ctx) const noexcept {
+            return std::apply(
+              [&]<typename... ModT>(ModT&... mods) noexcept(CtxT::is_nothrow) {
+                  return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<ModT>...>{
+                    std::forward<NCondT>(n_cond),
+                    mods...};
+              },
+              ctx.get_mods());
         }
 
         // template <typename EvTempl, typename InpFunc, typename... Args>

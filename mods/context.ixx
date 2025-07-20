@@ -46,7 +46,12 @@ namespace foresight {
 
 export namespace foresight {
     template <typename T>
-    concept Context = requires(T ctx) { ctx.event(); };
+    concept Context = requires(T ctx) {
+        typename T::mods_type;
+        T::is_nothrow;
+        ctx.event();
+        ctx.get_mods();
+    };
 
     template <typename T>
     concept Modifier = std::copyable<std::remove_cvref_t<T>>;
@@ -263,11 +268,13 @@ export namespace foresight {
     struct [[nodiscard]] basic_context {
         // static constexpr bool is_nothrow =
         //   (std::is_nothrow_invocable_v<std::remove_cvref_t<Funcs>, basic_context &> && ...);
+
+        using mods_type                  = std::tuple<std::remove_cvref_t<Funcs>...>;
         static constexpr bool is_nothrow = true;
 
       private:
-        event_type                                ev;
-        std::tuple<std::remove_cvref_t<Funcs>...> mods;
+        event_type ev;
+        mods_type  mods;
 
       public:
         constexpr basic_context() noexcept = default;
@@ -499,10 +506,12 @@ export namespace foresight {
 
     template <std::size_t Index, Modifier... Funcs>
     struct [[nodiscard]] basic_context_view {
-        using ctx_type                   = basic_context<Funcs...>;
-        using type_type                  = event_type::type_type;
-        using code_type                  = event_type::code_type;
-        using value_type                 = event_type::value_type;
+        using ctx_type   = basic_context<Funcs...>;
+        using type_type  = event_type::type_type;
+        using code_type  = event_type::code_type;
+        using value_type = event_type::value_type;
+        using mods_type  = typename ctx_type::mods_type;
+
         static constexpr bool is_nothrow = ctx_type::is_nothrow;
 
       private:
@@ -558,6 +567,10 @@ export namespace foresight {
 
         constexpr void event(event_type const &inp_event) noexcept {
             ctx->event(inp_event);
+        }
+
+        [[nodiscard]] constexpr auto &get_mods() noexcept {
+            return ctx->get_mods();
         }
 
         template <typename Func>
