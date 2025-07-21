@@ -43,28 +43,28 @@ int main(int const argc, char** argv) {
     };
 
     static constexpr auto main_pipeline =
-      context                          // Init Context
-      | led_status                     // store LED status
-      | on(led_off(LED_CAPSL),         // Condition
+      context
+      | led_status
+      | on(led_off(LED_CAPSL),
            context                     // sub-context will be removed
              | abs2rel(true)           // Convert Pen events into Mouse events if any
              | ignore_abs              // Ignore absolute movements
              | ignore_big_jumps        // Ignore big mouse jumps
              | ignore_fast_left_clicks // Ignore fast left clicks
              | ignore_init_moves       // Fix pen small moves
-           )                           //
+           )
       | keys_status                    // Save key presses
       | mice_quantifier                // Quantify the mouse movements
       | swipe_detector                 // Detects swipes
       | on(pressed(BTN_RIGHT), context | ignore_big_jumps(10) | ignore_start_moves) // fix right click jumps
-      | on(op & pressed{BTN_MIDDLE} & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB))) //
+      | on(op & pressed{BTN_MIDDLE} & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB)))
       | on(mid_left,
            on(swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT))),
            on(swipe_left, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT))),
            on(swipe_up, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP))),
            on(swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN))),
            ignore_mid_lefts           // ignore mouse movements
-           )                          //
+           )
       | add_scroll(scroll_button, 5); // Make middle button, a scroll wheel
 
     if (args.size() > 0) {
@@ -72,13 +72,10 @@ int main(int const argc, char** argv) {
           caps::pointer + caps::keyboard + caps::pointer_wheels - caps::abs_all + caps::misc;
         static constexpr auto second_caps = caps::tablet - caps::pointer_rel_all;
         constinit static auto pipeline =
-          context                   // Init Context
-          | intercept               // Intercept the events
-          | main_pipeline           // Main
-          | router(                 // Put them into newly created virtual devices
-              first_caps >> uinput, // first virtual device
-              second_caps >> uinput // second virtual device
-            );
+          context
+          | intercept // Intercept the events
+          | main_pipeline
+          | router(first_caps >> uinput, second_caps >> uinput);
 
 
         pipeline.mod(intercept).add_devs(args | to_devices() | only_matching() | only_ok() | to_evdev());
@@ -97,10 +94,10 @@ int main(int const argc, char** argv) {
 
         pipeline(no_init);
     } else {
-        (context         // Init Context
-         | input         // Get the events from stdin
-         | main_pipeline // main
-         | output        // print the events to stdout
+        (context
+         | input  // Get the events from stdin
+         | main_pipeline
+         | output // Print the events to stdout
          )();
     }
     return 0;

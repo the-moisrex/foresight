@@ -58,12 +58,12 @@ export namespace foresight {
 
       public:
         // the copy ctor/assignment-op are marked consteval to stop from copying at run time.
-        constexpr basic_led_status() noexcept                               = default;
+        constexpr basic_led_status() noexcept                              = default;
         consteval basic_led_status(basic_led_status const&)                = default;
         constexpr basic_led_status(basic_led_status&&) noexcept            = default;
         consteval basic_led_status& operator=(basic_led_status const&)     = default;
         constexpr basic_led_status& operator=(basic_led_status&&) noexcept = default;
-        constexpr ~basic_led_status() noexcept                              = default;
+        constexpr ~basic_led_status() noexcept                             = default;
 
         [[nodiscard]] bool is_on(std::span<code_type const> key_codes) const noexcept;
         [[nodiscard]] bool is_off(std::span<code_type const> key_codes) const noexcept;

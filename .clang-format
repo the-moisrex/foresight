@@ -74,7 +74,7 @@ BraceWrapping:
 BreakAfterAttributes: Never
 BreakAfterJavaFieldAnnotations: false
 BreakArrays: true
-BreakBeforeBinaryOperators: None
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 BreakBeforeConceptDeclarations: Always
 BreakBeforeInlineASMColon: OnlyMultiline
@@ -82,6 +82,7 @@ BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
 BreakStringLiterals: true
+BreakBinaryOperations: OnePerLine
 ColumnLimit: 110
 CommentPragmas: ((^\s*(todo|TODO|fixme|FIXME|NOLINT|NOLINTBEGIN|NOLINTEND|NOLINTNEXTLINE):.*)|^\s*\/\/)
 CompactNamespaces: false
@@ -218,7 +219,7 @@ TabWidth: 4
 UseTab: Never
 AllowAllConstructorInitializersOnNextLine: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
-TypenameMacros: []
+TypenameMacros: [ ]
 UseCRLF: false
 QualifierOrder:
   - friend

@@ -279,8 +279,9 @@ export namespace foresight {
       public:
         constexpr basic_context() noexcept = default;
 
-        consteval explicit basic_context(event_type inp_ev, std::remove_cvref_t<Funcs>... inp_funcs) noexcept
-          : ev{std::move(inp_ev)},
+        consteval explicit basic_context(event_type const &inp_ev,
+                                         std::remove_cvref_t<Funcs>... inp_funcs) noexcept
+          : ev{inp_ev},
             mods{inp_funcs...} {}
 
         consteval basic_context(basic_context const &inp_ctx)                = default;
