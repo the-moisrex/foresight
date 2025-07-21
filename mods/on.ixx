@@ -401,7 +401,11 @@ namespace foresight {
                 cur_count = 1;
                 return false;
             }
-            return ++cur_count >= count;
+            bool const res = ++cur_count >= count;
+            if (res) {
+                cur_count = 0;
+            }
+            return res;
         }
     };
 
