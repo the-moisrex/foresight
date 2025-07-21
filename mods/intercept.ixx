@@ -43,7 +43,7 @@ export namespace foresight {
         template <std::ranges::range R>
             requires std::convertible_to<std::ranges::range_value_t<R>, evdev&&>
         void add_devs(R&& inp_devs, bool const grab) {
-            for (evdev&& dev : inp_devs) {
+            for (evdev&& dev : std::forward<R>(inp_devs)) {
                 dev.grab_input(grab);
                 add_dev(std::move(dev));
             }
@@ -52,17 +52,17 @@ export namespace foresight {
         template <std::ranges::range R>
             requires std::convertible_to<std::ranges::range_value_t<R>, evdev&&>
         void add_devs(R&& inp_devs) {
-            for (evdev&& dev : inp_devs) {
+            for (evdev&& dev : std::forward<R>(inp_devs)) {
                 add_dev(std::move(dev));
             }
         }
 
         /// Get a view of the devices, it's const to make sure it's not being modified since the file
         /// descriptors may change, and if they do, we wouldn't know about it.
-        std::span<evdev const> devices() const noexcept;
+        [[nodiscard]] std::span<evdev const> devices() const noexcept;
 
         /// Make sure to re-commit after modification
-        std::span<evdev> devices() noexcept;
+        [[nodiscard]] std::span<evdev> devices() noexcept;
 
         /// Apply the changes to devices
         void commit();
@@ -73,8 +73,8 @@ export namespace foresight {
         context_action operator()(event_type& event) noexcept;
 
       private:
-        std::vector<evdev>  devs;
-        std::vector<pollfd> fds;
+        std::vector<evdev>  devs{};
+        std::vector<pollfd> fds{};
     } intercept;
 
 } // namespace foresight

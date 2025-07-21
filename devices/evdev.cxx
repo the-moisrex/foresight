@@ -6,11 +6,15 @@ module;
 #include <fcntl.h>
 #include <filesystem>
 #include <libevdev/libevdev.h>
+#include <numeric>
 #include <optional>
+#include <string_view>
 #include <unistd.h>
 #include <utility>
+#include <vector>
 module foresight.evdev;
 import foresight.mods.caps;
+import foresight.main.log;
 
 using foresight::evdev;
 
@@ -142,7 +146,11 @@ std::string_view evdev::physical_location() const noexcept {
     if (dev == nullptr) [[unlikely]] {
         return invalid_device_location;
     }
-    return libevdev_get_phys(dev);
+    auto const* res = libevdev_get_phys(dev);
+    if (res == nullptr) [[unlikely]] {
+        return invalid_device_location;
+    }
+    return {res};
 }
 
 void evdev::physical_location(std::string_view const new_name) noexcept {
@@ -297,7 +305,7 @@ foresight::evdev_rank foresight::device(dev_caps_view const inp_caps) {
     evdev_rank res;
 
     for (evdev_rank&& rank : foresight::devices(inp_caps)) {
-        if (rank.match > res.match) {
+        if (rank.score > res.score) {
             res = std::move(rank);
         }
     }
@@ -310,18 +318,96 @@ namespace {
         auto const end   = str.find_last_not_of(' ');
         str              = str.substr(start, end - start + 1);
     }
+
+    // Function to calculate Levenshtein distance
+    // Returns the minimum number of edits (insertions, deletions, substitutions)
+    // required to transform s1 into s2.
+    std::size_t levenshtein_distance(std::string_view const lhs, std::string_view const rhs) noexcept {
+        try {
+            std::size_t const m = lhs.size();
+            std::size_t const n = rhs.size();
+            if (m == 0) {
+                return n;
+            }
+            if (n == 0) {
+                return m;
+            }
+            std::vector<std::vector<std::size_t>> matrix(m + 1);
+            for (std::size_t i = 0; i <= m; ++i) {
+                matrix[i].resize(n + 1);
+                matrix[i][0] = i;
+            }
+            for (std::size_t i = 0; i <= n; ++i) {
+                matrix[0][i] = i;
+            }
+            std::size_t above_cell    = 0;
+            std::size_t left_cell     = 0;
+            std::size_t diagonal_cell = 0;
+            std::size_t cost          = 0;
+            for (std::size_t i = 1; i <= m; ++i) {
+                for (std::size_t j = 1; j <= n; ++j) {
+                    cost          = lhs[i - 1] == rhs[j - 1] ? 0 : 1;
+                    above_cell    = matrix[i - 1][j];
+                    left_cell     = matrix[i][j - 1];
+                    diagonal_cell = matrix[i - 1][j - 1];
+                    matrix[i][j]  = std::min({above_cell + 1, left_cell + 1, diagonal_cell + cost});
+                }
+            }
+            return matrix[m][n];
+        } catch (...) {
+            return 0;
+        }
+    }
+
+    /// Calculate a percent score of matching between the two strings
+    [[nodiscard]] std::uint8_t calc_score(std::string_view lhs, std::string_view rhs) noexcept {
+        if (lhs.empty() && rhs.empty()) {
+            return 100; // Both empty, considered 100% match
+        }
+        if (lhs.empty() || rhs.empty()) {
+            return 0;   // One is empty, no match (or adjust as per specific requirement)
+        }
+
+        auto const   distance = static_cast<double>(levenshtein_distance(lhs, rhs));
+        double const max_len  = static_cast<double>(std::max(lhs.length(), rhs.length()));
+
+        // Calculate similarity: (max_len - distance) / max_len * 100
+        // Cast to double for accurate division
+        double const similarity = (max_len - distance) / max_len;
+        return static_cast<std::uint8_t>(similarity * 100);
+    }
 } // namespace
 
 foresight::evdev_rank foresight::device(std::string_view query) {
     trim(query);
-    bool const is_path = query.starts_with('/');
 
-    if (is_path) {
+    // check if it's a path
+    if (query.starts_with('/')) {
         std::filesystem::path const path{query};
         if (exists(path)) {
-            return {.match = 100, .dev = evdev{path}};
+            return {.score = 100, .dev = evdev{path}};
         }
     }
 
-    return device(caps_of(query));
+    if (dev_caps_view const caps = caps_of(query); !caps.empty()) {
+        return device(caps);
+    }
+
+    evdev_rank best{};
+    for (evdev&& dev : all_input_devices()) {
+        auto const name       = dev.device_name();
+        auto const loc        = dev.physical_location();
+        auto const name_score = calc_score(query, name);
+        auto const loc_score  = calc_score(query, loc);
+        auto const score      = std::max(name_score, loc_score);
+        if (score > best.score) {
+            best.score = score;
+            best.dev   = std::move(dev);
+        }
+    }
+    log("Best device with score {}%: {} {}",
+        best.score,
+        best.dev.device_name(),
+        best.dev.physical_location());
+    return best;
 }

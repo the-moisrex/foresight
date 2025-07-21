@@ -181,7 +181,7 @@ namespace foresight {
     }
 
     export struct [[nodiscard]] evdev_rank {
-        std::uint8_t match = 0; // in percentage
+        std::uint8_t score = 0; // in percentage
         evdev        dev;
     };
 
@@ -190,7 +190,7 @@ namespace foresight {
         using std::ranges::views::transform;
         return devs | transform([=](evdev&& dev) {
                    auto const percentage = dev.match_caps(inp_caps);
-                   return evdev_rank{.match = percentage, .dev = std::move(dev)};
+                   return evdev_rank{.score = percentage, .dev = std::move(dev)};
                });
     }
 
@@ -235,7 +235,7 @@ namespace foresight {
 
     export [[nodiscard]] consteval auto only_matching(std::uint8_t const percentage = 80) {
         return std::views::filter([=](evdev_rank const& ranker) {
-            return ranker.match >= percentage;
+            return ranker.score >= percentage;
         });
     }
 
@@ -275,7 +275,7 @@ namespace foresight {
 
     export [[nodiscard]] consteval auto to_evdev() {
         return std::views::transform([](evdev_rank&& ranker) {
-            return std::move(ranker.dev);
+            return std::move(std::move(ranker).dev);
         });
     }
 
