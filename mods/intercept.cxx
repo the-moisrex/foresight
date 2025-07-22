@@ -92,7 +92,7 @@ void basic_interceptor::add_dev(evdev&& inp_dev) {
 }
 
 void basic_interceptor::add_files(std::string_view const query_all) {
-    for (auto [match, dev] : foresight::devices(query_all)) {
+    for (auto [match, dev] : find_devices(query_all)) {
         add_dev(std::move(dev));
     }
 }
@@ -105,7 +105,7 @@ void basic_interceptor::set_files(std::string_view const query_all) {
 
 void basic_interceptor::add_files(std::span<std::string_view const> const query_all) {
     for (auto const query : query_all) {
-        for (auto [match, dev] : foresight::devices(query)) {
+        for (auto [match, dev] : find_devices(query)) {
             add_dev(std::move(dev));
         }
     }

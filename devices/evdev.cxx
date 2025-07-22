@@ -323,7 +323,7 @@ std::optional<input_event> evdev::next() noexcept {
 foresight::evdev_rank foresight::device(dev_caps_view const inp_caps) {
     evdev_rank res;
 
-    for (evdev_rank&& rank : foresight::devices(inp_caps)) {
+    for (evdev_rank&& rank : foresight::rank_devices(inp_caps)) {
         if (rank.score > res.score) {
             res = std::move(rank);
         }

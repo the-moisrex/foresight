@@ -199,7 +199,7 @@ namespace foresight {
     }
 
     /// Get the list of devices and their ranks
-    export [[nodiscard]] auto devices(dev_caps_view const inp_caps) {
+    export [[nodiscard]] auto rank_devices(dev_caps_view const inp_caps) {
         return match_devices(inp_caps, all_input_devices());
     }
 
@@ -212,30 +212,6 @@ namespace foresight {
     /// Example: keyboard
     /// Example: tablet
     export [[nodiscard]] evdev_rank device(std::string_view);
-
-    export [[nodiscard]] constexpr auto devices(std::string_view const query_all) {
-        using std::views::filter;
-        using std::views::split;
-        using std::views::transform;
-        return query_all
-               // split the strings
-               | split(' ')
-
-               // turn it back to string views
-               | transform([](auto&& rng) {
-                     return std::string_view{rng.begin(), rng.end()};
-                 })
-
-               // exclude bad inputs
-               | filter([](std::string_view const query) {
-                     return !query.empty();
-                 })
-
-               // Get a device
-               | transform([](std::string_view const query) {
-                     return device(query);
-                 });
-    }
 
     export constexpr struct [[nodiscard]] basic_only_matching
       : std::ranges::range_adaptor_closure<basic_only_matching> {
@@ -285,32 +261,26 @@ namespace foresight {
         }
     } only_ok;
 
-    export [[nodiscard]] constexpr auto devices(std::span<std::string_view const> const query_all) {
-        return query_all
-
-               // convert each piece into devices
-               | std::views::transform([](std::string_view const query) {
-                     return devices(query);
-                 })
-
-               // flatten the range
-               | std::views::join;
-    }
-
     export constexpr struct [[nodiscard]] basic_find_devices
       : std::ranges::range_adaptor_closure<basic_find_devices> {
-        [[nodiscard]] constexpr auto operator()(std::string_view const query) const noexcept {
-            return devices(query);
-        }
-
-        template <std::ranges::range Range>
+        template <std::ranges::sized_range Range>
+            requires(std::same_as<std::ranges::range_value_t<Range>, std::string_view>)
         constexpr auto operator()(Range&& rng) const noexcept {
             return std::forward<Range>(rng)
-                   // convert each piece into devices
-                   | std::views::transform(*this)
-                   // flatten the range
-                   | std::views::join;
+                   // exclude bad inputs
+                   | std::views::filter([](std::string_view const query) {
+                         return !query.empty();
+                     })
+                   // Get a device
+                   | std::views::transform([](std::string_view const query) {
+                         return device(query);
+                     });
         }
+
+        [[nodiscard]] constexpr auto operator()(std::string_view const query) const noexcept {
+            return std::span<std::string_view const>{query} | *this;
+        }
+
     } find_devices;
 
     export constexpr struct [[nodiscard]] basic_to_evdev
