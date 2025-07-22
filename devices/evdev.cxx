@@ -6,6 +6,7 @@ module;
 #include <fcntl.h>
 #include <filesystem>
 #include <libevdev/libevdev.h>
+#include <memory_resource>
 #include <numeric>
 #include <optional>
 #include <string_view>
@@ -332,7 +333,10 @@ namespace {
             if (n == 0) {
                 return m;
             }
-            std::vector<std::vector<std::size_t>> matrix(m + 1);
+            std::array<std::byte, 2048>                          buffer; // NOLINT(*-init)
+            std::pmr::monotonic_buffer_resource                  mbr{buffer.data(), buffer.size()};
+            std::pmr::polymorphic_allocator<std::uint32_t> const pa{&mbr};
+            std::pmr::vector<std::pmr::vector<std::uint32_t>>    matrix(m + 1, pa);
             for (std::size_t i = 0; i <= m; ++i) {
                 matrix[i].resize(n + 1);
                 matrix[i][0] = i;
@@ -360,12 +364,12 @@ namespace {
     }
 
     /// Calculate a percent score of matching between the two strings
-    [[nodiscard]] std::uint8_t calc_score(std::string_view lhs, std::string_view rhs) noexcept {
+    [[nodiscard]] std::uint8_t calc_score(std::string_view const lhs, std::string_view const rhs) noexcept {
         if (lhs.empty() && rhs.empty()) {
             return 100; // Both empty, considered 100% match
         }
         if (lhs.empty() || rhs.empty()) {
-            return 0;   // One is empty, no match (or adjust as per specific requirement)
+            return 0;   // One is empty, no match (or adjust as per a specific requirement)
         }
 
         auto const   distance = static_cast<double>(levenshtein_distance(lhs, rhs));
