@@ -234,7 +234,7 @@ namespace foresight {
         }
 
         template <std::ranges::range Range>
-        constexpr auto operator()(Range&& rng) const noexcept {
+        [[nodiscard]] constexpr auto operator()(Range&& rng) const noexcept {
             return std::forward<Range>(rng) | std::views::filter(*this);
         }
 
@@ -256,7 +256,7 @@ namespace foresight {
         }
 
         template <std::ranges::range Range>
-        constexpr auto operator()(Range&& rng) const noexcept {
+        [[nodiscard]] constexpr auto operator()(Range&& rng) const noexcept {
             return std::forward<Range>(rng) | std::views::filter(*this);
         }
     } only_ok;
@@ -273,7 +273,7 @@ namespace foresight {
                      })
                    // Get a device
                    | std::views::transform([](std::string_view const query) {
-                         return device(query);
+                         return device(query).dev;
                      });
         }
 
@@ -290,7 +290,7 @@ namespace foresight {
         }
 
         template <std::ranges::range Range>
-        constexpr auto operator()(Range&& rng) const noexcept {
+        [[nodiscard]] constexpr auto operator()(Range&& rng) const noexcept {
             return std::forward<Range>(rng) | std::views::transform(*this);
         }
     } to_evdev;

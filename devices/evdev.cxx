@@ -537,9 +537,9 @@ foresight::evdev_rank foresight::device(std::string_view query) {
         //     loc,
         //     id);
     }
-    log("Best device with score {}%: {} {}",
-        best.score,
-        best.dev.device_name(),
-        best.dev.physical_location());
+    // log("Best device with score {}%: {} {}",
+    //     best.score,
+    //     best.dev.device_name(),
+    //     best.dev.physical_location());
     return best;
 }

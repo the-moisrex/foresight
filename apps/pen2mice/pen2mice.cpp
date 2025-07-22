@@ -78,14 +78,7 @@ int main(int const argc, char const* const* argv) {
           | router(first_caps >> uinput, second_caps >> uinput);
 
 
-        pipeline.mod(intercept).add_devs(args | find_devices | only_matching | only_ok | to_evdev);
-
-        for (evdev& dev : pipeline.mod(intercept).devices()) {
-            dev.grab_input();
-            // log("Input device: ({}) {}", dev.physical_location(), dev.device_name());
-        }
-
-        pipeline.mod(intercept).commit();
+        pipeline.mod(intercept).add_devs(args | find_devices, true);
         pipeline.init();
 
         for (basic_uinput const& dev : pipeline.mod(router).uinput_devices()) {
