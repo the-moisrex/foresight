@@ -337,19 +337,19 @@ namespace {
             std::pmr::monotonic_buffer_resource                  mbr{buffer.data(), buffer.size()};
             std::pmr::polymorphic_allocator<std::uint32_t> const pa{&mbr};
             std::pmr::vector<std::pmr::vector<std::uint32_t>>    matrix(m + 1, pa);
-            for (std::size_t i = 0; i <= m; ++i) {
+            for (std::uint32_t i = 0; i <= m; ++i) {
                 matrix[i].resize(n + 1);
                 matrix[i][0] = i;
             }
-            for (std::size_t i = 0; i <= n; ++i) {
+            for (std::uint32_t i = 0; i <= n; ++i) {
                 matrix[0][i] = i;
             }
-            std::size_t above_cell    = 0;
-            std::size_t left_cell     = 0;
-            std::size_t diagonal_cell = 0;
-            std::size_t cost          = 0;
-            for (std::size_t i = 1; i <= m; ++i) {
-                for (std::size_t j = 1; j <= n; ++j) {
+            std::uint32_t above_cell    = 0;
+            std::uint32_t left_cell     = 0;
+            std::uint32_t diagonal_cell = 0;
+            std::uint32_t cost          = 0;
+            for (std::uint32_t i = 1; i <= m; ++i) {
+                for (std::uint32_t j = 1; j <= n; ++j) {
                     cost          = lhs[i - 1] == rhs[j - 1] ? 0 : 1;
                     above_cell    = matrix[i - 1][j];
                     left_cell     = matrix[i][j - 1];
