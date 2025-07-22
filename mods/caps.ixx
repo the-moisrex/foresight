@@ -188,7 +188,7 @@ namespace foresight {
           BTN_TOOL_BRUSH,
           BTN_TOOL_PENCIL,
           BTN_TOOL_AIRBRUSH);
-        constexpr auto tablet_abs_axes = cap(EV_ABS, ABS_PRESSURE, ABS_DISTANCE, ABS_TILT_X, ABS_TILT_Y);
+        constexpr auto tablet_abs_axes   = cap(EV_ABS, ABS_PRESSURE, ABS_DISTANCE, ABS_TILT_X, ABS_TILT_Y);
         constexpr auto tablet_abs_common = cap(EV_ABS, ABS_X, ABS_Y, ABS_PRESSURE, ABS_TILT_X, ABS_TILT_Y);
 
         constexpr auto abs_all = caps_range<EV_ABS, ABS_X, ABS_MAX + 1>();
@@ -232,12 +232,14 @@ namespace foresight {
         // A graphics tablet for drawing
         constexpr auto tablet = syn + touch_abs_axes + tablet_abs_common + tablet_tool_btns + touch_btns;
 
-        constexpr std::array<std::pair<std::string_view, dev_caps_view>, 4U> cap_maps{
+        constexpr std::array<std::pair<std::string_view, dev_caps_view>, 6U> cap_maps{
           {
            {{"mouse"}, mouse},
            {{"keyboard"}, keyboard},
            {{"touchpad"}, touchpad},
            {{"tablet"}, tablet},
+           {{"pen"}, tablet},
+           {{"drawing-tablet"}, tablet},
            }
         };
     } // namespace caps

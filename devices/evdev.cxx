@@ -474,6 +474,23 @@ namespace {
           / 4);
     }
 
+    [[nodiscard]] std::pair<foresight::dev_caps_view, std::uint16_t> find_caps(
+      std::string_view const query) noexcept {
+        foresight::dev_caps_view caps{};
+        std::uint16_t            score = 0;
+        for (auto const& [name, cap_view] : foresight::caps::cap_maps) {
+            if (query == name) {
+                return {cap_view, 100};
+            }
+            auto const cur_score = calc_score(query, name);
+            if (cur_score > score) {
+                score = cur_score;
+                caps  = cap_view;
+            }
+        }
+        return {caps, score};
+    }
+
 } // namespace
 
 foresight::evdev_rank foresight::device(std::string_view query) {
@@ -487,7 +504,7 @@ foresight::evdev_rank foresight::device(std::string_view query) {
         }
     }
 
-    dev_caps_view const caps = caps_of(query);
+    auto const [caps, caps_score] = find_caps(query);
 
     evdev_rank best{};
     for (evdev&& dev : all_input_devices()) {
@@ -502,8 +519,10 @@ foresight::evdev_rank foresight::device(std::string_view query) {
         std::uint16_t const name_score = calc_score(query, name);
         auto const          loc_score  = static_cast<std::uint16_t>(calc_score(query, loc) / 2);
         auto const          id_score   = static_cast<std::uint16_t>(calc_score(query, id) * 1.5);
-        auto const          caps_score = static_cast<std::uint16_t>(dev.match_caps(caps) * 1.5);
-        auto const score = static_cast<std::uint8_t>((name_score + loc_score + id_score + caps_score) / 4);
+        auto const          cur_caps_score =
+          static_cast<std::uint16_t>(dev.match_caps(caps) * (static_cast<double>(caps_score) / 100 + 1));
+        auto const score =
+          static_cast<std::uint8_t>((name_score + loc_score + id_score + cur_caps_score) / 4);
         if (score > best.score) {
             best.score = score;
             best.dev   = std::move(dev);
@@ -513,7 +532,7 @@ foresight::evdev_rank foresight::device(std::string_view query) {
             name_score,
             loc_score,
             id_score,
-            caps_score,
+            cur_caps_score,
             name,
             loc,
             id);
