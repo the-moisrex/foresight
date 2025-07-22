@@ -320,13 +320,14 @@ namespace {
         str              = str.substr(start, end - start + 1);
     }
 
-    // Function to calculate Levenshtein distance
+    // Function to calculate Levenshtein distance (case-insensitive: both strings to lowercase)
     // Returns the minimum number of edits (insertions, deletions, substitutions)
     // required to transform s1 into s2.
-    std::size_t levenshtein_distance(std::string_view const lhs, std::string_view const rhs) noexcept {
+    [[nodiscard]] std::uint32_t levenshtein_distance(std::string_view const lhs,
+                                                     std::string_view const rhs) noexcept {
         try {
-            std::size_t const m = lhs.size();
-            std::size_t const n = rhs.size();
+            auto const m = static_cast<std::uint32_t>(lhs.size());
+            auto const n = static_cast<std::uint32_t>(rhs.size());
             if (m == 0) {
                 return n;
             }
@@ -350,7 +351,9 @@ namespace {
             std::uint32_t cost          = 0;
             for (std::uint32_t i = 1; i <= m; ++i) {
                 for (std::uint32_t j = 1; j <= n; ++j) {
-                    cost          = lhs[i - 1] == rhs[j - 1] ? 0 : 1;
+                    auto const l  = static_cast<char>(std::tolower(static_cast<unsigned char>(lhs[i - 1])));
+                    auto const r  = static_cast<char>(std::tolower(static_cast<unsigned char>(rhs[j - 1])));
+                    cost          = l == r ? 0 : 1;
                     above_cell    = matrix[i - 1][j];
                     left_cell     = matrix[i][j - 1];
                     diagonal_cell = matrix[i - 1][j - 1];
