@@ -527,15 +527,15 @@ foresight::evdev_rank foresight::device(std::string_view query) {
             best.score = score;
             best.dev   = std::move(dev);
         }
-        log("  - Score {}% ({}/{}/{}/{}): {} {} {}",
-            score,
-            name_score,
-            loc_score,
-            id_score,
-            cur_caps_score,
-            name,
-            loc,
-            id);
+        // log("  - Score {}% ({}/{}/{}/{}): {} {} {}",
+        //     score,
+        //     name_score,
+        //     loc_score,
+        //     id_score,
+        //     cur_caps_score,
+        //     name,
+        //     loc,
+        //     id);
     }
     log("Best device with score {}%: {} {}",
         best.score,

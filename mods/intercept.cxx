@@ -8,6 +8,7 @@ module;
 #include <span>
 #include <vector>
 module foresight.mods.intercept;
+import foresight.main.log;
 
 using foresight::basic_interceptor;
 
@@ -86,6 +87,7 @@ void basic_interceptor::add_dev(evdev&& inp_dev) {
     if (!dev.ok()) [[unlikely]] {
         throw std::runtime_error(std::format("Failed to initialize event device {}", dev.device_name()));
     }
+    log("Intercepting: '{}' {}", dev.device_name(), dev.physical_location());
     fds.emplace_back(get_pollfd(dev));
 }
 

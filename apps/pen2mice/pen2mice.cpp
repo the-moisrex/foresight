@@ -27,7 +27,7 @@ namespace {
     }
 } // namespace
 
-int main(int const argc, char** argv) {
+int main(int const argc, char const* const* argv) {
     using namespace foresight;
     using std::filesystem::path;
     using std::views::drop;
@@ -65,7 +65,7 @@ int main(int const argc, char** argv) {
            on(swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN))),
            ignore_mid_lefts           // ignore mouse movements
            )
-      | add_scroll(scroll_button, 5); // Make middle button, a scroll wheel
+      | add_scroll(scroll_button, 5); // Make 'middle button' a scroll wheel
 
     if (args.size() > 0) {
         static constexpr auto first_caps =
@@ -78,11 +78,11 @@ int main(int const argc, char** argv) {
           | router(first_caps >> uinput, second_caps >> uinput);
 
 
-        pipeline.mod(intercept).add_devs(args | to_devices() | only_matching() | only_ok() | to_evdev());
+        pipeline.mod(intercept).add_devs(args | find_devices | only_matching | only_ok | to_evdev);
 
         for (evdev& dev : pipeline.mod(intercept).devices()) {
             dev.grab_input();
-            log("Input device: ({}) {}", dev.physical_location(), dev.device_name());
+            // log("Input device: ({}) {}", dev.physical_location(), dev.device_name());
         }
 
         pipeline.mod(intercept).commit();

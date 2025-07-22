@@ -120,7 +120,7 @@ bool basic_uinput::emit_syn() noexcept {
 
 void basic_uinput::init(dev_caps_view const caps_view) noexcept {
     evdev_rank best{};
-    for (evdev_rank&& cur : devices(caps_view) | only_matching(50) | only_ok()) {
+    for (evdev_rank&& cur : devices(caps_view) | only_matching(50) | only_ok) {
         if (cur.score >= best.score) {
             best = std::move(cur);
         }

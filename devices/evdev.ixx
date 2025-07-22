@@ -237,14 +237,39 @@ namespace foresight {
                  });
     }
 
-    export [[nodiscard]] consteval auto only_matching(std::uint8_t const percentage = 80) {
-        return std::views::filter([=](evdev_rank const& ranker) {
-            return ranker.score >= percentage;
-        });
-    }
+    export constexpr struct [[nodiscard]] basic_only_matching
+      : std::ranges::range_adaptor_closure<basic_only_matching> {
+      private:
+        std::uint8_t percentage = 40;
 
-    export [[nodiscard]] consteval auto only_ok() {
-        return std::views::filter([=]<typename R>(R const& obj) {
+      public:
+        constexpr explicit basic_only_matching(std::uint8_t const inp_percentage) noexcept
+          : percentage(inp_percentage) {}
+
+        basic_only_matching()                                      = default;
+        basic_only_matching(basic_only_matching const&)            = default;
+        basic_only_matching(basic_only_matching&&)                 = default;
+        basic_only_matching& operator=(basic_only_matching const&) = default;
+        basic_only_matching& operator=(basic_only_matching&&)      = default;
+        ~basic_only_matching()                                     = default;
+
+        [[nodiscard]] constexpr auto operator()(evdev_rank const& ranker) const noexcept {
+            return ranker.score >= percentage;
+        }
+
+        template <std::ranges::range Range>
+        constexpr auto operator()(Range&& rng) const noexcept {
+            return std::forward<Range>(rng) | std::views::filter(*this);
+        }
+
+        constexpr basic_only_matching operator()(std::uint8_t const inp_percentage) const noexcept {
+            return basic_only_matching{inp_percentage};
+        }
+    } only_matching;
+
+    export constexpr struct [[nodiscard]] basic_only_ok : std::ranges::range_adaptor_closure<basic_only_ok> {
+        template <typename R>
+        [[nodiscard]] constexpr auto operator()(R const& obj) const noexcept {
             if constexpr (std::same_as<R, evdev_rank>) {
                 return obj.dev.ok();
             } else if constexpr (std::same_as<R, evdev>) {
@@ -252,8 +277,13 @@ namespace foresight {
             } else {
                 return true;
             }
-        });
-    }
+        }
+
+        template <std::ranges::range Range>
+        constexpr auto operator()(Range&& rng) const noexcept {
+            return std::forward<Range>(rng) | std::views::filter(*this);
+        }
+    } only_ok;
 
     export [[nodiscard]] constexpr auto devices(std::span<std::string_view const> const query_all) {
         return query_all
@@ -267,20 +297,32 @@ namespace foresight {
                | std::views::join;
     }
 
-    export [[nodiscard]] consteval auto to_devices() noexcept {
-        // convert each piece into devices
-        return std::views::transform([](std::string_view const query) {
-                   return devices(query);
-               })
+    export constexpr struct [[nodiscard]] basic_find_devices
+      : std::ranges::range_adaptor_closure<basic_find_devices> {
+        [[nodiscard]] constexpr auto operator()(std::string_view const query) const noexcept {
+            return devices(query);
+        }
 
-               // flatten the range
-               | std::views::join;
-    }
+        template <std::ranges::range Range>
+        constexpr auto operator()(Range&& rng) const noexcept {
+            return std::forward<Range>(rng)
+                   // convert each piece into devices
+                   | std::views::transform(*this)
+                   // flatten the range
+                   | std::views::join;
+        }
+    } find_devices;
 
-    export [[nodiscard]] consteval auto to_evdev() {
-        return std::views::transform([](evdev_rank&& ranker) {
+    export constexpr struct [[nodiscard]] basic_to_evdev
+      : std::ranges::range_adaptor_closure<basic_to_evdev> {
+        [[nodiscard]] constexpr auto operator()(evdev_rank&& ranker) const noexcept {
             return std::move(std::move(ranker).dev);
-        });
-    }
+        }
+
+        template <std::ranges::range Range>
+        constexpr auto operator()(Range&& rng) const noexcept {
+            return std::forward<Range>(rng) | std::views::transform(*this);
+        }
+    } to_evdev;
 
 } // namespace foresight
