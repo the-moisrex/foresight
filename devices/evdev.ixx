@@ -27,8 +27,9 @@ namespace foresight {
     export std::string_view to_string(evdev_status) noexcept;
 
 
-    export constexpr std::string_view invalid_device_name     = "UNKNOWN";
-    export constexpr std::string_view invalid_device_location = "/dev/null";
+    export constexpr std::string_view invalid_device_name       = "[UNKNOWN]";
+    export constexpr std::string_view invalid_device_location   = "/dev/null";
+    export constexpr std::string_view invalid_unique_identifier = "[NO-UNIQ-ID]";
 
     /**
      * This is a wrapper for libevdev's related features
@@ -88,6 +89,9 @@ namespace foresight {
          */
         [[nodiscard]] std::string_view physical_location() const noexcept;
         void                           physical_location(std::string_view) noexcept;
+
+        [[nodiscard]] std::string_view unique_identifier() const noexcept;
+        void                           unique_identifier(std::string_view) noexcept;
 
         void enable_event_type(ev_type) noexcept;
         void enable_event_code(ev_type, code_type) noexcept;
