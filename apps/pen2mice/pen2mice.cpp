@@ -55,13 +55,7 @@ int main(int const argc, char const* const* argv) {
 
 
         pipeline.mod(intercept).add_devs(args | find_devices, true);
-        pipeline.init();
-
-        for (basic_uinput const& dev : pipeline.mod(router).uinput_devices()) {
-            log("Output device: {} | {}", dev.devnode(), dev.syspath());
-        }
-
-        pipeline(no_init);
+        pipeline();
     } else {
         (context
          | input  // Get the events from stdin

@@ -68,7 +68,7 @@ void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descript
         close();
         err_code = static_cast<std::errc>(-ret);
     }
-    // log("Set Uinput: {} | {}", this->syspath(), this->devnode());
+    log("Init Virtual Device: {}", this->devnode());
 }
 
 void basic_uinput::set_device(evdev const& inp_dev, int const file_descriptor) noexcept {
@@ -120,14 +120,12 @@ bool basic_uinput::emit_syn() noexcept {
 
 void basic_uinput::init(dev_caps_view const caps_view) noexcept {
     evdev_rank best{};
-    for (evdev_rank&& cur : rank_devices(caps_view) | only_matching(50) | only_ok) {
+    for (evdev_rank&& cur : rank_devices(caps_view)) {
         if (cur.score >= best.score) {
             best = std::move(cur);
         }
     }
-    if (best.score != 100) { // 100%
-        best.dev.apply_caps(caps_view);
-    }
+    best.dev.apply_caps(caps_view);
     std::string new_name;
     new_name += best.dev.device_name();
     if (best.dev.ok()) {
@@ -137,7 +135,7 @@ void basic_uinput::init(dev_caps_view const caps_view) noexcept {
         best.dev.init_new();
     }
     best.dev.device_name(new_name);
-    log("Init uinput: {}", new_name);
+    log("Init uinput from: {} ({})", new_name, best.dev.physical_location());
     this->set_device(best.dev);
 }
 

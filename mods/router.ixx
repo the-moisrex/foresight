@@ -254,7 +254,7 @@ export namespace foresight {
                     event.value());
                 return context_action::ignore_event;
             }
-            log("Index: {} {}", last_index, event.code_name());
+            // log("Index: {} {}", last_index, event.code_name());
             return visit_at(routes, last_index, [&](auto& route) {
                 return invoke_mod(route, ctx);
             });
