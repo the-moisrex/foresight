@@ -70,11 +70,29 @@ export namespace foresight {
         /**
          * Start running the interceptor
          */
-        context_action operator()(event_type& event) noexcept;
+        context_action operator()(Context auto& ctx) noexcept {
+            using enum context_action;
+            if (auto const ret = wait_for_event(); ret != next) [[unlikely]] {
+                return ret;
+            }
+            event_type event;
+            while (get_next_event(event)) {
+                if (ctx.fork_emit(event) == exit) [[unlikely]] {
+                    return exit;
+                }
+            }
+            return next;
+        }
 
       private:
+        context_action wait_for_event() noexcept;
+        bool           get_next_event(event_type& event) noexcept;
+
         std::vector<evdev>  devs{};
         std::vector<pollfd> fds{};
+
+        // The index of the current device being processed:
+        std::uint16_t index = 0;
     } intercept;
 
 } // namespace foresight

@@ -65,7 +65,6 @@ int main(int const argc, char const* const* argv) {
            on(swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN))),
            ignore_mid_lefts)
       | ignore_adjacent_syns
-      | log
       | add_scroll(scroll_button, 5); // Make 'middle button' a scroll wheel
 
     if (args.size() > 0) {

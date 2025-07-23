@@ -146,7 +146,7 @@ export namespace foresight {
 
     constexpr struct [[nodiscard]] basic_ignore_adjacent_repeats {
         private:
-        event_code asked_event;
+        event_code asked_event{};
         bool is_found = false;
 
         public:

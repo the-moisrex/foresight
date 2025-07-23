@@ -130,11 +130,14 @@ void basic_interceptor::commit() {
     fds = get_pollfds(this->devices());
 }
 
-foresight::context_action basic_interceptor::operator()(event_type& event) noexcept {
+foresight::context_action basic_interceptor::wait_for_event() noexcept {
     using enum context_action;
 
     // Use a configurable timeout (could be made a member variable)
-    static constexpr int poll_timeout_ms = 1000;
+    static constexpr int poll_timeout_ms = -1;
+
+    // reset device index
+    index = 0;
 
     // Check for empty containers to avoid undefined behavior
     if (fds.empty() || devs.empty()) [[unlikely]] {
@@ -154,8 +157,21 @@ foresight::context_action basic_interceptor::operator()(event_type& event) noexc
         return ignore_event;
     }
 
-    for (std::size_t index = 0; index != fds.size(); ++index) {
+    return next;
+}
+
+bool basic_interceptor::get_next_event(event_type& event) noexcept {
+    using enum context_action;
+
+    for (; index != fds.size(); ++index) {
         if ((fds[index].revents & POLLIN) == 0) {
+            // Check for errors on this file descriptor
+            if (fds[index].revents & (POLLERR | POLLHUP | POLLNVAL)) [[unlikely]] {
+                // Could handle device errors/disconnections here
+                // todo
+                log("Device {} disconnected?", devs[index].device_name());
+            }
+
             continue;
         }
 
@@ -164,7 +180,7 @@ foresight::context_action basic_interceptor::operator()(event_type& event) noexc
             continue;
         }
         event = input.value();
-        return next;
+        return true;
     }
-    return ignore_event;
+    return false;
 }
