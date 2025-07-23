@@ -118,7 +118,7 @@ namespace foresight {
         constexpr auto leds = caps_range<EV_LED, LED_NUML, LED_MAX + 1>();
 
         // Key Groups
-        constexpr auto keys_main      = caps_range<EV_KEY, KEY_ESC, KEY_RIGHTSHIFT + 1>();
+        constexpr auto keys_main      = caps_range<EV_KEY, KEY_ESC, KEY_SCROLLLOCK + 1>();
         constexpr auto keys_modifiers = cap(
           EV_KEY,
           KEY_LEFTCTRL,
@@ -130,6 +130,8 @@ namespace foresight {
           KEY_RIGHTALT,
           KEY_RIGHTMETA,
           KEY_COMPOSE);
+
+        constexpr auto keys_locks    = cap(EV_KEY, KEY_CAPSLOCK, KEY_NUMLOCK, KEY_SCROLLLOCK, KEY_SCREENLOCK);
         constexpr auto keys_nav      = caps_range<EV_KEY, KEY_HOME, KEY_DELETE + 1>();
         constexpr auto keys_keypad   = caps_range<EV_KEY, KEY_KP7, KEY_KPDOT + 1>();
         constexpr auto keys_function = caps_range<EV_KEY, KEY_F1, KEY_F12 + 1>() // this includes more things
@@ -203,7 +205,15 @@ namespace foresight {
 
         // A standard 104-key Keyboard
         constexpr auto keyboard =
-          syn + keys_main + keys_modifiers + keys_nav + keys_keypad + keys_function + keys_system + leds;
+          syn
+          + keys_main
+          + keys_modifiers
+          + keys_locks
+          + keys_nav
+          + keys_keypad
+          + keys_function
+          + keys_system
+          + leds;
 
         // A keyboard with additional media controls
         constexpr auto multimedia_keyboard = keyboard + keys_media;

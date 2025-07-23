@@ -5,27 +5,7 @@
 #include <span>
 import foresight.mods;
 import foresight.main.log;
-
-namespace {
-    template <typename T>
-    struct construct_it_from {
-        template <typename... Args>
-        [[nodiscard]] constexpr T operator()(Args&&... args) noexcept(std::constructible_from<T>) {
-            return T{std::forward<Args>(args)...};
-        }
-    };
-
-    template <typename T>
-    [[nodiscard]] constexpr auto transform_to() {
-        return std::views::transform(construct_it_from<T>{});
-    }
-
-    template <typename Inp, typename T>
-        requires(std::is_invocable_v<T, construct_it_from<Inp>>)
-    [[nodiscard]] constexpr auto into(T&& obj) {
-        return std::forward<T>(obj)(construct_it_from<Inp>{});
-    }
-} // namespace
+import foresight.main.utils;
 
 int main(int const argc, char const* const* argv) {
     using namespace foresight;
@@ -46,7 +26,7 @@ int main(int const argc, char const* const* argv) {
       context
       | led_status
       | on(led_off(LED_CAPSL),
-           context                     // sub-context will be removed
+           context                     // Sub-context will be removed
              | abs2rel(true)           // Convert Pen events into Mouse events if any
              | ignore_abs              // Ignore absolute movements
              | ignore_big_jumps        // Ignore big mouse jumps

@@ -82,6 +82,7 @@ target_sources(${LIB_NAME}
         # io/liburing.ixx
         # io/io_ring.ixx
         main/main.ixx
+        main/utils.ixx
         main/log.ixx
         main/keyboard.ixx
         main/translate.ixx
