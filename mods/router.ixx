@@ -2,6 +2,7 @@
 
 module;
 #include <cassert>
+#include <libevdev/libevdev.h>
 #include <linux/uinput.h>
 #include <print>
 #include <ranges>
@@ -98,13 +99,15 @@ export namespace foresight {
         std::array<dev_caps_view, sizeof...(Routes)> caps{};
         std::tuple<Routes...>                        routes;
 
+        std::uint8_t last_index = 0;
+
       public:
         template <typename... C>
         consteval explicit basic_router(route<C>&&... inp_routes) noexcept(
           (std::is_nothrow_move_constructible_v<Routes> && ...))
           : caps{inp_routes.caps...},
             routes{std::move(inp_routes.mod)...} {
-            set_caps(inp_routes.caps...);
+            // set_caps(inp_routes.caps...);
         }
 
         basic_router() noexcept((std::is_nothrow_default_constructible_v<Routes> && ...)) = default;
@@ -120,6 +123,7 @@ export namespace foresight {
 
         template <Context CtxT>
         constexpr void init(CtxT& ctx) {
+            set_caps();
             [&]<std::size_t... I>(std::index_sequence<I...>) constexpr {
                 (([&]<typename Func>(Func& route) constexpr {
                      if constexpr (requires { route.init(ctx); }) {
@@ -136,25 +140,43 @@ export namespace foresight {
             }(std::make_index_sequence<sizeof...(Routes)>{});
         }
 
-        template <typename... C>
-            requires(std::convertible_to<C, dev_caps_view> && ...)
-        constexpr void set_caps(C const&... caps_views) noexcept {
+        // template <typename... C>
+        //     requires(sizeof...(C) >= 1 && (std::convertible_to<C, dev_caps_view> && ...))
+        // constexpr void set_caps(C const&... caps_views) noexcept {
+        //     hashes.fill(-1);
+        //
+        //     // Declaring which hash belongs to which uinput device
+        //     (
+        //       [this, input_pick = static_cast<std::int8_t>(0)](dev_caps_view const caps_view) mutable {
+        //           for (auto const [type, codes, addition] : caps_view) {
+        //               for (auto const code : codes) {
+        //                   auto const index = hash({.type = type, .code = code});
+        //                   if (addition /* && hashes.at(index) == -1 */) {
+        //                       hashes.at(index) = input_pick;
+        //                   }
+        //               }
+        //           }
+        //           ++input_pick;
+        //       }(caps_views),
+        //       ...);
+        // }
+
+        constexpr void set_caps() noexcept {
             hashes.fill(-1);
 
             // Declaring which hash belongs to which uinput device
-            (
-              [this, input_pick = static_cast<std::int8_t>(0)](dev_caps_view const caps_view) mutable {
-                  for (auto const [type, codes, addition] : caps_view) {
-                      for (auto const code : codes) {
-                          auto const index = hash({.type = type, .code = code});
-                          if (addition && hashes.at(index) == -1) {
-                              hashes.at(index) = input_pick;
-                          }
-                      }
-                  }
-                  ++input_pick;
-              }(caps_views),
-              ...);
+            std::int8_t input_pick = 0;
+            for (auto const& cap_view : caps) {
+                for (auto const [type, codes, addition] : cap_view) {
+                    for (auto const code : codes) {
+                        auto const index = hash({.type = type, .code = code});
+                        if (addition /* && hashes.at(index) == -1 */) {
+                            hashes.at(index) = input_pick;
+                        }
+                    }
+                }
+                ++input_pick;
+            }
         }
 
         template <std::ranges::input_range R>
@@ -219,27 +241,27 @@ export namespace foresight {
             return routes_of<basic_uinput>();
         }
 
-        constexpr context_action operator()(Context auto& ctx) {
+        constexpr context_action operator()(Context auto& ctx) noexcept {
             auto const& event        = ctx.event();
             auto const  hashed_value = hash(static_cast<event_code>(event));
-            auto const  index        = hashes.at(hashed_value);
-            if (index < 0) [[unlikely]] {
+            last_index               = is_syn(event) ? last_index : hashes.at(hashed_value);
+            if (last_index < 0) [[unlikely]] {
                 log("Ignored ({}|{}): {} {} {}",
-                    index,
+                    last_index,
                     hashed_value,
                     event.type_name(),
                     event.code_name(),
                     event.value());
                 return context_action::ignore_event;
             }
-            return visit_at(routes, index, [&](auto& route) {
+            log("Index: {} {}", last_index, event.code_name());
+            return visit_at(routes, last_index, [&](auto& route) {
                 return invoke_mod(route, ctx);
             });
         }
     };
 
-
-    constexpr basic_router<>      router;
+    constexpr basic_router<> router;
 
     static_assert(OutputModifier<basic_router<>>, "Must be an output modifier.");
 
