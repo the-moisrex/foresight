@@ -1,6 +1,7 @@
 // Created by moisrex on 6/22/24.
 
 module;
+#include <cstring>
 #include <filesystem>
 #include <format>
 #include <poll.h>
@@ -132,7 +133,24 @@ void basic_interceptor::commit() {
 foresight::context_action basic_interceptor::operator()(event_type& event) noexcept {
     using enum context_action;
 
-    if (poll(fds.data(), fds.size(), 1000) <= 0) {
+    // Use a configurable timeout (could be made a member variable)
+    static constexpr int poll_timeout_ms = 1000;
+
+    // Check for empty containers to avoid undefined behavior
+    if (fds.empty() || devs.empty()) [[unlikely]] {
+        log("No devices to intercept");
+        return exit;
+    }
+
+    // Poll file descriptors and handle errors properly
+    if (auto const poll_result = poll(fds.data(), fds.size(), poll_timeout_ms); poll_result <= 0) [[unlikely]]
+    {
+        if (poll_result == 0) {
+            // Timeout occurred
+            return ignore_event;
+        }
+        // Error occurred (could log errno here)
+        log("Error: {}", std::strerror(errno));
         return ignore_event;
     }
 
