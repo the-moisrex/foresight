@@ -144,6 +144,35 @@ export namespace foresight {
         context_action operator()(event_type const& event) noexcept;
     } ignore_start_moves;
 
+    constexpr struct [[nodiscard]] basic_ignore_adjacent_repeats {
+        private:
+        event_code asked_event;
+        bool is_found = false;
+
+        public:
+        constexpr basic_ignore_adjacent_repeats() noexcept = default;
+
+        constexpr explicit basic_ignore_adjacent_repeats(event_code const code) noexcept
+          : asked_event{code} {}
+
+        constexpr explicit basic_ignore_adjacent_repeats(event_type const code) noexcept
+          : asked_event{static_cast<event_code>(code)} {}
+
+        consteval basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats const&) noexcept            = default;
+        constexpr basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats&&) noexcept                 = default;
+        consteval basic_ignore_adjacent_repeats& operator=(basic_ignore_adjacent_repeats const&) noexcept = default;
+        constexpr basic_ignore_adjacent_repeats& operator=(basic_ignore_adjacent_repeats&&) noexcept      = default;
+        constexpr ~basic_ignore_adjacent_repeats() noexcept                                          = default;
+
+        consteval basic_ignore_adjacent_repeats operator()(event_code const code) const noexcept {
+            return basic_ignore_adjacent_repeats{code};
+        }
+
+        context_action operator()(event_type const& event) noexcept;
+    } ignore_adjacent_repeats;
+
+    constexpr basic_ignore_adjacent_repeats ignore_adjacent_syns{syn()};
+
     constexpr basic_ignore_fast_repeats ignore_fast_left_clicks{
       {EV_KEY, BTN_LEFT}
     };

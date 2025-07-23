@@ -7,6 +7,8 @@ module;
 #include <linux/uinput.h>
 export module foresight.mods.event;
 
+// don't import log here.
+
 export namespace foresight {
 
     struct [[nodiscard]] user_event {
@@ -204,8 +206,9 @@ export namespace foresight {
     [[nodiscard]] constexpr bool is_mouse_event(event_type const& event) noexcept {
         auto const code = event.code();
         auto const type = event.type();
-        return type == EV_REL ||
-               (type == EV_KEY && (code == BTN_LEFT || code == BTN_RIGHT || code == BTN_MIDDLE));
+        return type
+               == EV_REL
+               || (type == EV_KEY && (code == BTN_LEFT || code == BTN_RIGHT || code == BTN_MIDDLE));
     }
 
     [[nodiscard]] constexpr bool is_syn(event_type const& event) noexcept {

@@ -96,3 +96,9 @@ context_action foresight::basic_ignore_start_moves::operator()(event_type const&
 
     return next;
 }
+
+context_action foresight::basic_ignore_adjacent_repeats::operator()(event_type const& event) noexcept {
+    using enum context_action;
+    bool const found_asked = event.is_of(asked_event);
+    return std::exchange(is_found, found_asked) && found_asked ? ignore_event : next;
+}
