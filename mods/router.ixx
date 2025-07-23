@@ -167,10 +167,10 @@ export namespace foresight {
             // Declaring which hash belongs to which uinput device
             std::int8_t input_pick = 0;
             for (auto const& cap_view : caps) {
-                for (auto const [type, codes, addition] : cap_view) {
+                for (auto const [type, codes, action] : cap_view) {
                     for (auto const code : codes) {
                         auto const index = hash({.type = type, .code = code});
-                        if (addition /* && hashes.at(index) == -1 */) {
+                        if (action == caps_action::append /* && hashes.at(index) == -1 */) {
                             hashes.at(index) = input_pick;
                         }
                     }
@@ -241,7 +241,7 @@ export namespace foresight {
             return routes_of<basic_uinput>();
         }
 
-        constexpr context_action operator()(Context auto& ctx) noexcept {
+        context_action operator()(Context auto& ctx) noexcept {
             auto const& event        = ctx.event();
             auto const  hashed_value = hash(static_cast<event_code>(event));
             last_index               = is_syn(event) ? last_index : hashes.at(hashed_value);

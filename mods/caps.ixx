@@ -2,6 +2,7 @@
 
 module;
 #include <array>
+#include <cstdint>
 #include <linux/input-event-codes.h>
 #include <span>
 #include <string_view>
@@ -18,10 +19,16 @@ namespace foresight {
         std::array<code_type, N> codes;
     };
 
+    export enum struct [[nodiscard]] caps_action : std::uint8_t {
+        append,
+        remove_codes,
+        remove_type,
+    };
+
     export struct [[nodiscard]] dev_cap_view {
         ev_type                    type;
         std::span<code_type const> codes;
-        bool                       addition = true; // true = add them, false = remove them
+        caps_action                action = caps_action::append;
     };
 
     export template <std::size_t N>
@@ -72,30 +79,50 @@ namespace foresight {
         return res;
     }
 
+    /// Remove codes
     export template <std::size_t N1, std::size_t N2>
     [[nodiscard]] consteval auto operator-(dev_cap<N1> const& lhs, dev_cap<N2> const& rhs) noexcept {
         return dev_caps<2>{
-          dev_cap_view{.type = lhs.type, .codes = lhs.codes,  .addition = true},
-          dev_cap_view{.type = rhs.type, .codes = rhs.codes, .addition = false}
+          dev_cap_view{.type = lhs.type, .codes = lhs.codes,       .action = caps_action::append},
+          dev_cap_view{.type = rhs.type, .codes = rhs.codes, .action = caps_action::remove_codes}
         };
     }
 
+    export template <std::size_t N1>
+    [[nodiscard]] consteval auto operator-(dev_cap<N1> const& lhs, ev_type const type) noexcept {
+        return dev_caps<2>{
+          dev_cap_view{.type = lhs.type, .codes = lhs.codes,      .action = caps_action::append},
+          dev_cap_view{    .type = type,        .codes = {}, .action = caps_action::remove_type}
+        };
+    }
+
+    /// Remove codes
     export template <std::size_t N1, std::size_t N2>
     [[nodiscard]] consteval auto operator-(dev_caps<N1> const& lhs, dev_cap<N2> const& rhs) noexcept {
         dev_caps<N1 + 1> res;
         std::copy(lhs.begin(), lhs.end(), res.begin());
-        res[N1] = dev_cap_view{.type = rhs.type, .codes = rhs.codes, .addition = false};
+        res[N1] = dev_cap_view{.type = rhs.type, .codes = rhs.codes, .action = caps_action::remove_codes};
         return res;
     }
 
+    /// Remove codes
     export template <std::size_t N1, std::size_t N2>
     [[nodiscard]] consteval auto operator-(dev_caps<N1> const& lhs, dev_caps<N2> const& rhs) noexcept {
         dev_caps<N1 + N2> res;
         std::copy(lhs.begin(), lhs.end(), res.begin());
         std::copy(rhs.begin(), rhs.end(), std::next(res.begin(), N1));
         for (auto cur = std::next(res.begin(), N1); cur != res.end(); ++cur) {
-            cur->addition = false;
+            cur->action = caps_action::remove_codes;
         }
+        return res;
+    }
+
+    /// Remove a type
+    export template <std::size_t N1>
+    [[nodiscard]] consteval auto operator-(dev_caps<N1> const& lhs, ev_type const type) noexcept {
+        dev_caps<N1 + 1> res;
+        std::copy(lhs.begin(), lhs.end(), res.begin());
+        res[N1] = dev_cap_view{.type = type, .codes = {}, .action = caps_action::remove_type};
         return res;
     }
 

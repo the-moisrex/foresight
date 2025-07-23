@@ -228,15 +228,20 @@ void evdev::disable_caps(dev_caps_view const inp_caps) noexcept {
 }
 
 void evdev::apply_caps(dev_caps_view const inp_caps) noexcept {
-    for (auto const& [type, codes, addition] : inp_caps) {
-        if (addition) {
-            for (auto const code : codes) {
-                enable_event_code(type, code);
-            }
-        } else {
-            for (auto const code : codes) {
-                disable_event_code(type, code);
-            }
+    using enum foresight::caps_action;
+    for (auto const& [type, codes, action] : inp_caps) {
+        switch (action) {
+            case append:
+                for (auto const code : codes) {
+                    enable_event_code(type, code);
+                }
+                break;
+            case caps_action::remove_codes:
+                for (auto const code : codes) {
+                    disable_event_code(type, code);
+                }
+                break;
+            case caps_action::remove_type: disable_event_type(type); break;
         }
     }
 }
