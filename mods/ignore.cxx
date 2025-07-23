@@ -62,6 +62,11 @@ context_action basic_ignore_init_moves::operator()(event_type const& event) noex
     return next;
 }
 
+context_action foresight::basic_ignore_mouse_moves::operator()(event_type const& event) noexcept {
+    using enum context_action;
+    return is_mouse_movement(event) ? ignore_event : next;
+}
+
 context_action basic_ignore_fast_repeats::operator()(event_type const& event) noexcept {
     using enum context_action;
 

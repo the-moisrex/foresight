@@ -115,7 +115,8 @@ namespace foresight {
         constexpr auto syn = cap(EV_SYN, SYN_REPORT);
 
         // Keyboard LEDs
-        constexpr auto leds = caps_range<EV_LED, LED_NUML, LED_MAX + 1>();
+        constexpr auto leds          = caps_range<EV_LED, LED_NUML, LED_MAX + 1>();
+        constexpr auto keyboard_leds = cap(EV_LED, LED_CAPSL, LED_NUML, LED_SCROLLL);
 
         // Key Groups
         constexpr auto keys_main      = caps_range<EV_KEY, KEY_ESC, KEY_SCROLLLOCK + 1>();
@@ -198,22 +199,160 @@ namespace foresight {
         // Switches
         constexpr auto switches = caps_range<EV_SW, SW_LID, SW_MAX + 1>();
 
-        constexpr auto misc = caps_range<EV_MSC, MSC_SERIAL, MSC_MAX + 1>();
+        constexpr auto misc      = caps_range<EV_MSC, MSC_SERIAL, MSC_MAX + 1>();
+        constexpr auto misc_scan = cap(EV_MSC, MSC_SCAN);
 
+        constexpr auto keyboard_keys = cap(
+          EV_KEY,
+          KEY_ESC,
+          KEY_1,
+          KEY_2,
+          KEY_3,
+          KEY_4,
+          KEY_5,
+          KEY_6,
+          KEY_7,
+          KEY_8,
+          KEY_9,
+          KEY_0,
+          KEY_MINUS,
+          KEY_EQUAL,
+          KEY_BACKSPACE,
+          KEY_TAB,
+          KEY_Q,
+          KEY_W,
+          KEY_E,
+          KEY_R,
+          KEY_T,
+          KEY_Y,
+          KEY_U,
+          KEY_I,
+          KEY_O,
+          KEY_P,
+          KEY_LEFTBRACE,
+          KEY_RIGHTBRACE,
+          KEY_ENTER,
+          KEY_LEFTCTRL,
+          KEY_A,
+          KEY_S,
+          KEY_D,
+          KEY_F,
+          KEY_G,
+          KEY_H,
+          KEY_J,
+          KEY_K,
+          KEY_L,
+          KEY_SEMICOLON,
+          KEY_APOSTROPHE,
+          KEY_GRAVE,
+          KEY_LEFTSHIFT,
+          KEY_BACKSLASH,
+          KEY_Z,
+          KEY_X,
+          KEY_C,
+          KEY_V,
+          KEY_B,
+          KEY_N,
+          KEY_M,
+          KEY_COMMA,
+          KEY_DOT,
+          KEY_SLASH,
+          KEY_RIGHTSHIFT,
+          KEY_KPASTERISK,
+          KEY_LEFTALT,
+          KEY_SPACE,
+          KEY_CAPSLOCK,
+          KEY_F1,
+          KEY_F2,
+          KEY_F3,
+          KEY_F4,
+          KEY_F5,
+          KEY_F6,
+          KEY_F7,
+          KEY_F8,
+          KEY_F9,
+          KEY_F10,
+          KEY_NUMLOCK,
+          KEY_SCROLLLOCK,
+          KEY_KP7,
+          KEY_KP8,
+          KEY_KP9,
+          KEY_KPMINUS,
+          KEY_KP4,
+          KEY_KP5,
+          KEY_KP6,
+          KEY_KPPLUS,
+          KEY_KP1,
+          KEY_KP2,
+          KEY_KP3,
+          KEY_KP0,
+          KEY_KPDOT,
+          KEY_102ND,
+          KEY_F11,
+          KEY_F12,
+          KEY_RO,
+          KEY_HENKAN,
+          KEY_KATAKANAHIRAGANA,
+          KEY_MUHENKAN,
+          KEY_KPJPCOMMA,
+          KEY_KPENTER,
+          KEY_RIGHTCTRL,
+          KEY_KPSLASH,
+          KEY_SYSRQ,
+          KEY_RIGHTALT,
+          KEY_HOME,
+          KEY_UP,
+          KEY_PAGEUP,
+          KEY_LEFT,
+          KEY_RIGHT,
+          KEY_END,
+          KEY_DOWN,
+          KEY_PAGEDOWN,
+          KEY_INSERT,
+          KEY_DELETE,
+          KEY_MUTE,
+          KEY_VOLUMEDOWN,
+          KEY_VOLUMEUP,
+          KEY_POWER,
+          KEY_KPEQUAL,
+          KEY_PAUSE,
+          KEY_KPCOMMA,
+          KEY_HANGUEL,
+          KEY_HANJA,
+          KEY_YEN,
+          KEY_LEFTMETA,
+          KEY_RIGHTMETA,
+          KEY_COMPOSE,
+          KEY_STOP,
+          KEY_AGAIN,
+          KEY_PROPS,
+          KEY_UNDO,
+          KEY_FRONT,
+          KEY_COPY,
+          KEY_OPEN,
+          KEY_PASTE,
+          KEY_FIND,
+          KEY_CUT,
+          KEY_HELP,
+          KEY_F13,
+          KEY_F14,
+          KEY_F15,
+          KEY_F16,
+          KEY_F17,
+          KEY_F18,
+          KEY_F19,
+          KEY_F20,
+          KEY_F21,
+          KEY_F22,
+          KEY_F23,
+          KEY_F24,
+          KEY_UNKNOWN);
 
         // -- Composite Device Capabilities --
 
         // A standard 104-key Keyboard
-        constexpr auto keyboard =
-          syn
-          + keys_main
-          + keys_modifiers
-          + keys_locks
-          + keys_nav
-          + keys_keypad
-          + keys_function
-          + keys_system
-          + leds;
+        constexpr auto keyboard = syn + misc_scan + keyboard_leds + keyboard_keys;
+
 
         // A keyboard with additional media controls
         constexpr auto multimedia_keyboard = keyboard + keys_media;

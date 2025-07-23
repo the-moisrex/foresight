@@ -75,6 +75,10 @@ export namespace foresight {
         context_action operator()(event_type const& event) noexcept;
     } ignore_init_moves;
 
+    constexpr struct [[nodiscard]] basic_ignore_mouse_moves {
+        context_action operator()(event_type const& event) noexcept;
+    } ignore_mouse_moves;
+
     constexpr struct [[nodiscard]] basic_ignore_fast_repeats {
         using msec_type = std::chrono::microseconds;
 
