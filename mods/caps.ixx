@@ -380,12 +380,11 @@ namespace foresight {
         // A standard 104-key Keyboard
         constexpr auto keyboard = syn + misc_scan + keyboard_leds + keyboard_keys;
 
-
         // A keyboard with additional media controls
         constexpr auto multimedia_keyboard = keyboard + keys_media;
 
         // A standard 3-button mouse with a scroll wheel
-        constexpr auto pointer = syn + pointer_rel_axes + pointer_btns;
+        constexpr auto pointer = syn + pointer_rel_axes + pointer_btns + pointer_wheels - abs_all - EV_ABS;
 
         // Alias for pointer
         constexpr auto mouse = pointer;
@@ -406,7 +405,8 @@ namespace foresight {
         constexpr auto gamepad = syn + gamepad_btns + joystick_abs_axes;
 
         // A graphics tablet for drawing
-        constexpr auto tablet = syn + touch_abs_axes + tablet_abs_common + tablet_tool_btns + touch_btns;
+        constexpr auto tablet =
+          syn + touch_abs_axes + tablet_abs_common + tablet_tool_btns + touch_btns - pointer_rel_all - EV_REL;
 
         constexpr std::array<std::pair<std::string_view, dev_caps_view>, 6U> cap_maps{
           {

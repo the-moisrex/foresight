@@ -10,6 +10,7 @@ module;
 #include <utility>
 export module foresight.mods.on;
 
+export import foresight.main.utils;
 import foresight.mods.keys_status;
 import foresight.mods.context;
 
@@ -18,16 +19,6 @@ namespace foresight {
     using ev_type    = event_type::type_type;
     using code_type  = event_type::code_type;
     using value_type = event_type::value_type;
-
-    export constexpr struct basic_noop {
-        constexpr void operator()() const noexcept {
-            // do nothing
-        }
-
-        [[nodiscard]] constexpr bool operator()([[maybe_unused]] Context auto&) const noexcept {
-            return false;
-        }
-    } noop;
 
     export constexpr struct [[nodiscard]] basic_always_enable {
         constexpr bool operator()() const noexcept {
@@ -115,8 +106,10 @@ namespace foresight {
         code_type code = KEY_MAX;
 
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return (event.type() == type || type == EV_MAX) && (event.code() == code || code == KEY_MAX) &&
-                   event.value() == 1;
+            return (event.type() == type || type == EV_MAX)
+                   && (event.code() == code || code == KEY_MAX)
+                   && event.value()
+                   == 1;
         }
     };
 
@@ -125,8 +118,10 @@ namespace foresight {
         code_type code = KEY_MAX;
 
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return (event.type() == type || type == EV_MAX) && (event.code() == code || code == KEY_MAX) &&
-                   event.value() == 0;
+            return (event.type() == type || type == EV_MAX)
+                   && (event.code() == code || code == KEY_MAX)
+                   && event.value()
+                   == 0;
         }
     };
 
@@ -279,8 +274,13 @@ namespace foresight {
                                                value_type const y_axis) const noexcept {
             using std::abs;
             using std::signbit;
-            return abs(cur_x) >= abs(x_axis) && (signbit(cur_x) == signbit(x_axis) || x_axis == 0) && // X
-                   abs(cur_y) >= abs(y_axis) && (signbit(cur_y) == signbit(y_axis) || y_axis == 0);   // Y
+            return abs(cur_x)
+                   >= abs(x_axis)
+                   && (signbit(cur_x) == signbit(x_axis) || x_axis == 0)
+                   &&                                                     // X
+                   abs(cur_y)
+                   >= abs(y_axis)
+                   && (signbit(cur_y) == signbit(y_axis) || y_axis == 0); // Y
         }
 
         /// Returns the number of times X and Y have passed

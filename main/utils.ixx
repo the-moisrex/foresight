@@ -23,4 +23,27 @@ export namespace foresight {
     [[nodiscard]] constexpr auto into(T&& obj) {
         return std::forward<T>(obj)(construct_it_from<Inp>{});
     }
+
+    constexpr struct basic_noop {
+        constexpr void operator()() const noexcept {
+            // do nothing
+        }
+
+        constexpr void operator()([[maybe_unused]] auto&&) const noexcept {
+            // do nothing
+        }
+
+        // This is Context, but we don't want to include anything here.
+        template <typename CtxT>
+            requires requires(CtxT ctx) {
+                typename CtxT::mods_type;
+                CtxT::is_nothrow;
+                ctx.event();
+                ctx.get_mods();
+            }
+        [[nodiscard]] constexpr bool operator()([[maybe_unused]] CtxT&) const noexcept {
+            return false;
+        }
+    } noop;
+
 } // namespace foresight

@@ -186,6 +186,23 @@ namespace foresight {
                  });
     }
 
+    export constexpr struct [[nodiscard]] basic_grab_inputs
+      : std::ranges::range_adaptor_closure<basic_grab_inputs> {
+        constexpr void operator()(evdev& dev, bool const grab = true) const noexcept {
+            dev.grab_input(grab);
+        }
+
+        constexpr evdev&& operator()(evdev&& dev) const noexcept {
+            dev.grab_input();
+            return std::move(dev);
+        }
+
+        template <std::ranges::range R>
+        constexpr auto operator()(R&& rng) const noexcept {
+            return std::forward<R>(rng) | std::views::transform(*this);
+        }
+    } grab_inputs;
+
     export struct [[nodiscard]] evdev_rank {
         std::uint8_t score = 0; // in percentage
         evdev        dev;

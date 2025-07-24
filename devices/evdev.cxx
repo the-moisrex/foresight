@@ -292,17 +292,34 @@ bool evdev::has_caps(dev_caps_view const inp_caps) const noexcept {
 }
 
 std::uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {
+    using enum caps_action;
     double count = 0;
     double all   = 0;
-    for (auto const& [type, codes, _] : inp_caps) {
-        for (code_type const code : codes) {
-            if (has_event_code(type, code)) {
-                ++count;
-            }
+    for (auto const& [type, codes, action] : inp_caps) {
+        switch (action) {
+            case append:
+                for (code_type const code : codes) {
+                    if (has_event_code(type, code)) {
+                        ++count;
+                    }
+                }
+                break;
+            case remove_codes:
+                for (code_type const code : codes) {
+                    if (has_event_code(type, code)) {
+                        --count;
+                    }
+                }
+                break;
+            case remove_type:
+                if (has_event_type(type)) {
+                    --count;
+                }
+                break;
         }
         all += static_cast<double>(codes.size());
     }
-    return static_cast<std::uint8_t>(count / all * 100); // NOLINT(*-magic-numbers)
+    return static_cast<std::uint8_t>(std::max(0.0, count) / all * 100.0); // NOLINT(*-magic-numbers)
 }
 
 input_absinfo const* evdev::abs_info(code_type const code) const noexcept {
@@ -458,8 +475,9 @@ namespace {
 
     [[nodiscard]] std::uint16_t subset_score(std::string_view const lhs,
                                              std::string_view const rhs) noexcept {
-        auto const lhs_len = lhs.size();
-        auto const rhs_len = rhs.size();
+        std::uint16_t score   = 0;
+        auto const    lhs_len = lhs.size();
+        auto const    rhs_len = rhs.size();
         if (rhs_len >= lhs_len) {
             for (std::size_t i = 0; i <= rhs_len - lhs_len; ++i) {
                 bool is_substring = true;
@@ -472,11 +490,11 @@ namespace {
                     }
                 }
                 if (is_substring) {
-                    return 100;
+                    score += 100;
                 }
             }
         }
-        return 0;
+        return score;
     }
 
     [[nodiscard]] std::uint16_t levenshtein_score(std::string_view const lhs,
@@ -560,19 +578,19 @@ foresight::evdev_rank foresight::device(std::string_view query) {
             best.score = score;
             best.dev   = std::move(dev);
         }
-        // log("  - Score {}% ({}/{}/{}/{}): {} {} {}",
-        //     score,
-        //     name_score,
-        //     loc_score,
-        //     id_score,
-        //     cur_caps_score,
-        //     name,
-        //     loc,
-        //     id);
+        log("  - Score {}% ({}/{}/{}/{}): {} {} {}",
+            score,
+            name_score,
+            loc_score,
+            id_score,
+            cur_caps_score,
+            name,
+            loc,
+            id);
     }
-    // log("Best device with score {}%: {} {}",
-    //     best.score,
-    //     best.dev.device_name(),
-    //     best.dev.physical_location());
+    log("  + Best device with score {}%: {} {}",
+        best.score,
+        best.dev.device_name(),
+        best.dev.physical_location());
     return best;
 }

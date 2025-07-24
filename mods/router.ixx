@@ -13,6 +13,8 @@ import foresight.mods.context;
 import foresight.uinput;
 import foresight.mods.event;
 import foresight.main.log;
+import foresight.main.utils;
+import foresight.mods.intercept;
 
 namespace foresight {
 
@@ -239,6 +241,24 @@ export namespace foresight {
 
         [[nodiscard]] constexpr auto uinput_devices() noexcept {
             return routes_of<basic_uinput>();
+        }
+
+        template <std::ranges::input_range R, typename Func = basic_noop>
+        void init_from(R&& devs, Func&& func = {}) noexcept {
+            for (auto&& [dev, udev] : std::views::zip(std::forward<R>(devs), uinput_devices())) {
+                if constexpr (std::invocable<Func, evdev&, basic_uinput&>) {
+                    func(dev, udev);
+                } else if constexpr (std::invocable<Func, basic_uinput&>) {
+                    func(udev);
+                } else if constexpr (std::invocable<Func, evdev const&>) {
+                    func(dev);
+                }
+                udev.set_device(dev);
+            }
+        }
+
+        void init_from_intercepted_devices(Context auto& pipeline) noexcept {
+            init_from(pipeline.mod(intercept).devices());
         }
 
         context_action operator()(Context auto& ctx) noexcept {

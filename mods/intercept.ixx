@@ -8,6 +8,7 @@ module;
 export module foresight.mods.intercept;
 import foresight.evdev;
 import foresight.mods.context;
+import foresight.main.utils;
 
 export namespace foresight {
     struct input_file_type {
@@ -40,19 +41,11 @@ export namespace foresight {
         void add_files(std::string_view);
         void add_files(std::span<std::string_view const>);
 
-        template <std::ranges::range R>
+        template <std::ranges::range R, typename Func = basic_noop>
             requires std::convertible_to<std::ranges::range_value_t<R>, evdev&&>
-        void add_devs(R&& inp_devs, bool const grab) {
+        void add_devs(R&& inp_devs, Func&& func = {}) {
             for (evdev&& dev : std::forward<R>(inp_devs)) {
-                dev.grab_input(grab);
-                add_dev(std::move(dev));
-            }
-        }
-
-        template <std::ranges::range R>
-            requires std::convertible_to<std::ranges::range_value_t<R>, evdev&&>
-        void add_devs(R&& inp_devs) {
-            for (evdev&& dev : std::forward<R>(inp_devs)) {
+                func(dev);
                 add_dev(std::move(dev));
             }
         }

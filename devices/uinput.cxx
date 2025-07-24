@@ -119,6 +119,14 @@ bool basic_uinput::emit_syn() noexcept {
 }
 
 void basic_uinput::init(dev_caps_view const caps_view) noexcept {
+    // don't re-initialize
+    if (is_ok()) {
+        return;
+    }
+    set_device_from(caps_view);
+}
+
+void basic_uinput::set_device_from(dev_caps_view caps_view) noexcept {
     evdev_rank best{};
     for (evdev_rank&& cur : rank_devices(caps_view)) {
         if (cur.score >= best.score) {

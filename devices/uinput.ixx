@@ -122,6 +122,7 @@ export namespace foresight {
         bool emit_syn() noexcept;
 
         void init(dev_caps_view caps_view) noexcept;
+        void set_device_from(dev_caps_view caps_view) noexcept;
 
         context_action operator()(event_type const& event) noexcept;
 
