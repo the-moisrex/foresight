@@ -17,6 +17,9 @@ int main(int const argc, char const* const* argv) {
 
     static constexpr auto scroll_button = key_pack(BTN_MIDDLE);
     static constexpr auto mid_left      = op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT};
+    static constexpr auto first_caps =
+      caps::pointer + caps::keyboard + caps::pointer_wheels - caps::abs_all - EV_ABS;
+    static constexpr auto second_caps = caps::tablet - caps::pointer_rel_all - EV_REL;
 
     static constexpr auto main_pipeline =
       context
@@ -44,15 +47,11 @@ int main(int const argc, char const* const* argv) {
       | add_scroll(scroll_button, 5); // Make 'middle button' a scroll wheel
 
     if (args.size() > 0) {
-        static constexpr auto first_caps =
-          caps::pointer + caps::keyboard + caps::pointer_wheels - caps::abs_all - EV_ABS;
-        static constexpr auto second_caps = caps::tablet - caps::pointer_rel_all - EV_REL;
         constinit static auto pipeline =
           context
           | intercept // Intercept the events
           | main_pipeline
           | router(first_caps >> uinput, second_caps >> uinput);
-
 
         pipeline.mod(intercept).add_devs(args | find_devices, true);
         pipeline();

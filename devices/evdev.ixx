@@ -22,6 +22,7 @@ namespace foresight {
         invalid_device,
         failed_setting_file_descriptor,
         failed_to_open_file,
+        failed_to_set_options,
     };
 
     export std::string_view to_string(evdev_status) noexcept;
@@ -139,9 +140,10 @@ namespace foresight {
         /// May return nullptr
         [[nodiscard]] input_absinfo const* abs_info(code_type code) const noexcept;
         [[nodiscard]] bool                 has_abs_info(code_type code = ABS_X) const noexcept;
+        void abs_info(code_type abs_code, input_absinfo const& abs_info) noexcept;
 
         /**
-         * Get a new input_event form the input device
+         * Get a new input_event from the input device
          */
         [[nodiscard]] std::optional<input_event> next() noexcept;
 

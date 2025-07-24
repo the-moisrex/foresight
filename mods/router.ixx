@@ -216,7 +216,7 @@ export namespace foresight {
         [[nodiscard]] constexpr auto routes_of() noexcept {
             return std::apply(
               [](auto&... cur_routes) {
-                  return std::views::concat(std::views::single([]<typename T>(T& route) {
+                  return std::views::concat(std::views::single([]<typename T>(T& route) constexpr noexcept {
                              if constexpr (std::convertible_to<T, RouteType>) {
                                  return &route;
                              } else {
@@ -225,12 +225,12 @@ export namespace foresight {
                          }(cur_routes))...)
 
                          // exclude non-RouteTypes
-                         | std::views::filter([](auto* route) {
+                         | std::views::filter([](auto* route) constexpr noexcept {
                                return route != nullptr;
                            })
 
                          // convert to reference
-                         | std::views::transform([](RouteType* route) -> RouteType& {
+                         | std::views::transform([](RouteType* route) constexpr noexcept -> RouteType& {
                                return *route;
                            });
               },

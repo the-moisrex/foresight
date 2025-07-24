@@ -183,7 +183,9 @@ void evdev::enable_event_type(ev_type const type) noexcept {
     if (dev == nullptr) [[unlikely]] {
         return;
     }
-    libevdev_enable_event_type(dev, type);
+    if (libevdev_enable_event_type(dev, type) != 0) [[unlikely]] {
+        status = evdev_status::failed_to_set_options;
+    }
 }
 
 void evdev::enable_event_code(ev_type const type, code_type const code) noexcept {
@@ -194,7 +196,9 @@ void evdev::enable_event_code(ev_type const type, code_type const code, void con
     if (dev == nullptr) [[unlikely]] {
         return;
     }
-    libevdev_enable_event_code(dev, type, code, value);
+    if (libevdev_enable_event_code(dev, type, code, value) != 0) [[unlikely]] {
+        status = evdev_status::failed_to_set_options;
+    }
 }
 
 void evdev::enable_caps(dev_caps_view const inp_caps) noexcept {
@@ -209,14 +213,18 @@ void evdev::disable_event_type(ev_type const type) noexcept {
     if (dev == nullptr) [[unlikely]] {
         return;
     }
-    libevdev_disable_event_type(dev, type);
+    if (libevdev_disable_event_type(dev, type) != 0) [[unlikely]] {
+        status = evdev_status::failed_to_set_options;
+    }
 }
 
 void evdev::disable_event_code(ev_type const type, code_type const code) noexcept {
     if (dev == nullptr) [[unlikely]] {
         return;
     }
-    libevdev_disable_event_code(dev, type, code);
+    if (libevdev_disable_event_code(dev, type, code) != 0) [[unlikely]] {
+        status = evdev_status::failed_to_set_options;
+    }
 }
 
 void evdev::disable_caps(dev_caps_view const inp_caps) noexcept {
@@ -228,7 +236,7 @@ void evdev::disable_caps(dev_caps_view const inp_caps) noexcept {
 }
 
 void evdev::apply_caps(dev_caps_view const inp_caps) noexcept {
-    using enum foresight::caps_action;
+    using enum caps_action;
     for (auto const& [type, codes, action] : inp_caps) {
         switch (action) {
             case append:
@@ -236,12 +244,12 @@ void evdev::apply_caps(dev_caps_view const inp_caps) noexcept {
                     enable_event_code(type, code);
                 }
                 break;
-            case caps_action::remove_codes:
+            case remove_codes:
                 for (auto const code : codes) {
                     disable_event_code(type, code);
                 }
                 break;
-            case caps_action::remove_type: disable_event_type(type); break;
+            case remove_type: disable_event_type(type); break;
         }
     }
 }
@@ -306,6 +314,20 @@ input_absinfo const* evdev::abs_info(code_type const code) const noexcept {
 
 bool evdev::has_abs_info(code_type const code) const noexcept {
     return this->abs_info(code) != nullptr;
+}
+
+void evdev::abs_info(code_type const abs_code, input_absinfo const& abs_info) noexcept {
+    if (is_fd_initialized()) {
+        return;
+    }
+    // Decide if this should implicitly enable the code if not present,
+    // or require it to be enabled first.
+    if (!has_event_code(EV_ABS, abs_code)) {
+        enable_event_code(EV_ABS, abs_code, &abs_info);
+    }
+
+    // Code exists, update its info
+    libevdev_set_abs_info(dev, abs_code, &abs_info);
 }
 
 std::optional<input_event> evdev::next() noexcept {
