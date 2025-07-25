@@ -6,17 +6,21 @@ import foresight.mods;
 import foresight.main.log;
 import foresight.main.utils;
 
-int main(int const argc, char const* const* argv) {
+int main(int argc, char const* const* argv) {
     using namespace foresight;
     using namespace std::chrono_literals;
     using std::filesystem::path;
     using std::views::drop;
     using std::views::transform;
 
-    auto args = std::span{argv, argv + argc} | drop(1) | transform_to<std::string_view>();
+    static constexpr auto default_args = std::array{"", "pen", "usb keyboard"};
+    auto const            beg          = argc == 1 ? default_args.data() : argv;
+    argc                               = argc == 1 ? static_cast<int>(default_args.size()) : argc;
+    auto args = std::span{beg, beg + argc} | drop(1) | transform_to<std::string_view>();
 
-    static constexpr auto main_pipeline =
+    constinit static auto pipeline =
       context
+      | intercept                      // Intercept the events
       | led_status
       | keys_status                    // Save key presses
       | on(op | pressed(KEY_CAPSLOCK) | led_off(LED_CAPSL),
@@ -32,7 +36,7 @@ int main(int const argc, char const* const* argv) {
       | swipe_detector  // Detects swipes
       | on(pressed(BTN_RIGHT), context | ignore_big_jumps(10) | ignore_start_moves) // fix right click jumps
       | on(op & pressed{BTN_MIDDLE} & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB)))
-      | on(op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT},
+      | on(op & (op | pressed{BTN_MIDDLE} | pressed(KEY_CAPSLOCK)) & pressed{BTN_LEFT},
            context
              | on(swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT)))
              | on(swipe_left, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)))
@@ -42,23 +46,10 @@ int main(int const argc, char const* const* argv) {
       | ignore_adjacent_syns
       | update_mod(keys_status)
       | add_scroll(op | pressed(BTN_MIDDLE) | pressed(KEY_CAPSLOCK), emit + up(BTN_MIDDLE))
-      | on(longtime_released(pressed(KEY_CAPSLOCK), 500ms), emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK));
+      | on(longtime_released(pressed(KEY_CAPSLOCK), 300ms), emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK))
+      | router(caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput);
 
-    if (args.size() > 0) {
-        constinit static auto pipeline =
-          context
-          | intercept // Intercept the events
-          | main_pipeline
-          | router(caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput);
-
-        pipeline.mod(intercept).add_devs(args | find_devices, grab_inputs);
-        pipeline();
-    } else {
-        (context
-         | input  // Get the events from stdin
-         | main_pipeline
-         | output // Print the events to stdout
-         )();
-    }
+    pipeline.mod(intercept).add_devs(args | find_devices, grab_inputs);
+    pipeline();
     return 0;
 }

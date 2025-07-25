@@ -419,7 +419,7 @@ namespace foresight {
             // Calculate multiples for X
             if (x_axis != 0) {
                 // Check if cur_x and x_axis have the same sign (or if cur_x is zero)
-                // If they do, then calculate multiples. Otherwise, count is 0.
+                // If they do, then calculate multiples. Otherwise, the count is 0.
                 if (signbit(cur_x) == signbit(x_axis)) {
                     x_multiples = static_cast<std::uint16_t>(abs(cur_x) / abs(x_axis));
                 }
