@@ -1,4 +1,4 @@
-#include <filesystem>
+#include <chrono>
 #include <linux/input-event-codes.h>
 #include <ranges>
 #include <span>
@@ -9,7 +9,6 @@ import foresight.main.utils;
 int main(int argc, char const* const* argv) {
     using namespace foresight;
     using namespace std::chrono_literals;
-    using std::filesystem::path;
     using std::views::drop;
     using std::views::transform;
 
@@ -29,11 +28,9 @@ int main(int argc, char const* const* argv) {
              | ignore_abs              // Ignore absolute movements
              | ignore_big_jumps        // Ignore big mouse jumps
              | ignore_fast_left_clicks // Ignore fast left clicks
-             | ignore_init_moves       // Fix pen small moves
-           // | update_mod(keys_status)
-           )
-      | mice_quantifier // Quantify the mouse movements
-      | swipe_detector  // Detects swipes
+             | ignore_init_moves)      // Fix pen small moves
+      | mice_quantifier                // Quantify the mouse movements
+      | swipe_detector                 // Detects swipes
       | on(pressed(BTN_RIGHT), context | ignore_big_jumps(10) | ignore_start_moves) // fix right click jumps
       | on(op & pressed{BTN_MIDDLE} & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB)))
       | on(op & (op | pressed{BTN_MIDDLE} | pressed(KEY_CAPSLOCK)) & pressed{BTN_LEFT},
