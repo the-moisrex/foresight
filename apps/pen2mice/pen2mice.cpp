@@ -1,6 +1,5 @@
 #include <filesystem>
 #include <linux/input-event-codes.h>
-#include <print>
 #include <ranges>
 #include <span>
 import foresight.mods;
@@ -19,14 +18,15 @@ int main(int const argc, char const* const* argv) {
     static constexpr auto main_pipeline =
       context
       | led_status
-      | on(led_off(LED_CAPSL),
+      | keys_status                    // Save key presses
+      | on(op & op_not{pressed(KEY_CAPSLOCK)} & led_off(LED_CAPSL),
            context                     // Sub-context will be removed
              | abs2rel(true)           // Convert Pen events into Mouse events if any
              | ignore_abs              // Ignore absolute movements
              | ignore_big_jumps        // Ignore big mouse jumps
              | ignore_fast_left_clicks // Ignore fast left clicks
-             | ignore_init_moves)      // Fix pen small moves
-      | keys_status                    // Save key presses
+             | ignore_init_moves       // Fix pen small moves
+             | update_mod(keys_status))
       | mice_quantifier                // Quantify the mouse movements
       | swipe_detector                 // Detects swipes
       | on(pressed(BTN_RIGHT), context | ignore_big_jumps(10) | ignore_start_moves) // fix right click jumps
@@ -39,7 +39,7 @@ int main(int const argc, char const* const* argv) {
              | on(swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)))
              | ignore_mouse_moves)
       | ignore_adjacent_syns
-      | add_scroll(op | pressed(BTN_MIDDLE) | pressed(KEY_ESC), emit + up(BTN_MIDDLE));
+      | add_scroll(op | pressed(BTN_MIDDLE) | pressed(KEY_CAPSLOCK), emit + up(BTN_MIDDLE));
 
     if (args.size() > 0) {
         constinit static auto pipeline =

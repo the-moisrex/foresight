@@ -41,7 +41,7 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
     }
 
     if (EV_ABS == type) {
-        // Absolute position event from tablet
+        // Absolute position event from a tablet
         switch (code) {
             case ABS_X: {
                 auto const delta = value - last_abs_x;

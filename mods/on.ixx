@@ -13,6 +13,7 @@ export module foresight.mods.on;
 export import foresight.main.utils;
 import foresight.mods.keys_status;
 import foresight.mods.context;
+import foresight.main.log;
 
 namespace foresight {
 
@@ -134,6 +135,120 @@ namespace foresight {
             return ctx.mod(keys_status).is_pressed(code);
         }
     };
+
+    export template <typename Func>
+    struct [[nodiscard]] op_not {
+        [[no_unique_address]] Func func;
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+            return !invoke_cond(func, ctx);
+        }
+    };
+
+    export template <typename FuncT>
+    struct [[nodiscard]] basic_longtime {
+      private:
+        [[no_unique_address]] FuncT func{};
+        std::chrono::microseconds   dur = std::chrono::milliseconds{100};
+        std::chrono::microseconds   last_time{};
+
+      public:
+        constexpr basic_longtime() noexcept = default;
+
+        constexpr explicit basic_longtime(FuncT const&                    inp_func,
+                                          std::chrono::microseconds const inp_dur) noexcept
+          : func{inp_func},
+            dur{inp_dur} {}
+
+        consteval basic_longtime(basic_longtime const&) noexcept            = default;
+        consteval basic_longtime& operator=(basic_longtime const&) noexcept = default;
+        constexpr basic_longtime(basic_longtime&&) noexcept                 = default;
+        constexpr basic_longtime& operator=(basic_longtime&&) noexcept      = default;
+        constexpr ~basic_longtime() noexcept                                = default;
+
+        // todo: initialize the dur with repetition delay of the keyboard
+
+        template <typename InpFuncT>
+        consteval auto operator()(InpFuncT&&                      inp_func,
+                                  std::chrono::microseconds const inp_dur) const noexcept {
+            return basic_longtime<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func), inp_dur};
+        }
+
+        template <typename InpFuncT>
+        consteval auto operator()(InpFuncT&& inp_func) const noexcept {
+            return basic_longtime<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func), dur};
+        }
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+            if (invoke_cond(func, ctx)) {
+                if (last_time == std::chrono::microseconds(0)) {
+                    last_time = ctx.event().micro_time();
+                }
+            } else {
+                last_time = std::chrono::microseconds(0);
+            }
+            return last_time >= dur;
+        }
+    };
+
+    export constexpr basic_longtime<basic_noop> longtime;
+
+    export template <typename FuncT>
+    struct [[nodiscard]] basic_longtime_released {
+      private:
+        [[no_unique_address]] FuncT func{};
+        std::chrono::microseconds   dur = std::chrono::milliseconds{100};
+        std::chrono::microseconds   last_time{};
+
+      public:
+        constexpr basic_longtime_released() noexcept = default;
+
+        constexpr explicit basic_longtime_released(FuncT const&                    inp_func,
+                                                   std::chrono::microseconds const inp_dur) noexcept
+          : func{inp_func},
+            dur{inp_dur} {}
+
+        consteval basic_longtime_released(basic_longtime_released const&) noexcept            = default;
+        consteval basic_longtime_released& operator=(basic_longtime_released const&) noexcept = default;
+        constexpr basic_longtime_released(basic_longtime_released&&) noexcept                 = default;
+        constexpr basic_longtime_released& operator=(basic_longtime_released&&) noexcept      = default;
+        constexpr ~basic_longtime_released() noexcept                                         = default;
+
+        // todo: initialize the dur with repetition delay of the keyboard
+
+        template <typename InpFuncT>
+        consteval auto operator()(InpFuncT&&                      inp_func,
+                                  std::chrono::microseconds const inp_dur) const noexcept {
+            return basic_longtime_released<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func),
+                                                                          inp_dur};
+        }
+
+        template <typename InpFuncT>
+        consteval auto operator()(InpFuncT&& inp_func) const noexcept {
+            return basic_longtime_released<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func),
+                                                                          dur};
+        }
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+            if (invoke_cond(func, ctx)) {
+                if (last_time == std::chrono::microseconds(0)) {
+                    last_time = ctx.event().micro_time();
+                }
+            } else {
+                if (last_time == std::chrono::microseconds(0)) {
+                    return false;
+                }
+                return (ctx.event().micro_time() - std::exchange(last_time, std::chrono::microseconds(0)))
+                       >= dur;
+            }
+            return false;
+        }
+    };
+
+    export constexpr basic_longtime_released<basic_noop> longtime_released;
 
     export struct [[nodiscard]] led_on {
         code_type code = LED_MAX;

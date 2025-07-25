@@ -57,31 +57,48 @@ namespace foresight {
 
     export constexpr emitter<0> emit;
 
-    export constexpr std::array<user_event, 2> up(event_type::code_type const code) noexcept {
+    export [[nodiscard]] constexpr std::array<user_event, 2> up(event_type::code_type const code) noexcept {
         return std::array{
           user_event{EV_KEY, code, 0},
           static_cast<user_event>(syn())
         };
     }
 
-    export constexpr std::array<user_event, 2> down(event_type::code_type const code) noexcept {
+    export [[nodiscard]] constexpr std::array<user_event, 2> down(event_type::code_type const code) noexcept {
         return std::array{
           user_event{EV_KEY, code, 1},
           static_cast<user_event>(syn())
         };
     }
 
-    export constexpr std::array<user_event, 4> keypress(event_type::code_type const code) noexcept {
+    export [[nodiscard]] constexpr std::array<user_event, 4> keypress(
+      event_type::code_type const code) noexcept {
         return std::array{
           user_event{EV_KEY, code, 1},
           static_cast<user_event>(syn()),
           user_event{EV_KEY, code, 0},
           static_cast<user_event>(syn()),
         };
+    }
+
+    export [[nodiscard]] constexpr std::array<user_event, 2> turn_led_on(
+      event_type::code_type const code) noexcept {
+        return std::array{
+            user_event{EV_LED, code, 1},
+            static_cast<user_event>(syn())
+          };
+    }
+
+    export [[nodiscard]] constexpr std::array<user_event, 2> turn_led_off(
+      event_type::code_type const code) noexcept {
+        return std::array{
+            user_event{EV_LED, code, 0},
+            static_cast<user_event>(syn())
+          };
     }
 
     export template <typename... CT>
-    constexpr auto press(CT const... codes) noexcept {
+    [[nodiscard]] constexpr auto press(CT const... codes) noexcept {
         std::array<user_event, sizeof...(CT) * 2 + 2> events;
         auto                                          pos = events.begin();
         ((*pos++ = user_event{.type = EV_KEY, .code = static_cast<event_type::code_type>(codes), .value = 1}),

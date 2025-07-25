@@ -46,6 +46,20 @@ export namespace foresight {
         void operator()(event_type const& event) noexcept;
     } keys_status;
 
+    template <typename ModT = void>
+    struct [[nodiscard]] basic_mod_updater {
+        template <typename InpModT>
+        consteval auto operator()([[maybe_unused]] InpModT&&) const noexcept {
+            return basic_mod_updater<InpModT>{};
+        }
+
+        context_action operator()(Context auto& ctx) const noexcept {
+            return invoke_mod(ctx.template mod<ModT>(), ctx);
+        }
+    };
+
+    constexpr basic_mod_updater<> update_mod;
+
     /**
      * Keeps the track of LEDs
      */
