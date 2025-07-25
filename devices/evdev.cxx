@@ -100,11 +100,6 @@ void evdev::set_file(int const file) noexcept {
     status = evdev_status::success;
 }
 
-void evdev::init_new() noexcept {
-    this->close();
-    dev = libevdev_new();
-}
-
 int evdev::native_handle() const noexcept {
     if (dev == nullptr) [[unlikely]] {
         return -1;

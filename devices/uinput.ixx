@@ -14,8 +14,9 @@ import foresight.mods.intercept;
 
 export namespace foresight {
 
-    constexpr std::string_view invalid_syspath = "/dev/null";
-    constexpr std::string_view invalid_devnode = "/dev/null";
+    constexpr std::string_view invalid_syspath   = "/dev/null";
+    constexpr std::string_view invalid_devnode   = "/dev/null";
+    constexpr std::string_view empty_uinput_name = "Empty-Device";
 
     /**
      * A virtual device
@@ -65,6 +66,8 @@ export namespace foresight {
                         int             file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
 
         void set_device(evdev const& inp_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
+        void set_device(int              file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED,
+                        std::string_view name            = empty_uinput_name) noexcept;
 
 
         /**
@@ -116,6 +119,41 @@ export namespace foresight {
          */
         [[nodiscard]] std::string_view devnode() const noexcept;
 
+        void enable_event_type(ev_type) noexcept;
+        void enable_event_code(ev_type, code_type) noexcept;
+        void enable_caps(dev_caps_view) noexcept;
+
+        void set_abs(code_type code, input_absinfo const& abs_info) noexcept;
+
+        template <typename... T>
+            requires(std::convertible_to<T, code_type> && ...)
+        void enable_event_codes(ev_type const type, T const... codes) noexcept {
+            (enable_event_code(type, static_cast<code_type>(codes)), ...);
+        }
+
+        // void disable_event_type(ev_type) noexcept;
+        // void disable_event_code(ev_type, code_type) noexcept;
+        // void disable_caps(dev_caps_view) noexcept;
+        //
+        // template <typename... T>
+        //     requires(std::convertible_to<T, code_type> && ...)
+        // void disable_event_codes(ev_type const type, T const... codes) noexcept {
+        //     (disable_event_code(type, static_cast<code_type>(codes)), ...);
+        // }
+
+        /// Enable/Disable the caps for this device
+        // void apply_caps(dev_caps_view) noexcept;
+
+        // [[nodiscard]] bool has_event_type(ev_type) const noexcept;
+        // [[nodiscard]] bool has_event_code(ev_type, code_type) const noexcept;
+        //
+        // template <typename... T>
+        //     requires((std::convertible_to<T, code_type> && ...) && sizeof...(T) >= 1)
+        // [[nodiscard]] bool has_event_codes(ev_type const type, T const... codes) const noexcept {
+        //     return (has_event_code(type, static_cast<code_type>(codes)) && ...);
+        // }
+
+
         bool emit(ev_type type, code_type code, value_type value) noexcept;
         bool emit(input_event const& event) noexcept;
         bool emit(event_type const& event) noexcept;
@@ -130,7 +168,6 @@ export namespace foresight {
         libevdev_uinput* dev      = nullptr;
         std::errc        err_code = std::errc{};
     } uinput;
-
 
     static_assert(OutputModifier<basic_uinput>, "Must be an output modifier.");
 } // namespace foresight

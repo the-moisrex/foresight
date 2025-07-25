@@ -378,7 +378,7 @@ namespace foresight {
         // -- Composite Device Capabilities --
 
         // A standard 104-key Keyboard
-        constexpr auto keyboard = syn + misc_scan + keyboard_leds + keyboard_keys;
+        constexpr auto keyboard = syn + keyboard_leds + keyboard_keys;
 
         // A keyboard with additional media controls
         constexpr auto multimedia_keyboard = keyboard + keys_media;

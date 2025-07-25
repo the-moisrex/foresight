@@ -243,9 +243,11 @@ export namespace foresight {
             return routes_of<basic_uinput>();
         }
 
-        template <std::ranges::input_range R, typename Func = basic_noop>
+        template <std::ranges::sized_range R, typename Func = basic_noop>
         void init_from(R&& devs, Func&& func = {}) noexcept {
-            for (auto&& [dev, udev] : std::views::zip(std::forward<R>(devs), uinput_devices())) {
+            auto udevs = uinput_devices();
+            for (auto&& [dev, udev] : std::views::zip(std::forward<R>(devs), udevs)) {
+                udev.set_device(dev);
                 if constexpr (std::invocable<Func, evdev&, basic_uinput&>) {
                     func(dev, udev);
                 } else if constexpr (std::invocable<Func, basic_uinput&>) {
@@ -253,7 +255,14 @@ export namespace foresight {
                 } else if constexpr (std::invocable<Func, evdev const&>) {
                     func(dev);
                 }
-                udev.set_device(dev);
+            }
+
+            // Set up an empty device
+            for (auto udev : udevs | std::views::drop(devs.size())) {
+                udev.set_device();
+                if constexpr (std::invocable<Func, basic_uinput&>) {
+                    func(udev);
+                }
             }
         }
 
