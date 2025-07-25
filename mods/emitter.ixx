@@ -57,17 +57,38 @@ namespace foresight {
 
     export constexpr emitter<0> emit;
 
-    export constexpr std::array<user_event, 2> keyup(event_type::code_type code) noexcept;
-    export constexpr std::array<user_event, 2> keydown(event_type::code_type code) noexcept;
-    export constexpr std::array<user_event, 4> keypress(event_type::code_type code) noexcept;
+    export constexpr std::array<user_event, 2> up(event_type::code_type const code) noexcept {
+        return std::array{
+          user_event{EV_KEY, code, 0},
+          static_cast<user_event>(syn())
+        };
+    }
+
+    export constexpr std::array<user_event, 2> down(event_type::code_type const code) noexcept {
+        return std::array{
+          user_event{EV_KEY, code, 1},
+          static_cast<user_event>(syn())
+        };
+    }
+
+    export constexpr std::array<user_event, 4> keypress(event_type::code_type const code) noexcept {
+        return std::array{
+          user_event{EV_KEY, code, 1},
+          static_cast<user_event>(syn()),
+          user_event{EV_KEY, code, 0},
+          static_cast<user_event>(syn()),
+        };
+    }
 
     export template <typename... CT>
     constexpr auto press(CT const... codes) noexcept {
         std::array<user_event, sizeof...(CT) * 2 + 2> events;
         auto                                          pos = events.begin();
-        ((*pos++ = user_event{EV_KEY, static_cast<event_type::code_type>(codes), 1}), ...);
+        ((*pos++ = user_event{.type = EV_KEY, .code = static_cast<event_type::code_type>(codes), .value = 1}),
+         ...);
         *pos++ = static_cast<user_event>(syn());
-        ((*pos++ = user_event{EV_KEY, static_cast<event_type::code_type>(codes), 0}), ...);
+        ((*pos++ = user_event{.type = EV_KEY, .code = static_cast<event_type::code_type>(codes), .value = 0}),
+         ...);
         *pos = static_cast<user_event>(syn());
         return events;
     }

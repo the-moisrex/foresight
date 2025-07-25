@@ -10,6 +10,7 @@ import foresight.mods.keys_status;
 import foresight.mods.quantifier;
 import foresight.mods.inout;
 import foresight.mods.event;
+import foresight.main.utils;
 
 export namespace foresight {
 
@@ -19,24 +20,27 @@ export namespace foresight {
         return std::array<event_type::code_type, sizeof...(T)>{static_cast<event_type::code_type>(vals)...};
     }
 
-    constexpr std::array<event_type::code_type, 1> default_scroll_keys{BTN_MIDDLE};
-
-    constexpr struct [[nodiscard]] basic_add_scroll {
+    template <typename CondT = basic_noop, typename Func = basic_noop>
+    struct [[nodiscard]] basic_add_scroll {
         using value_type = event_type::value_type;
         using code_type  = event_type::code_type;
 
       private:
-        bool                       lock    = false;
-        value_type                 reverse = 8;
-        std::span<code_type const> hold_keys{default_scroll_keys}; // buttons to be hold
+        bool                        lock    = false;
+        value_type                  reverse = 5;
+        [[no_unique_address]] CondT cond;
+        [[no_unique_address]] Func  func;
 
       public:
         constexpr basic_add_scroll() noexcept = default;
 
-        constexpr explicit basic_add_scroll(std::span<code_type const> const inp_hold_keys,
-                                            value_type const                 inp_reverse = 8) noexcept
+        constexpr explicit basic_add_scroll(
+          CondT const     &inp_cond,
+          value_type const inp_reverse = 5,
+          Func const      &inp_func    = {}) noexcept
           : reverse{inp_reverse},
-            hold_keys{inp_hold_keys} {
+            cond{inp_cond},
+            func{inp_func} {
             assert(reverse != 0);
         }
 
@@ -46,9 +50,22 @@ export namespace foresight {
         constexpr basic_add_scroll &operator=(basic_add_scroll &&) noexcept      = default;
         constexpr ~basic_add_scroll() noexcept                                   = default;
 
-        template <typename... Args>
-        [[nodiscard]] consteval auto operator()(Args &&...args) const noexcept {
-            return basic_add_scroll{std::forward<Args>(args)...};
+        [[nodiscard]] constexpr bool is_locked() const noexcept {
+            return lock;
+        }
+
+        template <typename InpCondT, typename InpFuncT = basic_noop>
+        [[nodiscard]] consteval auto operator()(
+          InpCondT const  &inp_cond,
+          value_type const inp_reverse = 8,
+          InpFuncT const  &inp_func    = {}) const noexcept {
+            return basic_add_scroll<InpCondT, InpFuncT>{inp_cond, inp_reverse, inp_func};
+        }
+
+        template <typename InpCondT, typename InpFuncT = basic_noop>
+        [[nodiscard]] consteval auto operator()(InpCondT const &inp_cond,
+                                                InpFuncT const &inp_func = {}) const noexcept {
+            return basic_add_scroll<InpCondT, InpFuncT>{inp_cond, reverse, inp_func};
         }
 
         template <Context CtxT>
@@ -63,13 +80,10 @@ export namespace foresight {
             auto const &event = ctx.event();
 
 
-            if (keys.is_pressed(hold_keys)) {
+            if (invoke_cond(cond, ctx)) {
                 // release the held keys:
                 if (!lock) {
-                    for (auto const code : hold_keys) {
-                        std::ignore = ctx.fork_emit(EV_KEY, code, 0);
-                        std::ignore = ctx.fork_emit(syn());
-                    }
+                    std::ignore = invoke_mod(func, ctx);
                 }
 
                 if (is_mouse_movement(event)) {
@@ -103,5 +117,8 @@ export namespace foresight {
             }
             return next;
         }
-    } add_scroll;
+    };
+
+    constexpr basic_add_scroll<> add_scroll;
+
 } // namespace foresight

@@ -188,14 +188,18 @@ namespace foresight {
 
         template <typename Func>
         [[nodiscard]] consteval auto operator|(Func func) const noexcept {
-            return or_op<and_op, std::remove_cvref_t<Func>>{*this, func};
+            if constexpr (sizeof...(Funcs) == 0) {
+                return or_op<std::remove_cvref_t<Func>>{func};
+            } else {
+                return or_op<and_op, std::remove_cvref_t<Func>>{*this, func};
+            }
         }
 
         template <Context CtxT>
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
             return std::apply(
               [&ctx](auto&... cond) constexpr noexcept {
-                  return (invoke_cond(cond, ctx) && ... && true);
+                  return (invoke_cond(cond, ctx) && ...);
               },
               funcs);
         }
@@ -221,7 +225,11 @@ namespace foresight {
 
         template <typename Func>
         [[nodiscard]] consteval auto operator&(Func func) const noexcept {
-            return and_op<or_op, std::remove_cvref_t<Func>>{*this, func};
+            if constexpr (sizeof...(Funcs) == 0) {
+                return and_op<std::remove_cvref_t<Func>>{func};
+            } else {
+                return and_op<or_op, std::remove_cvref_t<Func>>{*this, func};
+            }
         }
 
         template <typename Func>
@@ -238,7 +246,7 @@ namespace foresight {
             static_assert((std::is_nothrow_invocable_r_v<bool, Funcs, CtxT&> && ...), "All must be nothrow");
             return std::apply(
               [&ctx](auto&... cond) constexpr noexcept {
-                  return (invoke_cond(cond, ctx) || ... || false);
+                  return (invoke_cond(cond, ctx) || ...);
               },
               funcs);
         }
@@ -274,12 +282,10 @@ namespace foresight {
                                                value_type const y_axis) const noexcept {
             using std::abs;
             using std::signbit;
-            return abs(cur_x)
-                   >= abs(x_axis)
+            return (abs(cur_x) >= abs(x_axis))
                    && (signbit(cur_x) == signbit(x_axis) || x_axis == 0)
                    &&                                                     // X
-                   abs(cur_y)
-                   >= abs(y_axis)
+                   (abs(cur_y) >= abs(y_axis))
                    && (signbit(cur_y) == signbit(y_axis) || y_axis == 0); // Y
         }
 

@@ -15,9 +15,7 @@ int main(int const argc, char const* const* argv) {
 
     auto args = std::span{argv, argv + argc} | drop(1) | transform_to<std::string_view>();
 
-    static constexpr auto scroll_button = key_pack(BTN_MIDDLE);
-    static constexpr auto mid_left      = op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT};
-
+    static constexpr auto mid_left = op & pressed{BTN_MIDDLE} & pressed{BTN_LEFT};
     static constexpr auto main_pipeline =
       context
       | led_status
@@ -41,7 +39,7 @@ int main(int const argc, char const* const* argv) {
              | on(swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)))
              | ignore_mouse_moves)
       | ignore_adjacent_syns
-      | add_scroll(scroll_button, 5); // Make 'middle button' a scroll wheel
+      | add_scroll(op | pressed(BTN_MIDDLE) | pressed(KEY_ESC), emit + up(BTN_MIDDLE));
 
     if (args.size() > 0) {
         constinit static auto pipeline =
