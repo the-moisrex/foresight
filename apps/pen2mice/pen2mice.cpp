@@ -51,7 +51,6 @@ int main(int const argc, char const* const* argv) {
           | router(caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput);
 
         pipeline.mod(intercept).add_devs(args | find_devices, grab_inputs);
-        // pipeline.mod(router).init_from_intercepted_devices(pipeline);
         pipeline();
     } else {
         (context

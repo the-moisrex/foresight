@@ -93,7 +93,7 @@ void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descript
         close();
         err_code = static_cast<std::errc>(-ret);
     }
-    log("Init Virtual Device: {}", this->devnode());
+    log("Init Virtual Device: '{}' from '{}'", this->devnode(), libevdev_get_name(evdev_dev));
 }
 
 void basic_uinput::set_device(evdev const& inp_dev, int const file_descriptor) noexcept {
@@ -224,10 +224,8 @@ namespace {
         return uinput_dev->devnode ? 0 : -1;
     }
 
-    int uinput_SETUP(int fd, my_libevdev_uinput const* new_device) {
-        uinput_setup setup;
-
-        memset(&setup, 0, sizeof(setup));
+    int uinput_SETUP(int const fd, my_libevdev_uinput const* new_device) {
+        uinput_setup setup{};
         strncpy(setup.name, new_device->name, UINPUT_MAX_NAME_SIZE - 1);
         setup.id.vendor      = 0;
         setup.id.product     = 0;
@@ -235,7 +233,7 @@ namespace {
         setup.id.version     = 0;
         setup.ff_effects_max = 0;
 
-        if (::ioctl(fd, UI_DEV_SETUP, &setup) == 0) {
+        if (ioctl(fd, UI_DEV_SETUP, &setup) == 0) {
             errno = 0;
         }
         return errno;
@@ -392,6 +390,21 @@ void basic_uinput::set_abs(code_type const code, input_absinfo const& abs_info) 
     }
 }
 
+void basic_uinput::apply_caps(dev_caps_view const inp_caps) noexcept {
+    using enum caps_action;
+    for (auto const& [type, codes, action] : inp_caps) {
+        switch (action) {
+            case append:
+                for (auto const code : codes) {
+                    enable_event_code(type, code);
+                }
+                break;
+            case remove_codes:
+            case remove_type: break;
+        }
+    }
+}
+
 bool basic_uinput::emit(ev_type const type, code_type const code, value_type const value) noexcept {
     assert(is_ok());
     if (auto const ret = libevdev_uinput_write_event(dev, type, code, value); ret != 0) [[unlikely]] {
@@ -430,17 +443,17 @@ void basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
         }
     }
     if (best.dev.ok()) {
-        best.dev.apply_caps(caps_view);
+        // best.dev.apply_caps(caps_view);
         std::string new_name;
         new_name += best.dev.device_name();
         new_name += " (Copied)";
-        best.dev.device_name(new_name);
+        best.dev.device_name(new_name); // this is okay, it's not changing the original device
         log("Init uinput from: {} ({})", new_name, best.dev.physical_location());
         this->set_device(best.dev);
     } else {
         this->set_device();
-        // this->apply_caps(caps_view);
     }
+    this->apply_caps(caps_view);
 }
 
 foresight::context_action basic_uinput::operator()(event_type const& event) noexcept {

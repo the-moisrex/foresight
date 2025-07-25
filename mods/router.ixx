@@ -258,7 +258,7 @@ export namespace foresight {
             }
 
             // Set up an empty device
-            for (auto udev : udevs | std::views::drop(devs.size())) {
+            for (basic_uinput& udev : udevs | std::views::drop(devs.size())) {
                 udev.set_device();
                 if constexpr (std::invocable<Func, basic_uinput&>) {
                     func(udev);

@@ -131,18 +131,8 @@ export namespace foresight {
             (enable_event_code(type, static_cast<code_type>(codes)), ...);
         }
 
-        // void disable_event_type(ev_type) noexcept;
-        // void disable_event_code(ev_type, code_type) noexcept;
-        // void disable_caps(dev_caps_view) noexcept;
-        //
-        // template <typename... T>
-        //     requires(std::convertible_to<T, code_type> && ...)
-        // void disable_event_codes(ev_type const type, T const... codes) noexcept {
-        //     (disable_event_code(type, static_cast<code_type>(codes)), ...);
-        // }
-
         /// Enable/Disable the caps for this device
-        // void apply_caps(dev_caps_view) noexcept;
+        void apply_caps(dev_caps_view) noexcept;
 
         // [[nodiscard]] bool has_event_type(ev_type) const noexcept;
         // [[nodiscard]] bool has_event_code(ev_type, code_type) const noexcept;
