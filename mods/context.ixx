@@ -404,43 +404,6 @@ export namespace foresight {
             return reemit<Index, basic_context>(*this);
         }
 
-        // /**
-        //  * Usage:
-        //  *   ctx.fork_emit(*this);
-        //  */
-        // template <modifier Func>
-        // constexpr context_action fork_emit([[maybe_unused]] Func const &inp_mod) noexcept(is_nothrow) {
-        //     return reemit<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U>();
-        // }
-        //
-        // template <modifier Func>
-        // constexpr context_action fork_emit() noexcept(is_nothrow) {
-        //     return reemit<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U>();
-        // }
-        //
-        // template <modifier Func, Context CtxT = basic_context>
-        // constexpr context_action fork_emit(CtxT &ctx, [[maybe_unused]] Func const &inp_mod) const
-        //   noexcept(CtxT::is_nothrow) {
-        //     return ctx.template reemit<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U>(ctx);
-        // }
-        //
-        // template <modifier Func>
-        // constexpr context_action fork_emit([[maybe_unused]] Func const &inp_mod,
-        //                                    event_type const            &inp_event) noexcept(is_nothrow) {
-        //     auto const cur_ev = std::exchange(ev, inp_event);
-        //     auto const res    = fork_emit(inp_mod);
-        //     ev                = cur_ev;
-        //     return res;
-        // }
-        //
-        // template <modifier Func>
-        // constexpr context_action fork_emit(event_type const &inp_event) noexcept(is_nothrow) {
-        //     auto const cur_ev = std::exchange(ev, inp_event);
-        //     auto const res    = fork_emit<Func>();
-        //     ev                = cur_ev;
-        //     return res;
-        // }
-
         template <std::size_t Index>
         constexpr context_action fork_emit(event_type const &inp_event) noexcept(is_nothrow) {
             auto const cur_ev = std::exchange(ev, inp_event);
@@ -454,18 +417,6 @@ export namespace foresight {
         constexpr context_action fork_emit(Args &&...args) noexcept(is_nothrow) {
             return fork_emit<Index>(event_type{std::forward<Args>(args)...});
         }
-
-        // template <modifier Func, typename... Args>
-        //     requires(std::constructible_from<event_type, Args...> && sizeof...(Args) >= 2)
-        // constexpr context_action fork_emit([[maybe_unused]] Func const &inp_mod, Args &&...args) noexcept(
-        //   is_nothrow) {
-        //     return fork_emit<Func>(inp_mod, event_type{std::forward<Args>(args)...});
-        // }
-
-        // template <modifier Func>
-        // constexpr auto fork_view([[maybe_unused]] Func const &) noexcept {
-        //     return basic_context_view<index_at<std::remove_cvref_t<Func>, Funcs...> + 1U, Funcs...>{*this};
-        // }
 
         template <std::size_t Index>
         constexpr auto fork_view() noexcept {

@@ -272,13 +272,13 @@ namespace foresight {
             }
             if (is_it_mouse) {
                 switch (event.code()) {
-                    case REL_X: x_cur += event.value(); break;
-                    case REL_Y: y_cur += event.value(); break;
+                    case REL_X: x_cur += std::abs(event.value()); break;
+                    case REL_Y: y_cur += std::abs(event.value()); break;
                     default: break;
                 }
             }
             // log("{} {} {}", x_cur, y_cur, std::abs(x_cur) <= x_amount && std::abs(y_cur) <= y_amount);
-            return (std::abs(x_cur) <= x_amount) && (std::abs(y_cur) <= y_amount);
+            return (x_cur <= x_amount) && (y_cur <= y_amount);
         }
     };
 
