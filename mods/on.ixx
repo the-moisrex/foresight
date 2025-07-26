@@ -13,7 +13,6 @@ export module foresight.mods.on;
 export import foresight.main.utils;
 import foresight.mods.keys_status;
 import foresight.mods.context;
-import foresight.main.log;
 
 namespace foresight {
 
@@ -103,26 +102,18 @@ namespace foresight {
     };
 
     export struct [[nodiscard]] keydown {
-        ev_type   type = EV_MAX;
         code_type code = KEY_MAX;
 
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return (event.type() == type || type == EV_MAX)
-                   && (event.code() == code || code == KEY_MAX)
-                   && event.value()
-                   == 1;
+            return event.is(EV_KEY, code, 1);
         }
     };
 
     export struct [[nodiscard]] keyup {
-        ev_type   type = EV_MAX;
         code_type code = KEY_MAX;
 
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return (event.type() == type || type == EV_MAX)
-                   && (event.code() == code || code == KEY_MAX)
-                   && event.value()
-                   == 0;
+            return event.is(EV_KEY, code, 0);
         }
     };
 
@@ -145,55 +136,6 @@ namespace foresight {
             return !invoke_cond(func, ctx);
         }
     };
-
-    export template <typename FuncT>
-    struct [[nodiscard]] basic_longtime {
-      private:
-        [[no_unique_address]] FuncT func{};
-        std::chrono::microseconds   dur = std::chrono::milliseconds{100};
-        std::chrono::microseconds   last_time{};
-
-      public:
-        constexpr basic_longtime() noexcept = default;
-
-        constexpr explicit basic_longtime(FuncT const&                    inp_func,
-                                          std::chrono::microseconds const inp_dur) noexcept
-          : func{inp_func},
-            dur{inp_dur} {}
-
-        consteval basic_longtime(basic_longtime const&) noexcept            = default;
-        consteval basic_longtime& operator=(basic_longtime const&) noexcept = default;
-        constexpr basic_longtime(basic_longtime&&) noexcept                 = default;
-        constexpr basic_longtime& operator=(basic_longtime&&) noexcept      = default;
-        constexpr ~basic_longtime() noexcept                                = default;
-
-        // todo: initialize the dur with repetition delay of the keyboard
-
-        template <typename InpFuncT>
-        consteval auto operator()(InpFuncT&&                      inp_func,
-                                  std::chrono::microseconds const inp_dur) const noexcept {
-            return basic_longtime<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func), inp_dur};
-        }
-
-        template <typename InpFuncT>
-        consteval auto operator()(InpFuncT&& inp_func) const noexcept {
-            return basic_longtime<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func), dur};
-        }
-
-        template <Context CtxT>
-        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
-            if (invoke_cond(func, ctx)) {
-                if (last_time == std::chrono::microseconds(0)) {
-                    last_time = ctx.event().micro_time();
-                }
-            } else {
-                last_time = std::chrono::microseconds(0);
-            }
-            return last_time >= dur;
-        }
-    };
-
-    export constexpr basic_longtime<basic_noop> longtime;
 
     export template <typename FuncT>
     struct [[nodiscard]] basic_longtime_released {
@@ -249,6 +191,98 @@ namespace foresight {
     };
 
     export constexpr basic_longtime_released<basic_noop> longtime_released;
+
+    export template <typename CondT = basic_noop>
+    struct [[nodiscard]] basic_limit_mouse_travel {
+      private:
+        value_type x_amount = 50;
+        value_type y_amount = 50;
+
+        value_type x_cur = 0;
+        value_type y_cur = 0;
+
+        [[no_unique_address]] CondT cond{};
+
+      public:
+        constexpr basic_limit_mouse_travel() noexcept = default;
+
+        constexpr explicit basic_limit_mouse_travel(
+          CondT const&     inp_cond,
+          value_type const x,
+          value_type const y) noexcept
+          : x_amount{x},
+            y_amount{y},
+            cond{inp_cond} {}
+
+        constexpr explicit basic_limit_mouse_travel(value_type const x, value_type const y) noexcept
+          : x_amount{x},
+            y_amount{y} {}
+
+        constexpr explicit basic_limit_mouse_travel(value_type const both) noexcept
+          : x_amount{both},
+            y_amount{both} {}
+
+        consteval basic_limit_mouse_travel(basic_limit_mouse_travel const&) noexcept            = default;
+        consteval basic_limit_mouse_travel& operator=(basic_limit_mouse_travel const&) noexcept = default;
+        constexpr basic_limit_mouse_travel(basic_limit_mouse_travel&&) noexcept                 = default;
+        constexpr basic_limit_mouse_travel& operator=(basic_limit_mouse_travel&&) noexcept      = default;
+        constexpr ~basic_limit_mouse_travel() noexcept                                          = default;
+
+        consteval basic_limit_mouse_travel operator()(value_type const x, value_type const y) const noexcept {
+            return basic_limit_mouse_travel{x, y};
+        }
+
+        consteval basic_limit_mouse_travel operator()(value_type const both) const noexcept {
+            return basic_limit_mouse_travel{both};
+        }
+
+        template <typename InpCondT>
+        consteval auto
+        operator()(InpCondT&& inp_cond, value_type const x, value_type const y) const noexcept {
+            return basic_limit_mouse_travel<std::remove_cvref_t<InpCondT>>{
+              std::forward<InpCondT>(inp_cond),
+              x,
+              y};
+        }
+
+        template <typename InpCondT>
+        consteval auto operator()(InpCondT&& inp_cond, value_type const both) const noexcept {
+            return basic_limit_mouse_travel<std::remove_cvref_t<InpCondT>>{
+              std::forward<InpCondT>(inp_cond),
+              both,
+              both};
+        }
+
+        [[nodiscard]] constexpr bool operator()(Context auto& ctx) noexcept {
+            auto const& event       = ctx.event();
+            bool const  is_it_mouse = is_mouse_movement(event);
+            if (invoke_cond(cond, ctx)) {
+                if (is_it_mouse && (x_cur == -1 || y_cur == -1)) {
+                    switch (event.code()) {
+                        case REL_X: x_cur = event.value(); break;
+                        case REL_Y: y_cur = event.value(); break;
+                        default: break;
+                    }
+                    return true;
+                }
+            } else {
+                x_cur = -1;
+                y_cur = -1;
+                return false;
+            }
+            if (is_it_mouse) {
+                switch (event.code()) {
+                    case REL_X: x_cur += event.value(); break;
+                    case REL_Y: y_cur += event.value(); break;
+                    default: break;
+                }
+            }
+            // log("{} {} {}", x_cur, y_cur, std::abs(x_cur) <= x_amount && std::abs(y_cur) <= y_amount);
+            return (std::abs(x_cur) <= x_amount) && (std::abs(y_cur) <= y_amount);
+        }
+    };
+
+    export constexpr basic_limit_mouse_travel<> limit_mouse_travel;
 
     export struct [[nodiscard]] led_on {
         code_type code = LED_MAX;

@@ -20,6 +20,7 @@ int main(int argc, char const* const* argv) {
     constinit static auto pipeline =
       context
       | intercept                      // Intercept the events
+      | scheduled_emitter
       | led_status
       | keys_status                    // Save key presses
       | on(op | pressed(KEY_CAPSLOCK) | led_off(LED_CAPSL),
@@ -33,6 +34,8 @@ int main(int argc, char const* const* argv) {
       | swipe_detector                 // Detects swipes
       | on(pressed(BTN_RIGHT), context | ignore_big_jumps(10) | ignore_start_moves) // fix right click jumps
       | on(op & pressed{BTN_MIDDLE} & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB)))
+      | on(op & limit_mouse_travel(pressed(KEY_CAPSLOCK), 50) & keyup(BTN_LEFT),
+           schedule_emit + press(BTN_RIGHT))
       | on(op & (op | pressed{BTN_MIDDLE} | pressed(KEY_CAPSLOCK)) & pressed{BTN_LEFT},
            context
              | on(swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT)))
