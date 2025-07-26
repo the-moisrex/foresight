@@ -85,7 +85,7 @@ export namespace foresight {
       private:
         static constexpr msec_type default_time_threshold = std::chrono::milliseconds(30);
 
-        event_code code{};
+        user_event code{};
         msec_type  time_threshold{default_time_threshold};
         msec_type  last_emitted{0};
 
@@ -95,7 +95,7 @@ export namespace foresight {
         constexpr explicit basic_ignore_fast_repeats(
           event_code const inp_code,
           msec_type const  inp_time_threshold = default_time_threshold) noexcept
-          : code{inp_code},
+          : code{.type = inp_code.type, .code = inp_code.code, .value = 1},
             time_threshold{inp_time_threshold} {}
 
         consteval basic_ignore_fast_repeats(basic_ignore_fast_repeats const&) noexcept            = default;
@@ -112,6 +112,53 @@ export namespace foresight {
 
         context_action operator()(event_type const& event) noexcept;
     } ignore_fast_repeats;
+
+    template <std::size_t N>
+    struct [[nodiscard]] basic_ignore_keys {
+      private:
+        std::array<event_code, N> codes{};
+
+      public:
+        constexpr basic_ignore_keys() noexcept = default;
+
+        constexpr explicit basic_ignore_keys(std::array<event_code, N> const inp_codes) noexcept
+          : codes{inp_codes} {}
+
+        consteval basic_ignore_keys(basic_ignore_keys const&) noexcept            = default;
+        constexpr basic_ignore_keys(basic_ignore_keys&&) noexcept                 = default;
+        consteval basic_ignore_keys& operator=(basic_ignore_keys const&) noexcept = default;
+        constexpr basic_ignore_keys& operator=(basic_ignore_keys&&) noexcept      = default;
+        constexpr ~basic_ignore_keys() noexcept                                   = default;
+
+        consteval basic_ignore_keys operator()(std::array<event_code, N> const inp_codes) const noexcept {
+            return basic_ignore_keys{inp_codes};
+        }
+
+        template <typename... T>
+            requires((std::convertible_to<T, event_code> && ...))
+        consteval auto operator()(T... inp_codes) const noexcept {
+            return basic_ignore_keys<sizeof...(T)>{
+              std::array<event_code, sizeof...(T)>{static_cast<event_code>(inp_codes)...}};
+        }
+
+        template <typename... T>
+            requires((std::convertible_to<T, event_type::code_type> && ...))
+        consteval auto operator()(T... inp_codes) const noexcept {
+            return basic_ignore_keys<sizeof...(T)>{std::array<event_code, sizeof...(T)>{
+              event_code{.type = EV_KEY, .code = static_cast<event_type::code_type>(inp_codes)}...}};
+        }
+
+        context_action operator()(event_type const& event) const noexcept {
+            for (event_code const code : codes) {
+                if (event.is(code)) {
+                    return context_action::ignore_event;
+                }
+            }
+            return context_action::next;
+        }
+    };
+
+    constexpr basic_ignore_keys<0> ignore_keys;
 
     constexpr struct [[nodiscard]] basic_ignore_start_moves {
         using msec_type = std::chrono::microseconds;
@@ -149,11 +196,11 @@ export namespace foresight {
     } ignore_start_moves;
 
     constexpr struct [[nodiscard]] basic_ignore_adjacent_repeats {
-        private:
+      private:
         event_code asked_event{};
-        bool is_found = false;
+        bool       is_found = false;
 
-        public:
+      public:
         constexpr basic_ignore_adjacent_repeats() noexcept = default;
 
         constexpr explicit basic_ignore_adjacent_repeats(event_code const code) noexcept
@@ -162,11 +209,13 @@ export namespace foresight {
         constexpr explicit basic_ignore_adjacent_repeats(event_type const code) noexcept
           : asked_event{static_cast<event_code>(code)} {}
 
-        consteval basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats const&) noexcept            = default;
-        constexpr basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats&&) noexcept                 = default;
-        consteval basic_ignore_adjacent_repeats& operator=(basic_ignore_adjacent_repeats const&) noexcept = default;
-        constexpr basic_ignore_adjacent_repeats& operator=(basic_ignore_adjacent_repeats&&) noexcept      = default;
-        constexpr ~basic_ignore_adjacent_repeats() noexcept                                          = default;
+        consteval basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats const&) noexcept = default;
+        constexpr basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats&&) noexcept      = default;
+        consteval basic_ignore_adjacent_repeats& operator=(
+          basic_ignore_adjacent_repeats const&) noexcept = default;
+        constexpr basic_ignore_adjacent_repeats& operator=(
+          basic_ignore_adjacent_repeats&&) noexcept         = default;
+        constexpr ~basic_ignore_adjacent_repeats() noexcept = default;
 
         consteval basic_ignore_adjacent_repeats operator()(event_code const code) const noexcept {
             return basic_ignore_adjacent_repeats{code};
