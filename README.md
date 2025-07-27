@@ -1,8 +1,8 @@
-# Foresight Smart Keyboard
+# Foresight Smart Input
 
-Smart Keyboard which intercepts your keystrokes and will help you type less, faster, and adds foresight.
+Smart Input, which intercepts your keystrokes and will help you type less, faster, and adds foresight.
 
-Even though we're trying to start from making the keyboard smarter, but the goal of the project is to help 
+Even though we're trying to start from making the keyboard smarter, but the goal of the project is to help
 the computer know what the user wants and just help them do it and also give the user a situational awareness
 of the system they're using.
 
@@ -11,45 +11,58 @@ of the system they're using.
 - Programming input devices to match your needs and wants.
 - Automation
 - Quick Actions
-- Creating models of your habits in order to predict the correct actions
+- Creating models of your habits to predict the correct actions
 - A personal assistance that lets you focus and gives you the right information at the right time
-- Connecting related tools together to create useful pipelines of actions
+- Connecting related tools to create useful pipelines of actions
 - Adding features to software that don't support them yet
 - Do all of these things while considering "Privacy"
 
-I understand these are a far reach goals, but we can't get there if we don't try.
+I understand these are far-fetched goals, but we can't get there if we don't try.
 
 ## Features
 
-| Feature Name            | Description                                                              | Status |
-|-------------------------|--------------------------------------------------------------------------|--------|
-| Intercept               | Intercept the input events and print them                                | ✅      |
-| \> Redirect             | Read the input events from stdin, and write them to the event files      | ✅      |
-| \> Common interceptors  | Common interceptors for use with `intercept \| ... \| redirect`          | ❌      |
-| Device Info             | List kernel event devices (like evtest)                                  | ❌      |
-| String Matching         | Figure out what the using is typing/editing right now                    | ❌      |
-| Regular Expression      | Use RegExp to find and replace selected/typing strings                   | ❌      |
-| Auto-complete           | Auto complete the user input                                             | ❌      |
-| Auto-correct            | Auto correct                                                             | ❌      |
-| Number Scroll           | Shortcut + Scroll-wheel to update the number/date/color/...              | ❌      |
-| Shell cmds              | Run shell commands (for eg: `$ whoami <ctrl-enter>`)                     | ❌      |
-| Software Detection      | Detect which app the user's in, so we can use custom commands            | ❌      |
-| Clang Tools             | Use clang tools to rename variables, show assembly, ...                  | ❌      |
-| Config File             | Custom config file to customize by the user                              | ❌      |
-| GUI                     | Graphical User Interface for ease of use                                 | ❌      |
-| Remote Input            | Remotely control the keyboard and mouse (sharing keyboard & mouse)       | ❌      |
-| Auto translate          | Translate the input while typing                                         | ❌      |
-| Keyboard re-mapping     | Remap any input to another or a combinations of others                   | ❌      |
-| Unicode Support         | Emojis, ...                                                              | ❌      |
-| Macros                  | Register a sequence of keys, and re-run them as needed                   | ❌      |
-| Modes and Layers        | Like vim modes                                                           | ❌      |
-| Audio                   | Add audio support for when events happen, we can configure special audio | ❌      |
-| Network Packet Matching | Fire events on network packets (use case: beep on loading ads)           | ❌      |
-| Habits                  | Machine-Learning based event-habit calculator                            | ❌      |
-| \> Anomaly Notifier     | Machine-Learning based anomaly notifier based on habits                  | ❌      |
-
+| Feature Name                | Description                                                              | Status |
+|-----------------------------|--------------------------------------------------------------------------|--------|
+| Intercept                   | Intercept the input events and print them                                | ✅      |
+| \> Redirect                 | Read the input events from stdin, and write them to the event files      | ✅      |
+| \> Common interceptors      | Common interceptors for use with `intercept \| ... \| redirect`          | ✅      |
+| \> Ignore big jumps         | Ignore big mouse jumps                                                   | ✅      |
+| \> Ignore Starting moves    | Ignore starting moves of a mouse                                         | ✅      |
+| \> Ignore fast repeats      | Ignore fast repeats of input events                                      | ✅      |
+| \> Ignore events completely | Ignore some events completely (mostly used conditionally)                | ✅      |
+| \> Ignore adjacent repeats  | Ignore duplicated events (mostly happen by mistake)                      | ✅      |
+| \> ABS to REL               | Convert absolute events (drawing tablets) to relative events (mouse)     | ✅      |
+| \> Add Scrollbar            | Convert mouse movements into scroll wheel (conditionally)                | ✅      |
+| \> Replace events           | Convert events into other events.                                        | ✅      |
+| \> Route events             | Route events into different output devices                               | ✅      |
+| Device Info                 | List kernel event devices (like evtest)                                  | ❌      |
+| String Matching             | Figure out what the using is typing/editing right now                    | ❌      |
+| Regular Expression          | Use RegExp to find and replace selected/typing strings                   | ❌      |
+| Auto-complete               | Auto complete the user input                                             | ❌      |
+| Auto-correct                | Auto correct                                                             | ❌      |
+| Number Scroll               | Shortcut + Scroll-wheel to update the number/date/color/...              | ❌      |
+| Shell cmds                  | Run shell commands (for eg: `$ whoami <ctrl-enter>`)                     | ✅      |
+| Software Detection          | Detect which app the user's in, so we can use custom commands            | ❌      |
+| Clang Tools                 | Use clang tools to rename variables, show assembly, ...                  | ❌      |
+| Config File                 | Custom config file to customize by the user                              | ❌      |
+| GUI                         | Graphical User Interface for ease of use                                 | ❌      |
+| Remote Input                | Remotely control the keyboard and mouse (sharing keyboard & mouse)       | ❌      |
+| Auto translate              | Translate the input while typing                                         | ❌      |
+| Keyboard re-mapping         | Remap any input to another or a combinations of others                   | ✅      |
+| Unicode Support             | Emojis, ...                                                              | ❌      |
+| Macros                      | Register a sequence of keys, and re-run them as needed                   | ❌      |
+| Modes and Layers            | Like vim modes                                                           | ❌      |
+| Audio                       | Add audio support for when events happen, we can configure special audio | ❌      |
+| Network Packet Matching     | Fire events on network packets (use case: beep on loading ads)           | ❌      |
+| Habits                      | Machine-Learning based event-habit calculator                            | ❌      |
+| \> Anomaly Notifier         | Machine-Learning based anomaly notifier based on habits                  | ❌      |
 
 ## Help & Usage
+
+Examples like pen2mice will convert Drawing Tablet events into Mouse Events plus some other features like adding scroll wheel to it.
+Foresight is designed in a way so ***it can be used as a library***.
+
+But this foresight binary itself can be used like this:
 
 ```
 Usage: foresight [options] [action]
