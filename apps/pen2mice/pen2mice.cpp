@@ -1,8 +1,5 @@
-#include <array>
 #include <chrono>
 #include <linux/input-event-codes.h>
-#include <ranges>
-#include <span>
 import foresight.mods;
 import foresight.main.log;
 import foresight.main.utils;
@@ -10,15 +7,9 @@ import foresight.main.utils;
 int main(int argc, char const* const* argv) {
     using namespace foresight;
     using namespace std::chrono_literals;
-    using std::views::drop;
-    using std::views::transform;
 
-    static constexpr auto default_args = std::array{"", "pen", "usb keyboard"};
-    auto const            beg          = argc == 1 ? default_args.data() : argv;
-    argc                               = argc == 1 ? static_cast<int>(default_args.size()) : argc;
-    auto args = std::span{beg, beg + argc} | drop(1) | transform_to<std::string_view>();
-
-    constinit static auto pipeline =
+    static constexpr auto args = arguments["pen", "usb keyboard"];
+    static constinit auto pipeline =
       context
       | intercept                      // Intercept the events
       | scheduled_emitter
@@ -51,7 +42,7 @@ int main(int argc, char const* const* argv) {
       | on(longtime_released(pressed(KEY_CAPSLOCK), 300ms), emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK))
       | router(caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput);
 
-    pipeline.mod(intercept).add_devs(args | find_devices, grab_inputs);
+    pipeline.mod(intercept).add_devs(args(argc, argv) | find_devices, grab_inputs);
     pipeline();
     return 0;
 }

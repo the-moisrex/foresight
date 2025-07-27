@@ -46,4 +46,31 @@ export namespace foresight {
         }
     } noop;
 
+    template <std::size_t N>
+    struct basic_arguments : std::ranges::range_adaptor_closure<basic_arguments<N>> {
+      private:
+        std::array<char const*, N + 1> defaults_;
+
+      public:
+        template <typename... Args>
+        explicit consteval basic_arguments(Args&&... defaults) noexcept
+          : defaults_{"", std::forward<Args>(defaults)...} {}
+
+        auto operator()(int const argc, char const* const* argv) const& noexcept {
+            auto const        beg   = argc <= 1 ? defaults_.data() : argv;
+            std::size_t const count = argc <= 1 ? defaults_.size() : static_cast<std::size_t>(argc);
+            return std::span{beg, count} | std::views::drop(1) | transform_to<std::string_view>();
+        }
+
+        // Prevent dangling references to defaults_
+        auto operator()(int argc, char const* const* argv) const&& noexcept = delete;
+
+        template <typename... DefArgs>
+        consteval auto operator[](DefArgs&&... defaults) const noexcept {
+            return basic_arguments<sizeof...(DefArgs)>{std::forward<DefArgs>(defaults)...};
+        }
+    };
+
+    inline constexpr basic_arguments<0> arguments{};
+
 } // namespace foresight
