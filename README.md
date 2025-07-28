@@ -1,10 +1,13 @@
-# Foresight Smart Input
+# Foresight (Input Manager)
 
 Smart Input, which intercepts your keystrokes and will help you type less, faster, and adds foresight.
 
 Even though we're trying to start from making the keyboard smarter, but the goal of the project is to help
 the computer know what the user wants and just help them do it and also give the user a situational awareness
 of the system they're using.
+
+**Currently, only Linux is supported**; the project is still **a work in progress**.
+
 
 ## Goals
 
@@ -16,6 +19,7 @@ of the system they're using.
 - Connecting related tools to create useful pipelines of actions
 - Adding features to software that don't support them yet
 - Do all of these things while considering "Privacy"
+- To be used as a library as well
 
 I understand these are far-fetched goals, but we can't get there if we don't try.
 
