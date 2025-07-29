@@ -11,20 +11,20 @@ int main(int const argc, char const* const* argv) {
     static constexpr auto args = arguments["pen", "usb keyboard"];
     static constinit auto pipeline =
       context
-      | intercept                      // Intercept the events
+      | intercept                                            // Intercept the events
       | scheduled_emitter
       | led_status
-      | keys_status                    // Save key presses
+      | keys_status                                          // Save key presses
       | on(op | pressed(KEY_CAPSLOCK) | led_off(LED_CAPSL),
-           context                     // Sub-context will be removed
-             | abs2rel(true)           // Convert Pen events into Mouse events if any
-             | ignore_abs              // Ignore absolute movements
-             | ignore_big_jumps(50)    // Ignore big mouse jumps
-             | ignore_fast_left_clicks // Ignore fast left clicks
-             | ignore_init_moves)      // Fix pen small moves
-      | mice_quantifier                // Quantify the mouse movements
-      | swipe_detector                 // Detects swipes
-      | on(pressed(BTN_RIGHT), context | ignore_big_jumps(5) | ignore_start_moves) // fix right click jumps
+           context                                           // Sub-context will be removed
+             | abs2rel(true)                                 // Convert Pen events into Mouse events if any
+             | ignore_abs                                    // Ignore absolute movements
+             | ignore_big_jumps(50)                          // Ignore big mouse jumps
+             | ignore_fast_left_clicks                       // Ignore fast left clicks
+             | ignore_init_moves)                            // Fix pen small moves
+      | mice_quantifier                                      // Quantify the mouse movements
+      | swipe_detector                                       // Detects swipes
+      | on(pressed(BTN_RIGHT), context | ignore_start_moves) // fix right click jumps
       | on(op & pressed(BTN_MIDDLE) & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB)))
       | on(op & limit_mouse_travel(pressed(KEY_CAPSLOCK), 50) & keyup(BTN_LEFT),
            schedule_emit + press(BTN_RIGHT))
