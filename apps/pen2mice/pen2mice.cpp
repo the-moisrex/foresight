@@ -4,7 +4,7 @@ import foresight.mods;
 import foresight.main.log;
 import foresight.main.utils;
 
-int main(int argc, char const* const* argv) {
+int main(int const argc, char const* const* argv) {
     using namespace foresight;
     using namespace std::chrono_literals;
 
@@ -25,10 +25,10 @@ int main(int argc, char const* const* argv) {
       | mice_quantifier                // Quantify the mouse movements
       | swipe_detector                 // Detects swipes
       | on(pressed(BTN_RIGHT), context | ignore_big_jumps(5) | ignore_start_moves) // fix right click jumps
-      | on(op & pressed{BTN_MIDDLE} & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB)))
+      | on(op & pressed(BTN_MIDDLE) & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB)))
       | on(op & limit_mouse_travel(pressed(KEY_CAPSLOCK), 50) & keyup(BTN_LEFT),
            schedule_emit + press(BTN_RIGHT))
-      | on(op & (op | pressed{BTN_MIDDLE} | pressed(KEY_CAPSLOCK)) & pressed{BTN_LEFT},
+      | on(op & (op | pressed(BTN_MIDDLE) | pressed(KEY_CAPSLOCK)) & pressed(BTN_LEFT),
            context
              | on(swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT)))
              | on(swipe_left, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)))
@@ -37,7 +37,7 @@ int main(int argc, char const* const* argv) {
              | ignore_mouse_moves)
       | ignore_adjacent_syns
       | update_mod(keys_status)
-      | on(op & pressed(BTN_LEFT) & pressed(KEY_CAPSLOCK), ignore_keys(BTN_LEFT))
+      | on(op & pressed(BTN_LEFT, KEY_CAPSLOCK), ignore_keys(BTN_LEFT))
       | add_scroll(op | pressed(BTN_MIDDLE) | pressed(KEY_CAPSLOCK), emit + up(BTN_MIDDLE))
       | on(longtime_released(pressed(KEY_CAPSLOCK), 300ms), emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK))
       | router(caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput);

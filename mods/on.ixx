@@ -101,31 +101,87 @@ namespace foresight {
         }
     };
 
-    export struct [[nodiscard]] keydown {
-        code_type code = KEY_MAX;
+    export template <template <std::size_t> typename A, std::size_t N>
+    struct [[nodiscard]] basic_code_adaptor {
+      protected:
+        std::array<code_type, N> codes{};
 
-        [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return event.is(EV_KEY, code, 1);
+      public:
+        constexpr basic_code_adaptor() noexcept                                     = default;
+        consteval basic_code_adaptor(basic_code_adaptor const&) noexcept            = default;
+        consteval basic_code_adaptor& operator=(basic_code_adaptor const&) noexcept = default;
+        constexpr basic_code_adaptor(basic_code_adaptor&&) noexcept                 = default;
+        constexpr basic_code_adaptor& operator=(basic_code_adaptor&&) noexcept      = default;
+
+        explicit constexpr basic_code_adaptor(code_type const code) noexcept
+            requires(N == 1)
+          : codes{{code}} {}
+
+        explicit constexpr basic_code_adaptor(std::array<code_type, N> const& inp_codes) noexcept
+          : codes{inp_codes} {}
+
+        explicit constexpr basic_code_adaptor(std::array<code_type, N>&& inp_codes) noexcept
+          : codes{std::move(inp_codes)} {}
+
+        template <typename... T>
+            requires((std::convertible_to<T, code_type> && ...))
+        consteval auto operator()(T... inp_codes) const noexcept {
+            return A<sizeof...(T)>{std::array<code_type, sizeof...(T)>{static_cast<code_type>(inp_codes)...}};
+        }
+
+        template <std::size_t NN>
+        consteval auto operator()(std::array<code_type, NN> const& inp_codes) const noexcept {
+            return A<NN>{inp_codes};
         }
     };
 
-    export struct [[nodiscard]] keyup {
-        code_type code = KEY_MAX;
-
-        [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return event.is(EV_KEY, code, 0);
-        }
-    };
-
-    export struct [[nodiscard]] pressed {
-        code_type code = KEY_MAX;
+    export template <std::size_t N>
+    struct [[nodiscard]] basic_pressed : basic_code_adaptor<basic_pressed, N> {
+        using basic_code_adaptor<basic_pressed, N>::basic_code_adaptor;
+        using basic_code_adaptor<basic_pressed, N>::operator();
 
         template <Context CtxT>
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
             static_assert(has_mod<basic_keys_status, CtxT>, "We need keys_status to be in the pipeline.");
-            return ctx.mod(keys_status).is_pressed(code);
+            return ctx.mod(keys_status).is_pressed(this->codes);
         }
     };
+
+    export constexpr basic_pressed<0> pressed;
+
+    export template <std::size_t N>
+    struct [[nodiscard]] basic_keydown : basic_code_adaptor<basic_keydown, N> {
+        using basic_code_adaptor<basic_keydown, N>::basic_code_adaptor;
+        using basic_code_adaptor<basic_keydown, N>::operator();
+
+        [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
+            for (auto const code : this->codes) {
+                if (!event.is(EV_KEY, code, 1)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    };
+
+    export constexpr basic_keydown<0> keydown;
+
+    export template <std::size_t N>
+    struct [[nodiscard]] basic_keyup : basic_code_adaptor<basic_keyup, N> {
+        using basic_code_adaptor<basic_keyup, N>::basic_code_adaptor;
+        using basic_code_adaptor<basic_keyup, N>::operator();
+
+        [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
+            for (auto const code : this->codes) {
+                if (!event.is(EV_KEY, code, 1)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    };
+
+    export constexpr basic_keyup<0> keyup;
 
     export template <typename Func>
     struct [[nodiscard]] op_not {
