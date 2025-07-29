@@ -149,39 +149,21 @@ namespace foresight {
 
     export constexpr basic_pressed<0> pressed;
 
-    export template <std::size_t N>
-    struct [[nodiscard]] basic_keydown : basic_code_adaptor<basic_keydown, N> {
-        using basic_code_adaptor<basic_keydown, N>::basic_code_adaptor;
-        using basic_code_adaptor<basic_keydown, N>::operator();
+    export struct [[nodiscard]] keydown {
+        code_type code = KEY_MAX;
 
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            for (auto const code : this->codes) {
-                if (!event.is(EV_KEY, code, 1)) {
-                    return false;
-                }
-            }
-            return true;
+            return event.is(EV_KEY, code, 1);
         }
     };
 
-    export constexpr basic_keydown<0> keydown;
-
-    export template <std::size_t N>
-    struct [[nodiscard]] basic_keyup : basic_code_adaptor<basic_keyup, N> {
-        using basic_code_adaptor<basic_keyup, N>::basic_code_adaptor;
-        using basic_code_adaptor<basic_keyup, N>::operator();
+    export struct [[nodiscard]] keyup {
+        code_type code = KEY_MAX;
 
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            for (auto const code : this->codes) {
-                if (!event.is(EV_KEY, code, 1)) {
-                    return false;
-                }
-            }
-            return true;
+            return event.is(EV_KEY, code, 0);
         }
     };
-
-    export constexpr basic_keyup<0> keyup;
 
     export template <typename Func>
     struct [[nodiscard]] op_not {

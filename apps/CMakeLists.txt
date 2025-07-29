@@ -7,3 +7,4 @@ add_subdirectory(long-press)
 add_subdirectory(mouse-mode)
 
 add_subdirectory(pen2mice)
+#add_subdirectory(remote)
