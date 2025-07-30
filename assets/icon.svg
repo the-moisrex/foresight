@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg7" width="100mm" height="150mm" version="1.1" viewBox="0 0 100 150">
+  <defs id="defs5">
+    <linearGradient id="linearGradient16">
+      <stop id="stop17" offset="0" style="stop-color:#000;stop-opacity:1"/>
+      <stop id="stop18" offset="1" style="stop-color:#000;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="linearGradient13">
+      <stop id="stop14" offset="0" style="stop-color:#000;stop-opacity:1"/>
+      <stop id="stop16" offset=".391" style="stop-color:#000;stop-opacity:0"/>
+      <stop id="stop15" offset="1" style="stop-color:#000;stop-opacity:.62593305"/>
+    </linearGradient>
+    <linearGradient id="linearGradient8">
+      <stop id="stop8" offset="0" style="stop-color:#000;stop-opacity:.60137588"/>
+      <stop id="stop12" offset=".653" style="stop-color:#000;stop-opacity:0"/>
+      <stop id="stop13" offset=".936" style="stop-color:#000;stop-opacity:.03137255"/>
+      <stop id="stop9" offset="1" style="stop-color:#000;stop-opacity:.17701283"/>
+    </linearGradient>
+    <linearGradient id="b">
+      <stop id="stop1" offset="0" style="stop-color:#50ffd4;stop-opacity:1"/>
+      <stop id="stop2" offset="1" style="stop-color:#fff;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="a">
+      <stop id="stop3" offset="0" style="stop-color:#22e2f3;stop-opacity:1"/>
+      <stop id="stop4" offset=".333" style="stop-color:#23cfe3;stop-opacity:1"/>
+      <stop id="stop5" offset=".623" style="stop-color:#fff;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="c" x1="59.993" x2="65.671" y1="113.813" y2="211.332" gradientTransform="translate(-26.663 -78.262)" gradientUnits="userSpaceOnUse"/>
+    <linearGradient xlink:href="#b" id="d" x1="109.197" x2="70.605" y1="113.854" y2="175.575" gradientTransform="translate(-26.663 -78.262)" gradientUnits="userSpaceOnUse"/>
+    <linearGradient xlink:href="#linearGradient8" id="linearGradient9" x1="41.762" x2="18.347" y1="65.297" y2="82.942" gradientUnits="userSpaceOnUse" spreadMethod="pad"/>
+    <linearGradient xlink:href="#linearGradient13" id="linearGradient15" x1="6.246" x2="89.368" y1="78.551" y2="78.551" gradientUnits="userSpaceOnUse"/>
+    <radialGradient xlink:href="#linearGradient16" id="radialGradient18" cx="63.997" cy="121.563" r="19.651" fx="63.997" fy="121.563" gradientTransform="matrix(1 0 0 .70276 0 36.133)" gradientUnits="userSpaceOnUse"/>
+  </defs>
+  <path id="path5" d="M19.043 3.242c.392.783.822 1.55 1.176 2.35 1.72 3.89 2.95 7.3 4.325 11.4 2.2 6.566 4.047 12.647 5.643 19.437.937 3.987 1.646 8.023 2.468 12.034.83 5 1.82 9.975 2.491 14.999a294.684 294.684 0 0 1 1.735 16.651c.842 11.07 1.18 22.802.64 33.905-.634 13.062-1.428 15.812-3.475 28.132l7.053 3.7c.775-9.87 1.622-19.12 1.86-29.058.134-5.59.058-11.183-.03-16.774-.249-15.963-1.094-31.917-2.588-47.812-.618-3.842-2.86-18.011-3.677-22.235-1.335-6.89-3.35-13.653-4.318-20.616Z" style="fill:url(#c);fill-opacity:1;stroke:url(#linearGradient9);stroke-width:2.565;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"/>
+  <path id="path6" d="M77.154 27.54c-.425 1.843-.736 3.717-1.275 5.53-1.892 6.361-4.515 12.872-7.329 18.844-3.885 8.244-7.91 15.485-12.862 23.15-2.396 3.707-5.037 7.25-7.556 10.875-7.238 9.55-15.143 18.639-24.356 26.349-7.31 6.117-9.64 7.186-17.53 12.064l8.126 5.21c6.737-4.718 10.56-7.146 16.884-12.656 9.07-7.9 16.987-16.982 23.72-26.944 2.484-3.66 5.033-7.278 7.453-10.982 4.055-6.208 10.137-16.186 13.929-22.622 2.506-4.254 7.294-12.829 10.047-17.39.948-1.571 1.975-3.093 2.963-4.64z" style="fill:url(#d);stroke-width:2.56499998;stroke-dasharray:none;stroke:url(#linearGradient15)"/>
+  <path id="path7" d="M44.346 107.753c1.022 1.351 1.892 2.832 3.065 4.054 4.671 4.869 11.191 9.915 16.704 13.522 4.002 2.619 8.243 4.855 12.365 7.282l7.168 2.762c-3.753-2.25-7.636-4.297-11.26-6.75-4.556-3.084-9.818-7.37-13.405-11.763-.81-.992-1.29-2.213-1.935-3.319z" style="fill:#f9f9f9;stroke-width:1.365;stroke:url(#radialGradient18);stroke-dasharray:none"/>
+</svg>
+

@@ -1,5 +1,7 @@
 # Foresight (Input Manager)
 
+![Foresight Icon](./assets/icon.svg)
+
 Smart Input, which intercepts your keystrokes and will help you type less, faster, and adds foresight.
 
 Even though we're trying to start from making the keyboard smarter, but the goal of the project is to help
