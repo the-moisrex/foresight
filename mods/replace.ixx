@@ -9,6 +9,50 @@ import foresight.mods.context;
 namespace foresight {
 
 
+    export template <typename EventType = event_code>
+    struct [[nodiscard]] basic_put {
+        using code_type = event_code::code_type;
+
+      private:
+        EventType to;
+
+      public:
+        constexpr basic_put() noexcept = default;
+
+        constexpr explicit basic_put(EventType const inp_to) noexcept : to{inp_to} {}
+
+        constexpr basic_put(basic_put const&) noexcept            = default;
+        constexpr basic_put(basic_put&&) noexcept                 = default;
+        constexpr basic_put& operator=(basic_put const&) noexcept = default;
+        constexpr basic_put& operator=(basic_put&&) noexcept      = default;
+        constexpr ~basic_put() noexcept                           = default;
+
+        consteval auto operator()(event_code const& code) const noexcept {
+            return basic_put<event_code>{code};
+        }
+
+        consteval auto operator()(user_event const& code) const noexcept {
+            return basic_put<user_event>{code};
+        }
+
+        consteval auto operator()(event_type const& code) const noexcept {
+            return basic_put<event_type>{code};
+        }
+
+        consteval auto operator()(code_type const code) const noexcept {
+            return basic_put<event_code>{
+              event_code{.type = EV_KEY, .code = code}
+            };
+        }
+
+        constexpr void operator()(Context auto& ctx) const noexcept {
+            event_type& event  = ctx.event();
+            event             |= to;
+        }
+    };
+
+    export constexpr basic_put<> put;
+
     /**
      * This doesn't change the value or timestamp, just the type and the code.
      */

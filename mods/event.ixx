@@ -234,6 +234,24 @@ export namespace foresight {
             return ret;
         }
 
+        [[nodiscard]] constexpr event_type& operator|=(event_code const& rhs) noexcept {
+            set(rhs);
+            reset_time();
+            return *this;
+        }
+
+        [[nodiscard]] constexpr event_type& operator|=(user_event const& rhs) noexcept {
+            set(rhs);
+            reset_time();
+            return *this;
+        }
+
+        [[nodiscard]] constexpr event_type& operator|=(event_type const& rhs) noexcept {
+            *this = rhs;
+            reset_time();
+            return *this;
+        }
+
       private:
         input_event ev{};
     };
