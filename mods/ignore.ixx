@@ -5,6 +5,7 @@ module;
 #include <linux/input-event-codes.h>
 export module foresight.mods.ignore;
 import foresight.mods.context;
+import foresight.mods.caps;
 
 export namespace foresight {
 
@@ -159,6 +160,28 @@ export namespace foresight {
     };
 
     constexpr basic_ignore_keys<0> ignore_keys;
+
+    constexpr struct [[nodiscard]] basic_ignore_caps {
+      private:
+        dev_caps_view caps{};
+
+      public:
+        constexpr basic_ignore_caps() noexcept = default;
+
+        constexpr explicit basic_ignore_caps(dev_caps_view const inp_caps) noexcept : caps{inp_caps} {}
+
+        consteval basic_ignore_caps(basic_ignore_caps const&) noexcept            = default;
+        constexpr basic_ignore_caps(basic_ignore_caps&&) noexcept                 = default;
+        consteval basic_ignore_caps& operator=(basic_ignore_caps const&) noexcept = default;
+        constexpr basic_ignore_caps& operator=(basic_ignore_caps&&) noexcept      = default;
+        constexpr ~basic_ignore_caps() noexcept                                   = default;
+
+        consteval auto operator()(dev_caps_view const inp_caps) const noexcept {
+            return basic_ignore_caps{inp_caps};
+        }
+
+        context_action operator()(event_type const& event) const noexcept;
+    } ignore_caps;
 
     constexpr struct [[nodiscard]] basic_ignore_start_moves {
         using msec_type = std::chrono::microseconds;

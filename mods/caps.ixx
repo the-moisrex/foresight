@@ -375,10 +375,31 @@ namespace foresight {
           KEY_F24,
           KEY_UNKNOWN);
 
+        constexpr auto numpad = cap(
+          EV_KEY,
+          KEY_KP7,
+          KEY_KP8,
+          KEY_KP9,
+          KEY_KPMINUS,
+          KEY_KP4,
+          KEY_KP5,
+          KEY_KP6,
+          KEY_KPPLUS,
+          KEY_KP1,
+          KEY_KP2,
+          KEY_KP3,
+          KEY_KP0,
+          KEY_KPDOT,
+          KEY_KPENTER,
+          KEY_KPASTERISK,
+          KEY_KPSLASH);
+
         // -- Composite Device Capabilities --
 
         // A standard 104-key Keyboard
         constexpr auto keyboard = syn + keyboard_leds + keyboard_keys;
+
+        constexpr auto keyboard_numpad = views(numpad);
 
         // A keyboard with additional media controls
         constexpr auto multimedia_keyboard = keyboard + keys_media;

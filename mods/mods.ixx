@@ -10,6 +10,7 @@ export import foresight.mods.event;
 export import foresight.mods.quantifier;
 export import foresight.mods.caps;
 export import foresight.mods.router;
+export import foresight.mods.modes;
 
 // Mods:
 export import foresight.uinput;
@@ -21,3 +22,4 @@ export import foresight.mods.on;
 export import foresight.mods.emitter;
 export import foresight.mods.abs2rel;
 export import foresight.mods.ignore;
+export import foresight.mods.replace;

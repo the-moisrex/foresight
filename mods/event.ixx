@@ -63,6 +63,19 @@ export namespace foresight {
             return *this;
         }
 
+        constexpr event_type& operator=(event_code const& inp_code) noexcept {
+            ev.type = inp_code.type;
+            ev.code = inp_code.code;
+            return *this;
+        }
+
+        constexpr event_type& operator=(user_event const& inp_code) noexcept {
+            ev.type  = inp_code.type;
+            ev.code  = inp_code.code;
+            ev.value = inp_code.value;
+            return *this;
+        }
+
         constexpr void time(time_type const inp_time) noexcept {
             ev.time = inp_time;
         }
@@ -82,6 +95,17 @@ export namespace foresight {
         constexpr void set(type_type const inp_type, code_type const inp_code) noexcept {
             ev.type = inp_type;
             ev.code = inp_code;
+        }
+
+        constexpr void set(event_code const& rhs) noexcept {
+            ev.type = rhs.type;
+            ev.code = rhs.code;
+        }
+
+        constexpr void set(user_event const& rhs) noexcept {
+            ev.type  = rhs.type;
+            ev.code  = rhs.code;
+            ev.value = rhs.value;
         }
 
         constexpr void set(type_type const  inp_type,
@@ -190,6 +214,25 @@ export namespace foresight {
             return is(rhs);
         }
 
+        [[nodiscard]] constexpr auto operator|(event_code const& rhs) const noexcept {
+            event_type ret{*this};
+            ret.set(rhs);
+            ret.reset_time();
+            return ret;
+        }
+
+        [[nodiscard]] constexpr auto operator|(user_event const& rhs) const noexcept {
+            event_type ret{*this};
+            ret.set(rhs);
+            ret.reset_time();
+            return ret;
+        }
+
+        [[nodiscard]] constexpr auto operator|(event_type const& rhs) const noexcept {
+            event_type ret{rhs};
+            ret.reset_time();
+            return ret;
+        }
 
       private:
         input_event ev{};

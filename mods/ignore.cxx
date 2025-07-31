@@ -82,6 +82,18 @@ context_action basic_ignore_fast_repeats::operator()(event_type const& event) no
     return next;
 }
 
+context_action foresight::basic_ignore_caps::operator()(event_type const& event) const noexcept {
+    // todo: optimize this
+    for (auto const cap : caps) {
+        for (auto const code : cap.codes) {
+            if (event.is(cap.type, code)) {
+                return context_action::ignore_event;
+            }
+        }
+    }
+    return context_action::next;
+}
+
 context_action foresight::basic_ignore_start_moves::operator()(event_type const& event) noexcept {
     using enum context_action;
 

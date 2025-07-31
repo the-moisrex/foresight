@@ -35,6 +35,18 @@ int main(int const argc, char const* const* argv) {
              | on(swipe_up, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)))
              | on(swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)))
              | ignore_mouse_moves)
+      | modes(pressed(KEY_LEFTCTRL, KEY_NUMLOCK),
+              // Normal Mode:
+              context, // empty context as the default
+
+              // Express Mode:
+              context
+                | replace(KEY_KP6, press(KEY_LEFTMETA, KEY_RIGHT))
+                | replace(KEY_KP4, press(KEY_LEFTMETA, KEY_LEFT))
+                | replace(KEY_KP8, press(KEY_LEFTMETA, KEY_UP))
+                | replace(KEY_KP2, press(KEY_LEFTMETA, KEY_DOWN))
+                | ignore_caps(caps::keyboard_numpad)
+                | log)
       | ignore_adjacent_syns
       | update_mod(keys_status)
       | on(pressed(BTN_LEFT, KEY_CAPSLOCK), ignore_keys(BTN_LEFT))
