@@ -23,13 +23,13 @@ export namespace foresight {
         double y_scale_factor = 10.0;
 
         // events sent between each syn
-        std::int8_t events_sent  = 0;
-        code_type   active_tool  = BTN_TOOL_PEN;
-        bool        is_left_down = false;
+        std::int8_t events_sent = 0;
+        // code_type   active_tool  = BTN_TOOL_PEN;
 
         value_type pressure_threshold = 1;
 
-        bool inherit = false;
+        bool inherit      = false;
+        bool is_left_down = false;
 
       public:
         explicit constexpr basic_abs2rel(bool const inp_inherit) noexcept : inherit(inp_inherit) {}

@@ -9,6 +9,9 @@ import foresight.mods.context;
 namespace foresight {
 
 
+    /**
+     * Usage: on(cond, put(event_type{...})
+     */
     export template <typename EventType = event_code>
     struct [[nodiscard]] basic_put {
         using code_type = event_code::code_type;

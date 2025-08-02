@@ -90,10 +90,8 @@ export namespace foresight {
 
     template <typename Mod, typename CtxT>
     concept has_mod =
-      blowup_if<Modifier<CtxT>, Context<Mod>>() && Modifier<Mod> && Context<CtxT> && requires(CtxT ctx) {
-          {
-              ctx.template mod<Mod>()
-          } noexcept -> std::same_as<Mod &>;
+      blowup_if<Modifier<CtxT>, Context<Mod>>() && Modifier<Mod> && Context<CtxT> && requires(CtxT &ctx) {
+          ctx.template mod<Mod>();
       };
 
     template <typename ModConcept, typename...>

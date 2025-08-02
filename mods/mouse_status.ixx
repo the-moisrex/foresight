@@ -53,10 +53,10 @@ export namespace foresight {
 
         [[nodiscard]] constexpr position prev(std::int16_t const last = 1) const noexcept {
             assert(last > 0);
-            assert(last < hist.size());
-            auto prev_index = cur_index - last;
+            assert(last < static_cast<std::int16_t>(hist.size()));
+            std::int16_t prev_index = static_cast<std::int16_t>(cur_index) - last;
             if (prev_index < 0) {
-                prev_index += hist.size();
+                prev_index += static_cast<std::int16_t>(hist.size());
             }
             return hist.at(prev_index);
         }
@@ -85,16 +85,5 @@ export namespace foresight {
     };
 
     constexpr basic_mouse_history<> mouse_history;
-
-    template <typename T>
-    struct is_mouse_history_mod : std::false_type {};
-
-    template <std::size_t N>
-    struct is_mouse_history_mod<basic_mouse_history<N>> : std::true_type {};
-
-    constexpr struct [[nodiscard]] mouse_history_mod_t {
-        template <typename T>
-        static constexpr bool value = is_mouse_history_mod<T>::value;
-    } mouse_history_mod;
 
 } // namespace foresight

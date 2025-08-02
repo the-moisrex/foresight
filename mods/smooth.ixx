@@ -9,7 +9,7 @@ import foresight.mods.mouse_status;
 import foresight.mods.event;
 import foresight.mods.context;
 
-export namespace foresight::mods {
+export namespace foresight {
 
     /**
      * Linear Interpolation
@@ -33,12 +33,13 @@ export namespace foresight::mods {
             return basic_lerp{inp_t};
         }
 
-        context_action operator()(Context auto& ctx) const noexcept {
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx) const noexcept {
             using enum context_action;
             using value_type = event_type::value_type;
 
             auto&       event = ctx.event();
-            auto const& mhist = ctx.mod(mouse_history_mod);
+            auto const& mhist = ctx.mod(mouse_history);
 
             if (is_mouse_movement(event)) {
                 return ignore_event;
@@ -47,15 +48,17 @@ export namespace foresight::mods {
                 return next;
             }
 
-            auto const  cur            = mhist.cur();
-            auto const  prev           = mhist.prev();
-            float const x_interpolated = prev.x + t_val * (cur.x - prev.x);
-            float const y_interpolated = prev.y + t_val * (cur.y - prev.y);
-            auto const  x_lerped       = static_cast<value_type>(std::round(x_interpolated));
-            auto const  y_lerped       = static_cast<value_type>(std::round(y_interpolated));
+            auto const  cur  = mhist.cur();
+            auto const  prev = mhist.prev();
+            float const x_interpolated =
+              static_cast<float>(prev.x) + t_val * static_cast<float>(cur.x - prev.x);
+            float const y_interpolated =
+              static_cast<float>(prev.y) + t_val * static_cast<float>(cur.y - prev.y);
+            auto const x_lerped = static_cast<value_type>(std::round(x_interpolated));
+            auto const y_lerped = static_cast<value_type>(std::round(y_interpolated));
 
-            std::ignore = ctx.fork_emit( EV_REL, REL_X, x_lerped);
-            std::ignore = ctx.fork_emit( EV_REL, REL_Y, y_lerped);
+            std::ignore = ctx.fork_emit(EV_REL, REL_X, x_lerped);
+            std::ignore = ctx.fork_emit(EV_REL, REL_Y, y_lerped);
 
             // Send Syn
             event.reset_time();
@@ -109,7 +112,7 @@ export namespace foresight::mods {
             using enum context_action;
 
             auto&       event = ctx.event();
-            auto const& mhist = ctx.mod(mouse_history_mod);
+            auto const& mhist = ctx.mod(mouse_history);
             auto const  cur   = mhist.cur();
 
             if (is_mouse_movement(event)) {
@@ -128,10 +131,8 @@ export namespace foresight::mods {
             prev_y = smoothed_y;
 
             // Emit the smoothed values
-            std::ignore =
-              ctx.fork_emit( EV_REL, REL_X, static_cast<value_type>(std::round(smoothed_x)));
-            std::ignore =
-              ctx.fork_emit( EV_REL, REL_Y, static_cast<value_type>(std::round(smoothed_y)));
+            std::ignore = ctx.fork_emit(EV_REL, REL_X, static_cast<value_type>(std::round(smoothed_x)));
+            std::ignore = ctx.fork_emit(EV_REL, REL_Y, static_cast<value_type>(std::round(smoothed_y)));
 
             // Send Syn
             event.reset_time();
@@ -177,7 +178,7 @@ export namespace foresight::mods {
             using enum context_action;
 
             auto&       event = ctx.event();
-            auto const& mhist = ctx.mod(mouse_history_mod);
+            auto const& mhist = ctx.mod(mouse_history);
             auto const  cur   = mhist.cur();
 
             if (is_mouse_movement(event)) {
@@ -210,8 +211,8 @@ export namespace foresight::mods {
             // Emit the smoothed values
             auto const x_val = static_cast<value_type>(std::round(smoothed_x));
             auto const y_val = static_cast<value_type>(std::round(smoothed_y));
-            std::ignore      = ctx.fork_emit( EV_REL, REL_X, x_val);
-            std::ignore      = ctx.fork_emit( EV_REL, REL_Y, y_val);
+            std::ignore      = ctx.fork_emit(EV_REL, REL_X, x_val);
+            std::ignore      = ctx.fork_emit(EV_REL, REL_Y, y_val);
 
             // Send Syn
             event.reset_time();
@@ -219,4 +220,4 @@ export namespace foresight::mods {
         }
     } kalman_filter;
 
-} // namespace foresight::mods
+} // namespace foresight
