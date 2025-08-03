@@ -21,6 +21,9 @@ export namespace foresight {
         value_type value = 0;
     };
 
+    template <std::size_t N>
+    struct user_events : std::array<user_event, N> {};
+
     struct [[nodiscard]] event_code {
         using type_type  = decltype(input_event::type);
         using code_type  = decltype(input_event::code);

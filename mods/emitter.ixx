@@ -241,6 +241,11 @@ namespace foresight {
             return basic_emit_all<NN>{new_events};
         }
 
+        template <std::size_t NN>
+        consteval auto operator()(user_event (&&new_events)[NN]) const noexcept {
+            return basic_emit_all<NN>{std::to_array(std::move(new_events))};
+        }
+
         template <typename... T>
             requires(sizeof...(T) > 1)
         consteval auto operator()(T... new_events) const noexcept {
