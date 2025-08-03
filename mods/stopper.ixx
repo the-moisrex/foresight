@@ -21,12 +21,9 @@ export namespace foresight {
             stopped = true;
         }
 
-        constexpr context_action operator()([[maybe_unused]] Context auto &ctx) const noexcept {
+        constexpr context_action operator()() const noexcept {
             using enum context_action;
-            if (stopped) {
-                return exit;
-            }
-            return next;
+            return stopped ? exit : next;
         }
     } stopper;
 

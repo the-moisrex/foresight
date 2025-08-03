@@ -220,4 +220,44 @@ namespace foresight {
 
     // todo: implement replace_all which used table lookup
 
+    export template <std::size_t N = 0>
+    struct [[nodiscard]] basic_emit_all {
+      private:
+        std::array<user_event, N> events;
+
+      public:
+        explicit constexpr basic_emit_all(std::array<user_event, N> const inp_events) noexcept
+          : events{inp_events} {}
+
+        constexpr basic_emit_all() noexcept                            = default;
+        constexpr basic_emit_all(basic_emit_all&&)                     = default;
+        constexpr basic_emit_all(basic_emit_all const&) noexcept       = default;
+        constexpr basic_emit_all& operator=(basic_emit_all const&)     = default;
+        constexpr basic_emit_all& operator=(basic_emit_all&&) noexcept = default;
+        constexpr ~basic_emit_all()                                    = default;
+
+        template <std::size_t NN>
+        consteval auto operator()(std::array<user_event, NN> const new_events) const noexcept {
+            return basic_emit_all<NN>{new_events};
+        }
+
+        template <typename... T>
+            requires(sizeof...(T) > 1)
+        consteval auto operator()(T... new_events) const noexcept {
+            return basic_emit_all<sizeof...(T)>{{new_events...}};
+        }
+
+        template <Context CtxT>
+        constexpr context_action operator()(CtxT& ctx) noexcept {
+            using enum context_action;
+            for (auto const& usr_event : events) {
+                std::ignore = ctx.fork_emit(event_type{usr_event});
+            }
+            return exit;
+        }
+    };
+
+    export constexpr basic_emit_all<> emit_all;
+
+
 } // namespace foresight

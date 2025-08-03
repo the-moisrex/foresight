@@ -2,12 +2,14 @@
 module;
 #include <algorithm> // For std::min
 #include <cmath>
+#include <cstdint>
 #include <linux/input-event-codes.h>
-#include <vector>
 export module foresight.mods.smooth;
 import foresight.mods.mouse_status;
 import foresight.mods.event;
 import foresight.mods.context;
+import foresight.utils.easings;
+import foresight.main.log;
 
 export namespace foresight {
 
@@ -16,12 +18,26 @@ export namespace foresight {
      *   lerp(start, end, t) = start × (1 − t) + end × t
      */
     constexpr struct [[nodiscard]] basic_lerp {
+        using value_type = event_type::value_type;
+
       private:
-        float t_val = 0.95f;
+        std::array<value_type, 2> prev_vals = {0, 0};
+        std::array<value_type, 2> cur_vals  = {0, 0};
+        value_type                steps     = 10;
+        bool                      cached    = false;
+
+        constexpr value_type next_step(value_type const step, std::size_t const axis = REL_X) const noexcept {
+            static_assert(REL_X == 0x0 && REL_Y == 0x1,
+                          "We need REL_X and REL_Y events' values to be 0 and 1.");
+
+            float const t_normalized  = static_cast<float>(step) / (static_cast<float>(steps) - 1);
+            float       interpolated  = easeInQuad(t_normalized);
+            interpolated             *= static_cast<float>(cur_vals[axis] - prev_vals[axis]);
+            interpolated             += static_cast<float>(prev_vals[axis]);
+            return static_cast<value_type>(interpolated);
+        }
 
       public:
-        constexpr explicit basic_lerp(float const inp_t) noexcept : t_val{inp_t} {}
-
         constexpr basic_lerp() noexcept                        = default;
         consteval basic_lerp(basic_lerp const&)                = default;
         constexpr basic_lerp(basic_lerp&&) noexcept            = default;
@@ -29,39 +45,35 @@ export namespace foresight {
         constexpr basic_lerp& operator=(basic_lerp&&) noexcept = default;
         constexpr ~basic_lerp() noexcept                       = default;
 
-        consteval basic_lerp operator()(float const inp_t) const noexcept {
-            return basic_lerp{inp_t};
-        }
-
-        template <Context CtxT>
-        context_action operator()(CtxT& ctx) const noexcept {
+        constexpr context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
-            using value_type = event_type::value_type;
 
-            auto&       event = ctx.event();
-            auto const& mhist = ctx.mod(mouse_history);
-
+            auto& event = ctx.event();
             if (is_mouse_movement(event)) {
+                log("{} {}", event.code(), event.value());
+                prev_vals[event.code()] = cur_vals[event.code()];
+                cur_vals[event.code()]  = event.value();
+                cached                  = true;
                 return ignore_event;
             }
-            if (!is_syn(event)) {
+            if (!is_syn(event) || !cached) {
                 return next;
             }
 
-            auto const  cur  = mhist.cur();
-            auto const  prev = mhist.prev();
-            float const x_interpolated =
-              static_cast<float>(prev.x) + t_val * static_cast<float>(cur.x - prev.x);
-            float const y_interpolated =
-              static_cast<float>(prev.y) + t_val * static_cast<float>(cur.y - prev.y);
-            auto const x_lerped = static_cast<value_type>(std::round(x_interpolated));
-            auto const y_lerped = static_cast<value_type>(std::round(y_interpolated));
+            for (value_type step = 0; step != steps; ++step) {
+                std::ignore = ctx.fork_emit(
+                  event | user_event{.type = EV_REL, .code = REL_X, .value = next_step(step, REL_X)});
+                std::ignore = ctx.fork_emit(
+                  event | user_event{.type = EV_REL, .code = REL_Y, .value = next_step(step, REL_Y)});
+                std::ignore = ctx.fork_emit(syn());
+            }
 
-            std::ignore = ctx.fork_emit(EV_REL, REL_X, x_lerped);
-            std::ignore = ctx.fork_emit(EV_REL, REL_Y, y_lerped);
-
-            // Send Syn
+            std::ignore =
+              ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_X, .value = cur_vals[REL_X]});
+            std::ignore =
+              ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_Y, .value = cur_vals[REL_Y]});
             event.reset_time();
+            cached = false;
             return next;
         }
     } lerp;

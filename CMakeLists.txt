@@ -102,7 +102,6 @@ target_sources(${LIB_NAME}
         mods/replace.ixx
         mods/modes.ixx
         mods/mods.ixx
-        utils/points.ixx
         utils/easings.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)

@@ -18,7 +18,6 @@ int main(int const argc, char const* const* argv) {
       | on(op | pressed(KEY_CAPSLOCK) | led_off(LED_CAPSL),
            context                                           // Sub-context will be removed
              | abs2rel(true)                                 // Convert Pen events into Mouse events if any
-             | ignore_abs                                    // Ignore absolute movements
              | ignore_fast_left_clicks                       // Ignore fast left clicks
            )
       | mice_quantifier                                      // Quantify the mouse movements
