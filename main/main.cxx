@@ -5,6 +5,7 @@
 #include <format>
 #include <functional>
 #include <print>
+#include <ranges>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -16,6 +17,8 @@ import foresight.mods.context;
 import foresight.mods.stopper;
 import foresight.mods.inout;
 import foresight.uinput;
+import foresight.main.utils;
+import foresight.main.systemd;
 
 namespace {
 
@@ -26,10 +29,14 @@ namespace {
             help,
             intercept,
             redirect,
+            systemd,
         } action = action_type::none;
 
         /// intercept file
         std::vector<foresight::input_file_type> files;
+
+        /// All args
+        std::span<char const* const> args;
     };
 
     void set_action(options& opt, options::action_type const inp_action) {
@@ -45,16 +52,17 @@ namespace {
     void print_help() {
         std::println("{}", R"TEXT(Usage: foresight [options] [action]
   Arguments:
-    -h | --help          Print help.
+    -h | --help                   Print help.
 
   Actions:
-    intercept [files...] Intercept the files and print everything to stdout.
-       -g | --grab       Grab the input.
-                         Stops everyone else from using the input.
-                         Only use this if you know what you're doing!
+    intercept [files...]          Intercept the files and print everything to stdout.
+       -g | --grab                Grab the input.
+                                  Stops everyone else from using the input.
+                                  Only use this if you know what you're doing!
 
-    redirect [files...]  Redirect stdin to the specified files.
-    to       [files...]  Alias for 'redirect'
+    redirect [files...]           Redirect stdin to the specified files.
+    to       [files...]           Alias for 'redirect'
+    systemd  exec-file [args...]  Install exec-file as a user service to systemd.
 
     help                 Print help.
 
@@ -108,6 +116,7 @@ namespace {
         if (argv.size() <= 1) {
             return opts;
         }
+        opts.args = argv;
 
 
         // NOLINTNEXTLINE(*-pro-bounds-pointer-arithmetic)
@@ -117,6 +126,9 @@ namespace {
             set_action(opts, help);
         } else if (action_str == "redirect" || action_str == "to") {
             set_action(opts, redirect);
+        } else if (action_str == "systemd") {
+            set_action(opts, systemd);
+            return opts;
         }
 
         bool grab = false;
@@ -248,6 +260,20 @@ namespace {
 
                 pipeline();
 
+                return EXIT_SUCCESS;
+            }
+            case systemd: {
+                foresight::systemd_service service{};
+                service.description("Foresight Input Modifier");
+                auto const args =
+                  opts.args
+                  | std::views::drop(2) // removing "foresight systemd"
+                  | foresight::transform_to<std::string_view>()
+                  | std::ranges::to<std::vector>();
+                service.execStart(args);
+                std::println("Installing as a systemd service...");
+                service.install();
+                service.enable();
                 return EXIT_SUCCESS;
             }
             default: {

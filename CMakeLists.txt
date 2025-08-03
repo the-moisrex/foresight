@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.23...4.0)
-
 project(foresight LANGUAGES CXX C)
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# set(CMAKE_AUTOUIC ON)
-# set(CMAKE_AUTOMOC ON)
-# set(CMAKE_AUTORCC ON)
-
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(IS_DEBUG TRUE)
@@ -70,6 +64,7 @@ set_target_properties(${LIB_NAME} PROPERTIES
 target_sources(${LIB_NAME}
         PRIVATE
         main/keyboard.cxx
+        main/systemd.cxx
         devices/evdev.cxx
         devices/uinput.cxx
         mods/intercept.cxx
@@ -80,13 +75,12 @@ target_sources(${LIB_NAME}
         mods/replace.cxx
         mods/keys_status.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
-        # io/liburing.ixx
-        # io/io_ring.ixx
         main/main.ixx
         main/utils.ixx
         main/log.ixx
         main/keyboard.ixx
         main/translate.ixx
+        main/systemd.ixx
         devices/evdev.ixx
         devices/uinput.ixx
         mods/router.ixx
@@ -108,6 +102,8 @@ target_sources(${LIB_NAME}
         mods/replace.ixx
         mods/modes.ixx
         mods/mods.ixx
+        utils/points.ixx
+        utils/easings.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)
 set_target_properties(${LIB_NAME} PROPERTIES
@@ -139,15 +135,10 @@ target_sources(${PROJECT_NAME}
         PRIVATE
         main/main.cxx
 )
-
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
-target_compile_options(${PROJECT_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
-target_link_options(${PROJECT_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
 target_link_libraries(${PROJECT_NAME}
         PRIVATE ${LIB_NAME}::${LIB_NAME}
-        #        PRIVATE Qt${QT_VERSION_MAJOR}::Core
+        # PRIVATE Qt${QT_VERSION_MAJOR}::Core
 )
-
 install(TARGETS ${PROJECT_NAME}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
