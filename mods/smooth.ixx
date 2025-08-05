@@ -45,7 +45,7 @@ export namespace foresight {
         constexpr basic_lerp& operator=(basic_lerp&&) noexcept = default;
         constexpr ~basic_lerp() noexcept                       = default;
 
-        constexpr context_action operator()(Context auto& ctx) noexcept {
+        context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
 
             auto& event = ctx.event();

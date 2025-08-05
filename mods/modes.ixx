@@ -34,14 +34,18 @@ namespace foresight {
         constexpr basic_modes& operator=(basic_modes&&) noexcept      = default;
         constexpr ~basic_modes() noexcept                             = default;
 
+        void operator()(auto&&, start_type) = delete;
+        void operator()(auto&&, done_type)  = delete;
+
         template <typename InpCondT, typename... InpMods>
+            requires(sizeof...(InpMods) >= 1)
         consteval auto operator()(InpCondT inp_cond, InpMods... inp_mods) const noexcept {
             return basic_modes<std::remove_cvref_t<InpCondT>, std::remove_cvref_t<InpMods>...>{
               inp_cond,
               inp_mods...};
         }
 
-        constexpr context_action operator()(Context auto& ctx) noexcept {
+        context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
             if (invoke_cond(cond, ctx)) {
                 // go to the next mode

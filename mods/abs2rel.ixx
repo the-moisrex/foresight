@@ -28,7 +28,7 @@ export namespace foresight {
 
         value_type pressure_threshold = 1;
 
-        bool inherit      = false;
+        bool inherit      = true;
         bool is_left_down = false;
 
       public:
@@ -69,6 +69,7 @@ export namespace foresight {
             return basic_abs2rel{inp_inherit};
         }
 
+        void operator()(start_type) noexcept;
         context_action operator()(event_type& event) noexcept;
 
     } abs2rel;

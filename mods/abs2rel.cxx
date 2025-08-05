@@ -1,8 +1,7 @@
 // Created by moisrex on 6/29/25.
 
 module;
-#include "../../../../../usr/lib/clang/20/include/limits.h"
-
+#include <climits>
 #include <cmath>
 #include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
@@ -35,6 +34,11 @@ void basic_abs2rel::init(evdev const& dev, double const scale) noexcept {
         y_scale_factor,
         x_absinfo->resolution,
         y_absinfo->resolution);
+}
+
+void basic_abs2rel::operator()(start_type) noexcept {
+    last_abs_x |= x_init_state;
+    last_abs_y |= y_init_state;
 }
 
 context_action basic_abs2rel::operator()(event_type& event) noexcept {
@@ -70,6 +74,7 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
                 event.type(EV_REL);
                 event.code(REL_X);
                 event.value(pixels);
+                // log("X {} {:x}", pixels, (0 - (last_abs_x >> x_bit_loc)));
                 last_abs_x = value;
                 break;
             }
@@ -80,6 +85,7 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
                 event.type(EV_REL);
                 event.code(REL_Y);
                 event.value(pixels);
+                // log("Y {} {:x}", pixels, (0 - (last_abs_y >> y_bit_loc)));
                 last_abs_y = value;
                 break;
             }
@@ -137,7 +143,6 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
             default: break;
         }
     }
-
 
     ++events_sent;
     return next;

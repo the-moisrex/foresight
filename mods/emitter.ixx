@@ -15,7 +15,7 @@ namespace foresight {
     export template <std::size_t N>
     struct [[nodiscard]] emitter {
       private:
-        std::array<user_event, N> events;
+        std::array<user_event, N> events{};
 
       public:
         explicit consteval emitter(std::array<user_event, N> const inp) noexcept : events{inp} {}
@@ -44,12 +44,21 @@ namespace foresight {
             return operator+(new_events);
         }
 
+        template <std::size_t NN>
+        consteval auto operator()(user_event (&&new_events)[NN]) const noexcept {
+            return operator()(std::to_array(std::move(new_events)));
+        }
+
+        template <std::size_t NN>
+        consteval auto operator+(user_event (&&new_events)[NN]) const noexcept {
+            return operator()(std::to_array(std::move(new_events)));
+        }
+
         consteval auto operator()(user_event const& event) const noexcept {
             return operator+(std::array{event});
         }
 
-        template <Context CtxT>
-        constexpr void operator()(CtxT& ctx) noexcept {
+        void operator()(Context auto& ctx) noexcept {
             for (auto const& usr_event : events) {
                 std::ignore = ctx.fork_emit(event_type{usr_event});
             }
@@ -74,8 +83,7 @@ namespace foresight {
             events = new_events;
         }
 
-        template <Context CtxT>
-        constexpr void operator()(CtxT& ctx) noexcept {
+        void operator()(Context auto& ctx) noexcept {
             for (auto const& usr_event : events) {
                 std::ignore = ctx.fork_emit(event_type{usr_event});
             }
@@ -119,7 +127,7 @@ namespace foresight {
             return operator+(std::array{event});
         }
 
-        constexpr void operator()(Context auto& ctx) const noexcept {
+        void operator()(Context auto& ctx) const noexcept {
             ctx.mod(scheduled_emitter).schedule(events);
         }
     };
@@ -253,7 +261,7 @@ namespace foresight {
         }
 
         template <Context CtxT>
-        constexpr context_action operator()(CtxT& ctx) noexcept {
+        context_action operator()(CtxT& ctx) noexcept {
             using enum context_action;
             for (auto const& usr_event : events) {
                 std::ignore = ctx.fork_emit(event_type{usr_event});

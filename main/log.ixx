@@ -10,14 +10,14 @@ export namespace foresight {
         std::string_view msg{};
 
       public:
-        constexpr basic_log() noexcept = default;
-
         constexpr explicit basic_log(std::string_view const& inp_msg) noexcept : msg{inp_msg} {}
 
+        constexpr basic_log() noexcept                            = default;
         consteval basic_log(basic_log const&) noexcept            = default;
         constexpr basic_log(basic_log&&) noexcept                 = default;
         consteval basic_log& operator=(basic_log const&) noexcept = default;
         constexpr basic_log& operator=(basic_log&&) noexcept      = default;
+        constexpr ~basic_log() noexcept                           = default;
 
         template <typename... Args>
         void operator()(std::format_string<Args...> fmt, Args&&... args) const noexcept {

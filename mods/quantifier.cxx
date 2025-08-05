@@ -4,6 +4,7 @@ module;
 #include <cassert>
 #include <cmath>
 #include <linux/input-event-codes.h>
+#include <utility>
 module foresight.mods.quantifier;
 
 using foresight::basic_mice_quantifier;
@@ -19,13 +20,16 @@ basic_mice_quantifier::basic_mice_quantifier(value_type const inp_step) noexcept
     assert(step > 0);
 }
 
-void basic_mice_quantifier::process(event_type const& event) noexcept {
-    if (event.type() != EV_REL) {
-        return;
-    }
-    switch (event.code()) {
-        case REL_X: x_value += event.value(); break;
-        case REL_Y: y_value += event.value(); break;
+void basic_mice_quantifier::operator()(event_type const& event) noexcept {
+    switch (event.hash()) {
+        case hashed(EV_REL, REL_X): x_value += event.value(); break;
+        case hashed(EV_REL, REL_Y): y_value += event.value(); break;
+        case hashed(EV_ABS, ABS_X):
+            x_value += event.value() - std::exchange(last_abs_x, event.value());
+            break;
+        case hashed(EV_ABS, ABS_Y):
+            y_value += event.value() - std::exchange(last_abs_y, event.value());
+            break;
         default: break;
     }
 }

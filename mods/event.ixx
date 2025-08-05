@@ -1,6 +1,7 @@
 // Created by moisrex on 6/8/25.
 
 module;
+#include <bit>
 #include <chrono>
 #include <cstdint>
 #include <libevdev/libevdev.h>
@@ -32,6 +33,19 @@ export namespace foresight {
         type_type type = EV_MAX;
         code_type code = KEY_MAX;
     };
+
+    [[nodiscard]] constexpr std::uint32_t hashed(event_code const& code) noexcept {
+        static constexpr std::uint32_t shift  = std::countr_zero(std::bit_ceil<std::uint32_t>(KEY_MAX));
+        std::uint32_t                  hash   = 0;
+        hash                                 |= static_cast<std::uint32_t>(code.type) << shift;
+        hash                                 |= static_cast<std::uint32_t>(code.code);
+        return hash;
+    }
+
+    [[nodiscard]] constexpr std::uint32_t hashed(event_code::type_type const type,
+                                                 event_code::code_type const code) noexcept {
+        return hashed(event_code{type, code});
+    }
 
     struct [[nodiscard]] event_type {
         using type_type  = decltype(input_event::type);
@@ -253,6 +267,10 @@ export namespace foresight {
             *this = rhs;
             reset_time();
             return *this;
+        }
+
+        [[nodiscard]] constexpr std::uint32_t hash() const noexcept {
+            return hashed(static_cast<event_code>(*this));
         }
 
       private:

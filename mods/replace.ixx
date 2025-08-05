@@ -48,7 +48,7 @@ namespace foresight {
             };
         }
 
-        constexpr void operator()(Context auto& ctx) const noexcept {
+        void operator()(Context auto& ctx) const noexcept {
             event_type& event  = ctx.event();
             event             |= to;
         }
@@ -153,7 +153,7 @@ namespace foresight {
             return basic_replace<NN, user_event>{inp_from, inp_to};
         }
 
-        constexpr void operator()(Context auto& ctx) const noexcept {
+        void operator()(Context auto& ctx) const noexcept {
             event_type& event = ctx.event();
             if (!event.is(from)) {
                 return;

@@ -131,15 +131,14 @@ export namespace foresight {
         constexpr basic_ignore_keys& operator=(basic_ignore_keys&&) noexcept      = default;
         constexpr ~basic_ignore_keys() noexcept                                   = default;
 
-        consteval basic_ignore_keys operator()(std::array<event_code, N> const inp_codes) const noexcept {
-            return basic_ignore_keys{inp_codes};
+        template <std::size_t NN>
+        consteval basic_ignore_keys operator()(std::array<event_code, NN> const inp_codes) const noexcept {
+            return basic_ignore_keys<NN>{inp_codes};
         }
 
-        template <typename... T>
-            requires((std::convertible_to<T, event_code> && ...))
-        consteval auto operator()(T... inp_codes) const noexcept {
-            return basic_ignore_keys<sizeof...(T)>{
-              std::array<event_code, sizeof...(T)>{static_cast<event_code>(inp_codes)...}};
+        template <std::size_t NN>
+        consteval auto operator()(event_code (&&inp_codes)[NN]) const noexcept {
+            return basic_ignore_keys<NN>{std::to_array(std::move(inp_codes))};
         }
 
         template <typename... T>

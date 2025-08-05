@@ -44,9 +44,11 @@ export namespace foresight {
         using code_type  = event_type::code_type;
 
       private:
-        value_type step    = 10; // pixels/units
-        value_type x_value = 0;
-        value_type y_value = 0;
+        value_type step       = 10; // pixels/units
+        value_type x_value    = 0;
+        value_type y_value    = 0;
+        value_type last_abs_x = 0;
+        value_type last_abs_y = 0;
 
       public:
         constexpr basic_mice_quantifier() noexcept = default;
@@ -59,8 +61,6 @@ export namespace foresight {
         constexpr basic_mice_quantifier& operator=(basic_mice_quantifier&&) noexcept = default;
         constexpr ~basic_mice_quantifier() noexcept                                  = default;
 
-        void process(event_type const& event) noexcept;
-
         [[nodiscard]] value_type consume_x() noexcept;
         [[nodiscard]] value_type consume_y() noexcept;
 
@@ -70,9 +70,7 @@ export namespace foresight {
             return basic_mice_quantifier{steps};
         }
 
-        constexpr void operator()(event_type const& event) noexcept {
-            process(event);
-        }
+        void operator()(event_type const& event) noexcept;
     } mice_quantifier;
 
 

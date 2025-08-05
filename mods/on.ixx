@@ -37,12 +37,16 @@ namespace foresight {
       private:
         [[no_unique_address]] CondT                cond;
         [[no_unique_address]] std::tuple<Funcs...> funcs;
+        bool                                       was_active = false;
 
       public:
         constexpr basic_on() noexcept = default;
 
         template <typename InpCond, typename... InpFunc>
-            requires(std::convertible_to<InpCond, CondT>)
+            requires(std::convertible_to<InpCond, CondT>
+                     && (sizeof...(InpFunc) >= 1)
+                     && !Context<InpCond>
+                     && (!Context<InpFunc> && ...))
         explicit constexpr basic_on(InpCond&& inp_cond, InpFunc&&... inp_funcs) noexcept
           : cond{std::forward<InpCond>(inp_cond)},
             funcs{std::forward<InpFunc>(inp_funcs)...} {}
@@ -59,7 +63,11 @@ namespace foresight {
         constexpr basic_on& operator=(basic_on&&) noexcept = default;
         constexpr ~basic_on() noexcept                     = default;
 
+        void operator()(auto&&, start_type) = delete;
+        void operator()(auto&&, done_type)  = delete;
+
         template <typename NCondT, typename... NFuncs>
+            requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && (!Context<NFuncs> && ...))
         consteval auto operator()(NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
             return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{
               std::forward<NCondT>(n_cond),
@@ -67,9 +75,10 @@ namespace foresight {
         }
 
         template <typename NCondT, Context CtxT>
+            requires(!Context<NCondT>)
         consteval auto operator()(NCondT&& n_cond, CtxT&& ctx) const noexcept {
             return std::apply(
-              [&]<typename... ModT>(ModT&... mods) noexcept(CtxT::is_nothrow) {
+              [&]<typename... ModT>(ModT&... mods) constexpr noexcept {
                   return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<ModT>...>{
                     std::forward<NCondT>(n_cond),
                     mods...};
@@ -77,25 +86,24 @@ namespace foresight {
               ctx.get_mods());
         }
 
-        // template <typename EvTempl, typename InpFunc, typename... Args>
-        //     requires(sizeof...(Args) >= 1 && std::invocable<InpFunc, Args...>)
-        // consteval auto operator()(EvTempl templ, InpFunc inp_func, Args&&... args) const noexcept {
-        //     auto const cmd = [inp_func, args...]() constexpr noexcept {
-        //         static_assert(std::is_nothrow_invocable_v<InpFunc, Args...>, "Make it nothrow");
-        //         return std::invoke(inp_func, std::forward<Args>(args)...);
-        //     };
-        //     using cmd_type = std::remove_cvref_t<decltype(cmd)>;
-        //     return basic_on<std::remove_cvref_t<EvTempl>, cmd_type>{templ, cmd};
-        // }
-
         constexpr void init(Context auto& ctx) {
             invoke_init(ctx, funcs);
         }
 
-        constexpr context_action operator()(Context auto& ctx) noexcept {
+        context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
-            if (!invoke_cond(cond, ctx)) {
+            bool const is_active   = invoke_cond(cond, ctx);
+            bool const is_switched = is_active != std::exchange(was_active, is_active);
+            if (!is_active) {
+                if (is_switched) {
+                    return invoke_mods(ctx, funcs, start);
+                }
                 return next;
+            }
+            if (is_switched) {
+                if (invoke_mods(ctx, funcs, done) == exit) {
+                    return exit;
+                }
             }
             return invoke_mods(ctx, funcs);
         }
@@ -336,7 +344,7 @@ namespace foresight {
         code_type code = LED_MAX;
 
         template <Context CtxT>
-        [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
+        [[nodiscard]] bool operator()(CtxT& ctx) const noexcept {
             static_assert(has_mod<basic_led_status, CtxT>, "We need keys_status to be in the pipeline.");
             return ctx.mod(led_status).is_off(code);
         }
@@ -358,8 +366,8 @@ namespace foresight {
         explicit(false) constexpr and_op(InpFuncs&&... inp_funcs) noexcept
           : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
 
-        constexpr and_op(and_op const&) noexcept            = default;
-        constexpr and_op& operator=(and_op const&) noexcept = default;
+        consteval and_op(and_op const&) noexcept            = default;
+        consteval and_op& operator=(and_op const&) noexcept = default;
         constexpr and_op& operator=(and_op&&) noexcept      = default;
         constexpr and_op(and_op&&) noexcept                 = default;
         constexpr ~and_op() noexcept                        = default;
@@ -382,8 +390,7 @@ namespace foresight {
             }
         }
 
-        template <Context CtxT>
-        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+        [[nodiscard]] constexpr bool operator()(Context auto& ctx) noexcept {
             return std::apply(
               [&ctx](auto&... cond) constexpr noexcept {
                   return (invoke_cond(cond, ctx) && ...);
@@ -452,10 +459,7 @@ namespace foresight {
         constexpr basic_swipe_detector& operator=(basic_swipe_detector&&) noexcept      = default;
         constexpr ~basic_swipe_detector() noexcept                                      = default;
 
-        constexpr void reset() noexcept {
-            cur_x = 0;
-            cur_y = 0;
-        }
+        void reset() noexcept;
 
         [[nodiscard]] constexpr value_type x() const noexcept {
             return cur_x;
@@ -465,64 +469,16 @@ namespace foresight {
             return cur_y;
         }
 
-        [[nodiscard]] constexpr bool is_active(value_type const x_axis,
-                                               value_type const y_axis) const noexcept {
-            using std::abs;
-            using std::signbit;
-            return (abs(cur_x) >= abs(x_axis))
-                   && (signbit(cur_x) == signbit(x_axis) || x_axis == 0)
-                   &&                                                     // X
-                   (abs(cur_y) >= abs(y_axis))
-                   && (signbit(cur_y) == signbit(y_axis) || y_axis == 0); // Y
-        }
+        [[nodiscard]] bool is_active(value_type x_axis, value_type y_axis) const noexcept;
 
         /// Returns the number of times X and Y have passed
         /// multiples of their respective thresholds.
         /// Returns a std::pair where .first is x_multiples_passed and .second is y_multiples_passed.
-        [[nodiscard]] constexpr std::pair<std::uint16_t, std::uint16_t> passed_threshold_count(
-          value_type const x_axis,
-          value_type const y_axis) const noexcept {
-            using std::abs;
-            using std::signbit; // Required for checking signs
+        [[nodiscard]] std::pair<std::uint16_t, std::uint16_t> passed_threshold_count(
+          value_type x_axis,
+          value_type y_axis) const noexcept;
 
-            std::uint16_t x_multiples = 0;
-            std::uint16_t y_multiples = 0;
-
-            // Calculate multiples for X
-            if (x_axis != 0) {
-                // Check if cur_x and x_axis have the same sign (or if cur_x is zero)
-                // If they do, then calculate multiples. Otherwise, the count is 0.
-                if (signbit(cur_x) == signbit(x_axis)) {
-                    x_multiples = static_cast<std::uint16_t>(abs(cur_x) / abs(x_axis));
-                }
-            }
-            // If x_axis is 0, x_multiples remains 0, which is correct.
-
-            // Calculate multiples for Y
-            if (y_axis != 0) {
-                // Check if cur_y and y_axis have the same sign (or if cur_y is zero)
-                if (signbit(cur_y) == signbit(y_axis)) {
-                    y_multiples = static_cast<std::uint16_t>(abs(cur_y) / abs(y_axis));
-                }
-            }
-            // If y_axis is 0, y_multiples remains 0, which is correct.
-
-            return {x_multiples, y_multiples};
-        }
-
-        constexpr void operator()(event_type const& event) noexcept {
-            if (event.type() == EV_KEY && event.code() == BTN_LEFT) {
-                reset();
-                return;
-            }
-            if (is_mouse_movement(event)) {
-                switch (event.code()) {
-                    case REL_X: cur_x += event.value(); break;
-                    case REL_Y: cur_y += event.value(); break;
-                    default: break;
-                }
-            }
-        }
+        void operator()(event_type const& event) noexcept;
     } swipe_detector;
 
     export struct [[nodiscard]] basic_swipe {
@@ -545,7 +501,7 @@ namespace foresight {
         constexpr ~basic_swipe() noexcept                             = default;
 
         template <Context CtxT>
-        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+        [[nodiscard]] bool operator()(CtxT& ctx) noexcept {
             static_assert(has_mod<basic_swipe_detector, CtxT>, "You need to enable swipe detector");
 
             if (!is_mouse_movement(ctx.event())) {
@@ -585,21 +541,7 @@ namespace foresight {
         constexpr basic_multi_click& operator=(basic_multi_click&&) noexcept      = default;
         constexpr ~basic_multi_click() noexcept                                   = default;
 
-        [[nodiscard]] constexpr bool operator()(event_type const& event) noexcept {
-            auto const now = event.micro_time();
-            if (event != usr) {
-                return false;
-            }
-            if ((now - std::exchange(last_click, now)) > duration_threshold) {
-                cur_count = 1;
-                return false;
-            }
-            bool const res = ++cur_count >= count;
-            if (res) {
-                cur_count = 0;
-            }
-            return res;
-        }
+        [[nodiscard]] bool operator()(event_type const& event) noexcept;
     };
 
     constexpr basic_on<> enable_only;

@@ -3,7 +3,6 @@
 module;
 #include <concepts>
 #include <cstdint>
-#include <linux/input.h>
 #include <string_view>
 #include <tuple>
 #include <type_traits>
@@ -54,7 +53,7 @@ export namespace foresight {
     };
 
     template <typename T>
-    concept Modifier = std::copyable<std::remove_cvref_t<T>>;
+    concept Modifier = std::copyable<std::remove_cvref_t<T>> && std::movable<std::remove_cvref_t<T>>;
 
     template <typename T>
     concept OutputModifier =
@@ -140,43 +139,68 @@ export namespace foresight {
         std::unreachable();
     }
 
-    template <typename ModT, typename CtxT>
-    constexpr context_action invoke_mod(ModT &mod, CtxT &ctx) {
+    constexpr struct no_init_type {
+    } no_init;
+
+    constexpr struct start_type {
+    } start;
+
+    constexpr struct done_type {
+    } done;
+
+    template <typename ModT, typename CtxT, typename... Args>
+    concept invokable_mod =
+      std::invocable<std::remove_cvref_t<ModT>, std::remove_cvref_t<CtxT> &, Args...>
+      || std::invocable<std::remove_cvref_t<ModT>, event_type &, Args...>
+      || std::invocable<std::remove_cvref_t<ModT>, Args...>;
+
+    template <typename ModT, typename CtxT, typename... Args>
+    constexpr context_action invoke_mod(ModT &mod, CtxT &ctx, Args &&...args) {
         using enum context_action;
-        if constexpr (std::invocable<ModT, CtxT &>) {
-            using result = std::invoke_result_t<ModT, CtxT &>;
+        if constexpr (std::invocable<ModT, CtxT &, Args...>) {
+            using result = std::invoke_result_t<ModT, CtxT &, Args...>;
             if constexpr (std::same_as<result, bool>) {
-                return mod(ctx) ? next : ignore_event;
+                return mod(ctx, std::forward<Args>(args)...) ? next : ignore_event;
             } else if constexpr (std::same_as<result, context_action>) {
-                return mod(ctx);
+                return mod(ctx, std::forward<Args>(args)...);
             } else {
-                mod(ctx);
+                static_cast<void>(mod(ctx, std::forward<Args>(args)...));
                 return next;
             }
-        } else if constexpr (std::invocable<ModT, event_type &>) {
+        } else if constexpr (std::invocable<ModT, event_type &, Args...>) {
             auto &event  = ctx.event();
-            using result = std::invoke_result_t<ModT, event_type &>;
+            using result = std::invoke_result_t<ModT, event_type &, Args...>;
             if constexpr (std::same_as<result, bool>) {
-                return mod(event) ? next : ignore_event;
+                return mod(event, std::forward<Args>(args)...) ? next : ignore_event;
             } else if constexpr (std::same_as<result, context_action>) {
-                return mod(event);
+                return mod(event, std::forward<Args>(args)...);
             } else {
-                mod(event);
+                static_cast<void>(mod(event, std::forward<Args>(args)...));
                 return next;
             }
-        } else if constexpr (std::invocable<ModT>) {
-            using result = std::invoke_result_t<ModT>;
+        } else if constexpr (std::invocable<ModT, Args...>) {
+            using result = std::invoke_result_t<ModT, Args...>;
             if constexpr (std::same_as<result, bool>) {
-                return mod() ? next : ignore_event;
+                return mod(std::forward<Args>(args)...) ? next : ignore_event;
             } else if constexpr (std::same_as<result, context_action>) {
-                return mod();
+                return mod(std::forward<Args>(args)...);
             } else {
-                mod();
+                static_cast<void>(mod(std::forward<Args>(args)...));
                 return next;
             }
         } else {
             static_assert(false, "We're not able to run this function.");
         }
+    }
+
+    template <typename ModT, typename CtxT>
+    constexpr context_action invoke_start(ModT &mod, CtxT &ctx) {
+        return invoke_mod(mod, ctx, start);
+    }
+
+    template <typename ModT, typename CtxT>
+    constexpr context_action invoke_done(ModT &mod, CtxT &ctx) {
+        return invoke_mod(mod, ctx, done);
     }
 
     /// Invoke Condition
@@ -219,9 +243,6 @@ export namespace foresight {
         }
     }
 
-    constexpr struct no_init_type {
-    } no_init;
-
     template <Context CtxT, typename... Funcs>
     constexpr context_action invoke_mod_at(
       CtxT                 &ctx,
@@ -243,17 +264,28 @@ export namespace foresight {
     }
 
     /// Run the functions and give them the specified context
-    template <Context CtxT, typename... Funcs>
-    constexpr context_action invoke_mods(CtxT &ctx, std::tuple<Funcs...> &funcs) noexcept(CtxT::is_nothrow) {
+    template <Context CtxT, typename... Funcs, typename... Args>
+        requires(std::is_trivially_copy_constructible_v<Args> && ...)
+    constexpr context_action invoke_mods(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept(
+      CtxT::is_nothrow) {
         using enum context_action;
+        using tuple_type = std::tuple<Funcs...>;
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
             auto action = next;
-            std::ignore = (([&]<std::size_t K>() constexpr noexcept(CtxT::is_nothrow) {
-                               auto current_fork_view = ctx.template fork_view<K>();
-                               action                 = invoke_mod(get<K>(funcs), current_fork_view);
-                               return action == next;
-                           }).template operator()<I>()
-                           && ...);
+            std::ignore =
+              (([&]<std::size_t K>() constexpr noexcept(CtxT::is_nothrow) {
+                   if constexpr ((sizeof...(Args) >= 1)
+                                 && !invokable_mod<std::tuple_element_t<K, tuple_type>, CtxT, Args...>)
+                   {
+                       // we're not able to run start and done on this mod, we simply ignore it.
+                       return true;
+                   } else {
+                       auto current_fork_view = ctx.template fork_view<K>();
+                       action                 = invoke_mod(get<K>(funcs), current_fork_view, args...);
+                       return action == next;
+                   }
+               }).template operator()<I>()
+               && ...);
             return action;
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
@@ -322,10 +354,6 @@ export namespace foresight {
 
         [[nodiscard]] constexpr auto &get_mods() noexcept {
             return mods;
-        }
-
-        constexpr void event(input_event const &inp_event) noexcept {
-            ev = inp_event;
         }
 
         constexpr void event(event_type const &inp_event) noexcept {
@@ -423,7 +451,7 @@ export namespace foresight {
         }
 
         template <std::size_t Index>
-        constexpr context_action fork_emit(event_type const &inp_event) noexcept(is_nothrow) {
+        context_action fork_emit(event_type const &inp_event) noexcept(is_nothrow) {
             auto const cur_ev = std::exchange(ev, inp_event);
             auto const res    = reemit<Index>();
             ev                = cur_ev;
@@ -432,7 +460,7 @@ export namespace foresight {
 
         template <std::size_t Index, typename... Args>
             requires(std::constructible_from<event_type, Args...> && sizeof...(Args) >= 2)
-        constexpr context_action fork_emit(Args &&...args) noexcept(is_nothrow) {
+        context_action fork_emit(Args &&...args) noexcept(is_nothrow) {
             return fork_emit<Index>(event_type{std::forward<Args>(args)...});
         }
 
@@ -451,21 +479,22 @@ export namespace foresight {
             invoke_init(*this, mods);
         }
 
-        constexpr void operator()() noexcept(is_nothrow) {
+        void operator()() noexcept(is_nothrow) {
             using enum context_action;
             init();
             operator()(no_init);
         }
 
-        constexpr void operator()([[maybe_unused]] no_init_type) noexcept(is_nothrow) {
+        void operator()([[maybe_unused]] no_init_type) noexcept(is_nothrow) {
             using enum context_action;
+            static_assert((invokable_mod<Funcs, basic_context_view<0, Funcs...>> && ...), "ERR");
             while (reemit_all() != exit) {
                 // keep going
             }
         }
 
         /// Pass-through
-        constexpr context_action operator()(Context auto &ctx) noexcept(is_nothrow) {
+        context_action operator()(Context auto &ctx) noexcept(is_nothrow) {
             using enum context_action;
             ev             = ctx.event();
             auto const res = reemit_all();
@@ -504,22 +533,21 @@ export namespace foresight {
             return *ctx;
         }
 
-        constexpr context_action fork_emit() noexcept(is_nothrow) {
+        context_action fork_emit() noexcept(is_nothrow) {
             return ctx->template reemit<Index>();
         }
 
-        constexpr context_action fork_emit(event_type const &event) noexcept(is_nothrow) {
+        context_action fork_emit(event_type const &event) noexcept(is_nothrow) {
             return ctx->template fork_emit<Index>(event);
         }
 
-        constexpr context_action fork_emit(user_event const &inp_ev) noexcept(is_nothrow) {
+        context_action fork_emit(user_event const &inp_ev) noexcept(is_nothrow) {
             return fork_emit(event_type{inp_ev});
         }
 
-        constexpr context_action fork_emit(
-          type_type const  inp_type,
-          code_type const  inp_code,
-          value_type const inp_val) noexcept(is_nothrow) {
+        context_action fork_emit(type_type const  inp_type,
+                                 code_type const  inp_code,
+                                 value_type const inp_val) noexcept(is_nothrow) {
             return fork_emit(event_type{inp_type, inp_code, inp_val});
         }
 
@@ -529,10 +557,6 @@ export namespace foresight {
 
         [[nodiscard]] constexpr event_type &event() noexcept {
             return ctx->event();
-        }
-
-        constexpr void event(input_event const &inp_event) noexcept {
-            ctx->event(inp_event);
         }
 
         constexpr void event(event_type const &inp_event) noexcept {

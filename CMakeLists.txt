@@ -74,6 +74,7 @@ target_sources(${LIB_NAME}
         mods/quantifier.cxx
         mods/replace.cxx
         mods/keys_status.cxx
+        mods/on.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         main/main.ixx
         main/utils.ixx

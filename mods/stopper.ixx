@@ -21,7 +21,7 @@ export namespace foresight {
             stopped = true;
         }
 
-        constexpr context_action operator()() const noexcept {
+         context_action operator()() const noexcept {
             using enum context_action;
             return stopped ? exit : next;
         }

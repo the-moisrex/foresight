@@ -48,6 +48,9 @@ export namespace foresight {
 
     template <typename ModT = void>
     struct [[nodiscard]] basic_mod_updater {
+        void operator()(auto&&..., start_type) = delete;
+        void operator()(auto&&..., done_type)  = delete;
+
         template <typename InpModT>
         consteval auto operator()([[maybe_unused]] InpModT&&) const noexcept {
             return basic_mod_updater<InpModT>{};

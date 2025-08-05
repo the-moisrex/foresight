@@ -68,7 +68,7 @@ export namespace foresight {
             hist.at(fill_index) = std::move(pos);
         }
 
-        constexpr void operator()(Context auto& ctx) noexcept {
+        void operator()(Context auto& ctx) noexcept {
             auto const& event = ctx.event();
             switch (event.type()) {
                 case EV_REL: break;
