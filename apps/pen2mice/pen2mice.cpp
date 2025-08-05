@@ -54,5 +54,6 @@ int main(int const argc, char const* const* argv) {
 
     pipeline.mod(intercept).add_devs(args(argc, argv) | find_devices, grab_inputs);
     pipeline();
+
     return 0;
 }

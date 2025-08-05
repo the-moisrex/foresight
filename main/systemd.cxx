@@ -25,7 +25,7 @@ namespace {
                 result += ' ';
             }
 
-            std::error_code ec;
+            std::error_code             ec;
             std::filesystem::path const arg_path{arg};
             if (exists(arg_path)) {
                 result += absolute(arg_path, ec).string();
@@ -77,14 +77,14 @@ void systemd_service::install() const {
     std::filesystem::create_directories(user_systemd_dir);
 
     // Generate service name from executable
-    std::filesystem::path exec_path(args_[0]);
-    std::string           service_name = exec_path.filename().string() + ".service";
-    std::filesystem::path service_file = user_systemd_dir / service_name;
+    std::filesystem::path       exec_path(args_[0]);
+    std::string                 service_name = exec_path.filename().string() + ".service";
+    std::filesystem::path       service_file = user_systemd_dir / service_name;
     std::filesystem::path const exec_file{args_[0]};
     if (!exists(exec_file)) {
         throw std::runtime_error("Executable not found");
     }
-    auto const            cmd_str      = escape_command(args_);
+    auto const cmd_str = escape_command(args_);
 
     std::println("Name: {}\nService File: {}\nExec: {}", service_name, service_file.string(), cmd_str);
 
@@ -100,14 +100,17 @@ void systemd_service::install() const {
       << description_
       << "\n\n"
       << "[Service]\n"
-      << "ExecStart="
+      << "ExecStart=/bin/bash -c '"
       << cmd_str
+      << " & pid=$!; inotifywait -e modify "
+      << absolute(exec_file).string()
+      << " && kill $pid && wait $pid'"
       << "\n"
       << "Restart=always\n"
-      << "RestartSec=5\n"
+      << "RestartSec=1\n"
       // << "Environment=DISPLAY=:0\n"
-      // << "Environment=XAUTHORITY=%h/.Xauthority\n\n"
-      << "[Install]\n"
+      // << "Environment=XAUTHORITY=%h/.Xauthority\n"
+      << "\n[Install]\n"
       << "WantedBy=default.target\n";
 }
 
