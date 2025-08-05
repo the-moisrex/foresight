@@ -2,6 +2,7 @@
 
 #include <linux/input-event-codes.h>
 import foresight.mods;
+import foresight.main.log;
 
 using namespace foresight;
 
@@ -9,12 +10,16 @@ using namespace foresight;
 TEST(SmoothTest, LERPTest) {
     (context
      | emit_all({
-       {EV_REL,      REL_X, 10},
-       {EV_REL,      REL_Y, 10},
-       {EV_SYN, SYN_REPORT,  0}
+       {EV_REL,      REL_X, 3},
+       {EV_REL,      REL_Y, 3},
+       {EV_SYN, SYN_REPORT, 0},
+       {EV_REL,      REL_X, 9},
+       {EV_REL,      REL_Y, 9},
+       {EV_SYN, SYN_REPORT, 0}
     })
      | lerp
+     | log
      | ([](event_type &event) {
-           EXPECT_EQ(event.value(), 10);
+           EXPECT_LE(event.value(), 10);
        }))();
 }

@@ -21,19 +21,18 @@ export namespace foresight {
         using value_type = event_type::value_type;
 
       private:
-        std::array<value_type, 2> prev_vals = {0, 0};
-        std::array<value_type, 2> cur_vals  = {0, 0};
-        value_type                steps     = 10;
-        bool                      cached    = false;
+        std::array<value_type, 2> cur_vals = {0, 0};
+        bool                      cached   = false;
 
-        constexpr value_type next_step(value_type const step, std::size_t const axis = REL_X) const noexcept {
+        constexpr value_type next_step(value_type const  step,
+                                       value_type const  total_steps,
+                                       std::size_t const axis = REL_X) const noexcept {
             static_assert(REL_X == 0x0 && REL_Y == 0x1,
                           "We need REL_X and REL_Y events' values to be 0 and 1.");
 
-            float const t_normalized  = static_cast<float>(step) / (static_cast<float>(steps) - 1);
-            float       interpolated  = easeInQuad(t_normalized);
-            interpolated             *= static_cast<float>(cur_vals[axis] - prev_vals[axis]);
-            interpolated             += static_cast<float>(prev_vals[axis]);
+            float const t_normalized  = static_cast<float>(step) / (static_cast<float>(total_steps) - 1);
+            float       interpolated  = t_normalized; // easeInQuad(t_normalized);
+            interpolated             *= static_cast<float>(cur_vals[axis]);
             return static_cast<value_type>(interpolated);
         }
 
@@ -50,31 +49,41 @@ export namespace foresight {
 
             auto& event = ctx.event();
             if (is_mouse_movement(event)) {
-                log("{} {}", event.code(), event.value());
-                prev_vals[event.code()] = cur_vals[event.code()];
-                cur_vals[event.code()]  = event.value();
-                cached                  = true;
+                cur_vals[event.code()] = event.value();
+                cached                 = true;
                 return ignore_event;
             }
             if (!is_syn(event) || !cached) {
                 return next;
             }
+            cached = false;
 
-            for (value_type step = 0; step != steps; ++step) {
-                std::ignore = ctx.fork_emit(
-                  event | user_event{.type = EV_REL, .code = REL_X, .value = next_step(step, REL_X)});
-                std::ignore = ctx.fork_emit(
-                  event | user_event{.type = EV_REL, .code = REL_Y, .value = next_step(step, REL_Y)});
+            auto const total_steps = std::max(std::abs(cur_vals[REL_X]), std::abs(cur_vals[REL_Y]));
+            if (total_steps <= 2) {
+                return next;
+            }
+            value_type all_x = 0;
+            value_type all_y = 0;
+            for (value_type step = 1; step < total_steps; ++step) {
+                auto const cur_x  = next_step(step, total_steps, REL_X);
+                auto const cur_y  = next_step(step, total_steps, REL_Y);
+                auto const rel_x  = cur_x - all_x;
+                auto const rel_y  = cur_y - all_y;
+                all_x            += rel_x;
+                all_y            += rel_y;
+                if (cur_x == 0 && cur_y == 0) {
+                    log("{}/{} {} {} ({}, {})", step, total_steps, cur_x, cur_y, all_x, all_y);
+                    continue;
+                }
+                log("{}/{} {} {} ({}, {}) ||||", step, total_steps, cur_x, cur_y, all_x, all_y);
+                std::ignore =
+                  ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_X, .value = rel_x});
+                std::ignore =
+                  ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_Y, .value = rel_y});
                 std::ignore = ctx.fork_emit(syn());
             }
 
-            std::ignore =
-              ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_X, .value = cur_vals[REL_X]});
-            std::ignore =
-              ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_Y, .value = cur_vals[REL_Y]});
-            event.reset_time();
-            cached = false;
-            return next;
+            return ignore_event;
         }
     } lerp;
 
