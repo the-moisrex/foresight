@@ -5,8 +5,6 @@ module;
 #include <cmath>
 #include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
-#include <print>
-#include <utility>
 module foresight.mods.abs2rel;
 import foresight.main.log;
 
@@ -19,6 +17,44 @@ constexpr basic_abs2rel::value_type x_bit_loc    = states_loc;
 constexpr basic_abs2rel::value_type y_bit_loc    = states_loc + 1;
 constexpr basic_abs2rel::value_type x_init_state = 0b1 << x_bit_loc;
 constexpr basic_abs2rel::value_type y_init_state = 0b1 << y_bit_loc;
+
+context_action foresight::basic_pen2mouse_clicks::operator()(event_type& event) noexcept {
+    using enum context_action;
+
+    switch (event.hash()) {
+        case hashed(EV_ABS, ABS_PRESSURE): {
+            // use pressure as the left button click
+            if (event.value() >= pressure_threshold && !is_left_down) {
+                event.type(EV_KEY);
+                event.code(BTN_LEFT);
+                event.value(1);
+                is_left_down = true;
+                break;
+            }
+            if (event.value() < pressure_threshold && is_left_down) {
+                event.code(BTN_LEFT);
+                event.type(EV_KEY);
+                event.value(0);
+                is_left_down = false;
+                break;
+            }
+            return ignore_event;
+        }
+        case hashed(EV_KEY, BTN_STYLUS): event.code(BTN_RIGHT); break;
+        case hashed(EV_KEY, BTN_TOOL_RUBBER): event.code(BTN_MIDDLE); break;
+        case hashed(EV_KEY, BTN_TOOL_PEN):
+        case hashed(EV_KEY, BTN_TOOL_BRUSH):
+        case hashed(EV_KEY, BTN_TOOL_PENCIL):
+        case hashed(EV_KEY, BTN_TOOL_AIRBRUSH):
+        case hashed(EV_KEY, BTN_TOUCH):
+        case hashed(EV_KEY, BTN_STYLUS2):
+        case hashed(EV_KEY, BTN_STYLUS3):
+        case hashed(EV_ABS, ABS_TILT_X):
+        case hashed(EV_ABS, ABS_TILT_Y): return ignore_event;
+        default: break;
+    }
+    return next;
+}
 
 void basic_abs2rel::init(evdev const& dev, double const scale) noexcept {
     auto const* x_absinfo = dev.abs_info(ABS_X);
@@ -60,9 +96,9 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
     //   No wires, no keys—just me and my view.
 
     // -1 is given because the syn itself is an event that's being sent
-    if (is_syn(event) && std::exchange(events_sent, -1) <= 0) {
-        return ignore_event;
-    }
+    // if (is_syn(event) && std::exchange(events_sent, -1) <= 0) {
+    //     return ignore_event;
+    // }
 
     if (EV_ABS == type) {
         // Absolute position event from a tablet
@@ -89,34 +125,15 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
                 last_abs_y = value;
                 break;
             }
-            case ABS_TILT_X:
-            case ABS_TILT_Y: return ignore_event;
-            case ABS_PRESSURE:
-                // use pressure as the left button click
-                if (value >= pressure_threshold && !is_left_down) {
-                    event.type(EV_KEY);
-                    event.code(BTN_LEFT);
-                    event.value(1);
-                    is_left_down = true;
-                    break;
-                }
-                if (value < pressure_threshold && is_left_down) {
-                    event.code(BTN_LEFT);
-                    event.type(EV_KEY);
-                    event.value(0);
-                    is_left_down = false;
-                    break;
-                }
-                return ignore_event;
             default: break;
         }
     } else if (EV_KEY == type) {
         switch (code) {
-            case BTN_STYLUS: event.code(BTN_RIGHT); break;
-            case BTN_TOUCH: return ignore_event;
-            case BTN_STYLUS2:
-            case BTN_STYLUS3: return ignore_event;
-            case BTN_TOOL_RUBBER: event.code(BTN_MIDDLE); break;
+            // case BTN_STYLUS: break;
+            // case BTN_TOUCH:
+            // case BTN_STYLUS2:
+            // case BTN_STYLUS3: return ignore_event;
+            case BTN_TOOL_RUBBER:
             case BTN_TOOL_PEN:
             case BTN_TOOL_BRUSH:
             case BTN_TOOL_PENCIL:
@@ -131,7 +148,7 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
                 // active_tool = code;
                 last_abs_x |= x_init_state;
                 last_abs_y |= y_init_state;
-                return ignore_event;
+                [[fallthrough]];
             default: break;
         }
     } else if (EV_REL == type) {
@@ -144,6 +161,6 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
         }
     }
 
-    ++events_sent;
+    // ++events_sent;
     return next;
 }
