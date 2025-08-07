@@ -5,6 +5,7 @@ import foresight.mods.context;
 import foresight.evdev;
 import foresight.mods.intercept;
 import foresight.mods.caps;
+import foresight.mods.ignore;
 
 export namespace foresight {
 
@@ -35,6 +36,12 @@ export namespace foresight {
         }
 
         context_action operator()(event_type& event) noexcept;
+
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx) noexcept {
+            static_assert(has_mod<basic_ignore_adjacent_repeats, CtxT>, "You need to ignore syn repeats.");
+            return operator()(ctx.event());
+        }
     } pen2mouse_clicks;
 
     constexpr struct [[nodiscard]] basic_abs2rel {
@@ -46,8 +53,8 @@ export namespace foresight {
         value_type last_abs_y = 0;
 
         // pixel per millimeter
-        double x_scale_factor = 10.0;
-        double y_scale_factor = 10.0;
+        float x_scale_factor = 10.0f;
+        float y_scale_factor = 10.0f;
 
         // code_type   active_tool  = BTN_TOOL_PEN;
 
@@ -63,7 +70,7 @@ export namespace foresight {
         constexpr basic_abs2rel& operator=(basic_abs2rel&&) noexcept      = default;
         constexpr ~basic_abs2rel() noexcept                               = default;
 
-        void init(evdev const& dev, double scale = 20.0) noexcept;
+        void init(evdev const& dev, float scale = 20.0f) noexcept;
 
         /// Auto Initialize
         template <Context CtxT>
@@ -86,6 +93,12 @@ export namespace foresight {
 
         void           operator()(start_type) noexcept;
         context_action operator()(event_type& event) noexcept;
+
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx) noexcept {
+            static_assert(has_mod<basic_ignore_adjacent_repeats, CtxT>, "You need to ignore syn repeats.");
+            return operator()(ctx.event());
+        }
 
     } abs2rel;
 

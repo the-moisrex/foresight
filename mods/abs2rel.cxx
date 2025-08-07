@@ -56,14 +56,14 @@ context_action foresight::basic_pen2mouse_clicks::operator()(event_type& event) 
     return next;
 }
 
-void basic_abs2rel::init(evdev const& dev, double const scale) noexcept {
+void basic_abs2rel::init(evdev const& dev, float const scale) noexcept {
     auto const* x_absinfo = dev.abs_info(ABS_X);
     auto const* y_absinfo = dev.abs_info(ABS_Y);
     if (x_absinfo == nullptr || y_absinfo == nullptr) {
         return;
     }
-    x_scale_factor = static_cast<double>(x_absinfo->resolution) / scale;
-    y_scale_factor = static_cast<double>(y_absinfo->resolution) / scale;
+    x_scale_factor = static_cast<float>(x_absinfo->resolution) / scale;
+    y_scale_factor = static_cast<float>(y_absinfo->resolution) / scale;
 
     log("Init abs2rel: ({}, {}) with resolution ({}, {})",
         x_scale_factor,
@@ -105,7 +105,7 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
         switch (code) {
             case ABS_X: {
                 auto const delta   = value - (last_abs_x & ~x_init_state);
-                auto       pixels  = static_cast<value_type>(static_cast<double>(delta) / x_scale_factor);
+                auto       pixels  = static_cast<value_type>(static_cast<float>(delta) / x_scale_factor);
                 pixels            &= ~(0 - (last_abs_x >> x_bit_loc)); // don't move if we're in init state
                 event.type(EV_REL);
                 event.code(REL_X);
@@ -116,7 +116,7 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
             }
             case ABS_Y: {
                 auto const delta   = value - (last_abs_y & ~y_init_state);
-                auto       pixels  = static_cast<value_type>(static_cast<double>(delta) / y_scale_factor);
+                auto       pixels  = static_cast<value_type>(static_cast<float>(delta) / y_scale_factor);
                 pixels            &= ~(0 - (last_abs_y >> y_bit_loc)); // don't move if we're in init state
                 event.type(EV_REL);
                 event.code(REL_Y);
