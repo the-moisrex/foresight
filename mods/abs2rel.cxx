@@ -96,6 +96,58 @@ context_action foresight::basic_pen2touch::operator()(event_type& event) noexcep
     return next;
 }
 
+void foresight::basic_pen2mice::operator()(event_type& event) noexcept {
+    using enum context_action;
+
+    if (event.type() != EV_KEY) {
+        return;
+    }
+
+    switch (event.code()) {
+        case BTN_TOUCH: {
+            // Use BTN_TOUCH as the left button click instead of pressure
+            if (active_tool != KEY_MAX) {
+                event.code(active_tool);
+            }
+            break;
+        }
+
+        case BTN_TOOL_PEN:
+        case BTN_TOOL_BRUSH:
+        case BTN_TOOL_PENCIL:
+        case BTN_TOOL_AIRBRUSH:
+        case BTN_TOOL_FINGER:
+        case BTN_TOOL_MOUSE:
+            // Primary pen tool -> left click (but only process if BTN_TOUCH is active)
+            // Mouse tool -> keep as left mouse button
+            // Finger -> left mouse button (for touch input)
+            // Other drawing tools -> left mouse button
+            active_tool = event.value() == 1 ? BTN_LEFT : KEY_MAX;
+            break;
+
+        case BTN_TOOL_LENS:
+        case BTN_STYLUS:
+            // First stylus button -> right mouse button
+            // Lens tool -> right mouse button
+            active_tool = event.value() == 1 ? BTN_RIGHT : KEY_MAX;
+            break;
+
+        case BTN_TOOL_RUBBER:
+        case BTN_STYLUS2:
+            // Second stylus button -> middle mouse button
+            // Eraser tool -> middle mouse button
+            active_tool = event.value() == 1 ? BTN_MIDDLE : KEY_MAX;
+            break;
+
+        case BTN_STYLUS3:
+            // Third stylus button -> additional mouse button
+            active_tool = event.value() == 1 ? BTN_SIDE : KEY_MAX;
+            break;
+
+        default: break;
+    }
+}
+
 void basic_abs2rel::init(evdev const& dev, float const scale) noexcept {
     auto const* x_absinfo = dev.abs_info(ABS_X);
     auto const* y_absinfo = dev.abs_info(ABS_Y);
@@ -125,8 +177,8 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
 
     // AI Poem:
     //   From touch to tool, I steer with the pen,
-    //   Sensing the path where the stylus can’t wend—
-    //   No need to click, I’m in full swing,
+    //   Sensing the path where the stylus can't wend—
+    //   No need to click, I'm in full swing,
     //   My screen's a stage, I let the hand begin.
     //   No more clicks, just pressure, grace,
     //   A digital dance in every trace.

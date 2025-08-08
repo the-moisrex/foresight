@@ -24,11 +24,12 @@ export namespace foresight {
         explicit constexpr basic_pressure2mouse_clicks(value_type const inp_pressure_threshold) noexcept
           : pressure_threshold{inp_pressure_threshold} {}
 
-        constexpr basic_pressure2mouse_clicks() noexcept                                         = default;
-        consteval basic_pressure2mouse_clicks(basic_pressure2mouse_clicks const&) noexcept            = default;
-        constexpr basic_pressure2mouse_clicks(basic_pressure2mouse_clicks&&) noexcept                 = default;
-        consteval basic_pressure2mouse_clicks& operator=(basic_pressure2mouse_clicks const&) noexcept = default;
-        constexpr basic_pressure2mouse_clicks& operator=(basic_pressure2mouse_clicks&&) noexcept      = default;
+        constexpr basic_pressure2mouse_clicks() noexcept                                   = default;
+        consteval basic_pressure2mouse_clicks(basic_pressure2mouse_clicks const&) noexcept = default;
+        constexpr basic_pressure2mouse_clicks(basic_pressure2mouse_clicks&&) noexcept      = default;
+        consteval basic_pressure2mouse_clicks& operator=(
+          basic_pressure2mouse_clicks const&) noexcept                                           = default;
+        constexpr basic_pressure2mouse_clicks& operator=(basic_pressure2mouse_clicks&&) noexcept = default;
         constexpr ~basic_pressure2mouse_clicks() noexcept                                        = default;
 
         consteval auto operator()(value_type const inp_pressure_threshold) const noexcept {
@@ -81,6 +82,24 @@ export namespace foresight {
             return operator()(ctx.event());
         }
     } pen2touch;
+
+    constexpr struct [[nodiscard]] basic_pen2mice {
+        using code_type  = event_type::code_type;
+        using value_type = event_type::value_type;
+
+      private:
+        code_type active_tool = KEY_MAX;
+
+      public:
+        constexpr basic_pen2mice() noexcept                                 = default;
+        consteval basic_pen2mice(basic_pen2mice const&) noexcept            = default;
+        constexpr basic_pen2mice(basic_pen2mice&&) noexcept                 = default;
+        consteval basic_pen2mice& operator=(basic_pen2mice const&) noexcept = default;
+        constexpr basic_pen2mice& operator=(basic_pen2mice&&) noexcept      = default;
+        constexpr ~basic_pen2mice() noexcept                                = default;
+
+        void operator()(event_type& event) noexcept;
+    } pen2mice;
 
     constexpr struct [[nodiscard]] basic_abs2rel {
         using code_type  = event_type::code_type;
