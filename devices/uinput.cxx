@@ -396,6 +396,7 @@ void basic_uinput::apply_caps(dev_caps_view const inp_caps) noexcept {
     for (auto const& [type, codes, action] : inp_caps) {
         switch (action) {
             case append:
+                enable_event_type(type);
                 for (auto const code : codes) {
                     enable_event_code(type, code);
                 }
@@ -437,6 +438,8 @@ void basic_uinput::init(dev_caps_view const caps_view) noexcept {
 }
 
 void basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
+    using enum caps_action;
+
     evdev_rank best{};
     for (evdev_rank&& cur : rank_devices(caps_view)) {
         if (cur.score >= best.score) {
@@ -449,12 +452,32 @@ void basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
         new_name += best.dev.device_name();
         new_name += " (Copied)";
         best.dev.device_name(new_name); // this is okay, it's not changing the original device
-        log("Init uinput from: {} ({})", new_name, best.dev.physical_location());
+        for (auto const& [type, codes, action] : caps_view) {
+            switch (action) {
+                case append: {
+                    auto* dev_ptr = best.dev.device_ptr();
+                    if (libevdev_has_event_type(dev_ptr, type) == 0) {
+                        libevdev_enable_event_type(dev_ptr, type);
+                    }
+                    for (auto const code : codes) {
+                        if (libevdev_has_event_code(dev_ptr, type, code) == 0) {
+                            libevdev_enable_event_code(dev_ptr, type, code, nullptr);
+                            log("  Enabled: {} {}",
+                                libevdev_event_type_get_name(type),
+                                libevdev_event_code_get_name(type, code));
+                        }
+                    }
+                    break;
+                }
+                case remove_codes:
+                case remove_type: break;
+            }
+        }
         this->set_device(best.dev);
     } else {
         this->set_device();
+        this->apply_caps(caps_view);
     }
-    this->apply_caps(caps_view);
 }
 
 foresight::context_action basic_uinput::operator()(event_type const& event) noexcept {
