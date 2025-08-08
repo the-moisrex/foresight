@@ -133,29 +133,28 @@ export namespace foresight {
 
         /// this fixes flickering of the pen after we switched while the pen (in mouse mode) is still active.
         template <Context CtxT>
-        void operator()(CtxT& ctx, start_type) noexcept {
+        void operator()(CtxT& ctx, done_type) noexcept {
             if constexpr (has_mod<basic_keys_status, CtxT>) {
-                if (auto const tool =
-                      ctx.mod(keys_status)
-                        .first_pressed(
-                          BTN_TOOL_PEN,
-                          BTN_TOOL_RUBBER,
-                          BTN_TOOL_BRUSH,
-                          BTN_TOOL_PENCIL,
-                          BTN_TOOL_AIRBRUSH,
-                          BTN_TOOL_FINGER,
-                          BTN_TOOL_MOUSE,
-                          BTN_TOOL_LENS);
-                    tool != KEY_MAX)
+                auto const& keys = ctx.mod(keys_status);
+                for (code_type const tool : std::initializer_list<code_type>{
+                       BTN_TOOL_PEN,
+                       BTN_TOOL_RUBBER,
+                       BTN_TOOL_BRUSH,
+                       BTN_TOOL_PENCIL,
+                       BTN_TOOL_AIRBRUSH,
+                       BTN_TOOL_FINGER,
+                       BTN_TOOL_MOUSE,
+                       BTN_TOOL_LENS})
                 {
-                    // re-submit the events, in case they were ignored previously:
-                    std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 0});
-                    std::ignore = ctx.fork_emit(syn());
-                    std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 1});
-                    std::ignore = ctx.fork_emit(syn());
+                    if (keys.is_pressed(tool)) {
+                        // re-submit the events, in case they were ignored previously:
+                        std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 0});
+                        std::ignore = ctx.fork_emit(syn());
+                        std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 1});
+                        std::ignore = ctx.fork_emit(syn());
+                    }
                 }
             }
-            operator()(start);
         }
 
         context_action operator()(event_type& event) noexcept;

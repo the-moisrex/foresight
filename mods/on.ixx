@@ -63,6 +63,7 @@ namespace foresight {
         constexpr basic_on& operator=(basic_on&&) noexcept = default;
         constexpr ~basic_on() noexcept                     = default;
 
+        // todo: should we propagate these to sub-on conditions as well?
         void operator()(auto&&, start_type) = delete;
         void operator()(auto&&, done_type)  = delete;
 
@@ -96,14 +97,12 @@ namespace foresight {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    return invoke_mods(ctx, funcs, start);
+                    return invoke_mods(ctx, funcs, done);
                 }
                 return next;
             }
-            if (is_switched) {
-                if (invoke_mods(ctx, funcs, done) == exit) {
-                    return exit;
-                }
+            if (is_switched && invoke_mods(ctx, funcs, start) == exit) {
+                return exit;
             }
             return invoke_mods(ctx, funcs);
         }
