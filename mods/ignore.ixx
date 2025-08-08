@@ -13,6 +13,10 @@ export namespace foresight {
         context_action operator()(event_type const& event) const noexcept;
     } ignore_abs;
 
+    constexpr struct [[nodiscard]] basic_ignore_tablet {
+        context_action operator()(event_type const& event) const noexcept;
+    } ignore_tablet;
+
     constexpr struct [[nodiscard]] basic_ignore_big_jumps {
         using value_type = event_type::value_type;
 

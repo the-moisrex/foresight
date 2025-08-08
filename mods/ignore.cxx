@@ -16,6 +16,11 @@ using foresight::event_type;
 
 context_action basic_ignore_abs::operator()(event_type const& event) const noexcept {
     using enum context_action;
+    return EV_ABS == event.type() ? ignore_event : next;
+}
+
+context_action foresight::basic_ignore_tablet::operator()(event_type const& event) const noexcept {
+    using enum context_action;
     auto const type = event.type();
     auto const code = event.code();
 
@@ -24,9 +29,14 @@ context_action basic_ignore_abs::operator()(event_type const& event) const noexc
     }
     if (EV_KEY == type) {
         switch (code) {
+            case BTN_TOOL_PEN:
             case BTN_TOOL_RUBBER:
             case BTN_TOOL_BRUSH:
-            case BTN_TOOL_PEN: return ignore_event;
+            case BTN_TOOL_PENCIL:
+            case BTN_TOOL_AIRBRUSH:
+            case BTN_TOOL_FINGER:
+            case BTN_TOOL_MOUSE:
+            case BTN_TOOL_LENS: return ignore_event;
             default: break;
         }
     }

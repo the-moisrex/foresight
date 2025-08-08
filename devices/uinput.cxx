@@ -371,6 +371,7 @@ void basic_uinput::enable_event_code(ev_type const type, code_type const code) n
     if (::ioctl(native_handle(), uinput_bit, code) == -1) {
         err_code = static_cast<std::errc>(errno);
     }
+    log("  Enabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
 }
 
 void basic_uinput::enable_caps(dev_caps_view const inp_caps) noexcept {

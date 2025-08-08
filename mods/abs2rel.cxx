@@ -47,7 +47,6 @@ context_action foresight::basic_pressure2mouse_clicks::operator()(event_type& ev
         case hashed(EV_KEY, BTN_TOOL_BRUSH):
         case hashed(EV_KEY, BTN_TOOL_PENCIL):
         case hashed(EV_KEY, BTN_TOOL_AIRBRUSH):
-        // case hashed(EV_KEY, BTN_TOUCH):
         case hashed(EV_KEY, BTN_STYLUS2):
         case hashed(EV_KEY, BTN_STYLUS3):
         case hashed(EV_ABS, ABS_TILT_X):
@@ -61,51 +60,38 @@ context_action foresight::basic_pressure2mouse_clicks::operator()(event_type& ev
 // https://www.kernel.org/doc/Documentation/input/multi-touch-protocol.txt
 context_action foresight::basic_pen2touch::operator()(event_type& event) noexcept {
     using enum context_action;
+    if (event.type() != EV_KEY) {
+        return next;
+    }
 
-    switch (event.hash()) {
-        case hashed(EV_ABS, ABS_PRESSURE): {
-            // use pressure as the left button click
-            if (event.value() >= pressure_threshold && !is_left_down) {
-                event.type(EV_KEY);
-                event.code(BTN_TOUCH);
-                event.value(1);
-                is_left_down = true;
-                break;
-            }
-            if (event.value() < pressure_threshold && is_left_down) {
-                event.type(EV_KEY);
-                event.code(BTN_TOUCH);
-                event.value(0);
-                is_left_down = false;
-                break;
-            }
-            return ignore_event;
+    switch (event.code()) {
+        case BTN_TOUCH: {
+            // BTN_TOUCH is the click; the rest, are which click
+            break;
         }
-        case hashed(EV_KEY, BTN_STYLUS): event.code(BTN_RIGHT); break;
-        case hashed(EV_KEY, BTN_TOOL_RUBBER): event.code(BTN_MIDDLE); break;
-        case hashed(EV_KEY, BTN_TOOL_PEN):
-        case hashed(EV_KEY, BTN_TOOL_BRUSH):
-        case hashed(EV_KEY, BTN_TOOL_PENCIL):
-        case hashed(EV_KEY, BTN_TOOL_AIRBRUSH):
-        case hashed(EV_KEY, BTN_STYLUS2):
-        case hashed(EV_KEY, BTN_STYLUS3):
-        case hashed(EV_ABS, ABS_TILT_X):
-        case hashed(EV_ABS, ABS_TILT_Y): return ignore_event;
+
+        case BTN_TOOL_PEN:
+        case BTN_TOOL_BRUSH:
+        case BTN_TOOL_PENCIL:
+        case BTN_TOOL_AIRBRUSH:
+        // case BTN_TOOL_FINGER:
+        case BTN_TOOL_MOUSE:
+        case BTN_TOOL_LENS:
+        case BTN_TOOL_RUBBER: event.code(BTN_TOOL_FINGER); return next;
+
         default: break;
     }
     return next;
 }
 
 void foresight::basic_pen2mice::operator()(event_type& event) noexcept {
-    using enum context_action;
-
     if (event.type() != EV_KEY) {
         return;
     }
 
     switch (event.code()) {
         case BTN_TOUCH: {
-            // Use BTN_TOUCH as the left button click instead of pressure
+            // BTN_TOUCH is the click; the rest, are which click
             if (active_tool != KEY_MAX) {
                 event.code(active_tool);
             }
@@ -126,22 +112,26 @@ void foresight::basic_pen2mice::operator()(event_type& event) noexcept {
             break;
 
         case BTN_TOOL_LENS:
-        case BTN_STYLUS:
-            // First stylus button -> right mouse button
             // Lens tool -> right mouse button
             active_tool = event.value() == 1 ? BTN_RIGHT : KEY_MAX;
             break;
 
         case BTN_TOOL_RUBBER:
-        case BTN_STYLUS2:
-            // Second stylus button -> middle mouse button
             // Eraser tool -> middle mouse button
             active_tool = event.value() == 1 ? BTN_MIDDLE : KEY_MAX;
             break;
 
+        case BTN_STYLUS:
+            // First stylus button -> right mouse button
+            event.code(BTN_RIGHT);
+            break;
+        case BTN_STYLUS2:
+            // Second stylus button -> middle mouse button
+            event.code(BTN_MIDDLE);
+            break;
         case BTN_STYLUS3:
             // Third stylus button -> additional mouse button
-            active_tool = event.value() == 1 ? BTN_SIDE : KEY_MAX;
+            event.code(BTN_SIDE);
             break;
 
         default: break;

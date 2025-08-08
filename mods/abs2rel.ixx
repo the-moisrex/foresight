@@ -49,38 +49,34 @@ export namespace foresight {
     } pressure2mouse_clicks;
 
     constexpr struct [[nodiscard]] basic_pen2touch {
-        using code_type  = event_type::code_type;
-        using value_type = event_type::value_type;
+        using code_type = event_type::code_type;
 
-      private:
-        value_type pressure_threshold = 1;
-        bool       is_left_down       = false;
-
-      public:
-        explicit constexpr basic_pen2touch(value_type const inp_pressure_threshold) noexcept
-          : pressure_threshold{inp_pressure_threshold} {}
-
-        constexpr basic_pen2touch() noexcept                                  = default;
-        consteval basic_pen2touch(basic_pen2touch const&) noexcept            = default;
-        constexpr basic_pen2touch(basic_pen2touch&&) noexcept                 = default;
-        consteval basic_pen2touch& operator=(basic_pen2touch const&) noexcept = default;
-        constexpr basic_pen2touch& operator=(basic_pen2touch&&) noexcept      = default;
-        constexpr ~basic_pen2touch() noexcept                                 = default;
-
-        consteval auto operator()(value_type const inp_pressure_threshold) const noexcept {
-            auto res{*this};
-            res.pressure_threshold = inp_pressure_threshold;
-            assert(inp_pressure_threshold > 0);
-            return res;
+        template <Context CtxT>
+        void operator()(CtxT& ctx, start_type) const noexcept {
+            if constexpr (has_mod<basic_keys_status, CtxT>) {
+                auto const& keys = ctx.mod(keys_status);
+                for (code_type const tool : std::initializer_list<code_type>{
+                       BTN_TOOL_PEN,
+                       BTN_TOOL_RUBBER,
+                       BTN_TOOL_BRUSH,
+                       BTN_TOOL_PENCIL,
+                       BTN_TOOL_AIRBRUSH,
+                       // BTN_TOOL_FINGER,
+                       BTN_TOOL_MOUSE,
+                       BTN_TOOL_LENS})
+                {
+                    if (keys.is_pressed(tool)) {
+                        // Release the tools
+                        std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 0});
+                        std::ignore = ctx.fork_emit(syn());
+                        std::ignore = ctx.fork_emit(event_type{EV_KEY, BTN_TOOL_FINGER, 0});
+                        std::ignore = ctx.fork_emit(syn());
+                    }
+                }
+            }
         }
 
         context_action operator()(event_type& event) noexcept;
-
-        template <Context CtxT>
-        context_action operator()(CtxT& ctx) noexcept {
-            static_assert(has_mod<basic_ignore_adjacent_repeats, CtxT>, "You need to ignore syn repeats.");
-            return operator()(ctx.event());
-        }
     } pen2touch;
 
     constexpr struct [[nodiscard]] basic_pen2mice {
