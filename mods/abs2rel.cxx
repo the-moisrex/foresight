@@ -19,7 +19,7 @@ constexpr basic_abs2rel::value_type y_init_state = 0b1 << y_bit_loc;
 
 // For more information:
 // https://www.kernel.org/doc/Documentation/input/event-codes.txt
-context_action foresight::basic_pen2mouse_clicks::operator()(event_type& event) noexcept {
+context_action foresight::basic_pressure2mouse_clicks::operator()(event_type& event) noexcept {
     using enum context_action;
 
     switch (event.hash()) {

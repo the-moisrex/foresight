@@ -12,7 +12,7 @@ import foresight.mods.keys_status;
 
 export namespace foresight {
 
-    constexpr struct [[nodiscard]] basic_pen2mouse_clicks {
+    constexpr struct [[nodiscard]] basic_pressure2mouse_clicks {
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
@@ -21,15 +21,15 @@ export namespace foresight {
         bool       is_left_down       = false;
 
       public:
-        explicit constexpr basic_pen2mouse_clicks(value_type const inp_pressure_threshold) noexcept
+        explicit constexpr basic_pressure2mouse_clicks(value_type const inp_pressure_threshold) noexcept
           : pressure_threshold{inp_pressure_threshold} {}
 
-        constexpr basic_pen2mouse_clicks() noexcept                                         = default;
-        consteval basic_pen2mouse_clicks(basic_pen2mouse_clicks const&) noexcept            = default;
-        constexpr basic_pen2mouse_clicks(basic_pen2mouse_clicks&&) noexcept                 = default;
-        consteval basic_pen2mouse_clicks& operator=(basic_pen2mouse_clicks const&) noexcept = default;
-        constexpr basic_pen2mouse_clicks& operator=(basic_pen2mouse_clicks&&) noexcept      = default;
-        constexpr ~basic_pen2mouse_clicks() noexcept                                        = default;
+        constexpr basic_pressure2mouse_clicks() noexcept                                         = default;
+        consteval basic_pressure2mouse_clicks(basic_pressure2mouse_clicks const&) noexcept            = default;
+        constexpr basic_pressure2mouse_clicks(basic_pressure2mouse_clicks&&) noexcept                 = default;
+        consteval basic_pressure2mouse_clicks& operator=(basic_pressure2mouse_clicks const&) noexcept = default;
+        constexpr basic_pressure2mouse_clicks& operator=(basic_pressure2mouse_clicks&&) noexcept      = default;
+        constexpr ~basic_pressure2mouse_clicks() noexcept                                        = default;
 
         consteval auto operator()(value_type const inp_pressure_threshold) const noexcept {
             auto res{*this};
@@ -45,7 +45,7 @@ export namespace foresight {
             static_assert(has_mod<basic_ignore_adjacent_repeats, CtxT>, "You need to ignore syn repeats.");
             return operator()(ctx.event());
         }
-    } pen2mouse_clicks;
+    } pressure2mouse_clicks;
 
     constexpr struct [[nodiscard]] basic_pen2touch {
         using code_type  = event_type::code_type;

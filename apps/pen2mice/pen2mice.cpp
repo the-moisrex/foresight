@@ -18,7 +18,7 @@ int main(int const argc, char const* const* argv) {
       | on(op | pressed(KEY_CAPSLOCK) | led_off(LED_CAPSL),
            context
              | abs2rel                             // Convert Drawing Tablet absolute moves into mouse moves
-             | pen2mouse_clicks                    // Convert the buttons
+             | pressure2mouse_clicks                    // Convert the buttons
              | ignore_fast_left_clicks             // Ignore fast left clicks
            )
       | mice_quantifier                            // Quantify the mouse movements
