@@ -17,6 +17,8 @@ constexpr basic_abs2rel::value_type y_bit_loc    = states_loc + 1;
 constexpr basic_abs2rel::value_type x_init_state = 0b1 << x_bit_loc;
 constexpr basic_abs2rel::value_type y_init_state = 0b1 << y_bit_loc;
 
+// For more information:
+// https://www.kernel.org/doc/Documentation/input/event-codes.txt
 context_action foresight::basic_pen2mouse_clicks::operator()(event_type& event) noexcept {
     using enum context_action;
 
@@ -55,6 +57,8 @@ context_action foresight::basic_pen2mouse_clicks::operator()(event_type& event) 
     return next;
 }
 
+// For more information:
+// https://www.kernel.org/doc/Documentation/input/multi-touch-protocol.txt
 context_action foresight::basic_pen2touch::operator()(event_type& event) noexcept {
     using enum context_action;
 
