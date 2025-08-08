@@ -48,6 +48,7 @@ int main(int const argc, char const* const* argv) {
                 | log)
       | ignore_adjacent_syns
       | update_mod(keys_status)
+      | on(pressed(KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC), exit_pipeline) // Restart/Quit
       | on(pressed(BTN_LEFT, KEY_CAPSLOCK), ignore_keys(BTN_LEFT))
       | add_scroll(op | pressed(BTN_MIDDLE) | pressed(KEY_CAPSLOCK), emit + up(BTN_MIDDLE))
       | on(longtime_released(pressed(KEY_CAPSLOCK), 300ms), emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK))

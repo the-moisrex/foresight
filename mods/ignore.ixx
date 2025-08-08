@@ -246,6 +246,18 @@ export namespace foresight {
         context_action operator()(event_type const& event) noexcept;
     } ignore_adjacent_repeats;
 
+    constexpr struct [[nodiscard]] basic_exit_pipeline {
+        constexpr context_action operator()(event_type const&) const noexcept {
+            return context_action::exit;
+        }
+    } exit_pipeline;
+
+    constexpr struct [[nodiscard]] basic_ignore_event {
+        constexpr context_action operator()(event_type const&) const noexcept {
+            return context_action::ignore_event;
+        }
+    } ignore_event;
+
     constexpr basic_ignore_adjacent_repeats ignore_adjacent_syns{syn()};
 
     constexpr basic_ignore_fast_repeats ignore_fast_left_clicks{

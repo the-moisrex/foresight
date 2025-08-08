@@ -100,11 +100,14 @@ void systemd_service::install() const {
       << description_
       << "\n\n"
       << "[Service]\n"
+      // << "ExecStart=/bin/bash -c '"
+      // << cmd_str
+      // << " & pid=$!; inotifywait -e modify "
+      // << absolute(exec_file).string()
+      // << " && kill $pid && wait $pid'"
       << "ExecStart=/bin/bash -c '"
       << cmd_str
-      << " & pid=$!; inotifywait -e modify "
-      << absolute(exec_file).string()
-      << " && kill $pid && wait $pid'"
+      << "'"
       << "\n"
       << "Restart=always\n"
       << "RestartSec=1\n"

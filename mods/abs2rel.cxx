@@ -32,8 +32,8 @@ context_action foresight::basic_pen2mouse_clicks::operator()(event_type& event) 
                 break;
             }
             if (event.value() < pressure_threshold && is_left_down) {
-                event.code(BTN_LEFT);
                 event.type(EV_KEY);
+                event.code(BTN_LEFT);
                 event.value(0);
                 is_left_down = false;
                 break;
@@ -46,7 +46,44 @@ context_action foresight::basic_pen2mouse_clicks::operator()(event_type& event) 
         case hashed(EV_KEY, BTN_TOOL_BRUSH):
         case hashed(EV_KEY, BTN_TOOL_PENCIL):
         case hashed(EV_KEY, BTN_TOOL_AIRBRUSH):
-        case hashed(EV_KEY, BTN_TOUCH):
+        // case hashed(EV_KEY, BTN_TOUCH):
+        case hashed(EV_KEY, BTN_STYLUS2):
+        case hashed(EV_KEY, BTN_STYLUS3):
+        case hashed(EV_ABS, ABS_TILT_X):
+        case hashed(EV_ABS, ABS_TILT_Y): return ignore_event;
+        default: break;
+    }
+    return next;
+}
+
+context_action foresight::basic_pen2touch::operator()(event_type& event) noexcept {
+    using enum context_action;
+
+    switch (event.hash()) {
+        case hashed(EV_ABS, ABS_PRESSURE): {
+            // use pressure as the left button click
+            if (event.value() >= pressure_threshold && !is_left_down) {
+                event.type(EV_KEY);
+                event.code(BTN_TOUCH);
+                event.value(1);
+                is_left_down = true;
+                break;
+            }
+            if (event.value() < pressure_threshold && is_left_down) {
+                event.type(EV_KEY);
+                event.code(BTN_TOUCH);
+                event.value(0);
+                is_left_down = false;
+                break;
+            }
+            return ignore_event;
+        }
+        case hashed(EV_KEY, BTN_STYLUS): event.code(BTN_RIGHT); break;
+        case hashed(EV_KEY, BTN_TOOL_RUBBER): event.code(BTN_MIDDLE); break;
+        case hashed(EV_KEY, BTN_TOOL_PEN):
+        case hashed(EV_KEY, BTN_TOOL_BRUSH):
+        case hashed(EV_KEY, BTN_TOOL_PENCIL):
+        case hashed(EV_KEY, BTN_TOOL_AIRBRUSH):
         case hashed(EV_KEY, BTN_STYLUS2):
         case hashed(EV_KEY, BTN_STYLUS3):
         case hashed(EV_ABS, ABS_TILT_X):

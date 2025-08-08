@@ -44,6 +44,41 @@ export namespace foresight {
         }
     } pen2mouse_clicks;
 
+    constexpr struct [[nodiscard]] basic_pen2touch {
+        using code_type  = event_type::code_type;
+        using value_type = event_type::value_type;
+
+      private:
+        value_type pressure_threshold = 1;
+        bool       is_left_down       = false;
+
+      public:
+        explicit constexpr basic_pen2touch(value_type const inp_pressure_threshold) noexcept
+          : pressure_threshold{inp_pressure_threshold} {}
+
+        constexpr basic_pen2touch() noexcept                                  = default;
+        consteval basic_pen2touch(basic_pen2touch const&) noexcept            = default;
+        constexpr basic_pen2touch(basic_pen2touch&&) noexcept                 = default;
+        consteval basic_pen2touch& operator=(basic_pen2touch const&) noexcept = default;
+        constexpr basic_pen2touch& operator=(basic_pen2touch&&) noexcept      = default;
+        constexpr ~basic_pen2touch() noexcept                                 = default;
+
+        consteval auto operator()(value_type const inp_pressure_threshold) const noexcept {
+            auto res{*this};
+            res.pressure_threshold = inp_pressure_threshold;
+            assert(inp_pressure_threshold > 0);
+            return res;
+        }
+
+        context_action operator()(event_type& event) noexcept;
+
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx) noexcept {
+            static_assert(has_mod<basic_ignore_adjacent_repeats, CtxT>, "You need to ignore syn repeats.");
+            return operator()(ctx.event());
+        }
+    } pen2touch;
+
     constexpr struct [[nodiscard]] basic_abs2rel {
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;

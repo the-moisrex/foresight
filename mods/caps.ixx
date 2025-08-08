@@ -411,7 +411,7 @@ namespace foresight {
         constexpr auto mouse = pointer;
 
         // A simple touchpad with single-touch absolute positioning and a physical button area
-        constexpr auto touchpad = pointer + touch_abs_axes + touch_btns;
+        constexpr auto touchpad = touch_abs_axes + touch_btns - pointer_rel_all - EV_REL;
 
         // A modern multi-touch touchpad (like on most laptops)
         constexpr auto multitouch_touchpad = touchpad + mt_abs_axes;
