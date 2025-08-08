@@ -2,6 +2,7 @@
 
 module;
 #include <array>
+#include <cassert>
 #include <linux/input-event-codes.h>
 #include <span>
 export module foresight.mods.keys_status;
@@ -35,12 +36,23 @@ export namespace foresight {
 
         template <std::integral... T>
         [[nodiscard]] bool is_pressed(T const... key_codes) const noexcept {
-            return ((key_codes < KEY_MAX && btns.at(key_codes) != 0) && ...);
+            assert(((key_codes < KEY_MAX) && ...));
+            return ((btns.at(key_codes) != 0) && ...);
+        }
+
+        template <std::integral... T>
+        [[nodiscard]] code_type first_pressed(T const... key_codes) const noexcept {
+            assert(((key_codes < KEY_MAX) && ...));
+            code_type pressed = KEY_MAX;
+            std::ignore =
+              ((btns.at(key_codes) != 0 && (pressed = static_cast<code_type>(key_codes), true)) && ...);
+            return pressed;
         }
 
         template <std::integral... T>
         [[nodiscard]] bool is_released(T const... key_codes) const noexcept {
-            return ((key_codes < KEY_MAX && btns.at(key_codes) == 0) && ...);
+            assert(((key_codes < KEY_MAX) && ...));
+            return ((btns.at(key_codes) == 0) && ...);
         }
 
         void operator()(event_type const& event) noexcept;

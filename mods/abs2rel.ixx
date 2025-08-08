@@ -1,11 +1,14 @@
 module;
 #include <cassert>
+#include <linux/input-event-codes.h>
+#include <utility>
 export module foresight.mods.abs2rel;
 import foresight.mods.context;
 import foresight.evdev;
 import foresight.mods.intercept;
 import foresight.mods.caps;
 import foresight.mods.ignore;
+import foresight.mods.keys_status;
 
 export namespace foresight {
 
@@ -126,7 +129,35 @@ export namespace foresight {
             return basic_abs2rel{inp_inherit};
         }
 
-        void           operator()(start_type) noexcept;
+        void operator()(start_type) noexcept;
+
+        /// this fixes flickering of the pen after we switched while the pen (in mouse mode) is still active.
+        template <Context CtxT>
+        void operator()(CtxT& ctx, start_type) noexcept {
+            if constexpr (has_mod<basic_keys_status, CtxT>) {
+                if (auto const tool =
+                      ctx.mod(keys_status)
+                        .first_pressed(
+                          BTN_TOOL_PEN,
+                          BTN_TOOL_RUBBER,
+                          BTN_TOOL_BRUSH,
+                          BTN_TOOL_PENCIL,
+                          BTN_TOOL_AIRBRUSH,
+                          BTN_TOOL_FINGER,
+                          BTN_TOOL_MOUSE,
+                          BTN_TOOL_LENS);
+                    tool != KEY_MAX)
+                {
+                    // re-submit the events, in case they were ignored previously:
+                    std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 0});
+                    std::ignore = ctx.fork_emit(syn());
+                    std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 1});
+                    std::ignore = ctx.fork_emit(syn());
+                }
+            }
+            operator()(start);
+        }
+
         context_action operator()(event_type& event) noexcept;
 
         template <Context CtxT>

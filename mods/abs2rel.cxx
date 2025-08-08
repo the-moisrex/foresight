@@ -3,7 +3,6 @@
 module;
 #include <climits>
 #include <cmath>
-#include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
 module foresight.mods.abs2rel;
 import foresight.main.log;
