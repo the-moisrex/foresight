@@ -92,9 +92,10 @@ void foresight::basic_pen2mice::operator()(event_type& event) noexcept {
     switch (event.code()) {
         case BTN_TOUCH: {
             // BTN_TOUCH is the click; the rest, are which click
-            if (active_tool != KEY_MAX) {
-                event.code(active_tool);
+            if (active_tool == KEY_MAX) [[unlikely]] {
+                break;
             }
+            event.code(active_tool);
             break;
         }
 
@@ -220,9 +221,9 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
             case BTN_TOOL_BRUSH:
             case BTN_TOOL_PENCIL:
             case BTN_TOOL_AIRBRUSH:
-                // case BTN_TOOL_FINGER:
-                // case BTN_TOOL_MOUSE:
-                // case BTN_TOOL_LENS:
+            case BTN_TOOL_FINGER:
+            case BTN_TOOL_MOUSE:
+            case BTN_TOOL_LENS:
                 // case BTN_TOOL_QUINTTAP:
                 // case BTN_TOOL_DOUBLETAP:
                 // case BTN_TOOL_TRIPLETAP:

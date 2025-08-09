@@ -15,12 +15,13 @@ export namespace foresight {
      * If you need to check if a key is pressed or not, this is what you need to use.
      */
     constexpr struct [[nodiscard]] basic_keys_status {
-        using code_type = event_type::code_type;
+        using code_type  = event_type::code_type;
+        using value_type = event_type::value_type;
 
       private:
         // We know this is wasteful, but we don't care :)
         // It's about ~3KiB of storage
-        std::array<event_type::value_type, KEY_MAX> btns{};
+        std::array<value_type, KEY_MAX> btns{};
 
       public:
         // the copy ctor/assignment-op are marked consteval to stop from copying at run time.
@@ -53,6 +54,20 @@ export namespace foresight {
         [[nodiscard]] bool is_released(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
             return ((btns.at(key_codes) == 0) && ...);
+        }
+
+        void release_all(Context auto& ctx) noexcept {
+            bool is_any_pressed = false;
+            for (code_type code = 0; code < KEY_MAX; ++code) {
+                if (is_pressed(code)) {
+                    ctx.fork_emit(event_type{EV_KEY, code, 0});
+                    is_any_pressed      = true;
+                    this->btns.at(code) = 0;
+                }
+            }
+            if (is_any_pressed) {
+                ctx.fork_emit(syn());
+            }
         }
 
         void operator()(event_type const& event) noexcept;
