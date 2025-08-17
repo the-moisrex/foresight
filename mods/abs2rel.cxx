@@ -158,6 +158,8 @@ void basic_abs2rel::init(evdev const& dev, float const scale) noexcept {
 void basic_abs2rel::operator()(start_type) noexcept {
     last_abs_x |= x_init_state;
     last_abs_y |= y_init_state;
+    x_epsilon = 0.F;
+    y_epsilon = 0.F;
 }
 
 context_action basic_abs2rel::operator()(event_type& event) noexcept {
