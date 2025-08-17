@@ -235,8 +235,8 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
                 // active_tool = code;
                 last_abs_x |= x_init_state;
                 last_abs_y |= y_init_state;
-                x_epsilon = 0.f;
-                y_epsilon = 0.f;
+                x_epsilon = 0.F;
+                y_epsilon = 0.F;
                 [[fallthrough]];
             default: break;
         }

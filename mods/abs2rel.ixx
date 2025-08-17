@@ -106,11 +106,11 @@ export namespace foresight {
         value_type last_abs_y = 0;
 
         // pixel per millimeter
-        float x_scale_factor = 10.0f;
-        float y_scale_factor = 10.0f;
+        float x_scale_factor = 10.0F;
+        float y_scale_factor = 10.0F;
 
-        float x_epsilon = 0.0f;
-        float y_epsilon = 0.0f;
+        float x_epsilon = 0.0F;
+        float y_epsilon = 0.0F;
 
         // code_type   active_tool  = BTN_TOOL_PEN;
 
@@ -126,7 +126,7 @@ export namespace foresight {
         constexpr basic_abs2rel& operator=(basic_abs2rel&&) noexcept      = default;
         constexpr ~basic_abs2rel() noexcept                               = default;
 
-        void init(evdev const& dev, float scale = 20.0f) noexcept;
+        void init(evdev const& dev, float scale = 20.0F) noexcept;
 
         /// Auto Initialize
         template <Context CtxT>
