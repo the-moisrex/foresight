@@ -109,6 +109,9 @@ export namespace foresight {
         float x_scale_factor = 10.0f;
         float y_scale_factor = 10.0f;
 
+        float x_epsilon = 0.0f;
+        float y_epsilon = 0.0f;
+
         // code_type   active_tool  = BTN_TOOL_PEN;
 
         bool inherit = true;
