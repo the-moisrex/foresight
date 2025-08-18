@@ -75,6 +75,7 @@ target_sources(${LIB_NAME}
         mods/replace.cxx
         mods/keys_status.cxx
         mods/on.cxx
+        mods/momentum.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         main/main.ixx
         main/utils.ixx
@@ -101,6 +102,7 @@ target_sources(${LIB_NAME}
         mods/abs2rel.ixx
         mods/caps.ixx
         mods/replace.ixx
+        mods/momentum.ixx
         mods/modes.ixx
         mods/mods.ixx
         utils/easings.ixx

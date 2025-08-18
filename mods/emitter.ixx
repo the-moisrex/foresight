@@ -13,26 +13,26 @@ namespace foresight {
 
 
     export template <std::size_t N>
-    struct [[nodiscard]] emitter {
+    struct [[nodiscard]] basic_emit {
       private:
         std::array<user_event, N> events{};
 
       public:
-        explicit consteval emitter(std::array<user_event, N> const inp) noexcept : events{inp} {}
+        explicit consteval basic_emit(std::array<user_event, N> const inp) noexcept : events{inp} {}
 
-        constexpr emitter() noexcept                     = default;
-        constexpr emitter(emitter&&)                     = default;
-        constexpr emitter(emitter const&) noexcept       = default;
-        constexpr emitter& operator=(emitter const&)     = default;
-        constexpr emitter& operator=(emitter&&) noexcept = default;
-        constexpr ~emitter()                             = default;
+        constexpr basic_emit() noexcept                        = default;
+        constexpr basic_emit(basic_emit&&)                     = default;
+        constexpr basic_emit(basic_emit const&) noexcept       = default;
+        constexpr basic_emit& operator=(basic_emit const&)     = default;
+        constexpr basic_emit& operator=(basic_emit&&) noexcept = default;
+        constexpr ~basic_emit()                                = default;
 
         template <std::size_t NN>
         consteval auto operator+(std::array<user_event, NN> const& new_events) const noexcept {
             std::array<user_event, N + NN> result;
             std::copy_n(events.begin(), N, result.begin());
             std::copy_n(new_events.begin(), NN, std::next(result.begin(), N));
-            return emitter<N + NN>{result};
+            return basic_emit<N + NN>{result};
         }
 
         consteval auto operator+(user_event const& event) const noexcept {
@@ -65,7 +65,7 @@ namespace foresight {
         }
     };
 
-    export constexpr emitter<0> emit;
+    export constexpr basic_emit<0> emit;
 
     export constexpr struct [[nodiscard]] basic_scheduled_emitter {
       private:

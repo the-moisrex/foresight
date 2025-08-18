@@ -23,3 +23,4 @@ export import foresight.mods.emitter;
 export import foresight.mods.abs2rel;
 export import foresight.mods.ignore;
 export import foresight.mods.replace;
+export import foresight.mods.momentum;
