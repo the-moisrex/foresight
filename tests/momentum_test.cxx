@@ -10,8 +10,6 @@ class MomentumCalculatorTest : public ::testing::Test {
   protected:
     void SetUp() override {
         // Default test parameters (typical scroll scenario)
-        min_pos_   = 0.0f;
-        max_pos_   = 1000.0f;
         start_pos_ = 100.0f;
         delta_     = 5.0f;
         velocity_  = 20.0f;
@@ -19,11 +17,9 @@ class MomentumCalculatorTest : public ::testing::Test {
 
     // Helper to create calculator with current test parameters
     momentum_calculator create_calculator() const {
-        return momentum_calculator(min_pos_, max_pos_, start_pos_, delta_, velocity_);
+        return momentum_calculator(start_pos_, delta_, velocity_);
     }
 
-    float min_pos_;
-    float max_pos_;
     float start_pos_;
     float delta_;
     float velocity_;
@@ -34,35 +30,13 @@ TEST_F(MomentumCalculatorTest, PredictsFinalPosition) {
     momentum_calculator mom  = create_calculator();
     float               dest = mom.pred_dest();
 
-    // Verify within bounds
-    EXPECT_GE(dest, min_pos_);
-    EXPECT_LE(dest, max_pos_);
 
     // Verify prediction makes sense (should be further than start)
     EXPECT_GT(dest, start_pos_);
 
     // Verify calculation matches expected formula
     float expected = start_pos_ + 16.7f * delta_;
-    EXPECT_FLOAT_EQ(dest, std::clamp(expected, min_pos_, max_pos_));
-}
-
-// Test boundary conditions for prediction
-TEST_F(MomentumCalculatorTest, HandlesBoundaryPredictions) {
-    // Test at minimum boundary
-    start_pos_                  = min_pos_;
-    momentum_calculator min_mom = create_calculator();
-    EXPECT_EQ(min_mom.pred_dest(), min_pos_);
-
-    // Test at maximum boundary
-    start_pos_                  = max_pos_;
-    momentum_calculator max_mom = create_calculator();
-    EXPECT_EQ(max_mom.pred_dest(), max_pos_);
-
-    // Test with negative delta (should not go below min)
-    delta_                      = -5.0f;
-    start_pos_                  = 50.0f;
-    momentum_calculator neg_mom = create_calculator();
-    EXPECT_EQ(neg_mom.pred_dest(), min_pos_);
+    EXPECT_FLOAT_EQ(dest, expected);
 }
 
 // Test animation duration
@@ -164,46 +138,6 @@ TEST_F(MomentumCalculatorTest, HandlesNegativeMovement) {
     EXPECT_FLOAT_EQ(mom.pos_at(fsecs(1.0)), 200.0f);
 }
 
-// Test boundary clamping
-TEST_F(MomentumCalculatorTest, ClampsToBoundaries) {
-    // Set up scenario where prediction would exceed boundaries
-    start_pos_ = 950.0f;
-    delta_     = 10.0f;
-
-    momentum_calculator mom = create_calculator();
-    EXPECT_EQ(mom.pred_dest(), max_pos_);
-
-    // Test with target beyond boundary
-    mom.set_target(max_pos_ + 50.0f);
-
-    // Should clamp to max position
-    EXPECT_FLOAT_EQ(mom.pos_at(fsecs(1.0)), max_pos_);
-}
-
-// Test curve initialization with different progress values
-// TEST_F(MomentumCalculatorTest, CurveInitialization) {
-//     momentum_calculator mom = create_calculator();
-//
-//     // Test with various delta values to get different initial progress
-//     for (float test_delta : {1.0f, 3.0f, 5.0f, 10.0f}) {
-//         delta_ = test_delta;
-//         mom    = create_calculator();
-//         mom.set_target(start_pos_ + 50.0f);
-//
-//         // Force curve initialization
-//         mom.pos_at(fsecs(0.1));
-//
-//         // Verify curve parameters make sense
-//         EXPECT_GT(mom.curve_magnitude(), 1.0f);
-//         EXPECT_GT(mom.decay(), 1.0f);
-//
-//         // Verify progress at first frame is within expected range
-//         float progress = mom.progress_at(fsecs(1.0f / 60.0f));
-//         EXPECT_GE(progress, 0.1f);
-//         EXPECT_LE(progress, 0.5f);
-//     }
-// }
-
 // Test linear interpolation fallback
 TEST_F(MomentumCalculatorTest, UsesLinearInterpolationWhenAppropriate) {
     // Case 1: Small delta (should use linear)
@@ -264,21 +198,16 @@ TEST_P(MomentumCalculatorDistanceTest, PositionAtHalfTime) {
 // Test numerical stability
 TEST_F(MomentumCalculatorTest, NumericalStability) {
     // Extreme values test
-    min_pos_   = 0.0f;
-    max_pos_   = std::numeric_limits<float>::max() / 2.0f;
-    start_pos_ = max_pos_ / 2.0f;
     delta_     = 1000000.0f;
     velocity_  = 10000000.0f;
 
     momentum_calculator mom = create_calculator();
-    mom.set_target(max_pos_ - 100.0f);
 
     // Should not produce NaN or infinity
     float pos = mom.pos_at(fsecs(0.5f));
     EXPECT_FALSE(std::isnan(pos));
     EXPECT_FALSE(std::isinf(pos));
     EXPECT_GE(pos, start_pos_);
-    EXPECT_LE(pos, max_pos_);
 }
 
 // Test curve parameter convergence

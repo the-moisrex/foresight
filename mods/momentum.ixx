@@ -51,13 +51,11 @@ namespace foresight {
     export struct momentum_calculator {
         /**
          * Create momentum calculator
-         * @param min_val Minimum valid position (e.g., start of scroll area)
-         * @param max_val Maximum valid position (e.g., end of scroll area)
          * @param pos Current position when momentum starts
          * @param delta Initial displacement that created momentum
          * @param vel Initial velocity at momentum start
          */
-        momentum_calculator(float min_val, float max_val, float pos, float delta, float vel) noexcept;
+        momentum_calculator(float pos, float delta, float vel) noexcept;
         momentum_calculator(momentum_calculator&&) noexcept        = default;
         momentum_calculator(momentum_calculator const&)            = default;
         momentum_calculator& operator=(momentum_calculator const&) = default;
@@ -90,7 +88,6 @@ namespace foresight {
          * @param target New target position
          */
         void set_target(float target) noexcept;
-
 
         /// Animation Curve Magnitude
         [[nodiscard]] float curve_magnitude() const noexcept {
@@ -141,18 +138,15 @@ namespace foresight {
          */
         [[nodiscard]] float cubic_pos_at(float progress) const noexcept;
 
-        float                delta_;  // Initial displacement
-        float                vel_;    // Initial velocity
-        float                pos_;    // Starting position
-        float                min_;    // Minimum valid position
-        float                max_;    // Maximum valid position
-        std::optional<float> target_; // Current animation target
+        float delta_;         // Initial displacement
+        float vel_;           // Initial velocity
+        float pos_;           // Starting position
+        float target_;        // Current animation target
 
-        float curve_mag_{};           // Animation curve magnitude
-        float decay_{};               // Curve decay factor
-        float coeffs_[4]{};           // Cubic interpolation coefficients
-        bool  linear_only_{};         // Force linear interpolation
-        bool  needs_init_ = true;     // Needs initialization
+        float curve_mag_{};   // Animation curve magnitude
+        float decay_{};       // Curve decay factor
+        float coeffs_[4]{};   // Cubic interpolation coefficients
+        bool  linear_only_{}; // Force linear interpolation
     };
 
 } // namespace foresight
