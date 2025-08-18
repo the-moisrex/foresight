@@ -14,6 +14,11 @@ CMakeLists.txt.user.*
 .idea
 **/*~
 
+# Ignore AI
+GEMINI.md
+CLAUDE.md
+QWEN.md
+
 # CMake Build directories
 build-*/
 build/
