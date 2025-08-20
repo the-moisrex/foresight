@@ -45,7 +45,7 @@ namespace foresight {
         evdev(evdev&& inp) noexcept;
         evdev&           operator=(evdev&& other) noexcept;
         consteval evdev& operator=(evdev const&) noexcept = default;
-        ~evdev();
+        ~evdev() noexcept;
 
         // evdev(evdev const&)            = delete;
         // evdev& operator=(evdev const&) = delete;

@@ -277,7 +277,7 @@ export namespace foresight {
         context_action operator()(Context auto& ctx) noexcept {
             auto const& event        = ctx.event();
             auto const  hashed_value = hash(static_cast<event_code>(event));
-            last_index               = is_syn(event) ? last_index : hashes.at(hashed_value);
+            last_index = is_syn(event) ? last_index : static_cast<std::uint8_t>(hashes.at(hashed_value));
             if (last_index < 0) [[unlikely]] {
                 log("Ignored ({}|{}): {} {} {}",
                     last_index,

@@ -337,7 +337,7 @@ export namespace foresight {
                        return true;
                    } else {
                        auto current_fork_view = ctx.template fork_view<K2>();
-                       action = invoke_mod(get<K2>(funcs), current_fork_view, args...);
+                       action                 = invoke_mod(get<K2>(funcs), current_fork_view, args...);
                        return action == next;
                    }
                }).template operator()<I>()

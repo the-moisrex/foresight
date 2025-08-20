@@ -11,7 +11,6 @@ import foresight.mods.context;
 
 namespace foresight {
 
-
     export template <std::size_t N>
     struct [[nodiscard]] basic_emit {
       private:
@@ -193,7 +192,7 @@ namespace foresight {
         return events;
     }
 
-    constexpr struct [[nodiscard]] basic_replace {
+    export constexpr struct [[nodiscard]] basic_replace_code {
         using ev_type   = event_type::type_type;
         using code_type = event_type::code_type;
 
@@ -205,7 +204,7 @@ namespace foresight {
         code_type rep_code = KEY_MAX;
 
       public:
-        constexpr basic_replace(
+        constexpr basic_replace_code(
           ev_type const   inp_find_type,
           code_type const inp_find_code,
           ev_type const   inp_rep_type,
@@ -215,22 +214,22 @@ namespace foresight {
             rep_type{inp_rep_type},
             rep_code{inp_rep_code} {}
 
-        constexpr basic_replace() noexcept                                = default;
-        consteval basic_replace(basic_replace const&) noexcept            = default;
-        consteval basic_replace& operator=(basic_replace const&) noexcept = default;
-        constexpr basic_replace& operator=(basic_replace&&) noexcept      = default;
-        constexpr ~basic_replace() noexcept                               = default;
+        constexpr basic_replace_code() noexcept                                = default;
+        consteval basic_replace_code(basic_replace_code const&) noexcept            = default;
+        consteval basic_replace_code& operator=(basic_replace_code const&) noexcept = default;
+        constexpr basic_replace_code& operator=(basic_replace_code&&) noexcept      = default;
+        constexpr ~basic_replace_code() noexcept                               = default;
 
-        consteval basic_replace operator()(
+        consteval basic_replace_code operator()(
           ev_type const   inp_find_type,
           code_type const inp_find_code,
           ev_type const   inp_rep_type,
           code_type const inp_rep_code) const noexcept {
-            return basic_replace{inp_find_type, inp_find_code, inp_rep_type, inp_rep_code};
+            return basic_replace_code{inp_find_type, inp_find_code, inp_rep_type, inp_rep_code};
         }
 
-        constexpr void operator()(event_type& event) const noexcept;
-    } replace;
+        void operator()(event_type& event) const noexcept;
+    } replace_code;
 
     // todo: implement replace_all which used table lookup
 

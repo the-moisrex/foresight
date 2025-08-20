@@ -351,7 +351,7 @@ void basic_uinput::enable_event_code(ev_type const type, code_type const code) n
         return;
     }
 
-    int uinput_bit{};
+    unsigned long uinput_bit{};
 
     switch (type) {
         case EV_KEY: uinput_bit = UI_SET_KEYBIT; break;

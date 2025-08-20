@@ -73,11 +73,9 @@ export namespace foresight {
         template <Context CtxT>
         [[nodiscard]] context_action operator()(CtxT &ctx) noexcept {
             using enum context_action;
-            static_assert(has_mod<basic_keys_status, CtxT>, "We need access to keys' statuses.");
             static_assert(has_mod<basic_mice_quantifier, CtxT>, "We need access quantifier.");
 
             // we don't need keys and quantifier mods taken like this, but it's done for readability
-            auto const &keys  = ctx.mod(keys_status);
             auto       &quant = ctx.mod(mice_quantifier);
             auto const &event = ctx.event();
 
