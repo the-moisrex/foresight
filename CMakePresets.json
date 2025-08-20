@@ -1,0 +1,256 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Kitware/CMake/master/Help/manual/presets/schema.json",
+  "version": 10,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "$comment": "Base preset for inheritance",
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "$comment": "GCC compiler presets",
+      "name": "gcc",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "$comment": "Clang compiler presets",
+      "name": "clang",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "$comment": "Debug configuration presets",
+      "name": "debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "$comment": "Release configuration presets",
+      "name": "release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "$comment": "GCC Debug preset",
+      "name": "gcc-debug",
+      "displayName": "GCC Debug",
+      "description": "Debug build using GCC compiler",
+      "inherits": ["base", "gcc", "debug"],
+      "binaryDir": "${sourceDir}/cmake-build-debug"
+    },
+    {
+      "$comment": "GCC Release preset",
+      "name": "gcc-release",
+      "displayName": "GCC Release",
+      "description": "Release build using GCC compiler",
+      "inherits": ["base", "gcc", "release"],
+      "binaryDir": "${sourceDir}/cmake-build-release"
+    },
+    {
+      "$comment": "Clang Debug preset",
+      "name": "clang-debug",
+      "displayName": "Clang Debug",
+      "description": "Debug build using Clang compiler",
+      "inherits": ["base", "clang", "debug"],
+      "binaryDir": "${sourceDir}/cmake-build-debug-clang"
+    },
+    {
+      "$comment": "Clang Release preset",
+      "name": "clang-release",
+      "displayName": "Clang Release",
+      "description": "Release build using Clang compiler",
+      "inherits": ["base", "clang", "release"],
+      "binaryDir": "${sourceDir}/cmake-build-release-clang"
+    }
+  ],
+  "buildPresets": [
+    {
+      "$comment": "Base build preset for inheritance",
+      "name": "build-base",
+      "hidden": true,
+      "jobs": 0
+    },
+    {
+      "$comment": "GCC Debug build preset",
+      "name": "gcc-debug",
+      "displayName": "Build GCC Debug",
+      "description": "Build Debug configuration with GCC",
+      "inherits": "build-base",
+      "configurePreset": "gcc-debug"
+    },
+    {
+      "$comment": "GCC Release build preset",
+      "name": "gcc-release",
+      "displayName": "Build GCC Release",
+      "description": "Build Release configuration with GCC",
+      "inherits": "build-base",
+      "configurePreset": "gcc-release"
+    },
+    {
+      "$comment": "Clang Debug build preset",
+      "name": "clang-debug",
+      "displayName": "Build Clang Debug",
+      "description": "Build Debug configuration with Clang",
+      "inherits": "build-base",
+      "configurePreset": "clang-debug"
+    },
+    {
+      "$comment": "Clang Release build preset",
+      "name": "clang-release",
+      "displayName": "Build Clang Release",
+      "description": "Build Release configuration with Clang",
+      "inherits": "build-base",
+      "configurePreset": "clang-release"
+    }
+  ],
+  "testPresets": [
+    {
+      "$comment": "Base test preset for inheritance",
+      "name": "test-base",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "$comment": "GCC Debug test preset",
+      "name": "gcc-debug",
+      "displayName": "Test GCC Debug",
+      "description": "Test Debug configuration with GCC",
+      "inherits": "test-base",
+      "configurePreset": "gcc-debug"
+    },
+    {
+      "$comment": "GCC Release test preset",
+      "name": "gcc-release",
+      "displayName": "Test GCC Release",
+      "description": "Test Release configuration with GCC",
+      "inherits": "test-base",
+      "configurePreset": "gcc-release"
+    },
+    {
+      "$comment": "Clang Debug test preset",
+      "name": "clang-debug",
+      "displayName": "Test Clang Debug",
+      "description": "Test Debug configuration with Clang",
+      "inherits": "test-base",
+      "configurePreset": "clang-debug"
+    },
+    {
+      "$comment": "Clang Release test preset",
+      "name": "clang-release",
+      "displayName": "Test Clang Release",
+      "description": "Test Release configuration with Clang",
+      "inherits": "test-base",
+      "configurePreset": "clang-release"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "$comment": "Complete workflow for GCC Debug",
+      "name": "gcc-debug",
+      "displayName": "Workflow GCC Debug",
+      "description": "Complete workflow for GCC Debug configuration",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "gcc-debug"
+        },
+        {
+          "type": "build",
+          "name": "gcc-debug"
+        },
+        {
+          "type": "test",
+          "name": "gcc-debug"
+        }
+      ]
+    },
+    {
+      "$comment": "Complete workflow for GCC Release",
+      "name": "gcc-release",
+      "displayName": "Workflow GCC Release",
+      "description": "Complete workflow for GCC Release configuration",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "gcc-release"
+        },
+        {
+          "type": "build",
+          "name": "gcc-release"
+        },
+        {
+          "type": "test",
+          "name": "gcc-release"
+        }
+      ]
+    },
+    {
+      "$comment": "Complete workflow for Clang Debug",
+      "name": "clang-debug",
+      "displayName": "Workflow Clang Debug",
+      "description": "Complete workflow for Clang Debug configuration",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "clang-debug"
+        },
+        {
+          "type": "build",
+          "name": "clang-debug"
+        },
+        {
+          "type": "test",
+          "name": "clang-debug"
+        }
+      ]
+    },
+    {
+      "$comment": "Complete workflow for Clang Release",
+      "name": "clang-release",
+      "displayName": "Workflow Clang Release",
+      "description": "Complete workflow for Clang Release configuration",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "clang-release"
+        },
+        {
+          "type": "build",
+          "name": "clang-release"
+        },
+        {
+          "type": "test",
+          "name": "clang-release"
+        }
+      ]
+    }
+  ]
+}

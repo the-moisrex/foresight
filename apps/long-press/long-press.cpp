@@ -9,7 +9,7 @@ using ev_type    = decltype(input_event::type);
 using value_type = decltype(input_event::value);
 
 namespace {
-    void emit(input_event event, ev_type const type, code_type const code, value_type const value) noexcept {
+    [[maybe_unused]] void emit(input_event event, ev_type const type, code_type const code, value_type const value) noexcept {
         event.type  = type;
         event.code  = code;
         event.value = value;
