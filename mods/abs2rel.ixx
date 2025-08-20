@@ -39,6 +39,8 @@ export namespace foresight {
             return res;
         }
 
+        void           operator()(auto&&, tag auto) = delete;
+        void           operator()(tag auto)         = delete;
         context_action operator()(event_type& event) noexcept;
 
         template <Context CtxT>
@@ -51,8 +53,11 @@ export namespace foresight {
     constexpr struct [[nodiscard]] basic_pen2touch {
         using code_type = event_type::code_type;
 
+        void operator()(auto&&, tag auto) = delete;
+        void operator()(tag auto)         = delete;
+
         template <Context CtxT>
-        void operator()(CtxT& ctx, start_type) const noexcept {
+        void operator()(CtxT& ctx, start_tag) const noexcept {
             if constexpr (has_mod<basic_keys_status, CtxT>) {
                 auto const& keys = ctx.mod(keys_status);
                 for (code_type const tool : std::initializer_list<code_type>{
@@ -147,11 +152,13 @@ export namespace foresight {
             return basic_abs2rel{inp_inherit};
         }
 
-        void operator()(start_type) noexcept;
+        void operator()(auto&&, tag auto) = delete;
+        void operator()(tag auto)         = delete;
+        void operator()(start_tag) noexcept;
 
         /// this fixes flickering of the pen after we switched while the pen (in mouse mode) is still active.
         template <Context CtxT>
-        void operator()(CtxT& ctx, done_type) noexcept {
+        void operator()(CtxT& ctx, done_tag) noexcept {
             if constexpr (has_mod<basic_keys_status, CtxT>) {
                 auto const& keys = ctx.mod(keys_status);
                 for (code_type const tool : std::initializer_list<code_type>{

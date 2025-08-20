@@ -83,7 +83,7 @@ export namespace foresight {
         constexpr basic_input& operator=(basic_input&&) noexcept      = default;
         constexpr ~basic_input() noexcept                             = default;
 
-        [[nodiscard]] context_action operator()(Context auto& ctx) const noexcept {
+        context_action operator()(Context auto& ctx, load_event_tag) const noexcept {
             using enum context_action;
             auto const res = read(file_descriptor, &ctx.event().native(), sizeof(input_event));
             if (res == 0) [[unlikely]] {

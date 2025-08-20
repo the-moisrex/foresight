@@ -139,20 +139,40 @@ export namespace foresight {
         std::unreachable();
     }
 
-    constexpr struct no_init_type {
+    constexpr struct [[nodiscard]] no_init_tag {
+        static constexpr bool is_tag = true;
     } no_init;
 
-    constexpr struct start_type {
+    constexpr struct [[nodiscard]] start_tag {
+        static constexpr bool is_tag = true;
     } start;
 
-    constexpr struct done_type {
+    constexpr struct [[nodiscard]] done_tag {
+        static constexpr bool is_tag = true;
     } done;
+
+    /// This will let the mods set an event to the context, and send them through the whole pipeline.
+    constexpr struct [[nodiscard]] next_event_tag {
+        static constexpr bool is_tag = true;
+    } next_event;
+
+    /// This will wait for an event to be loaded, so this is blocking, and shall be called after the
+    /// set_events are done.
+    constexpr struct [[nodiscard]] load_event_tag {
+        static constexpr bool is_tag = true;
+    } load_event;
 
     template <typename ModT, typename CtxT, typename... Args>
     concept invokable_mod =
-      std::invocable<std::remove_cvref_t<ModT>, std::remove_cvref_t<CtxT> &, Args...>
-      || std::invocable<std::remove_cvref_t<ModT>, event_type &, Args...>
-      || std::invocable<std::remove_cvref_t<ModT>, Args...>;
+      std::invocable<ModT, CtxT &, Args...>
+      || std::invocable<ModT, event_type &, Args...>
+      || std::invocable<ModT, Args...>;
+
+    template <typename T>
+    concept tag = requires {
+        T::is_tag;
+        requires T::is_tag;
+    };
 
     template <typename ModT, typename CtxT, typename... Args>
     constexpr context_action invoke_mod(ModT &mod, CtxT &ctx, Args &&...args) {
@@ -203,39 +223,49 @@ export namespace foresight {
         return invoke_mod(mod, ctx, done);
     }
 
+    template <typename ModT, typename CtxT>
+    constexpr context_action invoke_set_event(ModT &mod, CtxT &ctx) {
+        return invoke_mod(mod, ctx, next_event);
+    }
+
+    template <typename ModT, typename CtxT>
+    constexpr context_action invoke_load_event(ModT &mod, CtxT &ctx) {
+        return invoke_mod(mod, ctx, load_event);
+    }
+
     /// Invoke Condition
-    template <typename CondT, typename CtxT>
-    constexpr bool invoke_cond(CondT &cond, CtxT &ctx) {
+    template <typename CondT, typename CtxT, typename... Args>
+    constexpr bool invoke_cond(CondT &cond, CtxT &ctx, Args &&...args) {
         using enum context_action;
-        if constexpr (std::invocable<CondT, CtxT &>) {
-            using result = std::invoke_result_t<CondT, CtxT &>;
+        if constexpr (std::invocable<CondT, CtxT &, Args...>) {
+            using result = std::invoke_result_t<CondT, CtxT &, Args...>;
             if constexpr (std::same_as<result, bool>) {
-                return cond(ctx);
+                return cond(ctx, std::forward<Args>(args)...);
             } else if constexpr (std::same_as<result, context_action>) {
-                return cond(ctx) == next;
+                return cond(ctx, std::forward<Args>(args)...) == next;
             } else {
-                cond(ctx);
+                cond(ctx, std::forward<Args>(args)...);
                 return true;
             }
-        } else if constexpr (std::invocable<CondT, event_type &>) {
+        } else if constexpr (std::invocable<CondT, event_type &, Args...>) {
             auto &event  = ctx.event();
-            using result = std::invoke_result_t<CondT, event_type &>;
+            using result = std::invoke_result_t<CondT, event_type &, Args...>;
             if constexpr (std::same_as<result, bool>) {
-                return cond(event);
+                return cond(event, std::forward<Args>(args)...);
             } else if constexpr (std::same_as<result, context_action>) {
-                return cond(event) == next;
+                return cond(event, std::forward<Args>(args)...) == next;
             } else {
-                cond(event);
+                cond(event, std::forward<Args>(args)...);
                 return true;
             }
-        } else if constexpr (std::invocable<CondT>) {
-            using result = std::invoke_result_t<CondT>;
+        } else if constexpr (std::invocable<CondT, Args...>) {
+            using result = std::invoke_result_t<CondT, Args...>;
             if constexpr (std::same_as<result, bool>) {
-                return cond();
+                return cond(std::forward<Args>(args)...);
             } else if constexpr (std::same_as<result, context_action>) {
-                return cond() == next;
+                return cond(std::forward<Args>(args)...) == next;
             } else {
-                cond();
+                cond(std::forward<Args>(args)...);
                 return true;
             }
         } else {
@@ -282,6 +312,47 @@ export namespace foresight {
                    } else {
                        auto current_fork_view = ctx.template fork_view<K>();
                        action                 = invoke_mod(get<K>(funcs), current_fork_view, args...);
+                       return action == next;
+                   }
+               }).template operator()<I>()
+               && ...);
+            return action;
+        }(std::make_index_sequence<sizeof...(Funcs)>{});
+    }
+
+    /// Run the functions and give them the specified context
+    template <Context CtxT, typename... Funcs, typename... Args>
+        requires(std::is_trivially_copy_constructible_v<Args> && ...)
+    constexpr context_action bounce_invoke(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept(
+      CtxT::is_nothrow) {
+        using enum context_action;
+        using tuple_type = std::tuple<Funcs...>;
+        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
+            auto       action = next;
+            bool const no_change =
+              (([&]<std::size_t K2>() constexpr noexcept(CtxT::is_nothrow) {
+                   if constexpr ((sizeof...(Args) >= 1)
+                                 && !invokable_mod<std::tuple_element_t<K2, tuple_type>, CtxT, Args...>)
+                   {
+                       return true;
+                   } else {
+                       auto current_fork_view = ctx.template fork_view<K2>();
+                       return invoke_cond(get<K2>(funcs), current_fork_view, args...);
+                   }
+               }).template operator()<I>()
+               && ...);
+            if (no_change) {
+                return next;
+            }
+            std::ignore =
+              (([&]<std::size_t K>() constexpr noexcept(CtxT::is_nothrow) {
+                   if constexpr (
+                     (sizeof...(Args) >= 1) && !invokable_mod<std::tuple_element_t<K, tuple_type>, CtxT>)
+                   {
+                       return true;
+                   } else {
+                       auto current_fork_view = ctx.template fork_view<K>();
+                       action                 = invoke_mod(get<K>(funcs), current_fork_view);
                        return action == next;
                    }
                }).template operator()<I>()
@@ -480,16 +551,41 @@ export namespace foresight {
         }
 
         void operator()() noexcept(is_nothrow) {
-            using enum context_action;
             init();
             operator()(no_init);
         }
 
-        void operator()([[maybe_unused]] no_init_type) noexcept(is_nothrow) {
+        void operator()(auto &&, tag auto) = delete;
+        void operator()(tag auto)          = delete;
+
+        void operator()([[maybe_unused]] no_init_tag) noexcept(is_nothrow) {
             using enum context_action;
-            static_assert((invokable_mod<Funcs, basic_context_view<0, Funcs...>> && ...), "ERR");
-            while (reemit_all() != exit) {
-                // keep going
+            using ctx_view = basic_context_view<0, Funcs...>;
+            static_assert(((invokable_mod<Funcs, ctx_view>
+                            || invokable_mod<Funcs, ctx_view, load_event_tag>
+                            || invokable_mod<Funcs, ctx_view, next_event_tag>)
+                           && ...),
+                          "At least one of the mods are not callable");
+            static constexpr auto load_event_count =
+              (0 + ... + (invokable_mod<Funcs, ctx_view, load_event_tag> ? 1 : 0));
+            static constexpr auto next_event_count =
+              (0 + ... + (invokable_mod<Funcs, ctx_view, next_event_tag> ? 1 : 0));
+            static_assert(load_event_count <= 1, "There should only be one single load_event in the mods");
+            static_assert(load_event_count + next_event_count >= 1, "Someone needs to provide the events.");
+            for (;;) {
+                // Exhaust the next events until there's no more events:
+                if constexpr (next_event_count > 0) {
+                    if (bounce_invoke(*this, mods, next_event) == exit) {
+                        break;
+                    }
+                }
+
+                // Wait until new event comes, we should only have one single load_event
+                if constexpr (load_event_count > 0) {
+                    if (bounce_invoke(*this, mods, load_event) == exit) {
+                        break;
+                    }
+                }
             }
         }
 

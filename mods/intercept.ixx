@@ -63,7 +63,7 @@ export namespace foresight {
         /**
          * Start running the interceptor
          */
-        context_action operator()(Context auto& ctx) noexcept {
+        context_action operator()(Context auto& ctx, load_event_tag) noexcept {
             using enum context_action;
             if (auto const ret = wait_for_event(); ret != next) [[unlikely]] {
                 return ret;

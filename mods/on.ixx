@@ -64,8 +64,7 @@ namespace foresight {
         constexpr ~basic_on() noexcept                     = default;
 
         // todo: should we propagate these to sub-on conditions as well?
-        void operator()(auto&&, start_type) = delete;
-        void operator()(auto&&, done_type)  = delete;
+        void operator()(auto&&, tag auto) = delete;
 
         template <typename NCondT, typename... NFuncs>
             requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && (!Context<NFuncs> && ...))

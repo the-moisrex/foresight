@@ -155,7 +155,7 @@ void basic_abs2rel::init(evdev const& dev, float const scale) noexcept {
         y_absinfo->resolution);
 }
 
-void basic_abs2rel::operator()(start_type) noexcept {
+void basic_abs2rel::operator()(start_tag) noexcept {
     last_abs_x |= x_init_state;
     last_abs_y |= y_init_state;
     x_epsilon = 0.F;

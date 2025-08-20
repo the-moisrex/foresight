@@ -193,6 +193,9 @@ export namespace foresight {
             }
         }
 
+        void operator()(auto&&, tag auto) = delete;
+        void operator()(tag auto)         = delete;
+
         template <typename... C>
             requires(sizeof...(C) > 1)
         consteval auto operator()(route<C>... inp_routes) const noexcept {

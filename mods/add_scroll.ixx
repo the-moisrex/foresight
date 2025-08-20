@@ -54,6 +54,8 @@ export namespace foresight {
             return lock;
         }
 
+        void operator()(auto &&, tag auto) = delete;
+
         template <typename InpCondT, typename InpFuncT = basic_noop>
         [[nodiscard]] consteval auto operator()(
           InpCondT const  &inp_cond,

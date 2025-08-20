@@ -34,8 +34,8 @@ namespace foresight {
         constexpr basic_modes& operator=(basic_modes&&) noexcept      = default;
         constexpr ~basic_modes() noexcept                             = default;
 
-        void operator()(auto&&, start_type) = delete;
-        void operator()(auto&&, done_type)  = delete;
+        void operator()(auto&&, tag auto) = delete;
+        void operator()(tag auto)         = delete;
 
         template <typename InpCondT, typename... InpMods>
             requires(sizeof...(InpMods) >= 1)
