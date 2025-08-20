@@ -83,11 +83,17 @@ namespace foresight {
             events = new_events;
         }
 
-        void operator()(Context auto& ctx) noexcept {
-            for (auto const& usr_event : events) {
-                std::ignore = ctx.fork_emit(event_type{usr_event});
+        void operator()(auto&&, tag auto) = delete;
+        void operator()(tag auto)         = delete;
+
+        context_action operator()(Context auto& ctx, next_event_tag) noexcept {
+            using enum context_action;
+            if (events.empty()) {
+                return ignore_event;
             }
-            events = {};
+            ctx.event() = events.front();
+            events      = events.subspan(1);
+            return next;
         }
     } scheduled_emitter;
 

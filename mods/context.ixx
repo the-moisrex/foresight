@@ -328,8 +328,8 @@ export namespace foresight {
         using enum context_action;
         using tuple_type = std::tuple<Funcs...>;
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
-            auto       action = next;
-            bool const no_change =
+            auto action = ignore_event;
+            std::ignore =
               (([&]<std::size_t K2>() constexpr noexcept(CtxT::is_nothrow) {
                    if constexpr ((sizeof...(Args) >= 1)
                                  && !invokable_mod<std::tuple_element_t<K2, tuple_type>, CtxT, Args...>)
@@ -337,12 +337,13 @@ export namespace foresight {
                        return true;
                    } else {
                        auto current_fork_view = ctx.template fork_view<K2>();
-                       return invoke_cond(get<K2>(funcs), current_fork_view, args...);
+                       action = invoke_mod(get<K2>(funcs), current_fork_view, args...);
+                       return action == next;
                    }
                }).template operator()<I>()
                && ...);
-            if (no_change) {
-                return next;
+            if (action != next) {
+                return action;
             }
             std::ignore =
               (([&]<std::size_t K>() constexpr noexcept(CtxT::is_nothrow) {
