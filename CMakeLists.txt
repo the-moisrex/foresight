@@ -42,8 +42,8 @@ include(./cmake/import.cmake)
 include(GNUInstallDirs)
 
 # Libraries
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBEVDEV REQUIRED libevdev)
+#find_package(PkgConfig REQUIRED)
+#pkg_check_modules(LIBEVDEV REQUIRED libevdev)
 #find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 #find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets REQUIRED)
 
@@ -117,7 +117,7 @@ target_compile_options(${LIB_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
 target_link_options(${LIB_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
 target_link_libraries(${LIB_NAME}
         PRIVATE evdev
-        PRIVATE ${LIBEVDEV_LIBRARIES}
+        PRIVATE libevdev
         # PRIVATE Threads::Threads
 )
 
