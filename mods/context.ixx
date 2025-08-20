@@ -209,7 +209,8 @@ export namespace foresight {
                 return next;
             }
         } else {
-            static_assert(false, "We're not able to run this function.");
+            // static_assert(false, "We're not able to run this function.");
+            return next;
         }
     }
 
@@ -269,7 +270,8 @@ export namespace foresight {
                 return true;
             }
         } else {
-            static_assert(false, "We're not able to run this function.");
+            // static_assert(false, "We're not able to run this function.");
+            return false;
         }
     }
 
