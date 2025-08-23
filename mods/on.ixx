@@ -513,31 +513,52 @@ namespace foresight {
         }
     };
 
-    export struct [[nodiscard]] basic_multi_click {
+    export struct [[nodiscard]] multi_click {
         using duration_type = std::chrono::microseconds;
+        using msec          = std::chrono::milliseconds;
+        using code_type     = user_event::code_type;
+
+        static constexpr auto default_threshold = msec{200};
 
       private:
-        user_event    usr;
+        user_event    usr{};
         std::uint8_t  count              = 2;
-        duration_type duration_threshold = std::chrono::milliseconds{300};
+        duration_type duration_threshold = default_threshold;
 
         std::uint8_t  cur_count = 0;
         duration_type last_click{};
 
       public:
-        constexpr explicit basic_multi_click(
-          user_event const&   inp_usr_event,
-          std::uint8_t const  inp_count     = 2,
-          duration_type const dur_threshold = std::chrono::milliseconds{300}) noexcept
+        constexpr explicit multi_click(user_event const&   inp_usr_event,
+                                       std::uint8_t const  inp_count     = 2,
+                                       duration_type const dur_threshold = default_threshold) noexcept
           : usr{inp_usr_event},
             count{inp_count},
             duration_threshold{dur_threshold} {}
 
-        consteval basic_multi_click(basic_multi_click const&) noexcept            = default;
-        consteval basic_multi_click& operator=(basic_multi_click const&) noexcept = default;
-        constexpr basic_multi_click(basic_multi_click&&) noexcept                 = default;
-        constexpr basic_multi_click& operator=(basic_multi_click&&) noexcept      = default;
-        constexpr ~basic_multi_click() noexcept                                   = default;
+        constexpr explicit multi_click(event_code const&   inp_usr_event,
+                                       std::uint8_t const  inp_count     = 2,
+                                       duration_type const dur_threshold = default_threshold) noexcept
+          : multi_click{
+              user_event{.type = inp_usr_event.type, .code = inp_usr_event.code, .value = 0},
+              inp_count,
+              dur_threshold
+        } {}
+
+        constexpr explicit multi_click(
+          code_type const&    code,
+          std::uint8_t const  inp_count = 2,
+          duration_type const dur_threshold =
+            std::chrono::milliseconds{
+              200
+        }) noexcept
+          : multi_click{user_event{.type = EV_KEY, .code = code, .value = 0}, inp_count, dur_threshold} {}
+
+        consteval multi_click(multi_click const&) noexcept            = default;
+        consteval multi_click& operator=(multi_click const&) noexcept = default;
+        constexpr multi_click(multi_click&&) noexcept                 = default;
+        constexpr multi_click& operator=(multi_click&&) noexcept      = default;
+        constexpr ~multi_click() noexcept                             = default;
 
         [[nodiscard]] bool operator()(event_type const& event) noexcept;
     };
@@ -557,7 +578,7 @@ namespace foresight {
     export constexpr basic_swipe swipe_up{no_axis, -default_sipe_step};
     export constexpr basic_swipe swipe_down{no_axis, default_sipe_step};
 
-    constexpr user_event               left_click{EV_KEY, BTN_LEFT, 0};
-    export constexpr basic_multi_click double_click{left_click};
-    export constexpr basic_multi_click triple_click{left_click, 3};
+    constexpr user_event         left_click{EV_KEY, BTN_LEFT, 0};
+    export constexpr multi_click double_click{left_click};
+    export constexpr multi_click triple_click{left_click, 3};
 } // namespace foresight

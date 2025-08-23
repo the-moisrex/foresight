@@ -35,24 +35,23 @@ int main(int const argc, char const* const* argv) {
              | on(swipe_up, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)))
              | on(swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)))
              | ignore_mouse_moves)
-      | modes(pressed(KEY_LEFTCTRL, KEY_NUMLOCK),
+      | modes(multi_click(KEY_CAPSLOCK),
               // Normal Mode:
               context, // empty context as the default
 
               // Express Mode:
               context
-                | replace(KEY_KP6, press(KEY_LEFTMETA, KEY_RIGHT))
-                | replace(KEY_KP4, press(KEY_LEFTMETA, KEY_LEFT))
-                | replace(KEY_KP8, press(KEY_LEFTMETA, KEY_UP))
-                | replace(KEY_KP2, press(KEY_LEFTMETA, KEY_DOWN))
-                | ignore_caps(caps::keyboard_numpad)
-                | log)
+                | replace(KEY_D, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_RIGHT)
+                | replace(KEY_A, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_LEFT)
+                | replace(KEY_W, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_UP)
+                | replace(KEY_S, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_DOWN)
+                | ignore_caps(caps::keyboard_alphabets))
       | ignore_adjacent_syns
       | update_mod(keys_status)
       | on(pressed(KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC), exit_pipeline) // Restart/Quit
       | on(pressed(BTN_LEFT, KEY_CAPSLOCK), ignore_keys(BTN_LEFT))
       | add_scroll(op | pressed(BTN_MIDDLE) | pressed(KEY_CAPSLOCK), emit + up(BTN_MIDDLE))
-      | on(longtime_released(pressed(KEY_CAPSLOCK), 300ms), emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK))
+      | on(longtime_released(pressed(KEY_CAPSLOCK), 200ms), emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK))
       | router(caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput);
 
     pipeline.mod(intercept).add_devs(args(argc, argv) | find_devices, grab_inputs);

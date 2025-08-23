@@ -594,11 +594,7 @@ export namespace foresight {
 
         /// Pass-through
         context_action operator()(Context auto &ctx) noexcept(is_nothrow) {
-            using enum context_action;
-            ev             = ctx.event();
-            auto const res = reemit_all();
-            ctx.event(ev);
-            return res;
+            return invoke_mods(ctx, mods);
         }
     };
 
@@ -608,7 +604,7 @@ export namespace foresight {
         using type_type  = event_type::type_type;
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
-        using mods_type  = typename ctx_type::mods_type;
+        using mods_type  = ctx_type::mods_type;
 
         static constexpr bool is_nothrow = ctx_type::is_nothrow;
 

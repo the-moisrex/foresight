@@ -90,6 +90,14 @@ namespace foresight {
         }
 
         template <typename... T>
+            requires(std::convertible_to<T, event_code> && ...)
+        consteval auto operator()(code_type const inp_code, T... inp_to) const noexcept {
+            return basic_replace<sizeof...(T)>{
+              key_code(inp_code),
+              std::array<event_code, sizeof...(T)>{static_cast<event_code>(inp_to)...}};
+        }
+
+        template <typename... T>
             requires(std::convertible_to<T, user_event> && ...)
         consteval auto operator()(event_code const inp_from, T... inp_to) const noexcept {
             return basic_replace<sizeof...(T), user_event>{
@@ -100,9 +108,7 @@ namespace foresight {
         template <typename... T>
             requires(std::convertible_to<T, code_type> && ...)
         consteval auto operator()(event_code const inp_from, T... inp_to) const noexcept {
-            return basic_replace<sizeof...(T), event_code>{
-              inp_from,
-              std::array<event_code, sizeof...(T)>{event_code{EV_KEY, static_cast<code_type>(inp_to)}...}};
+            return basic_replace<sizeof...(T), event_code>{inp_from, key_codes(inp_to...)};
         }
 
         template <typename... T>
@@ -110,7 +116,7 @@ namespace foresight {
         consteval auto operator()(code_type const inp_from, T... inp_to) const noexcept {
             return basic_replace<sizeof...(T), event_code>{
               event_code{EV_KEY, inp_from},
-              std::array<event_code, sizeof...(T)>{event_code{EV_KEY, static_cast<code_type>(inp_to)}...}
+              key_codes(inp_to...)
             };
         }
 
@@ -119,7 +125,7 @@ namespace foresight {
         consteval auto operator()(code_type const inp_from, T... inp_to) const noexcept {
             return basic_replace<sizeof...(T), event_type>{
               event_code{EV_KEY, inp_from},
-              std::array<event_type, sizeof...(T)>{event_code{EV_KEY, static_cast<code_type>(inp_to)}...}
+              std::array<event_type, sizeof...(T)>{static_cast<event_type>(inp_to)...}
             };
         }
 
@@ -161,14 +167,24 @@ namespace foresight {
 
             // emit the events:
             if constexpr (N > 1) {
-                for (std::uint8_t index = 0; index < N - 1; ++index) {
-                    std::ignore = ctx.fork_emit(event | to[index]);
-                    // std::ignore = ctx.fork_emit(syn());
+                if (event.value() == 0) {
+                    for (std::uint8_t index = N - 1; index > 0; --index) {
+                        std::ignore = ctx.fork_emit(event | to[index]);
+                        std::ignore = ctx.fork_emit(syn());
+                    }
+
+                    // replace the last one:
+                    event |= to[0];
+                } else {
+                    for (std::uint8_t index = 0; index < N - 1; ++index) {
+                        std::ignore = ctx.fork_emit(event | to[index]);
+                        std::ignore = ctx.fork_emit(syn());
+                    }
+
+                    // replace the last one:
+                    event |= to[N - 1];
                 }
             }
-
-            // replace the last one:
-            event = to[N - 1];
         }
     };
 

@@ -34,12 +34,25 @@ export namespace foresight {
         code_type code = KEY_MAX;
     };
 
+    template <std::size_t N>
+    using event_codes = std::array<event_code, N>;
+
     [[nodiscard]] constexpr std::uint32_t hashed(event_code const& code) noexcept {
         static constexpr std::uint32_t shift  = std::countr_zero(std::bit_ceil<std::uint32_t>(KEY_MAX));
         std::uint32_t                  hash   = 0;
         hash                                 |= static_cast<std::uint32_t>(code.type) << shift;
         hash                                 |= static_cast<std::uint32_t>(code.code);
         return hash;
+    }
+
+    [[nodiscard]] consteval event_code key_code(event_code::code_type code) noexcept {
+        return event_code{.type = EV_KEY, .code = code};
+    }
+
+    template <typename... T>
+    [[nodiscard]] consteval event_codes<sizeof...(T)> key_codes(T... codes) noexcept {
+        return event_codes<sizeof...(T)>{
+          std::array<event_code, sizeof...(T)>{key_code(static_cast<event_code::code_type>(codes))...}};
     }
 
     [[nodiscard]] constexpr std::uint32_t hashed(event_code::type_type const type,
@@ -251,19 +264,19 @@ export namespace foresight {
             return ret;
         }
 
-        [[nodiscard]] constexpr event_type& operator|=(event_code const& rhs) noexcept {
+        constexpr event_type& operator|=(event_code const& rhs) noexcept {
             set(rhs);
             reset_time();
             return *this;
         }
 
-        [[nodiscard]] constexpr event_type& operator|=(user_event const& rhs) noexcept {
+        constexpr event_type& operator|=(user_event const& rhs) noexcept {
             set(rhs);
             reset_time();
             return *this;
         }
 
-        [[nodiscard]] constexpr event_type& operator|=(event_type const& rhs) noexcept {
+        constexpr event_type& operator|=(event_type const& rhs) noexcept {
             *this = rhs;
             reset_time();
             return *this;
@@ -288,8 +301,7 @@ export namespace foresight {
     [[nodiscard]] constexpr bool is_mouse_event(event_type const& event) noexcept {
         auto const code = event.code();
         auto const type = event.type();
-        return type
-               == EV_REL
+        return (type == EV_REL)
                || (type == EV_KEY && (code == BTN_LEFT || code == BTN_RIGHT || code == BTN_MIDDLE));
     }
 

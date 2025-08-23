@@ -69,12 +69,16 @@ void basic_swipe_detector::operator()(event_type const& event) noexcept {
     }
 }
 
-bool foresight::basic_multi_click::operator()(event_type const& event) noexcept {
+bool foresight::multi_click::operator()(event_type const& event) noexcept {
     auto const now = event.micro_time();
     if (event != usr) {
         return false;
     }
-    if ((now - std::exchange(last_click, now)) > duration_threshold) {
+    auto const dur = now - std::exchange(last_click, now);
+    if (dur <= std::chrono::milliseconds(1)) {
+        return false; // ignore less than 1 millisecond clicks
+    }
+    if (dur > duration_threshold) {
         cur_count = 1;
         return false;
     }

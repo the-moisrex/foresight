@@ -394,12 +394,43 @@ namespace foresight {
           KEY_KPASTERISK,
           KEY_KPSLASH);
 
+        constexpr auto alphabets = cap(
+          EV_KEY,
+          KEY_Q,
+          KEY_W,
+          KEY_E,
+          KEY_R,
+          KEY_T,
+          KEY_Y,
+          KEY_U,
+          KEY_I,
+          KEY_O,
+          KEY_P,
+          KEY_A,
+          KEY_S,
+          KEY_D,
+          KEY_F,
+          KEY_G,
+          KEY_H,
+          KEY_J,
+          KEY_K,
+          KEY_L,
+          KEY_Z,
+          KEY_X,
+          KEY_C,
+          KEY_V,
+          KEY_B,
+          KEY_N,
+          KEY_M);
+
         // -- Composite Device Capabilities --
 
         // A standard 104-key Keyboard
         constexpr auto keyboard = syn + keyboard_leds + keyboard_keys;
 
-        constexpr auto keyboard_numpad = views(numpad);
+        constexpr auto keyboard_numpad    = views(numpad);
+        constexpr auto keyboard_alphabets = views(alphabets);
+        constexpr auto all_misc = views(misc);
 
         // A keyboard with additional media controls
         constexpr auto multimedia_keyboard = keyboard + keys_media;
