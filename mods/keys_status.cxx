@@ -21,6 +21,20 @@ bool basic_keys_status::is_released(std::span<code_type const> const key_codes) 
     });
 }
 
+bool basic_keys_status::is_pressed_any(std::span<code_type const> const key_codes) const noexcept {
+    return std::ranges::any_of(key_codes, [this](code_type const code) {
+        assert(code < KEY_MAX);
+        return this->btns.at(code) != 0;
+    });
+}
+
+bool basic_keys_status::is_released_any(std::span<code_type const> const key_codes) const noexcept {
+    return std::ranges::any_of(key_codes, [this](code_type const code) {
+        assert(code < KEY_MAX);
+        return this->btns.at(code) == 0;
+    });
+}
+
 void basic_keys_status::operator()(event_type const& event) noexcept {
     if (event.type() != EV_KEY) {
         return;

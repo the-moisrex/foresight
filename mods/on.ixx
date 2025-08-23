@@ -155,6 +155,20 @@ namespace foresight {
 
     export constexpr basic_pressed<0> pressed;
 
+    export template <std::size_t N>
+    struct [[nodiscard]] basic_pressed_any : basic_code_adaptor<basic_pressed_any, N> {
+        using basic_code_adaptor<basic_pressed_any, N>::basic_code_adaptor;
+        using basic_code_adaptor<basic_pressed_any, N>::operator();
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
+            static_assert(has_mod<basic_keys_status, CtxT>, "We need keys_status to be in the pipeline.");
+            return ctx.mod(keys_status).is_pressed_any(this->codes);
+        }
+    };
+
+    export constexpr basic_pressed_any<0> pressed_any;
+
     export struct [[nodiscard]] keydown {
         code_type code = KEY_MAX;
 

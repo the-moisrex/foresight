@@ -33,12 +33,20 @@ export namespace foresight {
         constexpr ~basic_keys_status() noexcept                              = default;
 
         [[nodiscard]] bool is_pressed(std::span<code_type const> key_codes) const noexcept;
+        [[nodiscard]] bool is_pressed_any(std::span<code_type const> key_codes) const noexcept;
         [[nodiscard]] bool is_released(std::span<code_type const> key_codes) const noexcept;
+        [[nodiscard]] bool is_released_any(std::span<code_type const> key_codes) const noexcept;
 
         template <std::integral... T>
         [[nodiscard]] bool is_pressed(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
             return ((btns.at(key_codes) != 0) && ...);
+        }
+
+        template <std::integral... T>
+        [[nodiscard]] bool is_pressed_any(T const... key_codes) const noexcept {
+            assert(((key_codes < KEY_MAX) && ...));
+            return ((btns.at(key_codes) != 0) || ...);
         }
 
         template <std::integral... T>
@@ -54,6 +62,12 @@ export namespace foresight {
         [[nodiscard]] bool is_released(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
             return ((btns.at(key_codes) == 0) && ...);
+        }
+
+        template <std::integral... T>
+        [[nodiscard]] bool is_released_any(T const... key_codes) const noexcept {
+            assert(((key_codes < KEY_MAX) && ...));
+            return ((btns.at(key_codes) == 0) || ...);
         }
 
         void release_all(Context auto& ctx) noexcept {

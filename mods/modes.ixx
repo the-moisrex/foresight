@@ -46,7 +46,7 @@ namespace foresight {
         }
 
         constexpr void switch_mode(std::uint8_t const in_mode) noexcept {
-            mode = std::clamp<std::uint8_t>(0, in_mode, sizeof...(Mods));
+            mode = std::clamp<std::uint8_t>(0, in_mode, sizeof...(Mods) - 1);
         }
 
         context_action operator()(Context auto& ctx) noexcept {
