@@ -1,11 +1,11 @@
 module;
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <tuple>
 export module foresight.mods.modes;
 import foresight.main.utils;
 import foresight.mods.context;
-import foresight.main.log;
 
 namespace foresight {
 
@@ -45,12 +45,16 @@ namespace foresight {
               inp_mods...};
         }
 
+        constexpr void switch_mode(std::uint8_t const in_mode) noexcept {
+            mode = std::clamp<std::uint8_t>(0, in_mode, sizeof...(Mods));
+        }
+
         context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
             if (invoke_cond(cond, ctx)) {
                 // go to the next mode
                 mode = mode >= sizeof...(Mods) - 1 ? 0 : mode + 1;
-                log("Mode Changed to {}", mode);
+                // log("Mode Changed to {}", mode);
             }
             assert(mode < sizeof...(Mods));
             return invoke_mod_at(ctx, mods, mode);
@@ -58,4 +62,29 @@ namespace foresight {
     };
 
     export constexpr basic_modes<> modes{};
+
+    export struct [[nodiscard]] basic_switch_mode {
+      private:
+        std::uint8_t mode = 0;
+
+      public:
+        basic_switch_mode() noexcept = default;
+
+        explicit constexpr basic_switch_mode(std::uint8_t const in_mode) noexcept : mode{in_mode} {}
+
+        basic_switch_mode(basic_switch_mode const&) noexcept            = default;
+        basic_switch_mode(basic_switch_mode&&) noexcept                 = default;
+        basic_switch_mode& operator=(basic_switch_mode const&) noexcept = default;
+        basic_switch_mode& operator=(basic_switch_mode&&) noexcept      = default;
+        ~basic_switch_mode() noexcept                                   = default;
+
+        consteval basic_switch_mode operator()(std::uint8_t const in_mode) const noexcept {
+            return basic_switch_mode{in_mode};
+        }
+
+        void operator()(Context auto& ctx) const noexcept {
+            ctx.mod(modes).switch_mode(mode);
+        }
+
+    } switch_mode;
 } // namespace foresight

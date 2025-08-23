@@ -45,6 +45,8 @@ int main(int const argc, char const* const* argv) {
                 | replace(KEY_A, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_LEFT)
                 | replace(KEY_W, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_UP)
                 | replace(KEY_S, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_DOWN)
+                | replace(KEY_E, KEY_LEFTMETA, KEY_TAB)
+                | on(pressed(KEY_ESC), switch_mode(0))
                 | ignore_caps(caps::keyboard_alphabets))
       | ignore_adjacent_syns
       | update_mod(keys_status)
