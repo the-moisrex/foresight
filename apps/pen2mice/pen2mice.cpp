@@ -1,10 +1,12 @@
 #include <chrono>
 #include <linux/input-event-codes.h>
+#include <print>
 import foresight.mods;
 import foresight.main.log;
 import foresight.main.utils;
 
-int main(int const argc, char const* const* argv) {
+int main(int const argc, char const* const* argv) try
+{
     using namespace foresight;
     using namespace std::chrono_literals;
 
@@ -35,19 +37,20 @@ int main(int const argc, char const* const* argv) {
              | on(swipe_up, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)))
              | on(swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)))
              | ignore_mouse_moves)
-      | modes(multi_click(KEY_CAPSLOCK),
-              // Normal Mode:
-              context, // empty context as the default
+      | modes(
+        multi_click(KEY_CAPSLOCK),
+        // Normal Mode:
+        context, // empty context as the default
 
-              // Express Mode:
-              context
-                | replace(KEY_D, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_RIGHT)
-                | replace(KEY_A, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_LEFT)
-                | replace(KEY_W, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_UP)
-                | replace(KEY_S, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_DOWN)
-                | replace(KEY_E, KEY_LEFTMETA, KEY_TAB)
-                | on(pressed(KEY_ESC), switch_mode(0))
-                | ignore_caps(caps::keyboard_alphabets))
+        // Express Mode:
+        context
+          | replace(KEY_D, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_RIGHT)
+          | replace(KEY_A, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_LEFT)
+          | replace(KEY_W, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_UP)
+          | replace(KEY_S, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_DOWN)
+          | replace(KEY_E, KEY_LEFTMETA, KEY_TAB)
+          | on(pressed(KEY_ESC), switch_mode(0))
+          | ignore_caps(caps::keyboard_alphabets))
       | ignore_adjacent_syns
       | update_mod(keys_status)
       | on(pressed(KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC), exit_pipeline) // Restart/Quit
@@ -60,4 +63,8 @@ int main(int const argc, char const* const* argv) {
     pipeline();
 
     return 0;
+} catch (std::runtime_error const& err) {
+    std::println("Runtime Error: {}", err.what());
+} catch (...) {
+    std::println("Unknown Error.");
 }
