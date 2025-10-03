@@ -1,6 +1,5 @@
 #include <chrono>
 #include <linux/input-event-codes.h>
-#include <print>
 import foresight.mods;
 import foresight.main.log;
 import foresight.main.utils;
@@ -64,7 +63,7 @@ int main(int const argc, char const* const* argv) try
 
     return 0;
 } catch (std::runtime_error const& err) {
-    std::println("Runtime Error: {}", err.what());
+    foresight::log("Runtime Error: {}", err.what());
 } catch (...) {
-    std::println("Unknown Error.");
+    foresight::log("Unknown Error.");
 }
