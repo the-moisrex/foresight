@@ -6,7 +6,7 @@ import foresight.main.utils;
 
 int main(int const argc, char const* const* argv) try
 {
-    using namespace foresight;
+    using namespace foresight; // NOLINT(*-using-namespace)
     using namespace std::chrono_literals;
 
     static constexpr auto args = arguments["pen", "usb keyboard"];

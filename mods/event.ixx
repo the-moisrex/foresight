@@ -22,8 +22,24 @@ export namespace foresight {
         value_type value = 0;
     };
 
+    static constexpr  user_event invalid_user_event{
+        .type = EV_MAX,
+        .code = KEY_MAX,
+        .value =  0
+    };
+
+    [[nodiscard]] constexpr bool operator==(user_event const& lhs, const user_event& rhs) noexcept {
+        return lhs.type == rhs.type && lhs.code == rhs.code && lhs.value == rhs.value;
+    }
+
+    [[nodiscard]] constexpr bool is_invalid(user_event const& event) noexcept {
+        return event.type == invalid_user_event.type;
+    }
+
     template <std::size_t N>
     struct user_events : std::array<user_event, N> {};
+
+    using user_events_iterator = user_events<0>::iterator;
 
     struct [[nodiscard]] event_code {
         using type_type  = decltype(input_event::type);
@@ -57,7 +73,7 @@ export namespace foresight {
 
     [[nodiscard]] constexpr std::uint32_t hashed(event_code::type_type const type,
                                                  event_code::code_type const code) noexcept {
-        return hashed(event_code{type, code});
+        return hashed(event_code{.type=type, .code=code});
     }
 
     struct [[nodiscard]] event_type {

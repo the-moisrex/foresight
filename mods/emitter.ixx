@@ -141,14 +141,14 @@ namespace foresight {
 
     export [[nodiscard]] constexpr std::array<user_event, 2> up(event_type::code_type const code) noexcept {
         return std::array{
-          user_event{EV_KEY, code, 0},
+          user_event{.type=EV_KEY, .code=code, .value=0},
           static_cast<user_event>(syn())
         };
     }
 
     export [[nodiscard]] constexpr std::array<user_event, 2> down(event_type::code_type const code) noexcept {
         return std::array{
-          user_event{EV_KEY, code, 1},
+          user_event{.type=EV_KEY, .code=code, .value=1},
           static_cast<user_event>(syn())
         };
     }
@@ -156,9 +156,9 @@ namespace foresight {
     export [[nodiscard]] constexpr std::array<user_event, 4> keypress(
       event_type::code_type const code) noexcept {
         return std::array{
-          user_event{EV_KEY, code, 1},
+          user_event{.type=EV_KEY, .code=code, .value=1},
           static_cast<user_event>(syn()),
-          user_event{EV_KEY, code, 0},
+          user_event{.type=EV_KEY, .code=code, .value=0},
           static_cast<user_event>(syn()),
         };
     }
@@ -166,7 +166,7 @@ namespace foresight {
     export [[nodiscard]] constexpr std::array<user_event, 2> turn_led_on(
       event_type::code_type const code) noexcept {
         return std::array{
-          user_event{EV_LED, code, 1},
+          user_event{.type=EV_LED, .code=code, .value=1},
           static_cast<user_event>(syn())
         };
     }
@@ -174,7 +174,7 @@ namespace foresight {
     export [[nodiscard]] constexpr std::array<user_event, 2> turn_led_off(
       event_type::code_type const code) noexcept {
         return std::array{
-          user_event{EV_LED, code, 0},
+          user_event{.type=EV_LED, .code=code, .value=0},
           static_cast<user_event>(syn())
         };
     }
