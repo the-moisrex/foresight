@@ -76,6 +76,8 @@ target_sources(${LIB_NAME}
         mods/keys_status.cxx
         mods/on.cxx
         mods/momentum.cxx
+        mods/typer.cxx
+        lib/xkb.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         main/main.ixx
         main/utils.ixx
@@ -103,9 +105,11 @@ target_sources(${LIB_NAME}
         mods/caps.ixx
         mods/replace.ixx
         mods/momentum.ixx
+        mods/typer.ixx
         mods/modes.ixx
         mods/mods.ixx
         utils/easings.ixx
+        lib/xkb.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)
 set_target_properties(${LIB_NAME} PROPERTIES
@@ -117,7 +121,8 @@ target_compile_options(${LIB_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
 target_link_options(${LIB_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
 target_link_libraries(${LIB_NAME}
         PRIVATE evdev
-        PRIVATE libevdev
+        # PRIVATE libevdev
+        PRIVATE xkbcommon
         # PRIVATE Threads::Threads
 )
 
