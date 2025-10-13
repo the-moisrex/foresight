@@ -1,6 +1,7 @@
 // Created by moisrex on 10/12/25.
 
 module;
+#include <array>
 #include <xkbcommon/xkbcommon-keysyms.h>
 #include <xkbcommon/xkbcommon.h>
 module foresight.lib.xkb;
@@ -9,19 +10,20 @@ using foresight::xkb::context;
 using foresight::xkb::keymap;
 using foresight::xkb::state;
 
+static constexpr std::size_t XKB_KEYSYM_NAME_MAX_SIZE = 28;
+
 void foresight::xkb::ensure(bool cond, std::string_view msg) {
     if (!cond) {
         throw xkb_error(std::string(msg));
     }
 }
 
-context::context(xkb_context_flags const flags) : ctx{nullptr} {
-    ctx = xkb_context_new(flags);
+context::context(xkb_context_flags const flags) : ctx{xkb_context_new(flags)} {
     ensure(ctx != nullptr, "Failed to create xkb_context");
 }
 
 context::~context() noexcept {
-    if (ctx) {
+    if (ctx != nullptr) {
         xkb_context_unref(ctx);
     }
 }
@@ -34,7 +36,7 @@ void context::set_log_level(xkb_log_level const level) const noexcept {
     xkb_context_set_log_level(get(), level);
 }
 
-int context::log_level() const noexcept {
+xkb_log_level context::log_level() const noexcept {
     return xkb_context_get_log_level(get());
 }
 
@@ -43,12 +45,12 @@ int context::log_level() const noexcept {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 keymap::keymap(
-  context const&    ctx,
-  char const* rules,
-  char const* model,
-  char const* layout,
-  char const* variant,
-  char const* options) {
+  context const& ctx,
+  char const*    rules,
+  char const*    model,
+  char const*    layout,
+  char const*    variant,
+  char const*    options) {
     xkb_rule_names names{};
     names.rules   = rules;
     names.model   = model;
@@ -66,7 +68,7 @@ void keymap::load(context const& ctx, xkb_rule_names const* names, xkb_keymap_fo
     ensure(handle != nullptr, "Failed to create xkb_keymap from names");
 }
 
-keymap keymap::from_string(context& ctx, std::string_view const xml) {
+keymap keymap::from_string(context const& ctx, std::string_view const xml) {
     xkb_keymap* km = xkb_keymap_new_from_string(
       ctx.get(),
       xml.data(),
@@ -97,9 +99,16 @@ xkb_keycode_t keymap::max_keycode() const noexcept {
 }
 
 std::string keymap::as_string() const {
-    char const* s = xkb_keymap_get_as_string(get(), XKB_KEYMAP_FORMAT_TEXT_V1);
-    if (!s) {
-        return {}; // no throw — optional
+    char const* str = xkb_keymap_get_as_string(get(), XKB_KEYMAP_FORMAT_TEXT_V1);
+    // no need to check for nullptr, std::string can handle that
+    return {str};
+}
+
+std::string foresight::xkb::name(xkb_keysym_t const keysym) {
+    std::array<char, XKB_KEYSYM_NAME_MAX_SIZE> name{};
+    int const                                  ret = xkb_keysym_get_name(keysym, name.data(), name.size());
+    if (ret < 0 || static_cast<size_t>(ret) >= name.size()) {
+        return {};
     }
-    return {s};
+    return {name.data()};
 }

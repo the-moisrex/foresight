@@ -35,7 +35,7 @@ namespace foresight::xkb {
 
         // Set and get log level
         void              set_log_level(xkb_log_level level) const noexcept;
-        [[nodiscard]] int log_level() const noexcept;
+        [[nodiscard]] xkb_log_level log_level() const noexcept;
 
       private:
         xkb_context *ctx;
@@ -46,16 +46,18 @@ namespace foresight::xkb {
         // Create keymap from rules+model+layout+variant+options (like xkb_keymap_new_from_names)
         explicit keymap(
           context const &ctx,
-          char const *rules   = nullptr,
-          char const *model   = nullptr,
-          char const *layout  = nullptr,
-          char const *variant = nullptr,
-          char const *options = nullptr);
+          char const    *rules   = nullptr,
+          char const    *model   = nullptr,
+          char const    *layout  = nullptr,
+          char const    *variant = nullptr,
+          char const    *options = nullptr);
 
-        void load(context const &ctx,  xkb_rule_names const *names, xkb_keymap_format keymap_format = XKB_KEYMAP_FORMAT_TEXT_V2);
+        void load(context const        &ctx,
+                  xkb_rule_names const *names,
+                  xkb_keymap_format     keymap_format = XKB_KEYMAP_FORMAT_TEXT_V2);
 
         // Create keymap from compiled keymap string (file contents or XKB keymap text)
-        static keymap from_string(context &ctx, std::string_view xml);
+        static keymap from_string(context const &ctx, std::string_view xml);
 
         // Create from raw pointer (used internally)
         explicit keymap(xkb_keymap *km);
@@ -70,12 +72,14 @@ namespace foresight::xkb {
         [[nodiscard]] xkb_keycode_t min_keycode() const noexcept;
         [[nodiscard]] xkb_keycode_t max_keycode() const noexcept;
 
+
         // Return a UTF-8 label for the keymap
         [[nodiscard]] std::string as_string() const;
 
       private:
-        xkb_keymap *handle;
+        xkb_keymap *handle{};
     };
 
+    [[nodiscard]] std::string name(xkb_keysym_t keysym);
 
 } // namespace foresight::xkb
