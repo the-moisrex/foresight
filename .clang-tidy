@@ -34,6 +34,7 @@ Checks: >
   -readability-identifier-length,
   -*-uppercase-literal-suffix,
   -*-named-parameter,
+  -*-struct-pack-align,
 CheckOptions:
   - key:   readability-function-cognitive-complexity.Threshold
     value: 50 # default is 25

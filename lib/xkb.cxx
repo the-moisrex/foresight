@@ -12,11 +12,15 @@ using foresight::xkb::state;
 
 static constexpr std::size_t XKB_KEYSYM_NAME_MAX_SIZE = 28;
 
-void foresight::xkb::ensure(bool cond, std::string_view msg) {
-    if (!cond) {
-        throw xkb_error(std::string(msg));
+namespace {
+
+    void ensure(bool const cond, std::string_view const msg) {
+        if (!cond) {
+            throw foresight::xkb::xkb_error(std::string(msg));
+        }
     }
-}
+
+} // namespace
 
 context::context(xkb_context_flags const flags) : ctx{xkb_context_new(flags)} {
     ensure(ctx != nullptr, "Failed to create xkb_context");

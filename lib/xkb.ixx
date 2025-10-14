@@ -12,15 +12,14 @@ namespace foresight::xkb {
     struct keymap;
     struct state;
 
-    // Exception type
+    /// Exception type
     struct xkb_error final : std::runtime_error {
         explicit xkb_error(std::string const &msg) : std::runtime_error(msg) {}
     };
 
-    // Helper for checking null pointers when creating objects
-    void ensure(bool cond, std::string_view msg);
-
-    // context: wraps xkb_context_t
+    /**
+     * context: wraps xkb_context_t
+     */
     struct context {
         explicit context(xkb_context_flags flags = XKB_CONTEXT_NO_FLAGS) noexcept;
 
@@ -34,16 +33,18 @@ namespace foresight::xkb {
         [[nodiscard]] xkb_context *get() const noexcept;
 
         // Set and get log level
-        void              set_log_level(xkb_log_level level) const noexcept;
+        void                        set_log_level(xkb_log_level level) const noexcept;
         [[nodiscard]] xkb_log_level log_level() const noexcept;
 
       private:
         xkb_context *ctx;
     };
 
-    // Keymap wrapper
+    /**
+     * Keymap wrapper
+     */
     struct keymap {
-        // Create keymap from rules+model+layout+variant+options (like xkb_keymap_new_from_names)
+        /// Create keymap from rules+model+layout+variant+options
         explicit keymap(
           context const &ctx,
           char const    *rules   = nullptr,
@@ -56,10 +57,10 @@ namespace foresight::xkb {
                   xkb_rule_names const *names,
                   xkb_keymap_format     keymap_format = XKB_KEYMAP_FORMAT_TEXT_V2);
 
-        // Create keymap from compiled keymap string (file contents or XKB keymap text)
+        /// Create keymap from compiled keymap string (file contents or XKB keymap text)
         static keymap from_string(context const &ctx, std::string_view xml);
 
-        // Create from raw pointer (used internally)
+        /// Create from raw pointer (used internally)
         explicit keymap(xkb_keymap *km);
 
         keymap(keymap const &)                = delete;
@@ -73,7 +74,7 @@ namespace foresight::xkb {
         [[nodiscard]] xkb_keycode_t max_keycode() const noexcept;
 
 
-        // Return a UTF-8 label for the keymap
+        /// Return a UTF-8 label for the keymap
         [[nodiscard]] std::string as_string() const;
 
       private:
