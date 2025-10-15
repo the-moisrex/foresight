@@ -5,7 +5,7 @@ module;
 #include <memory>
 #include <vector>
 #include <xkbcommon/xkbcommon-compose.h>
-export module foresight.lib.xkb.xkb_compose;
+export module foresight.lib.xkb.compose;
 
 namespace foresight::xkb {
 
@@ -30,7 +30,7 @@ namespace foresight::xkb {
     struct compose_manager {
         using keysym_entries_iterator = std::vector<keysym_entry>::iterator;
 
-        explicit compose_manager(xkb_context *ctx);
+        explicit compose_manager(xkb_context *inp_ctx);
 
         /// Load compose table from current locale. Returns false on failure.
         bool load_from_locale();

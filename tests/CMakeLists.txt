@@ -58,5 +58,3 @@ foreach(source ${TEST_SOURCES})
 
     setup_test(${name})
 endforeach()
-
-

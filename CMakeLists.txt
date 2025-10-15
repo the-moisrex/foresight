@@ -122,9 +122,9 @@ target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
 target_compile_options(${LIB_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
 target_link_options(${LIB_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
 target_link_libraries(${LIB_NAME}
-        PRIVATE evdev
+        PUBLIC libevdev
         # PRIVATE libevdev
-        PRIVATE xkbcommon
+        PUBLIC xkbcommon
         # PRIVATE Threads::Threads
 )
 

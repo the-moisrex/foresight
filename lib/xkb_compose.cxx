@@ -3,10 +3,12 @@
 module;
 #include <algorithm>
 #include <linux/input.h> // struct input_event, EV_KEY, EV_SYN, SYN_REPORT
-#include <print>
+#include <memory>
 #include <ranges>
+#include <vector>
 #include <xkbcommon/xkbcommon-compose.h>
-module foresight.lib.xkb.xkb_compose;
+module foresight.lib.xkb.compose;
+import foresight.main.log;
 
 using foresight::xkb::compose_manager;
 using foresight::xkb::key_position;
@@ -14,7 +16,7 @@ using foresight::xkb::key_position;
 constexpr std::size_t COMPOSE_MAX_LHS_LEN  = 8;
 constexpr std::size_t MAX_TYPE_MAP_ENTRIES = 32;
 
-compose_manager::compose_manager(xkb_context *ctx) : ctx(ctx) {}
+compose_manager::compose_manager(xkb_context *inp_ctx) : ctx(inp_ctx) {}
 
 bool compose_manager::load_from_locale() {
     char const *locale = std::setlocale(LC_CTYPE, nullptr);
@@ -25,7 +27,7 @@ bool compose_manager::load_from_locale() {
     // unique_ptr with custom deleter
     compose_table.reset(xkb_compose_table_new_from_locale(ctx, locale, XKB_COMPOSE_COMPILE_NO_FLAGS));
     if (!compose_table) {
-        std::println(stderr, "Couldn't create compose table from locale");
+        log("Couldn't create compose table from locale");
         return false;
     }
     return true;
@@ -45,7 +47,7 @@ bool compose_manager::gather_compose_sequences(xkb_keysym_t const target_keysym)
     iterator_ptr_t const iter(xkb_compose_table_iterator_new(compose_table.get()),
                               &xkb_compose_table_iterator_free);
     if (!iter) {
-        std::println(stderr, "ERROR: cannot iterate Compose table");
+        log("ERROR: cannot iterate Compose table");
         return false;
     }
 
@@ -54,7 +56,7 @@ bool compose_manager::gather_compose_sequences(xkb_keysym_t const target_keysym)
             continue;
         }
 
-        size_t              count = 0;
+        std::size_t         count = 0;
         xkb_keysym_t const *seq   = xkb_compose_table_entry_sequence(entry, &count);
         compose_lhs         lhs;
         lhs.assign(seq, std::next(seq, static_cast<std::ptrdiff_t>(count)));
@@ -130,7 +132,7 @@ std::vector<key_position> compose_manager::find_first_typing(
     for (auto const &lhs : compose_entries) {
         // prepare indexes as in the original algorithm
         struct IndexWrap {
-            size_t                  pos_index;
+            std::size_t             pos_index;
             keysym_entries_iterator entry;
         };
 
@@ -138,7 +140,7 @@ std::vector<key_position> compose_manager::find_first_typing(
         bool                                       enabled = true;
 
         // Link each LHS keysym to a KeysymEntries pointer
-        for (size_t k = 0; k < lhs.size(); ++k) {
+        for (std::size_t k = 0; k < lhs.size(); ++k) {
             auto const ent = find_keysym(lhs[k]);
             if (ent == keysym_entries.end() || ent->positions.empty()) {
                 enabled = false;
@@ -156,7 +158,7 @@ std::vector<key_position> compose_manager::find_first_typing(
             // Check layout-mixing constraint
             xkb_layout_index_t fixed_layout    = XKB_LAYOUT_INVALID;
             bool               layout_mismatch = false;
-            for (size_t k = 0; k < lhs.size(); ++k) {
+            for (std::size_t k = 0; k < lhs.size(); ++k) {
                 key_position const &kp = indexes.at(k).entry->positions[indexes.at(k).pos_index];
                 if (fixed_layout
                     == XKB_LAYOUT_INVALID
@@ -180,7 +182,7 @@ std::vector<key_position> compose_manager::find_first_typing(
                 // Found a valid combination: build the vector and return it
                 std::vector<key_position> result;
                 result.reserve(lhs.size());
-                for (size_t k = 0; k < lhs.size(); ++k) {
+                for (std::size_t k = 0; k < lhs.size(); ++k) {
                     key_position const &kp = indexes.at(k).entry->positions[indexes.at(k).pos_index];
                     result.push_back(kp);
                 }
@@ -189,7 +191,7 @@ std::vector<key_position> compose_manager::find_first_typing(
 
             // Advance the cartesian product (rightmost index that can advance)
             {
-                size_t k = lhs.size();
+                std::size_t k = lhs.size();
                 while (k > 0) {
                     k--;
                     indexes.at(k).pos_index++;
@@ -236,19 +238,17 @@ std::vector<input_event> compose_manager::find_first_typing(xkb_keymap *keymap, 
         int const evcode = keycode_to_evdev(kp.keycode);
         if (evcode < 0) {
             // can't map this key; abort
-            std::println(stderr,
-                         "Warning: can't map xkb keycode {} to evdev code",
-                         static_cast<unsigned>(kp.keycode));
+            log("Warning: can't map xkb keycode {} to evdev code", static_cast<unsigned>(kp.keycode));
             return {};
         }
 
         // todo: fix this
         if (kp.mask != 0) {
             // We do not synthesize modifier keys here — warn the caller.
-            std::println(stderr,
-                         "Warning: key position requires modifiers (mask={:#x}). Modifiers are not "
-                         "synthesized by this helper.",
-                         static_cast<unsigned>(kp.mask));
+            log(
+              "Warning: key position requires modifiers (mask={:#x}). Modifiers are not "
+              "synthesized by this helper.",
+              static_cast<unsigned>(kp.mask));
             // Continue by still emitting the main key events (best-effort)
         }
 
@@ -303,7 +303,6 @@ void compose_manager::add_positions(xkb_keymap *keymap, xkb_keysym_t const keysy
     xkb_keycode_t const max_keycode = xkb_keymap_max_keycode(keymap);
 
     // We'll keep track of (keycode, layout) we already added for deduping of lower levels
-    // (this mimics the original "keep only the lowest level" approach).
     for (xkb_keycode_t keycode = min_keycode; keycode <= max_keycode; ++keycode) {
         char const *keyname = xkb_keymap_key_get_name(keymap, keycode);
         if (keyname == nullptr) {
@@ -346,7 +345,7 @@ void compose_manager::add_positions(xkb_keymap *keymap, xkb_keysym_t const keysy
 
                 // Found keysym at this keycode/layout/level, collect masks
                 std::array<xkb_mod_mask_t, MAX_TYPE_MAP_ENTRIES> masks{};
-                size_t const                                     n_masks = xkb_keymap_key_get_mods_for_level(
+                auto const                                       n_masks = xkb_keymap_key_get_mods_for_level(
                   keymap,
                   keycode,
                   layout,
@@ -358,7 +357,7 @@ void compose_manager::add_positions(xkb_keymap *keymap, xkb_keysym_t const keysy
                 if (n_masks == 0) {
                     entry->positions.emplace_back(keycode, layout, level, 0);
                 } else {
-                    for (size_t mi = 0; mi < n_masks; ++mi) {
+                    for (std::size_t mi = 0; mi < n_masks; ++mi) {
                         entry->positions.emplace_back(keycode, layout, level, masks.at(mi));
                     }
                 }

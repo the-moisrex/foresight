@@ -21,7 +21,7 @@ namespace foresight::xkb {
      * context: wraps xkb_context_t
      */
     struct context {
-        explicit context(xkb_context_flags flags = XKB_CONTEXT_NO_FLAGS) noexcept;
+        explicit context(xkb_context_flags flags = XKB_CONTEXT_NO_FLAGS);
 
         // Non-copyable, movable
         context(context const &)                = delete;

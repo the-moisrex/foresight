@@ -2,6 +2,7 @@
 
 module;
 #include <array>
+#include <string_view>
 #include <xkbcommon/xkbcommon-keysyms.h>
 #include <xkbcommon/xkbcommon.h>
 module foresight.lib.xkb;
