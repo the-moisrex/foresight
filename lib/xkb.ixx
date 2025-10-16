@@ -5,7 +5,7 @@ module;
 #include <xkbcommon/xkbcommon.h>
 export module foresight.lib.xkb;
 
-namespace foresight::xkb {
+export namespace foresight::xkb {
 
     // Forward declare Keymap and State
     struct context;

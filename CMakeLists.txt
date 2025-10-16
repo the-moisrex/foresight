@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23...4.0)
+cmake_minimum_required(VERSION 3.23...4.1.2)
 project(foresight LANGUAGES CXX C)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -123,9 +123,7 @@ target_compile_options(${LIB_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
 target_link_options(${LIB_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
 target_link_libraries(${LIB_NAME}
         PUBLIC libevdev
-        # PRIVATE libevdev
         PUBLIC xkbcommon
-        # PRIVATE Threads::Threads
 )
 
 install(TARGETS ${LIB_NAME}

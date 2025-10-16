@@ -2,7 +2,7 @@
 
 module;
 #include <algorithm>
-#include <linux/input.h> // struct input_event, EV_KEY, EV_SYN, SYN_REPORT
+#include <linux/input.h>
 #include <memory>
 #include <ranges>
 #include <vector>
@@ -107,7 +107,7 @@ std::vector<key_position> compose_manager::find_first_typing(
         }
     }
 
-    // 2) No direct typing → try Compose sequences producing the target keysym.
+    // 2) No direct typing → try to compose sequences producing the target keysym.
     // Gather compose sequence LHSs that produce the given keysym
     if (!gather_compose_sequences(target_keysym)) {
         return {}; // error or no compose table

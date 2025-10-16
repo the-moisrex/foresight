@@ -7,7 +7,7 @@ module;
 #include <xkbcommon/xkbcommon-compose.h>
 export module foresight.lib.xkb.compose;
 
-namespace foresight::xkb {
+export namespace foresight::xkb {
 
 
     using compose_lhs = std::vector<xkb_keysym_t>; // left-hand side sequence
