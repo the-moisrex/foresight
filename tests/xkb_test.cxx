@@ -16,6 +16,7 @@ TEST(XKB, Basic) {
     compose_manager manager{ctx.get()};
     manager.load_from_locale();
     auto const vec           = manager.find_first_typing(map.get(), U'A');
-    auto const A_input_event = vec.front();
-    EXPECT_EQ(A_input_event.code, KEY_A);
+    EXPECT_EQ(vec.size(), 8);
+    EXPECT_EQ(vec.front().code, KEY_LEFTSHIFT);
+    EXPECT_EQ(vec.at(2).code, KEY_A);
 }

@@ -18,6 +18,95 @@ constexpr std::size_t MAX_TYPE_MAP_ENTRIES = 32;
 
 compose_manager::compose_manager(xkb_context *inp_ctx) : ctx(inp_ctx) {}
 
+namespace {
+    struct ModMapEntry {
+        xkb_mod_index_t index;
+        std::uint16_t   keycode;
+        xkb_mod_mask_t  mask;
+    };
+
+    /**
+     * Thread-safe singleton accessor for a fixed modifier map.
+     *
+     * Lazily builds the map once for the given keymap. No dynamic allocation,
+     * no global state mutation, and safe across threads (per C++11 guarantees).
+     */
+    inline std::array<ModMapEntry, 5> const &get_modmap(xkb_keymap *keymap) {
+        static std::array<ModMapEntry, 5> map{};
+        static bool                       initialized = false;
+
+        if (!initialized) {
+            map[0].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_SHIFT);
+            map[0].keycode = KEY_LEFTSHIFT;
+            map[0].mask =
+              map[0].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[0].index) : 0;
+
+            map[1].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_CTRL);
+            map[1].keycode = KEY_LEFTCTRL;
+            map[1].mask =
+              map[1].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[1].index) : 0;
+
+            map[2].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_ALT);
+            map[2].keycode = KEY_LEFTALT;
+            map[2].mask =
+              map[2].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[2].index) : 0;
+
+            map[3].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_LOGO);
+            map[3].keycode = KEY_LEFTMETA;
+            map[3].mask =
+              map[3].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[3].index) : 0;
+
+            map[4].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_CAPS);
+            map[4].keycode = KEY_CAPSLOCK;
+            map[4].mask =
+              map[4].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[4].index) : 0;
+
+            initialized = true;
+        }
+
+        return map;
+    }
+
+    /**
+     * Invoke a callable for each modifier event based on an xkb_mod_mask_t.
+     *
+     * - modmap: automatically fetched from get_modmap().
+     * - mask:   active modifier mask.
+     * - pressed: true for key press, false for key release.
+     * - emit:   callable taking (const struct input_event&).
+     */
+    template <typename EmitFunc>
+    bool
+    invoke_mod_events(xkb_keymap *keymap, xkb_mod_mask_t const mask, bool const pressed, EmitFunc &&emit) {
+        auto const &modmap = get_modmap(keymap);
+
+        bool        mod_found = false;
+        input_event ev{};
+        // struct timeval     now{};
+        // gettimeofday(&now, nullptr);
+
+        for (auto const &m : modmap) {
+            if (!m.mask) {
+                continue;
+            }
+
+            if ((mask & m.mask) != m.mask) {
+                continue;
+            }
+
+            // ev.time  = now;
+            ev.type  = EV_KEY;
+            ev.code  = m.keycode;
+            ev.value = pressed ? 1 : 0;
+            emit(ev);
+            mod_found = true;
+        }
+        return mod_found;
+    }
+
+
+} // namespace
+
 bool compose_manager::load_from_locale() {
     char const *locale = std::setlocale(LC_CTYPE, nullptr);
     if (locale == nullptr) {
@@ -234,6 +323,8 @@ std::vector<input_event> compose_manager::find_first_typing(xkb_keymap *keymap, 
     std::vector<input_event> events;
     events.reserve(positions.size() * 4); // rough estimate (press+syn+release+syn)
 
+    std::array<xkb_mod_mask_t, MAX_TYPE_MAP_ENTRIES> masks{};
+    std::size_t                                      num_masks = 0;
     for (key_position const &kp : positions) {
         int const evcode = keycode_to_evdev(kp.keycode);
         if (evcode < 0) {
@@ -242,15 +333,7 @@ std::vector<input_event> compose_manager::find_first_typing(xkb_keymap *keymap, 
             return {};
         }
 
-        // todo: fix this
-        if (kp.mask != 0) {
-            // We do not synthesize modifier keys here — warn the caller.
-            log(
-              "Warning: key position requires modifiers (mask={:#x}). Modifiers are not "
-              "synthesized by this helper.",
-              static_cast<unsigned>(kp.mask));
-            // Continue by still emitting the main key events (best-effort)
-        }
+        bool const requires_mods = kp.mask != 0;
 
         // Prepare a press event
         input_event const ev_press{
@@ -270,10 +353,44 @@ std::vector<input_event> compose_manager::find_first_typing(xkb_keymap *keymap, 
         // SYN_REPORT
         constexpr input_event ev_syn{.type = EV_SYN, .code = SYN_REPORT, .value = 0};
 
+        if (requires_mods) {
+            num_masks = xkb_keymap_key_get_mods_for_level(
+              keymap,
+              kp.keycode,
+              kp.layout,
+              kp.level,
+              masks.data(),
+              masks.size());
+
+            bool mod_found = false;
+            if (num_masks > 0) {
+                mod_found |= invoke_mod_events(keymap, masks.at(0), true, [&](input_event const &event) {
+                    events.push_back(event);
+                });
+            }
+            if (mod_found) {
+                events.push_back(ev_syn);
+            }
+        }
+
+
         events.push_back(ev_press);
         events.push_back(ev_syn);
         events.push_back(ev_release);
         events.push_back(ev_syn);
+
+        // release the evs
+        if (requires_mods) {
+            bool mod_found = false;
+            if (num_masks > 0) {
+                mod_found |= invoke_mod_events(keymap, masks.at(0), false, [&](input_event const &event) {
+                    events.push_back(event);
+                });
+            }
+            if (mod_found) {
+                events.push_back(ev_syn);
+            }
+        }
     }
 
     return events;
