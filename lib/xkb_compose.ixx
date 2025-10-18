@@ -2,12 +2,12 @@
 
 module;
 #include <functional>
-#include <linux/input.h>
 #include <memory>
 #include <vector>
 #include <xkbcommon/xkbcommon-compose.h>
 export module foresight.lib.xkb.compose;
 import foresight.lib.xkb;
+import foresight.mods.event;
 
 export namespace foresight::xkb {
 
@@ -31,7 +31,7 @@ export namespace foresight::xkb {
      */
     struct compose_manager {
         using keysym_entries_iterator = std::vector<keysym_entry>::iterator;
-        using handle_event_callback   = std::function<void(input_event const &event)> const &;
+        using handle_event_callback   = std::function<void(user_event const &event)> const &;
         // todo: use std::function_ref instead of std::function
 
         explicit compose_manager(keymap::pointer);
@@ -65,7 +65,7 @@ export namespace foresight::xkb {
         std::vector<key_position> find_first_typing(xkb_keysym_t target_keysym);
 
         /**
-         *  Given a Unicode code point, return a best-effort sequence of Linux input_event
+         *  Given a Unicode code point, return a best-effort sequence of events
          *  records that type it. The returned vector contains press/release pairs for each key
          *  and intervening SYN_REPORTs.
          */

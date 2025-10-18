@@ -6,14 +6,16 @@
 
 import foresight.lib.xkb;
 import foresight.lib.xkb.compose;
+import foresight.mods.event;
 
 using foresight::xkb::compose_manager;
+using foresight::user_event;
 
 namespace {
     template <typename Obj, typename... Args>
-    std::vector<input_event> to_vector(Obj& obj, Args&&... args) {
-        std::vector<input_event> vec;
-        obj.find_first_typing(std::forward<Args>(args)..., [&vec](input_event const& event) {
+    std::vector<user_event> to_vector(Obj& obj, Args&&... args) {
+        std::vector<user_event> vec;
+        obj.find_first_typing(std::forward<Args>(args)..., [&vec](user_event const& event) {
             return vec.emplace_back(event);
         });
         return vec;

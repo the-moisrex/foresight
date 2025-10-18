@@ -9,6 +9,7 @@ module;
 #include <xkbcommon/xkbcommon-compose.h>
 module foresight.lib.xkb.compose;
 import foresight.main.log;
+import foresight.mods.event;
 
 using foresight::xkb::compose_manager;
 using foresight::xkb::key_position;
@@ -75,7 +76,7 @@ namespace {
      * - modmap: automatically fetched from get_modmap().
      * - mask:   active modifier mask.
      * - pressed: true for key press, false for key release.
-     * - emit:   callable taking (const struct input_event&).
+     * - emit:   callable taking (const struct user_event&).
      */
     template <typename EmitFunc>
     bool
@@ -83,7 +84,7 @@ namespace {
         auto const &modmap = get_modmap(keymap);
 
         bool        mod_found = false;
-        input_event ev{};
+        foresight::user_event ev{};
         // struct timeval     now{};
         // gettimeofday(&now, nullptr);
 
@@ -334,7 +335,7 @@ void compose_manager::find_first_typing(char32_t const ucs32, handle_event_callb
         bool const requires_mods = kp.mask != 0;
 
         // Prepare a press event
-        input_event const ev_press{
+        user_event const ev_press{
           .type  = EV_KEY,
           .code  = static_cast<std::uint16_t>(evcode),
           .value = 1 // press
@@ -342,14 +343,14 @@ void compose_manager::find_first_typing(char32_t const ucs32, handle_event_callb
         // time can be zeroed (caller can set real timestamps if desired)
 
         // Prepare a release event
-        input_event const ev_release{
+        user_event const ev_release{
           .type  = EV_KEY,
           .code  = static_cast<std::uint16_t>(evcode),
           .value = 0 // release
         };
 
         // SYN_REPORT
-        constexpr input_event ev_syn{.type = EV_SYN, .code = SYN_REPORT, .value = 0};
+        constexpr user_event ev_syn{.type = EV_SYN, .code = SYN_REPORT, .value = 0};
 
         if (requires_mods) {
             // todo: can we cache these results if this function is heavy?
@@ -363,7 +364,7 @@ void compose_manager::find_first_typing(char32_t const ucs32, handle_event_callb
 
             bool mod_found = false;
             if (num_masks > 0) {
-                mod_found |= invoke_mod_events(map->get(), masks.at(0), true, [&](input_event const &event) {
+                mod_found |= invoke_mod_events(map->get(), masks.at(0), true, [&](user_event const &event) {
                     callback(event);
                 });
             }
@@ -382,7 +383,7 @@ void compose_manager::find_first_typing(char32_t const ucs32, handle_event_callb
         if (requires_mods) {
             bool mod_found = false;
             if (num_masks > 0) {
-                mod_found |= invoke_mod_events(map->get(), masks.at(0), false, [&](input_event const &event) {
+                mod_found |= invoke_mod_events(map->get(), masks.at(0), false, [&](user_event const &event) {
                     callback(event);
                 });
             }
