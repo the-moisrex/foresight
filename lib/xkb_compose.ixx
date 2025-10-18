@@ -1,11 +1,13 @@
 // Created by moisrex on 10/13/25.
 
 module;
+#include <functional>
 #include <linux/input.h>
 #include <memory>
 #include <vector>
 #include <xkbcommon/xkbcommon-compose.h>
 export module foresight.lib.xkb.compose;
+import foresight.lib.xkb;
 
 export namespace foresight::xkb {
 
@@ -29,8 +31,11 @@ export namespace foresight::xkb {
      */
     struct compose_manager {
         using keysym_entries_iterator = std::vector<keysym_entry>::iterator;
+        using handle_event_callback   = std::function<void(input_event const &event)> const &;
+        // todo: use std::function_ref instead of std::function
 
-        explicit compose_manager(xkb_context *inp_ctx);
+        explicit compose_manager(keymap::pointer);
+        compose_manager();
 
         /// Load compose table from current locale. Returns false on failure.
         bool load_from_locale();
@@ -47,7 +52,7 @@ export namespace foresight::xkb {
          *
          * The function fills keysym entries vector, and returns true if any positions were found.
          */
-        bool gather_keysym_positions(xkb_keymap *keymap);
+        bool gather_keysym_positions();
 
         [[nodiscard]] std::vector<compose_lhs> const  &composeEntries() const noexcept;
         [[nodiscard]] std::vector<keysym_entry> const &keysymEntries() const noexcept;
@@ -57,25 +62,14 @@ export namespace foresight::xkb {
          * an ordered vector of key_position (each entry corresponds to
          * a physical key press to produce the final symbol).
          */
-        std::vector<key_position> find_first_typing(xkb_keymap *keymap, xkb_keysym_t target_keysym);
+        std::vector<key_position> find_first_typing(xkb_keysym_t target_keysym);
 
         /**
          *  Given a Unicode code point, return a best-effort sequence of Linux input_event
          *  records that type it. The returned vector contains press/release pairs for each key
          *  and intervening SYN_REPORTs.
-         *
-         *  NOTE: This function does a best-effort mapping of xkb keycodes -> evdev codes using
-         *        the conventional X11 offset (evdev = xkb_keycode - 8). If your environment
-         *        uses a different mapping, replace the mapping function below.
-         *
-         *        Modifier masks (key_position::mask) are NOT fully synthesized here. If a
-         *        key_position has non-zero .mask, we emit the main key press/release but
-         *        do NOT press the modifier keys. You should extend this function to:
-         *          - map modifier bit indices -> modifier keycodes (e.g., Shift, AltGr)
-         *          - emit press events for modifiers before the main key,
-         *          - and release them afterward.
          */
-        std::vector<input_event> find_first_typing(xkb_keymap *keymap, char32_t ucs32);
+        void find_first_typing(char32_t ucs32, handle_event_callback callback);
 
       private:
         // Helper to ensure a keysym entry exists in keysym_entries and return pointer
@@ -87,13 +81,13 @@ export namespace foresight::xkb {
         // Add positions for a given keysym by scanning the keymap. This mirrors original
         // add_compose_keysym_entry semantics: for each keycode/layout/level with single
         // keysym equal to keysym, append a key_position (one per mask returned).
-        void add_positions(xkb_keymap *keymap, xkb_keysym_t keysym);
+        void add_positions(xkb_keysym_t keysym);
 
         struct compose_table_deleter {
             void operator()(xkb_compose_table *ptr) const noexcept;
         };
 
-        xkb_context                                              *ctx{nullptr};
+        keymap::pointer                                           map;
         std::unique_ptr<xkb_compose_table, compose_table_deleter> compose_table;
         std::vector<compose_lhs>                                  compose_entries;
         std::vector<keysym_entry>                                 keysym_entries;

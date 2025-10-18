@@ -2,7 +2,9 @@
 
 module;
 #include <array>
+#include <memory>
 #include <string_view>
+#include <utility>
 #include <xkbcommon/xkbcommon-keysyms.h>
 #include <xkbcommon/xkbcommon.h>
 module foresight.lib.xkb;
@@ -23,14 +25,22 @@ namespace {
 
 } // namespace
 
-context::context(xkb_context_flags const flags) : ctx{xkb_context_new(flags)} {
+context::context(private_tag, xkb_context_flags const flags) : ctx{xkb_context_new(flags)} {
     ensure(ctx != nullptr, "Failed to create xkb_context");
+}
+
+context::pointer context::create(xkb_context_flags flags) {
+    return std::make_shared<context>(private_tag{}, flags);
 }
 
 context::~context() noexcept {
     if (ctx != nullptr) {
         xkb_context_unref(ctx);
     }
+}
+
+context::pointer context::getptr() {
+    return shared_from_this();
 }
 
 xkb_context* context::get() const noexcept {
@@ -50,45 +60,73 @@ xkb_log_level context::log_level() const noexcept {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 keymap::keymap(
-  context const& ctx,
-  char const*    rules,
-  char const*    model,
-  char const*    layout,
-  char const*    variant,
-  char const*    options) {
+  private_tag,
+  context::pointer inp_ctx,
+  char const*      rules,
+  char const*      model,
+  char const*      layout,
+  char const*      variant,
+  char const*      options)
+  : ctx{std::move(inp_ctx)} {
     xkb_rule_names names{};
     names.rules   = rules;
     names.model   = model;
     names.layout  = layout;
     names.variant = variant;
     names.options = options;
-    load(ctx, &names);
+    load(&names);
 }
 
-void keymap::load(context const& ctx, xkb_rule_names const* names, xkb_keymap_format const keymap_format) {
+keymap::pointer keymap::create(
+  context::pointer const& inp_ctx,
+  char const*             rules,
+  char const*             model,
+  char const*             layout,
+  char const*             variant,
+  char const*             options) {
+    return std::make_shared<keymap>(private_tag{}, inp_ctx, rules, model, layout, variant, options);
+}
+
+keymap::pointer keymap::create(
+  char const* rules,
+  char const* model,
+  char const* layout,
+  char const* variant,
+  char const* options) {
+    return create(context::create(), rules, model, layout, variant, options);
+}
+
+void keymap::load(xkb_rule_names const* names, xkb_keymap_format const keymap_format) {
     if (handle != nullptr) [[unlikely]] {
         xkb_keymap_unref(handle);
     }
-    handle = xkb_keymap_new_from_names2(ctx.get(), names, keymap_format, XKB_KEYMAP_COMPILE_NO_FLAGS);
+    handle = xkb_keymap_new_from_names2(ctx->get(), names, keymap_format, XKB_KEYMAP_COMPILE_NO_FLAGS);
     ensure(handle != nullptr, "Failed to create xkb_keymap from names");
 }
 
-keymap keymap::from_string(context const& ctx, std::string_view const xml) {
-    xkb_keymap* km = xkb_keymap_new_from_string(
-      ctx.get(),
-      xml.data(),
-      XKB_KEYMAP_FORMAT_TEXT_V2,
-      XKB_KEYMAP_COMPILE_NO_FLAGS);
-    ensure(km != nullptr, "Failed to create xkb_keymap from string");
-    return keymap(km);
+keymap::pointer keymap::from_string(context::pointer const& ctx, std::string_view const xml) {
+    return std::make_shared<keymap>(
+      ctx,
+      xkb_keymap_new_from_buffer(
+        ctx->get(),
+        xml.data(),
+        xml.size(),
+        XKB_KEYMAP_FORMAT_TEXT_V2,
+        XKB_KEYMAP_COMPILE_NO_FLAGS));
 }
 
-keymap::keymap(xkb_keymap* km) : handle{km} {}
+keymap::keymap(context::pointer inp_ctx, xkb_keymap* km) : ctx{std::move(inp_ctx)}, handle{km} {
+    ensure(km != nullptr, "Failed to create xkb_keymap from string");
+}
 
 keymap::~keymap() noexcept {
     if (handle != nullptr) {
         xkb_keymap_unref(handle);
     }
+}
+
+keymap::pointer keymap::getptr() {
+    return shared_from_this();
 }
 
 xkb_keymap* keymap::get() const noexcept {
@@ -101,6 +139,10 @@ xkb_keycode_t keymap::min_keycode() const noexcept {
 
 xkb_keycode_t keymap::max_keycode() const noexcept {
     return xkb_keymap_max_keycode(get());
+}
+
+context::pointer keymap::get_context() const {
+    return ctx;
 }
 
 std::string keymap::as_string() const {

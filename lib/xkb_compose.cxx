@@ -16,7 +16,9 @@ using foresight::xkb::key_position;
 constexpr std::size_t COMPOSE_MAX_LHS_LEN  = 8;
 constexpr std::size_t MAX_TYPE_MAP_ENTRIES = 32;
 
-compose_manager::compose_manager(xkb_context *inp_ctx) : ctx(inp_ctx) {}
+compose_manager::compose_manager(keymap::pointer inp_map) : map{std::move(inp_map)} {}
+
+compose_manager::compose_manager() : compose_manager{keymap::create()} {}
 
 namespace {
     struct ModMapEntry {
@@ -31,7 +33,7 @@ namespace {
      * Lazily builds the map once for the given keymap. No dynamic allocation,
      * no global state mutation, and safe across threads (per C++11 guarantees).
      */
-    inline std::array<ModMapEntry, 5> const &get_modmap(xkb_keymap *keymap) {
+    std::array<ModMapEntry, 5> const &get_modmap(xkb_keymap *keymap) {
         static std::array<ModMapEntry, 5> map{};
         static bool                       initialized = false;
 
@@ -68,7 +70,7 @@ namespace {
     }
 
     /**
-     * Invoke a callable for each modifier event based on an xkb_mod_mask_t.
+     * Invoke a callable for each modifier event based on a xkb_mod_mask_t.
      *
      * - modmap: automatically fetched from get_modmap().
      * - mask:   active modifier mask.
@@ -114,7 +116,8 @@ bool compose_manager::load_from_locale() {
     }
 
     // unique_ptr with custom deleter
-    compose_table.reset(xkb_compose_table_new_from_locale(ctx, locale, XKB_COMPOSE_COMPILE_NO_FLAGS));
+    auto const ctx = map->get_context();
+    compose_table.reset(xkb_compose_table_new_from_locale(ctx->get(), locale, XKB_COMPOSE_COMPILE_NO_FLAGS));
     if (!compose_table) {
         log("Couldn't create compose table from locale");
         return false;
@@ -155,7 +158,7 @@ bool compose_manager::gather_compose_sequences(xkb_keysym_t const target_keysym)
     return true;
 }
 
-bool compose_manager::gather_keysym_positions(xkb_keymap *keymap) {
+bool compose_manager::gather_keysym_positions() {
     keysym_entries.clear();
 
     // For each compose LHS sequence we collected earlier, collect positions
@@ -164,7 +167,7 @@ bool compose_manager::gather_keysym_positions(xkb_keymap *keymap) {
             ensure_keysym_entry_exists(ksym);
 
             // Now find positions in keymap for this keysym
-            add_positions(keymap, ksym);
+            add_positions(ksym);
         }
     }
 
@@ -182,13 +185,11 @@ std::vector<foresight::xkb::keysym_entry> const &compose_manager::keysymEntries(
     return keysym_entries;
 }
 
-std::vector<key_position> compose_manager::find_first_typing(
-  xkb_keymap        *keymap,
-  xkb_keysym_t const target_keysym) {
+std::vector<key_position> compose_manager::find_first_typing(xkb_keysym_t const target_keysym) {
     // 1) Try direct typing first
     // Ensure positions for the target keysym exist
     keysym_entries.clear(); // keep local state consistent
-    add_positions(keymap, target_keysym);
+    add_positions(target_keysym);
     if (auto const direct = find_keysym(target_keysym); direct != keysym_entries.end()) {
         if (!direct->positions.empty()) {
             // Return the first direct position (first-found strategy)
@@ -204,7 +205,7 @@ std::vector<key_position> compose_manager::find_first_typing(
 
     // Collect positions for all keysyms used in the compose sequences
     // This fills keysym_entries_ (used by the cartesian-product search below).
-    gather_keysym_positions(keymap);
+    gather_keysym_positions();
     // If no entries at all, fail
     bool any_positions = false;
     for (auto const &e : keysym_entries) {
@@ -251,14 +252,14 @@ std::vector<key_position> compose_manager::find_first_typing(
                 key_position const &kp = indexes.at(k).entry->positions[indexes.at(k).pos_index];
                 if (fixed_layout
                     == XKB_LAYOUT_INVALID
-                    && xkb_keymap_num_layouts_for_key(keymap, kp.keycode)
+                    && xkb_keymap_num_layouts_for_key(map->get(), kp.keycode)
                     > 1)
                 {
                     fixed_layout = kp.layout;
                 }
                 if (fixed_layout
                     != XKB_LAYOUT_INVALID
-                    && xkb_keymap_num_layouts_for_key(keymap, kp.keycode)
+                    && xkb_keymap_num_layouts_for_key(map->get(), kp.keycode)
                     > 1
                     && kp.layout
                     != fixed_layout)
@@ -301,15 +302,15 @@ std::vector<key_position> compose_manager::find_first_typing(
     return {};
 }
 
-std::vector<input_event> compose_manager::find_first_typing(xkb_keymap *keymap, char32_t const ucs32) {
+void compose_manager::find_first_typing(char32_t const ucs32, handle_event_callback callback) {
     // Convert Unicode -> keysym (uses libxkbcommon helper)
     xkb_keysym_t const ks = xkb_utf32_to_keysym(static_cast<uint32_t>(ucs32));
     if (ks == XKB_KEY_NoSymbol) {
-        return {};
+        return;
     }
 
     // Find first typing method for the keysym
-    auto const positions = find_first_typing(keymap, ks);
+    auto const positions = find_first_typing(ks);
 
     // Helper: naive xkb->evdev mapping using the historical +8 X11 offset
     auto keycode_to_evdev = [](xkb_keycode_t const xkb_k) -> int {
@@ -320,9 +321,6 @@ std::vector<input_event> compose_manager::find_first_typing(xkb_keymap *keymap, 
         return static_cast<int>(xkb_k) - 8;
     };
 
-    std::vector<input_event> events;
-    events.reserve(positions.size() * 4); // rough estimate (press+syn+release+syn)
-
     std::array<xkb_mod_mask_t, MAX_TYPE_MAP_ENTRIES> masks{};
     std::size_t                                      num_masks = 0;
     for (key_position const &kp : positions) {
@@ -330,7 +328,7 @@ std::vector<input_event> compose_manager::find_first_typing(xkb_keymap *keymap, 
         if (evcode < 0) {
             // can't map this key; abort
             log("Warning: can't map xkb keycode {} to evdev code", static_cast<unsigned>(kp.keycode));
-            return {};
+            return;
         }
 
         bool const requires_mods = kp.mask != 0;
@@ -354,8 +352,9 @@ std::vector<input_event> compose_manager::find_first_typing(xkb_keymap *keymap, 
         constexpr input_event ev_syn{.type = EV_SYN, .code = SYN_REPORT, .value = 0};
 
         if (requires_mods) {
+            // todo: can we cache these results if this function is heavy?
             num_masks = xkb_keymap_key_get_mods_for_level(
-              keymap,
+              map->get(),
               kp.keycode,
               kp.layout,
               kp.level,
@@ -364,36 +363,34 @@ std::vector<input_event> compose_manager::find_first_typing(xkb_keymap *keymap, 
 
             bool mod_found = false;
             if (num_masks > 0) {
-                mod_found |= invoke_mod_events(keymap, masks.at(0), true, [&](input_event const &event) {
-                    events.push_back(event);
+                mod_found |= invoke_mod_events(map->get(), masks.at(0), true, [&](input_event const &event) {
+                    callback(event);
                 });
             }
             if (mod_found) {
-                events.push_back(ev_syn);
+                callback(ev_syn);
             }
         }
 
 
-        events.push_back(ev_press);
-        events.push_back(ev_syn);
-        events.push_back(ev_release);
-        events.push_back(ev_syn);
+        callback(ev_press);
+        callback(ev_syn);
+        callback(ev_release);
+        callback(ev_syn);
 
         // release the evs
         if (requires_mods) {
             bool mod_found = false;
             if (num_masks > 0) {
-                mod_found |= invoke_mod_events(keymap, masks.at(0), false, [&](input_event const &event) {
-                    events.push_back(event);
+                mod_found |= invoke_mod_events(map->get(), masks.at(0), false, [&](input_event const &event) {
+                    callback(event);
                 });
             }
             if (mod_found) {
-                events.push_back(ev_syn);
+                callback(ev_syn);
             }
         }
     }
-
-    return events;
 }
 
 compose_manager::keysym_entries_iterator compose_manager::ensure_keysym_entry_exists(
@@ -413,22 +410,22 @@ compose_manager::keysym_entries_iterator compose_manager::find_keysym(xkb_keysym
     });
 }
 
-void compose_manager::add_positions(xkb_keymap *keymap, xkb_keysym_t const keysym) {
+void compose_manager::add_positions(xkb_keysym_t const keysym) {
     auto const entry = ensure_keysym_entry_exists(keysym);
 
-    xkb_keycode_t const min_keycode = xkb_keymap_min_keycode(keymap);
-    xkb_keycode_t const max_keycode = xkb_keymap_max_keycode(keymap);
+    xkb_keycode_t const min_keycode = xkb_keymap_min_keycode(map->get());
+    xkb_keycode_t const max_keycode = xkb_keymap_max_keycode(map->get());
 
     // We'll keep track of (keycode, layout) we already added for deduping of lower levels
     for (xkb_keycode_t keycode = min_keycode; keycode <= max_keycode; ++keycode) {
-        char const *keyname = xkb_keymap_key_get_name(keymap, keycode);
+        char const *keyname = xkb_keymap_key_get_name(map->get(), keycode);
         if (keyname == nullptr) {
             continue;
         }
 
-        xkb_layout_index_t const num_layouts = xkb_keymap_num_layouts_for_key(keymap, keycode);
+        xkb_layout_index_t const num_layouts = xkb_keymap_num_layouts_for_key(map->get(), keycode);
         for (xkb_layout_index_t layout = 0; layout < num_layouts; ++layout) {
-            xkb_level_index_t const num_levels = xkb_keymap_num_levels_for_key(keymap, keycode, layout);
+            xkb_level_index_t const num_levels = xkb_keymap_num_levels_for_key(map->get(), keycode, layout);
 
             // keep track of which keysyms we have seen on lower levels of this key/layout
             std::vector<xkb_keysym_t> seen_syms;
@@ -436,7 +433,7 @@ void compose_manager::add_positions(xkb_keymap *keymap, xkb_keysym_t const keysy
 
             for (xkb_level_index_t level = 0; level < num_levels; ++level) {
                 xkb_keysym_t const *syms = nullptr;
-                int const nsyms = xkb_keymap_key_get_syms_by_level(keymap, keycode, layout, level, &syms);
+                int const nsyms = xkb_keymap_key_get_syms_by_level(map->get(), keycode, layout, level, &syms);
 
                 if (nsyms != 1) {
                     continue;              // only care about single keysym per level
@@ -463,7 +460,7 @@ void compose_manager::add_positions(xkb_keymap *keymap, xkb_keysym_t const keysy
                 // Found keysym at this keycode/layout/level, collect masks
                 std::array<xkb_mod_mask_t, MAX_TYPE_MAP_ENTRIES> masks{};
                 auto const                                       n_masks = xkb_keymap_key_get_mods_for_level(
-                  keymap,
+                  map->get(),
                   keycode,
                   layout,
                   level,

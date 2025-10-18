@@ -1,6 +1,7 @@
 #include "./common/tests_common_pch.hpp"
 
 #include <linux/input-event-codes.h>
+#include <linux/input.h>
 #include <xkbcommon/xkbcommon-compose.h>
 
 import foresight.lib.xkb;
@@ -11,12 +12,10 @@ using foresight::xkb::context;
 using foresight::xkb::keymap;
 
 TEST(XKB, Basic) {
-    context const   ctx;
-    keymap const    map{ctx};
-    compose_manager manager{ctx.get()};
+    compose_manager manager;
     manager.load_from_locale();
-    auto const vec           = manager.find_first_typing(map.get(), U'A');
-    EXPECT_EQ(vec.size(), 8);
-    EXPECT_EQ(vec.front().code, KEY_LEFTSHIFT);
-    EXPECT_EQ(vec.at(2).code, KEY_A);
+    manager.find_first_typing(U'A', [](input_event const& event) {
+        EXPECT_EQ(event.code, KEY_LEFTSHIFT);
+        EXPECT_EQ(event.code, KEY_A);
+    });
 }
