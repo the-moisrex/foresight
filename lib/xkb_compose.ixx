@@ -78,8 +78,7 @@ export namespace foresight::xkb {
         // Find keysym entries (non-const pointer)
         keysym_entries_iterator find_keysym(xkb_keysym_t keysym) noexcept;
 
-        // Add positions for a given keysym by scanning the keymap. This mirrors original
-        // add_compose_keysym_entry semantics: for each keycode/layout/level with single
+        // Add positions for a given keysym by scanning the keymap. For each keycode/layout/level with single
         // keysym equal to keysym, append a key_position (one per mask returned).
         void add_positions(xkb_keysym_t keysym);
 

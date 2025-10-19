@@ -221,7 +221,6 @@ std::vector<key_position> compose_manager::find_first_typing(xkb_keysym_t const 
 
     // For each compose LHS entry, try to find the first reachable product combination
     for (auto const &lhs : compose_entries) {
-        // prepare indexes as in the original algorithm
         struct IndexWrap {
             std::size_t             pos_index;
             keysym_entries_iterator entry;
