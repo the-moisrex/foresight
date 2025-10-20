@@ -6,6 +6,7 @@ module;
 export module foresight.mods.typer;
 import foresight.mods.context;
 import foresight.mods.event;
+import foresight.lib.xkb.compose;
 
 namespace foresight {
 
@@ -15,6 +16,24 @@ namespace foresight {
      * @returns invalid_user_event when the string is wrong.
      */
     // user_event parse_next_event (typer_iterator& pos, typer_iterator  endp) noexcept;
+
+    // /**
+    //  * This struct will help you emit events corresponding to a string
+    //  */
+    // constexpr struct [[nodiscard]] basic_typist {
+    //   private:
+    //     xkb::compose_manager mgr;
+    //
+    //   public:
+    //
+    //     void emit(std::string_view str) {
+    //         // todo
+    //     }
+    //
+    //     void operator()(Context auto& ctx) noexcept {
+    //
+    //     }
+    // } typist;
 
     // struct [[nodiscard]] basic_typer {
     //     private:
