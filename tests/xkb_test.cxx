@@ -5,7 +5,7 @@
 #include <xkbcommon/xkbcommon-compose.h>
 
 import foresight.lib.xkb;
-import foresight.lib.xkb.compose;
+import foresight.lib.xkb.how2type;
 import foresight.mods.event;
 
 using foresight::user_event;

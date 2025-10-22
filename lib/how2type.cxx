@@ -7,7 +7,7 @@ module;
 #include <ranges>
 #include <vector>
 #include <xkbcommon/xkbcommon.h>
-module foresight.lib.xkb.compose;
+module foresight.lib.xkb.how2type;
 import foresight.main.log;
 import foresight.mods.event;
 

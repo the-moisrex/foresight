@@ -4,7 +4,7 @@ module;
 #include <functional>
 #include <memory>
 #include <xkbcommon/xkbcommon.h>
-export module foresight.lib.xkb.compose;
+export module foresight.lib.xkb.how2type;
 import foresight.lib.xkb;
 import foresight.mods.event;
 
@@ -26,6 +26,11 @@ export namespace foresight::xkb {
         // todo: use std::function_ref instead of std::function
 
         explicit how2type(keymap::pointer);
+        how2type(how2type const &)                = default;
+        how2type(how2type &&)                     = default;
+        how2type &operator=(how2type const &)     = default;
+        how2type &operator=(how2type &&) noexcept = default;
+        ~how2type()                               = default;
 
         how2type() : how2type{keymap::create()} {}
 
@@ -44,6 +49,7 @@ export namespace foresight::xkb {
         void find_first_typing(char32_t ucs32, handle_event_callback callback);
 
         void how(std::u32string_view str, handle_event_callback callback);
+
       private:
         // For each keycode/layout/level with single keysym equal to keysym, call the callback with the
         // key_position (one per mask returned).

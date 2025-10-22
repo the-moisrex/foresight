@@ -1,63 +1,39 @@
 // Created by moisrex on 10/11/25.
 
 module;
-#include <stdexcept>
+#include <optional>
 #include <string_view>
+#include <vector>
 export module foresight.mods.typer;
 import foresight.mods.context;
 import foresight.mods.event;
-import foresight.lib.xkb.compose;
+import foresight.lib.xkb.how2type;
 
 namespace foresight {
 
-    using typer_iterator = std::string_view::const_iterator;
-
     /**
-     * @returns invalid_user_event when the string is wrong.
+     * This struct will help you emit events corresponding to a string
      */
-    // user_event parse_next_event (typer_iterator& pos, typer_iterator  endp) noexcept;
+    export constexpr struct [[nodiscard]] basic_typist {
+      private:
+        // we ust optional to make `constexpr` possible
+        std::optional<xkb::how2type> typer = std::nullopt;
+        std::vector<user_event>      events;
 
-    // /**
-    //  * This struct will help you emit events corresponding to a string
-    //  */
-    // constexpr struct [[nodiscard]] basic_typist {
-    //   private:
-    //     xkb::compose_manager mgr;
-    //
-    //   public:
-    //
-    //     void emit(std::string_view str) {
-    //         // todo
-    //     }
-    //
-    //     void operator()(Context auto& ctx) noexcept {
-    //
-    //     }
-    // } typist;
+      public:
+        constexpr basic_typist()                                   = default;
+        constexpr basic_typist(basic_typist const&)                = default;
+        constexpr basic_typist(basic_typist&&) noexcept            = default;
+        constexpr basic_typist& operator=(basic_typist const&)     = default;
+        constexpr basic_typist& operator=(basic_typist&&) noexcept = default;
+        constexpr ~basic_typist()                                  = default;
 
-    // struct [[nodiscard]] basic_typer {
-    //     private:
-    //     std::string_view evstr; // event string
-    //
-    //   public:
-    //     explicit consteval basic_typer(std::string_view const inp_evstr) noexcept : evstr{inp_evstr} {}
-    //
-    //     constexpr basic_typer() noexcept                        = default;
-    //     constexpr basic_typer(basic_typer&&)                     = default;
-    //     constexpr basic_typer(basic_typer const&) noexcept       = default;
-    //     constexpr basic_typer& operator=(basic_typer const&)     = default;
-    //     constexpr basic_typer& operator=(basic_typer&&) noexcept = default;
-    //     constexpr ~basic_typer()                                = default;
-    //
-    //     void operator()(Context auto& ctx) noexcept {
-    //         typer_iterator const endp = evstr.end();
-    //         for (typer_iterator pos = evstr.begin(); pos != endp ;) {
-    //             auto const cur_event = parse_next_event(pos, endp);
-    //             if (is_invalid(cur_event)) [[unlikely]] {
-    //                 break;
-    //             }
-    //             std::ignore = ctx.fork_emit(cur_event);
-    //         }
-    //     }
-    // };
+        void emit(std::u32string_view str);
+
+        void operator()(Context auto& ctx) noexcept {
+            for (user_event const& event : events) {
+                std::ignore = ctx.fork_emit(event_type{event});
+            }
+        }
+    } typist;
 } // namespace foresight
