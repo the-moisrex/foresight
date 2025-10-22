@@ -320,4 +320,8 @@ export namespace foresight {
     [[nodiscard]] constexpr bool is_syn(event_type const& event) noexcept {
         return event.type() == EV_SYN;
     }
+
+    [[nodiscard]] constexpr bool is_syn(user_event const& event) noexcept {
+        return event.type == EV_SYN;
+    }
 } // namespace foresight

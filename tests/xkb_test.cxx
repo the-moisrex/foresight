@@ -28,3 +28,14 @@ TEST(XKB, Basic) {
     EXPECT_EQ(vec.front().code, KEY_LEFTSHIFT);
     EXPECT_EQ(vec.at(2).code, KEY_A);
 }
+
+TEST(XKB, BasicStringU32) {
+    constexpr std::array<std::uint16_t, 6> codes{KEY_A, KEY_A, KEY_B, KEY_B, KEY_C, KEY_C};
+    how2type                               typer{};
+    typer.how(U"ABC", [&, index = 0](user_event const& event) mutable {
+        if (is_syn(event) || event.code == KEY_LEFTSHIFT) {
+            return;
+        }
+        EXPECT_EQ(event.code, codes.at(index++));
+    });
+}

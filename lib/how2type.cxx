@@ -19,7 +19,6 @@ constexpr std::size_t MAX_TYPE_MAP_ENTRIES = 32;
 
 how2type::how2type(keymap::pointer inp_map) : map{std::move(inp_map)} {}
 
-
 namespace {
     struct modifier_map_entry {
         xkb_mod_index_t index;
@@ -35,7 +34,7 @@ namespace {
      */
     std::array<modifier_map_entry, 5> const &get_modmap(xkb_keymap *keymap) {
         static std::array<modifier_map_entry, 5> map{};
-        static bool                       initialized = false;
+        static bool                              initialized = false;
 
         if (!initialized) {
             map[0].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_SHIFT);
@@ -108,7 +107,6 @@ namespace {
 
 
 } // namespace
-
 
 void how2type::on_keysym(xkb_keysym_t const target_keysym, handle_keysym_callback callback) noexcept {
     bool done = false;
@@ -212,6 +210,12 @@ void how2type::find_first_typing(char32_t const ucs32, handle_event_callback cal
             }
         }
     });
+}
+
+void how2type::how(std::u32string_view const str, handle_event_callback callback) {
+    for (char32_t const ucs32 : str) {
+        find_first_typing(ucs32, callback);
+    }
 }
 
 bool how2type::on_keypos(xkb_keysym_t const keysym, handle_keysym_callback callback) {

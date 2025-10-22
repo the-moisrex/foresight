@@ -43,6 +43,7 @@ export namespace foresight::xkb {
          */
         void find_first_typing(char32_t ucs32, handle_event_callback callback);
 
+        void how(std::u32string_view str, handle_event_callback callback);
       private:
         // For each keycode/layout/level with single keysym equal to keysym, call the callback with the
         // key_position (one per mask returned).
