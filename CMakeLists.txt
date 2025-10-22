@@ -78,7 +78,7 @@ target_sources(${LIB_NAME}
         mods/momentum.cxx
         mods/typer.cxx
         lib/xkb.cxx
-        lib/xkb_compose.cxx
+        lib/how2type.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         main/main.ixx
         main/utils.ixx
@@ -111,7 +111,7 @@ target_sources(${LIB_NAME}
         mods/mods.ixx
         utils/easings.ixx
         lib/xkb.ixx
-        lib/xkb_compose.ixx
+        lib/how2type.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)
 set_target_properties(${LIB_NAME} PROPERTIES

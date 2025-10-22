@@ -8,8 +8,8 @@ import foresight.lib.xkb;
 import foresight.lib.xkb.compose;
 import foresight.mods.event;
 
-using foresight::xkb::compose_manager;
 using foresight::user_event;
+using foresight::xkb::how2type;
 
 namespace {
     template <typename Obj, typename... Args>
@@ -23,8 +23,7 @@ namespace {
 } // namespace
 
 TEST(XKB, Basic) {
-    compose_manager manager;
-    manager.load_from_locale();
+    how2type   manager{};
     auto const vec = to_vector(manager, U'A');
     EXPECT_EQ(vec.front().code, KEY_LEFTSHIFT);
     EXPECT_EQ(vec.at(2).code, KEY_A);
