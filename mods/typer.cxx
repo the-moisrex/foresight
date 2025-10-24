@@ -177,7 +177,7 @@ namespace {
 
     // No allocations, simple hash+compare lookup
     [[nodiscard]] constexpr user_event convert_modifier(std::u32string_view const str) noexcept {
-        if (str.empty()) {
+        if (str.empty()) [[unlikely]] {
             return foresight::invalid_user_event;
         }
 
@@ -269,18 +269,58 @@ namespace {
             if (icontains_simple_prefix(possible, U"left")) {
                 auto const remainder = possible.substr(4);
                 auto const hr        = ci_hash(remainder);
-                for (auto const &e : mod_table) {
-                    if (e.hash != hr) {
+                for (auto const &[key, hash, ev] : mod_table) {
+                    if (hash != hr) {
                         continue;
                     }
-                    if (iequals(e.key, remainder)) {
-                        return e.ev;
+                    if (iequals(key, remainder)) {
+                        return ev;
                     }
                 }
             }
         }
 
         [[unlikely]] { return foresight::invalid_user_event; }
+    }
+
+    constexpr std::size_t
+    find_delim(std::u32string_view str, char32_t const delim, std::size_t const pos = 0) noexcept {
+        auto lhsptr = str.find(delim, pos);
+        while (lhsptr != 0 && str.at(lhsptr - 1) != U'\\') {
+            // skip the escaped ones
+            lhsptr = str.find(delim, lhsptr + 1);
+        }
+        return lhsptr;
+    }
+
+    struct [[nodiscard]] modifier_info {
+        std::u32string_view mod_str;
+        std::u32string_view key_str;
+        bool                is_release   = false;
+        bool                is_monotonic = false;
+    };
+
+    constexpr modifier_info parse_mod(std::u32string_view mod_str) noexcept {
+        bool const    is_release   = mod_str.starts_with(U'/');
+        auto const    dash_start   = mod_str.find(U'-');
+        bool const    is_monotonic = !is_release && dash_start != std::u32string_view::npos;
+        modifier_info info{.mod_str      = {},
+                           .key_str      = {},
+                           .is_release   = is_release,
+                           .is_monotonic = is_monotonic};
+
+        // handling </shift> or </ctrl>
+        if (is_release) {
+            mod_str.remove_prefix(1);
+        }
+
+        auto const mod_substr = mod_str.substr(0, dash_start);
+        info.mod_str          = mod_substr;
+        if (!is_monotonic) {
+            auto const key_str = mod_str.substr(dash_start + 1);
+            info.key_str       = key_str;
+        }
+        return info;
     }
 
 } // namespace
@@ -291,28 +331,41 @@ void foresight::basic_typist::emit(std::u32string_view str) {
         typer = std::make_optional<xkb::how2type>();
     }
 
+    auto const emit_event = [&](user_event const &event) {
+        events.emplace_back(event);
+    };
+
     while (!str.empty()) {
-        // 1. first find the modifiers in the string
-        auto lhsptr = str.find('<');
-        while (lhsptr != 0 && str.at(lhsptr - 1) != U'\\') {
-            // skip the escaped ones
-            lhsptr = str.find('<', lhsptr + 1);
-        }
-        auto const rhsptr = str.find('>', lhsptr);
+        // 1. find the first modifier:
+        auto const lhsptr = find_delim(str, U'<');
+        auto const rhsptr = find_delim(str, U'>', lhsptr);
         auto const lhs    = str.substr(0, lhsptr);
         auto const rhs    = str.substr(lhsptr + 1, rhsptr - lhsptr - 1);
 
-        // 2. convert the string into events:
-        typer->how(lhs, [&](user_event const &event) {
-            events.emplace_back(event);
-        });
+        // 2. parse the modifier string if any:
+        auto const info = parse_mod(rhs);
+        auto const mod  = convert_modifier(info.mod_str);
 
         // 3. convert the modifiers as well:
-        auto const mod = convert_modifier(rhs);
         if (mod == invalid_user_event) [[unlikely]] {
-            throw std::invalid_argument("Invalid modifier (shift/ctrl/...) found.");
+            auto const both = str.substr(0, rhsptr + 1);
+            this->typer->how(both, emit_event);
+        } else {
+            // emit the events:
+            this->typer->how(lhs, emit_event);
+            if (info.is_release) {
+                auto mod_released  = auto{mod};
+                mod_released.value = 0;
+                emit_event(mod_released);
+            } else if (info.is_monotonic) {
+                emit_event(mod);
+                auto mod_released  = auto{mod};
+                mod_released.value = 0;
+                emit_event(mod_released);
+            } else {
+                emit_event(mod);
+            }
         }
-        events.emplace_back(mod);
 
         // 4. remove the already processed string:
         str.remove_prefix(rhsptr);
