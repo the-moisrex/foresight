@@ -49,25 +49,30 @@ namespace {
         return std::ranges::equal(lhs, rhs, {}, to_lower, to_lower);
     }
 
-    // Case-insensitive FNV-1a hash (operates on char32_t, folds ASCII A-Z->a-z while hashing)
-    [[nodiscard]] constexpr std::uint64_t ci_hash(std::u32string_view const s) noexcept {
-        constexpr std::uint64_t offset_basis = 14'695'981'039'346'656'037ull;
-        constexpr std::uint64_t prime        = 1'099'511'628'211ull;
-        std::uint64_t           h            = offset_basis;
-        for (char32_t const ch : s) {
-            char32_t c = ch;
+    // 32-bit FNV-1a constants
+    constexpr uint32_t FNV1A_32_INIT  = 0x811C'9DC5U;
+    constexpr uint32_t FNV1A_32_PRIME = 0x0100'0193U;
+
+    // 64-bit FNV-1a constants
+    [[maybe_unused]] constexpr uint64_t FNV1A_64_INIT  = 0xCBF2'9CE4'8422'2325ULL;
+    [[maybe_unused]] constexpr uint64_t FNV1A_64_PRIME = 0x100'0000'01B3ULL;
+
+    /**
+     * Byte Hashing - FNV-1a
+     * Case-insensitive FNV-1a hash (operates on char32_t, folds ASCII A-Z->a-z while hashing)
+     * std::hash<std::uint32_string_view> is not constexpr, so we implement our own.
+     * http://www.isthe.com/chongo/tech/comp/fnv/
+     */
+    [[nodiscard]] constexpr std::uint32_t ci_hash(std::u32string_view const src) noexcept {
+        std::uint32_t hash = FNV1A_32_INIT;
+        for (char32_t c : src) {
             if (c >= U'A' && c <= U'Z') {
                 c = c + (U'a' - U'A');
             }
-            // mix the 32-bit char into the 64-bit hash as 4 separate bytes (stable)
-            auto const val = static_cast<std::uint32_t>(c);
-            for (int byte = 0; byte < 4; ++byte) {
-                unsigned char b  = static_cast<unsigned char>((val >> (byte * 8)) & 0xFFu);
-                h               ^= static_cast<std::uint64_t>(b);
-                h               *= prime;
-            }
+            hash ^= static_cast<std::uint32_t>(c);
+            hash *= FNV1A_32_PRIME;
         }
-        return h;
+        return hash;
     }
 
     // tiny helper to check prefix "left"/"right" in ASCII-only case-insensitive fashion
@@ -92,86 +97,87 @@ namespace {
         return true;
     }
 
-    struct ModEntry {
-        std::u32string_view key;  // must refer to a static literal (we use U"...")
-        std::uint64_t       hash; // precomputed ci_hash(key)
+    struct mod_entry {
+        std::u32string_view key;      // must refer to a static literal (we use U"...")
         user_event          ev;
+        std::uint32_t       hash = 0; // precomputed ci_hash(key)
     };
 
     // Table of known names/synonyms. Add entries here as needed.
     // NOTE: keep keys lowercase where possible for readability — hash is case-insensitive anyway.
-    constexpr std::array<ModEntry, 53> mod_table = []() constexpr {
-        // We can't use a dynamic initializer size easily in constexpr lambda,
-        // so create a temporary array with the exact number of entries.
-
+    constexpr std::array<mod_entry, 53> mod_table = []() consteval {
         // NOLINTBEGIN(*-use-designated-initializers)
-        return std::array<ModEntry, 53>{
+        std::array<mod_entry, 53> data{
           {// SHIFT
-           {U"shift", ci_hash(U"shift"), foresight::left_shift},
-           {U"sh", ci_hash(U"sh"), foresight::left_shift},
-           {U"s", ci_hash(U"s"), foresight::left_shift},
-           {U"+", ci_hash(U"+"), foresight::left_shift},
-           {U"⇧", ci_hash(U"⇧"), foresight::left_shift},
-           {U"leftshift", ci_hash(U"leftshift"), foresight::left_shift},
-           {U"rightshift", ci_hash(U"rightshift"), foresight::right_shift},
-           {U"rshift", ci_hash(U"rshift"), foresight::right_shift},
-           {U"lshift", ci_hash(U"lshift"), foresight::left_shift},
+           {U"shift", foresight::left_shift},
+           {U"sh", foresight::left_shift},
+           {U"s", foresight::left_shift},
+           {U"+", foresight::left_shift},
+           {U"⇧", foresight::left_shift},
+           {U"leftshift", foresight::left_shift},
+           {U"rightshift", foresight::right_shift},
+           {U"rshift", foresight::right_shift},
+           {U"lshift", foresight::left_shift},
 
            // CTRL
-           {U"ctrl", ci_hash(U"ctrl"), foresight::left_ctrl},
-           {U"control", ci_hash(U"control"), foresight::left_ctrl},
-           {U"ctl", ci_hash(U"ctl"), foresight::left_ctrl},
-           {U"c", ci_hash(U"c"), foresight::left_ctrl},
-           {U"^", ci_hash(U"^"), foresight::left_ctrl},
-           {U"⌃", ci_hash(U"⌃"), foresight::left_ctrl},
-           {U"leftctrl", ci_hash(U"leftctrl"), foresight::left_ctrl},
-           {U"rightctrl", ci_hash(U"rightctrl"), foresight::right_ctrl},
-           {U"rctrl", ci_hash(U"rctrl"), foresight::right_ctrl},
-           {U"lctrl", ci_hash(U"lctrl"), foresight::left_ctrl},
+           {U"ctrl", foresight::left_ctrl},
+           {U"control", foresight::left_ctrl},
+           {U"ctl", foresight::left_ctrl},
+           {U"c", foresight::left_ctrl},
+           {U"^", foresight::left_ctrl},
+           {U"⌃", foresight::left_ctrl},
+           {U"leftctrl", foresight::left_ctrl},
+           {U"rightctrl", foresight::right_ctrl},
+           {U"rctrl", foresight::right_ctrl},
+           {U"lctrl", foresight::left_ctrl},
 
            // META / CMD / SUPER / WIN
-           {U"meta", ci_hash(U"meta"), foresight::left_meta},
-           {U"cmd", ci_hash(U"cmd"), foresight::left_meta},
-           {U"command", ci_hash(U"command"), foresight::left_meta},
-           {U"super", ci_hash(U"super"), foresight::left_meta},
-           {U"win", ci_hash(U"win"), foresight::left_meta},
-           {U"windows", ci_hash(U"windows"), foresight::left_meta},
-           {U"⊞", ci_hash(U"⊞"), foresight::left_meta},
-           {U"⌘", ci_hash(U"⌘"), foresight::left_meta},
-           {U"leftmeta", ci_hash(U"leftmeta"), foresight::left_meta},
-           {U"rightmeta", ci_hash(U"rightmeta"), foresight::right_meta},
+           {U"meta", foresight::left_meta},
+           {U"cmd", foresight::left_meta},
+           {U"command", foresight::left_meta},
+           {U"super", foresight::left_meta},
+           {U"win", foresight::left_meta},
+           {U"windows", foresight::left_meta},
+           {U"⊞", foresight::left_meta},
+           {U"⌘", foresight::left_meta},
+           {U"leftmeta", foresight::left_meta},
+           {U"rightmeta", foresight::right_meta},
 
            // ALT / OPTION / ALTGR
-           {U"alt", ci_hash(U"alt"), foresight::left_alt},
-           {U"option", ci_hash(U"option"), foresight::left_alt},
-           {U"opt", ci_hash(U"opt"), foresight::left_alt},
-           {U"a", ci_hash(U"a"), foresight::left_alt},
-           {U"⌥", ci_hash(U"⌥"), foresight::left_alt},
-           {U"altgr", ci_hash(U"altgr"), foresight::right_alt},
-           {U"alt-gr", ci_hash(U"alt-gr"), foresight::right_alt},
-           {U"leftalt", ci_hash(U"leftalt"), foresight::left_alt},
-           {U"rightalt", ci_hash(U"rightalt"), foresight::right_alt},
+           {U"alt", foresight::left_alt},
+           {U"option", foresight::left_alt},
+           {U"opt", foresight::left_alt},
+           {U"a", foresight::left_alt},
+           {U"⌥", foresight::left_alt},
+           {U"altgr", foresight::right_alt},
+           {U"alt-gr", foresight::right_alt},
+           {U"leftalt", foresight::left_alt},
+           {U"rightalt", foresight::right_alt},
 
            // LOCKS
-           {U"caps", ci_hash(U"caps"), foresight::capslock},
-           {U"capslock", ci_hash(U"capslock"), foresight::capslock},
-           {U"num", ci_hash(U"num"), foresight::numlock},
-           {U"numlock", ci_hash(U"numlock"), foresight::numlock},
-           {U"scroll", ci_hash(U"scroll"), foresight::scrolllock},
-           {U"scrolllock", ci_hash(U"scrolllock"), foresight::scrolllock},
+           {U"caps", foresight::capslock},
+           {U"capslock", foresight::capslock},
+           {U"num", foresight::numlock},
+           {U"numlock", foresight::numlock},
+           {U"scroll", foresight::scrolllock},
+           {U"scrolllock", foresight::scrolllock},
 
            // XKB-style mod names
-           {U"mod1", ci_hash(U"mod1"), foresight::left_alt},
-           {U"mod2", ci_hash(U"mod2"), foresight::left_alt},
-           {U"mod3", ci_hash(U"mod3"), foresight::left_alt},
-           {U"mod4", ci_hash(U"mod4"), foresight::left_meta},
-           {U"mod5", ci_hash(U"mod5"), foresight::left_alt},
+           {U"mod1", foresight::left_alt},
+           {U"mod2", foresight::left_alt},
+           {U"mod3", foresight::left_alt},
+           {U"mod4", foresight::left_meta},
+           {U"mod5", foresight::left_alt},
 
            // some combined/alternate spellings
-           {U"altgr", ci_hash(U"altgr"), foresight::right_alt},
-           {U"optionkey", ci_hash(U"optionkey"), foresight::left_alt},
-           {U"controlkey", ci_hash(U"controlkey"), foresight::left_ctrl}}
+           {U"altgr", foresight::right_alt},
+           {U"optionkey", foresight::left_alt},
+           {U"controlkey", foresight::left_ctrl}}
         };
+        for (auto &field : data) {
+            field.hash = ci_hash(field.key);
+        }
+        return data;
         // NOLINTEND(*-use-designated-initializers)
     }();
 
@@ -183,10 +189,10 @@ namespace {
             return foresight::invalid_user_event;
         }
 
-        std::uint64_t const hid = ci_hash(str);
+        auto const hid = ci_hash(str);
 
         // probe over table entries, hash-first to avoid expensive compares
-        for (auto const &[key, hash, ev] : mod_table) {
+        for (auto const &[key, ev, hash] : mod_table) {
             if (hash != hid) {
                 continue;  // cheap filter
             }
@@ -206,7 +212,7 @@ namespace {
         if (first == U'r' || first == U'R' || first == U'l' || first == U'L') {
             auto const remainder = str.substr(1);
             auto const hr        = ci_hash(remainder);
-            for (auto const &[key, hash, ev] : mod_table) {
+            for (auto const &[key, ev, hash] : mod_table) {
                 if (hash != hr) {
                     continue;
                 }
@@ -245,7 +251,7 @@ namespace {
             if (icontains_simple_prefix(possible, U"right")) {
                 auto const remainder = possible.substr(5);
                 auto const hr        = ci_hash(remainder);
-                for (auto const &[key, hash, ev] : mod_table) {
+                for (auto const &[key, ev, hash] : mod_table) {
                     if (hash != hr) {
                         continue;
                     }
@@ -271,7 +277,7 @@ namespace {
             if (icontains_simple_prefix(possible, U"left")) {
                 auto const remainder = possible.substr(4);
                 auto const hr        = ci_hash(remainder);
-                for (auto const &[key, hash, ev] : mod_table) {
+                for (auto const &[key, ev, hash] : mod_table) {
                     if (hash != hr) {
                         continue;
                     }
@@ -308,7 +314,7 @@ namespace {
         while (pos < input.size()) {
             if (input[pos] != U'<') {
                 // Single key token
-                char32_t   c   = input[pos++];
+                auto const c   = input[pos++];
                 user_event key = convert_key({&c, 1});
                 if (key.type == 0) {
                     return false; // Invalid key
@@ -387,7 +393,7 @@ namespace {
     }
 
     // The main function that routes the parsing to sub-parsers
-    constexpr bool parse_mod(std::u32string_view mod_str, auto& callback) noexcept {
+    constexpr bool parse_mod(std::u32string_view mod_str, auto &callback) noexcept {
         bool const is_release   = mod_str.starts_with(U'/');
         auto const dash_start   = mod_str.find(U'-');
         bool const is_monotonic = !is_release && dash_start != std::u32string_view::npos;
