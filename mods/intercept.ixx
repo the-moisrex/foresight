@@ -6,7 +6,7 @@ module;
 #include <span>
 #include <vector>
 export module foresight.mods.intercept;
-import foresight.evdev;
+import foresight.devices.evdev;
 import foresight.mods.context;
 import foresight.main.utils;
 

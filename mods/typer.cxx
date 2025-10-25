@@ -71,13 +71,13 @@ namespace {
     }
 
     // tiny helper to check prefix "left"/"right" in ASCII-only case-insensitive fashion
-    [[nodiscard]] constexpr bool icontains_simple_prefix(std::u32string_view s,
-                                                         std::u32string_view prefix) noexcept {
-        if (s.size() < prefix.size()) {
+    [[nodiscard]] constexpr bool icontains_simple_prefix(std::u32string_view const src,
+                                                         std::u32string_view const prefix) noexcept {
+        if (src.size() < prefix.size()) {
             return false;
         }
         for (size_t i = 0; i < prefix.size(); ++i) {
-            char32_t a = s[i];
+            char32_t a = src[i];
             char32_t b = prefix[i];
             if (a >= U'A' && a <= U'Z') {
                 a = a + (U'a' - U'A');
@@ -176,6 +176,8 @@ namespace {
     }();
 
     // No allocations, simple hash+compare lookup
+    // The provided convert_modifier function (assumed to return user_event with type=EV_KEY, appropriate
+    // code, value=0)
     [[nodiscard]] constexpr user_event convert_modifier(std::u32string_view const str) noexcept {
         if (str.empty()) [[unlikely]] {
             return foresight::invalid_user_event;
@@ -293,21 +295,102 @@ namespace {
         return lhsptr;
     }
 
-    struct [[nodiscard]] modifier_info {
-        std::u32string_view mod_str;
-        std::u32string_view key_str;
-        bool                is_release   = false;
-        bool                is_monotonic = false;
-    };
+    // Helper to convert key names or single characters to user_event (with value=0)
+    [[nodiscard]] constexpr user_event convert_key(std::u32string_view str) noexcept {
+        // todo
+        return {};
+    }
 
-    constexpr modifier_info parse_mod(std::u32string_view mod_str) noexcept {
-        bool const    is_release   = mod_str.starts_with(U'/');
-        auto const    dash_start   = mod_str.find(U'-');
-        bool const    is_monotonic = !is_release && dash_start != std::u32string_view::npos;
-        modifier_info info{.mod_str      = {},
-                           .key_str      = {},
-                           .is_release   = is_release,
-                           .is_monotonic = is_monotonic};
+    bool parse_and_emit_keys(std::u32string_view input, void (*callback)(user_event const &)) noexcept {
+        bool   emitted = false;
+        size_t pos     = 0;
+
+        while (pos < input.size()) {
+            if (input[pos] != U'<') {
+                // Single key token
+                char32_t   c   = input[pos++];
+                user_event key = convert_key({&c, 1});
+                if (key.type == 0) {
+                    return false; // Invalid key
+                }
+                key.value = 1;
+                callback(key);
+                key.value = 0;
+                callback(key);
+                emitted = true;
+            } else {
+                // Parse <...> token
+                ++pos;
+                size_t                    start = pos;
+                std::array<user_event, 6> mods{};
+                size_t                    mod_count = 0;
+
+                while (pos < input.size() && input[pos] != U'>') {
+                    if (input[pos] == U'-') {
+                        std::u32string_view mod_str = input.substr(start, pos - start);
+                        user_event          mod_ev  = convert_modifier(mod_str);
+                        if (mod_ev.type == 0) {
+                            return false; // Invalid modifier
+                        }
+                        if (mod_count >= mods.size()) {
+                            return false; // Too many modifiers
+                        }
+                        mods[mod_count++] = mod_ev;
+                        ++pos;
+                        start = pos;
+                    } else {
+                        ++pos;
+                    }
+                }
+
+                if (pos >= input.size() || input[pos] != U'>') {
+                    return false; // Unclosed <
+                }
+
+                std::u32string_view key_str = input.substr(start, pos - start);
+                ++pos; // Skip '>'
+
+                user_event key = convert_key(key_str);
+                if (key.type == 0) {
+                    return false; // Invalid key
+                }
+
+                // Emit presses: modifiers then key
+                for (size_t i = 0; i < mod_count; ++i) {
+                    user_event ev = mods[i];
+                    ev.value      = 1;
+                    callback(ev);
+                }
+                {
+                    user_event ev = key;
+                    ev.value      = 1;
+                    callback(ev);
+                }
+
+                // Emit releases: key then modifiers in reverse
+                {
+                    user_event ev = key;
+                    ev.value      = 0;
+                    callback(ev);
+                }
+                for (size_t i = mod_count; i-- > 0;) {
+                    user_event ev = mods[i];
+                    ev.value      = 0;
+                    callback(ev);
+                }
+
+                emitted = true;
+            }
+        }
+
+        return emitted;
+    }
+
+    // The main function that routes the parsing to sub-parsers
+    constexpr bool parse_mod(std::u32string_view mod_str, auto& callback) noexcept {
+        bool const is_release   = mod_str.starts_with(U'/');
+        auto const dash_start   = mod_str.find(U'-');
+        bool const is_monotonic = !is_release && dash_start != std::u32string_view::npos;
 
         // handling </shift> or </ctrl>
         if (is_release) {
@@ -315,12 +398,10 @@ namespace {
         }
 
         auto const mod_substr = mod_str.substr(0, dash_start);
-        info.mod_str          = mod_substr;
         if (!is_monotonic) {
             auto const key_str = mod_str.substr(dash_start + 1);
-            info.key_str       = key_str;
         }
-        return info;
+        return false; // todo
     }
 
 } // namespace
@@ -340,31 +421,15 @@ void foresight::basic_typist::emit(std::u32string_view str) {
         auto const lhsptr = find_delim(str, U'<');
         auto const rhsptr = find_delim(str, U'>', lhsptr);
         auto const lhs    = str.substr(0, lhsptr);
-        auto const rhs    = str.substr(lhsptr + 1, rhsptr - lhsptr - 1);
+        auto const rhs    = str.substr(lhsptr, rhsptr - lhsptr);
 
-        // 2. parse the modifier string if any:
-        auto const info = parse_mod(rhs);
-        auto const mod  = convert_modifier(info.mod_str);
+        // 2. emit the strings before the <...> mod
+        this->typer->how(lhs, emit_event);
 
-        // 3. convert the modifiers as well:
-        if (mod == invalid_user_event) [[unlikely]] {
+        // 3. parse the modifier string if any:
+        if (!parse_mod(rhs, emit_event)) [[unlikely]] {
             auto const both = str.substr(0, rhsptr + 1);
             this->typer->how(both, emit_event);
-        } else {
-            // emit the events:
-            this->typer->how(lhs, emit_event);
-            if (info.is_release) {
-                auto mod_released  = auto{mod};
-                mod_released.value = 0;
-                emit_event(mod_released);
-            } else if (info.is_monotonic) {
-                emit_event(mod);
-                auto mod_released  = auto{mod};
-                mod_released.value = 0;
-                emit_event(mod_released);
-            } else {
-                emit_event(mod);
-            }
         }
 
         // 4. remove the already processed string:

@@ -11,12 +11,12 @@
 #include <vector>
 import foresight.main;
 import foresight.mods.intercept;
-import foresight.evdev;
-import foresight.uinput;
+import foresight.devices.evdev;
+import foresight.devices.uinput;
 import foresight.mods.context;
 import foresight.mods.stopper;
 import foresight.mods.inout;
-import foresight.uinput;
+import foresight.devices.uinput;
 import foresight.main.utils;
 import foresight.main.systemd;
 

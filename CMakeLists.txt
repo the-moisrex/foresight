@@ -67,6 +67,7 @@ target_sources(${LIB_NAME}
         main/systemd.cxx
         devices/evdev.cxx
         devices/uinput.cxx
+        devices/key_codes.cxx
         mods/intercept.cxx
         mods/ignore.cxx
         mods/emitter.cxx
@@ -88,6 +89,8 @@ target_sources(${LIB_NAME}
         main/systemd.ixx
         devices/evdev.ixx
         devices/uinput.ixx
+        devices/inputs-event-codes.ixx
+        devices/key_codes.ixx
         mods/router.ixx
         mods/event.ixx
         mods/ignore.ixx

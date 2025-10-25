@@ -8,7 +8,7 @@ module;
 #include <ranges>
 #include <string_view>
 #include <utility>
-export module foresight.evdev;
+export module foresight.devices.evdev;
 export import foresight.mods.event;
 import foresight.mods.caps;
 

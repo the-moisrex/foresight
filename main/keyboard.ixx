@@ -6,7 +6,7 @@ module;
 #include <string_view>
 #include <vector>
 export module foresight.main.keyboard;
-import foresight.evdev;
+import foresight.devices.evdev;
 import foresight.main.translate;
 
 namespace foresight {

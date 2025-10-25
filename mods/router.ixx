@@ -10,7 +10,7 @@ module;
 export module foresight.mods.router;
 import foresight.mods.caps;
 import foresight.mods.context;
-import foresight.uinput;
+import foresight.devices.uinput;
 import foresight.mods.event;
 import foresight.main.log;
 import foresight.main.utils;

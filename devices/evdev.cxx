@@ -13,7 +13,7 @@ module;
 #include <unistd.h>
 #include <utility>
 #include <vector>
-module foresight.evdev;
+module foresight.devices.evdev;
 import foresight.mods.caps;
 import foresight.main.log;
 

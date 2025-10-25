@@ -10,11 +10,11 @@ module;
 #include <linux/uinput.h>
 #include <print>
 #include <ranges>
-#include <string.h>
+#include <cstring>
 #include <sys/stat.h>
 #include <system_error>
 #include <unistd.h>
-module foresight.uinput;
+module foresight.devices.uinput;
 import foresight.mods.event;
 import foresight.main.log;
 

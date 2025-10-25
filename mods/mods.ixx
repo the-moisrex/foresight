@@ -13,7 +13,7 @@ export import foresight.mods.router;
 export import foresight.mods.modes;
 
 // Mods:
-export import foresight.uinput;
+export import foresight.devices.uinput;
 export import foresight.mods.intercept;
 export import foresight.mods.inout;
 export import foresight.mods.add_scroll;

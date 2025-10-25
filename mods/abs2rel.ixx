@@ -4,7 +4,7 @@ module;
 #include <utility>
 export module foresight.mods.abs2rel;
 import foresight.mods.context;
-import foresight.evdev;
+import foresight.devices.evdev;
 import foresight.mods.intercept;
 import foresight.mods.caps;
 import foresight.mods.ignore;

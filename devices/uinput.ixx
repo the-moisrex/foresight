@@ -5,8 +5,8 @@ module;
 #include <libevdev/libevdev-uinput.h>
 #include <string_view>
 #include <system_error>
-export module foresight.uinput;
-export import foresight.evdev;
+export module foresight.devices.uinput;
+export import foresight.devices.evdev;
 export import foresight.mods.event;
 import foresight.mods.context;
 import foresight.mods.caps;
