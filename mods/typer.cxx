@@ -9,6 +9,7 @@ module;
 #include <stdexcept>
 #include <string_view>
 module foresight.mods.typer;
+import foresight.devices.key_codes;
 
 using foresight::user_event;
 
@@ -181,10 +182,11 @@ namespace {
         // NOLINTEND(*-use-designated-initializers)
     }();
 
-    // No allocations, simple hash+compare lookup
-    // The provided convert_modifier function (assumed to return user_event with type=EV_KEY, appropriate
-    // code, value=0)
-    [[nodiscard]] constexpr user_event convert_modifier(std::u32string_view const str) noexcept {
+    /**
+     * Alternative keys
+     * This function finds alternative representations of common keys.
+     */
+    constexpr user_event alternative_modifier(std::u32string_view const str) noexcept {
         if (str.empty()) [[unlikely]] {
             return foresight::invalid_user_event;
         }
@@ -193,12 +195,10 @@ namespace {
 
         // probe over table entries, hash-first to avoid expensive compares
         for (auto const &[key, ev, hash] : mod_table) {
-            if (hash != hid) {
-                continue;  // cheap filter
+            if (hash != hid || !iequals(key, str)) {
+                continue; // cheap filter
             }
-            if (iequals(key, str)) {
-                return ev; // confirm with case-insensitive exact match
-            }
+            return ev;    // confirm with case-insensitive exact match
         }
 
         if (str.size() <= 1) [[unlikely]] {
@@ -208,34 +208,33 @@ namespace {
         // Attempt a small additional optimization: look for common prefixes like "r" or "l" + keyword
         // e.g., user may pass "rctrl" or "left-ctrl" forms not present exactly — handle some fast patterns:
         // detect leading 'r' / 'l' or "right"/"left" and re-run search on remainder
-        auto const first = str[0];
-        if (first == U'r' || first == U'R' || first == U'l' || first == U'L') {
+        auto const first    = str[0];
+        bool const is_left  = first == U'l' || first == U'L';
+        bool const is_right = first == U'r' || first == U'R';
+        if (is_left || is_right) {
             auto const remainder = str.substr(1);
             auto const hr        = ci_hash(remainder);
             for (auto const &[key, ev, hash] : mod_table) {
-                if (hash != hr) {
+                if (hash != hr || !iequals(key, remainder)) {
                     continue;
                 }
-                if (iequals(key, remainder)) {
-                    // map based on leading letter
-                    if (first == U'r' || first == U'R') {
-                        // map to right variant when available
-                        if (ev.type == EV_KEY && ev.code == KEY_LEFTSHIFT) {
-                            return foresight::right_shift;
-                        }
-                        if (ev.type == EV_KEY && ev.code == KEY_LEFTCTRL) {
-                            return foresight::right_ctrl;
-                        }
-                        if (ev.type == EV_KEY && ev.code == KEY_LEFTMETA) {
-                            return foresight::right_meta;
-                        }
-                        if (ev.type == EV_KEY && ev.code == KEY_LEFTALT) {
-                            return foresight::right_alt;
-                        }
-                    } else {
-                        // 'l' => left (the table already maps many to left)
-                        return ev;
-                    }
+                if (first != U'r' && first != U'R') {
+                    // 'l' => left (the table already maps many to left)
+                    return ev;
+                }
+                // map based on leading letter
+                // map to right variant when available
+                if (ev.type == EV_KEY && ev.code == KEY_LEFTSHIFT) {
+                    return foresight::right_shift;
+                }
+                if (ev.type == EV_KEY && ev.code == KEY_LEFTCTRL) {
+                    return foresight::right_ctrl;
+                }
+                if (ev.type == EV_KEY && ev.code == KEY_LEFTMETA) {
+                    return foresight::right_meta;
+                }
+                if (ev.type == EV_KEY && ev.code == KEY_LEFTALT) {
+                    return foresight::right_alt;
                 }
             }
         }
@@ -245,46 +244,35 @@ namespace {
             return foresight::invalid_user_event;
         }
         // cheap check for "right..." or "left..."
-        auto const c0 = str[0];
-        if ((c0 == U'r' || c0 == U'R') && (str.size() >= 5)) {
-            auto const possible = str;
-            if (icontains_simple_prefix(possible, U"right")) {
-                auto const remainder = possible.substr(5);
-                auto const hr        = ci_hash(remainder);
-                for (auto const &[key, ev, hash] : mod_table) {
-                    if (hash != hr) {
-                        continue;
-                    }
-                    if (iequals(key, remainder)) {
-                        // map to right variant
-                        if (ev.type == EV_KEY && ev.code == KEY_LEFTSHIFT) {
-                            return foresight::right_shift;
-                        }
-                        if (ev.type == EV_KEY && ev.code == KEY_LEFTCTRL) {
-                            return foresight::right_ctrl;
-                        }
-                        if (ev.type == EV_KEY && ev.code == KEY_LEFTMETA) {
-                            return foresight::right_meta;
-                        }
-                        if (ev.type == EV_KEY && ev.code == KEY_LEFTALT) {
-                            return foresight::right_alt;
-                        }
-                    }
+        if (is_right && str.size() >= 5 && icontains_simple_prefix(str, U"right")) {
+            auto const remainder = str.substr(5);
+            auto const hr        = ci_hash(remainder);
+            for (auto const &[key, ev, hash] : mod_table) {
+                if (hash != hr || !iequals(key, remainder)) {
+                    continue;
+                }
+                // map to right variant
+                if (ev.type == EV_KEY && ev.code == KEY_LEFTSHIFT) {
+                    return foresight::right_shift;
+                }
+                if (ev.type == EV_KEY && ev.code == KEY_LEFTCTRL) {
+                    return foresight::right_ctrl;
+                }
+                if (ev.type == EV_KEY && ev.code == KEY_LEFTMETA) {
+                    return foresight::right_meta;
+                }
+                if (ev.type == EV_KEY && ev.code == KEY_LEFTALT) {
+                    return foresight::right_alt;
                 }
             }
-        } else if ((c0 == U'l' || c0 == U'L') && (str.size() >= 4)) {
-            auto const possible = str;
-            if (icontains_simple_prefix(possible, U"left")) {
-                auto const remainder = possible.substr(4);
-                auto const hr        = ci_hash(remainder);
-                for (auto const &[key, ev, hash] : mod_table) {
-                    if (hash != hr) {
-                        continue;
-                    }
-                    if (iequals(key, remainder)) {
-                        return ev;
-                    }
+        } else if (is_left && str.size() >= 4 && icontains_simple_prefix(str, U"left")) {
+            auto const remainder = str.substr(4);
+            auto const hr        = ci_hash(remainder);
+            for (auto const &[key, ev, hash] : mod_table) {
+                if (hash != hr || !iequals(key, remainder)) {
+                    continue;
                 }
+                return ev;
             }
         }
 
@@ -301,95 +289,82 @@ namespace {
         return lhsptr;
     }
 
-    // Helper to convert key names or single characters to user_event (with value=0)
-    [[nodiscard]] constexpr user_event convert_key(std::u32string_view str) noexcept {
-        // todo
-        return {};
+    /// Convert key names or single characters to user_event (with value=1)
+    constexpr user_event convert_key(std::u32string_view const key) noexcept {
+        auto const code = foresight::key_code_of(key);
+        if (code == 0) {
+            return alternative_modifier(key);
+        }
+        return user_event{
+          .type  = EV_KEY,
+          .code  = code,
+          .value = 1,
+        };
     }
 
     bool parse_and_emit_keys(std::u32string_view input, void (*callback)(user_event const &)) noexcept {
-        bool   emitted = false;
-        size_t pos     = 0;
+        size_t pos = 0;
 
-        while (pos < input.size()) {
-            if (input[pos] != U'<') {
-                // Single key token
-                auto const c   = input[pos++];
-                user_event key = convert_key({&c, 1});
-                if (key.type == 0) {
-                    return false; // Invalid key
+        // Parse <...> token
+        ++pos;
+        size_t                    start = pos;
+        std::array<user_event, 6> mods{};
+        size_t                    mod_count = 0;
+
+        while (pos < input.size() && input[pos] != U'>') {
+            if (input[pos] == U'-') {
+                std::u32string_view mod_str = input.substr(start, pos - start);
+                user_event          mod_ev  = alternative_modifier(mod_str);
+                if (mod_ev.type == 0) {
+                    return false; // Invalid modifier
                 }
-                key.value = 1;
-                callback(key);
-                key.value = 0;
-                callback(key);
-                emitted = true;
-            } else {
-                // Parse <...> token
+                if (mod_count >= mods.size()) {
+                    return false; // Too many modifiers
+                }
+                mods[mod_count++] = mod_ev;
                 ++pos;
-                size_t                    start = pos;
-                std::array<user_event, 6> mods{};
-                size_t                    mod_count = 0;
-
-                while (pos < input.size() && input[pos] != U'>') {
-                    if (input[pos] == U'-') {
-                        std::u32string_view mod_str = input.substr(start, pos - start);
-                        user_event          mod_ev  = convert_modifier(mod_str);
-                        if (mod_ev.type == 0) {
-                            return false; // Invalid modifier
-                        }
-                        if (mod_count >= mods.size()) {
-                            return false; // Too many modifiers
-                        }
-                        mods[mod_count++] = mod_ev;
-                        ++pos;
-                        start = pos;
-                    } else {
-                        ++pos;
-                    }
-                }
-
-                if (pos >= input.size() || input[pos] != U'>') {
-                    return false; // Unclosed <
-                }
-
-                std::u32string_view key_str = input.substr(start, pos - start);
-                ++pos; // Skip '>'
-
-                user_event key = convert_key(key_str);
-                if (key.type == 0) {
-                    return false; // Invalid key
-                }
-
-                // Emit presses: modifiers then key
-                for (size_t i = 0; i < mod_count; ++i) {
-                    user_event ev = mods[i];
-                    ev.value      = 1;
-                    callback(ev);
-                }
-                {
-                    user_event ev = key;
-                    ev.value      = 1;
-                    callback(ev);
-                }
-
-                // Emit releases: key then modifiers in reverse
-                {
-                    user_event ev = key;
-                    ev.value      = 0;
-                    callback(ev);
-                }
-                for (size_t i = mod_count; i-- > 0;) {
-                    user_event ev = mods[i];
-                    ev.value      = 0;
-                    callback(ev);
-                }
-
-                emitted = true;
+                start = pos;
+            } else {
+                ++pos;
             }
         }
 
-        return emitted;
+        if (pos >= input.size() || input[pos] != U'>') {
+            return false; // Unclosed <
+        }
+
+        std::u32string_view key_str = input.substr(start, pos - start);
+        ++pos; // Skip '>'
+
+        user_event key = convert_key(key_str);
+        if (key.type == 0) {
+            return false; // Invalid key
+        }
+
+        // Emit presses: modifiers then key
+        for (size_t i = 0; i < mod_count; ++i) {
+            user_event ev = mods[i];
+            ev.value      = 1;
+            callback(ev);
+        }
+        {
+            user_event ev = key;
+            ev.value      = 1;
+            callback(ev);
+        }
+
+        // Emit releases: key then modifiers in reverse
+        {
+            user_event ev = key;
+            ev.value      = 0;
+            callback(ev);
+        }
+        for (size_t i = mod_count; i-- > 0;) {
+            user_event ev = mods[i];
+            ev.value      = 0;
+            callback(ev);
+        }
+        return true;
     }
 
     // The main function that routes the parsing to sub-parsers
