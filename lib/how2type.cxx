@@ -120,7 +120,7 @@ void how2type::on_keysym(xkb_keysym_t const target_keysym, handle_keysym_callbac
     });
 }
 
-void how2type::find_first_typing(char32_t const ucs32, handle_event_callback callback) {
+void how2type::emit(char32_t const ucs32, handle_event_callback callback) {
     // Convert Unicode -> keysym (uses libxkbcommon helper)
     xkb_keysym_t const ks = xkb_utf32_to_keysym(static_cast<uint32_t>(ucs32));
     if (ks == XKB_KEY_NoSymbol) {
@@ -212,9 +212,9 @@ void how2type::find_first_typing(char32_t const ucs32, handle_event_callback cal
     });
 }
 
-void how2type::how(std::u32string_view const str, handle_event_callback callback) {
+void how2type::emit(std::u32string_view const str, handle_event_callback callback) {
     for (char32_t const ucs32 : str) {
-        find_first_typing(ucs32, callback);
+        emit(ucs32, callback);
     }
 }
 

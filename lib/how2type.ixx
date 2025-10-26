@@ -43,12 +43,14 @@ export namespace foresight::xkb {
 
         /**
          *  Given a Unicode code point, return a best-effort sequence of events
-         *  records that type it. The returned vector contains press/release pairs for each key
-         *  and intervening SYN_REPORTs.
+         *  records that type it.
          */
-        void find_first_typing(char32_t ucs32, handle_event_callback callback);
+        void emit(char32_t ucs32, handle_event_callback callback);
 
-        void how(std::u32string_view str, handle_event_callback callback);
+        /**
+         * Call the callback with the series of events that will type that string.
+         */
+        void emit(std::u32string_view str, handle_event_callback callback);
 
       private:
         // For each keycode/layout/level with single keysym equal to keysym, call the callback with the
