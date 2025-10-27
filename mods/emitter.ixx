@@ -43,6 +43,7 @@ namespace foresight {
             return operator+(new_events);
         }
 
+        // NOLINTBEGIN(*-avoid-c-arrays)
         template <std::size_t NN>
         consteval auto operator()(user_event (&&new_events)[NN]) const noexcept {
             return operator()(std::to_array(std::move(new_events)));
@@ -52,6 +53,8 @@ namespace foresight {
         consteval auto operator+(user_event (&&new_events)[NN]) const noexcept {
             return operator()(std::to_array(std::move(new_events)));
         }
+
+        // NOLINTEND(*-avoid-c-arrays)
 
         consteval auto operator()(user_event const& event) const noexcept {
             return operator+(std::array{event});
@@ -141,54 +144,54 @@ namespace foresight {
 
     export [[nodiscard]] constexpr std::array<user_event, 2> up(event_type::code_type const code) noexcept {
         return std::array{
-          user_event{.type=EV_KEY, .code=code, .value=0},
-          static_cast<user_event>(syn())
+          user_event{.type = EV_KEY, .code = code, .value = 0},
+          syn_user_event
         };
     }
 
     export [[nodiscard]] constexpr std::array<user_event, 2> down(event_type::code_type const code) noexcept {
         return std::array{
-          user_event{.type=EV_KEY, .code=code, .value=1},
-          static_cast<user_event>(syn())
+          user_event{.type = EV_KEY, .code = code, .value = 1},
+          syn_user_event
         };
     }
 
     export [[nodiscard]] constexpr std::array<user_event, 4> keypress(
       event_type::code_type const code) noexcept {
         return std::array{
-          user_event{.type=EV_KEY, .code=code, .value=1},
-          static_cast<user_event>(syn()),
-          user_event{.type=EV_KEY, .code=code, .value=0},
-          static_cast<user_event>(syn()),
+          user_event{.type = EV_KEY, .code = code, .value = 1},
+          syn_user_event,
+          user_event{.type = EV_KEY, .code = code, .value = 0},
+          syn_user_event,
         };
     }
 
     export [[nodiscard]] constexpr std::array<user_event, 2> turn_led_on(
       event_type::code_type const code) noexcept {
         return std::array{
-          user_event{.type=EV_LED, .code=code, .value=1},
-          static_cast<user_event>(syn())
+          user_event{.type = EV_LED, .code = code, .value = 1},
+          syn_user_event
         };
     }
 
     export [[nodiscard]] constexpr std::array<user_event, 2> turn_led_off(
       event_type::code_type const code) noexcept {
         return std::array{
-          user_event{.type=EV_LED, .code=code, .value=0},
-          static_cast<user_event>(syn())
+          user_event{.type = EV_LED, .code = code, .value = 0},
+          syn_user_event
         };
     }
 
     export template <typename... CT>
     [[nodiscard]] constexpr auto press(CT const... codes) noexcept {
-        std::array<user_event, sizeof...(CT) * 2 + 2> events;
-        auto                                          pos = events.begin();
-        ((*pos++ = user_event{.type = EV_KEY, .code = static_cast<event_type::code_type>(codes), .value = 1}),
-         ...);
-        *pos++ = static_cast<user_event>(syn());
-        ((*pos++ = user_event{.type = EV_KEY, .code = static_cast<event_type::code_type>(codes), .value = 0}),
-         ...);
-        *pos = static_cast<user_event>(syn());
+        std::array<user_event, (sizeof...(CT) * 2) + 2> events;
+        auto                                            pos = events.begin();
+        // NOLINTBEGIN(*-use-designated-initializers)
+        ((*pos++ = user_event{EV_KEY, static_cast<event_type::code_type>(codes), 1}), ...);
+        *pos++ = syn_user_event;
+        ((*pos++ = user_event{EV_KEY, static_cast<event_type::code_type>(codes), 0}), ...);
+        // NOLINTEND(*-use-designated-initializers)
+        *pos = syn_user_event;
         return events;
     }
 
@@ -214,11 +217,12 @@ namespace foresight {
             rep_type{inp_rep_type},
             rep_code{inp_rep_code} {}
 
-        constexpr basic_replace_code() noexcept                                = default;
+        constexpr basic_replace_code() noexcept                                     = default;
         consteval basic_replace_code(basic_replace_code const&) noexcept            = default;
+        consteval basic_replace_code(basic_replace_code&&) noexcept                 = default;
         consteval basic_replace_code& operator=(basic_replace_code const&) noexcept = default;
         constexpr basic_replace_code& operator=(basic_replace_code&&) noexcept      = default;
-        constexpr ~basic_replace_code() noexcept                               = default;
+        constexpr ~basic_replace_code() noexcept                                    = default;
 
         consteval basic_replace_code operator()(
           ev_type const   inp_find_type,
@@ -254,10 +258,13 @@ namespace foresight {
             return basic_emit_all<NN>{new_events};
         }
 
+        // NOLINTBEGIN(*-avoid-c-arrays)
         template <std::size_t NN>
         consteval auto operator()(user_event (&&new_events)[NN]) const noexcept {
             return basic_emit_all<NN>{std::to_array(std::move(new_events))};
         }
+
+        // NOLINTEND(*-avoid-c-arrays)
 
         template <typename... T>
             requires(sizeof...(T) > 1)
