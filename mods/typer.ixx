@@ -28,6 +28,7 @@ namespace foresight {
         constexpr basic_typist& operator=(basic_typist&&) noexcept = default;
         constexpr ~basic_typist()                                  = default;
 
+        void emit(std::u32string_view str, user_event_callback);
         void emit(std::u32string_view str);
 
         void operator()(Context auto& ctx) noexcept {

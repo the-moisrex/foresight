@@ -21,7 +21,6 @@ export namespace foresight::xkb {
      * XKB How-To-Type (without composed sequences)
      */
     struct how2type {
-        using handle_event_callback  = std::function<void(user_event const &event)> const &;
         using handle_keysym_callback = std::function<void(key_position const &)> const &;
         // todo: use std::function_ref instead of std::function
 
@@ -45,12 +44,12 @@ export namespace foresight::xkb {
          *  Given a Unicode code point, return a best-effort sequence of events
          *  records that type it.
          */
-        void emit(char32_t ucs32, handle_event_callback callback);
+        void emit(char32_t ucs32, user_event_callback callback);
 
         /**
          * Call the callback with the series of events that will type that string.
          */
-        void emit(std::u32string_view str, handle_event_callback callback);
+        void emit(std::u32string_view str, user_event_callback callback);
 
       private:
         // For each keycode/layout/level with single keysym equal to keysym, call the callback with the

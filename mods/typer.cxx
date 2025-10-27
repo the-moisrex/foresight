@@ -227,7 +227,8 @@ namespace {
     }
 
     /// Parse a string that starts with `<` and ends with `>`, call the callback function on them.
-    [[nodiscard]] constexpr bool parse_mod(std::u32string_view mod_str, auto &callback) noexcept {
+    [[nodiscard]] constexpr bool parse_mod(std::u32string_view            mod_str,
+                                           foresight::user_event_callback callback) noexcept {
         assert(mod_str.starts_with(U'<') && mod_str.ends_with(U'>'));
         mod_str.remove_prefix(1);
         mod_str.remove_suffix(1);
@@ -289,15 +290,11 @@ namespace {
 
 } // namespace
 
-void foresight::basic_typist::emit(std::u32string_view str) {
+void foresight::basic_typist::emit(std::u32string_view str, user_event_callback callback) {
     // first initialize the how2type object
     if (!typer.has_value()) {
         typer = std::make_optional<xkb::how2type>();
     }
-
-    auto const emit_event = [&](user_event const &event) {
-        events.emplace_back(event);
-    };
 
     while (!str.empty()) {
         // 1. find the first modifier:
@@ -307,15 +304,22 @@ void foresight::basic_typist::emit(std::u32string_view str) {
         auto const rhs    = str.substr(lhsptr, rhsptr - lhsptr);
 
         // 2. emit the strings before the <...> mod
-        this->typer->emit(lhs, emit_event);
+        this->typer->emit(lhs, callback);
 
         // 3. parse the modifier string if any:
-        if (!parse_mod(rhs, emit_event)) [[unlikely]] {
+        if (!parse_mod(rhs, callback)) [[unlikely]] {
             // send the <...> string as is:
-            this->typer->emit(rhs, emit_event);
+            this->typer->emit(rhs, callback);
         }
 
         // 4. remove the already processed string:
         str.remove_prefix(rhsptr);
     }
+}
+
+void foresight::basic_typist::emit(std::u32string_view str) {
+    auto const emit_event = [&](user_event const &event) {
+        events.emplace_back(event);
+    };
+    emit(str, emit_event);
 }
