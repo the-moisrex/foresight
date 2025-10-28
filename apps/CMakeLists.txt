@@ -1,6 +1,6 @@
-add_subdirectory(ignore-big-jumps)
+add_subdirectory(auto-typer)
 add_subdirectory(flat-accelerate)
-add_subdirectory(x2y)
+add_subdirectory(ignore-big-jumps)
 add_subdirectory(long-press)
-
 add_subdirectory(pen2mice)
+add_subdirectory(x2y)

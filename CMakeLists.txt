@@ -80,6 +80,7 @@ target_sources(${LIB_NAME}
         mods/typer.cxx
         lib/xkb.cxx
         lib/how2type.cxx
+        bash/bash_runner.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         main/main.ixx
         main/utils.ixx
@@ -115,6 +116,7 @@ target_sources(${LIB_NAME}
         utils/easings.ixx
         lib/xkb.ixx
         lib/how2type.ixx
+        bash/bash_runner.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)
 set_target_properties(${LIB_NAME} PROPERTIES

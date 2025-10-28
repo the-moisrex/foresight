@@ -203,6 +203,7 @@ namespace {
         [[unlikely]] { return foresight::invalid_user_event; }
     }
 
+    /// Find the specified delimiter, but also checks if it's escaped or not.
     constexpr std::size_t
     find_delim(std::u32string_view str, char32_t const delim, std::size_t const pos = 0) noexcept {
         auto lhsptr = str.find(delim, pos);

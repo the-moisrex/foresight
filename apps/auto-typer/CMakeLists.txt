@@ -1,6 +1,6 @@
-set(name pen2mice)
+set(name auto-typer)
 add_executable(${name})
-target_sources(${name} PRIVATE pen2mice.cpp)
+target_sources(${name} PRIVATE auto-typer.cpp)
 set_target_properties(${name} PROPERTIES OUTPUT_NAME ${name})
 set_target_properties(${name} PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(${name} PROPERTIES COMPILER_LANGUAGE CXX)
