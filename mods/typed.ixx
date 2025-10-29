@@ -13,7 +13,13 @@ namespace foresight {
      */
     export constexpr struct [[nodiscard]] basic_typed {
       private:
-        std::uint64_t    hash = 0;
+        // if collisions happen, make these 64bit:
+        std::uint32_t target_hash  = 0;
+        std::uint32_t current_hash = 0;
+
+        std::size_t target_length = 0;
+        std::size_t current_length = 0;
+
         std::string_view trigger;
 
       public:
@@ -30,6 +36,8 @@ namespace foresight {
         consteval basic_typed operator()(std::string_view const inp_trigger) const noexcept {
             return basic_typed{inp_trigger};
         }
+
+        void operator()(start_tag);
 
         /// Ingest the specified event and calculate the hash
         [[nodiscard]] bool operator()(event_type const& event) noexcept;

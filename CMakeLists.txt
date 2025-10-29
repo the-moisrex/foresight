@@ -82,6 +82,7 @@ target_sources(${LIB_NAME}
         lib/xkb.cxx
         lib/how2type.cxx
         bash/bash_runner.cxx
+        utils/hash.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         main/main.ixx
         main/utils.ixx
@@ -116,6 +117,7 @@ target_sources(${LIB_NAME}
         mods/modes.ixx
         mods/mods.ixx
         utils/easings.ixx
+        utils/hash.ixx
         lib/xkb.ixx
         lib/how2type.ixx
         bash/bash_runner.ixx
