@@ -9,7 +9,7 @@ export module foresight.bash;
 
 namespace foresight {
 
-    struct [[nodiscard]] bash_runner {
+    export struct [[nodiscard]] bash_runner {
       private:
         std::array<int, 2> to_child{};
         std::array<int, 2> from_child{};
