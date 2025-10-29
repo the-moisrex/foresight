@@ -318,7 +318,7 @@ void foresight::basic_typist::emit(std::u32string_view str, user_event_callback 
     }
 }
 
-void foresight::basic_typist::emit(std::u32string_view str) {
+void foresight::basic_typist::emit(std::u32string_view const str) {
     auto const emit_event = [&](user_event const &event) {
         events.emplace_back(event);
     };

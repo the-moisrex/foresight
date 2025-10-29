@@ -78,6 +78,7 @@ target_sources(${LIB_NAME}
         mods/on.cxx
         mods/momentum.cxx
         mods/typer.cxx
+        mods/typed.cxx
         lib/xkb.cxx
         lib/how2type.cxx
         bash/bash_runner.cxx
@@ -111,6 +112,7 @@ target_sources(${LIB_NAME}
         mods/replace.ixx
         mods/momentum.ixx
         mods/typer.ixx
+        mods/typed.ixx
         mods/modes.ixx
         mods/mods.ixx
         utils/easings.ixx
