@@ -41,12 +41,12 @@ namespace {
 
 } // namespace
 
-std::string bash_runner::send_and_read(std::string_view const cmd_sv) {
-    std::string cmd(cmd_sv);
-    if (!cmd.empty() && cmd.back() != ';') {
-        cmd += ';';
-    }
-    cmd += std::format("echo '{}'$?\n", marker);
+std::string bash_runner::exec(std::string_view const command) {
+    std::string const cmd = std::format(
+      "{};\n"          // the command itself
+      "echo '{}'$?\n", // send the marker
+      command,
+      marker);
 
     if (write(to_child[1], cmd.data(), cmd.size()) != static_cast<ssize_t>(cmd.size())) {
         throw std::runtime_error("Failed to write to bash process");
@@ -127,12 +127,7 @@ bash_runner::~bash_runner() {
 }
 
 std::string bash_runner::load(std::string_view const file) {
-    auto const content = read_file_and_remove_shebang(file);
-    return send_and_read(content);
-}
-
-std::string bash_runner::exec(std::string_view const command) {
-    return send_and_read(command);
+    return exec(read_file_and_remove_shebang(file));
 }
 
 void bash_runner::set_variable(std::string_view const name, std::string_view const value) {
@@ -145,13 +140,11 @@ void bash_runner::set_variable(std::string_view const name, std::string_view con
             escaped += c;
         }
     }
-    auto const cmd = std::format("{}='{}'", name, escaped);
-    send_and_read(cmd);
+    exec(std::format("{}='{}'", name, escaped));
 }
 
-std::string bash_runner::get_variable(std::string_view name) {
-    auto const cmd = std::format("echo \"${{{}}}\"", name);
-    return send_and_read(cmd);
+std::string bash_runner::get_variable(std::string_view const name) {
+    return exec(std::format("echo \"${{{}}}\"", name));
 }
 
 std::string bash_runner::call_function(std::string_view const                  func_name,
@@ -168,13 +161,13 @@ std::string bash_runner::call_function(std::string_view const                  f
         }
         cmd += "'";
     }
-    return send_and_read(cmd);
+    return exec(cmd);
 }
 
 std::string bash_runner::get_variables() {
-    return send_and_read("compgen -v");
+    return exec("compgen -v");
 }
 
 std::string bash_runner::get_functions() {
-    return send_and_read("compgen -A function");
+    return exec("compgen -A function");
 }

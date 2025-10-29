@@ -15,10 +15,8 @@ namespace foresight {
         std::array<int, 2> from_child{};
         pid_t              pid{};
 
-        std::string send_and_read(std::string_view cmd_sv);
-
       public:
-        bash_runner()                                  = default;
+        constexpr bash_runner()                        = default;
         bash_runner(bash_runner const&)                = delete;
         bash_runner(bash_runner&&) noexcept            = default;
         bash_runner& operator=(bash_runner const&)     = delete;
@@ -31,7 +29,7 @@ namespace foresight {
         void        set_variable(std::string_view name, std::string_view value);
         std::string get_variable(std::string_view name);
         std::string call_function(std::string_view func_name, std::span<std::string_view const> args);
-        std::string get_variables();
-        std::string get_functions();
+        [[nodiscard]] std::string get_variables();
+        [[nodiscard]] std::string get_functions();
     };
 } // namespace foresight
