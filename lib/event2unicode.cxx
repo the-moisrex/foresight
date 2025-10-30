@@ -3,6 +3,8 @@
 module;
 #include <cstdint>
 #include <linux/input-event-codes.h>
+#include <span>
+#include <string>
 #include <utility>
 #include <xkbcommon/xkbcommon.h>
 module foresight.lib.xkb.event2unicode;
@@ -23,7 +25,9 @@ basic_event2unicode::basic_event2unicode(keymap::pointer inp_map) noexcept
   : map{std::move(inp_map)},
     state{xkb_state_new(map->get())} {}
 
-basic_event2unicode::basic_event2unicode() noexcept : map{keymap::create()}, state{xkb_state_new(map->get())} {}
+basic_event2unicode::basic_event2unicode() noexcept
+  : map{keymap::create()},
+    state{xkb_state_new(map->get())} {}
 
 basic_event2unicode::~basic_event2unicode() noexcept {
     if (state != nullptr) {
@@ -51,4 +55,16 @@ char32_t basic_event2unicode::operator()(event_type const& event) noexcept {
     }
 
     return static_cast<char32_t>(xkb_state_key_get_utf32(state, keycode));
+}
+
+std::u32string basic_event2unicode::operator()(std::span<event_type const> const events) {
+    std::u32string result;
+    result.resize(events.size());
+    for (auto const& event : events) {
+        auto const code_point = this->operator()(event);
+        if (code_point != U'\0') {
+            result += code_point;
+        }
+    }
+    return result;
 }

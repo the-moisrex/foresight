@@ -1,6 +1,8 @@
 // Created by moisrex on 10/29/25.
 
 module;
+#include <span>
+#include <string>
 #include <xkbcommon/xkbcommon.h>
 export module foresight.lib.xkb.event2unicode;
 import foresight.mods.event;
@@ -25,7 +27,8 @@ namespace foresight::xkb {
         ~basic_event2unicode() noexcept;
 
         /// Process
-        [[nodiscard]] char32_t operator()(event_type const& event) noexcept;
+        [[nodiscard]] char32_t       operator()(event_type const& event) noexcept;
+        [[nodiscard]] std::u32string operator()(std::span<event_type const> events);
     };
 
 } // namespace foresight::xkb
