@@ -81,6 +81,7 @@ target_sources(${LIB_NAME}
         mods/typed.cxx
         lib/xkb.cxx
         lib/how2type.cxx
+        lib/event2unicode.cxx
         bash/bash_runner.cxx
         utils/hash.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
@@ -120,6 +121,7 @@ target_sources(${LIB_NAME}
         utils/hash.ixx
         lib/xkb.ixx
         lib/how2type.ixx
+        lib/event2unicode.ixx
         bash/bash_runner.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)

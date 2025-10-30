@@ -1,0 +1,52 @@
+// Created by moisrex on 10/29/25.
+
+module;
+#include <cstdint>
+#include <linux/input-event-codes.h>
+#include <utility>
+#include <xkbcommon/xkbcommon.h>
+module foresight.lib.xkb.event2unicode;
+import foresight.lib.xkb.how2type;
+import foresight.main.log;
+
+using foresight::xkb::basic_event2unicode;
+
+namespace {
+    constexpr std::uint16_t KEY_STATE_RELEASE = 0;
+    constexpr std::uint16_t KEY_STATE_PRESS   = 1;
+    constexpr std::uint16_t KEY_STATE_REPEAT  = 2;
+
+    constexpr int evdev_offset = 8;
+} // namespace
+
+basic_event2unicode::basic_event2unicode(keymap::pointer inp_map)
+  : map{std::move(inp_map)},
+    state{xkb_state_new(map->get())} {}
+
+basic_event2unicode::basic_event2unicode() : map{keymap::create()}, state{xkb_state_new(map->get())} {}
+
+basic_event2unicode::~basic_event2unicode() noexcept {
+    if (state != nullptr) {
+        xkb_state_unref(state);
+        state = nullptr;
+    }
+}
+
+char32_t basic_event2unicode::operator()(event_type const& event) noexcept {
+    // Check if this is a key event
+    if (state == nullptr || event.type() != EV_KEY) {
+        return U'\0';
+    }
+
+    // Map evdev code -> xkb keycode
+    auto const              keycode = static_cast<xkb_keycode_t>(evdev_offset + event.code());
+    xkb_key_direction const dir     = event.value() == KEY_STATE_RELEASE ? XKB_KEY_UP : XKB_KEY_DOWN;
+
+    xkb_state_update_key(state, keycode, dir);
+
+    if (dir == XKB_KEY_UP) {
+        return U'\0';
+    }
+
+    return static_cast<char32_t>(xkb_state_key_get_utf32(state, keycode));
+}
