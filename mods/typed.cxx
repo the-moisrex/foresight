@@ -154,7 +154,7 @@ void basic_typed::operator()(start_tag) {
     }
     fnv1a_init(target_hash);
     fnv1a_init(current_hash);
-    typer.emit(str, [&](user_event const &event) {
+    typer.emit(str, [&](user_event const &event) noexcept {
         fnv1a_hash(target_hash, event.code);
     });
 }

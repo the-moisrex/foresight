@@ -16,8 +16,12 @@ namespace foresight::xkb {
         xkb_state* state = nullptr;
 
       public:
-        explicit basic_event2unicode(keymap::pointer map);
-        basic_event2unicode();
+        explicit basic_event2unicode(keymap::pointer map) noexcept;
+        basic_event2unicode() noexcept;
+        basic_event2unicode(basic_event2unicode const&)                      = delete;
+        basic_event2unicode(basic_event2unicode&& other) noexcept            = default;
+        basic_event2unicode& operator=(basic_event2unicode const&)           = delete;
+        basic_event2unicode& operator=(basic_event2unicode&& other) noexcept = default;
         ~basic_event2unicode() noexcept;
 
         /// Process

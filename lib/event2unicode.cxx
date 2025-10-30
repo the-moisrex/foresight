@@ -6,8 +6,8 @@ module;
 #include <utility>
 #include <xkbcommon/xkbcommon.h>
 module foresight.lib.xkb.event2unicode;
-import foresight.lib.xkb.how2type;
-import foresight.main.log;
+import foresight.mods.event;
+import foresight.lib.xkb;
 
 using foresight::xkb::basic_event2unicode;
 
@@ -19,11 +19,11 @@ namespace {
     constexpr int evdev_offset = 8;
 } // namespace
 
-basic_event2unicode::basic_event2unicode(keymap::pointer inp_map)
+basic_event2unicode::basic_event2unicode(keymap::pointer inp_map) noexcept
   : map{std::move(inp_map)},
     state{xkb_state_new(map->get())} {}
 
-basic_event2unicode::basic_event2unicode() : map{keymap::create()}, state{xkb_state_new(map->get())} {}
+basic_event2unicode::basic_event2unicode() noexcept : map{keymap::create()}, state{xkb_state_new(map->get())} {}
 
 basic_event2unicode::~basic_event2unicode() noexcept {
     if (state != nullptr) {
@@ -33,7 +33,7 @@ basic_event2unicode::~basic_event2unicode() noexcept {
 }
 
 char32_t basic_event2unicode::operator()(event_type const& event) noexcept {
-    // Check if this is a key event
+    // Check if this is a key event and state is valid
     if (state == nullptr || event.type() != EV_KEY) {
         return U'\0';
     }
@@ -42,8 +42,10 @@ char32_t basic_event2unicode::operator()(event_type const& event) noexcept {
     auto const              keycode = static_cast<xkb_keycode_t>(evdev_offset + event.code());
     xkb_key_direction const dir     = event.value() == KEY_STATE_RELEASE ? XKB_KEY_UP : XKB_KEY_DOWN;
 
+    // Update the state based on the key event
     xkb_state_update_key(state, keycode, dir);
 
+    // Only return Unicode for key press events, not releases
     if (dir == XKB_KEY_UP) {
         return U'\0';
     }
