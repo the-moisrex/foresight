@@ -9,5 +9,7 @@ TEST(BashTest, Basic) {
     bash.start();
     bash.set_variable("key", "value");
     EXPECT_EQ(bash.get_variable("key"), "value");
+    bash.set_variable("key", "value 2");
+    EXPECT_EQ(bash.get_variable("key"), "value 2");
 }
 

@@ -32,9 +32,9 @@ namespace {
      * Lazily builds the map once for the given keymap. No dynamic allocation,
      * no global state mutation, and safe across threads (per C++11 guarantees).
      */
-    std::array<modifier_map_entry, 5> const &get_modmap(xkb_keymap *keymap) {
-        static std::array<modifier_map_entry, 5> map{};
-        static bool                              initialized = false;
+    std::array<modifier_map_entry, 5U> const &get_modmap(xkb_keymap *keymap) {
+        static std::array<modifier_map_entry, 5U> map{};
+        static bool                               initialized = false;
 
         if (!initialized) {
             map[0].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_SHIFT);
