@@ -6,7 +6,7 @@ module;
 #include <cstring>
 #include <queue>
 #include <string>
-module foresight.mod.typed;
+module foresight.mods.typed;
 import foresight.lib.xkb.how2type;
 import foresight.main.log;
 import foresight.utils.hash;
@@ -142,7 +142,7 @@ namespace {
 
 // NOLINTEND(*-magic-numbers)
 // NOLINTBEGIN(*-pro-bounds-constant-array-index)
-std::uint32_t foresight::aho_typed_status::build_machine() {
+std::uint32_t foresight::event_search_engine::build_machine() {
     std::uint32_t last_state = 1;
     trie.resize(1);
     trie[0].fill(-1);
@@ -153,8 +153,8 @@ std::uint32_t foresight::aho_typed_status::build_machine() {
     for (std::size_t i = 0; i < patterns.size(); ++i) {
         auto const &word    = patterns[i];
         int         current = 0;
-        for (char const c : word) {
-            auto const ch = static_cast<std::size_t>(c - 'a');
+        for (char32_t const c : word) {
+            auto const ch = static_cast<std::size_t>(c - U'a');
             if (trie[current][ch] == -1) {
                 trie[current][ch] = static_cast<int>(last_state);
                 auto &back        = trie.emplace_back();
@@ -204,11 +204,11 @@ std::uint32_t foresight::aho_typed_status::build_machine() {
     return last_state;
 }
 
-foresight::aho_typed_status::aho_typed_status() {
+foresight::event_search_engine::event_search_engine() {
     build_machine();
 }
 
-void foresight::aho_typed_status::add_pattern(std::string_view const pattern) {
+void foresight::event_search_engine::add_pattern(std::u32string_view const pattern) {
     patterns.emplace_back(pattern.data(), pattern.size());
     trie.clear();
     output_links.clear();
@@ -216,19 +216,21 @@ void foresight::aho_typed_status::add_pattern(std::string_view const pattern) {
     build_machine();
 }
 
-foresight::aho_state foresight::aho_typed_status::process(char const      code_point,
-                                                          aho_state const last_state) const noexcept {
+foresight::aho_state foresight::event_search_engine::process(
+  char32_t const  code_point,
+  aho_state const last_state) const noexcept {
     auto       state = last_state.index();
     auto const ch    = static_cast<std::size_t>(code_point - 'a');
     while (trie[state][ch] == -1) {
         state = failure_links[state];
     }
-    return aho_state{static_cast<std::uint32_t>(trie[state][ch]), last_state.generation()};
+    auto const next_generation = static_cast<std::uint8_t>(last_state.generation() + 1U);
+    return aho_state{static_cast<std::uint32_t>(trie[state][ch]), next_generation};
 }
 
-std::vector<std::string> foresight::aho_typed_status::matches(std::uint32_t const state) const {
-    std::vector<std::string> matches;
-    auto const               mask = output_links[state];
+std::vector<std::u32string> foresight::event_search_engine::matches(std::uint32_t const state) const {
+    std::vector<std::u32string> matches;
+    auto const                  mask = output_links[state];
     for (std::size_t j = 0; j < patterns.size(); ++j) {
         if ((mask & (1U << j)) != 0u) {
             matches.push_back(patterns[j]);

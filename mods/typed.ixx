@@ -3,9 +3,10 @@
 module;
 #include <cassert>
 #include <cstdint>
+#include <span>
 #include <string_view>
 #include <vector>
-export module foresight.mod.typed;
+export module foresight.mods.typed;
 import foresight.mods.context;
 
 namespace foresight {
@@ -18,7 +19,7 @@ namespace foresight {
      * This allows checking if a state is still valid by comparing generations, useful for
      * detecting invalidations in structures like vectors where elements may be moved or removed.
      */
-    struct aho_state {
+    export struct [[nodiscard]] aho_state {
         /// Number of bits for the index.
         static constexpr std::uint32_t INDEX_BITS       = 24U;
         /// Number of bits for the generation counter.
@@ -109,11 +110,11 @@ namespace foresight {
     /**
      * Aho-Corasick status
      */
-    struct [[nodiscard]] aho_typed_status {
+    export struct [[nodiscard]] event_search_engine {
       private:
         static constexpr size_t ALPHABET_SIZE = 26;
 
-        std::vector<std::string>                    patterns;
+        std::vector<std::u32string>                    patterns;
         std::vector<std::uint32_t>                  output_links;
         std::vector<std::uint32_t>                  failure_links;
         std::vector<std::array<int, ALPHABET_SIZE>> trie;
@@ -123,20 +124,20 @@ namespace foresight {
         std::uint32_t build_machine();
 
       public:
-        aho_typed_status();
+        event_search_engine();
 
         /**
          * Add a new pattern to search for
          */
-        void add_pattern(std::string_view pattern);
+        void add_pattern(std::u32string_view pattern);
+        void add_pattern(std::span<user_event const> pattern);
 
         /**
          * Process this new event, and return a new state
          */
-        [[nodiscard("Store the state")]] aho_state process(char      code_point,
-                                                           aho_state last_state) const noexcept;
+        aho_state process(char32_t code_point, aho_state last_state) const noexcept;
 
-        std::vector<std::string> matches(std::uint32_t state) const;
+        std::vector<std::u32string> matches(std::uint32_t state) const;
     };
 
     /**
