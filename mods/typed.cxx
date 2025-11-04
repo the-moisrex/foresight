@@ -56,8 +56,8 @@ namespace {
         return cp >= 0xd800 && cp <= 0xDFFFU;
     }
 
-    [[nodiscard]] constexpr bool isempty(char const *src) noexcept {
-        return src == nullptr || src[0] == '\0';
+    [[nodiscard]] constexpr bool is_empty(char const *src) noexcept {
+        return src == nullptr || *src == '\0';
     }
 
     /// Reads the next UTF-8 sequence in a string
@@ -123,7 +123,7 @@ namespace {
             for (; base <= 16; base += 6) {
                 errno = 0;
                 val   = static_cast<char32_t>(strtol(src.data(), &endp, base));
-                if (errno != 0 || !isempty(endp) || static_cast<std::int32_t>(val) < 0 || val > 0x10'FFFFU) {
+                if (errno != 0 || !is_empty(endp) || static_cast<std::int32_t>(val) < 0 || val > 0x10'FFFFU) {
                     val = invalid_code_point;
                 } else {
                     break;
@@ -142,8 +142,8 @@ namespace {
 
 // NOLINTEND(*-magic-numbers)
 // NOLINTBEGIN(*-pro-bounds-constant-array-index)
-int foresight::aho_typed_status::build_machine() {
-    int last_state = 1;
+std::uint32_t foresight::aho_typed_status::build_machine() {
+    std::uint32_t last_state = 1;
     trie.resize(1);
     trie[0].fill(-1);
     output_links.resize(1, 0);
@@ -156,7 +156,7 @@ int foresight::aho_typed_status::build_machine() {
         for (char const c : word) {
             auto const ch = static_cast<std::size_t>(c - 'a');
             if (trie[current][ch] == -1) {
-                trie[current][ch] = last_state;
+                trie[current][ch] = static_cast<int>(last_state);
                 auto &back        = trie.emplace_back();
                 back.fill(-1);
                 output_links.emplace_back(0);
@@ -165,7 +165,7 @@ int foresight::aho_typed_status::build_machine() {
             }
             current = trie[current][ch];
         }
-        output_links[current] |= 1U << i;
+        output_links[current] |= 1 << i;
     }
 
     // Set goto for root's undefined transitions to itself
@@ -190,7 +190,7 @@ int foresight::aho_typed_status::build_machine() {
         q.pop();
         for (std::size_t ch = 0; ch < ALPHABET_SIZE; ++ch) {
             if (trie[cstate][ch] != -1) {
-                int fail = failure_links[cstate];
+                auto fail = failure_links[cstate];
                 while (trie[fail][ch] == -1) {
                     fail = failure_links[fail];
                 }
@@ -202,14 +202,6 @@ int foresight::aho_typed_status::build_machine() {
         }
     }
     return last_state;
-}
-
-int foresight::aho_typed_status::find_next_state(int current_state, char const input) const noexcept {
-    auto const ch = static_cast<std::size_t>(input - 'a');
-    while (trie[current_state][ch] == -1) {
-        current_state = failure_links[current_state];
-    }
-    return trie[current_state][ch];
 }
 
 foresight::aho_typed_status::aho_typed_status() {
@@ -224,16 +216,21 @@ void foresight::aho_typed_status::add_pattern(std::string_view const pattern) {
     build_machine();
 }
 
-int foresight::aho_typed_status::process(char const code_point, int const state) noexcept {
-    return find_next_state(state, code_point);
+foresight::aho_state foresight::aho_typed_status::process(char const      code_point,
+                                                          aho_state const last_state) const noexcept {
+    auto       state = last_state.index();
+    auto const ch    = static_cast<std::size_t>(code_point - 'a');
+    while (trie[state][ch] == -1) {
+        state = failure_links[state];
+    }
+    return aho_state{static_cast<std::uint32_t>(trie[state][ch]), last_state.generation()};
 }
 
-std::vector<std::string> foresight::aho_typed_status::matches(int state) const {
+std::vector<std::string> foresight::aho_typed_status::matches(std::uint32_t const state) const {
     std::vector<std::string> matches;
-    int const                mask         = output_links[state];
-    std::size_t const        num_patterns = patterns.size();
-    for (std::size_t j = 0; j < num_patterns; ++j) {
-        if (mask & (1 << j)) {
+    auto const               mask = output_links[state];
+    for (std::size_t j = 0; j < patterns.size(); ++j) {
+        if ((mask & (1U << j)) != 0u) {
             matches.push_back(patterns[j]);
         }
     }

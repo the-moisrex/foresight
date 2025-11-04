@@ -24,15 +24,15 @@ namespace foresight {
         /// Number of bits for the generation counter.
         static constexpr std::uint32_t GENERATION_BITS  = 8U;
         /// Mask for extracting the index.
-        static constexpr std::uint32_t INDEX_MASK       = (1u << INDEX_BITS) - 1;
+        static constexpr std::uint32_t INDEX_MASK       = (1U << INDEX_BITS) - 1U;
         /// Mask for extracting the generation.
-        static constexpr std::uint32_t GENERATION_MASK  = (1u << GENERATION_BITS) - 1;
+        static constexpr std::uint32_t GENERATION_MASK  = (1U << GENERATION_BITS) - 1U;
         /// Shift amount for the generation bits.
         static constexpr std::uint32_t GENERATION_SHIFT = INDEX_BITS;
 
       private:
-        std::uint32_t value : 24; // The index bit-field (24 bits).
-        std::uint8_t  gen   : 8;  // The generation bit-field (8 bits).
+        std::uint32_t value : 24U; // The index bit-field (24 bits).
+        std::uint8_t  gen   : 8U;  // The generation bit-field (8 bits).
       public:
         /**
          * @brief Default constructor, initializes index and generation to 0.
@@ -114,15 +114,13 @@ namespace foresight {
         static constexpr size_t ALPHABET_SIZE = 26;
 
         std::vector<std::string>                    patterns;
-        std::vector<int>                            output_links;
-        std::vector<int>                            failure_links;
+        std::vector<std::uint32_t>                  output_links;
+        std::vector<std::uint32_t>                  failure_links;
         std::vector<std::array<int, ALPHABET_SIZE>> trie;
 
         /// Returns the number of states that the built machine has.
         /// States are numbered 0 up to the return value - 1, inclusive.
-        int build_machine();
-
-        [[nodiscard]] int find_next_state(int current_state, char input) const noexcept;
+        std::uint32_t build_machine();
 
       public:
         aho_typed_status();
@@ -133,11 +131,12 @@ namespace foresight {
         void add_pattern(std::string_view pattern);
 
         /**
-         * Process this new event
+         * Process this new event, and return a new state
          */
-        [[nodiscard("Store the state")]] int process(char code_point, int state) noexcept;
+        [[nodiscard("Store the state")]] aho_state process(char      code_point,
+                                                           aho_state last_state) const noexcept;
 
-        std::vector<std::string> matches(int state) const;
+        std::vector<std::string> matches(std::uint32_t state) const;
     };
 
     /**
