@@ -224,23 +224,26 @@ char32_t foresight::utf8_next_code_point(std::string_view &src, std::size_t cons
     char32_t   code_point = 0;
     auto const len        = utf8_sequence_length(src.front());
 
-    if (max_size == 0u || len > max_size) {
+    if (max_size == 0u || len > max_size) [[unlikely]] {
         return invalid_code_point;
     }
 
     // Handle leading byte
-    auto const src0 = src[0];
+    auto const src0 = static_cast<char32_t>(src[0]);
     switch (len) {
-        case 1: src.remove_prefix(1); return static_cast<char32_t>(src0);
-        case 2: code_point = static_cast<char32_t>(src0) & 0x1FU; break;
-        case 3: code_point = static_cast<char32_t>(src0) & 0x0FU; break;
-        case 4: code_point = static_cast<char32_t>(src0) & 0x07U; break;
-        default: return invalid_code_point;
+        case 1: src.remove_prefix(1); return src0;
+        case 2: code_point = src0 & 0x1FU; break;
+        case 3: code_point = src0 & 0x0FU; break;
+        case 4:
+            code_point = src0 & 0x07U;
+            break;
+        [[unlikely]] default:
+            return invalid_code_point;
     }
 
     // Process remaining bytes of the UTF-8 sequence
     for (std::size_t k = 1; k < len; k++) {
-        if ((static_cast<char32_t>(src[k]) & 0xC0U) != 0x80U) {
+        if ((static_cast<char32_t>(src[k]) & 0xC0U) != 0x80U) [[unlikely]] {
             return invalid_code_point;
         }
         code_point <<= 6U;
@@ -250,7 +253,7 @@ char32_t foresight::utf8_next_code_point(std::string_view &src, std::size_t cons
     src.remove_prefix(len);
 
     // Check surrogates
-    if (is_surrogate(code_point)) {
+    if (is_surrogate(code_point)) [[unlikely]] {
         return invalid_code_point;
     }
 
@@ -260,7 +263,7 @@ char32_t foresight::utf8_next_code_point(std::string_view &src, std::size_t cons
 char32_t foresight::parse_char_or_codepoint(std::string_view &src) noexcept {
     auto const raw_length = src.size();
 
-    if (raw_length == 0U) {
+    if (raw_length == 0U) [[unlikely]] {
         return invalid_code_point;
     }
 
@@ -270,7 +273,7 @@ char32_t foresight::parse_char_or_codepoint(std::string_view &src) noexcept {
 
     // If parsing failed or did not consume all the string, then try other formats
     if (codepoint == invalid_code_point || length == 0 || length != raw_length) {
-        char    *endp = nullptr;
+        char    *endp = nullptr; // NOLINT(*-const-correctness)
         char32_t val  = 0;
         int      base = 10;
         // Detect U+NNNN format standard Unicode code point format
@@ -281,14 +284,17 @@ char32_t foresight::parse_char_or_codepoint(std::string_view &src) noexcept {
         // Use strtol with explicit bases instead of `0` in order to avoid unexpected parsing as octal.
         for (; base <= 16; base += 6) {
             errno = 0;
+            // NOLINTNEXTLINE(*-suspicious-stringview-data-usage)
             val   = static_cast<char32_t>(strtol(src.data(), &endp, base));
-            if (errno != 0 || !is_empty(endp) || static_cast<std::int32_t>(val) < 0 || val > 0x10'FFFFU) {
+            if (errno != 0 || !is_empty(endp) || static_cast<std::int32_t>(val) < 0 || val > 0x10'FFFFU)
+              [[unlikely]]
+            {
                 val = invalid_code_point;
             } else {
                 break;
             }
         }
-        if (val == invalid_code_point) {
+        if (val == invalid_code_point) [[unlikely]] {
             log("ERROR: Failed to convert to UTF-32");
             return invalid_code_point;
         }
