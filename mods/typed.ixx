@@ -114,7 +114,8 @@ namespace foresight {
       private:
         static constexpr size_t ALPHABET_SIZE = 26;
 
-        std::vector<std::u32string>                    patterns;
+        /// UTF-32-encoded patterns (some code points are special code points)
+        std::vector<std::u32string>                 patterns;
         std::vector<std::uint32_t>                  output_links;
         std::vector<std::uint32_t>                  failure_links;
         std::vector<std::array<int, ALPHABET_SIZE>> trie;
@@ -128,9 +129,9 @@ namespace foresight {
 
         /**
          * Add a new pattern to search for
+         * @param pattern It's a UTF-8-encoded string that we will try to find later on
          */
-        void add_pattern(std::u32string_view pattern);
-        void add_pattern(std::span<user_event const> pattern);
+        void add_pattern(std::string_view pattern);
 
         /**
          * Process this new event, and return a new state

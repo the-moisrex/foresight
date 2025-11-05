@@ -63,66 +63,68 @@ set_target_properties(${LIB_NAME} PROPERTIES
         CXX_EXTENSIONS ON)
 target_sources(${LIB_NAME}
         PRIVATE
+        bash/bash_runner.cxx
+        devices/evdev.cxx
+        devices/key_codes.cxx
+        devices/uinput.cxx
+        lib/event2unicode.cxx
+        lib/how2type.cxx
+        lib/mod_parser.cxx
+        lib/xkb.cxx
         main/keyboard.cxx
         main/systemd.cxx
-        devices/evdev.cxx
-        devices/uinput.cxx
-        devices/key_codes.cxx
-        mods/intercept.cxx
-        mods/ignore.cxx
-        mods/emitter.cxx
         mods/abs2rel.cxx
+        mods/emitter.cxx
+        mods/ignore.cxx
+        mods/intercept.cxx
+        mods/keys_status.cxx
+        mods/momentum.cxx
+        mods/on.cxx
         mods/quantifier.cxx
         mods/replace.cxx
-        mods/keys_status.cxx
-        mods/on.cxx
-        mods/momentum.cxx
-        mods/typer.cxx
         mods/typed.cxx
-        lib/xkb.cxx
-        lib/how2type.cxx
-        lib/event2unicode.cxx
-        bash/bash_runner.cxx
+        mods/typer.cxx
         utils/hash.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
-        main/main.ixx
-        main/utils.ixx
-        main/log.ixx
-        main/keyboard.ixx
-        main/translate.ixx
-        main/systemd.ixx
+        bash/bash_runner.ixx
         devices/evdev.ixx
-        devices/uinput.ixx
         devices/inputs-event-codes.ixx
         devices/key_codes.ixx
-        mods/router.ixx
+        devices/uinput.ixx
+        lib/event2unicode.ixx
+        lib/how2type.ixx
+        lib/mod_parser.ixx
+        lib/xkb.ixx
+        main/keyboard.ixx
+        main/log.ixx
+        main/main.ixx
+        main/systemd.ixx
+        main/translate.ixx
+        main/utils.ixx
+        mods/abs2rel.ixx
+        mods/add_scroll.ixx
+        mods/caps.ixx
+        mods/context.ixx
+        mods/emitter.ixx
         mods/event.ixx
         mods/ignore.ixx
-        mods/intercept.ixx
-        mods/stopper.ixx
-        mods/keys_status.ixx
-        mods/mouse_status.ixx
-        mods/quantifier.ixx
-        mods/context.ixx
         mods/inout.ixx
-        mods/add_scroll.ixx
-        mods/smooth.ixx
-        mods/on.ixx
-        mods/emitter.ixx
-        mods/abs2rel.ixx
-        mods/caps.ixx
-        mods/replace.ixx
-        mods/momentum.ixx
-        mods/typer.ixx
-        mods/typed.ixx
+        mods/intercept.ixx
+        mods/keys_status.ixx
         mods/modes.ixx
         mods/mods.ixx
+        mods/momentum.ixx
+        mods/mouse_status.ixx
+        mods/on.ixx
+        mods/quantifier.ixx
+        mods/replace.ixx
+        mods/router.ixx
+        mods/smooth.ixx
+        mods/stopper.ixx
+        mods/typed.ixx
+        mods/typer.ixx
         utils/easings.ixx
         utils/hash.ixx
-        lib/xkb.ixx
-        lib/how2type.ixx
-        lib/event2unicode.ixx
-        bash/bash_runner.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)
 set_target_properties(${LIB_NAME} PROPERTIES
