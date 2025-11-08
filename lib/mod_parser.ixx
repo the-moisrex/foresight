@@ -5,13 +5,19 @@ module;
 #include <string_view>
 export module foresight.lib.mod_parser;
 import foresight.mods.event;
+import foresight.lib.xkb.event2unicode;
 
 namespace foresight {
 
     /// A UTF-32 encoded code point that uses unused parts of Unicode
     export using code32_t = char32_t;
 
-    export constexpr char32_t invalid_code_point = UINT32_MAX;
+    export constexpr auto     invalid_code_point     = static_cast<char32_t>(0x10'FFFFU);
+    export constexpr code32_t event_encoded_code32_t = 0b1U << 30U;
+
+    /// Convert an event into encoded code point
+    export [[nodiscard]] code32_t unicode_encoded_event(xkb::basic_event2unicode &state,
+                                                        event_type const &) noexcept;
 
     /// Convert to UTF-32
     export [[nodiscard]] char32_t utf8_next_code_point(std::string_view &src, std::size_t max_size) noexcept;

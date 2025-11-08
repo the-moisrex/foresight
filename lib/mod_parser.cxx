@@ -219,6 +219,15 @@ namespace {
 
 } // namespace
 
+foresight::code32_t foresight::unicode_encoded_event(xkb::basic_event2unicode &state,
+                                                     event_type const         &event) noexcept {
+    auto const code_point = state(event);
+    if (code_point == U'\0') {
+        return static_cast<code32_t>(event_encoded_code32_t | event.hash());
+    }
+    return code_point;
+}
+
 /// Reads the next UTF-8 sequence in a string
 char32_t foresight::utf8_next_code_point(std::string_view &src, std::size_t const max_size) noexcept {
     char32_t   code_point = 0;
