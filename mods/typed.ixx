@@ -111,6 +111,8 @@ namespace foresight {
      * Aho-Corasick status
      */
     export struct [[nodiscard]] event_search_engine {
+        using state_type = std::uint32_t;
+
       private:
         struct node_type {
             char32_t      value     = 0; // the incoming code point for this node (root = 0)
@@ -118,10 +120,10 @@ namespace foresight {
             std::uint32_t fail_link = 0; // failure link (state index)
 
             // children: pair<codepoint, state_index>. kept sorted by codepoint for binary search.
-            std::vector<std::pair<char32_t, int>> children;
+            std::vector<std::pair<char32_t, std::uint32_t>> children;
 
             // A mask for all children keys for faster failures
-            std::uint32_t                         children_mask = 0U;
+            std::uint32_t children_mask = 0U;
         };
 
         /// UTF-32-encoded patterns (some code points are special code points)
@@ -133,8 +135,8 @@ namespace foresight {
         std::uint32_t build_machine();
 
         // helpers
-        [[nodiscard]] int find_child(int state, char32_t code) const noexcept;
-        [[nodiscard]] std::uint32_t               add_child(int state, char32_t ch, int child_index);
+        [[nodiscard]] state_type    find_child(state_type state, char32_t code) const noexcept;
+        [[nodiscard]] std::uint32_t add_child(state_type state, char32_t code, state_type child_index);
 
       public:
         event_search_engine();
