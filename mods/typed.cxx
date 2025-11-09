@@ -1,7 +1,6 @@
 // Created by moisrex on 10/28/25.
 
 module;
-#include <array>
 #include <cstdint>
 #include <cstring>
 #include <queue>
@@ -16,69 +15,114 @@ import foresight.lib.mod_parser;
 using foresight::basic_typed;
 
 // NOLINTBEGIN(*-pro-bounds-constant-array-index)
-std::uint32_t foresight::event_search_engine::build_machine() {
-    std::uint32_t last_state = 1;
-    trie.resize(1);
-    trie[0].fill(-1);
-    output_links.resize(1, 0);
-    failure_links.resize(1, 0); // Root failure points to itself
+int foresight::event_search_engine::find_child(int const state, char32_t const code) const noexcept {
+    auto const &node     = trie[state];
+    auto const &children = node.children;
 
-    // Insert patterns into the trie
+    if ((node.children_mask & code) == 0) [[likely]] {
+        // User most likely won't be typing the shortcuts all the time, so we put it in the slow path
+        return -1;
+    }
+
+    // binary search since children is kept sorted by codepoint
+    auto it = std::lower_bound(children.begin(), children.end(), code, [](auto const &a, char32_t value) {
+        return a.first < value;
+    });
+    if (it != children.end() && it->first == code) {
+        return it->second;
+    }
+    return -1;
+}
+
+std::uint32_t foresight::event_search_engine::add_child(int const state, char32_t ch, int child_index) {
+    auto &children = trie[state].children;
+    auto  it = std::lower_bound(children.begin(), children.end(), ch, [](auto const &a, char32_t value) {
+        return a.first < value;
+    });
+    children.emplace(it, ch, child_index); // insert sorted
+
+    std::uint32_t mask = 0U;
+    for (auto const child : children) {
+        mask |= child.first;
+    }
+    return mask;
+}
+
+std::uint32_t foresight::event_search_engine::build_machine() {
+    trie.clear();
+    auto &root     = trie.emplace_back(); // root node (index 0)
+    root.value     = 0;
+    root.out_link  = 0;
+    root.fail_link = 0;
+
+    std::uint32_t last_state = 1;
+
+    // Insert patterns into trie
     for (std::size_t i = 0; i < patterns.size(); ++i) {
         auto const &word    = patterns[i];
         int         current = 0;
         for (char32_t const c : word) {
-            auto const ch = static_cast<std::size_t>(c - U'a');
-            if (trie[current][ch] == -1) {
-                trie[current][ch] = static_cast<int>(last_state);
-                auto &back        = trie.emplace_back();
-                back.fill(-1);
-                output_links.emplace_back(0);
-                failure_links.emplace_back(0); // Temporary
+            int next = find_child(current, c);
+            if (next == -1) {
+                // create new node
+                auto &last         = trie.emplace_back();
+                last.value         = c;
+                last.out_link      = 0;
+                last.fail_link     = 0;
+                next               = static_cast<int>(last_state);
+                last.children_mask = add_child(current, c, next);
                 ++last_state;
             }
-            current = trie[current][ch];
+            current = next;
         }
-        output_links[current] |= 1 << i;
-    }
-
-    // Set goto for root's undefined transitions to itself
-    for (std::size_t ch = 0; ch < ALPHABET_SIZE; ++ch) {
-        if (trie[0][ch] == -1) {
-            trie[0][ch] = 0;
+        // set output bit for pattern i
+        if (i < (sizeof(std::uint32_t) * 8)) {
+            trie[current].out_link |= (1u << static_cast<unsigned>(i));
+        } else {
+            // pattern index too large for bitmask; you may want to change representation.
+            // For now we silently ignore bits beyond mask (alternatively log or handle).
         }
     }
 
     // Build failure links using BFS
     std::queue<int> q;
-    for (std::size_t ch = 0; ch < ALPHABET_SIZE; ++ch) {
-        auto const next = trie[0][ch];
-        if (next != 0) {
-            failure_links[next] = 0;
-            q.push(next);
-        }
+    // initialize root's children: their fail is root (0)
+    for (auto const [_, child_index] : trie[0].children) {
+        trie[child_index].fail_link = 0;
+        q.push(child_index);
     }
 
     while (!q.empty()) {
         int const cstate = q.front();
         q.pop();
-        for (std::size_t ch = 0; ch < ALPHABET_SIZE; ++ch) {
-            if (trie[cstate][ch] != -1) {
-                auto fail = failure_links[cstate];
-                while (trie[fail][ch] == -1) {
-                    fail = failure_links[fail];
-                }
-                fail                             = trie[fail][ch];
-                failure_links[trie[cstate][ch]]  = fail;
-                output_links[trie[cstate][ch]]  |= output_links[fail];
-                q.push(trie[cstate][ch]);
+
+        // iterate over each child of cstate
+        for (auto const &[ch, child_index] : trie[cstate].children) {
+            // compute failure for child_index
+            int fail = static_cast<int>(trie[cstate].fail_link);
+            // walk fail links until we find a node that has `ch` as child or reach root
+            while (fail != 0 && find_child(fail, ch) == -1) {
+                fail = static_cast<int>(trie[fail].fail_link);
             }
+            auto const fchild = find_child(fail, ch);
+            if (fchild != -1) {
+                trie[child_index].fail_link = static_cast<std::uint32_t>(fchild);
+            } else {
+                trie[child_index].fail_link = 0;
+            }
+
+            // merge output links
+            trie[child_index].out_link |= trie[trie[child_index].fail_link].out_link;
+
+            q.push(child_index);
         }
     }
+
     return last_state;
 }
 
 foresight::event_search_engine::event_search_engine() {
+    // create empty machine (root-only)
     build_machine();
 }
 
@@ -97,29 +141,40 @@ void foresight::event_search_engine::add_pattern(std::string_view pattern) {
     }
     patterns.emplace_back(std::move(encoded_pattern));
 
-    trie.clear();
-    output_links.clear();
-    failure_links.clear();
+    // Rebuild machine (can be optimized to incremental insertion if needed)
     build_machine();
 }
 
 foresight::aho_state foresight::event_search_engine::process(
   char32_t const  code_point,
   aho_state const last_state) const noexcept {
-    auto       state = last_state.index();
-    auto const ch    = static_cast<std::size_t>(code_point - 'a');
-    while (trie[state][ch] == -1) {
-        state = failure_links[state];
+    auto state = static_cast<int>(last_state.index());
+
+    // follow transitions; if not present, follow failure links until root
+    int next = find_child(state, code_point);
+    while (next == -1 && state != 0) {
+        state = static_cast<int>(trie[state].fail_link);
+        next  = find_child(state, code_point);
     }
+    if (next == -1) {
+        next = 0; // if still not found, go to root
+    }
+
     auto const next_generation = static_cast<std::uint8_t>(last_state.generation() + 1U);
-    return aho_state{static_cast<std::uint32_t>(trie[state][ch]), next_generation};
+    return aho_state{static_cast<std::uint32_t>(next), next_generation};
 }
 
 std::vector<std::u32string> foresight::event_search_engine::matches(std::uint32_t const state) const {
     std::vector<std::u32string> matches;
-    auto const                  mask = output_links[state];
+    if (state >= trie.size()) {
+        return matches;
+    }
+    auto const mask = trie[state].out_link;
     for (std::size_t j = 0; j < patterns.size(); ++j) {
-        if ((mask & (1U << j)) != 0u) {
+        if (j >= (sizeof(std::uint32_t) * 8)) {
+            break; // mask only holds lower bits
+        }
+        if ((mask & (1U << static_cast<unsigned>(j))) != 0u) {
             matches.push_back(patterns[j]);
         }
     }

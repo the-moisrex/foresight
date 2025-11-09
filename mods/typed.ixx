@@ -112,17 +112,29 @@ namespace foresight {
      */
     export struct [[nodiscard]] event_search_engine {
       private:
-        static constexpr size_t ALPHABET_SIZE = 26;
+        struct node_type {
+            char32_t      value     = 0; // the incoming code point for this node (root = 0)
+            std::uint32_t out_link  = 0; // output bitmask (pattern IDs)
+            std::uint32_t fail_link = 0; // failure link (state index)
+
+            // children: pair<codepoint, state_index>. kept sorted by codepoint for binary search.
+            std::vector<std::pair<char32_t, int>> children;
+
+            // A mask for all children keys for faster failures
+            std::uint32_t                         children_mask = 0U;
+        };
 
         /// UTF-32-encoded patterns (some code points are special code points)
-        std::vector<std::u32string>                 patterns;
-        std::vector<std::uint32_t>                  output_links;
-        std::vector<std::uint32_t>                  failure_links;
-        std::vector<std::array<int, ALPHABET_SIZE>> trie;
+        std::vector<std::u32string> patterns;
+        std::vector<node_type>      trie;
 
         /// Returns the number of states that the built machine has.
         /// States are numbered 0 up to the return value - 1, inclusive.
         std::uint32_t build_machine();
+
+        // helpers
+        [[nodiscard]] int find_child(int state, char32_t code) const noexcept;
+        [[nodiscard]] std::uint32_t               add_child(int state, char32_t ch, int child_index);
 
       public:
         event_search_engine();
