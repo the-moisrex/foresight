@@ -21,24 +21,12 @@ namespace {
     constexpr int evdev_offset = 8;
 } // namespace
 
-basic_event2unicode::basic_event2unicode(keymap::pointer inp_map) noexcept
-  : map{std::move(inp_map)},
-    state{xkb_state_new(map->get())} {}
-
-basic_event2unicode::basic_event2unicode() noexcept
-  : map{keymap::create()},
-    state{xkb_state_new(map->get())} {}
-
-basic_event2unicode::~basic_event2unicode() noexcept {
-    if (state != nullptr) {
-        xkb_state_unref(state);
-        state = nullptr;
-    }
-}
+basic_event2unicode::basic_event2unicode(state::pointer handle) noexcept : state_handle{std::move(handle)} {}
 
 char32_t basic_event2unicode::operator()(event_type const& event) noexcept {
+    auto* handle = state_handle->get();
     // Check if this is a key event and state is valid
-    if (state == nullptr || event.type() != EV_KEY) {
+    if (handle == nullptr || event.type() != EV_KEY) {
         return U'\0';
     }
 
@@ -47,14 +35,14 @@ char32_t basic_event2unicode::operator()(event_type const& event) noexcept {
     xkb_key_direction const dir     = event.value() == KEY_STATE_RELEASE ? XKB_KEY_UP : XKB_KEY_DOWN;
 
     // Update the state based on the key event
-    xkb_state_update_key(state, keycode, dir);
+    xkb_state_update_key(handle, keycode, dir);
 
     // Only return Unicode for key press events, not releases
     if (dir == XKB_KEY_UP) {
         return U'\0';
     }
 
-    return static_cast<char32_t>(xkb_state_key_get_utf32(state, keycode));
+    return static_cast<char32_t>(xkb_state_key_get_utf32(handle, keycode));
 }
 
 std::u32string basic_event2unicode::operator()(std::span<event_type const> const events) {

@@ -115,4 +115,32 @@ export namespace foresight::xkb {
 
     [[nodiscard]] std::string name(xkb_keysym_t keysym);
 
+    /**
+     * Wraps xkb_state
+     */
+    struct [[nodiscard]] state final : std::enable_shared_from_this<state> {
+        using pointer = std::shared_ptr<state>;
+
+      private:
+        struct private_tag {};
+
+      public:
+        explicit state(private_tag, keymap::pointer inp_map);
+        static pointer create(keymap::pointer inp_map);
+
+        // Non-copyable, movable
+        state(state const &)                = delete;
+        state &operator=(state const &)     = delete;
+        state(state &&) noexcept            = default;
+        state &operator=(state &&) noexcept = default;
+        ~state() noexcept;
+
+        [[nodiscard]] pointer    getptr();
+        [[nodiscard]] xkb_state *get() const noexcept;
+
+      private:
+        keymap::pointer map;
+        xkb_state      *handle;
+    };
+
 } // namespace foresight::xkb

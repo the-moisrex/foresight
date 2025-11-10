@@ -159,3 +159,32 @@ std::string foresight::xkb::name(xkb_keysym_t const keysym) {
     }
     return {name.data()};
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////       State       ////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+state::state(private_tag, keymap::pointer inp_map)
+  : map{std::move(inp_map)},
+    handle{xkb_state_new(map->get())} {
+    ensure(handle != nullptr, "Cannot create xkb state with xkb_state_new");
+}
+
+state::pointer state::create(keymap::pointer inp_map) {
+    return std::make_shared<state>(private_tag{}, std::move(inp_map));
+}
+
+state::~state() noexcept {
+    if (handle != nullptr) {
+        xkb_state_unref(handle);
+        handle = nullptr;
+    }
+}
+
+state::pointer state::getptr() {
+    return shared_from_this();
+}
+
+xkb_state* state::get() const noexcept {
+    return handle;
+}

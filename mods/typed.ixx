@@ -3,11 +3,11 @@
 module;
 #include <cassert>
 #include <cstdint>
-#include <span>
 #include <string_view>
 #include <vector>
 export module foresight.mods.typed;
 import foresight.mods.context;
+import foresight.lib.xkb.event2unicode;
 
 namespace foresight {
 

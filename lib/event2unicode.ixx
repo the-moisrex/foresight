@@ -12,19 +12,16 @@ namespace foresight::xkb {
 
     export struct [[nodiscard]] basic_event2unicode {
       private:
-        keymap::pointer map;
-
         // pointer to the xkb state for the keyboard
-        xkb_state* state = nullptr;
+        state::pointer state_handle;
 
       public:
-        explicit basic_event2unicode(keymap::pointer map) noexcept;
-        basic_event2unicode() noexcept;
+        explicit basic_event2unicode(state::pointer handle) noexcept;
         basic_event2unicode(basic_event2unicode const&)                      = delete;
         basic_event2unicode(basic_event2unicode&& other) noexcept            = default;
         basic_event2unicode& operator=(basic_event2unicode const&)           = delete;
         basic_event2unicode& operator=(basic_event2unicode&& other) noexcept = default;
-        ~basic_event2unicode() noexcept;
+        ~basic_event2unicode() noexcept = default;
 
         /// Process
         [[nodiscard]] char32_t       operator()(event_type const& event) noexcept;
