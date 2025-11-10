@@ -3,6 +3,7 @@
 module;
 #include <cassert>
 #include <cstdint>
+#include <functional>
 #include <string_view>
 #include <vector>
 export module foresight.mods.typed;
@@ -152,7 +153,8 @@ namespace foresight {
          */
         aho_state process(char32_t code_point, aho_state last_state) const noexcept;
 
-        std::vector<std::u32string> matches(std::uint32_t state) const;
+        // todo: convert this to std::function_ref
+        void matches(std::uint32_t state, std::function<void(std::u32string_view)> const& callback) const;
     };
 
     /**

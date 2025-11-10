@@ -3,6 +3,7 @@
 module;
 #include <cstdint>
 #include <cstring>
+#include <functional>
 #include <queue>
 #include <string>
 module foresight.mods.typed;
@@ -163,10 +164,10 @@ foresight::aho_state event_search_engine::process(char32_t const  code_point,
     return last_state.next_generation(next);
 }
 
-std::vector<std::u32string> event_search_engine::matches(std::uint32_t const state) const {
-    std::vector<std::u32string> matches;
+void event_search_engine::matches(std::uint32_t const                             state,
+                                  std::function<void(std::u32string_view)> const &callback) const {
     if (state >= trie.size()) {
-        return matches;
+        return;
     }
     auto const mask = trie[state].out_link;
     for (std::size_t j = 0; j < patterns.size(); ++j) {
@@ -174,10 +175,9 @@ std::vector<std::u32string> event_search_engine::matches(std::uint32_t const sta
             break; // mask only holds lower bits
         }
         if ((mask & (1U << static_cast<unsigned>(j))) != 0u) {
-            matches.push_back(patterns[j]);
+            callback(patterns[j]);
         }
     }
-    return matches;
 }
 
 // NOLINTEND(*-pro-bounds-constant-array-index)
