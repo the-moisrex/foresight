@@ -196,7 +196,7 @@ namespace foresight {
         constexpr basic_typed(basic_typed&& other) noexcept            = default;
         consteval basic_typed& operator=(basic_typed const& other)     = default;
         constexpr basic_typed& operator=(basic_typed&& other) noexcept = default;
-        ~basic_typed()                                                 = default;
+        constexpr ~basic_typed()                                       = default;
 
         /// Return a new typed class that trigger when "str" is typed by the user.
         consteval basic_typed operator()(std::string_view const inp_trigger) const noexcept {

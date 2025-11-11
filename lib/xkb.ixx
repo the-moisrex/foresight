@@ -90,6 +90,8 @@ export namespace foresight::xkb {
      * Wraps xkb_state
      */
     struct [[nodiscard]] basic_state final {
+
+        /// Initialize as well
         explicit basic_state(keymap const &inp_map);
 
         // Non-copyable, movable
@@ -98,13 +100,20 @@ export namespace foresight::xkb {
         consteval basic_state &operator=(basic_state const &) noexcept = default;
         basic_state(basic_state &&) noexcept                           = default;
         basic_state &operator=(basic_state &&) noexcept                = default;
-        ~basic_state() noexcept;
+
+        constexpr ~basic_state() noexcept {
+            if !consteval {
+                destroy();
+            }
+        }
 
         void initialize(keymap const &inp_map);
 
+        /// Make sure you have initialized it first
         [[nodiscard]] xkb_state *get() const noexcept;
 
       private:
+        void       destroy() noexcept;
         xkb_state *handle = nullptr;
     };
 

@@ -2,6 +2,7 @@
 
 module;
 #include <array>
+#include <cassert>
 #include <memory>
 #include <string_view>
 #include <utility>
@@ -139,7 +140,7 @@ basic_state::basic_state(keymap const& inp_map) : handle{xkb_state_new(inp_map.g
     ensure(handle != nullptr, "Cannot create xkb state with xkb_state_new");
 }
 
-basic_state::~basic_state() noexcept {
+void basic_state::destroy() noexcept {
     if (handle != nullptr) {
         xkb_state_unref(handle);
         handle = nullptr;
@@ -154,5 +155,6 @@ void basic_state::initialize(keymap const& inp_map) {
 }
 
 xkb_state* basic_state::get() const noexcept {
+    assert(handle != nullptr);
     return handle;
 }
