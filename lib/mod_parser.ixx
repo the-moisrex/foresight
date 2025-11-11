@@ -5,7 +5,7 @@ module;
 #include <string_view>
 export module foresight.lib.mod_parser;
 import foresight.mods.event;
-import foresight.lib.xkb.event2unicode;
+import foresight.lib.xkb;
 
 namespace foresight {
 
@@ -16,7 +16,7 @@ namespace foresight {
     export constexpr code32_t event_encoded_code32_t = 0b1U << 30U;
 
     /// Convert an event into encoded code point
-    export [[nodiscard]] code32_t unicode_encoded_event(xkb::basic_event2unicode &state,
+    export [[nodiscard]] code32_t unicode_encoded_event(xkb::basic_state const &state,
                                                         event_type const &) noexcept;
 
     /// Convert to UTF-32

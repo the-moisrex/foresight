@@ -1,6 +1,7 @@
 // Created by moisrex on 10/28/25.
 
 module;
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <functional>
@@ -14,10 +15,10 @@ import foresight.mods.event;
 import foresight.lib.mod_parser;
 
 using foresight::basic_typed;
-using foresight::event_search_engine;
+using foresight::basic_search_engine;
 
 // NOLINTBEGIN(*-pro-bounds-constant-array-index)
-event_search_engine::state_type event_search_engine::find_child(
+basic_search_engine::state_type basic_search_engine::find_child(
   state_type const state,
   char32_t const   code) const noexcept {
     auto const &node     = trie[state];
@@ -39,7 +40,7 @@ event_search_engine::state_type event_search_engine::find_child(
     return 0; // index to root
 }
 
-std::uint32_t event_search_engine::add_child(state_type const state, char32_t code, state_type child_index) {
+std::uint32_t basic_search_engine::add_child(state_type const state, char32_t code, state_type child_index) {
     auto      &children = trie[state].children;
     auto const it =
       std::lower_bound(children.begin(), children.end(), code, [](auto const &a, char32_t value) {
@@ -54,7 +55,7 @@ std::uint32_t event_search_engine::add_child(state_type const state, char32_t co
     return mask;
 }
 
-std::uint32_t event_search_engine::build_machine() {
+std::uint32_t basic_search_engine::build_machine() {
     trie.clear();
     auto &root     = trie.emplace_back(); // root node (index 0)
     root.value     = 0;
@@ -127,12 +128,7 @@ std::uint32_t event_search_engine::build_machine() {
     return last_state;
 }
 
-event_search_engine::event_search_engine() {
-    // create empty machine (root-only)
-    build_machine();
-}
-
-void event_search_engine::add_pattern(std::string_view pattern) {
+void basic_search_engine::add_pattern(std::string_view pattern) {
     std::u32string encoded_pattern;
     encoded_pattern.reserve(pattern.size());
 
@@ -151,8 +147,9 @@ void event_search_engine::add_pattern(std::string_view pattern) {
     build_machine();
 }
 
-foresight::aho_state event_search_engine::process(char32_t const  code_point,
+foresight::aho_state basic_search_engine::process(char32_t const  code_point,
                                                   aho_state const last_state) const noexcept {
+    assert(!trie.empty());
     auto state = static_cast<int>(last_state.index());
 
     // follow transitions; if not present, follow failure links until root
@@ -164,7 +161,7 @@ foresight::aho_state event_search_engine::process(char32_t const  code_point,
     return last_state.next_generation(next);
 }
 
-void event_search_engine::matches(std::uint32_t const                             state,
+void basic_search_engine::matches(std::uint32_t const                             state,
                                   std::function<void(std::u32string_view)> const &callback) const {
     if (state >= trie.size()) {
         return;
@@ -180,36 +177,9 @@ void event_search_engine::matches(std::uint32_t const                           
     }
 }
 
+void basic_search_engine::operator()(start_tag) {
+    // create empty machine (root-only)
+    build_machine();
+}
+
 // NOLINTEND(*-pro-bounds-constant-array-index)
-
-void basic_typed::operator()(start_tag) {
-    xkb::how2type    typer;
-    std::u32string   str;
-    std::string_view utf8_trigger = trigger;
-    str.reserve(utf8_trigger.size());
-    while (!utf8_trigger.empty()) {
-        char32_t const code_point = parse_char_or_codepoint(utf8_trigger);
-        if (code_point == invalid_code_point) {
-            log("ERROR: Invalid Code Point was found.");
-            continue;
-        }
-        str += code_point;
-    }
-    // Build the pattern of hashed(type, code) from the events required to type the trigger string
-    target_length  = 0;
-    current_length = 0;
-    fnv1a_init(target_hash);
-    fnv1a_init(current_hash);
-    // typer.emit(str, [this](user_event const &event) noexcept {
-    //     // Use the same hashing as runtime events (type+code; ignore value)
-    //     ++target_length;
-    //     // Keep legacy rolling hash for potential external users
-    //     fnv1a_hash(target_hash, event.code);
-    // });
-}
-
-bool basic_typed::operator()(event_type const &event) noexcept {
-    // todo: this is completely wrong:
-    fnv1a_hash(target_hash, event.code());
-    return target_hash == current_hash;
-}

@@ -13,7 +13,7 @@ int main(int const argc, char const* const* argv) try {
       context
       | intercept
       | scheduled_emitter
-      | led_status
+      | search_engine
       | keys_status
       | mice_quantifier
       | swipe_detector

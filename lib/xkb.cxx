@@ -9,9 +9,9 @@ module;
 #include <xkbcommon/xkbcommon.h>
 module foresight.lib.xkb;
 
+using foresight::xkb::basic_state;
 using foresight::xkb::context;
 using foresight::xkb::keymap;
-using foresight::xkb::state;
 
 static constexpr std::size_t XKB_KEYSYM_NAME_MAX_SIZE = 28;
 
@@ -25,22 +25,14 @@ namespace {
 
 } // namespace
 
-context::context(private_tag, xkb_context_flags const flags) : ctx{xkb_context_new(flags)} {
+context::context(xkb_context_flags const flags) : ctx{xkb_context_new(flags)} {
     ensure(ctx != nullptr, "Failed to create xkb_context");
-}
-
-context::pointer context::create(xkb_context_flags flags) {
-    return std::make_shared<context>(private_tag{}, flags);
 }
 
 context::~context() noexcept {
     if (ctx != nullptr) {
         xkb_context_unref(ctx);
     }
-}
-
-context::pointer context::getptr() {
-    return shared_from_this();
 }
 
 xkb_context* context::get() const noexcept {
@@ -55,67 +47,49 @@ xkb_log_level context::log_level() const noexcept {
     return xkb_context_get_log_level(get());
 }
 
+context& foresight::xkb::get_default_context() {
+    static context ctx;
+    return ctx;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////       KeyMap      ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 keymap::keymap(
-  private_tag,
-  context::pointer inp_ctx,
-  char const*      rules,
-  char const*      model,
-  char const*      layout,
-  char const*      variant,
-  char const*      options)
-  : ctx{std::move(inp_ctx)} {
+  context const& ctx,
+  char const*    rules,
+  char const*    model,
+  char const*    layout,
+  char const*    variant,
+  char const*    options) {
     xkb_rule_names names{};
     names.rules   = rules;
     names.model   = model;
     names.layout  = layout;
     names.variant = variant;
     names.options = options;
-    load(&names);
+    load(ctx, &names);
 }
 
-keymap::pointer keymap::create(
-  context::pointer const& inp_ctx,
-  char const*             rules,
-  char const*             model,
-  char const*             layout,
-  char const*             variant,
-  char const*             options) {
-    return std::make_shared<keymap>(private_tag{}, inp_ctx, rules, model, layout, variant, options);
-}
-
-keymap::pointer keymap::create(
-  char const* rules,
-  char const* model,
-  char const* layout,
-  char const* variant,
-  char const* options) {
-    return create(context::create(), rules, model, layout, variant, options);
-}
-
-void keymap::load(xkb_rule_names const* names, xkb_keymap_format const keymap_format) {
+void keymap::load(context const& ctx, xkb_rule_names const* names, xkb_keymap_format const keymap_format) {
     if (handle != nullptr) [[unlikely]] {
         xkb_keymap_unref(handle);
     }
-    handle = xkb_keymap_new_from_names2(ctx->get(), names, keymap_format, XKB_KEYMAP_COMPILE_NO_FLAGS);
+    handle = xkb_keymap_new_from_names2(ctx.get(), names, keymap_format, XKB_KEYMAP_COMPILE_NO_FLAGS);
     ensure(handle != nullptr, "Failed to create xkb_keymap from names");
 }
 
-keymap::pointer keymap::from_string(context::pointer const& ctx, std::string_view const xml) {
-    return std::make_shared<keymap>(
-      ctx,
-      xkb_keymap_new_from_buffer(
-        ctx->get(),
-        xml.data(),
-        xml.size(),
-        XKB_KEYMAP_FORMAT_TEXT_V2,
-        XKB_KEYMAP_COMPILE_NO_FLAGS));
+keymap keymap::from_string(context const& ctx, std::string_view const xml) {
+    return keymap{xkb_keymap_new_from_buffer(
+      ctx.get(),
+      xml.data(),
+      xml.size(),
+      XKB_KEYMAP_FORMAT_TEXT_V2,
+      XKB_KEYMAP_COMPILE_NO_FLAGS)};
 }
 
-keymap::keymap(context::pointer inp_ctx, xkb_keymap* km) : ctx{std::move(inp_ctx)}, handle{km} {
+keymap::keymap(xkb_keymap* km) : handle{km} {
     ensure(km != nullptr, "Failed to create xkb_keymap from string");
 }
 
@@ -123,10 +97,6 @@ keymap::~keymap() noexcept {
     if (handle != nullptr) {
         xkb_keymap_unref(handle);
     }
-}
-
-keymap::pointer keymap::getptr() {
-    return shared_from_this();
 }
 
 xkb_keymap* keymap::get() const noexcept {
@@ -141,14 +111,15 @@ xkb_keycode_t keymap::max_keycode() const noexcept {
     return xkb_keymap_max_keycode(get());
 }
 
-context::pointer keymap::get_context() const {
-    return ctx;
-}
-
 std::string keymap::as_string() const {
     char const* str = xkb_keymap_get_as_string(get(), XKB_KEYMAP_FORMAT_TEXT_V1);
     // no need to check for nullptr, std::string can handle that
     return {str};
+}
+
+keymap& foresight::xkb::get_default_keymap() {
+    static keymap map{get_default_context()};
+    return map;
 }
 
 std::string foresight::xkb::name(xkb_keysym_t const keysym) {
@@ -164,27 +135,24 @@ std::string foresight::xkb::name(xkb_keysym_t const keysym) {
 //////////////////////////////////       State       ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-state::state(private_tag, keymap::pointer inp_map)
-  : map{std::move(inp_map)},
-    handle{xkb_state_new(map->get())} {
+basic_state::basic_state(keymap const& inp_map) : handle{xkb_state_new(inp_map.get())} {
     ensure(handle != nullptr, "Cannot create xkb state with xkb_state_new");
 }
 
-state::pointer state::create(keymap::pointer inp_map) {
-    return std::make_shared<state>(private_tag{}, std::move(inp_map));
-}
-
-state::~state() noexcept {
+basic_state::~basic_state() noexcept {
     if (handle != nullptr) {
         xkb_state_unref(handle);
         handle = nullptr;
     }
 }
 
-state::pointer state::getptr() {
-    return shared_from_this();
+void basic_state::initialize(keymap const& inp_map) {
+    if (handle != nullptr) {
+        xkb_state_unref(handle);
+    }
+    handle = xkb_state_new(inp_map.get());
 }
 
-xkb_state* state::get() const noexcept {
+xkb_state* basic_state::get() const noexcept {
     return handle;
 }

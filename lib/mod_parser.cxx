@@ -11,6 +11,7 @@ module foresight.lib.mod_parser;
 import foresight.mods.event;
 import foresight.devices.key_codes;
 import foresight.utils.hash;
+import foresight.lib.xkb.event2unicode;
 import foresight.main.log;
 
 using foresight::user_event;
@@ -219,9 +220,9 @@ namespace {
 
 } // namespace
 
-foresight::code32_t foresight::unicode_encoded_event(xkb::basic_event2unicode &state,
-                                                     event_type const         &event) noexcept {
-    auto const code_point = state(event);
+foresight::code32_t foresight::unicode_encoded_event(xkb::basic_state const &state,
+                                                     event_type const       &event) noexcept {
+    auto const code_point = xkb::event2unicode(state, event);
     if (code_point == U'\0') {
         return static_cast<code32_t>(event_encoded_code32_t | event.hash());
     }

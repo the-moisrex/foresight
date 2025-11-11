@@ -4,11 +4,13 @@ module;
 #include <cassert>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <string_view>
 #include <vector>
 export module foresight.mods.typed;
 import foresight.mods.context;
-import foresight.lib.xkb.event2unicode;
+import foresight.lib.xkb;
+import foresight.lib.mod_parser;
 
 namespace foresight {
 
@@ -111,7 +113,7 @@ namespace foresight {
     /**
      * Aho-Corasick status
      */
-    export struct [[nodiscard]] event_search_engine {
+    export struct [[nodiscard]] basic_search_engine {
         using state_type = std::uint32_t;
 
       private:
@@ -128,6 +130,7 @@ namespace foresight {
         };
 
         /// UTF-32-encoded patterns (some code points are special code points)
+        /// Trigger ID is the index that points to this patterns
         std::vector<std::u32string> patterns;
         std::vector<node_type>      trie;
 
@@ -140,7 +143,12 @@ namespace foresight {
         [[nodiscard]] std::uint32_t add_child(state_type state, char32_t code, state_type child_index);
 
       public:
-        event_search_engine();
+        consteval basic_search_engine() noexcept                                 = default;
+        consteval basic_search_engine(basic_search_engine const&)                = default;
+        constexpr basic_search_engine(basic_search_engine&&) noexcept            = default;
+        consteval basic_search_engine& operator=(basic_search_engine const&)     = default;
+        constexpr basic_search_engine& operator=(basic_search_engine&&) noexcept = default;
+        constexpr ~basic_search_engine()                                         = default;
 
         /**
          * Add a new pattern to search for
@@ -155,41 +163,60 @@ namespace foresight {
 
         // todo: convert this to std::function_ref
         void matches(std::uint32_t state, std::function<void(std::u32string_view)> const& callback) const;
+        [[nodiscard]] bool matches(std::uint32_t state, std::uint16_t trigger_id) const noexcept;
+
+        /// Initialize empty
+        void operator()(start_tag);
+
+        /// Context
+        void operator()() const noexcept {
+            // do nothing
+        }
     };
+
+    export constexpr basic_search_engine search_engine;
 
     /**
      * This class calculates and stores the state of the keys being typed by the user in a style of a hash.
      */
     export constexpr struct [[nodiscard]] basic_typed {
+        static constexpr std::uint16_t invalid_trigger_id = std::numeric_limits<std::uint16_t>::max();
+
       private:
-        // if collisions happen, make these 64bit:
-        std::uint32_t target_hash  = 0;
-        std::uint32_t current_hash = 0;
-
-        std::size_t target_length  = 0;
-        std::size_t current_length = 0;
-
-        std::string_view trigger;
+        std::string_view pattern;
+        std::uint16_t    trigger_id = invalid_trigger_id;
+        xkb::basic_state state;
+        aho_state        current_state{};
 
       public:
-        explicit constexpr basic_typed(std::string_view const inp_trigger) noexcept : trigger{inp_trigger} {}
+        explicit consteval basic_typed(std::string_view const inp_pattern) noexcept : pattern{inp_pattern} {}
 
         consteval basic_typed() noexcept                               = default;
-        constexpr basic_typed(basic_typed const& other)                = default;
+        consteval basic_typed(basic_typed const& other)                = default;
         constexpr basic_typed(basic_typed&& other) noexcept            = default;
-        constexpr basic_typed& operator=(basic_typed const& other)     = default;
+        consteval basic_typed& operator=(basic_typed const& other)     = default;
         constexpr basic_typed& operator=(basic_typed&& other) noexcept = default;
-        constexpr ~basic_typed()                                       = default;
+        ~basic_typed()                                                 = default;
 
         /// Return a new typed class that trigger when "str" is typed by the user.
         consteval basic_typed operator()(std::string_view const inp_trigger) const noexcept {
             return basic_typed{inp_trigger};
         }
 
-        void operator()(start_tag);
+        /// Register the pattern into the search engine
+        void operator()(Context auto& ctx, start_tag) {
+            auto& engine = ctx.mod(search_engine);
+            state.initialize(engine.keymap());
+            engine.add_pattern(pattern);
+        }
 
-        /// Ingest the specified event and calculate the hash
-        [[nodiscard]] bool operator()(event_type const& event) noexcept;
+        /// Process the
+        [[nodiscard]] bool operator()(Context auto& ctx) noexcept {
+            auto const code   = unicode_encode_event(state, ctx.event());
+            auto&      engine = ctx.mod(search_engine);
+            current_state     = engine.process(code, current_state);
+            return engine.matches(current_state.index(), trigger_id);
+        }
     } typed;
 
 } // namespace foresight

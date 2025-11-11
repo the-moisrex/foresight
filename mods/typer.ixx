@@ -1,7 +1,6 @@
 // Created by moisrex on 10/11/25.
 
 module;
-#include <optional>
 #include <string_view>
 #include <vector>
 export module foresight.mods.typer;
@@ -17,7 +16,6 @@ namespace foresight {
     export constexpr struct [[nodiscard]] basic_typist {
       private:
         // we ust optional to make `constexpr` possible
-        std::optional<xkb::how2type> typer = std::nullopt;
         std::vector<user_event>      events;
 
       public:

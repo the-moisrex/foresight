@@ -24,3 +24,5 @@ export import foresight.mods.abs2rel;
 export import foresight.mods.ignore;
 export import foresight.mods.replace;
 export import foresight.mods.momentum;
+export import foresight.mods.typed;
+export import foresight.mods.typer;

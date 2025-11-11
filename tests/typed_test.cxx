@@ -3,6 +3,6 @@
 import foresight.mods.typed;
 
 TEST(SearchTest, Basic) {
-    foresight::event_search_engine engine;
+    foresight::basic_search_engine engine;
 }
 

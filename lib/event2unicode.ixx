@@ -3,29 +3,13 @@
 module;
 #include <span>
 #include <string>
-#include <xkbcommon/xkbcommon.h>
 export module foresight.lib.xkb.event2unicode;
 import foresight.mods.event;
 import foresight.lib.xkb;
 
-namespace foresight::xkb {
+export namespace foresight::xkb {
 
-    export struct [[nodiscard]] basic_event2unicode {
-      private:
-        // pointer to the xkb state for the keyboard
-        state::pointer state_handle;
-
-      public:
-        explicit basic_event2unicode(state::pointer handle) noexcept;
-        basic_event2unicode(basic_event2unicode const&)                      = delete;
-        basic_event2unicode(basic_event2unicode&& other) noexcept            = default;
-        basic_event2unicode& operator=(basic_event2unicode const&)           = delete;
-        basic_event2unicode& operator=(basic_event2unicode&& other) noexcept = default;
-        ~basic_event2unicode() noexcept = default;
-
-        /// Process
-        [[nodiscard]] char32_t       operator()(event_type const& event) noexcept;
-        [[nodiscard]] std::u32string operator()(std::span<event_type const> events);
-    };
+    [[nodiscard]] char32_t       event2unicode(basic_state const&, event_type const& event) noexcept;
+    [[nodiscard]] std::u32string event2unicode(basic_state const&, std::span<event_type const> events);
 
 } // namespace foresight::xkb
