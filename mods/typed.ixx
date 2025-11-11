@@ -205,9 +205,8 @@ namespace foresight {
 
         /// Register the pattern into the search engine
         void operator()(Context auto& ctx, start_tag) {
-            auto& engine = ctx.mod(search_engine);
-            state.initialize(engine.keymap());
-            engine.add_pattern(pattern);
+            state.initialize(xkb::get_default_keymap());
+            ctx.mod(search_engine).add_pattern(pattern);
         }
 
         /// Process the
