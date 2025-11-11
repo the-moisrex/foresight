@@ -9,13 +9,13 @@ import foresight.lib.xkb.how2type;
 import foresight.mods.event;
 
 using foresight::user_event;
-using foresight::xkb::how2type;
+using foresight::xkb::get_default_keymap;
 
 namespace {
-    template <typename Obj, typename... Args>
-    std::vector<user_event> to_vector(Obj& obj, Args&&... args) {
+    template <typename... Args>
+    std::vector<user_event> to_vector(Args&&... args) {
         std::vector<user_event> vec;
-        obj.emit(std::forward<Args>(args)..., [&vec](user_event const& event) {
+        foresight::xkb::how2type::emit(std::forward<Args>(args)..., [&vec](user_event const& event) {
             return vec.emplace_back(event);
         });
         return vec;
@@ -23,19 +23,20 @@ namespace {
 } // namespace
 
 TEST(XKB, Basic) {
-    how2type   manager{};
-    auto const vec = to_vector(manager, U'A');
+    auto const vec = to_vector(get_default_keymap(), U'A');
     EXPECT_EQ(vec.front().code, KEY_LEFTSHIFT);
     EXPECT_EQ(vec.at(2).code, KEY_A);
 }
 
 TEST(XKB, BasicStringU32) {
     constexpr std::array<std::uint16_t, 6> codes{KEY_A, KEY_A, KEY_B, KEY_B, KEY_C, KEY_C};
-    how2type                               typer{};
-    typer.emit(U"ABC", [&, index = 0](user_event const& event) mutable {
-        if (is_syn(event) || event.code == KEY_LEFTSHIFT) {
-            return;
-        }
-        EXPECT_EQ(event.code, codes.at(index++));
-    });
+    foresight::xkb::how2type::emit(
+      get_default_keymap(),
+      U"ABC",
+      [&, index = 0](user_event const& event) mutable {
+          if (is_syn(event) || event.code == KEY_LEFTSHIFT) {
+              return;
+          }
+          EXPECT_EQ(event.code, codes.at(index++));
+      });
 }
