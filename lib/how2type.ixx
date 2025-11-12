@@ -17,12 +17,13 @@ export namespace foresight::xkb {
         xkb_mod_mask_t     mask{};
     };
 
-    /**
-     * XKB How-To-Type (without composed sequences)
-     * todo: use std::function_ref instead of std::function
-     */
+     // todo: use std::function_ref instead of std::function
     using handle_keysym_callback = std::function<void(key_position const&)> const&;
 
+    /**
+     * XKB How-To-Type (without composed sequences)
+     * Convert strings to events
+     */
     namespace how2type {
         /**
          * Find first possible typing for a given keysym.

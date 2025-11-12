@@ -2,6 +2,7 @@
 
 module;
 #include <cassert>
+#include <climits>
 #include <cstdint>
 #include <functional>
 #include <optional>
@@ -116,11 +117,14 @@ namespace foresight {
     export struct [[nodiscard]] basic_search_engine {
         using state_type = std::uint32_t;
 
+        using output_link_type                    = std::uint32_t;
+        static constexpr std::size_t MAX_PATTERNS = sizeof(output_link_type) * CHAR_BIT;
+
       private:
         struct node_type {
-            char32_t      value     = 0; // the incoming code point for this node (root = 0)
-            std::uint32_t out_link  = 0; // output bitmask (pattern IDs)
-            std::uint32_t fail_link = 0; // failure link (state index)
+            char32_t         value     = 0; // the incoming code point for this node (root = 0)
+            output_link_type out_link  = 0; // output bitmask (pattern IDs)
+            std::uint32_t    fail_link = 0; // failure link (state index)
 
             // children: pair<codepoint, state_index>. kept sorted by codepoint for binary search.
             std::vector<std::pair<char32_t, std::uint32_t>> children;
@@ -131,6 +135,7 @@ namespace foresight {
 
         /// UTF-32-encoded patterns (some code points are special code points)
         /// Trigger ID is the index that points to this patterns
+        /// todo: use inplace_vector<std::u32string, MAX_PATTERNS>
         std::vector<std::u32string> patterns;
         std::vector<node_type>      trie;
 

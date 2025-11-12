@@ -1,6 +1,7 @@
 // Created by moisrex on 10/11/25.
 
 module;
+#include <functional>
 #include <string_view>
 module foresight.mods.typer;
 import foresight.lib.mod_parser;

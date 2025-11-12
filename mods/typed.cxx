@@ -2,6 +2,7 @@
 
 module;
 #include <cassert>
+#include <climits>
 #include <cstdint>
 #include <cstring>
 #include <functional>
@@ -14,8 +15,8 @@ import foresight.utils.hash;
 import foresight.mods.event;
 import foresight.lib.mod_parser;
 
-using foresight::basic_typed;
 using foresight::basic_search_engine;
+using foresight::basic_typed;
 
 // NOLINTBEGIN(*-pro-bounds-constant-array-index)
 basic_search_engine::state_type basic_search_engine::find_child(
@@ -82,13 +83,14 @@ std::uint32_t basic_search_engine::build_machine() {
             }
             current = next;
         }
-        // set output bit for pattern i
-        if (i < (sizeof(std::uint32_t) * 8)) {
-            trie[current].out_link |= (1u << static_cast<unsigned>(i));
-        } else {
-            // pattern index too large for bitmask; you may want to change representation.
-            // For now we silently ignore bits beyond mask (alternatively log or handle).
+
+        // pattern index too large for bitmask; you may want to change representation.
+        if (i >= MAX_PATTERNS) {
+            throw std::runtime_error("Too many patterns added.");
         }
+
+        // set output bit for pattern i
+        trie[current].out_link |= 1U << i;
     }
 
     // Build failure links using BFS
@@ -163,18 +165,23 @@ foresight::aho_state basic_search_engine::process(char32_t const  code_point,
 
 void basic_search_engine::matches(std::uint32_t const                             state,
                                   std::function<void(std::u32string_view)> const &callback) const {
-    if (state >= trie.size()) {
+    assert(patterns.size() < MAX_PATTERNS);
+    if (state >= trie.size()) [[unlikely]] {
         return;
     }
     auto const mask = trie[state].out_link;
     for (std::size_t j = 0; j < patterns.size(); ++j) {
-        if (j >= (sizeof(std::uint32_t) * 8)) {
-            break; // mask only holds lower bits
-        }
-        if ((mask & (1U << static_cast<unsigned>(j))) != 0u) {
+        if ((mask & (1U << j)) != 0u) {
             callback(patterns[j]);
         }
     }
+}
+
+bool basic_search_engine::matches(std::uint32_t const state, std::uint16_t const trigger_id) const noexcept {
+    assert(state < trie.size());
+    assert(trigger_id < MAX_PATTERNS);
+    auto const mask = trie[state].out_link;
+    return (mask & (1U << trigger_id)) != 0u;
 }
 
 void basic_search_engine::operator()(start_tag) {
