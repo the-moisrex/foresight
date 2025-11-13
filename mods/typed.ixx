@@ -173,7 +173,7 @@ namespace foresight {
         /// Initialize empty
         void operator()(start_tag);
 
-        /// Context
+        /// Handling events
         void operator()() const noexcept {
             // do nothing
         }

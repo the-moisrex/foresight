@@ -143,6 +143,10 @@ void basic_search_engine::add_pattern(std::string_view pattern) {
         }
         encoded_pattern += code_point;
     }
+
+    // Handle custom modifiers and actions
+    replace_modifiers_and_actions(encoded_pattern);
+
     patterns.emplace_back(std::move(encoded_pattern));
 
     // Rebuild machine (can be optimized to incremental insertion if needed)

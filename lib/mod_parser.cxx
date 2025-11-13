@@ -5,6 +5,7 @@ module;
 #include <array>
 #include <cassert>
 #include <cstdint>
+#include <functional>
 #include <linux/input-event-codes.h>
 #include <stdexcept>
 module foresight.lib.mod_parser;
@@ -19,23 +20,6 @@ using foresight::user_event;
 // NOLINTBEGIN(*-magic-numbers)
 namespace foresight {
     constexpr std::size_t max_simultaneous_key_presses = 32;
-
-    constexpr user_event left_shift{.type = EV_KEY, .code = KEY_LEFTSHIFT, .value = 1};
-    constexpr user_event right_shift{.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 1};
-
-    constexpr user_event left_ctrl{.type = EV_KEY, .code = KEY_LEFTCTRL, .value = 1};
-    constexpr user_event right_ctrl{.type = EV_KEY, .code = KEY_RIGHTCTRL, .value = 1};
-
-    constexpr user_event left_meta{.type = EV_KEY, .code = KEY_LEFTMETA, .value = 1};
-    constexpr user_event right_meta{.type = EV_KEY, .code = KEY_RIGHTMETA, .value = 1};
-
-    constexpr user_event left_alt{.type = EV_KEY, .code = KEY_LEFTALT, .value = 1};
-    constexpr user_event right_alt{.type = EV_KEY, .code = KEY_RIGHTALT, .value = 1};
-
-    constexpr user_event capslock{.type = EV_KEY, .code = KEY_CAPSLOCK, .value = 1};
-    constexpr user_event numlock{.type = EV_KEY, .code = KEY_NUMLOCK, .value = 1};
-    constexpr user_event scrolllock{.type = EV_KEY, .code = KEY_SCROLLLOCK, .value = 1};
-
 } // namespace foresight
 
 namespace {
@@ -100,7 +84,7 @@ namespace {
 
     struct mod_entry {
         std::u32string_view key;      // must refer to a static literal (we use U"...")
-        user_event          ev;
+        std::uint16_t       code;
         std::uint32_t       hash = 0; // precomputed ci_hash(key)
     };
 
@@ -110,70 +94,70 @@ namespace {
         // NOLINTBEGIN(*-use-designated-initializers)
         std::array<mod_entry, 53> data{
           {// SHIFT
-           {U"shift", foresight::left_shift},
-           {U"sh", foresight::left_shift},
-           {U"s", foresight::left_shift},
-           {U"+", foresight::left_shift},
-           {U"⇧", foresight::left_shift},
-           {U"leftshift", foresight::left_shift},
-           {U"rightshift", foresight::right_shift},
-           {U"rshift", foresight::right_shift},
-           {U"lshift", foresight::left_shift},
+           {U"shift", KEY_LEFTSHIFT},
+           {U"sh", KEY_LEFTSHIFT},
+           {U"s", KEY_LEFTSHIFT},
+           {U"+", KEY_LEFTSHIFT},
+           {U"⇧", KEY_LEFTSHIFT},
+           {U"leftshift", KEY_LEFTSHIFT},
+           {U"rightshift", KEY_RIGHTSHIFT},
+           {U"rshift", KEY_RIGHTSHIFT},
+           {U"lshift", KEY_LEFTSHIFT},
 
            // CTRL
-           {U"ctrl", foresight::left_ctrl},
-           {U"control", foresight::left_ctrl},
-           {U"ctl", foresight::left_ctrl},
-           {U"c", foresight::left_ctrl},
-           {U"^", foresight::left_ctrl},
-           {U"⌃", foresight::left_ctrl},
-           {U"leftctrl", foresight::left_ctrl},
-           {U"rightctrl", foresight::right_ctrl},
-           {U"rctrl", foresight::right_ctrl},
-           {U"lctrl", foresight::left_ctrl},
+           {U"ctrl", KEY_LEFTCTRL},
+           {U"control", KEY_LEFTCTRL},
+           {U"ctl", KEY_LEFTCTRL},
+           {U"c", KEY_LEFTCTRL},
+           {U"^", KEY_LEFTCTRL},
+           {U"⌃", KEY_LEFTCTRL},
+           {U"leftctrl", KEY_LEFTCTRL},
+           {U"rightctrl", KEY_RIGHTCTRL},
+           {U"rctrl", KEY_RIGHTCTRL},
+           {U"lctrl", KEY_LEFTCTRL},
 
            // META / CMD / SUPER / WIN
-           {U"meta", foresight::left_meta},
-           {U"cmd", foresight::left_meta},
-           {U"command", foresight::left_meta},
-           {U"super", foresight::left_meta},
-           {U"win", foresight::left_meta},
-           {U"windows", foresight::left_meta},
-           {U"⊞", foresight::left_meta},
-           {U"⌘", foresight::left_meta},
-           {U"leftmeta", foresight::left_meta},
-           {U"rightmeta", foresight::right_meta},
+           {U"meta", KEY_LEFTMETA},
+           {U"cmd", KEY_LEFTMETA},
+           {U"command", KEY_LEFTMETA},
+           {U"super", KEY_LEFTMETA},
+           {U"win", KEY_LEFTMETA},
+           {U"windows", KEY_LEFTMETA},
+           {U"⊞", KEY_LEFTMETA},
+           {U"⌘", KEY_LEFTMETA},
+           {U"leftmeta", KEY_LEFTMETA},
+           {U"rightmeta", KEY_RIGHTMETA},
 
            // ALT / OPTION / ALTGR
-           {U"alt", foresight::left_alt},
-           {U"option", foresight::left_alt},
-           {U"opt", foresight::left_alt},
-           {U"a", foresight::left_alt},
-           {U"⌥", foresight::left_alt},
-           {U"altgr", foresight::right_alt},
-           {U"alt_gr", foresight::right_alt},
-           {U"leftalt", foresight::left_alt},
-           {U"rightalt", foresight::right_alt},
+           {U"alt", KEY_LEFTALT},
+           {U"option", KEY_LEFTALT},
+           {U"opt", KEY_LEFTALT},
+           {U"a", KEY_LEFTALT},
+           {U"⌥", KEY_LEFTALT},
+           {U"altgr", KEY_RIGHTALT},
+           {U"alt_gr", KEY_RIGHTALT},
+           {U"leftalt", KEY_LEFTALT},
+           {U"rightalt", KEY_RIGHTALT},
 
            // LOCKS
-           {U"caps", foresight::capslock},
-           {U"capslock", foresight::capslock},
-           {U"num", foresight::numlock},
-           {U"numlock", foresight::numlock},
-           {U"scroll", foresight::scrolllock},
-           {U"scrolllock", foresight::scrolllock},
+           {U"caps", KEY_CAPSLOCK},
+           {U"capslock", KEY_CAPSLOCK},
+           {U"num", KEY_NUMLOCK},
+           {U"numlock", KEY_NUMLOCK},
+           {U"scroll", KEY_SCROLLLOCK},
+           {U"scrolllock", KEY_SCROLLLOCK},
 
            // XKB-style mod names
-           {U"mod1", foresight::left_alt},
-           {U"mod2", foresight::left_alt},
-           {U"mod3", foresight::left_alt},
-           {U"mod4", foresight::left_meta},
-           {U"mod5", foresight::left_alt},
+           {U"mod1", KEY_LEFTALT},
+           {U"mod2", KEY_LEFTALT},
+           {U"mod3", KEY_LEFTALT},
+           {U"mod4", KEY_LEFTMETA},
+           {U"mod5", KEY_LEFTALT},
 
            // some combined/alternate spellings
-           {U"altgr", foresight::right_alt},
-           {U"optionkey", foresight::left_alt},
-           {U"controlkey", foresight::left_ctrl}}
+           {U"altgr", KEY_RIGHTALT},
+           {U"optionkey", KEY_LEFTALT},
+           {U"controlkey", KEY_LEFTCTRL}}
         };
         for (auto &field : data) {
             field.hash = foresight::ci_hash(field.key);
@@ -186,37 +170,56 @@ namespace {
      * Alternative keys
      * This function finds alternative representations of common keys.
      */
-    user_event alternative_modifier(std::u32string_view const str) noexcept {
+    std::uint16_t alternative_modifier(std::u32string_view const str) noexcept {
         auto const hid = foresight::ci_hash(str);
 
         // probe over table entries, hash-first to avoid expensive compares
-        for (auto const &[key, ev, hash] : mod_table) {
+        for (auto const &[key, code, hash] : mod_table) {
             if (hash != hid || !iequals(key, str)) {
                 continue; // cheap filter
             }
-            return ev;    // confirm with case-insensitive exact match
+            return code;  // confirm with case-insensitive exact match
         }
 
-        [[unlikely]] { return foresight::invalid_user_event; }
+        [[unlikely]] { return foresight::invalid_user_event.code; }
     }
 
-    /// Convert key names or single characters to user_event (with value=1)
-    user_event to_event(std::u32string_view const key) noexcept {
+    [[nodiscard]] std::uint16_t get_modifier_code(std::u32string_view const key) noexcept {
         auto const code = foresight::key_code_of(key);
         if (code == 0) {
             return alternative_modifier(key);
         }
-        return user_event{
-          .type  = EV_KEY,
-          .code  = code,
-          .value = 1,
-        };
+        return code;
     }
 
-    [[nodiscard]] constexpr foresight::code32_t to_code(std::u32string_view const key) noexcept {
-        // todo: implement
-        return foresight::invalid_code_point;
+    [[nodiscard]] foresight::code32_t to_code(
+      foresight::key_event_code::code_type const  code,
+      foresight::key_event_code::value_type const value = 1) noexcept {
+        return static_cast<foresight::code32_t>(
+          foresight::event_encoded_code32_t
+          | foresight::hashed(foresight::key_event_code{.code = code, .value = value}));
     }
+
+    [[nodiscard]] foresight::code32_t to_code(foresight::event_type const &event) noexcept {
+        return to_code(event.code(), event.value());
+    }
+
+    [[nodiscard]] foresight::code32_t to_code(foresight::key_event_code const event) noexcept {
+        return to_code(event.code, event.value);
+    }
+
+    // [[nodiscard]] foresight::code32_t to_code(std::u32string_view const key) noexcept {
+    //     return to_code(get_modifier_code(key));
+    // }
+
+    /// Convert key names or single characters to user_event (with value=1)
+    // user_event to_event(std::u32string_view const key) noexcept {
+    //     return user_event{
+    //       .type  = EV_KEY,
+    //       .code  = get_modifier_code(key),
+    //       .value = 1,
+    //     };
+    // }
 
 } // namespace
 
@@ -224,7 +227,7 @@ foresight::code32_t foresight::unicode_encoded_event(xkb::basic_state const &sta
                                                      event_type const       &event) noexcept {
     auto const code_point = xkb::event2unicode(state, event);
     if (code_point == U'\0') {
-        return static_cast<code32_t>(event_encoded_code32_t | event.hash());
+        return to_code(event);
     }
     return code_point;
 }
@@ -324,23 +327,22 @@ foresight::find_delim(std::u32string_view str, char32_t const delim, std::size_t
     return lhsptr;
 }
 
-bool foresight::parse_modifier(std::u32string_view mod_str, user_event_callback callback) {
+bool foresight::parse_modifier(std::u32string_view mod_str, key_code_callback callback) {
     assert(mod_str.starts_with(U'<') && mod_str.ends_with(U'>'));
     mod_str.remove_prefix(1);
     mod_str.remove_suffix(1);
-    bool const is_release   = mod_str.starts_with(U'/');
-    auto       dash_start   = mod_str.find(U'-');
-    bool const is_monotonic = !is_release && dash_start != std::u32string_view::npos;
-    user_event event;
+    bool const     is_release   = mod_str.starts_with(U'/');
+    auto           dash_start   = mod_str.find(U'-');
+    bool const     is_monotonic = !is_release && dash_start != std::u32string_view::npos;
+    key_event_code event;
 
     if (is_monotonic) {
         // handling <shift> or <ctrl> types
-        event = to_event(mod_str);
+        event = {.code = get_modifier_code(mod_str), .value = 1};
     } else if (is_release) {
         // handling </shift> or </ctrl>
         mod_str.remove_prefix(1);
-        event       = to_event(mod_str);
-        event.value = 0;
+        event = {.code = get_modifier_code(mod_str), .value = 0};
     } else {
         // handling <C-r> type of mods
         constexpr auto max_len = static_cast<std::int32_t>(max_simultaneous_key_presses);
@@ -351,13 +353,12 @@ bool foresight::parse_modifier(std::u32string_view mod_str, user_event_callback 
             if (sub_mod.empty()) {
                 break;
             }
-            auto const ev = to_event(sub_mod);
+            auto const ev = key_event_code{.code = get_modifier_code(sub_mod), .value = 1};
             if (is_invalid(ev)) [[unlikely]] {
                 break;
             }
             keys.at(index) = ev.code;
             callback(ev); // keydown
-            callback(syn_user_event);
             mod_str.remove_prefix(dash_start + 1);
             dash_start = mod_str.find(U'-');
         }
@@ -365,43 +366,80 @@ bool foresight::parse_modifier(std::u32string_view mod_str, user_event_callback 
         // release the keys in reverse order:
         for (; index >= 0; --index) {
             // keyup:
-            callback(user_event{
-              .type  = EV_KEY,
+            callback({
               .code  = keys.at(index),
               .value = 0,
             });
-            callback(syn_user_event);
         }
         return keys.front() != 0;
     }
 
     event.value = 1;
     callback(event);
-    callback(syn_user_event);
     event.value = 0;
     callback(event);
-    callback(syn_user_event);
     return true;
 }
 
-foresight::code32_t foresight::parse_next_code_point(std::u32string_view &str) noexcept {
-    if (str.empty()) [[unlikely]] {
-        return U'\0';
+bool foresight::parse_modifier(std::u32string_view const mod_str, code32_callback callback) {
+    return parse_modifier(mod_str, [&](key_event_code const &key) {
+        callback(to_code(key));
+    });
+}
+
+bool foresight::parse_modifier(std::u32string_view const mod_str, user_event_callback callback) {
+    return parse_modifier(mod_str, [&](key_event_code const &key) {
+        callback(user_event{.type = EV_KEY, .code = key.code, .value = key.value});
+        callback(syn_user_event);
+    });
+}
+
+std::u32string foresight::parse_modifier(std::u32string_view const mod_str) {
+    std::u32string result;
+    if (!parse_modifier(mod_str,
+                        [&](key_event_code const &key) {
+                            result += to_code(key);
+                        })) [[unlikely]]
+    {
+        result.clear();
+    };
+    return result;
+}
+
+void foresight::on_modifier_tags(std::u32string_view const                       str,
+                                 std::function<void(std::u32string_view)> const &callback) noexcept {
+    std::size_t index = 0;
+    for (;;) {
+        // find the first modifier:
+        auto const lhsptr = find_delim(str, U'<', index);
+        if (lhsptr == std::u32string_view::npos) {
+            break;
+        }
+        auto const rhsptr = find_delim(str, U'>', lhsptr);
+        auto const code   = str.substr(0, rhsptr);
+
+        callback(code);
+
+        index = rhsptr;
     }
-    if (str.front() != U'<') {
-        auto const code_point = str.front();
-        str.remove_prefix(1);
-        return code_point;
+}
+
+void foresight::replace_modifiers_and_actions(std::u32string &str) noexcept {
+    std::size_t index = 0;
+    for (;;) {
+        // find the first modifier:
+        auto const lhsptr = find_delim(str, U'<', index);
+        if (lhsptr == std::u32string_view::npos) {
+            break;
+        }
+        auto const rhsptr = find_delim(str, U'>', lhsptr);
+        auto const code   = str.substr(0, rhsptr);
+
+        auto const encoded = parse_modifier(code);
+        str.replace(lhsptr, code.size(), encoded);
+
+        index = lhsptr + encoded.size();
     }
-
-    // find the first modifier:
-    auto const rhsptr = find_delim(str, U'>');
-    auto const code   = str.substr(0, rhsptr);
-
-    // remove the already processed string:
-    str.remove_prefix(rhsptr);
-
-    return to_code(code);
 }
 
 // NOLINTEND(*-magic-numbers)

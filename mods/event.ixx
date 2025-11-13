@@ -32,10 +32,6 @@ export namespace foresight {
         return lhs.type == rhs.type && lhs.code == rhs.code && lhs.value == rhs.value;
     }
 
-    [[nodiscard]] constexpr bool is_invalid(user_event const& event) noexcept {
-        return event.type == invalid_user_event.type;
-    }
-
     template <std::size_t N>
     struct user_events : std::array<user_event, N> {};
 
@@ -50,14 +46,39 @@ export namespace foresight {
         code_type code = KEY_MAX;
     };
 
+    struct [[nodiscard]] key_event_code {
+        using type_type  = decltype(input_event::type);
+        using code_type  = decltype(input_event::code);
+        using value_type = decltype(input_event::value);
+
+        code_type  code  = KEY_MAX;
+        value_type value = 1;
+    };
+
     template <std::size_t N>
     using event_codes = std::array<event_code, N>;
+
+    [[nodiscard]] constexpr bool is_invalid(user_event const& event) noexcept {
+        return event.type == invalid_user_event.type;
+    }
+
+    [[nodiscard]] constexpr bool is_invalid(key_event_code const& event) noexcept {
+        return event.code == invalid_user_event.code;
+    }
 
     [[nodiscard]] constexpr std::uint32_t hashed(event_code const& code) noexcept {
         static constexpr std::uint32_t shift  = std::countr_zero(std::bit_ceil<std::uint32_t>(KEY_MAX));
         std::uint32_t                  hash   = 0;
         hash                                 |= static_cast<std::uint32_t>(code.type) << shift;
         hash                                 |= static_cast<std::uint32_t>(code.code);
+        return hash;
+    }
+
+    [[nodiscard]] constexpr std::uint32_t hashed(key_event_code const& code) noexcept {
+        static constexpr std::uint32_t shift  = std::countr_zero(std::bit_ceil<std::uint32_t>(KEY_MAX));
+        std::uint32_t                  hash   = 0;
+        hash                                 |= static_cast<std::uint32_t>(code.code) << shift;
+        hash                                 |= static_cast<std::uint32_t>(code.value);
         return hash;
     }
 
