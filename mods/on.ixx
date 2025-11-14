@@ -86,8 +86,13 @@ namespace foresight {
               ctx.get_mods());
         }
 
-        constexpr void init(Context auto& ctx) {
-            invoke_init(ctx, funcs);
+        /// Pass-through the starts
+        constexpr context_action operator()(Context auto& ctx, start_tag) {
+            using enum context_action;
+            if (invoke_start(cond, ctx) == exit) [[unlikely]] {
+                return exit;
+            }
+            return bounce_invoke(ctx, funcs, start);
         }
 
         context_action operator()(Context auto& ctx) noexcept {

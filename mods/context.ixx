@@ -63,17 +63,11 @@ export namespace foresight {
                   event_type::code_type  code,
                   event_type::type_type  type,
                   event_type::value_type value) {
-             {
-                 out.emit(event)
-             } noexcept -> std::same_as<bool>;
+             { out.emit(event) } noexcept -> std::same_as<bool>;
 
-             {
-                 out.emit(type, code, value)
-             } noexcept -> std::same_as<bool>;
+             { out.emit(type, code, value) } noexcept -> std::same_as<bool>;
 
-             {
-                 out.emit_syn()
-             } noexcept -> std::same_as<bool>;
+             { out.emit_syn() } noexcept -> std::same_as<bool>;
          };
 
     constexpr struct output_mod_t {
@@ -364,27 +358,6 @@ export namespace foresight {
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
 
-    /// Invoke .init() functions
-    template <Context CtxT, typename... Funcs>
-    constexpr void invoke_init(CtxT &ctx, std::tuple<Funcs...> &mods) noexcept(CtxT::is_nothrow) {
-        std::apply(
-          [&](auto &...actions) constexpr noexcept(CtxT::is_nothrow) {
-              (
-                [&]<typename Func>(Func &action) constexpr noexcept(CtxT::is_nothrow) {
-                    if constexpr (requires { action.init(ctx); }) {
-                        static_cast<void>(action.init(ctx));
-                    } else if constexpr (requires { action.init(); }) {
-                        static_cast<void>(action.init());
-                    } else {
-                        // Intentionally Ignored since most mods don't need init.
-                    }
-                }(actions),
-                ...);
-          },
-          mods);
-    }
-
-
     template <std::size_t Index, Modifier... Funcs>
     struct [[nodiscard]] basic_context_view;
 
@@ -549,12 +522,15 @@ export namespace foresight {
             return invoke_mods(*this, mods);
         }
 
-        constexpr void init() noexcept(is_nothrow) {
-            invoke_init(*this, mods);
+        constexpr context_action operator()(start_tag) noexcept(is_nothrow) {
+            return bounce_invoke(*this, mods, start);
         }
 
         void operator()() noexcept(is_nothrow) {
-            init();
+            using enum context_action;
+            if (operator()(start) == exit) [[unlikely]] {
+                return;
+            }
             operator()(no_init);
         }
 
@@ -598,6 +574,9 @@ export namespace foresight {
         }
     };
 
+    /**
+     * It's essentially a lightweight version of the context above.
+     */
     template <std::size_t Index, Modifier... Funcs>
     struct [[nodiscard]] basic_context_view {
         using ctx_type   = basic_context<Funcs...>;

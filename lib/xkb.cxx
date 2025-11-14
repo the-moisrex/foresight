@@ -152,6 +152,7 @@ void basic_state::initialize(keymap const& inp_map) {
         xkb_state_unref(handle);
     }
     handle = xkb_state_new(inp_map.get());
+    ensure(handle != nullptr, "Cannot create xkb state with xkb_state_new on initialization.");
 }
 
 xkb_state* basic_state::get() const noexcept {

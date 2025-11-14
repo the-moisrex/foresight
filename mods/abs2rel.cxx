@@ -3,6 +3,7 @@
 module;
 #include <climits>
 #include <cmath>
+#include <cstdint>
 #include <linux/input-event-codes.h>
 module foresight.mods.abs2rel;
 import foresight.main.log;
@@ -11,11 +12,11 @@ using foresight::basic_abs2rel;
 using foresight::context_action;
 using foresight::event_type;
 
-constexpr basic_abs2rel::value_type states_loc   = sizeof(basic_abs2rel::value_type) * CHAR_BIT - 3;
+constexpr basic_abs2rel::value_type states_loc   = (sizeof(basic_abs2rel::value_type) * CHAR_BIT) - 3;
 constexpr basic_abs2rel::value_type x_bit_loc    = states_loc;
 constexpr basic_abs2rel::value_type y_bit_loc    = states_loc + 1;
-constexpr basic_abs2rel::value_type x_init_state = 0b1 << x_bit_loc;
-constexpr basic_abs2rel::value_type y_init_state = 0b1 << y_bit_loc;
+constexpr basic_abs2rel::value_type x_init_state = 0b1U << static_cast<std::uint32_t>(x_bit_loc);
+constexpr basic_abs2rel::value_type y_init_state = 0b1U << static_cast<std::uint32_t>(y_bit_loc);
 
 // For more information:
 // https://www.kernel.org/doc/Documentation/input/event-codes.txt
@@ -58,7 +59,7 @@ context_action foresight::basic_pressure2mouse_clicks::operator()(event_type& ev
 
 // For more information:
 // https://www.kernel.org/doc/Documentation/input/multi-touch-protocol.txt
-context_action foresight::basic_pen2touch::operator()(event_type& event) noexcept {
+context_action foresight::basic_pen2touch::operator()(event_type& event) const noexcept {
     using enum context_action;
     if (event.type() != EV_KEY) {
         return next;
@@ -158,8 +159,8 @@ void basic_abs2rel::init(evdev const& dev, float const scale) noexcept {
 void basic_abs2rel::operator()(start_tag) noexcept {
     last_abs_x |= x_init_state;
     last_abs_y |= y_init_state;
-    x_epsilon = 0.F;
-    y_epsilon = 0.F;
+    x_epsilon   = 0.F;
+    y_epsilon   = 0.F;
 }
 
 context_action basic_abs2rel::operator()(event_type& event) noexcept {
@@ -189,7 +190,7 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
         // Absolute position event from a tablet
         switch (code) {
             case ABS_X: {
-                float const delta       = static_cast<float>(value - (last_abs_x & ~x_init_state));
+                auto const  delta       = static_cast<float>(value - (last_abs_x & ~x_init_state));
                 float const pixels_base = delta / x_scale_factor + x_epsilon;
                 auto        pixels      = static_cast<value_type>(pixels_base);
                 x_epsilon               = pixels_base - static_cast<float>(pixels);
@@ -202,7 +203,7 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
                 break;
             }
             case ABS_Y: {
-                float const delta       = static_cast<float>(value - (last_abs_y & ~y_init_state));
+                auto const  delta       = static_cast<float>(value - (last_abs_y & ~y_init_state));
                 float const pixels_base = delta / y_scale_factor + y_epsilon;
                 auto        pixels      = static_cast<value_type>(pixels_base);
                 y_epsilon               = pixels_base - static_cast<float>(pixels);
@@ -237,8 +238,8 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
                 // active_tool = code;
                 last_abs_x |= x_init_state;
                 last_abs_y |= y_init_state;
-                x_epsilon = 0.F;
-                y_epsilon = 0.F;
+                x_epsilon   = 0.F;
+                y_epsilon   = 0.F;
                 [[fallthrough]];
             default: break;
         }

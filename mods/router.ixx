@@ -123,23 +123,11 @@ export namespace foresight {
           (std::is_nothrow_move_assignable_v<Routes> && ...))                     = default;
         ~basic_router() noexcept((std::is_nothrow_destructible_v<Routes> && ...)) = default;
 
+        /// Pass-through the init
         template <Context CtxT>
-        constexpr void init(CtxT& ctx) {
+        constexpr context_action operator()(CtxT& ctx, start_tag) {
             set_caps();
-            [&]<std::size_t... I>(std::index_sequence<I...>) constexpr {
-                (([&]<typename Func>(Func& route) constexpr {
-                     if constexpr (requires { route.init(ctx); }) {
-                         static_cast<void>(route.init(ctx));
-                     } else if constexpr (requires(dev_caps_view caps_view) { route.init(caps_view); }) {
-                         static_cast<void>(route.init(caps[I]));
-                     } else if constexpr (requires { route.init(); }) {
-                         static_cast<void>(route.init());
-                     } else {
-                         // Intentionally Ignored since most mods don't need init.
-                     }
-                 }(get<I>(routes))),
-                 ...);
-            }(std::make_index_sequence<sizeof...(Routes)>{});
+            return bounce_invoke(ctx, routes, start);
         }
 
         // template <typename... C>

@@ -60,7 +60,8 @@ export namespace foresight {
         void operator()(CtxT& ctx, start_tag) const noexcept {
             if constexpr (has_mod<basic_keys_status, CtxT>) {
                 auto const& keys = ctx.mod(keys_status);
-                for (code_type const tool : std::initializer_list<code_type>{
+                for (code_type const tool :
+                     std::initializer_list<code_type>{
                        BTN_TOOL_PEN,
                        BTN_TOOL_RUBBER,
                        BTN_TOOL_BRUSH,
@@ -81,7 +82,7 @@ export namespace foresight {
             }
         }
 
-        context_action operator()(event_type& event) noexcept;
+        context_action operator()(event_type& event) const noexcept;
     } pen2touch;
 
     constexpr struct [[nodiscard]] basic_pen2mice {
@@ -148,6 +149,11 @@ export namespace foresight {
             }
         }
 
+        // template <Context CtxT>
+        // void operator()(CtxT& ctx, start_tag) noexcept {
+        //     init(ctx);
+        // }
+
         consteval basic_abs2rel operator()(bool const inp_inherit) const noexcept {
             return basic_abs2rel{inp_inherit};
         }
@@ -161,7 +167,8 @@ export namespace foresight {
         void operator()(CtxT& ctx, done_tag) noexcept {
             if constexpr (has_mod<basic_keys_status, CtxT>) {
                 auto const& keys = ctx.mod(keys_status);
-                for (code_type const tool : std::initializer_list<code_type>{
+                for (code_type const tool :
+                     std::initializer_list<code_type>{
                        BTN_TOOL_PEN,
                        BTN_TOOL_RUBBER,
                        BTN_TOOL_BRUSH,
