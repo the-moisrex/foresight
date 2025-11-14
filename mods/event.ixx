@@ -327,7 +327,7 @@ export namespace foresight {
         input_event ev{};
     };
 
-    [[nodiscard]] constexpr event_type syn() noexcept {
+    [[nodiscard]] consteval event_type syn() noexcept {
         return {EV_SYN, SYN_REPORT, 0};
     }
 

@@ -214,9 +214,8 @@ namespace foresight {
             ctx.mod(search_engine).add_pattern(pattern);
         }
 
-        /// Process the
         [[nodiscard]] bool operator()(Context auto& ctx) noexcept {
-            auto const code   = unicode_encode_event(state, ctx.event());
+            auto const code   = unicode_encoded_event(state, ctx.event());
             auto&      engine = ctx.mod(search_engine);
             current_state     = engine.process(code, current_state);
             return engine.matches(current_state.index(), trigger_id);

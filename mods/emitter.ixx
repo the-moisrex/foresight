@@ -266,14 +266,14 @@ namespace foresight {
 
         // NOLINTEND(*-avoid-c-arrays)
 
-        template <typename... T>
-            requires(sizeof...(T) > 1)
-        consteval auto operator()(T... new_events) const noexcept {
-            return basic_emit_all<sizeof...(T)>{{new_events...}};
-        }
+        // template <typename... T>
+        //     requires(sizeof...(T) > 1)
+        // consteval auto operator()(T... new_events) const noexcept {
+        //     return basic_emit_all<sizeof...(T)>{std::array<user_event, sizeof...(T)>{new_events...}};
+        // }
 
         template <Context CtxT>
-        context_action operator()(CtxT& ctx) noexcept {
+        context_action operator()(CtxT& ctx, load_event_tag) noexcept {
             using enum context_action;
             for (auto const& usr_event : events) {
                 std::ignore = ctx.fork_emit(event_type{usr_event});

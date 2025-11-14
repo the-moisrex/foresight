@@ -1,6 +1,7 @@
 // Created by moisrex on 10/24/25.
 
 module;
+#include <algorithm>
 #include <cstdint>
 #include <string_view>
 module foresight.devices.key_codes;
@@ -9,12 +10,13 @@ import foresight.devices.event_codes;
 using foresight::keynames_type;
 
 namespace {
-    [[nodiscard]] constexpr char to_lower(char const ch8) noexcept {
-        constexpr char A    = 'A';
-        constexpr char Z    = 'Z';
-        constexpr char diff = 'a' - A;
+    template <typename CharT>
+    [[nodiscard]] constexpr CharT to_lower(CharT const ch8) noexcept {
+        constexpr CharT A    = 'A';
+        constexpr CharT Z    = 'Z';
+        constexpr CharT diff = 'a' - A;
         if (ch8 >= A && ch8 <= Z) {
-            return static_cast<char>(ch8 + diff);
+            return static_cast<CharT>(ch8 + diff);
         }
         return ch8;
     }
@@ -25,8 +27,8 @@ namespace {
                                                 std::basic_string_view<CharT> rhs) const noexcept {
             auto len = std::min(lhs.name.size(), rhs.size());
             for (std::size_t i = 0; i < len; ++i) {
-                auto const ca = static_cast<unsigned char>(lhs.name[i]);
-                auto const cb = static_cast<unsigned char>(to_lower(rhs[i]));
+                auto const ca = static_cast<CharT>(lhs.name[i]);
+                auto const cb = to_lower(rhs[i]);
                 if (ca < cb) {
                     return true;
                 }
@@ -46,9 +48,7 @@ namespace {
                 return false;
             }
             for (std::size_t i = 0; i < lhs.name.size(); ++i) {
-                auto const ca = static_cast<unsigned char>(lhs.name[i]);
-                auto const cb = static_cast<unsigned char>(to_lower(rhs[i]));
-                if (ca != cb) {
+                if (static_cast<CharT>(lhs.name[i]) != to_lower(rhs[i])) {
                     return false;
                 }
             }
@@ -57,11 +57,34 @@ namespace {
     };
 } // namespace
 
-template <typename CharT>
-[[nodiscard]] std::uint16_t foresight::key_code_of(std::basic_string_view<CharT> name) noexcept {
-    auto it = std::lower_bound(keynames.begin(), keynames.end(), name, case_insensitive_less_t{});
-    if (it != keynames.end() && case_insensitive_equal_t{}(*it, name)) {
-        return it->value;
+namespace {
+    template <typename CharT>
+    [[nodiscard]] std::uint16_t key_code_of_impl(std::basic_string_view<CharT> name) noexcept {
+        using foresight::keynames;
+        auto it = std::lower_bound(keynames.begin(), keynames.end(), name, case_insensitive_less_t{});
+        if (it != keynames.end() && case_insensitive_equal_t{}(*it, name)) {
+            return it->value;
+        }
+        return 0;
     }
-    return 0;
+} // namespace
+
+template <>
+std::uint16_t foresight::key_code_of<char32_t>(std::basic_string_view<char32_t> const name) noexcept {
+    return key_code_of_impl(name);
+}
+
+template <>
+std::uint16_t foresight::key_code_of<char16_t>(std::basic_string_view<char16_t> const name) noexcept {
+    return key_code_of_impl(name);
+}
+
+template <>
+std::uint16_t foresight::key_code_of<char8_t>(std::basic_string_view<char8_t> const name) noexcept {
+    return key_code_of_impl(name);
+}
+
+template <>
+std::uint16_t foresight::key_code_of<char>(std::basic_string_view<char> const name) noexcept {
+    return key_code_of_impl(name);
 }
