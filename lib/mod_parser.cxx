@@ -274,46 +274,31 @@ char32_t foresight::utf8_next_code_point(std::string_view &src, std::size_t cons
 }
 
 char32_t foresight::parse_char_or_codepoint(std::string_view &src) noexcept {
-    auto const raw_length = src.size();
-
-    if (raw_length == 0U) [[unlikely]] {
-        return invalid_code_point;
-    }
+    assert(!src.empty());
 
     // Try to parse the parameter as a UTF-8 encoded single character
-    char32_t   codepoint = utf8_next_code_point(src, raw_length);
-    auto const length    = src.size() - raw_length;
+    char32_t codepoint = utf8_next_code_point(src, src.size());
 
-    // If parsing failed or did not consume all the string, then try other formats
-    if (codepoint == invalid_code_point || length == 0 || length != raw_length) {
-        char    *endp = nullptr; // NOLINT(*-const-correctness)
-        char32_t val  = 0;
-        int      base = 10;
-        // Detect U+NNNN format standard Unicode code point format
-        if (src.starts_with("U+")) {
-            base = 16;
-            src.remove_prefix(2);
-        }
+    if (codepoint == 'U' && src.starts_with("+")) [[unlikely]] {
+        char *endp = nullptr; // NOLINT(*-const-correctness)
+
+        // U+NNNN format standard Unicode code point format
+        src.remove_prefix(2);
+
         // Use strtol with explicit bases instead of `0` in order to avoid unexpected parsing as octal.
-        for (; base <= 16; base += 6) {
-            errno = 0;
-            // NOLINTNEXTLINE(*-suspicious-stringview-data-usage)
-            val   = static_cast<char32_t>(strtol(src.data(), &endp, base));
-            if (errno != 0 || !is_empty(endp) || static_cast<std::int32_t>(val) < 0 || val > 0x10'FFFFU)
-              [[unlikely]]
-            {
-                val = invalid_code_point;
-            } else {
-                break;
-            }
-        }
-        if (val == invalid_code_point) [[unlikely]] {
+        errno     = 0;
+        // NOLINTNEXTLINE(*-suspicious-stringview-data-usage)
+        codepoint = static_cast<char32_t>(strtol(src.data(), &endp, 16));
+        if (
+          errno != 0 || !is_empty(endp) || static_cast<std::int32_t>(codepoint) < 0 || codepoint > 0x10'FFFFU)
+          [[unlikely]]
+        {
             log("ERROR: Failed to convert to UTF-32");
             return invalid_code_point;
         }
         src.remove_prefix(endp - src.data());
-        codepoint = val;
     }
+
     return codepoint;
 }
 

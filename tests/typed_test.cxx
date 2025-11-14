@@ -6,27 +6,28 @@ import foresight.mods;
 
 TEST(SearchTest, Basic) {
     using namespace foresight;
+
     (context
      | emit_all({
-       {EV_KEY,      KEY_T, 1},
-       {EV_SYN, SYN_REPORT, 0},
-       {EV_KEY,      KEY_T, 0},
-       {EV_SYN, SYN_REPORT, 0},
+       {.type = EV_KEY,      .code = KEY_T, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_T, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
 
-       {EV_KEY,      KEY_E, 1},
-       {EV_SYN, SYN_REPORT, 0},
-       {EV_KEY,      KEY_E, 0},
-       {EV_SYN, SYN_REPORT, 0},
+       {.type = EV_KEY,      .code = KEY_E, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_E, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
 
-       {EV_KEY,      KEY_S, 1},
-       {EV_SYN, SYN_REPORT, 0},
-       {EV_KEY,      KEY_S, 0},
-       {EV_SYN, SYN_REPORT, 0},
+       {.type = EV_KEY,      .code = KEY_S, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_S, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
 
-       {EV_KEY,      KEY_T, 1},
-       {EV_SYN, SYN_REPORT, 0},
-       {EV_KEY,      KEY_T, 0},
-       {EV_SYN, SYN_REPORT, 0},
+       {.type = EV_KEY,      .code = KEY_T, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_T, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     })
      | search_engine
      | on(typed("test"), [] {
