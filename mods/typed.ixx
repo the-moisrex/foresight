@@ -5,6 +5,7 @@ module;
 #include <climits>
 #include <cstdint>
 #include <functional>
+#include <linux/input-event-codes.h>
 #include <optional>
 #include <string_view>
 #include <vector>
@@ -215,7 +216,11 @@ namespace foresight {
         }
 
         [[nodiscard]] bool operator()(Context auto& ctx) noexcept {
-            auto const code   = unicode_encoded_event(state, ctx.event());
+            auto const& event = ctx.event();
+            if (event.type() != EV_KEY || event.value() != 1) {
+                return false;
+            }
+            auto const code   = unicode_encoded_event(state, event);
             auto&      engine = ctx.mod(search_engine);
             current_state     = engine.process(code, current_state);
             return engine.matches(current_state.index(), trigger_id);

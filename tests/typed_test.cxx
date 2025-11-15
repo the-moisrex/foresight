@@ -4,8 +4,10 @@
 
 import foresight.mods;
 
+bool happened = false;         // NOLINT
+
 TEST(SearchTest, Basic) {
-    using namespace foresight;
+    using namespace foresight; // NOLINT(*-build-using-namespace)
 
     (context
      | emit_all({
@@ -31,6 +33,7 @@ TEST(SearchTest, Basic) {
     })
      | search_engine
      | on(typed("test"), [] {
-           EXPECT_TRUE(true);
+           happened = true;
        }))();
+    EXPECT_TRUE(happened);
 }
