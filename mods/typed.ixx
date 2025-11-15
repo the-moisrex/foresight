@@ -159,7 +159,7 @@ namespace foresight {
          * Add a new pattern to search for
          * @param pattern It's a UTF-8-encoded string that we will try to find later on
          */
-        void add_pattern(std::string_view pattern);
+        [[nodiscard("Don't lose your trigger id")]] std::uint16_t add_pattern(std::string_view pattern);
 
         /**
          * Process this new event, and return a new state
@@ -211,7 +211,7 @@ namespace foresight {
         /// Register the pattern into the search engine
         void operator()(Context auto& ctx, start_tag) {
             state.initialize(xkb::get_default_keymap());
-            ctx.mod(search_engine).add_pattern(pattern);
+            trigger_id = ctx.mod(search_engine).add_pattern(pattern);
         }
 
         [[nodiscard]] bool operator()(Context auto& ctx) noexcept {

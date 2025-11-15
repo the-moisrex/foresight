@@ -129,7 +129,7 @@ std::uint32_t basic_search_engine::build_machine() {
     return last_state;
 }
 
-void basic_search_engine::add_pattern(std::string_view pattern) {
+std::uint16_t basic_search_engine::add_pattern(std::string_view pattern) {
     std::u32string encoded_pattern;
     encoded_pattern.reserve(pattern.size());
 
@@ -150,6 +150,7 @@ void basic_search_engine::add_pattern(std::string_view pattern) {
 
     // Rebuild machine (can be optimized to incremental insertion if needed)
     build_machine();
+    return static_cast<std::uint16_t>(patterns.size() - 1);
 }
 
 foresight::aho_state basic_search_engine::process(char32_t const  code_point,
