@@ -17,17 +17,23 @@ import foresight.lib.mod_parser;
 
 using foresight::basic_search_engine;
 
+namespace {
+
+    std::uint32_t calc_children_mask(auto const &node) noexcept {
+        std::uint32_t mask = node.children_mask;
+        for (auto const child : node.children) {
+            mask |= child.first;
+        }
+        return mask;
+    }
+} // namespace
+
 // NOLINTBEGIN(*-pro-bounds-constant-array-index)
 basic_search_engine::state_type basic_search_engine::find_child(
   state_type const state,
   char32_t const   code) const noexcept {
     auto const &node     = trie[state];
     auto const &children = node.children;
-
-    if ((node.children_mask & code) == 0) [[likely]] {
-        // User most likely won't be typing the shortcuts all the time, so we put it in the slow path
-        return 0; // index to root
-    }
 
     // binary search since children is kept sorted by codepoint
     auto const it =
@@ -40,35 +46,43 @@ basic_search_engine::state_type basic_search_engine::find_child(
     return 0; // index to root
 }
 
+basic_search_engine::state_type basic_search_engine::quick_find_child(
+  state_type const state,
+  char32_t const   code) const noexcept {
+    if ((trie[state].children_mask & code) == 0) [[likely]] {
+        // User most likely won't be typing the shortcuts all the time, so we put it in the slow path
+        return 0; // index to root
+    }
+    return find_child(state, code);
+}
+
 std::uint32_t basic_search_engine::add_child(state_type const state, char32_t code, state_type child_index) {
-    auto      &children = trie[state].children;
-    auto const it =
+    auto const &node     = trie[state];
+    auto       &children = trie[state].children;
+    auto const  it =
       std::lower_bound(children.begin(), children.end(), code, [](auto const &a, char32_t value) {
           return a.first < value;
       });
     children.emplace(it, code, child_index); // insert sorted
-
-    std::uint32_t mask = 0U;
-    for (auto const child : children) {
-        mask |= child.first;
-    }
-    return mask;
+    return calc_children_mask(node);
 }
 
 std::uint32_t basic_search_engine::build_machine() {
     trie.clear();
-    auto &root     = trie.emplace_back(); // root node (index 0)
-    root.value     = 0;
-    root.out_link  = 0;
-    root.fail_link = 0;
+    {
+        auto &root     = trie.emplace_back(); // root node (index 0)
+        root.value     = 0;
+        root.out_link  = 0;
+        root.fail_link = 0;
+    }
 
     std::uint32_t last_state = 1;
+    std::uint32_t index      = 0;
 
     // Insert patterns into trie
-    for (std::size_t i = 0; i < patterns.size(); ++i) {
-        auto const &word    = patterns[i];
-        state_type  current = 0;
-        for (char32_t const c : word) {
+    for (auto const &pattern : patterns) {
+        state_type current = 0;
+        for (char32_t const c : pattern) {
             auto next = find_child(current, c);
             if (next == 0) {
                 // create new node
@@ -84,21 +98,25 @@ std::uint32_t basic_search_engine::build_machine() {
         }
 
         // pattern index too large for bitmask; you may want to change representation.
-        if (i >= MAX_PATTERNS) {
+        if (index >= MAX_PATTERNS) {
             throw std::runtime_error("Too many patterns added.");
         }
 
         // set output bit for pattern i
-        trie[current].out_link |= 1U << i;
+        trie[current].out_link |= 1U << index;
+        ++index;
     }
+
 
     // Build failure links using BFS
     std::queue<state_type> q;
+
     // initialize root's children: their fail is root (0)
     for (auto const [_, child_index] : trie[0].children) {
         trie[child_index].fail_link = 0;
         q.push(child_index);
     }
+    trie[0].children_mask = calc_children_mask(trie[0]);
 
     while (!q.empty()) {
         auto const cstate = q.front();
@@ -159,10 +177,10 @@ foresight::aho_state basic_search_engine::process(char32_t const  code_point,
     auto state = last_state.index();
 
     // follow transitions; if not present, follow failure links until root
-    auto next = find_child(state, code_point);
+    auto next = quick_find_child(state, code_point);
     while (next == 0 && state != 0) {
         state = trie[state].fail_link;
-        next  = find_child(state, code_point);
+        next  = quick_find_child(state, code_point);
     }
     return last_state.next_generation(next);
 }

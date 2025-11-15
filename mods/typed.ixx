@@ -146,6 +146,7 @@ namespace foresight {
 
         // helpers
         [[nodiscard]] state_type    find_child(state_type state, char32_t code) const noexcept;
+        [[nodiscard]] state_type    quick_find_child(state_type state, char32_t code) const noexcept;
         [[nodiscard]] std::uint32_t add_child(state_type state, char32_t code, state_type child_index);
 
       public:
