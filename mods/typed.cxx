@@ -77,7 +77,7 @@ std::uint32_t basic_search_engine::build_machine() {
                 last.value         = c;
                 last.out_link      = 0;
                 last.fail_link     = 0;
-                next               = static_cast<int>(last_state);
+                next               = last_state;
                 last.children_mask = add_child(current, c, next);
                 ++last_state;
             }
@@ -156,12 +156,12 @@ void basic_search_engine::add_pattern(std::string_view pattern) {
 foresight::aho_state basic_search_engine::process(char32_t const  code_point,
                                                   aho_state const last_state) const noexcept {
     assert(!trie.empty());
-    auto state = static_cast<int>(last_state.index());
+    auto state = last_state.index();
 
     // follow transitions; if not present, follow failure links until root
     auto next = find_child(state, code_point);
     while (next == 0 && state != 0) {
-        state = static_cast<int>(trie[state].fail_link);
+        state = trie[state].fail_link;
         next  = find_child(state, code_point);
     }
     return last_state.next_generation(next);

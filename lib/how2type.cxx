@@ -13,7 +13,6 @@ import foresight.mods.event;
 
 using foresight::xkb::key_position;
 
-constexpr std::size_t COMPOSE_MAX_LHS_LEN  = 8;
 constexpr std::size_t MAX_TYPE_MAP_ENTRIES = 32;
 
 namespace {

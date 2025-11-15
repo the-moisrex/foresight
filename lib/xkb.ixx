@@ -70,7 +70,7 @@ export namespace foresight::xkb {
         keymap &operator=(keymap const &)     = delete;
         keymap(keymap &&) noexcept            = default;
         keymap &operator=(keymap &&) noexcept = default;
-        ~keymap();
+        ~keymap() noexcept;
 
         [[nodiscard]] xkb_keymap   *get() const noexcept;
         [[nodiscard]] xkb_keycode_t min_keycode() const noexcept;

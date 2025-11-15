@@ -14,11 +14,10 @@ using foresight::event_type;
 using foresight::xkb::state;
 
 namespace {
+    constexpr int           evdev_offset      = 8;
     constexpr std::uint16_t KEY_STATE_RELEASE = 0;
-    constexpr std::uint16_t KEY_STATE_PRESS   = 1;
-    constexpr std::uint16_t KEY_STATE_REPEAT  = 2;
-
-    constexpr int evdev_offset = 8;
+    // constexpr std::uint16_t KEY_STATE_PRESS   = 1;
+    // constexpr std::uint16_t KEY_STATE_REPEAT  = 2;
 } // namespace
 
 char32_t foresight::xkb::event2unicode(basic_state const& state_handle, event_type const& event) noexcept {

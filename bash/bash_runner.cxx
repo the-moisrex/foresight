@@ -54,8 +54,8 @@ std::string bash_runner::exec(std::string_view const command) {
 
     std::string                   output;
     std::array<char, buffer_size> buf{};
-    ssize_t                       n = 0;
-    while ((n = read(from_child[0], buf.data(), buf.size())) > 0) {
+    std::size_t                   n = 0;
+    while ((n = static_cast<std::size_t>(read(from_child[0], buf.data(), buf.size()))) > 0) {
         output.append(buf.data(), n);
         auto const found = output.find(marker);
         if (found != std::string::npos) {

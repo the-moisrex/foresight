@@ -296,7 +296,7 @@ char32_t foresight::parse_char_or_codepoint(std::string_view &src) noexcept {
             log("ERROR: Failed to convert to UTF-32");
             return invalid_code_point;
         }
-        src.remove_prefix(endp - src.data());
+        src.remove_prefix(static_cast<std::size_t>(endp - src.data()));
     }
 
     return codepoint;
@@ -330,9 +330,9 @@ bool foresight::parse_modifier(std::u32string_view mod_str, key_code_callback ca
         event = {.code = get_modifier_code(mod_str), .value = 0};
     } else {
         // handling <C-r> type of mods
-        constexpr auto max_len = static_cast<std::int32_t>(max_simultaneous_key_presses);
+        constexpr auto max_len = static_cast<std::uint32_t>(max_simultaneous_key_presses);
         std::array<std::uint16_t, max_simultaneous_key_presses> keys{};
-        std::int32_t                                            index = 0;
+        std::uint32_t                                           index = 0;
         for (; index != max_len; ++index) {
             auto const sub_mod = mod_str.substr(dash_start);
             if (sub_mod.empty()) {
@@ -349,10 +349,10 @@ bool foresight::parse_modifier(std::u32string_view mod_str, key_code_callback ca
         }
 
         // release the keys in reverse order:
-        for (; index >= 0; --index) {
+        for (std::uint32_t cindex = 0; cindex != index; ++cindex) {
             // keyup:
             callback({
-              .code  = keys.at(index),
+              .code  = keys.at(cindex),
               .value = 0,
             });
         }
