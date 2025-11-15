@@ -16,7 +16,6 @@ import foresight.mods.event;
 import foresight.lib.mod_parser;
 
 using foresight::basic_search_engine;
-using foresight::basic_typed;
 
 // NOLINTBEGIN(*-pro-bounds-constant-array-index)
 basic_search_engine::state_type basic_search_engine::find_child(

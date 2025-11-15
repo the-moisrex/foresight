@@ -305,7 +305,14 @@ char32_t foresight::parse_char_or_codepoint(std::string_view &src) noexcept {
 std::size_t
 foresight::find_delim(std::u32string_view str, char32_t const delim, std::size_t const pos) noexcept {
     auto lhsptr = str.find(delim, pos);
-    while (lhsptr != 0 && str.at(lhsptr - 1) != U'\\') {
+    while (lhsptr != std::u32string_view::npos) {
+        bool escaped = false;
+        while (str.at(lhsptr - 1) != U'\\') [[unlikely]] {
+            escaped = !escaped;
+        }
+        if (!escaped) {
+            break;
+        }
         // skip the escaped ones
         lhsptr = str.find(delim, lhsptr + 1);
     }
