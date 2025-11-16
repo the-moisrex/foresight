@@ -78,3 +78,28 @@ TEST(SearchTest, Multi) {
        }))();
     EXPECT_EQ(happened, 2);
 }
+
+TEST(SearchTest, ModiferTest) {
+    using namespace foresight; // NOLINT(*-build-using-namespace)
+    happened = 0;
+
+    (context
+     | emit_all({
+       {.type = EV_KEY, .code = KEY_LEFTCTRL, .value = 1},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+
+       {.type = EV_KEY,        .code = KEY_R, .value = 1},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,        .code = KEY_R, .value = 0},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+
+       {.type = EV_KEY, .code = KEY_LEFTCTRL, .value = 0},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+    })
+     | search_engine
+     | on(typed("<ctrl-r>"), [] {
+           ++happened;
+           EXPECT_EQ(happened, 1);
+       }))();
+    EXPECT_EQ(happened, 1);
+}
