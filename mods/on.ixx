@@ -92,7 +92,7 @@ namespace foresight {
             if (invoke_start(cond, ctx) == exit) [[unlikely]] {
                 return exit;
             }
-            return bounce_invoke(ctx, funcs, start);
+            return invoke_mods(ctx, funcs, start);
         }
 
         context_action operator()(Context auto& ctx) noexcept {

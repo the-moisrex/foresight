@@ -208,26 +208,6 @@ export namespace foresight {
         }
     }
 
-    template <typename ModT, typename CtxT>
-    constexpr context_action invoke_start(ModT &mod, CtxT &ctx) {
-        return invoke_mod(mod, ctx, start);
-    }
-
-    template <typename ModT, typename CtxT>
-    constexpr context_action invoke_done(ModT &mod, CtxT &ctx) {
-        return invoke_mod(mod, ctx, done);
-    }
-
-    template <typename ModT, typename CtxT>
-    constexpr context_action invoke_set_event(ModT &mod, CtxT &ctx) {
-        return invoke_mod(mod, ctx, next_event);
-    }
-
-    template <typename ModT, typename CtxT>
-    constexpr context_action invoke_load_event(ModT &mod, CtxT &ctx) {
-        return invoke_mod(mod, ctx, load_event);
-    }
-
     /// Invoke Condition
     template <typename CondT, typename CtxT, typename... Args>
     constexpr bool invoke_cond(CondT &cond, CtxT &ctx, Args &&...args) {
@@ -269,6 +249,26 @@ export namespace foresight {
         }
     }
 
+    template <typename ModT, typename CtxT>
+    constexpr context_action invoke_start(ModT &mod, CtxT &ctx) {
+        return invoke_mod(mod, ctx, start);
+    }
+
+    template <typename ModT, typename CtxT>
+    constexpr context_action invoke_done(ModT &mod, CtxT &ctx) {
+        return invoke_mod(mod, ctx, done);
+    }
+
+    template <typename ModT, typename CtxT>
+    constexpr context_action invoke_set_event(ModT &mod, CtxT &ctx) {
+        return invoke_mod(mod, ctx, next_event);
+    }
+
+    template <typename ModT, typename CtxT>
+    constexpr context_action invoke_load_event(ModT &mod, CtxT &ctx) {
+        return invoke_mod(mod, ctx, load_event);
+    }
+
     template <Context CtxT, typename... Funcs>
     constexpr context_action invoke_mod_at(
       CtxT                 &ctx,
@@ -289,72 +289,33 @@ export namespace foresight {
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
 
-    /// Run the functions and give them the specified context
+    template <std::size_t Index, Context CtxT, typename... Funcs, typename... Args>
+    constexpr context_action fork_mod(CtxT &ctx, std::tuple<Funcs...> &funcs, Args &&...args) noexcept(
+      CtxT::is_nothrow) {
+        using enum context_action;
+        using tuple_type = std::tuple<Funcs...>;
+        using mod_type   = std::tuple_element_t<Index, tuple_type>;
+        if constexpr (invokable_mod<mod_type, CtxT, Args...>) {
+            auto current_fork_view = ctx.template fork_view<Index>();
+            return invoke_mod(get<Index>(funcs), current_fork_view, std::forward<Args>(args)...);
+        } else if constexpr (invokable_mod<mod_type, CtxT>) {
+            auto current_fork_view = ctx.template fork_view<Index>();
+            return invoke_mod(get<Index>(funcs), current_fork_view);
+        } else {
+            return next;
+        }
+    }
+
+    /// Run the functions and give them the specified context and arguments (optionally)
     template <Context CtxT, typename... Funcs, typename... Args>
         requires(std::is_trivially_copy_constructible_v<Args> && ...)
     constexpr context_action invoke_mods(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept(
       CtxT::is_nothrow) {
         using enum context_action;
-        using tuple_type = std::tuple<Funcs...>;
-        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
-            auto action = next;
-            std::ignore =
-              (([&]<std::size_t K>() constexpr noexcept(CtxT::is_nothrow) {
-                   if constexpr ((sizeof...(Args) >= 1)
-                                 && !invokable_mod<std::tuple_element_t<K, tuple_type>, CtxT, Args...>)
-                   {
-                       // we're not able to run start and done on this mod, we simply ignore it.
-                       return true;
-                   } else {
-                       auto current_fork_view = ctx.template fork_view<K>();
-                       action                 = invoke_mod(get<K>(funcs), current_fork_view, args...);
-                       return action == next;
-                   }
-               }).template operator()<I>()
-               && ...);
-            return action;
-        }(std::make_index_sequence<sizeof...(Funcs)>{});
-    }
-
-    /// Run the functions and give them the specified context
-    template <Context CtxT, typename... Funcs, typename... Args>
-        requires(std::is_trivially_copy_constructible_v<Args> && ...)
-    constexpr context_action bounce_invoke(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept(
-      CtxT::is_nothrow) {
-        using enum context_action;
-        using tuple_type = std::tuple<Funcs...>;
         // todo: replace with C++26 "template for" when compilers support it
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
-            auto action = ignore_event;
-            std::ignore =
-              (([&]<std::size_t K2>() constexpr noexcept(CtxT::is_nothrow) {
-                   if constexpr ((sizeof...(Args) >= 1)
-                                 && !invokable_mod<std::tuple_element_t<K2, tuple_type>, CtxT, Args...>)
-                   {
-                       return true;
-                   } else {
-                       auto current_fork_view = ctx.template fork_view<K2>();
-                       action                 = invoke_mod(get<K2>(funcs), current_fork_view, args...);
-                       return action == next;
-                   }
-               }).template operator()<I>()
-               && ...);
-            if (action != next) {
-                return action;
-            }
-            std::ignore =
-              (([&]<std::size_t K>() constexpr noexcept(CtxT::is_nothrow) {
-                   if constexpr (
-                     (sizeof...(Args) >= 1) && !invokable_mod<std::tuple_element_t<K, tuple_type>, CtxT>)
-                   {
-                       return true;
-                   } else {
-                       auto current_fork_view = ctx.template fork_view<K>();
-                       action                 = invoke_mod(get<K>(funcs), current_fork_view);
-                       return action == next;
-                   }
-               }).template operator()<I>()
-               && ...);
+            auto action = next;
+            std::ignore = (((action = fork_mod<I>(ctx, funcs, args...)) == next) && ...);
             return action;
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
@@ -524,7 +485,7 @@ export namespace foresight {
         }
 
         constexpr context_action operator()(start_tag) noexcept(is_nothrow) {
-            return bounce_invoke(*this, mods, start);
+            return invoke_mods(*this, mods, start);
         }
 
         void operator()() noexcept(is_nothrow) {
@@ -555,14 +516,14 @@ export namespace foresight {
             for (;;) {
                 // Exhaust the next events until there's no more events:
                 if constexpr (next_event_count > 0) {
-                    if (bounce_invoke(*this, mods, next_event) == exit) {
+                    if (invoke_mods(*this, mods, next_event) == exit) {
                         break;
                     }
                 }
 
                 // Wait until new event comes, we should only have one single load_event
                 if constexpr (load_event_count > 0) {
-                    if (bounce_invoke(*this, mods, load_event) == exit) {
+                    if (invoke_mods(*this, mods, load_event) == exit) {
                         break;
                     }
                 }

@@ -22,7 +22,7 @@ namespace {
 
     std::uint32_t calc_children_mask(auto const &node) noexcept {
         std::uint32_t mask = node.children_mask;
-        for (auto const child : node.children) {
+        for (auto const &child : node.children) {
             mask |= child.first;
         }
         return mask;
