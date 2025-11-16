@@ -70,9 +70,11 @@ TEST(SearchTest, Multi) {
      | on(typed("test"),
           [] {
               ++happened;
+              EXPECT_EQ(happened, 2);
           })
      | on(typed("es"), [] {
            ++happened;
+           EXPECT_EQ(happened, 1);
        }))();
-    EXPECT_TRUE(happened == 2);
+    EXPECT_EQ(happened, 2);
 }

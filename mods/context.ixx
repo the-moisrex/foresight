@@ -295,12 +295,9 @@ export namespace foresight {
         using enum context_action;
         using tuple_type = std::tuple<Funcs...>;
         using mod_type   = std::tuple_element_t<Index, tuple_type>;
-        if constexpr (invokable_mod<mod_type, CtxT, Args...>) {
+        if constexpr (invokable_mod<mod_type, CtxT &, Args...>) {
             auto current_fork_view = ctx.template fork_view<Index>();
             return invoke_mod(get<Index>(funcs), current_fork_view, std::forward<Args>(args)...);
-        } else if constexpr (invokable_mod<mod_type, CtxT>) {
-            auto current_fork_view = ctx.template fork_view<Index>();
-            return invoke_mod(get<Index>(funcs), current_fork_view);
         } else {
             return next;
         }

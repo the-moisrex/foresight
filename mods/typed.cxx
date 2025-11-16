@@ -204,7 +204,7 @@ bool basic_search_engine::matches(std::uint32_t const state, std::uint16_t const
     assert(state < trie.size());
     assert(trigger_id < MAX_PATTERNS);
     auto const mask = trie[state].out_link;
-    return (mask & (1U << trigger_id)) != 0u;
+    return (mask >> trigger_id & 0b1U) != 0u;
 }
 
 void basic_search_engine::operator()(start_tag) {

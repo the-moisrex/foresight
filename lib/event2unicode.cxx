@@ -1,6 +1,7 @@
 // Created by moisrex on 10/29/25.
 
 module;
+#include <cassert>
 #include <cstdint>
 #include <linux/input-event-codes.h>
 #include <span>
@@ -22,10 +23,8 @@ namespace {
 
 char32_t foresight::xkb::event2unicode(basic_state const& state_handle, event_type const& event) noexcept {
     auto* handle = state_handle.get();
-    // Check if this is a key event and state is valid
-    if (handle == nullptr || event.type() != EV_KEY) {
-        return U'\0';
-    }
+    assert(handle != nullptr);
+    assert(event.type() == EV_KEY);
 
     // Map evdev code -> xkb keycode
     auto const              keycode = static_cast<xkb_keycode_t>(evdev_offset + event.code());
