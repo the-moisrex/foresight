@@ -323,6 +323,7 @@ export namespace foresight {
       CtxT::is_nothrow) {
         using enum context_action;
         using tuple_type = std::tuple<Funcs...>;
+        // todo: replace with C++26 "template for" when compilers support it
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
             auto action = ignore_event;
             std::ignore =

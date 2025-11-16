@@ -6,6 +6,7 @@ module;
 #include <cstdint>
 #include <cstring>
 #include <functional>
+#include <linux/input-event-codes.h>
 #include <queue>
 #include <string>
 module foresight.mods.typed;
@@ -209,6 +210,19 @@ bool basic_search_engine::matches(std::uint32_t const state, std::uint16_t const
 void basic_search_engine::operator()(start_tag) {
     // create empty machine (root-only)
     build_machine();
+}
+
+bool basic_search_engine::search(
+  event_type const       &event,
+  std::uint16_t const     trigger_id,
+  xkb::basic_state const &keyboard_state,
+  aho_state              &state) const noexcept {
+    if (event.type() != EV_KEY || event.value() != 1) {
+        return false;
+    }
+    auto const code = unicode_encoded_event(keyboard_state, event);
+    state           = process(code, state);
+    return matches(state.index(), trigger_id);
 }
 
 // NOLINTEND(*-pro-bounds-constant-array-index)

@@ -5,8 +5,6 @@ module;
 #include <climits>
 #include <cstdint>
 #include <functional>
-#include <linux/input-event-codes.h>
-#include <optional>
 #include <string_view>
 #include <vector>
 export module foresight.mods.typed;
@@ -179,6 +177,13 @@ namespace foresight {
         void operator()() const noexcept {
             // do nothing
         }
+
+        /// Process and match
+        [[nodiscard]] bool search(
+          event_type const&       event,
+          std::uint16_t           trigger_id,
+          xkb::basic_state const& keyboard_state,
+          aho_state&              state) const noexcept;
     };
 
     export constexpr basic_search_engine search_engine;
@@ -190,10 +195,10 @@ namespace foresight {
         static constexpr std::uint16_t invalid_trigger_id = std::numeric_limits<std::uint16_t>::max();
 
       private:
-        std::string_view pattern;
-        std::uint16_t    trigger_id = invalid_trigger_id;
-        xkb::basic_state state;
-        aho_state        current_state{};
+        std::string_view pattern;                         // pattern string
+        std::uint16_t    trigger_id = invalid_trigger_id; // pattern id in search engine
+        xkb::basic_state keyboard_state;                  // the state of the modifier keys and what not
+        aho_state        aho_search_state{};              // the state of where we are in search engine
 
       public:
         explicit consteval basic_typed(std::string_view const inp_pattern) noexcept : pattern{inp_pattern} {}
@@ -212,19 +217,12 @@ namespace foresight {
 
         /// Register the pattern into the search engine
         void operator()(Context auto& ctx, start_tag) {
-            state.initialize(xkb::get_default_keymap());
+            keyboard_state.initialize(xkb::get_default_keymap());
             trigger_id = ctx.mod(search_engine).add_pattern(pattern);
         }
 
         [[nodiscard]] bool operator()(Context auto& ctx) noexcept {
-            auto const& event = ctx.event();
-            if (event.type() != EV_KEY || event.value() != 1) {
-                return false;
-            }
-            auto const code   = unicode_encoded_event(state, event);
-            auto&      engine = ctx.mod(search_engine);
-            current_state     = engine.process(code, current_state);
-            return engine.matches(current_state.index(), trigger_id);
+            return ctx.mod(search_engine).search(ctx.event(), trigger_id, keyboard_state, aho_search_state);
         }
     } typed;
 
