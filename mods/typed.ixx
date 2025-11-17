@@ -221,7 +221,10 @@ namespace foresight {
             trigger_id = ctx.mod(search_engine).add_pattern(pattern);
         }
 
-        [[nodiscard]] bool operator()(Context auto& ctx) noexcept {
+        template <Context CtxT>
+        [[nodiscard]] bool operator()(CtxT& ctx) noexcept {
+            static_assert(has_mod<basic_search_engine, CtxT>,
+                          "You need to have 'search_engine' in your pipeline.");
             return ctx.mod(search_engine).search(ctx.event(), trigger_id, keyboard_state, aho_search_state);
         }
     } typed;

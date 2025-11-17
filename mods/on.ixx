@@ -34,6 +34,9 @@ namespace foresight {
 
     export template <typename CondT = basic_always_enable, typename... Funcs>
     struct [[nodiscard]] basic_on {
+        template <typename CtxT>
+        static constexpr bool can_generate_events = (invokable_mod<Funcs, CtxT, next_event_tag> || ...);
+
       private:
         [[no_unique_address]] CondT                cond;
         [[no_unique_address]] std::tuple<Funcs...> funcs;
@@ -93,6 +96,14 @@ namespace foresight {
                 return exit;
             }
             return invoke_mods(ctx, funcs, start);
+        }
+
+        /// Pass-Through event generator
+        template <Context CtxT>
+        constexpr context_action operator()(CtxT& ctx, next_event_tag) noexcept
+            requires(can_generate_events<CtxT>)
+        {
+            return invoke_first_mod_of(ctx, funcs, next_event);
         }
 
         context_action operator()(Context auto& ctx) noexcept {

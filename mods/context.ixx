@@ -317,6 +317,20 @@ export namespace foresight {
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
 
+    /// Run functions until one of them return "context_action::next"
+    template <Context CtxT, typename... Funcs, typename... Args>
+        requires(std::is_trivially_copy_constructible_v<Args> && ...)
+    constexpr context_action invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept(
+      CtxT::is_nothrow) {
+        using enum context_action;
+        // todo: replace with C++26 "template for" when compilers support it
+        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
+            auto action = ignore_event;
+            std::ignore = (((action = fork_mod<I>(ctx, funcs, args...)) != next) && ...);
+            return action;
+        }(std::make_index_sequence<sizeof...(Funcs)>{});
+    }
+
     template <std::size_t Index, Modifier... Funcs>
     struct [[nodiscard]] basic_context_view;
 
