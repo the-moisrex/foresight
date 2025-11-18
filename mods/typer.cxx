@@ -7,7 +7,7 @@ module foresight.mods.typer;
 import foresight.lib.mod_parser;
 import foresight.lib.xkb;
 
-void foresight::basic_typist::emit(std::u32string_view str, user_event_callback callback) {
+void foresight::emit(std::u32string_view str, user_event_callback callback) {
     // first initialize the how2type object
     auto const &map = xkb::get_default_keymap();
 
@@ -30,11 +30,4 @@ void foresight::basic_typist::emit(std::u32string_view str, user_event_callback 
         // 4. remove the already processed string:
         str.remove_prefix(rhsptr);
     }
-}
-
-void foresight::basic_typist::emit(std::u32string_view const str) {
-    auto const emit_event = [&](user_event const &event) {
-        events.emplace_back(event);
-    };
-    emit(str, emit_event);
 }

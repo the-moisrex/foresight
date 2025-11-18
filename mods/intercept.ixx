@@ -81,8 +81,8 @@ export namespace foresight {
         context_action wait_for_event() noexcept;
         bool           get_next_event(event_type& event) noexcept;
 
-        std::vector<evdev>  devs{};
-        std::vector<pollfd> fds{};
+        std::vector<evdev>  devs;
+        std::vector<pollfd> fds;
 
         // The index of the current device being processed:
         std::uint16_t index = 0;

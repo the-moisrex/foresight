@@ -10,29 +10,55 @@ import foresight.lib.xkb.how2type;
 
 namespace foresight {
 
+    export template <typename CharT>
+    [[nodiscard]] constexpr std::basic_string_view<CharT> to_string(
+      std::basic_string_view<CharT> str) noexcept {
+        return str;
+    }
+
+    // todo: add function support for to_string
+
+    /// Emit the events in the string
+    void emit(std::u32string_view str, user_event_callback);
+
     /**
      * This struct will help you emit events corresponding to a string
      */
-    export constexpr struct [[nodiscard]] basic_typist {
+    export template <typename StrGetter = std::u32string_view>
+    struct [[nodiscard]] basic_type_string {
       private:
         // we ust optional to make `constexpr` possible
-        std::vector<user_event>      events;
+        [[no_unique_address]] StrGetter event_getter;
 
       public:
-        constexpr basic_typist()                                   = default;
-        constexpr basic_typist(basic_typist const&)                = default;
-        constexpr basic_typist(basic_typist&&) noexcept            = default;
-        constexpr basic_typist& operator=(basic_typist const&)     = default;
-        constexpr basic_typist& operator=(basic_typist&&) noexcept = default;
-        constexpr ~basic_typist()                                  = default;
+        template <typename Getter>
+            requires(std::convertible_to<Getter, StrGetter>)
+        explicit constexpr basic_type_string(Getter&& getter) : event_getter{std::forward<Getter>(getter)} {}
 
-        void emit(std::u32string_view str, user_event_callback);
-        void emit(std::u32string_view str);
+        constexpr basic_type_string()                                        = default;
+        constexpr basic_type_string(basic_type_string const&)                = default;
+        constexpr basic_type_string(basic_type_string&&) noexcept            = default;
+        constexpr basic_type_string& operator=(basic_type_string const&)     = default;
+        constexpr basic_type_string& operator=(basic_type_string&&) noexcept = default;
+        constexpr ~basic_type_string()                                       = default;
+
+        template <typename CharT>
+        consteval basic_type_string operator()(std::basic_string_view<CharT> const str) const noexcept {
+            return basic_type_string<std::basic_string_view<CharT>>{str};
+        }
+
+        template <typename T>
+        consteval basic_type_string operator()(T&& getter) const noexcept {
+            return basic_type_string<std::remove_cvref_t<T>>{std::forward<T>(getter)};
+        }
 
         void operator()(Context auto& ctx) noexcept {
-            for (user_event const& event : events) {
+            auto const str = to_string(event_getter);
+            emit(str, [&](event_type const& event) noexcept {
                 std::ignore = ctx.fork_emit(event_type{event});
-            }
+            });
         }
-    } typist;
+    };
+
+    export constexpr basic_type_string<> type_string;
 } // namespace foresight

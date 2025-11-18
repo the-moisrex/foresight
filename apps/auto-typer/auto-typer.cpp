@@ -6,21 +6,18 @@ import foresight.main.utils;
 
 int main(int const argc, char const* const* argv) try {
     using namespace foresight; // NOLINT(*-using-namespace)
-    using namespace std::chrono_literals;
 
-    static constexpr auto args = arguments["pen", "usb keyboard"];
+    static constexpr auto args = arguments["USB Keyboard"];
+
     static constinit auto pipeline =
       context
       | intercept
-      | scheduled_emitter
       | search_engine
-      | keys_status
-      | mice_quantifier
-      | swipe_detector
+      | on(typed("@test"), type_string(U"nice"))
       | ignore_adjacent_syns
       | uinput;
 
-    pipeline.mod(intercept).add_devs(args(argc, argv) | find_devices, grab_inputs);
+    pipeline.mod(intercept).add_devs(args(argc, argv) | find_devices /* , grab_inputs */);
     pipeline();
 
     return 0;
