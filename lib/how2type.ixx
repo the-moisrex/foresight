@@ -17,7 +17,7 @@ export namespace foresight::xkb {
         xkb_mod_mask_t     mask{};
     };
 
-     // todo: use std::function_ref instead of std::function
+    // todo: use std::function_ref instead of std::function
     using handle_keysym_callback = std::function<void(key_position const&)> const&;
 
     /**
@@ -44,6 +44,7 @@ export namespace foresight::xkb {
          * Call the callback with the series of events that will type that string.
          */
         void emit(keymap const& map, std::u32string_view str, user_event_callback callback);
+        void emit(keymap const& map, std::string_view str, user_event_callback callback);
     }; // namespace how2type
 
 } // namespace foresight::xkb

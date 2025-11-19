@@ -10,6 +10,7 @@ module;
 module foresight.lib.xkb.how2type;
 import foresight.main.log;
 import foresight.mods.event;
+import foresight.lib.mod_parser;
 
 using foresight::xkb::key_position;
 
@@ -296,6 +297,13 @@ void foresight::xkb::how2type::emit(
   std::u32string_view const str,
   user_event_callback       callback) {
     for (char32_t const ucs32 : str) {
+        emit(map, ucs32, callback);
+    }
+}
+
+void foresight::xkb::how2type::emit(keymap const &map, std::string_view str, user_event_callback callback) {
+    while (!str.empty()) {
+        char32_t const ucs32 = utf8_next_code_point(str);
         emit(map, ucs32, callback);
     }
 }

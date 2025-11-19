@@ -20,13 +20,14 @@ namespace foresight {
      * std::hash<std::uint32_string_view> is not constexpr, so we implement our own.
      * http://www.isthe.com/chongo/tech/comp/fnv/
      */
-    export [[nodiscard]] constexpr std::uint32_t ci_hash(std::u32string_view const src) noexcept {
+    export template <typename CharT = char32_t>
+    [[nodiscard]] constexpr std::uint32_t ci_hash(std::basic_string_view<CharT> const src) noexcept {
         std::uint32_t hash = FNV1A_32_INIT;
-        for (char32_t c : src) {
-            if (c >= U'A' && c <= U'Z') {
-                c = c + (U'a' - U'A');
+        for (auto code_point : src) {
+            if (code_point >= static_cast<CharT>('A') && code_point <= static_cast<CharT>('Z')) {
+                code_point += static_cast<CharT>(U'a' - U'A');
             }
-            hash ^= static_cast<std::uint32_t>(c);
+            hash ^= static_cast<std::uint32_t>(code_point);
             hash *= FNV1A_32_PRIME;
         }
         return hash;

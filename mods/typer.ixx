@@ -16,10 +16,15 @@ namespace foresight {
         return str;
     }
 
-    // todo: add function support for to_string
+    export template <typename Func>
+        requires(std::invocable<Func>)
+    constexpr auto to_string(Func&& func) {
+        return std::forward<Func>(func)();
+    }
 
     /// Emit the events in the string
     void emit(std::u32string_view str, user_event_callback);
+    void emit(std::string_view str, user_event_callback);
 
     /**
      * This struct will help you emit events corresponding to a string

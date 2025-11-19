@@ -25,19 +25,25 @@ namespace foresight {
                                                         event_type const &) noexcept;
 
     /// Convert to UTF-32
-    export [[nodiscard]] char32_t utf8_next_code_point(std::string_view &src, std::size_t max_size) noexcept;
+    export [[nodiscard]] char32_t utf8_next_code_point(std::string_view &src) noexcept;
 
     /// Parse UTF-8 or U+XXXX code points
     export [[nodiscard]] char32_t parse_char_or_codepoint(std::string_view &src) noexcept;
 
     /// Find the specified delimiter, but also checks if it's escaped or not.
+    export std::size_t find_delim(std::string_view str, char delim, std::size_t pos = 0) noexcept;
     export std::size_t find_delim(std::u32string_view str, char32_t delim, std::size_t pos = 0) noexcept;
 
     /// Parse a string that starts with `<` and ends with `>`, call the callback function on them.
     export [[nodiscard]] bool parse_modifier(std::u32string_view mod_str, key_code_callback callback);
     export [[nodiscard]] bool parse_modifier(std::u32string_view mod_str, code32_callback callback);
     export [[nodiscard]] bool parse_modifier(std::u32string_view mod_str, user_event_callback callback);
-    export [[nodiscard]] std::u32string parse_modifier(std::u32string_view mod_str);
+    export [[nodiscard]] bool parse_modifier(std::string_view mod_str, key_code_callback callback);
+    export [[nodiscard]] bool parse_modifier(std::string_view mod_str, code32_callback callback);
+    export [[nodiscard]] bool parse_modifier(std::string_view mod_str, user_event_callback callback);
+
+    [[nodiscard]] std::u32string parse_modifier(std::string_view mod_str);
+    [[nodiscard]] std::u32string parse_modifier(std::u32string_view mod_str);
 
     /// Next `<...>` section
     export void on_modifier_tags(std::u32string_view                             str,

@@ -13,7 +13,7 @@ int main(int const argc, char const* const* argv) try {
       context
       | intercept
       | search_engine
-      | on(typed("@test"), type_string(U"nice"))
+      | on(typed("@test"), type_string("nice"))
       | ignore_adjacent_syns
       | uinput;
 
