@@ -11,9 +11,12 @@ void foresight::emit(std::u32string_view str, user_event_callback callback) {
     // first initialize the how2type object
     auto const &map = xkb::get_default_keymap();
 
-    while (!str.empty()) {
+    for (;;) {
         // 1. find the first modifier:
         auto const lhsptr = find_delim(str, U'<');
+        if (lhsptr == std::u32string_view::npos) {
+            break;
+        }
         auto const rhsptr = find_delim(str, U'>', lhsptr);
         auto const lhs    = str.substr(0, lhsptr);
         auto const rhs    = str.substr(lhsptr, rhsptr - lhsptr);

@@ -42,13 +42,21 @@ namespace foresight {
         constexpr basic_type_string& operator=(basic_type_string&&) noexcept = default;
         constexpr ~basic_type_string()                                       = default;
 
-        template <typename CharT>
-        consteval basic_type_string operator()(std::basic_string_view<CharT> const str) const noexcept {
-            return basic_type_string<std::basic_string_view<CharT>>{str};
+        consteval auto operator()(std::u32string_view const str) const noexcept {
+            return basic_type_string<std::u32string_view>{str};
+        }
+
+        consteval auto operator()(std::u8string_view const str) const noexcept {
+            return basic_type_string<std::u8string_view>{str};
+        }
+
+        consteval auto operator()(std::string_view const str) const noexcept {
+            return basic_type_string<std::string_view>{str};
         }
 
         template <typename T>
-        consteval basic_type_string operator()(T&& getter) const noexcept {
+            requires(!std::is_array_v<std::remove_cvref_t<T>>) // no strings
+        consteval auto operator()(T&& getter) const noexcept {
             return basic_type_string<std::remove_cvref_t<T>>{std::forward<T>(getter)};
         }
 
