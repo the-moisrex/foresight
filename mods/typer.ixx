@@ -62,7 +62,7 @@ namespace foresight {
 
         void operator()(Context auto& ctx) noexcept {
             auto const str = to_string(event_getter);
-            emit(str, [&](event_type const& event) noexcept {
+            emit(str, [&](user_event const& event) noexcept {
                 std::ignore = ctx.fork_emit(event_type{event});
             });
         }
