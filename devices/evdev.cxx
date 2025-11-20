@@ -558,7 +558,11 @@ foresight::evdev_rank foresight::device(std::string_view query) {
         auto const loc  = dev.physical_location();
         auto const id   = dev.unique_identifier();
 
-        if (!dev.is_fd_initialized() || (name == invalid_device_name) || (loc == invalid_device_location)) {
+        if (!dev.is_fd_initialized() || name == invalid_device_name) {
+            log("  {} {} {}",
+                name,
+                loc,
+                id);
             continue;
         }
 

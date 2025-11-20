@@ -142,6 +142,29 @@ export namespace foresight {
         void init(dev_caps_view caps_view) noexcept;
         void set_device_from(dev_caps_view caps_view) noexcept;
 
+        /// Set the start on start
+        void operator()(dev_caps_view caps_view, start_tag) noexcept;
+
+        /// Set the device on start
+        void operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, start_tag) noexcept {
+            operator()(caps_view, start);
+        }
+
+        /// Find the device if possible on start
+        /// If there's only one device in the interceptor, we automatically find it, and use that one
+        template <Context CtxT>
+        void operator()(CtxT& ctx, start_tag)
+            requires(has_mod<basic_interceptor, CtxT>)
+        {
+            if (!is_ok()) {
+                auto&       incptor = ctx.mod(intercept);
+                auto const& devs    = incptor.devices();
+                if (devs.size() == 1) {
+                    set_device(devs.front());
+                }
+            }
+        }
+
         context_action operator()(event_type const& event) noexcept;
 
       private:

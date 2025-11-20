@@ -14,8 +14,8 @@ namespace {
         // first initialize the how2type object
         auto const &map = foresight::xkb::get_default_keymap();
 
-        constexpr CharT delim_start = static_cast<CharT>('<');
-        constexpr CharT delim_end   = static_cast<CharT>('>');
+        constexpr auto delim_start = static_cast<CharT>('<');
+        constexpr auto delim_end   = static_cast<CharT>('>');
 
         for (;;) {
             // 1. find the first modifier:

@@ -127,7 +127,23 @@ export namespace foresight {
         template <Context CtxT>
         constexpr context_action operator()(CtxT& ctx, start_tag) {
             set_caps();
-            return invoke_mods(ctx, routes, start);
+            [&]<std::size_t... I>(std::index_sequence<I...>) constexpr {
+                (([&]<typename Func>(Func& route) constexpr {
+                     if constexpr (requires(dev_caps_view caps_view) { route(ctx, caps_view, start); }) {
+                         route(ctx, caps[I], start);
+                     } else if constexpr (requires(dev_caps_view caps_view) { route(caps_view, start); }) {
+                         route(caps[I], start);
+                     } else if constexpr (requires(dev_caps_view caps_view) { route(ctx, start); }) {
+                         route(ctx, start);
+                     } else if constexpr (requires { route.init(); }) {
+                         route(start);
+                     } else {
+                         // Intentionally Ignored since most mods don't need init.
+                     }
+                 }(get<I>(routes))),
+                 ...);
+            }(std::make_index_sequence<sizeof...(Routes)>{});
+            return context_action::next;
         }
 
         // template <typename... C>

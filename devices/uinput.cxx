@@ -480,6 +480,10 @@ void basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
     }
 }
 
+void basic_uinput::operator()(dev_caps_view caps_view, start_tag) noexcept {
+    init(caps_view);
+}
+
 foresight::context_action basic_uinput::operator()(event_type const& event) noexcept {
     using enum context_action;
     // log("{}: {} {} {}", devnode(), event.type_name(), event.code_name(), event.value());

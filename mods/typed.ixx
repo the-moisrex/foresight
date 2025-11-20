@@ -11,6 +11,7 @@ export module foresight.mods.typed;
 import foresight.mods.context;
 import foresight.lib.xkb;
 import foresight.lib.mod_parser;
+import foresight.main.log;
 
 namespace foresight {
 
@@ -225,7 +226,19 @@ namespace foresight {
         [[nodiscard]] bool operator()(CtxT& ctx) noexcept {
             static_assert(has_mod<basic_search_engine, CtxT>,
                           "You need to have 'search_engine' in your pipeline.");
-            return ctx.mod(search_engine).search(ctx.event(), trigger_id, keyboard_state, aho_search_state);
+
+            // Logging for debugging
+            log("TYPED: Processing event for pattern: '{}', trigger_id: {}", pattern, trigger_id);
+
+            bool result = ctx.mod(search_engine).search(ctx.event(), trigger_id, keyboard_state, aho_search_state);
+
+            log("TYPED: Search result: {}, event type: {}, code: {}, value: {}",
+                result,
+                ctx.event().type_name(),
+                ctx.event().code_name(),
+                ctx.event().value());
+
+            return result;
         }
     } typed;
 
