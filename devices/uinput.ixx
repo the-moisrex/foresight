@@ -151,16 +151,21 @@ export namespace foresight {
         }
 
         /// Find the device if possible on start
-        /// If there's only one device in the interceptor, we automatically find it, and use that one
+        /// The first device in the interceptor, we automatically find it, and use that one
         template <Context CtxT>
         void operator()(CtxT& ctx, start_tag)
             requires(has_mod<basic_interceptor, CtxT>)
         {
             if (!is_ok()) {
-                auto&       incptor = ctx.mod(intercept);
-                auto const& devs    = incptor.devices();
-                if (devs.size() == 1) {
+                auto const devs = ctx.mod(intercept).devices();
+                for (auto const& cur_dev : devs) {
+                    // Don't intercept the one that's being grabbed.
+                    if (cur_dev.grab() == grab_state::grabbing) {
+                        continue;
+                    }
+
                     set_device(devs.front());
+                    break;
                 }
             }
         }

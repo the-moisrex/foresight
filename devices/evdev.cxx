@@ -33,6 +33,59 @@ std::string_view foresight::to_string(evdev_status const status) noexcept {
     }
 }
 
+namespace {
+    /**
+     * Check if the input file descriptor is being grabbed or not
+     */
+    foresight::grab_state check_grab_state(int const fd) noexcept {
+        using enum foresight::grab_state;
+        int arg = 0;
+
+        // --- Try to ungrab (probe) ---
+        errno = 0;
+        if (ioctl(fd, EVIOCGRAB, &arg) == 0) {
+            // Successfully ungrabbed → this FD *had* the grab.
+            arg = 1;
+            if (ioctl(fd, EVIOCGRAB, &arg) == -1) {
+                return error;
+            }
+            return grabbing;
+        }
+
+        // Interpret common errno results
+        switch (errno) {
+            case 0: break;
+            case EBUSY:
+                // Another process has the grab
+                return grabbing;
+            case EINVAL:
+            case ENOTTY:
+            case EPERM:
+            case EACCES:
+            default: return error;
+        }
+
+        // --- Try to grab (secondary probe) ---
+        errno = 0;
+        arg   = 1;
+
+        if (ioctl(fd, EVIOCGRAB, &arg) == 0) {
+            // We could grab → this FD was NOT grabbing before.
+            arg = 0;
+            if (ioctl(fd, EVIOCGRAB, &arg) == -1) {
+                return error;
+            }
+            return not_grabbing;
+        }
+
+        if (errno == EBUSY) {
+            return grabbing;
+        }
+
+        return error;
+    }
+} // namespace
+
 evdev::evdev(std::filesystem::path const& file) noexcept {
     set_file(file);
 }
@@ -122,6 +175,10 @@ void evdev::grab_input(bool const grab) noexcept {
     if (libevdev_grab(dev, grab ? LIBEVDEV_GRAB : LIBEVDEV_UNGRAB) < 0) {
         status = evdev_status::grab_failure;
     }
+}
+
+foresight::grab_state evdev::grab() const noexcept {
+    return check_grab_state(native_handle());
 }
 
 std::string_view evdev::device_name() const noexcept {
@@ -559,10 +616,11 @@ foresight::evdev_rank foresight::device(std::string_view query) {
         auto const id   = dev.unique_identifier();
 
         if (!dev.is_fd_initialized() || name == invalid_device_name) {
-            log("  {} {} {}",
-                name,
-                loc,
-                id);
+            log("  * Not valid: {} {} {}", name, loc, id);
+            continue;
+        }
+        if (dev.grab() == grab_state::grabbing) {
+            log("  * Ignore Already Grabbed: {} {} {}", name, loc, id);
             continue;
         }
 

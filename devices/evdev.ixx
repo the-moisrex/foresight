@@ -27,6 +27,11 @@ namespace foresight {
 
     export std::string_view to_string(evdev_status) noexcept;
 
+    export enum struct [[nodiscard]] grab_state : std::uint8_t {
+        grabbing,     // this FD currently has the grab
+        not_grabbing, // this FD does NOT have the grab
+        error         // ENOTTY / EPERM / EACCES / unexpected error (check errno)
+    };
 
     export constexpr std::string_view invalid_device_name       = "[UNKNOWN]";
     export constexpr std::string_view invalid_device_location   = "/dev/null";
@@ -67,8 +72,11 @@ namespace foresight {
             return dev != nullptr && status == evdev_status::success;
         }
 
+        /// Grab or ungrab the device's output
+        /// Grabbing means that we'd be the only one that can access the output of this device
         void grab_input(bool grab = true) noexcept;
 
+        grab_state grab() const noexcept;
 
 
         /**
@@ -185,8 +193,8 @@ namespace foresight {
                  });
     }
 
-    export constexpr struct [[nodiscard]] basic_grab_inputs
-      : std::ranges::range_adaptor_closure<basic_grab_inputs> {
+    export constexpr struct [[nodiscard]]
+    basic_grab_inputs : std::ranges::range_adaptor_closure<basic_grab_inputs> {
         constexpr void operator()(evdev& dev, bool const grab = true) const noexcept {
             dev.grab_input(grab);
         }
@@ -231,8 +239,8 @@ namespace foresight {
     /// Example: tablet
     export [[nodiscard]] evdev_rank device(std::string_view);
 
-    export constexpr struct [[nodiscard]] basic_only_matching
-      : std::ranges::range_adaptor_closure<basic_only_matching> {
+    export constexpr struct [[nodiscard]]
+    basic_only_matching : std::ranges::range_adaptor_closure<basic_only_matching> {
       private:
         std::uint8_t percentage = 40;
 
@@ -279,8 +287,8 @@ namespace foresight {
         }
     } only_ok;
 
-    export constexpr struct [[nodiscard]] basic_find_devices
-      : std::ranges::range_adaptor_closure<basic_find_devices> {
+    export constexpr struct [[nodiscard]]
+    basic_find_devices : std::ranges::range_adaptor_closure<basic_find_devices> {
         template <std::ranges::sized_range Range>
             requires(std::same_as<std::ranges::range_value_t<Range>, std::string_view>)
         constexpr auto operator()(Range&& rng) const noexcept {
@@ -301,8 +309,8 @@ namespace foresight {
 
     } find_devices;
 
-    export constexpr struct [[nodiscard]] basic_to_evdev
-      : std::ranges::range_adaptor_closure<basic_to_evdev> {
+    export constexpr struct [[nodiscard]]
+    basic_to_evdev : std::ranges::range_adaptor_closure<basic_to_evdev> {
         [[nodiscard]] constexpr auto operator()(evdev_rank&& ranker) const noexcept {
             return std::move(std::move(ranker).dev);
         }
