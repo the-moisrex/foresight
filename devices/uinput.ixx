@@ -164,7 +164,7 @@ export namespace foresight {
                         continue;
                     }
 
-                    set_device(devs.front());
+                    set_device(cur_dev);
                     break;
                 }
             }

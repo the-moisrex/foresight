@@ -480,7 +480,7 @@ void basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
     }
 }
 
-void basic_uinput::operator()(dev_caps_view caps_view, start_tag) noexcept {
+void basic_uinput::operator()(dev_caps_view const caps_view, start_tag) noexcept {
     init(caps_view);
 }
 
