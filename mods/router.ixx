@@ -125,7 +125,7 @@ export namespace foresight {
 
         /// Pass-through the init
         template <Context CtxT>
-        constexpr context_action operator()(CtxT& ctx, start_tag) {
+        context_action operator()(CtxT& ctx, start_tag) {
             set_caps();
             [&]<std::size_t... I>(std::index_sequence<I...>) constexpr {
                 (([&]<typename Func>(Func& route) constexpr {

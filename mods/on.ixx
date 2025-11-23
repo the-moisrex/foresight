@@ -90,7 +90,7 @@ namespace foresight {
         }
 
         /// Pass-through the starts
-        constexpr context_action operator()(Context auto& ctx, start_tag) {
+        context_action operator()(Context auto& ctx, start_tag) {
             using enum context_action;
             if (invoke_start(cond, ctx) == exit) [[unlikely]] {
                 return exit;
@@ -100,7 +100,7 @@ namespace foresight {
 
         /// Pass-Through event generator
         template <Context CtxT>
-        constexpr context_action operator()(CtxT& ctx, next_event_tag) noexcept
+        context_action operator()(CtxT& ctx, next_event_tag) noexcept
             requires(can_generate_events<CtxT>)
         {
             return invoke_first_mod_of(ctx, funcs, next_event);
@@ -112,11 +112,11 @@ namespace foresight {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    return invoke_mods(ctx, funcs, done);
+                    return invoke_mods(ctx, funcs, toggle_off);
                 }
                 return next;
             }
-            if (is_switched && invoke_mods(ctx, funcs, start) == exit) {
+            if (is_switched && invoke_mods(ctx, funcs, toggle_on) == exit) {
                 return exit;
             }
             return invoke_mods(ctx, funcs);
@@ -213,9 +213,11 @@ namespace foresight {
 
     export template <typename FuncT>
     struct [[nodiscard]] basic_longtime_released {
+        static constexpr std::chrono::milliseconds default_delay{100};
+
       private:
         [[no_unique_address]] FuncT func{};
-        std::chrono::microseconds   dur = std::chrono::milliseconds{100};
+        std::chrono::microseconds   dur = default_delay;
         std::chrono::microseconds   last_time{};
 
       public:
@@ -236,15 +238,9 @@ namespace foresight {
 
         template <typename InpFuncT>
         consteval auto operator()(InpFuncT&&                      inp_func,
-                                  std::chrono::microseconds const inp_dur) const noexcept {
+                                  std::chrono::microseconds const inp_dur = default_delay) const noexcept {
             return basic_longtime_released<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func),
                                                                           inp_dur};
-        }
-
-        template <typename InpFuncT>
-        consteval auto operator()(InpFuncT&& inp_func) const noexcept {
-            return basic_longtime_released<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func),
-                                                                          dur};
         }
 
         template <Context CtxT>

@@ -104,24 +104,13 @@ context_action foresight::basic_ignore_caps::operator()(event_type const& event)
     return context_action::next;
 }
 
+void foresight::basic_ignore_start_moves::operator()(toggle_on_tag) noexcept {
+    emitted_count = 0;
+}
+
 context_action foresight::basic_ignore_start_moves::operator()(event_type const& event) noexcept {
     using enum context_action;
-
-    if (!is_mouse_movement(event)) {
-        return next;
-    }
-
-
-    auto const now = event.micro_time();
-    if (now - std::exchange(last_emitted, now) >= rest_time) {
-        emitted_count = 0;
-    }
-
-    if (++emitted_count < emit_threshold) [[unlikely]] {
-        return ignore_event;
-    }
-
-    return next;
+    return is_mouse_movement(event) && ++emitted_count < emit_threshold ? ignore_event : next;
 }
 
 context_action foresight::basic_ignore_adjacent_repeats::operator()(event_type const& event) noexcept {

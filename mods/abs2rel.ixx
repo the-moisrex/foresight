@@ -164,7 +164,7 @@ export namespace foresight {
 
         /// this fixes flickering of the pen after we switched while the pen (in mouse mode) is still active.
         template <Context CtxT>
-        void operator()(CtxT& ctx, done_tag) noexcept {
+        void operator()(CtxT& ctx, toggle_off_tag) noexcept {
             if constexpr (has_mod<basic_keys_status, CtxT>) {
                 auto const& keys = ctx.mod(keys_status);
                 for (code_type const tool :

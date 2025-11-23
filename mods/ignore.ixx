@@ -187,24 +187,15 @@ export namespace foresight {
     } ignore_caps;
 
     constexpr struct [[nodiscard]] basic_ignore_start_moves {
-        using msec_type = std::chrono::microseconds;
-
       private:
-        static constexpr msec_type default_rest_time = std::chrono::milliseconds(100);
-
         std::uint32_t emit_threshold = 50;
         std::uint32_t emitted_count{0};
-        msec_type     rest_time{default_rest_time};
-        msec_type     last_emitted{0};
 
       public:
         constexpr basic_ignore_start_moves() noexcept = default;
 
-        constexpr explicit basic_ignore_start_moves(
-          std::uint32_t const inp_time_threshold,
-          msec_type const     inp_rest_time = default_rest_time) noexcept
-          : emit_threshold{inp_time_threshold},
-            rest_time{inp_rest_time} {}
+        constexpr explicit basic_ignore_start_moves(std::uint32_t const inp_time_threshold) noexcept
+          : emit_threshold{inp_time_threshold} {}
 
         consteval basic_ignore_start_moves(basic_ignore_start_moves const&) noexcept            = default;
         constexpr basic_ignore_start_moves(basic_ignore_start_moves&&) noexcept                 = default;
@@ -212,12 +203,11 @@ export namespace foresight {
         constexpr basic_ignore_start_moves& operator=(basic_ignore_start_moves&&) noexcept      = default;
         constexpr ~basic_ignore_start_moves() noexcept                                          = default;
 
-        consteval basic_ignore_start_moves operator()(
-          std::uint32_t const inp_time_threshold,
-          msec_type const     inp_rest_time = default_rest_time) const noexcept {
-            return basic_ignore_start_moves{inp_time_threshold, inp_rest_time};
+        consteval basic_ignore_start_moves operator()(std::uint32_t const inp_time_threshold) const noexcept {
+            return basic_ignore_start_moves{inp_time_threshold};
         }
 
+        void           operator()(toggle_on_tag) noexcept;
         context_action operator()(event_type const& event) noexcept;
     } ignore_start_moves;
 

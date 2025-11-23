@@ -147,9 +147,13 @@ export namespace foresight {
         static constexpr bool is_tag = true;
     } start;
 
-    constexpr struct [[nodiscard]] done_tag {
+    constexpr struct [[nodiscard]] toggle_on_tag {
         static constexpr bool is_tag = true;
-    } done;
+    } toggle_on;
+
+    constexpr struct [[nodiscard]] toggle_off_tag {
+        static constexpr bool is_tag = true;
+    } toggle_off;
 
     /// This will let the mods set an event to the context, and send them through the whole pipeline.
     constexpr struct [[nodiscard]] next_event_tag {
@@ -256,13 +260,18 @@ export namespace foresight {
     }
 
     template <typename ModT, typename CtxT>
-    constexpr context_action invoke_start(ModT &mod, CtxT &ctx) {
+    context_action invoke_start(ModT &mod, CtxT &ctx) {
         return invoke_mod(mod, ctx, start);
     }
 
     template <typename ModT, typename CtxT>
-    constexpr context_action invoke_done(ModT &mod, CtxT &ctx) {
-        return invoke_mod(mod, ctx, done);
+    constexpr context_action invoke_toggle_on(ModT &mod, CtxT &ctx) {
+        return invoke_mod(mod, ctx, toggle_on);
+    }
+
+    template <typename ModT, typename CtxT>
+    constexpr context_action invoke_toggle_off(ModT &mod, CtxT &ctx) {
+        return invoke_mod(mod, ctx, toggle_off);
     }
 
     template <typename ModT, typename CtxT>
@@ -271,7 +280,7 @@ export namespace foresight {
     }
 
     template <typename ModT, typename CtxT>
-    constexpr context_action invoke_load_event(ModT &mod, CtxT &ctx) {
+    context_action invoke_load_event(ModT &mod, CtxT &ctx) {
         return invoke_mod(mod, ctx, load_event);
     }
 
@@ -501,7 +510,7 @@ export namespace foresight {
             return invoke_mods(*this, mods);
         }
 
-        constexpr context_action operator()(start_tag) noexcept(is_nothrow) {
+        context_action operator()(start_tag) noexcept(is_nothrow) {
             return invoke_mods(*this, mods, start);
         }
 
