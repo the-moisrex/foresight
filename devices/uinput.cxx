@@ -2,6 +2,7 @@
 
 module;
 #include <cassert>
+#include <cstring>
 #include <dirent.h>
 #include <fcntl.h>
 #include <filesystem>
@@ -10,7 +11,6 @@ module;
 #include <linux/uinput.h>
 #include <print>
 #include <ranges>
-#include <cstring>
 #include <sys/stat.h>
 #include <system_error>
 #include <unistd.h>
@@ -482,6 +482,21 @@ void basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
 
 void basic_uinput::operator()(dev_caps_view const caps_view, start_tag) noexcept {
     init(caps_view);
+}
+
+void basic_uinput::operator()(std::span<evdev const> const devs, start_tag) noexcept {
+    if (is_ok()) {
+        return;
+    }
+    for (auto const& cur_dev : devs) {
+        // Don't intercept the one that's being grabbed.
+        if (cur_dev.grab() == grab_state::grabbing) {
+            continue;
+        }
+
+        set_device(cur_dev);
+        break;
+    }
 }
 
 foresight::context_action basic_uinput::operator()(event_type const& event) noexcept {

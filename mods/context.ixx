@@ -114,7 +114,13 @@ export namespace foresight {
     struct mod_of_t<ModConcept, Func, Funcs...> : mod_of_t<ModConcept, Funcs...> {};
 
     template <typename ModConcept, typename... Funcs>
-    using mod_of = typename mod_of_t<ModConcept, Funcs...>::type;
+    using mod_of = mod_of_t<ModConcept, Funcs...>::type;
+
+    /// Contexts that have these specific mods
+    /// Context is the last item
+    template <typename... T>
+    concept ContextWith = (has_mod<T...[sizeof...(T) - 1], T> && ...);
+
 
     enum struct [[nodiscard]] context_action : std::uint8_t {
         next,
@@ -320,8 +326,8 @@ export namespace foresight {
     /// Run functions until one of them return "context_action::next"
     template <Context CtxT, typename... Funcs, typename... Args>
         requires(std::is_trivially_copy_constructible_v<Args> && ...)
-    constexpr context_action invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept(
-      CtxT::is_nothrow) {
+    constexpr context_action
+    invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept(CtxT::is_nothrow) {
         using enum context_action;
         // todo: replace with C++26 "template for" when compilers support it
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {

@@ -152,22 +152,16 @@ export namespace foresight {
 
         /// Find the device if possible on start
         /// The first device in the interceptor, we automatically find it, and use that one
-        template <Context CtxT>
-        void operator()(CtxT& ctx, start_tag)
-            requires(has_mod<basic_interceptor, CtxT>)
-        {
-            if (!is_ok()) {
-                auto const devs = ctx.mod(intercept).devices();
-                for (auto const& cur_dev : devs) {
-                    // Don't intercept the one that's being grabbed.
-                    if (cur_dev.grab() == grab_state::grabbing) {
-                        continue;
-                    }
+        void operator()(std::span<evdev const> devs, start_tag) noexcept;
 
-                    set_device(cur_dev);
-                    break;
-                }
+        /// Find the device if possible on start
+        /// The first device in the interceptor, we automatically find it, and use that one
+        template <ContextWith<basic_interceptor> CtxT>
+        void operator()(CtxT& ctx, start_tag) noexcept {
+            if (!is_ok()) {
+                return;
             }
+            operator()(ctx.mod(intercept).devices(), start);
         }
 
         context_action operator()(event_type const& event) noexcept;
