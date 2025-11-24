@@ -2,6 +2,7 @@
 
 module;
 #include <algorithm>
+#include <cassert>
 #include <cstring>
 #include <fcntl.h>
 #include <filesystem>
@@ -175,6 +176,7 @@ void evdev::grab_input(bool const grab) noexcept {
     if (libevdev_grab(dev, grab ? LIBEVDEV_GRAB : LIBEVDEV_UNGRAB) < 0) {
         status = evdev_status::grab_failure;
     }
+    assert(ok());
 }
 
 foresight::grab_state evdev::grab() const noexcept {

@@ -37,7 +37,7 @@ export namespace foresight {
         void set_files(std::span<std::string_view const>);
 
         void add_dev(evdev&& dev);
-        void add_file(input_file_type);
+        void add_file(input_file_type const&);
         void add_files(std::string_view);
         void add_files(std::span<std::string_view const>);
 

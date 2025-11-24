@@ -14,7 +14,7 @@ import foresight.mods.caps;
 
 namespace foresight {
 
-    export enum struct evdev_status {
+    export enum struct evdev_status : std::uint8_t {
         unknown,
         success,
         grab_failure,
@@ -70,6 +70,10 @@ namespace foresight {
         /// check if everything is okay
         [[nodiscard]] bool ok() const noexcept {
             return dev != nullptr && status == evdev_status::success;
+        }
+
+        [[nodiscard]] evdev_status get_status() const noexcept {
+            return status;
         }
 
         /// Grab or ungrab the device's output

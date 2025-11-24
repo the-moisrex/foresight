@@ -1,6 +1,7 @@
 // Created by moisrex on 6/22/24.
 
 module;
+#include <cassert>
 #include <cstring>
 #include <filesystem>
 #include <format>
@@ -48,7 +49,10 @@ void basic_interceptor::set_files(std::span<std::filesystem::path const> const i
     for (auto const& file : inp_paths) {
         auto& dev = devs.emplace_back(file);
         if (!dev.ok()) [[unlikely]] {
-            throw std::runtime_error(std::format("Failed to initialize event device {}", file.string()));
+            throw std::runtime_error(std::format(
+              "Failed to initialize event device ({}) while setting multiple files with error({}).",
+              file.string(),
+              to_string(dev.get_status())));
         }
     }
     fds = get_pollfds(devs);
@@ -61,32 +65,37 @@ void basic_interceptor::set_files(std::span<input_file_type const> const inp_pat
     // convert to `evdev`s.
     for (auto const& [file, grab] : inp_paths) {
         auto& dev = devs.emplace_back(file);
-        if (dev.ok() && grab) {
-            dev.grab_input();
-        }
         if (!dev.ok()) [[unlikely]] {
-            throw std::runtime_error(std::format("Failed to initialize event device {}", file.string()));
+            throw std::runtime_error(std::format(
+              "Failed to initialize event device ({}) while trying to initialize multiple files with error "
+              "({}).",
+              file.string(),
+              to_string(dev.get_status())));
         }
+        dev.grab_input(grab);
     }
     fds = get_pollfds(devs);
 }
 
-void basic_interceptor::add_file(input_file_type const inp_path) {
+void basic_interceptor::add_file(input_file_type const& inp_path) {
     auto const& [file, grab] = inp_path;
     auto& dev                = devs.emplace_back(file);
-    if (dev.ok() && grab) {
-        dev.grab_input();
-    }
     if (!dev.ok()) [[unlikely]] {
-        throw std::runtime_error(std::format("Failed to initialize event device {}", file.string()));
+        throw std::runtime_error(std::format("Failed to initialize event device ({}) with error({}).",
+                                             file.string(),
+                                             to_string(dev.get_status())));
     }
+    dev.grab_input(grab);
     fds.emplace_back(get_pollfd(dev));
 }
 
 void basic_interceptor::add_dev(evdev&& inp_dev) {
     auto& dev = devs.emplace_back(std::move(inp_dev));
     if (!dev.ok()) [[unlikely]] {
-        throw std::runtime_error(std::format("Failed to initialize event device {}", dev.device_name()));
+        throw std::runtime_error(std::format(
+          "Failed to initialize event device ({}) while trying to start intercepting it with error ({}).",
+          dev.device_name(),
+          to_string(dev.get_status())));
     }
     log("Intercepting: '{}' {}", dev.device_name(), dev.physical_location());
     fds.emplace_back(get_pollfd(dev));
@@ -164,9 +173,10 @@ bool basic_interceptor::get_next_event(event_type& event) noexcept {
     using enum context_action;
 
     for (; index != fds.size(); ++index) {
-        if ((fds[index].revents & POLLIN) == 0) {
+        auto const pfd = fds[index];
+        if ((pfd.revents & POLLIN) == 0) {
             // Check for errors on this file descriptor
-            if (fds[index].revents & (POLLERR | POLLHUP | POLLNVAL)) [[unlikely]] {
+            if ((pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) != 0) [[unlikely]] {
                 // Could handle device errors/disconnections here
                 // todo
                 log("Device {} disconnected?", devs[index].device_name());
