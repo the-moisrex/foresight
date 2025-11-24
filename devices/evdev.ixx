@@ -17,6 +17,7 @@ namespace foresight {
     export enum struct evdev_status : std::uint8_t {
         unknown,
         success,
+        success_grabbed,
         grab_failure,
         invalid_file_descriptor,
         invalid_device,
@@ -28,10 +29,15 @@ namespace foresight {
     export std::string_view to_string(evdev_status) noexcept;
 
     export enum struct [[nodiscard]] grab_state : std::uint8_t {
-        grabbing,     // this FD currently has the grab
-        not_grabbing, // this FD does NOT have the grab
-        error         // ENOTTY / EPERM / EACCES / unexpected error (check errno)
+        grabbing,           // this FD currently has the grab
+        grabbing_by_others, // this FD currently has the grab by some other process
+        not_grabbing,       // this FD does NOT have the grab
+        error               // ENOTTY / EPERM / EACCES / unexpected error (check errno)
     };
+
+    export [[nodiscard]] bool is_grabbed(grab_state const state) noexcept {
+        return state == grab_state::grabbing || state == grab_state::grabbing_by_others;
+    }
 
     export constexpr std::string_view invalid_device_name       = "[UNKNOWN]";
     export constexpr std::string_view invalid_device_location   = "/dev/null";
@@ -69,7 +75,8 @@ namespace foresight {
 
         /// check if everything is okay
         [[nodiscard]] bool ok() const noexcept {
-            return dev != nullptr && status == evdev_status::success;
+            using enum evdev_status;
+            return dev != nullptr && (status == success || status == success_grabbed);
         }
 
         [[nodiscard]] evdev_status get_status() const noexcept {
@@ -199,11 +206,11 @@ namespace foresight {
 
     export constexpr struct [[nodiscard]]
     basic_grab_inputs : std::ranges::range_adaptor_closure<basic_grab_inputs> {
-        constexpr void operator()(evdev& dev, bool const grab = true) const noexcept {
+        void operator()(evdev& dev, bool const grab = true) const noexcept {
             dev.grab_input(grab);
         }
 
-        constexpr evdev&& operator()(evdev&& dev) const noexcept {
+        evdev&& operator()(evdev&& dev) const noexcept {
             dev.grab_input();
             return std::move(dev);
         }

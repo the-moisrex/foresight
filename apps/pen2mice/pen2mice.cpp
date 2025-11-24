@@ -58,7 +58,7 @@ int main(int const argc, char const* const* argv) try
       | on(longtime_released(pressed(KEY_CAPSLOCK), 200ms), emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK))
       | router(caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput);
 
-    pipeline.mod(intercept).add_devs(args(argc, argv) | find_devices, grab_inputs);
+    pipeline.mod(intercept).add_devs(args(argc, argv) | find_devices | grab_inputs);
     pipeline();
 
     return 0;

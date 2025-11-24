@@ -2,6 +2,7 @@
 
 module;
 #include <algorithm>
+#include <bits/this_thread_sleep.h>
 #include <cassert>
 #include <cstring>
 #include <fcntl.h>
@@ -11,6 +12,7 @@ module;
 #include <numeric>
 #include <optional>
 #include <string_view>
+#include <thread>
 #include <unistd.h>
 #include <utility>
 #include <vector>
@@ -25,6 +27,7 @@ std::string_view foresight::to_string(evdev_status const status) noexcept {
     switch (status) {
         case unknown: return {"Unknown state."};
         case success: return {"Success."};
+        case success_grabbed: return {"Success, and also grabbed."};
         case grab_failure: return {"Grabbing the input failed."};
         case invalid_file_descriptor: return {"The file descriptor specified is not valid."};
         case invalid_device: return {"The device is not valid."};
@@ -40,49 +43,49 @@ namespace {
      */
     foresight::grab_state check_grab_state(int const fd) noexcept {
         using enum foresight::grab_state;
-        int arg = 0;
+        using foresight::log;
+        constexpr int grab_it   = 1;
+        constexpr int ungrab_it = 0;
 
-        // --- Try to ungrab (probe) ---
+        // First: try to ungrab
         errno = 0;
-        if (ioctl(fd, EVIOCGRAB, &arg) == 0) {
-            // Successfully ungrabbed → this FD *had* the grab.
-            arg = 1;
-            if (ioctl(fd, EVIOCGRAB, &arg) == -1) {
-                return error;
-            }
-            return grabbing;
-        }
-
-        // Interpret common errno results
-        switch (errno) {
-            case 0: break;
-            case EBUSY:
-                // Another process has the grab
-                return grabbing;
-            case EINVAL:
-            case ENOTTY:
-            case EPERM:
-            case EACCES:
-            default: return error;
-        }
-
-        // --- Try to grab (secondary probe) ---
-        errno = 0;
-        arg   = 1;
-
-        if (ioctl(fd, EVIOCGRAB, &arg) == 0) {
-            // We could grab → this FD was NOT grabbing before.
-            arg = 0;
-            if (ioctl(fd, EVIOCGRAB, &arg) == -1) {
+        if (ioctl(fd, EVIOCGRAB, &grab_it) == 0) {
+            errno = 0;
+            if (ioctl(fd, EVIOCGRAB, &ungrab_it) != 0) [[unlikely]] {
+                switch (errno) {
+                    case EBUSY:
+                        // Already grabbed by another process, and it's a race condition
+                        log("Race condition, someone grabbed it before we could re-grab it.");
+                        return grabbing_by_others;
+                    case EINVAL: log("Kernel too old or not an event device"); break;
+                    case ENOTTY: log("Not an input event device"); break;
+                    case ENODEV: log("No such device; The device node was removed or is invalid"); break;
+                    case EPERM:
+                        log(
+                          "Operation not permitted: like EACCES but returned when grab is denied by"
+                          "policy");
+                        break;
+                    case EACCES: log("Permission denied (need CAP_SYS_RAWIO or relaxed udev rules)"); break;
+                    default: log("Unknown ioctl error."); break;
+                }
+                log("Re-UnGrabbing the input failed after trying to check if it's grabbed or not.");
                 return error;
             }
             return not_grabbing;
         }
 
-        if (errno == EBUSY) {
-            return grabbing;
+        // Interpret common errno results
+        switch (errno) {
+            case EBUSY:
+                // Already grabbed by another process
+                return grabbing_by_others;
+            case EINVAL: // Invalid argument; Kernel too old or not an event device
+            case ENOTTY: // Not an input event device
+            case EPERM:  // Operation not permitted: like EACCES but returned when grab is denied by policy
+            case EACCES: // Permission denied (need CAP_SYS_RAWIO or relaxed udev rules)
+            case ENODEV: // No such device; The device node was removed or is invalid
+            default: break;
         }
-
         return error;
     }
 } // namespace
@@ -108,9 +111,9 @@ evdev::~evdev() noexcept {
 }
 
 void evdev::close() noexcept {
-    if (is_fd_initialized()) {
-        libevdev_grab(dev, LIBEVDEV_UNGRAB);
-    }
+    // if (is_fd_initialized()) {
+    //     libevdev_grab(dev, LIBEVDEV_UNGRAB);
+    // }
     auto const file_descriptor = native_handle();
     if (dev != nullptr) {
         libevdev_free(dev);
@@ -123,6 +126,8 @@ void evdev::close() noexcept {
 }
 
 void evdev::set_file(std::filesystem::path const& file) noexcept {
+    // O_NONBLOCK is useful and recommended when opening /dev/input/event* (so read() and epoll_wait() don’t
+    // block forever).
     auto const new_fd = ::open(file.c_str(), O_RDWR | O_CLOEXEC | O_NONBLOCK);
     if (new_fd < 0) [[unlikely]] {
         this->close();
@@ -133,25 +138,26 @@ void evdev::set_file(std::filesystem::path const& file) noexcept {
 }
 
 void evdev::set_file(int const file) noexcept {
+    using enum evdev_status;
     this->close();
     if (file < 0) [[unlikely]] {
-        status = evdev_status::invalid_file_descriptor;
+        status = invalid_file_descriptor;
         return;
     }
     int const res_rc = libevdev_new_from_fd(file, &dev);
     if (dev == nullptr) [[unlikely]] {
         this->close();
-        status = evdev_status::invalid_device;
+        status = invalid_device;
         return;
     }
     if (res_rc < 0) [[unlikely]] {
         // res_rc is now -errno
         ::close(file);
         this->close();
-        status = evdev_status::failed_setting_file_descriptor;
+        status = failed_setting_file_descriptor;
         return;
     }
-    status = evdev_status::success;
+    status = success;
 }
 
 int evdev::native_handle() const noexcept {
@@ -170,16 +176,31 @@ bool evdev::is_fd_initialized() const noexcept {
 }
 
 void evdev::grab_input(bool const grab) noexcept {
-    if (!is_fd_initialized()) [[unlikely]] {
+    using enum evdev_status;
+    if (!ok()) [[unlikely]] {
         return;
     }
-    if (libevdev_grab(dev, grab ? LIBEVDEV_GRAB : LIBEVDEV_UNGRAB) < 0) {
-        status = evdev_status::grab_failure;
+    if (!grab && status == success) {
+        return;
     }
-    assert(ok());
+    if (grab && status == success_grabbed) [[unlikely]] {
+        // don't need to double grab
+        return;
+    }
+    if (libevdev_grab(dev, grab ? LIBEVDEV_GRAB : LIBEVDEV_UNGRAB) < 0) [[unlikely]] {
+        status = grab_failure;
+        return;
+    }
+    status = grab ? success_grabbed : success;
 }
 
 foresight::grab_state evdev::grab() const noexcept {
+    if (!ok()) {
+        return grab_state::error;
+    }
+    if (get_status() == evdev_status::success_grabbed) {
+        return grab_state::grabbing;
+    }
     return check_grab_state(native_handle());
 }
 
@@ -621,7 +642,7 @@ foresight::evdev_rank foresight::device(std::string_view query) {
             log("  * Not valid: {} {} {}", name, loc, id);
             continue;
         }
-        if (dev.grab() == grab_state::grabbing) {
+        if (is_grabbed(dev.grab())) {
             log("  * Ignore Already Grabbed: {} {} {}", name, loc, id);
             continue;
         }
