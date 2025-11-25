@@ -490,9 +490,9 @@ void basic_uinput::operator()(std::span<evdev const> const devs, start_tag) noex
     }
     for (auto const& cur_dev : devs) {
         // Don't intercept the one that's being grabbed.
-        if (is_grabbed(cur_dev.grab())) {
-            continue;
-        }
+        // if (cur_dev.grab() == grab_state::grabbing_by_others) {
+        //     continue;
+        // }
 
         set_device(cur_dev);
         break;

@@ -37,59 +37,6 @@ std::string_view foresight::to_string(evdev_status const status) noexcept {
     }
 }
 
-namespace {
-    /**
-     * Check if the input file descriptor is being grabbed or not
-     */
-    foresight::grab_state check_grab_state(int const fd) noexcept {
-        using enum foresight::grab_state;
-        using foresight::log;
-        constexpr int grab_it   = 1;
-        constexpr int ungrab_it = 0;
-
-        // First: try to ungrab
-        errno = 0;
-        if (ioctl(fd, EVIOCGRAB, &grab_it) == 0) {
-            errno = 0;
-            if (ioctl(fd, EVIOCGRAB, &ungrab_it) != 0) [[unlikely]] {
-                switch (errno) {
-                    case EBUSY:
-                        // Already grabbed by another process, and it's a race condition
-                        log("Race condition, someone grabbed it before we could re-grab it.");
-                        return grabbing_by_others;
-                    case EINVAL: log("Kernel too old or not an event device"); break;
-                    case ENOTTY: log("Not an input event device"); break;
-                    case ENODEV: log("No such device; The device node was removed or is invalid"); break;
-                    case EPERM:
-                        log(
-                          "Operation not permitted: like EACCES but returned when grab is denied by"
-                          "policy");
-                        break;
-                    case EACCES: log("Permission denied (need CAP_SYS_RAWIO or relaxed udev rules)"); break;
-                    default: log("Unknown ioctl error."); break;
-                }
-                log("Re-UnGrabbing the input failed after trying to check if it's grabbed or not.");
-                return error;
-            }
-            return not_grabbing;
-        }
-
-        // Interpret common errno results
-        switch (errno) {
-            case EBUSY:
-                // Already grabbed by another process
-                return grabbing_by_others;
-            case EINVAL: // Invalid argument; Kernel too old or not an event device
-            case ENOTTY: // Not an input event device
-            case EPERM:  // Operation not permitted: like EACCES but returned when grab is denied by policy
-            case EACCES: // Permission denied (need CAP_SYS_RAWIO or relaxed udev rules)
-            case ENODEV: // No such device; The device node was removed or is invalid
-            default: break;
-        }
-        return error;
-    }
-} // namespace
-
 evdev::evdev(std::filesystem::path const& file) noexcept {
     set_file(file);
 }
@@ -111,9 +58,10 @@ evdev::~evdev() noexcept {
 }
 
 void evdev::close() noexcept {
-    // if (is_fd_initialized()) {
-    //     libevdev_grab(dev, LIBEVDEV_UNGRAB);
-    // }
+    if (is_fd_initialized()) {
+        // just to be safe
+        libevdev_grab(dev, LIBEVDEV_UNGRAB);
+    }
     auto const file_descriptor = native_handle();
     if (dev != nullptr) {
         libevdev_free(dev);
@@ -195,13 +143,14 @@ void evdev::grab_input(bool const grab) noexcept {
 }
 
 foresight::grab_state evdev::grab() const noexcept {
+    using enum grab_state;
     if (!ok()) {
-        return grab_state::error;
+        return error;
     }
     if (get_status() == evdev_status::success_grabbed) {
-        return grab_state::grabbing;
+        return grabbing;
     }
-    return check_grab_state(native_handle());
+    return not_grabbing;
 }
 
 std::string_view evdev::device_name() const noexcept {
@@ -642,10 +591,10 @@ foresight::evdev_rank foresight::device(std::string_view query) {
             log("  * Not valid: {} {} {}", name, loc, id);
             continue;
         }
-        if (is_grabbed(dev.grab())) {
-            log("  * Ignore Already Grabbed: {} {} {}", name, loc, id);
-            continue;
-        }
+        // if (dev.grab() == grab_state::grabbing_by_others) {
+        //     log("  * Ignore Already Grabbed: {} {} {}", name, loc, id);
+        //     continue;
+        // }
 
         std::uint16_t const name_score = calc_score(query, name);
         auto const          loc_score  = static_cast<std::uint16_t>(calc_score(query, loc) / 2);
