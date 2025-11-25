@@ -30,6 +30,7 @@ namespace {
             intercept,
             redirect,
             systemd,
+            list_devices,
         } action = action_type::none;
 
         /// intercept file
@@ -63,6 +64,7 @@ namespace {
     redirect [files...]           Redirect stdin to the specified files.
     to       [files...]           Alias for 'redirect'
     systemd  exec-file [args...]  Install exec-file as a user service to systemd.
+    list-devices                  List input devices
 
     help                 Print help.
 
@@ -107,6 +109,54 @@ namespace {
 )TEXT");
     }
 
+    void print_input_devices_table() {
+        struct Entry {
+            std::string name;
+            std::string location;
+            std::string id;
+        };
+
+        std::vector<Entry> devices;
+        devices.reserve(16);
+
+        // Minimum column widths (length of header texts)
+        size_t w_name = 6;  // "Device"
+        size_t w_loc  = 17; // "Physical Location"
+        size_t w_id   = 9;  // "Unique ID"
+
+        // Single pass: measure + store owned strings
+        for (auto const& dev : foresight::all_input_devices()) {
+            auto const name_sv = dev.device_name();
+            auto const loc_sv  = dev.physical_location();
+            auto const id_sv   = dev.unique_identifier();
+
+            w_name = std::max(w_name, name_sv.size());
+            w_loc  = std::max(w_loc, loc_sv.size());
+            w_id   = std::max(w_id, id_sv.size());
+
+            devices.emplace_back(std::string{name_sv}, std::string{loc_sv}, std::string{id_sv});
+        }
+
+        if (devices.empty()) {
+            std::println("No input devices found.");
+            return;
+        }
+
+        // Header (still uses println; widths are constant here, so it compiles)
+        std::println("{: <{}}  {: <{}}  {: <{}}", "Device", w_name, "Physical Location", w_loc, "Unique ID", w_id);
+
+        // Separator
+        std::println("{:-<{}}  {:-<{}}  {:-<{}}", "", w_name, "", w_loc, "", w_id);
+
+        // Rows
+        for (auto const& [name, location, id] : devices) {
+            std::println("{: <{}}  {: <{}}  {: <{}}", name, w_name, location, w_loc, id, w_id);
+        }
+
+        // Footer
+        std::println("\n{} device{} detected.", devices.size(), devices.size() == 1 ? "" : "s");
+    }
+
     options parse_arguments(std::span<char const* const> const argv) {
         using enum options::action_type;
         using std::format;
@@ -128,6 +178,9 @@ namespace {
             set_action(opts, redirect);
         } else if (action_str == "systemd") {
             set_action(opts, systemd);
+            return opts;
+        } else if (action_str == "list-devices") {
+            set_action(opts, list_devices);
             return opts;
         }
 
@@ -276,6 +329,10 @@ namespace {
                 service.enable();
                 return EXIT_SUCCESS;
             }
+            case list_devices: {
+                print_input_devices_table();
+                return EXIT_SUCCESS;
+            }
             default: {
                 foresight::keyboard kbd;
                 return kbd.loop();
@@ -286,8 +343,7 @@ namespace {
 
 } // namespace
 
-int main(int const argc, char const* const* argv) try
-{
+int main(int const argc, char const* const* argv) try {
     std::ignore = std::signal(SIGINT, handle_signals);
     std::ignore = std::signal(SIGTERM, handle_signals);
     std::ignore = std::signal(SIGKILL, handle_signals);

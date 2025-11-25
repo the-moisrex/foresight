@@ -62,6 +62,10 @@ export namespace foresight {
             return std::span{beg, count} | std::views::drop(1) | transform_to<std::string_view>();
         }
 
+        auto operator()(std::span<char const* const> const args) const& noexcept {
+            return args | transform_to<std::string_view>();
+        }
+
         // Prevent dangling references to defaults_
         auto operator()(int argc, char const* const* argv) const&& noexcept = delete;
 

@@ -7,7 +7,7 @@ export namespace foresight {
 
     constexpr struct [[nodiscard]] basic_log {
       private:
-        std::string_view msg{};
+        std::string_view msg;
 
       public:
         constexpr explicit basic_log(std::string_view const& inp_msg) noexcept : msg{inp_msg} {}
@@ -20,12 +20,10 @@ export namespace foresight {
         constexpr ~basic_log() noexcept                           = default;
 
         template <typename... Args>
-        void operator()(std::format_string<Args...> fmt, Args&&... args) const noexcept {
-            try {
-                std::println(stderr, std::move(fmt), std::forward<Args>(args)...);
-            } catch (...) {
-                // do nothing
-            }
+        void operator()(std::format_string<Args...> fmt, Args&&... args) const noexcept try {
+            std::println(stderr, std::move(fmt), std::forward<Args>(args)...);
+        } catch (...) {
+            std::terminate();
         }
 
         consteval basic_log operator[](std::string_view const str) const noexcept {
