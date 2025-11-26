@@ -7,7 +7,7 @@ export module foresight.mods.modes;
 import foresight.main.utils;
 import foresight.mods.context;
 
-namespace foresight {
+namespace fs8 {
 
     export template <typename CondT = basic_noop, typename... Mods>
     struct [[nodiscard]] basic_modes {
@@ -87,4 +87,4 @@ namespace foresight {
         }
 
     } switch_mode;
-} // namespace foresight
+} // namespace fs8

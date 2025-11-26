@@ -9,7 +9,8 @@ using ev_type    = decltype(input_event::type);
 using value_type = decltype(input_event::value);
 
 namespace {
-    [[maybe_unused]] void emit(input_event event, ev_type const type, code_type const code, value_type const value) noexcept {
+    [[maybe_unused]] void
+    emit(input_event event, ev_type const type, code_type const code, value_type const value) noexcept {
         event.type  = type;
         event.code  = code;
         event.value = value;
@@ -126,8 +127,16 @@ int main() {
         }
 
         auto const diff = std::chrono::steady_clock::now() - start;
-        if (!move_lock && !lock && !right_click.is_pressed() && left_click.is_pressed() &&
-            diff >= long_press_time && dx <= threshold && dy <= threshold)
+        if (!move_lock
+            && !lock
+            && !right_click.is_pressed()
+            && left_click.is_pressed()
+            && diff
+            >= long_press_time
+            && dx
+            <= threshold
+            && dy
+            <= threshold)
         {
             emit(EV_KEY, BTN_LEFT, 0);
             emit_syn();

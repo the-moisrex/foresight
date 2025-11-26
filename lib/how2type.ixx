@@ -8,7 +8,7 @@ export module foresight.lib.xkb.how2type;
 import foresight.lib.xkb;
 import foresight.mods.event;
 
-export namespace foresight::xkb {
+export namespace fs8::xkb {
 
     struct key_position {
         xkb_keycode_t      keycode{};
@@ -47,4 +47,4 @@ export namespace foresight::xkb {
         void emit(keymap const& map, std::string_view str, user_event_callback callback);
     }; // namespace how2type
 
-} // namespace foresight::xkb
+} // namespace fs8::xkb

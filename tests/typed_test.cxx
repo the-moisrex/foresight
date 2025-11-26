@@ -4,10 +4,10 @@
 
 import foresight.mods;
 
-int happened = 0;              // NOLINT
+int happened = 0;        // NOLINT
 
 TEST(SearchTest, Basic) {
-    using namespace foresight; // NOLINT(*-build-using-namespace)
+    using namespace fs8; // NOLINT(*-build-using-namespace)
 
     happened = 0;
 
@@ -41,7 +41,7 @@ TEST(SearchTest, Basic) {
 }
 
 TEST(SearchTest, Multi) {
-    using namespace foresight; // NOLINT(*-build-using-namespace)
+    using namespace fs8; // NOLINT(*-build-using-namespace)
     happened = 0;
 
     (context
@@ -80,7 +80,7 @@ TEST(SearchTest, Multi) {
 }
 
 TEST(SearchTest, ModiferTest) {
-    using namespace foresight; // NOLINT(*-build-using-namespace)
+    using namespace fs8; // NOLINT(*-build-using-namespace)
     happened = 0;
 
     (context

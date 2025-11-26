@@ -5,7 +5,7 @@ export module foresight.mods.quantifier;
 import foresight.mods.event;
 import foresight.mods.context;
 
-export namespace foresight {
+export namespace fs8 {
 
 
     /**
@@ -74,4 +74,4 @@ export namespace foresight {
     } mice_quantifier;
 
 
-} // namespace foresight
+} // namespace fs8

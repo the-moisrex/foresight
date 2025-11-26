@@ -7,8 +7,8 @@ module;
 #include <utility>
 module foresight.mods.quantifier;
 
-using foresight::basic_mice_quantifier;
-using foresight::basic_quantifier;
+using fs8::basic_mice_quantifier;
+using fs8::basic_quantifier;
 
 basic_quantifier::value_type basic_quantifier::consume_steps() noexcept {
     auto const step_count  = std::abs(value) / step;

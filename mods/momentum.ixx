@@ -5,7 +5,7 @@ module;
 export module foresight.mods.momentum;
 import foresight.mods.context;
 
-namespace foresight {
+namespace fs8 {
 
     export using fsecs = std::chrono::duration<double>;
     export using msecs = std::chrono::microseconds;
@@ -149,4 +149,4 @@ namespace foresight {
         bool  linear_only_{}; // Force linear interpolation
     };
 
-} // namespace foresight
+} // namespace fs8

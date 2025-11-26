@@ -2,7 +2,7 @@
 
 import foresight.bash;
 
-using foresight::bash_runner;
+using fs8::bash_runner;
 
 TEST(BashTest, Basic) {
     bash_runner bash;
@@ -12,4 +12,3 @@ TEST(BashTest, Basic) {
     bash.set_variable("key", "value 2");
     EXPECT_EQ(bash.get_variable("key"), "value 2");
 }
-

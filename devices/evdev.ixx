@@ -12,7 +12,7 @@ export module foresight.devices.evdev;
 export import foresight.mods.event;
 import foresight.mods.caps;
 
-namespace foresight {
+namespace fs8 {
 
     export enum struct evdev_status : std::uint8_t {
         unknown,
@@ -331,4 +331,4 @@ namespace foresight {
         }
     } to_evdev;
 
-} // namespace foresight
+} // namespace fs8

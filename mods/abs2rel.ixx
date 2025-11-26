@@ -10,7 +10,7 @@ import foresight.mods.caps;
 import foresight.mods.ignore;
 import foresight.mods.keys_status;
 
-export namespace foresight {
+export namespace fs8 {
 
     constexpr struct [[nodiscard]] basic_pressure2mouse_clicks {
         using code_type  = event_type::code_type;
@@ -199,4 +199,4 @@ export namespace foresight {
 
     } abs2rel;
 
-} // namespace foresight
+} // namespace fs8

@@ -6,7 +6,7 @@ export module foresight.mods.replace;
 import foresight.mods.event;
 import foresight.mods.context;
 
-namespace foresight {
+namespace fs8 {
 
 
     /**
@@ -191,4 +191,4 @@ namespace foresight {
     export constexpr basic_replace<> replace;
 
 
-} // namespace foresight
+} // namespace fs8

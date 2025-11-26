@@ -9,7 +9,7 @@ export module foresight.mods.emitter;
 import foresight.mods.event;
 import foresight.mods.context;
 
-namespace foresight {
+namespace fs8 {
 
     export template <std::size_t N>
     struct [[nodiscard]] basic_emit {
@@ -285,4 +285,4 @@ namespace foresight {
     export constexpr basic_emit_all<> emit_all;
 
 
-} // namespace foresight
+} // namespace fs8

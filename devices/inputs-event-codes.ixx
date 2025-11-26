@@ -6,7 +6,7 @@ module;
 #include <string_view>
 export module foresight.devices.event_codes;
 
-export namespace foresight {
+export namespace fs8 {
     struct keynames_type {
         std::string_view name;
         std::uint16_t    value;
@@ -623,4 +623,4 @@ export namespace foresight {
         {.name = {"zoomreset"}, .value = KEY_ZOOMRESET},                               // 0x1a4
       }
     };
-} // namespace foresight
+} // namespace fs8

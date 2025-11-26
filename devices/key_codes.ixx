@@ -4,7 +4,7 @@ module;
 #include <string_view>
 export module foresight.devices.key_codes;
 
-namespace foresight {
+namespace fs8 {
 
     /**
      * Get the event code of the specified key name.
@@ -20,4 +20,4 @@ namespace foresight {
     [[nodiscard]] std::uint16_t key_code_of<char8_t>(std::basic_string_view<char8_t> name) noexcept;
     template <>
     [[nodiscard]] std::uint16_t key_code_of<char>(std::basic_string_view<char> name) noexcept;
-} // namespace foresight
+} // namespace fs8

@@ -10,9 +10,9 @@ module;
 #include <xkbcommon/xkbcommon.h>
 module foresight.lib.xkb;
 
-using foresight::xkb::basic_state;
-using foresight::xkb::context;
-using foresight::xkb::keymap;
+using fs8::xkb::basic_state;
+using fs8::xkb::context;
+using fs8::xkb::keymap;
 
 static constexpr std::size_t XKB_KEYSYM_NAME_MAX_SIZE = 28;
 
@@ -20,7 +20,7 @@ namespace {
 
     void ensure(bool const cond, std::string_view const msg) {
         if (!cond) {
-            throw foresight::xkb::xkb_error(std::string(msg));
+            throw fs8::xkb::xkb_error(std::string(msg));
         }
     }
 
@@ -48,7 +48,7 @@ xkb_log_level context::log_level() const noexcept {
     return xkb_context_get_log_level(get());
 }
 
-context& foresight::xkb::get_default_context() {
+context& fs8::xkb::get_default_context() {
     static context ctx;
     return ctx;
 }
@@ -118,12 +118,12 @@ std::string keymap::as_string() const {
     return {str};
 }
 
-keymap& foresight::xkb::get_default_keymap() {
+keymap& fs8::xkb::get_default_keymap() {
     static keymap map{get_default_context()};
     return map;
 }
 
-std::string foresight::xkb::name(xkb_keysym_t const keysym) {
+std::string fs8::xkb::name(xkb_keysym_t const keysym) {
     std::array<char, XKB_KEYSYM_NAME_MAX_SIZE> name{};
     int const                                  ret = xkb_keysym_get_name(keysym, name.data(), name.size());
     if (ret < 0 || static_cast<size_t>(ret) >= name.size()) {

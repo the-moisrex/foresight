@@ -5,9 +5,9 @@ module;
 #include <cmath>
 module foresight.mods.momentum;
 
-using foresight::fsecs;
-using foresight::momentum_calculator;
-using foresight::velocity_tracker;
+using fs8::fsecs;
+using fs8::momentum_calculator;
+using fs8::velocity_tracker;
 
 namespace {
     constexpr fsecs anim_dur{1.0};      // Default animation duration

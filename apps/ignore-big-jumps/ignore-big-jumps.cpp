@@ -18,8 +18,11 @@ int main() {
             break;
         }
 
-        if (event.type == EV_REL && (event.code == REL_X || event.code == REL_Y) &&
-            std::abs(event.value) > threshold)
+        if (event.type
+            == EV_REL
+            && (event.code == REL_X || event.code == REL_Y)
+            && std::abs(event.value)
+            > threshold)
         {
             continue;
         }

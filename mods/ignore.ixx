@@ -7,7 +7,7 @@ export module foresight.mods.ignore;
 import foresight.mods.context;
 import foresight.mods.caps;
 
-export namespace foresight {
+export namespace fs8 {
 
     constexpr struct [[nodiscard]] basic_ignore_abs {
         context_action operator()(event_type const& event) const noexcept;
@@ -265,4 +265,4 @@ export namespace foresight {
     // todo: ignore_types(EV_ABS)
     // todo: ignore_codes(EV_BTN_TOOL_RUBBER)
 
-} // namespace foresight
+} // namespace fs8

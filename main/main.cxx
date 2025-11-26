@@ -34,7 +34,7 @@ namespace {
         } action = action_type::none;
 
         /// intercept file
-        std::vector<foresight::input_file_type> files;
+        std::vector<fs8::input_file_type> files;
 
         /// All args
         std::span<char const* const> args;
@@ -125,7 +125,7 @@ namespace {
         size_t w_id   = 9;  // "Unique ID"
 
         // Single pass: measure + store owned strings
-        for (auto const& dev : foresight::all_input_devices()) {
+        for (auto const& dev : fs8::all_input_devices()) {
             auto const name_sv = dev.device_name();
             auto const loc_sv  = dev.physical_location();
             auto const id_sv   = dev.unique_identifier();
@@ -143,7 +143,14 @@ namespace {
         }
 
         // Header (still uses println; widths are constant here, so it compiles)
-        std::println("{: <{}}  {: <{}}  {: <{}}", "Device", w_name, "Physical Location", w_loc, "Unique ID", w_id);
+        std::println(
+          "{: <{}}  {: <{}}  {: <{}}",
+          "Device",
+          w_name,
+          "Physical Location",
+          w_loc,
+          "Unique ID",
+          w_id);
 
         // Separator
         std::println("{:-<{}}  {:-<{}}  {:-<{}}", "", w_name, "", w_loc, "", w_id);
@@ -279,11 +286,10 @@ namespace {
                 return EXIT_FAILURE;
             }
             case intercept: {
-                static constinit auto pipeline =
-                  foresight::context | foresight::stopper | foresight::intercept | foresight::output;
+                static constinit auto pipeline = fs8::context | fs8::stopper | fs8::intercept | fs8::output;
 
-                auto& sig_stopper = pipeline.mod(foresight::stopper);
-                auto& inpor       = pipeline.mod(foresight::intercept);
+                auto& sig_stopper = pipeline.mod(fs8::stopper);
+                auto& inpor       = pipeline.mod(fs8::intercept);
 
                 register_stop_signal(sig_stopper);
                 inpor.set_files(opts.files);
@@ -296,14 +302,13 @@ namespace {
                     throw std::invalid_argument("Only pass one file for redirect.");
                 }
 
-                static constinit auto pipeline =
-                  foresight::context | foresight::stopper | foresight::input | foresight::uinput;
+                static constinit auto pipeline = fs8::context | fs8::stopper | fs8::input | fs8::uinput;
 
-                auto& out         = pipeline.mod(foresight::uinput);
-                auto& sig_stopper = pipeline.mod(foresight::stopper);
+                auto& out         = pipeline.mod(fs8::uinput);
+                auto& sig_stopper = pipeline.mod(fs8::stopper);
 
-                auto const&            file = opts.files.front().file;
-                foresight::evdev const dev{file};
+                auto const&      file = opts.files.front().file;
+                fs8::evdev const dev{file};
                 if (!dev.ok()) {
                     throw std::runtime_error(
                       std::format("Could not open device to write into {}", file.string()));
@@ -316,12 +321,12 @@ namespace {
                 return EXIT_SUCCESS;
             }
             case systemd: {
-                foresight::systemd_service service{};
+                fs8::systemd_service service{};
                 service.description("Foresight Input Modifier");
                 auto const args =
                   opts.args
                   | std::views::drop(2) // removing "foresight systemd"
-                  | foresight::transform_to<std::string_view>()
+                  | fs8::transform_to<std::string_view>()
                   | std::ranges::to<std::vector>();
                 service.execStart(args);
                 std::println("Installing as a systemd service...");
@@ -334,7 +339,7 @@ namespace {
                 return EXIT_SUCCESS;
             }
             default: {
-                foresight::keyboard kbd;
+                fs8::keyboard kbd;
                 return kbd.loop();
             }
         }

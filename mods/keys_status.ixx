@@ -9,7 +9,7 @@ export module foresight.mods.keys_status;
 import foresight.mods.event;
 import foresight.mods.context;
 
-export namespace foresight {
+export namespace fs8 {
 
     /**
      * If you need to check if a key is pressed or not, this is what you need to use.
@@ -138,4 +138,4 @@ export namespace foresight {
 
         void operator()(event_type const& event) noexcept;
     } led_status;
-} // namespace foresight
+} // namespace fs8

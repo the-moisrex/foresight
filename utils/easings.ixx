@@ -4,7 +4,7 @@ module;
 #include <numbers>
 export module foresight.utils.easings;
 
-export namespace foresight {
+export namespace fs8 {
 
 
     // Concept to constrain T to floating-point types
@@ -289,4 +289,4 @@ export namespace foresight {
                / static_cast<T>(2);
     }
 
-} // namespace foresight
+} // namespace fs8

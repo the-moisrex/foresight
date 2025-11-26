@@ -9,7 +9,7 @@ module;
 export module foresight.mods.caps;
 import foresight.mods.event;
 
-namespace foresight {
+namespace fs8 {
     using ev_type   = event_type::type_type;
     using code_type = event_type::code_type;
 
@@ -430,7 +430,7 @@ namespace foresight {
 
         constexpr auto keyboard_numpad    = views(numpad);
         constexpr auto keyboard_alphabets = views(alphabets);
-        constexpr auto all_misc = views(misc);
+        constexpr auto all_misc           = views(misc);
 
         // A keyboard with additional media controls
         constexpr auto multimedia_keyboard = keyboard + keys_media;
@@ -481,4 +481,4 @@ namespace foresight {
         return dev_caps_view{};
     }
 
-} // namespace foresight
+} // namespace fs8

@@ -20,9 +20,9 @@ module foresight.devices.evdev;
 import foresight.mods.caps;
 import foresight.main.log;
 
-using foresight::evdev;
+using fs8::evdev;
 
-std::string_view foresight::to_string(evdev_status const status) noexcept {
+std::string_view fs8::to_string(evdev_status const status) noexcept {
     using enum evdev_status;
     switch (status) {
         case unknown: return {"Unknown state."};
@@ -142,7 +142,7 @@ void evdev::grab_input(bool const grab) noexcept {
     status = grab ? success_grabbed : success;
 }
 
-foresight::grab_state evdev::grab() const noexcept {
+fs8::grab_state evdev::grab() const noexcept {
     using enum grab_state;
     if (!ok()) {
         return error;
@@ -394,10 +394,10 @@ std::optional<input_event> evdev::next() noexcept {
     return std::nullopt;
 }
 
-foresight::evdev_rank foresight::device(dev_caps_view const inp_caps) {
+fs8::evdev_rank fs8::device(dev_caps_view const inp_caps) {
     evdev_rank res;
 
-    for (evdev_rank&& rank : foresight::rank_devices(inp_caps)) {
+    for (evdev_rank&& rank : fs8::rank_devices(inp_caps)) {
         if (rank.score > res.score) {
             res = std::move(rank);
         }
@@ -549,11 +549,11 @@ namespace {
           / 4);
     }
 
-    [[nodiscard]] std::pair<foresight::dev_caps_view, std::uint16_t> find_caps(
+    [[nodiscard]] std::pair<fs8::dev_caps_view, std::uint16_t> find_caps(
       std::string_view const query) noexcept {
-        foresight::dev_caps_view caps{};
-        std::uint16_t            score = 0;
-        for (auto const& [name, cap_view] : foresight::caps::cap_maps) {
+        fs8::dev_caps_view caps{};
+        std::uint16_t      score = 0;
+        for (auto const& [name, cap_view] : fs8::caps::cap_maps) {
             if (query == name) {
                 return {cap_view, 100};
             }
@@ -568,7 +568,7 @@ namespace {
 
 } // namespace
 
-foresight::evdev_rank foresight::device(std::string_view query) {
+fs8::evdev_rank fs8::device(std::string_view query) {
     trim(query);
 
     // check if it's a path

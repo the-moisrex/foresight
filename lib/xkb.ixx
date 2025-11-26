@@ -6,7 +6,7 @@ module;
 #include <xkbcommon/xkbcommon.h>
 export module foresight.lib.xkb;
 
-export namespace foresight::xkb {
+export namespace fs8::xkb {
 
     // Forward declare Keymap and State
     struct context;
@@ -90,7 +90,6 @@ export namespace foresight::xkb {
      * Wraps xkb_state
      */
     struct [[nodiscard]] basic_state final {
-
         /// Initialize as well
         explicit basic_state(keymap const &inp_map);
 
@@ -117,4 +116,4 @@ export namespace foresight::xkb {
         xkb_state *handle = nullptr;
     };
 
-} // namespace foresight::xkb
+} // namespace fs8::xkb

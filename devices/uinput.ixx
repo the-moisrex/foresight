@@ -12,7 +12,7 @@ import foresight.mods.context;
 import foresight.mods.caps;
 import foresight.mods.intercept;
 
-export namespace foresight {
+export namespace fs8 {
 
     constexpr std::string_view invalid_syspath   = "/dev/null";
     constexpr std::string_view invalid_devnode   = "/dev/null";
@@ -172,4 +172,4 @@ export namespace foresight {
     } uinput;
 
     static_assert(OutputModifier<basic_uinput>, "Must be an output modifier.");
-} // namespace foresight
+} // namespace fs8

@@ -9,7 +9,7 @@ export module foresight.main.keyboard;
 import foresight.devices.evdev;
 import foresight.main.translate;
 
-namespace foresight {
+namespace fs8 {
     export constexpr std::size_t give_up_limit = 5;
 
     export struct keyboard {
@@ -41,4 +41,4 @@ namespace foresight {
         input_event              event{};
         std::string              str;
     };
-} // namespace foresight
+} // namespace fs8

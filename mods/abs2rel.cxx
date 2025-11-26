@@ -8,9 +8,9 @@ module;
 module foresight.mods.abs2rel;
 import foresight.main.log;
 
-using foresight::basic_abs2rel;
-using foresight::context_action;
-using foresight::event_type;
+using fs8::basic_abs2rel;
+using fs8::context_action;
+using fs8::event_type;
 
 constexpr basic_abs2rel::value_type states_loc   = (sizeof(basic_abs2rel::value_type) * CHAR_BIT) - 3;
 constexpr basic_abs2rel::value_type x_bit_loc    = states_loc;
@@ -20,7 +20,7 @@ constexpr basic_abs2rel::value_type y_init_state = 0b1U << static_cast<std::uint
 
 // For more information:
 // https://www.kernel.org/doc/Documentation/input/event-codes.txt
-context_action foresight::basic_pressure2mouse_clicks::operator()(event_type& event) noexcept {
+context_action fs8::basic_pressure2mouse_clicks::operator()(event_type& event) noexcept {
     using enum context_action;
 
     switch (event.hash()) {
@@ -59,7 +59,7 @@ context_action foresight::basic_pressure2mouse_clicks::operator()(event_type& ev
 
 // For more information:
 // https://www.kernel.org/doc/Documentation/input/multi-touch-protocol.txt
-context_action foresight::basic_pen2touch::operator()(event_type& event) const noexcept {
+context_action fs8::basic_pen2touch::operator()(event_type& event) const noexcept {
     using enum context_action;
     if (event.type() != EV_KEY) {
         return next;
@@ -85,7 +85,7 @@ context_action foresight::basic_pen2touch::operator()(event_type& event) const n
     return next;
 }
 
-void foresight::basic_pen2mice::operator()(event_type& event) noexcept {
+void fs8::basic_pen2mice::operator()(event_type& event) noexcept {
     if (event.type() != EV_KEY) {
         return;
     }

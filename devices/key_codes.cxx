@@ -7,7 +7,7 @@ module;
 module foresight.devices.key_codes;
 import foresight.devices.event_codes;
 
-using foresight::keynames_type;
+using fs8::keynames_type;
 
 namespace {
     template <typename CharT>
@@ -60,7 +60,7 @@ namespace {
 namespace {
     template <typename CharT>
     [[nodiscard]] std::uint16_t key_code_of_impl(std::basic_string_view<CharT> name) noexcept {
-        using foresight::keynames;
+        using fs8::keynames;
         auto it = std::lower_bound(keynames.begin(), keynames.end(), name, case_insensitive_less_t{});
         if (it != keynames.end() && case_insensitive_equal_t{}(*it, name)) {
             return it->value;
@@ -70,21 +70,21 @@ namespace {
 } // namespace
 
 template <>
-std::uint16_t foresight::key_code_of<char32_t>(std::basic_string_view<char32_t> const name) noexcept {
+std::uint16_t fs8::key_code_of<char32_t>(std::basic_string_view<char32_t> const name) noexcept {
     return key_code_of_impl(name);
 }
 
 template <>
-std::uint16_t foresight::key_code_of<char16_t>(std::basic_string_view<char16_t> const name) noexcept {
+std::uint16_t fs8::key_code_of<char16_t>(std::basic_string_view<char16_t> const name) noexcept {
     return key_code_of_impl(name);
 }
 
 template <>
-std::uint16_t foresight::key_code_of<char8_t>(std::basic_string_view<char8_t> const name) noexcept {
+std::uint16_t fs8::key_code_of<char8_t>(std::basic_string_view<char8_t> const name) noexcept {
     return key_code_of_impl(name);
 }
 
 template <>
-std::uint16_t foresight::key_code_of<char>(std::basic_string_view<char> const name) noexcept {
+std::uint16_t fs8::key_code_of<char>(std::basic_string_view<char> const name) noexcept {
     return key_code_of_impl(name);
 }

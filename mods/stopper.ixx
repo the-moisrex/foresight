@@ -3,7 +3,7 @@
 export module foresight.mods.stopper;
 import foresight.mods.context;
 
-export namespace foresight {
+export namespace fs8 {
 
     constexpr struct [[nodiscard]] basic_stopper {
       private:
@@ -21,10 +21,10 @@ export namespace foresight {
             stopped = true;
         }
 
-         context_action operator()() const noexcept {
+        context_action operator()() const noexcept {
             using enum context_action;
             return stopped ? exit : next;
         }
     } stopper;
 
-} // namespace foresight
+} // namespace fs8

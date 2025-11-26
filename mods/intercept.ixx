@@ -10,7 +10,7 @@ import foresight.devices.evdev;
 import foresight.mods.context;
 import foresight.main.utils;
 
-export namespace foresight {
+export namespace fs8 {
     struct input_file_type {
         std::filesystem::path file;
         bool                  grab = false;
@@ -87,4 +87,4 @@ export namespace foresight {
         std::uint16_t index = 0;
     } intercept;
 
-} // namespace foresight
+} // namespace fs8

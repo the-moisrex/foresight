@@ -8,7 +8,7 @@ import foresight.mods.context;
 import foresight.mods.event;
 import foresight.lib.xkb.how2type;
 
-namespace foresight {
+namespace fs8 {
 
     export template <typename CharT>
     [[nodiscard]] constexpr std::basic_string_view<CharT> to_string(
@@ -74,4 +74,4 @@ namespace foresight {
     };
 
     export constexpr basic_type_string<> type_string;
-} // namespace foresight
+} // namespace fs8

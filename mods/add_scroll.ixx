@@ -12,7 +12,7 @@ import foresight.mods.inout;
 import foresight.mods.event;
 import foresight.main.utils;
 
-export namespace foresight {
+export namespace fs8 {
 
     template <typename... T>
         requires((std::convertible_to<T, event_type::code_type> && ...))
@@ -121,4 +121,4 @@ export namespace foresight {
 
     constexpr basic_add_scroll<> add_scroll;
 
-} // namespace foresight
+} // namespace fs8

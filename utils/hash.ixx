@@ -4,7 +4,7 @@ module;
 #include <string_view>
 export module foresight.utils.hash;
 
-namespace foresight {
+namespace fs8 {
 
     // 32-bit FNV-1a constants
     constexpr std::uint32_t FNV1A_32_INIT  = 0x811C'9DC5U;
@@ -38,4 +38,4 @@ namespace foresight {
 
     export void fnv1a_init(std::uint64_t& hash) noexcept;
     export void fnv1a_hash(std::uint64_t& hash, char32_t uch) noexcept;
-} // namespace foresight
+} // namespace fs8

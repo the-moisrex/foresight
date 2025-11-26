@@ -7,19 +7,19 @@ module;
 #include <utility>
 module foresight.mods.ignore;
 
-using foresight::basic_ignore_abs;
-using foresight::basic_ignore_big_jumps;
-using foresight::basic_ignore_fast_repeats;
-using foresight::basic_ignore_init_moves;
-using foresight::context_action;
-using foresight::event_type;
+using fs8::basic_ignore_abs;
+using fs8::basic_ignore_big_jumps;
+using fs8::basic_ignore_fast_repeats;
+using fs8::basic_ignore_init_moves;
+using fs8::context_action;
+using fs8::event_type;
 
 context_action basic_ignore_abs::operator()(event_type const& event) const noexcept {
     using enum context_action;
     return EV_ABS == event.type() ? ignore_event : next;
 }
 
-context_action foresight::basic_ignore_tablet::operator()(event_type const& event) const noexcept {
+context_action fs8::basic_ignore_tablet::operator()(event_type const& event) const noexcept {
     using enum context_action;
     auto const type = event.type();
     auto const code = event.code();
@@ -72,7 +72,7 @@ context_action basic_ignore_init_moves::operator()(event_type const& event) noex
     return next;
 }
 
-context_action foresight::basic_ignore_mouse_moves::operator()(event_type const& event) noexcept {
+context_action fs8::basic_ignore_mouse_moves::operator()(event_type const& event) noexcept {
     using enum context_action;
     return is_mouse_movement(event) ? ignore_event : next;
 }
@@ -92,7 +92,7 @@ context_action basic_ignore_fast_repeats::operator()(event_type const& event) no
     return next;
 }
 
-context_action foresight::basic_ignore_caps::operator()(event_type const& event) const noexcept {
+context_action fs8::basic_ignore_caps::operator()(event_type const& event) const noexcept {
     // todo: optimize this
     for (auto const cap : caps) {
         for (auto const code : cap.codes) {
@@ -104,16 +104,16 @@ context_action foresight::basic_ignore_caps::operator()(event_type const& event)
     return context_action::next;
 }
 
-void foresight::basic_ignore_start_moves::operator()(toggle_on_tag) noexcept {
+void fs8::basic_ignore_start_moves::operator()(toggle_on_tag) noexcept {
     emitted_count = 0;
 }
 
-context_action foresight::basic_ignore_start_moves::operator()(event_type const& event) noexcept {
+context_action fs8::basic_ignore_start_moves::operator()(event_type const& event) noexcept {
     using enum context_action;
     return is_mouse_movement(event) && ++emitted_count < emit_threshold ? ignore_event : next;
 }
 
-context_action foresight::basic_ignore_adjacent_repeats::operator()(event_type const& event) noexcept {
+context_action fs8::basic_ignore_adjacent_repeats::operator()(event_type const& event) noexcept {
     using enum context_action;
     bool const found_asked = event.is_of(asked_event);
     return std::exchange(is_found, found_asked) && found_asked ? ignore_event : next;

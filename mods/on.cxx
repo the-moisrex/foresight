@@ -7,7 +7,7 @@ module;
 #include <utility>
 module foresight.mods.on;
 
-using foresight::basic_swipe_detector;
+using fs8::basic_swipe_detector;
 
 void basic_swipe_detector::reset() noexcept {
     cur_x = 0;
@@ -69,7 +69,7 @@ void basic_swipe_detector::operator()(event_type const& event) noexcept {
     }
 }
 
-bool foresight::multi_click::operator()(event_type const& event) noexcept {
+bool fs8::multi_click::operator()(event_type const& event) noexcept {
     auto const now = event.micro_time();
     if (event != usr) {
         return false;

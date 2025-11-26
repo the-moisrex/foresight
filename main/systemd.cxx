@@ -7,7 +7,7 @@ module;
 #include <string>
 module foresight.main.systemd;
 
-using foresight::systemd_service;
+using fs8::systemd_service;
 
 void systemd_service::execStart(std::span<std::string_view const> const args) {
     args_ = args;

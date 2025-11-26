@@ -20,7 +20,7 @@ BEGIN {
     print "#include <linux/input-event-codes.h>"
     print "export module foresight.devices.event_codes;"
     print
-    print "export namespace foresight {"
+    print "export namespace fs8 {"
     print "\tstruct keynames_type {";
     print "\t\tstd::string_view name;";
     print "\t\tstd::uint16_t value;";
@@ -61,5 +61,5 @@ END {
         printf "%s\n", entry
     }
     print "\t}};";
-    print "} // namespace foresight"
+    print "} // namespace fs8"
 }

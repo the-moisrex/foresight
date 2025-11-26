@@ -4,7 +4,7 @@
 import foresight.mods;
 import foresight.main.log;
 
-using namespace foresight;
+using namespace fs8;
 
 // this is just to see if testing works or not
 TEST(SmoothTest, LERPTest) {

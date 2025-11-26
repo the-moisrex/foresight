@@ -14,7 +14,7 @@ export import foresight.main.utils;
 import foresight.mods.keys_status;
 import foresight.mods.context;
 
-namespace foresight {
+namespace fs8 {
 
     using ev_type    = event_type::type_type;
     using code_type  = event_type::code_type;
@@ -607,4 +607,4 @@ namespace foresight {
     constexpr user_event         left_click{EV_KEY, BTN_LEFT, 0};
     export constexpr multi_click double_click{left_click};
     export constexpr multi_click triple_click{left_click, 3};
-} // namespace foresight
+} // namespace fs8

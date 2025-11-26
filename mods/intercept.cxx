@@ -12,16 +12,16 @@ module;
 module foresight.mods.intercept;
 import foresight.main.log;
 
-using foresight::basic_interceptor;
+using fs8::basic_interceptor;
 
 namespace {
 
-    pollfd get_pollfd(foresight::evdev const& dev) {
+    pollfd get_pollfd(fs8::evdev const& dev) {
         return pollfd{dev.native_handle(), POLLIN, 0};
     }
 
-    auto get_pollfds(std::span<foresight::evdev const> devs) {
-        auto const fd_iter = devs | std::views::transform([](foresight::evdev const& dev) noexcept {
+    auto get_pollfds(std::span<fs8::evdev const> devs) {
+        auto const fd_iter = devs | std::views::transform([](fs8::evdev const& dev) noexcept {
                                  return pollfd{dev.native_handle(), POLLIN, 0};
                              });
         return std::vector<pollfd>{fd_iter.begin(), fd_iter.end()};
@@ -127,11 +127,11 @@ void basic_interceptor::set_files(std::span<std::string_view const> const query_
     add_files(query_all);
 }
 
-std::span<foresight::evdev const> basic_interceptor::devices() const noexcept {
+std::span<fs8::evdev const> basic_interceptor::devices() const noexcept {
     return std::span{devs.begin(), devs.end()};
 }
 
-std::span<foresight::evdev> basic_interceptor::devices() noexcept {
+std::span<fs8::evdev> basic_interceptor::devices() noexcept {
     return std::span{devs.begin(), devs.end()};
 }
 
@@ -139,7 +139,7 @@ void basic_interceptor::commit() {
     fds = get_pollfds(this->devices());
 }
 
-foresight::context_action basic_interceptor::wait_for_event() noexcept {
+fs8::context_action basic_interceptor::wait_for_event() noexcept {
     using enum context_action;
 
     // Use a configurable timeout (could be made a member variable)

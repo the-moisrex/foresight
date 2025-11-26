@@ -16,7 +16,7 @@ import foresight.utils.hash;
 import foresight.mods.event;
 import foresight.lib.mod_parser;
 
-using foresight::basic_search_engine;
+using fs8::basic_search_engine;
 
 namespace {
 
@@ -172,8 +172,8 @@ std::uint16_t basic_search_engine::add_pattern(std::string_view pattern) {
     return static_cast<std::uint16_t>(patterns.size() - 1);
 }
 
-foresight::aho_state basic_search_engine::process(char32_t const  code_point,
-                                                  aho_state const last_state) const noexcept {
+fs8::aho_state basic_search_engine::process(char32_t const  code_point,
+                                            aho_state const last_state) const noexcept {
     assert(!trie.empty());
     auto state = last_state.index();
 

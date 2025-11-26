@@ -18,7 +18,7 @@ module foresight.devices.uinput;
 import foresight.mods.event;
 import foresight.main.log;
 
-using foresight::basic_uinput;
+using fs8::basic_uinput;
 
 
 #define SYS_INPUT_DIR "/sys/devices/virtual/input/"
@@ -202,12 +202,12 @@ namespace {
             if (strcmp(buf, uinput_dev->name) == 0) {
                 if (uinput_dev->syspath) {
                     /* FIXME: could descend into bit comparison here */
-                    foresight::log("multiple identical devices found. syspath is unreliable");
+                    fs8::log("multiple identical devices found. syspath is unreliable");
                     break;
                 }
                 rc = snprintf(buf, sizeof(buf), "%s%s", SYS_INPUT_DIR, namelist[i]->d_name);
                 if (rc < 0 || static_cast<size_t>(rc) >= sizeof(buf)) {
-                    foresight::log("Invalid syspath, syspath is unreliable");
+                    fs8::log("Invalid syspath, syspath is unreliable");
                     break;
                 }
 
@@ -499,7 +499,7 @@ void basic_uinput::operator()(std::span<evdev const> const devs, start_tag) noex
     }
 }
 
-foresight::context_action basic_uinput::operator()(event_type const& event) noexcept {
+fs8::context_action basic_uinput::operator()(event_type const& event) noexcept {
     using enum context_action;
     // log("{}: {} {} {}", devnode(), event.type_name(), event.code_name(), event.value());
     if (!emit(event)) [[unlikely]] {

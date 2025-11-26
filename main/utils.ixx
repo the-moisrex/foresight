@@ -4,7 +4,7 @@ module;
 #include <utility>
 export module foresight.main.utils;
 
-export namespace foresight {
+export namespace fs8 {
     template <typename T>
     struct construct_it_from {
         template <typename... Args>
@@ -77,4 +77,4 @@ export namespace foresight {
 
     inline constexpr basic_arguments<0> arguments{};
 
-} // namespace foresight
+} // namespace fs8

@@ -7,7 +7,7 @@ module;
 
 export module foresight.main.translate;
 
-export namespace foresight {
+export namespace fs8 {
     constexpr auto KEY_RELEASE         = 0;
     constexpr auto KEY_PRESS           = 1;
     constexpr auto KEY_KEEPING_PRESSED = 2;
@@ -75,4 +75,4 @@ export namespace foresight {
         // NOLINTNEXTLINE(*-pro-bounds-constant-array-index)
         return inp_char >= visual_keys.size() ? null_key : visual_keys[inp_char];
     }
-} // namespace foresight
+} // namespace fs8

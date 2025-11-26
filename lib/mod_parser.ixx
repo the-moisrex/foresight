@@ -8,7 +8,7 @@ export module foresight.lib.mod_parser;
 import foresight.mods.event;
 import foresight.lib.xkb;
 
-namespace foresight {
+namespace fs8 {
 
     /// A UTF-32 encoded code point that uses unused parts of Unicode
     export using code32_t = char32_t;
@@ -51,4 +51,4 @@ namespace foresight {
 
     /// Parse the string and return the next UTF-32 code point
     export void replace_modifiers_and_actions(std::u32string &str) noexcept;
-} // namespace foresight
+} // namespace fs8

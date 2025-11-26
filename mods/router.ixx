@@ -16,7 +16,7 @@ import foresight.main.log;
 import foresight.main.utils;
 import foresight.mods.intercept;
 
-namespace foresight {
+namespace fs8 {
 
     template <std::size_t I>
     struct visit_impl {
@@ -50,9 +50,9 @@ namespace foresight {
     constexpr decltype(auto) visit_at(std::tuple<Ts...>& tup, std::size_t idx, F&& fun) {
         return visit_impl<sizeof...(Ts)>::visit(tup, idx, std::forward<F>(fun));
     }
-} // namespace foresight
+} // namespace fs8
 
-export namespace foresight {
+export namespace fs8 {
 
     template <typename T>
     struct route {
@@ -302,4 +302,4 @@ export namespace foresight {
 
     static_assert(OutputModifier<basic_router<>>, "Must be an output modifier.");
 
-} // namespace foresight
+} // namespace fs8

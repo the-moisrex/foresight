@@ -4,9 +4,8 @@ import foresight.mods;
 import foresight.main.log;
 import foresight.main.utils;
 
-int main(int const argc, char const* const* argv) try
-{
-    using namespace foresight; // NOLINT(*-using-namespace)
+int main(int const argc, char const* const* argv) try {
+    using namespace fs8; // NOLINT(*-using-namespace)
     using namespace std::chrono_literals;
 
     static constexpr auto args = arguments["pen", "usb keyboard"];
@@ -63,7 +62,7 @@ int main(int const argc, char const* const* argv) try
 
     return 0;
 } catch (std::runtime_error const& err) {
-    foresight::log("Runtime Error: {}", err.what());
+    fs8::log("Runtime Error: {}", err.what());
 } catch (...) {
-    foresight::log("Unknown Error.");
+    fs8::log("Unknown Error.");
 }

@@ -4,8 +4,8 @@ module;
 #include <linux/input-event-codes.h>
 #include <span>
 module foresight.mods.keys_status;
-using foresight::basic_keys_status;
-using foresight::basic_led_status;
+using fs8::basic_keys_status;
+using fs8::basic_led_status;
 
 bool basic_keys_status::is_pressed(std::span<code_type const> const key_codes) const noexcept {
     return std::ranges::all_of(key_codes, [this](code_type const code) {

@@ -11,7 +11,7 @@ import foresight.mods.context;
 import foresight.utils.easings;
 import foresight.main.log;
 
-export namespace foresight {
+export namespace fs8 {
 
     /**
      * Linear Interpolation
@@ -241,4 +241,4 @@ export namespace foresight {
         }
     } kalman_filter;
 
-} // namespace foresight
+} // namespace fs8

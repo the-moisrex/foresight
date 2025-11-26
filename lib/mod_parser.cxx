@@ -15,12 +15,12 @@ import foresight.utils.hash;
 import foresight.lib.xkb.event2unicode;
 import foresight.main.log;
 
-using foresight::user_event;
+using fs8::user_event;
 
 // NOLINTBEGIN(*-magic-numbers)
-namespace foresight {
+namespace fs8 {
     constexpr std::size_t max_simultaneous_key_presses = 32;
-} // namespace foresight
+} // namespace fs8
 
 namespace {
 
@@ -162,7 +162,7 @@ namespace {
            {U"controlkey", KEY_LEFTCTRL}}
         };
         for (auto &field : data) {
-            field.hash = foresight::ci_hash(field.key);
+            field.hash = fs8::ci_hash(field.key);
         }
         return data;
         // NOLINTEND(*-use-designated-initializers)
@@ -174,7 +174,7 @@ namespace {
      */
     template <typename CharT>
     std::uint16_t alternative_modifier(std::basic_string_view<CharT> const str) noexcept {
-        auto const hid = foresight::ci_hash(str);
+        auto const hid = fs8::ci_hash(str);
 
         // probe over table entries, hash-first to avoid expensive compares
         for (auto const &[key, code, hash] : mod_table) {
@@ -184,31 +184,29 @@ namespace {
             return code;  // confirm with case-insensitive exact match
         }
 
-        [[unlikely]] { return foresight::invalid_user_event.code; }
+        [[unlikely]] { return fs8::invalid_user_event.code; }
     }
 
     template <typename CharT>
     [[nodiscard]] std::uint16_t get_modifier_code(std::basic_string_view<CharT> const key) noexcept {
-        auto const code = foresight::key_code_of(key);
+        auto const code = fs8::key_code_of(key);
         if (code == 0) {
             return alternative_modifier(key);
         }
         return code;
     }
 
-    [[nodiscard]] foresight::code32_t to_code(
-      foresight::key_event_code::code_type const  code,
-      foresight::key_event_code::value_type const value = 1) noexcept {
-        return static_cast<foresight::code32_t>(
-          foresight::event_encoded_code32_t
-          | foresight::hashed(foresight::key_event_code{.code = code, .value = value}));
+    [[nodiscard]] fs8::code32_t to_code(fs8::key_event_code::code_type const  code,
+                                        fs8::key_event_code::value_type const value = 1) noexcept {
+        return static_cast<fs8::code32_t>(
+          fs8::event_encoded_code32_t | fs8::hashed(fs8::key_event_code{.code = code, .value = value}));
     }
 
-    [[nodiscard]] foresight::code32_t to_code(foresight::event_type const &event) noexcept {
+    [[nodiscard]] fs8::code32_t to_code(fs8::event_type const &event) noexcept {
         return to_code(event.code(), event.value());
     }
 
-    [[nodiscard]] foresight::code32_t to_code(foresight::key_event_code const event) noexcept {
+    [[nodiscard]] fs8::code32_t to_code(fs8::key_event_code const event) noexcept {
         return to_code(event.code, event.value);
     }
 
@@ -227,8 +225,7 @@ namespace {
 
 } // namespace
 
-foresight::code32_t foresight::unicode_encoded_event(xkb::basic_state const &state,
-                                                     event_type const       &event) noexcept {
+fs8::code32_t fs8::unicode_encoded_event(xkb::basic_state const &state, event_type const &event) noexcept {
     auto const code_point = xkb::event2unicode(state, event);
     if (code_point == U'\0') {
         return to_code(event);
@@ -237,7 +234,7 @@ foresight::code32_t foresight::unicode_encoded_event(xkb::basic_state const &sta
 }
 
 /// Reads the next UTF-8 sequence in a string
-char32_t foresight::utf8_next_code_point(std::string_view &src) noexcept {
+char32_t fs8::utf8_next_code_point(std::string_view &src) noexcept {
     char32_t   code_point = 0;
     auto const len        = utf8_sequence_length(src.front());
 
@@ -277,7 +274,7 @@ char32_t foresight::utf8_next_code_point(std::string_view &src) noexcept {
     return code_point;
 }
 
-char32_t foresight::parse_char_or_codepoint(std::string_view &src) noexcept {
+char32_t fs8::parse_char_or_codepoint(std::string_view &src) noexcept {
     assert(!src.empty());
 
     // Try to parse the parameter as a UTF-8 encoded single character
@@ -326,27 +323,26 @@ namespace {
     }
 } // namespace
 
-std::size_t
-foresight::find_delim(std::string_view const str, char const delim, std::size_t const pos) noexcept {
+std::size_t fs8::find_delim(std::string_view const str, char const delim, std::size_t const pos) noexcept {
     return find_delim_impl(str, delim, pos);
 }
 
 std::size_t
-foresight::find_delim(std::u32string_view const str, char32_t const delim, std::size_t const pos) noexcept {
+fs8::find_delim(std::u32string_view const str, char32_t const delim, std::size_t const pos) noexcept {
     return find_delim_impl(str, delim, pos);
 }
 
 namespace {
 
     template <typename CharT>
-    bool parse_modifier_impl(std::basic_string_view<CharT> mod_str, foresight::key_code_callback callback) {
+    bool parse_modifier_impl(std::basic_string_view<CharT> mod_str, fs8::key_code_callback callback) {
         assert(mod_str.starts_with(U'<') && mod_str.ends_with(U'>'));
         mod_str.remove_prefix(1);
         mod_str.remove_suffix(1);
-        bool const                is_release   = mod_str.starts_with(U'/');
-        auto                      dash_start   = mod_str.find(U'-');
-        bool const                is_monotonic = !is_release && dash_start != std::u32string_view::npos;
-        foresight::key_event_code event;
+        bool const          is_release   = mod_str.starts_with(U'/');
+        auto                dash_start   = mod_str.find(U'-');
+        bool const          is_monotonic = !is_release && dash_start != std::u32string_view::npos;
+        fs8::key_event_code event;
 
         if (is_monotonic) {
             // handling <shift> or <ctrl> types
@@ -357,15 +353,15 @@ namespace {
             event = {.code = get_modifier_code(mod_str), .value = 0};
         } else {
             // handling <C-r> type of mods
-            constexpr auto max_len = static_cast<std::uint32_t>(foresight::max_simultaneous_key_presses);
-            std::array<std::uint16_t, foresight::max_simultaneous_key_presses> keys{};
-            std::uint32_t                                                      index = 0;
+            constexpr auto max_len = static_cast<std::uint32_t>(fs8::max_simultaneous_key_presses);
+            std::array<std::uint16_t, fs8::max_simultaneous_key_presses> keys{};
+            std::uint32_t                                                index = 0;
             for (; index != max_len; ++index) {
                 auto const sub_mod = mod_str.substr(dash_start);
                 if (sub_mod.empty()) {
                     break;
                 }
-                auto const ev = foresight::key_event_code{.code = get_modifier_code(sub_mod), .value = 1};
+                auto const ev = fs8::key_event_code{.code = get_modifier_code(sub_mod), .value = 1};
                 if (is_invalid(ev)) [[unlikely]] {
                     break;
                 }
@@ -394,19 +390,17 @@ namespace {
     }
 
     template <typename CharT>
-    bool parse_modifier_impl(std::basic_string_view<CharT> const mod_str,
-                             foresight::code32_callback          callback) {
-        return parse_modifier_impl(mod_str, [&](foresight::key_event_code const &key) {
+    bool parse_modifier_impl(std::basic_string_view<CharT> const mod_str, fs8::code32_callback callback) {
+        return parse_modifier_impl(mod_str, [&](fs8::key_event_code const &key) {
             callback(to_code(key));
         });
     }
 
     template <typename CharT>
-    bool parse_modifier_impl(std::basic_string_view<CharT> const mod_str,
-                             foresight::user_event_callback      callback) {
-        return parse_modifier_impl(mod_str, [&](foresight::key_event_code const &key) {
+    bool parse_modifier_impl(std::basic_string_view<CharT> const mod_str, fs8::user_event_callback callback) {
+        return parse_modifier_impl(mod_str, [&](fs8::key_event_code const &key) {
             callback(user_event{.type = EV_KEY, .code = key.code, .value = key.value});
-            callback(foresight::syn_user_event);
+            callback(fs8::syn_user_event);
         });
     }
 
@@ -414,7 +408,7 @@ namespace {
     std::u32string parse_modifier_impl(std::basic_string_view<CharT> const mod_str) {
         std::u32string result;
         if (!parse_modifier_impl(mod_str,
-                                 [&](foresight::key_event_code const &key) {
+                                 [&](fs8::key_event_code const &key) {
                                      result += to_code(key);
                                  })) [[unlikely]]
         {
@@ -424,40 +418,40 @@ namespace {
     }
 } // namespace
 
-bool foresight::parse_modifier(std::u32string_view const mod_str, key_code_callback callback) {
+bool fs8::parse_modifier(std::u32string_view const mod_str, key_code_callback callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 
-bool foresight::parse_modifier(std::u32string_view const mod_str, code32_callback callback) {
+bool fs8::parse_modifier(std::u32string_view const mod_str, code32_callback callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 
-bool foresight::parse_modifier(std::u32string_view const mod_str, user_event_callback callback) {
+bool fs8::parse_modifier(std::u32string_view const mod_str, user_event_callback callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 
-bool foresight::parse_modifier(std::string_view const mod_str, key_code_callback callback) {
+bool fs8::parse_modifier(std::string_view const mod_str, key_code_callback callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 
-bool foresight::parse_modifier(std::string_view const mod_str, code32_callback callback) {
+bool fs8::parse_modifier(std::string_view const mod_str, code32_callback callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 
-bool foresight::parse_modifier(std::string_view const mod_str, user_event_callback callback) {
+bool fs8::parse_modifier(std::string_view const mod_str, user_event_callback callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 
-std::u32string foresight::parse_modifier(std::string_view const mod_str) {
+std::u32string fs8::parse_modifier(std::string_view const mod_str) {
     return parse_modifier_impl(mod_str);
 }
 
-std::u32string foresight::parse_modifier(std::u32string_view const mod_str) {
+std::u32string fs8::parse_modifier(std::u32string_view const mod_str) {
     return parse_modifier_impl(mod_str);
 }
 
-void foresight::on_modifier_tags(std::u32string_view const                       str,
-                                 std::function<void(std::u32string_view)> const &callback) noexcept {
+void fs8::on_modifier_tags(std::u32string_view const                       str,
+                           std::function<void(std::u32string_view)> const &callback) noexcept {
     std::size_t index = 0;
     for (;;) {
         // find the first modifier:
@@ -474,7 +468,7 @@ void foresight::on_modifier_tags(std::u32string_view const                      
     }
 }
 
-void foresight::replace_modifiers_and_actions(std::u32string &str) noexcept {
+void fs8::replace_modifiers_and_actions(std::u32string &str) noexcept {
     std::size_t index = 0;
     for (;;) {
         // find the first modifier:

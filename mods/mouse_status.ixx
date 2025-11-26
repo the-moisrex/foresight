@@ -10,7 +10,7 @@ export module foresight.mods.mouse_status;
 import foresight.mods.event;
 import foresight.mods.context;
 
-export namespace foresight {
+export namespace fs8 {
 
     /**
      * If you need to check if a key is pressed or not, this is what you need to use.
@@ -86,4 +86,4 @@ export namespace foresight {
 
     constexpr basic_mouse_history<> mouse_history;
 
-} // namespace foresight
+} // namespace fs8

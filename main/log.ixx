@@ -3,7 +3,7 @@ module;
 export module foresight.main.log;
 import foresight.mods.event;
 
-export namespace foresight {
+export namespace fs8 {
 
     constexpr struct [[nodiscard]] basic_log {
       private:
@@ -36,4 +36,4 @@ export namespace foresight {
     } log;
 
 
-} // namespace foresight
+} // namespace fs8

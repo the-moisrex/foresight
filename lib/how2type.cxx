@@ -12,7 +12,7 @@ import foresight.main.log;
 import foresight.mods.event;
 import foresight.lib.mod_parser;
 
-using foresight::xkb::key_position;
+using fs8::xkb::key_position;
 
 constexpr std::size_t MAX_TYPE_MAP_ENTRIES = 32;
 
@@ -78,8 +78,8 @@ namespace {
     invoke_mod_events(xkb_keymap *keymap, xkb_mod_mask_t const mask, bool const pressed, EmitFunc &&emit) {
         auto const &modmap = get_modmap(keymap);
 
-        bool                  mod_found = false;
-        foresight::user_event ev{};
+        bool            mod_found = false;
+        fs8::user_event ev{};
         // struct timeval     now{};
         // gettimeofday(&now, nullptr);
 
@@ -104,9 +104,9 @@ namespace {
 
     /// For each keycode/layout/level with single keysym equal to keysym, call the callback with the
     /// key_position (one per mask returned).
-    bool on_keypos(foresight::xkb::keymap const          &map,
-                   xkb_keysym_t const                     keysym,
-                   foresight::xkb::handle_keysym_callback callback) {
+    bool on_keypos(fs8::xkb::keymap const          &map,
+                   xkb_keysym_t const               keysym,
+                   fs8::xkb::handle_keysym_callback callback) {
         xkb_keycode_t const       min_keycode = xkb_keymap_min_keycode(map.get());
         xkb_keycode_t const       max_keycode = xkb_keymap_max_keycode(map.get());
         std::vector<xkb_keysym_t> seen_syms;
@@ -185,7 +185,7 @@ namespace {
     }
 } // namespace
 
-void foresight::xkb::how2type::on_keysym(
+void fs8::xkb::how2type::on_keysym(
   keymap const          &map,
   xkb_keysym_t const     target_keysym,
   handle_keysym_callback callback) noexcept {
@@ -200,7 +200,7 @@ void foresight::xkb::how2type::on_keysym(
     });
 }
 
-void foresight::xkb::how2type::emit(keymap const &map, char32_t const ucs32, user_event_callback callback) {
+void fs8::xkb::how2type::emit(keymap const &map, char32_t const ucs32, user_event_callback callback) {
     // Convert Unicode -> keysym (uses libxkbcommon helper)
     xkb_keysym_t const ks = xkb_utf32_to_keysym(static_cast<uint32_t>(ucs32));
     if (ks == XKB_KEY_NoSymbol) {
@@ -292,16 +292,15 @@ void foresight::xkb::how2type::emit(keymap const &map, char32_t const ucs32, use
     });
 }
 
-void foresight::xkb::how2type::emit(
-  keymap const             &map,
-  std::u32string_view const str,
-  user_event_callback       callback) {
+void fs8::xkb::how2type::emit(keymap const             &map,
+                              std::u32string_view const str,
+                              user_event_callback       callback) {
     for (char32_t const ucs32 : str) {
         emit(map, ucs32, callback);
     }
 }
 
-void foresight::xkb::how2type::emit(keymap const &map, std::string_view str, user_event_callback callback) {
+void fs8::xkb::how2type::emit(keymap const &map, std::string_view str, user_event_callback callback) {
     while (!str.empty()) {
         char32_t const ucs32 = utf8_next_code_point(str);
         emit(map, ucs32, callback);

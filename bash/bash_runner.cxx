@@ -17,7 +17,7 @@ module;
 #include <unistd.h>
 module foresight.bash;
 
-using foresight::bash_runner;
+using fs8::bash_runner;
 
 namespace {
     constexpr std::size_t      buffer_size = 4096U;

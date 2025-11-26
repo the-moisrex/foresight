@@ -11,8 +11,8 @@ module foresight.lib.xkb.event2unicode;
 import foresight.mods.event;
 import foresight.lib.xkb;
 
-using foresight::event_type;
-using foresight::xkb::state;
+using fs8::event_type;
+using fs8::xkb::state;
 
 namespace {
     constexpr int           evdev_offset      = 8;
@@ -21,7 +21,7 @@ namespace {
     // constexpr std::uint16_t KEY_STATE_REPEAT  = 2;
 } // namespace
 
-char32_t foresight::xkb::event2unicode(basic_state const& state_handle, event_type const& event) noexcept {
+char32_t fs8::xkb::event2unicode(basic_state const& state_handle, event_type const& event) noexcept {
     auto* handle = state_handle.get();
     assert(handle != nullptr);
     assert(event.type() == EV_KEY);
@@ -41,8 +41,8 @@ char32_t foresight::xkb::event2unicode(basic_state const& state_handle, event_ty
     return static_cast<char32_t>(xkb_state_key_get_utf32(handle, keycode));
 }
 
-std::u32string foresight::xkb::event2unicode(basic_state const&                state_handle,
-                                             std::span<event_type const> const events) {
+std::u32string fs8::xkb::event2unicode(basic_state const&                state_handle,
+                                       std::span<event_type const> const events) {
     std::u32string result;
     result.resize(events.size());
     for (auto const& event : events) {

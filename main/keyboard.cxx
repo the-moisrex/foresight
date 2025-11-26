@@ -10,7 +10,7 @@ module foresight.main.keyboard;
 import foresight.main.translate;
 import foresight.main.log;
 
-using foresight::keyboard;
+using fs8::keyboard;
 
 keyboard::keyboard() {
     setbuf(stdin, nullptr);
@@ -20,7 +20,7 @@ keyboard::keyboard() {
 void keyboard::to_string() {
     str.reserve(events.size());
     for ([[maybe_unused]] auto const &[time, type, code, value] : events) {
-        char const cur = foresight::to_char(static_cast<std::uint8_t>(code));
+        char const cur = fs8::to_char(static_cast<std::uint8_t>(code));
         str.push_back(cur);
     }
 }
@@ -89,10 +89,9 @@ namespace {
     bool handle_errors() {
         static std::size_t tries = 1;
         ++tries;
-        if (tries == foresight::give_up_limit + 1) {
-            foresight::log(
-              "Tried {0:d} times and failed everytime to start the loop (or in the loop); giving up!",
-              tries);
+        if (tries == fs8::give_up_limit + 1) {
+            fs8::log("Tried {0:d} times and failed everytime to start the loop (or in the loop); giving up!",
+                     tries);
             return false;
         }
         return true;

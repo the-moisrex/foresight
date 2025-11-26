@@ -11,7 +11,7 @@ export module foresight.mods.event;
 
 // don't import log here.
 
-export namespace foresight {
+export namespace fs8 {
 
     struct [[nodiscard]] user_event {
         using type_type  = decltype(input_event::type);
@@ -349,4 +349,4 @@ export namespace foresight {
     [[nodiscard]] constexpr bool is_syn(user_event const& event) noexcept {
         return event.type == EV_SYN;
     }
-} // namespace foresight
+} // namespace fs8

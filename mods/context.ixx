@@ -11,7 +11,7 @@ export module foresight.mods.context;
 export import foresight.mods.event;
 import foresight.mods.event;
 
-namespace foresight {
+namespace fs8 {
     // Base case: index 0, type is the first type T
     template <std::size_t I, typename T, typename... Ts>
     struct type_at_impl {
@@ -41,9 +41,9 @@ namespace foresight {
     constexpr std::size_t index_at =
       index_at_impl<0, std::remove_cvref_t<F>, std::remove_cvref_t<Ts>...>::value;
 
-} // namespace foresight
+} // namespace fs8
 
-export namespace foresight {
+export namespace fs8 {
     template <typename T>
     concept Context = requires(T ctx) {
         typename T::mods_type;
@@ -680,4 +680,4 @@ export namespace foresight {
         return ctx.event().value();
     }
 
-} // namespace foresight
+} // namespace fs8

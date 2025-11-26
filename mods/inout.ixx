@@ -10,7 +10,7 @@ export module foresight.mods.inout;
 import foresight.mods.context;
 import foresight.mods.event;
 
-export namespace foresight {
+export namespace fs8 {
 
     constexpr struct [[nodiscard]] basic_output {
         using ev_type    = event_type::type_type;
@@ -95,4 +95,4 @@ export namespace foresight {
             return next;
         }
     } input;
-} // namespace foresight
+} // namespace fs8

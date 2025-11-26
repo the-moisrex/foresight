@@ -3,7 +3,7 @@
 #include <cmath>
 import foresight.mods;
 
-using namespace foresight;
+using namespace fs8;
 
 // Helper to create microseconds from milliseconds for readability
 auto us(int64_t const ms) {

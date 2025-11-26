@@ -4,4 +4,3 @@
 TEST(Basic, Basic) {
     EXPECT_TRUE(true);
 }
-

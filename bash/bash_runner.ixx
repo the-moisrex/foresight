@@ -7,7 +7,7 @@ module;
 #include <string_view>
 export module foresight.bash;
 
-namespace foresight {
+namespace fs8 {
 
     export struct [[nodiscard]] bash_runner {
       private:
@@ -32,4 +32,4 @@ namespace foresight {
         [[nodiscard]] std::string get_variables();
         [[nodiscard]] std::string get_functions();
     };
-} // namespace foresight
+} // namespace fs8

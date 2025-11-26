@@ -13,7 +13,7 @@ import foresight.lib.xkb;
 import foresight.lib.mod_parser;
 import foresight.main.log;
 
-namespace foresight {
+namespace fs8 {
 
 
     /**
@@ -230,7 +230,8 @@ namespace foresight {
             // Logging for debugging
             log("TYPED: Processing event for pattern: '{}', trigger_id: {}", pattern, trigger_id);
 
-            bool result = ctx.mod(search_engine).search(ctx.event(), trigger_id, keyboard_state, aho_search_state);
+            bool result =
+              ctx.mod(search_engine).search(ctx.event(), trigger_id, keyboard_state, aho_search_state);
 
             log("TYPED: Search result: {}, event type: {}, code: {}, value: {}",
                 result,
@@ -242,4 +243,4 @@ namespace foresight {
         }
     } typed;
 
-} // namespace foresight
+} // namespace fs8

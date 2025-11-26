@@ -3,7 +3,7 @@ module;
 #include <string_view>
 export module foresight.main.systemd;
 
-namespace foresight {
+namespace fs8 {
 
     export struct systemd_service {
         void        execStart(std::span<std::string_view const> args);
@@ -16,4 +16,4 @@ namespace foresight {
         std::span<std::string_view const> args_;
         std::string_view                  description_;
     };
-} // namespace foresight
+} // namespace fs8
