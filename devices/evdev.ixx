@@ -11,6 +11,7 @@ module;
 export module foresight.devices.evdev;
 export import foresight.mods.event;
 import foresight.mods.caps;
+import foresight.main.utils;
 
 namespace fs8 {
 
@@ -205,16 +206,13 @@ namespace fs8 {
 
     export constexpr struct [[nodiscard]]
     basic_grab_inputs : std::ranges::range_adaptor_closure<basic_grab_inputs> {
-        void operator()(evdev& dev, bool const grab = true) const noexcept {
+        evdev operator()(evdev&& dev, bool const grab = true) const noexcept {
             dev.grab_input(grab);
-        }
-
-        evdev&& operator()(evdev&& dev) const noexcept {
-            dev.grab_input();
             return std::move(dev);
         }
 
         template <std::ranges::range R>
+            requires(std::same_as<std::ranges::range_value_t<R>, evdev>)
         constexpr auto operator()(R&& rng) const noexcept {
             return std::forward<R>(rng) | std::views::transform(*this);
         }

@@ -54,6 +54,7 @@ export namespace fs8 {
         [[nodiscard]] std::span<evdev const> devices() const noexcept;
 
         /// Make sure to re-commit after modification
+        /// todo: write a RAII wrapper for it that calls commit on destructor, and return that instead
         [[nodiscard]] std::span<evdev> devices() noexcept;
 
         /// Apply the changes to devices
