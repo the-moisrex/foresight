@@ -88,15 +88,7 @@ namespace fs8 {
         void operator()(auto&&, tag auto) = delete;
         void operator()(tag auto)         = delete;
 
-        context_action operator()(Context auto& ctx, next_event_tag) noexcept {
-            using enum context_action;
-            if (events.empty()) {
-                return ignore_event;
-            }
-            ctx.event() = events.front();
-            events      = events.subspan(1);
-            return next;
-        }
+        context_action operator()(event_type& event, next_event_tag) noexcept;
     } scheduled_emitter;
 
     export template <std::size_t N>
