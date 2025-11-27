@@ -158,7 +158,7 @@ export namespace fs8 {
         /// The first device in the interceptor, we automatically find it, and use that one
         template <ContextWith<basic_interceptor> CtxT>
         void operator()(CtxT& ctx, start_tag) noexcept {
-            if (!is_ok()) {
+            if (is_ok()) {
                 return;
             }
             operator()(ctx.mod(intercept).devices(), start);

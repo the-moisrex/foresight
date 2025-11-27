@@ -7,7 +7,7 @@ import foresight.main.utils;
 int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
 
-    static constexpr auto args = arguments["USB Keyboard"];
+    static constexpr auto args = arguments["USB Keyboard Copied"];
 
     static constinit auto pipeline =
       context

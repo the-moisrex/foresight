@@ -119,7 +119,7 @@ export namespace fs8 {
     /// Contexts that have these specific mods
     /// Context is the last item
     template <typename... T>
-    concept ContextWith = (has_mod<T...[sizeof...(T) - 1], T> && ...);
+    concept ContextWith = (has_mod<T...[sizeof...(T) - 1], T> || ...);
 
 
     enum struct [[nodiscard]] context_action : std::uint8_t {
