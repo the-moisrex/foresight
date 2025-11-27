@@ -505,11 +505,6 @@ export namespace fs8 {
             return basic_context_view<Index + 1U, Funcs...>{*this};
         }
 
-        // Re-Emit the context
-        constexpr context_action reemit_all() noexcept(is_nothrow) {
-            return invoke_mods(*this, mods);
-        }
-
         context_action operator()(start_tag) noexcept(is_nothrow) {
             return invoke_mods(*this, mods, start);
         }
@@ -542,16 +537,25 @@ export namespace fs8 {
             for (;;) {
                 // Exhaust the next events until there's no more events:
                 if constexpr (next_event_count > 0) {
-                    if (invoke_mods(*this, mods, next_event) == exit) {
-                        break;
+                    switch (invoke_mods(*this, mods, next_event)) {
+                        case ignore_event: break;
+                        case next:
+                            if (invoke_mods(*this, mods) == exit) {
+                                return;
+                            }
+                            continue;
+                        default: [[unlikely]] case exit: return;
+                    }
+                }
+                // Wait until new event comes, we should only have one single load_event
+                if constexpr (load_event_count > 0) {
+                    if (invoke_mods(*this, mods, load_event) == exit) [[unlikely]] {
+                        return;
                     }
                 }
 
-                // Wait until new event comes, we should only have one single load_event
-                if constexpr (load_event_count > 0) {
-                    if (invoke_mods(*this, mods, load_event) == exit) {
-                        break;
-                    }
+                if (invoke_mods(*this, mods) == exit) [[unlikely]] {
+                    return;
                 }
             }
         }
