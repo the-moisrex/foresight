@@ -178,7 +178,10 @@ export namespace fs8 {
         requires T::is_tag;
     };
 
-    template <typename ModT, typename CtxT, typename... Args>
+    template <context_action DefaultAction = context_action::next,
+              typename ModT,
+              typename CtxT,
+              typename... Args>
     constexpr context_action invoke_mod(ModT &mod, CtxT &ctx, Args &&...args) {
         using enum context_action;
         if constexpr (std::invocable<ModT, CtxT &, Args...>) {
@@ -189,7 +192,7 @@ export namespace fs8 {
                 return mod(ctx, std::forward<Args>(args)...);
             } else {
                 static_cast<void>(mod(ctx, std::forward<Args>(args)...));
-                return next;
+                return DefaultAction;
             }
         } else if constexpr (std::invocable<ModT, event_type &, Args...>) {
             auto &event  = ctx.event();
@@ -200,7 +203,7 @@ export namespace fs8 {
                 return mod(event, std::forward<Args>(args)...);
             } else {
                 static_cast<void>(mod(event, std::forward<Args>(args)...));
-                return next;
+                return DefaultAction;
             }
         } else if constexpr (std::invocable<ModT, Args...>) {
             using result = std::invoke_result_t<ModT, Args...>;
@@ -210,11 +213,11 @@ export namespace fs8 {
                 return mod(std::forward<Args>(args)...);
             } else {
                 static_cast<void>(mod(std::forward<Args>(args)...));
-                return next;
+                return DefaultAction;
             }
         } else {
             // static_assert(false, "We're not able to run this function.");
-            return next;
+            return DefaultAction;
         }
     }
 
@@ -304,7 +307,11 @@ export namespace fs8 {
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
 
-    template <std::size_t Index, Context CtxT, typename... Funcs, typename... Args>
+    template <std::size_t    Index,
+              context_action DefaultAction = context_action::next,
+              Context        CtxT,
+              typename... Funcs,
+              typename... Args>
     constexpr context_action fork_mod(CtxT &ctx, std::tuple<Funcs...> &funcs, Args &&...args) noexcept(
       CtxT::is_nothrow) {
         using enum context_action;
@@ -312,9 +319,12 @@ export namespace fs8 {
         using mod_type   = std::tuple_element_t<Index, tuple_type>;
         if constexpr (invokable_mod<mod_type, CtxT &, Args...>) {
             auto current_fork_view = ctx.template fork_view<Index>();
-            return invoke_mod(get<Index>(funcs), current_fork_view, std::forward<Args>(args)...);
+            return invoke_mod<DefaultAction>(
+              get<Index>(funcs),
+              current_fork_view,
+              std::forward<Args>(args)...);
         } else {
-            return next;
+            return DefaultAction;
         }
     }
 
@@ -341,7 +351,7 @@ export namespace fs8 {
         // todo: replace with C++26 "template for" when compilers support it
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
             auto action = ignore_event;
-            std::ignore = (((action = fork_mod<I>(ctx, funcs, args...)) != next) && ...);
+            std::ignore = (((action = fork_mod<I, ignore_event>(ctx, funcs, args...)) != next) && ...);
             return action;
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
@@ -537,20 +547,29 @@ export namespace fs8 {
             for (;;) {
                 // Exhaust the next events until there's no more events:
                 if constexpr (next_event_count > 0) {
-                    switch (invoke_mods(*this, mods, next_event)) {
-                        case ignore_event: break;
+                    switch (invoke_first_mod_of(*this, mods, next_event)) {
                         case next:
                             if (invoke_mods(*this, mods) == exit) {
                                 return;
                             }
                             continue;
-                        default: [[unlikely]] case exit: return;
+                        [[likely]] case ignore_event:
+                            break;
+                        [[unlikely]] default:
+                        [[unlikely]] case exit:
+                            return;
                     }
                 }
                 // Wait until new event comes, we should only have one single load_event
                 if constexpr (load_event_count > 0) {
-                    if (invoke_mods(*this, mods, load_event) == exit) [[unlikely]] {
-                        return;
+                    switch (invoke_mods(*this, mods, load_event)) {
+                        [[likely]] case next:
+                            break;
+                        case ignore_event:
+                            continue;
+                        [[unlikely]] default:
+                        [[unlikely]] case exit:
+                            return;
                     }
                 }
 
