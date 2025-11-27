@@ -699,6 +699,9 @@ namespace fs8 {
     /// usage: on(released{...}, [] { ... })
     export constexpr basic_on<> on;
 
+    /// usage: once(pressed{}, [] { ... })
+    export constexpr basic_once<> once;
+
     constexpr auto               no_axis           = std::numeric_limits<value_type>::max();
     constexpr value_type         default_sipe_step = 120;
     export constexpr basic_swipe swipe_left{-default_sipe_step, no_axis};

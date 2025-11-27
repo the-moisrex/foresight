@@ -25,9 +25,9 @@ int main(int const argc, char const* const* argv) try {
       | mice_quantifier                            // Quantify the mouse movements
       | swipe_detector                             // Detects swipes
       | on(pressed(BTN_RIGHT), ignore_start_moves) // fix right-click jumps
-      | on(op & pressed(BTN_MIDDLE) & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB)))
-      | on(op & limit_mouse_travel(pressed(KEY_CAPSLOCK), 50) & keyup(BTN_LEFT),
-           schedule_emit + press(BTN_RIGHT))
+      | once(op & pressed(BTN_MIDDLE) & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB)))
+      | once(op & limit_mouse_travel(pressed(KEY_CAPSLOCK), 50) & keyup(BTN_LEFT),
+             schedule_emit + press(BTN_RIGHT))
       | on(op & (op | pressed(BTN_MIDDLE) | pressed(KEY_CAPSLOCK)) & pressed(BTN_LEFT),
            context
              | on(swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT)))
@@ -51,10 +51,10 @@ int main(int const argc, char const* const* argv) try {
           | ignore_caps(caps::keyboard_alphabets))
       | ignore_adjacent_syns
       | update_mod(keys_status)
-      | on(pressed(KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC), exit_pipeline) // Restart/Quit
+      | once(pressed(KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC), exit_pipeline) // Restart/Quit
       | on(pressed(BTN_LEFT, KEY_CAPSLOCK), ignore_keys(BTN_LEFT))
       | add_scroll(op | pressed(BTN_MIDDLE) | pressed(KEY_CAPSLOCK), emit + up(BTN_MIDDLE))
-      | on(longtime_released(pressed(KEY_CAPSLOCK), 200ms), emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK))
+      | once(longtime_released(pressed(KEY_CAPSLOCK), 200ms), emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK))
       | router(caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput);
 
     pipeline.mod(intercept).add_devs(args(argc, argv) | find_devices | grab_inputs);
