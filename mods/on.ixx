@@ -32,6 +32,11 @@ namespace fs8 {
         }
     } always_disable;
 
+    /**
+     * Conditionally run some functions on each context/events.
+     * @tparam CondT Condition Function
+     * @tparam Funcs What to run when the condition is true
+     */
     export template <typename CondT = basic_always_enable, typename... Funcs>
     struct [[nodiscard]] basic_on {
         template <typename CtxT>
@@ -120,6 +125,103 @@ namespace fs8 {
                 return exit;
             }
             return invoke_mods(ctx, funcs);
+        }
+    };
+
+    /**
+     * Conditionally run some functions on each context/events only once
+     * This is the same as basic_on's toggle_on
+     * @tparam CondT Condition Function
+     * @tparam Funcs What to run when the condition is true
+     */
+    export template <typename CondT = basic_always_enable, typename... Funcs>
+    struct [[nodiscard]] basic_once {
+        template <typename CtxT>
+        static constexpr bool can_generate_events = (invokable_mod<Funcs, CtxT, next_event_tag> || ...);
+
+      private:
+        [[no_unique_address]] CondT                cond;
+        [[no_unique_address]] std::tuple<Funcs...> funcs;
+        bool                                       was_active = false;
+
+      public:
+        constexpr basic_once() noexcept = default;
+
+        template <typename InpCond, typename... InpFunc>
+            requires(std::convertible_to<InpCond, CondT>
+                     && (sizeof...(InpFunc) >= 1)
+                     && !Context<InpCond>
+                     && (!Context<InpFunc> && ...))
+        explicit constexpr basic_once(InpCond&& inp_cond, InpFunc&&... inp_funcs) noexcept
+          : cond{std::forward<InpCond>(inp_cond)},
+            funcs{std::forward<InpFunc>(inp_funcs)...} {}
+
+        template <typename InpCond>
+            requires(std::convertible_to<InpCond, CondT>)
+        explicit constexpr basic_once(InpCond&& inp_cond, std::tuple<Funcs...> const& inp_funcs) noexcept
+          : cond{std::forward<InpCond>(inp_cond)},
+            funcs{inp_funcs} {}
+
+        consteval basic_once(basic_once const&)                = default;
+        consteval basic_once& operator=(basic_once const&)     = default;
+        constexpr basic_once(basic_once&&) noexcept            = default;
+        constexpr basic_once& operator=(basic_once&&) noexcept = default;
+        constexpr ~basic_once() noexcept                       = default;
+
+        // todo: should we propagate these to sub-on conditions as well?
+        void operator()(auto&&, tag auto) = delete;
+
+        template <typename NCondT, typename... NFuncs>
+            requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && (!Context<NFuncs> && ...))
+        consteval auto operator()(NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
+            return basic_once<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{
+              std::forward<NCondT>(n_cond),
+              std::forward<NFuncs>(n_funcs)...};
+        }
+
+        template <typename NCondT, Context CtxT>
+            requires(!Context<NCondT>)
+        consteval auto operator()(NCondT&& n_cond, CtxT&& ctx) const noexcept {
+            return std::apply(
+              [&]<typename... ModT>(ModT&... mods) constexpr noexcept {
+                  return basic_once<std::remove_cvref_t<NCondT>, std::remove_cvref_t<ModT>...>{
+                    std::forward<NCondT>(n_cond),
+                    mods...};
+              },
+              ctx.get_mods());
+        }
+
+        /// Pass-through the starts
+        context_action operator()(Context auto& ctx, start_tag) {
+            using enum context_action;
+            if (invoke_start(cond, ctx) == exit) [[unlikely]] {
+                return exit;
+            }
+            return invoke_mods(ctx, funcs, start);
+        }
+
+        /// Pass-Through event generator
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx, next_event_tag) noexcept
+            requires(can_generate_events<CtxT>)
+        {
+            return invoke_first_mod_of(ctx, funcs, next_event);
+        }
+
+        context_action operator()(Context auto& ctx) noexcept {
+            using enum context_action;
+            bool const is_active   = invoke_cond(cond, ctx);
+            bool const is_switched = is_active != std::exchange(was_active, is_active);
+            if (!is_active) {
+                if (is_switched) {
+                    return invoke_mods(ctx, funcs, toggle_off);
+                }
+                return next;
+            }
+            if (is_switched && invoke_mods(ctx, funcs) == exit) {
+                return exit;
+            }
+            return next;
         }
     };
 
