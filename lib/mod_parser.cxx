@@ -309,12 +309,14 @@ namespace {
     find_delim_impl(std::basic_string_view<CharT> str, CharT const delim, std::size_t const pos) noexcept {
         auto lhsptr = str.find(delim, pos);
         while (lhsptr != std::basic_string_view<CharT>::npos) {
-            bool escaped = false;
-            while (str.at(lhsptr - 1) != U'\\') [[unlikely]] {
-                escaped = !escaped;
-            }
-            if (!escaped) {
-                break;
+            if (lhsptr != 0) {
+                bool escaped = false;
+                while (str.at(lhsptr - 1) != U'\\') [[unlikely]] {
+                    escaped = !escaped;
+                }
+                if (!escaped) {
+                    break;
+                }
             }
             // skip the escaped ones
             lhsptr = str.find(delim, lhsptr + 1);

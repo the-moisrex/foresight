@@ -232,7 +232,7 @@ namespace fs8 {
     export template <std::size_t N = 0>
     struct [[nodiscard]] basic_emit_all {
       private:
-        std::array<user_event, N> events;
+        std::array<user_event, N> events{};
         std::size_t               index = 0;
 
       public:
