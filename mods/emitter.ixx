@@ -233,6 +233,7 @@ namespace fs8 {
     struct [[nodiscard]] basic_emit_all {
       private:
         std::array<user_event, N> events;
+        std::size_t               index = 0;
 
       public:
         explicit constexpr basic_emit_all(std::array<user_event, N> const inp_events) noexcept
@@ -267,10 +268,14 @@ namespace fs8 {
         template <Context CtxT>
         context_action operator()(CtxT& ctx, load_event_tag) noexcept {
             using enum context_action;
-            for (auto const& usr_event : events) {
-                std::ignore = ctx.fork_emit(event_type{usr_event});
+            if (index == N) [[unlikely]] {
+                return exit;
             }
-            return exit;
+            auto& event = ctx.event();
+            event       = events.at(index);
+            event.reset_time();
+            ++index;
+            return next;
         }
     };
 
