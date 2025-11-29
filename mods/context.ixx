@@ -515,7 +515,7 @@ export namespace fs8 {
             return basic_context_view<Index + 1U, Funcs...>{*this};
         }
 
-        context_action operator()(start_tag) noexcept(is_nothrow) {
+        context_action operator()(start_tag) noexcept(false) {
             return invoke_mods(*this, mods, start);
         }
 

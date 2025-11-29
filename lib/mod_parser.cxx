@@ -290,10 +290,7 @@ char32_t fs8::parse_char_or_codepoint(std::string_view &src) noexcept {
         errno     = 0;
         // NOLINTNEXTLINE(*-suspicious-stringview-data-usage)
         codepoint = static_cast<char32_t>(strtol(src.data(), &endp, 16));
-        if (
-          errno != 0 || !is_empty(endp) || static_cast<std::int32_t>(codepoint) < 0 || codepoint > 0x10'FFFFU)
-          [[unlikely]]
-        {
+        if (errno != 0 || !is_empty(endp) || codepoint > 0x10'FFFFU) [[unlikely]] {
             log("ERROR: Failed to convert to UTF-32");
             return invalid_code_point;
         }
@@ -308,15 +305,16 @@ namespace {
     std::size_t
     find_delim_impl(std::basic_string_view<CharT> str, CharT const delim, std::size_t const pos) noexcept {
         auto lhsptr = str.find(delim, pos);
+        if (lhsptr == 0) {
+            return lhsptr;
+        }
         while (lhsptr != std::basic_string_view<CharT>::npos) {
-            if (lhsptr != 0) {
-                bool escaped = false;
-                while (str.at(lhsptr - 1) != U'\\') [[unlikely]] {
-                    escaped = !escaped;
-                }
-                if (!escaped) {
-                    break;
-                }
+            bool escaped = false;
+            for (auto escape_pos = lhsptr; str.at(escape_pos) == U'\\'; --escape_pos) [[unlikely]] {
+                escaped = !escaped;
+            }
+            if (!escaped) {
+                break;
             }
             // skip the escaped ones
             lhsptr = str.find(delim, lhsptr + 1);
@@ -479,7 +477,7 @@ void fs8::replace_modifiers_and_actions(std::u32string &str) noexcept {
             break;
         }
         auto const rhsptr = find_delim(str, U'>', lhsptr);
-        auto const code   = str.substr(0, rhsptr);
+        auto const code   = str.substr(0, rhsptr + 1);
 
         auto const encoded = parse_modifier(code);
         str.replace(lhsptr, code.size(), encoded);
