@@ -40,6 +40,49 @@ TEST(SearchTest, Basic) {
     EXPECT_TRUE(happened == 1);
 }
 
+TEST(SearchTest, BasicStateful) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    happened = 0;
+
+    (context
+     | emit_all({
+       {.type = EV_KEY, .code = KEY_LEFTSHIFT, .value = 1},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,         .code = KEY_2, .value = 1}, // at-sight @
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,         .code = KEY_2, .value = 0}, // at-sight @
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_LEFTSHIFT, .value = 0},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+
+       {.type = EV_KEY,         .code = KEY_T, .value = 1},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,         .code = KEY_T, .value = 0},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+
+       {.type = EV_KEY,         .code = KEY_E, .value = 1},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,         .code = KEY_E, .value = 0},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+
+       {.type = EV_KEY,         .code = KEY_S, .value = 1},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,         .code = KEY_S, .value = 0},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+
+       {.type = EV_KEY,         .code = KEY_T, .value = 1},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,         .code = KEY_T, .value = 0},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+    })
+     | search_engine
+     | on(typed("@test"), [] {
+           happened = 1;
+       }))();
+    EXPECT_TRUE(happened == 1);
+}
+
 TEST(SearchTest, Multi) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
     happened = 0;

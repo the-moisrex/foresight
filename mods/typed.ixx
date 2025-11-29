@@ -227,17 +227,19 @@ namespace fs8 {
             static_assert(has_mod<basic_search_engine, CtxT>,
                           "You need to have 'search_engine' in your pipeline.");
 
-            // Logging for debugging
-            log("TYPED: Processing event for pattern: '{}', trigger_id: {}", pattern, trigger_id);
-
             bool result =
               ctx.mod(search_engine).search(ctx.event(), trigger_id, keyboard_state, aho_search_state);
 
-            log("TYPED: Search result: {}, event type: {}, code: {}, value: {}",
-                result,
-                ctx.event().type_name(),
-                ctx.event().code_name(),
-                ctx.event().value());
+            log(
+              "TYPED: Search result: {}, event type: {}, code: {}, value: {},  pattern: '{}', trigger_id: "
+              "{}, search state: {}",
+              result,
+              ctx.event().type_name(),
+              ctx.event().code_name(),
+              ctx.event().value(),
+              pattern,
+              trigger_id,
+              aho_search_state.index());
 
             return result;
         }

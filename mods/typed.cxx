@@ -217,11 +217,14 @@ bool basic_search_engine::search(
   std::uint16_t const     trigger_id,
   xkb::basic_state const &keyboard_state,
   aho_state              &state) const noexcept {
-    if (event.type() != EV_KEY || event.value() != 1) {
+    if (event.type() != EV_KEY) {
         return false;
     }
     auto const code = unicode_encoded_event(keyboard_state, event);
-    state           = process(code, state);
+    if (event.value() != 1) {
+        return false; // skip processing key-ups, but we do need to process key-ups for modifier states
+    }
+    state = process(code, state);
     return matches(state.index(), trigger_id);
 }
 
