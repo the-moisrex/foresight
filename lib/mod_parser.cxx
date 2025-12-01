@@ -7,6 +7,7 @@ module;
 #include <cstdint>
 #include <functional>
 #include <linux/input-event-codes.h>
+#include <ranges>
 #include <stdexcept>
 module foresight.lib.mod_parser;
 import foresight.mods.event;
@@ -95,75 +96,41 @@ namespace {
     constexpr std::array<mod_entry, 53> mod_table = []() consteval {
         // NOLINTBEGIN(*-use-designated-initializers)
         std::array<mod_entry, 53> data{
-          {// SHIFT
-           {U"shift", KEY_LEFTSHIFT},
-           {U"sh", KEY_LEFTSHIFT},
-           {U"s", KEY_LEFTSHIFT},
-           {U"+", KEY_LEFTSHIFT},
-           {U"⇧", KEY_LEFTSHIFT},
-           {U"leftshift", KEY_LEFTSHIFT},
-           {U"rightshift", KEY_RIGHTSHIFT},
-           {U"rshift", KEY_RIGHTSHIFT},
-           {U"lshift", KEY_LEFTSHIFT},
-
-           // CTRL
-           {U"ctrl", KEY_LEFTCTRL},
-           {U"control", KEY_LEFTCTRL},
-           {U"ctl", KEY_LEFTCTRL},
-           {U"c", KEY_LEFTCTRL},
-           {U"^", KEY_LEFTCTRL},
-           {U"⌃", KEY_LEFTCTRL},
-           {U"leftctrl", KEY_LEFTCTRL},
-           {U"rightctrl", KEY_RIGHTCTRL},
-           {U"rctrl", KEY_RIGHTCTRL},
-           {U"lctrl", KEY_LEFTCTRL},
-
-           // META / CMD / SUPER / WIN
-           {U"meta", KEY_LEFTMETA},
-           {U"cmd", KEY_LEFTMETA},
-           {U"command", KEY_LEFTMETA},
-           {U"super", KEY_LEFTMETA},
-           {U"win", KEY_LEFTMETA},
-           {U"windows", KEY_LEFTMETA},
-           {U"⊞", KEY_LEFTMETA},
-           {U"⌘", KEY_LEFTMETA},
-           {U"leftmeta", KEY_LEFTMETA},
-           {U"rightmeta", KEY_RIGHTMETA},
-
-           // ALT / OPTION / ALTGR
-           {U"alt", KEY_LEFTALT},
-           {U"option", KEY_LEFTALT},
-           {U"opt", KEY_LEFTALT},
-           {U"a", KEY_LEFTALT},
-           {U"⌥", KEY_LEFTALT},
-           {U"altgr", KEY_RIGHTALT},
-           {U"alt_gr", KEY_RIGHTALT},
-           {U"leftalt", KEY_LEFTALT},
-           {U"rightalt", KEY_RIGHTALT},
-
-           // LOCKS
-           {U"caps", KEY_CAPSLOCK},
-           {U"capslock", KEY_CAPSLOCK},
-           {U"num", KEY_NUMLOCK},
-           {U"numlock", KEY_NUMLOCK},
-           {U"scroll", KEY_SCROLLLOCK},
-           {U"scrolllock", KEY_SCROLLLOCK},
-
-           // XKB-style mod names
-           {U"mod1", KEY_LEFTALT},
-           {U"mod2", KEY_LEFTALT},
-           {U"mod3", KEY_LEFTALT},
-           {U"mod4", KEY_LEFTMETA},
-           {U"mod5", KEY_LEFTALT},
-
-           // some combined/alternate spellings
-           {U"altgr", KEY_RIGHTALT},
-           {U"optionkey", KEY_LEFTALT},
-           {U"controlkey", KEY_LEFTCTRL}}
+          {
+           {U"+", KEY_LEFTSHIFT},         {U"^", KEY_LEFTCTRL},
+           {U"a", KEY_LEFTALT},           {U"alt", KEY_LEFTALT},
+           {U"alt_gr", KEY_RIGHTALT},     {U"altgr", KEY_RIGHTALT},
+           {U"altgr", KEY_RIGHTALT},      {U"c", KEY_LEFTCTRL},
+           {U"caps", KEY_CAPSLOCK},       {U"capslock", KEY_CAPSLOCK},
+           {U"cmd", KEY_LEFTMETA},        {U"command", KEY_LEFTMETA},
+           {U"control", KEY_LEFTCTRL},    {U"controlkey", KEY_LEFTCTRL},
+           {U"ctl", KEY_LEFTCTRL},        {U"ctrl", KEY_LEFTCTRL},
+           {U"lctrl", KEY_LEFTCTRL},      {U"leftalt", KEY_LEFTALT},
+           {U"leftctrl", KEY_LEFTCTRL},   {U"leftmeta", KEY_LEFTMETA},
+           {U"leftshift", KEY_LEFTSHIFT}, {U"lshift", KEY_LEFTSHIFT},
+           {U"meta", KEY_LEFTMETA},       {U"mod1", KEY_LEFTALT},
+           {U"mod2", KEY_LEFTALT},        {U"mod3", KEY_LEFTALT},
+           {U"mod4", KEY_LEFTMETA},       {U"mod5", KEY_LEFTALT},
+           {U"num", KEY_NUMLOCK},         {U"numlock", KEY_NUMLOCK},
+           {U"opt", KEY_LEFTALT},         {U"option", KEY_LEFTALT},
+           {U"optionkey", KEY_LEFTALT},   {U"rctrl", KEY_RIGHTCTRL},
+           {U"rightalt", KEY_RIGHTALT},   {U"rightctrl", KEY_RIGHTCTRL},
+           {U"rightmeta", KEY_RIGHTMETA}, {U"rightshift", KEY_RIGHTSHIFT},
+           {U"rshift", KEY_RIGHTSHIFT},   {U"s", KEY_LEFTSHIFT},
+           {U"scroll", KEY_SCROLLLOCK},   {U"scrolllock", KEY_SCROLLLOCK},
+           {U"sh", KEY_LEFTSHIFT},        {U"shift", KEY_LEFTSHIFT},
+           {U"super", KEY_LEFTMETA},      {U"win", KEY_LEFTMETA},
+           {U"windows", KEY_LEFTMETA},    {U"⇧", KEY_LEFTSHIFT},
+           {U"⊞", KEY_LEFTMETA},          {U"⌃", KEY_LEFTCTRL},
+           {U"⌘", KEY_LEFTMETA},          {U"⌥", KEY_LEFTALT},
+           }
         };
         for (auto &field : data) {
             field.hash = fs8::ci_hash(field.key);
         }
+
+        // keep these sorted to use bubble sort
+        std::ranges::sort(data, {}, &mod_entry::hash);
         return data;
         // NOLINTEND(*-use-designated-initializers)
     }();
@@ -177,14 +144,17 @@ namespace {
         auto const hid = fs8::ci_hash(str);
 
         // probe over table entries, hash-first to avoid expensive compares
-        for (auto const &[key, code, hash] : mod_table) {
-            if (hash != hid || !iequals(key, str)) {
-                continue; // cheap filter
-            }
-            return code;  // confirm with case-insensitive exact match
+        auto const it = std::ranges::lower_bound(mod_table, hid, {}, [](auto const &entry) {
+            return entry.hash;
+        });
+        if (it == std::end(mod_table)) [[unlikely]] {
+            return fs8::invalid_user_event.code;
         }
-
-        [[unlikely]] { return fs8::invalid_user_event.code; }
+        auto const &[key, code, _] = *it;
+        if (!iequals(key, str)) [[unlikely]] {
+            return fs8::invalid_user_event.code;
+        }
+        return code;
     }
 
     template <typename CharT>
