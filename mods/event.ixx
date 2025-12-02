@@ -47,7 +47,6 @@ export namespace fs8 {
     };
 
     struct [[nodiscard]] key_event_code {
-        using type_type  = decltype(input_event::type);
         using code_type  = decltype(input_event::code);
         using value_type = decltype(input_event::value);
 

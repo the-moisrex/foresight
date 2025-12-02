@@ -311,7 +311,7 @@ namespace {
         mod_str.remove_suffix(1);
         bool const          is_release   = mod_str.starts_with(U'/');
         auto                dash_start   = mod_str.find(U'-');
-        bool const          is_monotonic = !is_release && dash_start != std::u32string_view::npos;
+        bool const          is_monotonic = !is_release && dash_start == std::u32string_view::npos;
         fs8::key_event_code event;
 
         if (is_monotonic) {
@@ -327,7 +327,7 @@ namespace {
             std::array<std::uint16_t, fs8::max_simultaneous_key_presses> keys{};
             std::uint32_t                                                index = 0;
             for (; index != max_len; ++index) {
-                auto const sub_mod = mod_str.substr(dash_start);
+                auto const sub_mod = mod_str.substr(0, dash_start);
                 if (sub_mod.empty()) {
                     break;
                 }
@@ -337,6 +337,9 @@ namespace {
                 }
                 keys.at(index) = ev.code;
                 callback(ev); // keydown
+                if (dash_start == std::u32string_view::npos) {
+                    break;
+                }
                 mod_str.remove_prefix(dash_start + 1);
                 dash_start = mod_str.find(U'-');
             }
