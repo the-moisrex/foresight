@@ -58,13 +58,14 @@ basic_search_engine::state_type basic_search_engine::quick_find_child(
 }
 
 std::uint32_t basic_search_engine::add_child(state_type const state, char32_t code, state_type child_index) {
-    auto const &node     = trie[state];
-    auto       &children = trie[state].children;
-    auto const  it =
+    auto      &node     = trie[state];
+    auto      &children = trie[state].children;
+    auto const it =
       std::lower_bound(children.begin(), children.end(), code, [](auto const &a, char32_t value) {
           return a.first < value;
       });
     children.emplace(it, code, child_index); // insert sorted
+    node.children_mask |= code;
     return calc_children_mask(node);
 }
 

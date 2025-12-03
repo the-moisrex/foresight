@@ -36,7 +36,16 @@ char32_t fs8::xkb::event2unicode(basic_state const& state_handle, key_event cons
         return U'\0';
     }
 
-    return static_cast<char32_t>(xkb_state_key_get_utf32(handle, keycode));
+    // this commented code handles Ctrl and what not as well, which we don't need
+    // I believe these things are not good enough for our use cases where we want uniqueness
+    // https://www.x.org/releases/current/doc/kbproto/xkbproto.html#Interpreting_the_Control_Modifier
+    // return static_cast<char32_t>(xkb_state_key_get_utf32(handle, keycode));
+
+    xkb_keysym_t const sym = xkb_state_key_get_one_sym(handle, keycode);
+    if (sym == XKB_KEY_NoSymbol) [[unlikely]] {
+        return U'\0';
+    }
+    return static_cast<char32_t>(xkb_keysym_to_utf32(sym));
 }
 
 std::u32string fs8::xkb::event2unicode(basic_state const&                state_handle,
