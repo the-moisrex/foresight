@@ -2,6 +2,7 @@
 
 module;
 #include <bit>
+#include <cassert>
 #include <chrono>
 #include <cstdint>
 #include <functional>
@@ -46,10 +47,11 @@ export namespace fs8 {
         code_type code = KEY_MAX;
     };
 
-    struct [[nodiscard]] key_event_code {
+    struct [[nodiscard]] key_event {
         using code_type  = decltype(input_event::code);
         using value_type = decltype(input_event::value);
 
+        // type == EV_KEY
         code_type  code  = KEY_MAX;
         value_type value = 1;
     };
@@ -61,7 +63,7 @@ export namespace fs8 {
         return event.type == invalid_user_event.type;
     }
 
-    [[nodiscard]] constexpr bool is_invalid(key_event_code const& event) noexcept {
+    [[nodiscard]] constexpr bool is_invalid(key_event const& event) noexcept {
         return event.code == invalid_user_event.code;
     }
 
@@ -73,12 +75,18 @@ export namespace fs8 {
         return hash;
     }
 
-    [[nodiscard]] constexpr std::uint32_t hashed(key_event_code const& code) noexcept {
+    [[nodiscard]] constexpr std::uint32_t hashed(key_event const& code) noexcept {
         static constexpr std::uint32_t shift  = std::countr_zero(std::bit_ceil<std::uint32_t>(KEY_MAX));
         std::uint32_t                  hash   = 0;
         hash                                 |= static_cast<std::uint32_t>(code.code) << shift;
         hash                                 |= static_cast<std::uint32_t>(code.value);
         return hash;
+    }
+
+    [[nodiscard]] constexpr key_event unhashed(std::uint32_t const hash) noexcept {
+        static constexpr std::uint32_t shift = std::countr_zero(std::bit_ceil<std::uint32_t>(KEY_MAX));
+        return key_event{.code  = static_cast<std::uint16_t>(hash >> shift),
+                         .value = static_cast<std::uint16_t>(hash & ((1u << shift) - 1u))};
     }
 
     [[nodiscard]] consteval event_code key_code(event_code::code_type code) noexcept {
@@ -216,6 +224,11 @@ export namespace fs8 {
 
         [[nodiscard]] explicit constexpr operator event_code() const noexcept {
             return event_code{.type = ev.type, .code = ev.code};
+        }
+
+        [[nodiscard]] explicit constexpr operator key_event() const noexcept {
+            assert(ev.type == EV_KEY);
+            return key_event{.code = ev.code, .value = ev.value};
         }
 
         constexpr void reset_time() noexcept {

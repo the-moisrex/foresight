@@ -9,7 +9,7 @@ import foresight.lib.xkb;
 
 export namespace fs8::xkb {
 
-    [[nodiscard]] char32_t       event2unicode(basic_state const&, event_type const& event) noexcept;
+    [[nodiscard]] char32_t       event2unicode(basic_state const&, key_event event) noexcept;
     [[nodiscard]] std::u32string event2unicode(basic_state const&, std::span<event_type const> events);
 
 } // namespace fs8::xkb

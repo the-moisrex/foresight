@@ -11,9 +11,6 @@ module foresight.lib.xkb.event2unicode;
 import foresight.mods.event;
 import foresight.lib.xkb;
 
-using fs8::event_type;
-using fs8::xkb::state;
-
 namespace {
     constexpr int           evdev_offset      = 8;
     constexpr std::uint16_t KEY_STATE_RELEASE = 0;
@@ -21,14 +18,15 @@ namespace {
     // constexpr std::uint16_t KEY_STATE_REPEAT  = 2;
 } // namespace
 
-char32_t fs8::xkb::event2unicode(basic_state const& state_handle, event_type const& event) noexcept {
+char32_t fs8::xkb::event2unicode(basic_state const& state_handle, key_event const event) noexcept {
     auto* handle = state_handle.get();
     assert(handle != nullptr);
-    assert(event.type() == EV_KEY);
+    // assert(event.type() == EV_KEY);
 
     // Map evdev code -> xkb keycode
-    auto const              keycode = static_cast<xkb_keycode_t>(evdev_offset + event.code());
-    xkb_key_direction const dir     = event.value() == KEY_STATE_RELEASE ? XKB_KEY_UP : XKB_KEY_DOWN;
+    auto const              keycode = static_cast<xkb_keycode_t>(evdev_offset + event.code);
+    xkb_key_direction const dir =
+      static_cast<std::uint16_t>(event.value) == KEY_STATE_RELEASE ? XKB_KEY_UP : XKB_KEY_DOWN;
 
     // Update the state based on the key event
     xkb_state_update_key(handle, keycode, dir);
@@ -46,7 +44,7 @@ std::u32string fs8::xkb::event2unicode(basic_state const&                state_h
     std::u32string result;
     result.resize(events.size());
     for (auto const& event : events) {
-        auto const code_point = event2unicode(state_handle, event);
+        auto const code_point = event2unicode(state_handle, static_cast<key_event>(event));
         if (code_point != U'\0') {
             result += code_point;
         }

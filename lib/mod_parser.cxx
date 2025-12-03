@@ -24,7 +24,6 @@ namespace fs8 {
 } // namespace fs8
 
 namespace {
-
     /**
      * Array mapping the leading byte to the length of a UTF-8 sequence.
      * A value of zero indicates that the byte can not begin a UTF-8 sequence.
@@ -93,36 +92,55 @@ namespace {
 
     // Table of known names/synonyms. Add entries here as needed.
     // NOTE: keep keys lowercase where possible for readability — hash is case-insensitive anyway.
-    constexpr std::array<mod_entry, 53> mod_table = []() consteval {
+    constexpr std::array<mod_entry, 45> mod_table = []() consteval {
         // NOLINTBEGIN(*-use-designated-initializers)
-        std::array<mod_entry, 53> data{
+        std::array<mod_entry, 45> data{
           {
-           {U"+", KEY_LEFTSHIFT},         {U"^", KEY_LEFTCTRL},
-           {U"a", KEY_LEFTALT},           {U"alt", KEY_LEFTALT},
-           {U"alt_gr", KEY_RIGHTALT},     {U"altgr", KEY_RIGHTALT},
-           {U"altgr", KEY_RIGHTALT},      {U"c", KEY_LEFTCTRL},
-           {U"caps", KEY_CAPSLOCK},       {U"capslock", KEY_CAPSLOCK},
-           {U"cmd", KEY_LEFTMETA},        {U"command", KEY_LEFTMETA},
-           {U"control", KEY_LEFTCTRL},    {U"controlkey", KEY_LEFTCTRL},
-           {U"ctl", KEY_LEFTCTRL},        {U"ctrl", KEY_LEFTCTRL},
-           {U"lctrl", KEY_LEFTCTRL},      {U"leftalt", KEY_LEFTALT},
-           {U"leftctrl", KEY_LEFTCTRL},   {U"leftmeta", KEY_LEFTMETA},
-           {U"leftshift", KEY_LEFTSHIFT}, {U"lshift", KEY_LEFTSHIFT},
-           {U"meta", KEY_LEFTMETA},       {U"mod1", KEY_LEFTALT},
-           {U"mod2", KEY_LEFTALT},        {U"mod3", KEY_LEFTALT},
-           {U"mod4", KEY_LEFTMETA},       {U"mod5", KEY_LEFTALT},
-           {U"num", KEY_NUMLOCK},         {U"numlock", KEY_NUMLOCK},
-           {U"opt", KEY_LEFTALT},         {U"option", KEY_LEFTALT},
-           {U"optionkey", KEY_LEFTALT},   {U"rctrl", KEY_RIGHTCTRL},
-           {U"rightalt", KEY_RIGHTALT},   {U"rightctrl", KEY_RIGHTCTRL},
-           {U"rightmeta", KEY_RIGHTMETA}, {U"rightshift", KEY_RIGHTSHIFT},
-           {U"rshift", KEY_RIGHTSHIFT},   {U"s", KEY_LEFTSHIFT},
-           {U"scroll", KEY_SCROLLLOCK},   {U"scrolllock", KEY_SCROLLLOCK},
-           {U"sh", KEY_LEFTSHIFT},        {U"shift", KEY_LEFTSHIFT},
-           {U"super", KEY_LEFTMETA},      {U"win", KEY_LEFTMETA},
-           {U"windows", KEY_LEFTMETA},    {U"⇧", KEY_LEFTSHIFT},
-           {U"⊞", KEY_LEFTMETA},          {U"⌃", KEY_LEFTCTRL},
-           {U"⌘", KEY_LEFTMETA},          {U"⌥", KEY_LEFTALT},
+           {U"alt", KEY_LEFTALT},
+           {U"alt_gr", KEY_RIGHTALT},
+           {U"altgr", KEY_RIGHTALT},
+           {U"altgr", KEY_RIGHTALT},
+           {U"caps", KEY_CAPSLOCK},
+           {U"capslock", KEY_CAPSLOCK},
+           {U"cmd", KEY_LEFTMETA},
+           {U"command", KEY_LEFTMETA},
+           {U"control", KEY_LEFTCTRL},
+           {U"controlkey", KEY_LEFTCTRL},
+           {U"ctl", KEY_LEFTCTRL},
+           {U"ctrl", KEY_LEFTCTRL},
+           {U"lctrl", KEY_LEFTCTRL},
+           {U"leftalt", KEY_LEFTALT},
+           {U"leftctrl", KEY_LEFTCTRL},
+           {U"leftmeta", KEY_LEFTMETA},
+           {U"leftshift", KEY_LEFTSHIFT},
+           {U"lshift", KEY_LEFTSHIFT},
+           {U"meta", KEY_LEFTMETA},
+           {U"mod1", KEY_LEFTALT},
+           {U"mod2", KEY_LEFTALT},
+           {U"mod3", KEY_LEFTALT},
+           {U"mod4", KEY_LEFTMETA},
+           {U"mod5", KEY_LEFTALT},
+           {U"num", KEY_NUMLOCK},
+           {U"numlock", KEY_NUMLOCK},
+           {U"opt", KEY_LEFTALT},
+           {U"option", KEY_LEFTALT},
+           {U"optionkey", KEY_LEFTALT},
+           {U"rctrl", KEY_RIGHTCTRL},
+           {U"rightalt", KEY_RIGHTALT},
+           {U"rightctrl", KEY_RIGHTCTRL},
+           {U"rightmeta", KEY_RIGHTMETA},
+           {U"rightshift", KEY_RIGHTSHIFT},
+           {U"rshift", KEY_RIGHTSHIFT},
+           {U"scroll", KEY_SCROLLLOCK},
+           {U"scrolllock", KEY_SCROLLLOCK},
+           {U"shift", KEY_LEFTSHIFT},
+           {U"super", KEY_LEFTMETA},
+           {U"win", KEY_LEFTMETA},
+           {U"windows", KEY_LEFTMETA},
+           {U"⇧", KEY_LEFTSHIFT},
+           {U"⊞", KEY_LEFTMETA},
+           {U"⌘", KEY_LEFTMETA},
+           {U"⌥", KEY_LEFTALT},
            }
         };
         for (auto &field : data) {
@@ -166,18 +184,28 @@ namespace {
         return code;
     }
 
-    [[nodiscard]] fs8::code32_t to_code(fs8::key_event_code::code_type const  code,
-                                        fs8::key_event_code::value_type const value = 1) noexcept {
+    [[nodiscard]] fs8::code32_t to_code(fs8::key_event::code_type const  code,
+                                        fs8::key_event::value_type const value = 1) noexcept {
         return static_cast<fs8::code32_t>(
-          fs8::event_encoded_code32_t | fs8::hashed(fs8::key_event_code{.code = code, .value = value}));
+          fs8::event_encoded_code32_t | fs8::hashed(fs8::key_event{.code = code, .value = value}));
     }
 
-    [[nodiscard]] fs8::code32_t to_code(fs8::event_type const &event) noexcept {
-        return to_code(event.code(), event.value());
-    }
+    // [[nodiscard]] fs8::code32_t to_code(fs8::event_type const &event) noexcept {
+    //     return to_code(event.code(), event.value());
+    // }
 
-    [[nodiscard]] fs8::code32_t to_code(fs8::key_event_code const event) noexcept {
+    [[nodiscard]] fs8::code32_t to_code(fs8::key_event const event) noexcept {
         return to_code(event.code, event.value);
+    }
+
+    [[nodiscard]] fs8::key_event to_event(fs8::code32_t const code) noexcept {
+        return fs8::unhashed(
+          ~static_cast<std::uint32_t>(fs8::event_encoded_code32_t) & static_cast<std::uint32_t>(code));
+    }
+
+    /// Check if we've run it through `to_code` or is it a normal Unicode code point
+    [[nodiscard]] bool is_encoded_event(fs8::code32_t const code) noexcept {
+        return (fs8::event_encoded_code32_t & code) == fs8::event_encoded_code32_t;
     }
 
     // [[nodiscard]] foresight::code32_t to_code(std::u32string_view const key) noexcept {
@@ -195,7 +223,7 @@ namespace {
 
 } // namespace
 
-fs8::code32_t fs8::unicode_encoded_event(xkb::basic_state const &state, event_type const &event) noexcept {
+fs8::code32_t fs8::unicode_encoded_event(xkb::basic_state const &state, key_event const event) noexcept {
     auto const code_point = xkb::event2unicode(state, event);
     if (code_point == U'\0') {
         return to_code(event);
@@ -309,10 +337,10 @@ namespace {
         assert(mod_str.starts_with(U'<') && mod_str.ends_with(U'>'));
         mod_str.remove_prefix(1);
         mod_str.remove_suffix(1);
-        bool const          is_release   = mod_str.starts_with(U'/');
-        auto                dash_start   = mod_str.find(U'-');
-        bool const          is_monotonic = !is_release && dash_start == std::u32string_view::npos;
-        fs8::key_event_code event;
+        bool const     is_release   = mod_str.starts_with(U'/');
+        auto           dash_start   = mod_str.find(U'-');
+        bool const     is_monotonic = !is_release && dash_start == std::u32string_view::npos;
+        fs8::key_event event;
 
         if (is_monotonic) {
             // handling <shift> or <ctrl> types
@@ -326,16 +354,16 @@ namespace {
             constexpr auto max_len = static_cast<std::uint32_t>(fs8::max_simultaneous_key_presses);
             std::array<std::uint16_t, fs8::max_simultaneous_key_presses> keys{};
             std::uint32_t                                                index = 0;
-            for (; index != max_len; ++index) {
+            while (index != max_len) {
                 auto const sub_mod = mod_str.substr(0, dash_start);
                 if (sub_mod.empty()) {
                     break;
                 }
-                auto const ev = fs8::key_event_code{.code = get_modifier_code(sub_mod), .value = 1};
+                auto const ev = fs8::key_event{.code = get_modifier_code(sub_mod), .value = 1};
                 if (is_invalid(ev)) [[unlikely]] {
                     break;
                 }
-                keys.at(index) = ev.code;
+                keys.at(index++) = ev.code;
                 callback(ev); // keydown
                 if (dash_start == std::u32string_view::npos) {
                     break;
@@ -364,14 +392,14 @@ namespace {
 
     template <typename CharT>
     bool parse_modifier_impl(std::basic_string_view<CharT> const mod_str, fs8::code32_callback callback) {
-        return parse_modifier_impl(mod_str, [&](fs8::key_event_code const &key) {
+        return parse_modifier_impl(mod_str, [&](fs8::key_event const &key) {
             callback(to_code(key));
         });
     }
 
     template <typename CharT>
     bool parse_modifier_impl(std::basic_string_view<CharT> const mod_str, fs8::user_event_callback callback) {
-        return parse_modifier_impl(mod_str, [&](fs8::key_event_code const &key) {
+        return parse_modifier_impl(mod_str, [&](fs8::key_event const &key) {
             callback(user_event{.type = EV_KEY, .code = key.code, .value = key.value});
             callback(fs8::syn_user_event);
         });
@@ -381,7 +409,7 @@ namespace {
     std::u32string parse_modifier_impl(std::basic_string_view<CharT> const mod_str) {
         std::u32string result;
         if (!parse_modifier_impl(mod_str,
-                                 [&](fs8::key_event_code const &key) {
+                                 [&](fs8::key_event const &key) {
                                      result += to_code(key);
                                  })) [[unlikely]]
         {
@@ -441,7 +469,46 @@ void fs8::on_modifier_tags(std::u32string_view const                       str,
     }
 }
 
-void fs8::replace_modifiers_and_actions(std::u32string &str) noexcept {
+bool fs8::normalize_modifiers(std::u32string &str) noexcept {
+    xkb::basic_state keyboard_state;
+    keyboard_state.initialize(xkb::get_default_keymap());
+
+    bool                  was_normalized = true;
+    event_type::code_type code_to_remove = KEY_MAX;
+    auto                  lhs            = str.begin();
+    auto const            beg            = str.begin();
+    for (char32_t const code : str) {
+        // Ignore Unicode Code Points
+        if (!is_encoded_event(code)) {
+            code_to_remove = KEY_MAX;
+            ++lhs;
+            continue;
+        }
+
+        auto const event   = to_event(code);
+        auto const recoded = unicode_encoded_event(keyboard_state, event);
+        if (event.value != 1 || is_encoded_event(recoded)) {
+            if (code_to_remove == event.code) {
+                continue; // remove current code point
+            }
+            assert(recoded == code);
+            ++lhs;
+            continue;
+        }
+
+        was_normalized = false;
+
+        // Replace the event with the Unicode Code Point equivalent
+        *lhs = recoded;
+        ++lhs;
+
+        code_to_remove = event.code;
+    }
+    str.resize(static_cast<std::size_t>(std::distance(beg, lhs)));
+    return was_normalized;
+}
+
+void fs8::replace_modifier_strings(std::u32string &str) noexcept {
     std::size_t index = 0;
     for (;;) {
         // find the first modifier:
@@ -452,7 +519,14 @@ void fs8::replace_modifiers_and_actions(std::u32string &str) noexcept {
         auto const rhsptr = find_delim(str, U'>', lhsptr);
         auto const code   = str.substr(0, rhsptr + 1);
 
-        auto const encoded = parse_modifier(code);
+        auto encoded = parse_modifier(code);
+        for (char32_t const code : encoded) {
+            log("Encoded: {:x}", static_cast<std::uint32_t>(code));
+        }
+        normalize_modifiers(encoded);
+        for (char32_t const code : encoded) {
+            log("Normalized: {:x}", static_cast<std::uint32_t>(code));
+        }
         str.replace(lhsptr, code.size(), encoded);
 
         index = lhsptr + encoded.size();
