@@ -19,11 +19,9 @@ import foresight.main.log;
 using fs8::user_event;
 
 // NOLINTBEGIN(*-magic-numbers)
-namespace fs8 {
-    constexpr std::size_t max_simultaneous_key_presses = 32;
-} // namespace fs8
-
 namespace {
+    constexpr std::size_t max_simultaneous_key_presses = 32;
+
     /**
      * Array mapping the leading byte to the length of a UTF-8 sequence.
      * A value of zero indicates that the byte can not begin a UTF-8 sequence.
@@ -178,10 +176,7 @@ namespace {
     template <typename CharT>
     [[nodiscard]] std::uint16_t get_modifier_code(std::basic_string_view<CharT> const key) noexcept {
         auto const code = fs8::key_code_of(key);
-        if (code == 0) {
-            return alternative_modifier(key);
-        }
-        return code;
+        return code != 0 ? code : alternative_modifier(key);
     }
 
     [[nodiscard]] fs8::code32_t to_code(fs8::key_event::code_type const  code,
@@ -351,9 +346,9 @@ namespace {
             event = {.code = get_modifier_code(mod_str), .value = 0};
         } else {
             // handling <C-r> type of mods
-            constexpr auto max_len = static_cast<std::uint32_t>(fs8::max_simultaneous_key_presses);
-            std::array<std::uint16_t, fs8::max_simultaneous_key_presses> keys{};
-            std::uint32_t                                                index = 0;
+            constexpr auto max_len = static_cast<std::uint32_t>(max_simultaneous_key_presses);
+            std::array<std::uint16_t, max_simultaneous_key_presses> keys{};
+            std::uint32_t                                           index = 0;
             while (index != max_len) {
                 auto const sub_mod = mod_str.substr(0, dash_start);
                 if (sub_mod.empty()) {
