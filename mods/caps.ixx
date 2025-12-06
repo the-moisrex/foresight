@@ -609,10 +609,12 @@ namespace fs8 {
         constexpr auto tablet =
           syn + touch_abs_axes + tablet_abs_common + tablet_tool_btns + touch_btns - pointer_rel_all - EV_REL;
 
-        constexpr std::array<std::pair<std::string_view, dev_caps_view>, 6U> cap_maps{
+        constexpr std::array<std::pair<std::string_view, dev_caps_view>, 8U> cap_maps{
           {
            {{"mouse"}, mouse},
            {{"keyboard"}, keyboard},
+           {{"consumer-control-keyboard"}, consumer_control_keyboard},
+           {{"cc-keyboard"}, consumer_control_keyboard},
            {{"touchpad"}, touchpad},
            {{"tablet"}, tablet},
            {{"pen"}, tablet},
