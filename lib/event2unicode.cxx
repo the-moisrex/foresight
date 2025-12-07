@@ -3,7 +3,6 @@
 module;
 #include <cassert>
 #include <cstdint>
-#include <linux/input-event-codes.h>
 #include <span>
 #include <string>
 #include <xkbcommon/xkbcommon.h>

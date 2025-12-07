@@ -1,7 +1,6 @@
 // Created by moisrex on 11/4/25.
 
 module;
-#include <cstdint>
 #include <functional>
 #include <string_view>
 export module foresight.lib.mod_parser;
