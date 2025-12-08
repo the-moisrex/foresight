@@ -32,8 +32,7 @@ namespace fs8 {
     template <>
     struct visit_impl<0> {
         template <typename T, typename F>
-        static constexpr decltype(auto)
-        visit([[maybe_unused]] T& tup, [[maybe_unused]] std::size_t, [[maybe_unused]] F&& fun) {
+        static constexpr decltype(auto) visit([[maybe_unused]] T& tup, [[maybe_unused]] std::size_t, [[maybe_unused]] F&& fun) {
             assert(false);
 
             // just to make the return type the same as the others:
@@ -105,23 +104,18 @@ export namespace fs8 {
 
       public:
         template <typename... C>
-        consteval explicit basic_router(route<C>&&... inp_routes) noexcept(
-          (std::is_nothrow_move_constructible_v<Routes> && ...))
+        consteval explicit basic_router(route<C>&&... inp_routes) noexcept((std::is_nothrow_move_constructible_v<Routes> && ...))
           : caps{inp_routes.caps...},
             routes{std::move(inp_routes.mod)...} {
             // set_caps(inp_routes.caps...);
         }
 
-        basic_router() noexcept((std::is_nothrow_default_constructible_v<Routes> && ...)) = default;
-        basic_router(basic_router const&) noexcept(
-          (std::is_nothrow_copy_constructible_v<Routes> && ...)) = default;
-        basic_router(basic_router&&) noexcept(
-          (std::is_nothrow_move_constructible_v<Routes> && ...)) = default;
-        basic_router& operator=(basic_router const&) noexcept(
-          (std::is_nothrow_copy_assignable_v<Routes> && ...)) = default;
-        basic_router& operator=(basic_router&&) noexcept(
-          (std::is_nothrow_move_assignable_v<Routes> && ...))                     = default;
-        ~basic_router() noexcept((std::is_nothrow_destructible_v<Routes> && ...)) = default;
+        basic_router() noexcept((std::is_nothrow_default_constructible_v<Routes> && ...))                         = default;
+        basic_router(basic_router const&) noexcept((std::is_nothrow_copy_constructible_v<Routes> && ...))         = default;
+        basic_router(basic_router&&) noexcept((std::is_nothrow_move_constructible_v<Routes> && ...))              = default;
+        basic_router& operator=(basic_router const&) noexcept((std::is_nothrow_copy_assignable_v<Routes> && ...)) = default;
+        basic_router& operator=(basic_router&&) noexcept((std::is_nothrow_move_assignable_v<Routes> && ...))      = default;
+        ~basic_router() noexcept((std::is_nothrow_destructible_v<Routes> && ...))                                 = default;
 
         /// Pass-through the init
         template <Context CtxT>
@@ -281,14 +275,9 @@ export namespace fs8 {
         context_action operator()(Context auto& ctx) noexcept {
             auto const& event        = ctx.event();
             auto const  hashed_value = hash(static_cast<event_code>(event));
-            last_index = is_syn(event) ? last_index : static_cast<std::uint8_t>(hashes.at(hashed_value));
+            last_index               = is_syn(event) ? last_index : static_cast<std::uint8_t>(hashes.at(hashed_value));
             if (last_index < 0) [[unlikely]] {
-                log("Ignored ({}|{}): {} {} {}",
-                    last_index,
-                    hashed_value,
-                    event.type_name(),
-                    event.code_name(),
-                    event.value());
+                log("Ignored ({}|{}): {} {} {}", last_index, hashed_value, event.type_name(), event.code_name(), event.value());
                 return context_action::ignore_event;
             }
             // log("Index: {} {}", last_index, event.code_name());

@@ -38,8 +38,7 @@ namespace fs8 {
     };
 
     template <typename F, typename... Ts>
-    constexpr std::size_t index_at =
-      index_at_impl<0, std::remove_cvref_t<F>, std::remove_cvref_t<Ts>...>::value;
+    constexpr std::size_t index_at = index_at_impl<0, std::remove_cvref_t<F>, std::remove_cvref_t<Ts>...>::value;
 
 } // namespace fs8
 
@@ -58,11 +57,7 @@ export namespace fs8 {
     template <typename T>
     concept OutputModifier =
       Modifier<T>
-      && requires(T                      out,
-                  event_type             event,
-                  event_type::code_type  code,
-                  event_type::type_type  type,
-                  event_type::value_type value) {
+      && requires(T out, event_type event, event_type::code_type code, event_type::type_type type, event_type::value_type value) {
              { out.emit(event) } noexcept -> std::same_as<bool>;
 
              { out.emit(type, code, value) } noexcept -> std::same_as<bool>;
@@ -83,9 +78,7 @@ export namespace fs8 {
 
     template <typename Mod, typename CtxT>
     concept has_mod =
-      blowup_if<Modifier<CtxT>, Context<Mod>>() && Modifier<Mod> && Context<CtxT> && requires(CtxT &ctx) {
-          ctx.template mod<Mod>();
-      };
+      blowup_if<Modifier<CtxT>, Context<Mod>>() && Modifier<Mod> && Context<CtxT> && requires(CtxT &ctx) { ctx.template mod<Mod>(); };
 
     template <typename ModConcept, typename...>
     struct mod_of_t {
@@ -168,9 +161,7 @@ export namespace fs8 {
 
     template <typename ModT, typename CtxT, typename... Args>
     concept invokable_mod =
-      std::invocable<ModT, CtxT &, Args...>
-      || std::invocable<ModT, event_type &, Args...>
-      || std::invocable<ModT, Args...>;
+      std::invocable<ModT, CtxT &, Args...> || std::invocable<ModT, event_type &, Args...> || std::invocable<ModT, Args...>;
 
     template <typename T>
     concept tag = requires {
@@ -178,10 +169,7 @@ export namespace fs8 {
         requires T::is_tag;
     };
 
-    template <context_action DefaultAction = context_action::next,
-              typename ModT,
-              typename CtxT,
-              typename... Args>
+    template <context_action DefaultAction = context_action::next, typename ModT, typename CtxT, typename... Args>
     constexpr context_action invoke_mod(ModT &mod, CtxT &ctx, Args &&...args) {
         using enum context_action;
         if constexpr (std::invocable<ModT, CtxT &, Args...>) {
@@ -288,10 +276,7 @@ export namespace fs8 {
     }
 
     template <Context CtxT, typename... Funcs>
-    constexpr context_action invoke_mod_at(
-      CtxT                 &ctx,
-      std::tuple<Funcs...> &funcs,
-      std::size_t const     index) noexcept(CtxT::is_nothrow) {
+    constexpr context_action invoke_mod_at(CtxT &ctx, std::tuple<Funcs...> &funcs, std::size_t const index) noexcept(CtxT::is_nothrow) {
         using enum context_action;
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
             auto action = next;
@@ -307,22 +292,14 @@ export namespace fs8 {
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
 
-    template <std::size_t    Index,
-              context_action DefaultAction = context_action::next,
-              Context        CtxT,
-              typename... Funcs,
-              typename... Args>
-    constexpr context_action fork_mod(CtxT &ctx, std::tuple<Funcs...> &funcs, Args &&...args) noexcept(
-      CtxT::is_nothrow) {
+    template <std::size_t Index, context_action DefaultAction = context_action::next, Context CtxT, typename... Funcs, typename... Args>
+    constexpr context_action fork_mod(CtxT &ctx, std::tuple<Funcs...> &funcs, Args &&...args) noexcept(CtxT::is_nothrow) {
         using enum context_action;
         using tuple_type = std::tuple<Funcs...>;
         using mod_type   = std::tuple_element_t<Index, tuple_type>;
         if constexpr (invokable_mod<mod_type, CtxT &, Args...>) {
             auto current_fork_view = ctx.template fork_view<Index>();
-            return invoke_mod<DefaultAction>(
-              get<Index>(funcs),
-              current_fork_view,
-              std::forward<Args>(args)...);
+            return invoke_mod<DefaultAction>(get<Index>(funcs), current_fork_view, std::forward<Args>(args)...);
         } else {
             return DefaultAction;
         }
@@ -331,8 +308,7 @@ export namespace fs8 {
     /// Run the functions and give them the specified context and arguments (optionally)
     template <Context CtxT, typename... Funcs, typename... Args>
         requires(std::is_trivially_copy_constructible_v<Args> && ...)
-    constexpr context_action invoke_mods(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept(
-      CtxT::is_nothrow) {
+    constexpr context_action invoke_mods(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept(CtxT::is_nothrow) {
         using enum context_action;
         // todo: replace with C++26 "template for" when compilers support it
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
@@ -345,8 +321,7 @@ export namespace fs8 {
     /// Run functions until one of them return "context_action::next"
     template <Context CtxT, typename... Funcs, typename... Args>
         requires(std::is_trivially_copy_constructible_v<Args> && ...)
-    constexpr context_action
-    invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept(CtxT::is_nothrow) {
+    constexpr context_action invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept(CtxT::is_nothrow) {
         using enum context_action;
         // todo: replace with C++26 "template for" when compilers support it
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept(CtxT::is_nothrow) {
@@ -374,8 +349,7 @@ export namespace fs8 {
       public:
         constexpr basic_context() noexcept = default;
 
-        consteval explicit basic_context(event_type const &inp_ev,
-                                         std::remove_cvref_t<Funcs>... inp_funcs) noexcept
+        consteval explicit basic_context(event_type const &inp_ev, std::remove_cvref_t<Funcs>... inp_funcs) noexcept
           : ev{inp_ev},
             mods{inp_funcs...} {}
 
@@ -452,10 +426,7 @@ export namespace fs8 {
               [&](auto const &...funcs) constexpr noexcept {
                   return std::apply(
                     [&](auto const &...funcs2) constexpr noexcept {
-                        return basic_context<std::remove_cvref_t<Funcs>..., NMods...>{
-                          ev,
-                          funcs...,
-                          funcs2...};
+                        return basic_context<std::remove_cvref_t<Funcs>..., NMods...>{ev, funcs..., funcs2...};
                     },
                     ctx.get_mods());
               },
@@ -466,10 +437,7 @@ export namespace fs8 {
         [[nodiscard]] consteval auto operator|(Mod &&inp_mod) const noexcept {
             return std::apply(
               [&](auto const &...funcs) constexpr noexcept {
-                  return basic_context<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Mod>>{
-                    ev,
-                    funcs...,
-                    inp_mod};
+                  return basic_context<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Mod>>{ev, funcs..., inp_mod};
               },
               mods);
         }
@@ -538,10 +506,8 @@ export namespace fs8 {
                             || invokable_mod<Funcs, ctx_view, next_event_tag>)
                            && ...),
                           "At least one of the mods are not callable");
-            static constexpr auto load_event_count =
-              (0 + ... + (invokable_mod<Funcs, ctx_view, load_event_tag> ? 1 : 0));
-            static constexpr auto next_event_count =
-              (0 + ... + (invokable_mod<Funcs, ctx_view, next_event_tag> ? 1 : 0));
+            static constexpr auto load_event_count = (0 + ... + (invokable_mod<Funcs, ctx_view, load_event_tag> ? 1 : 0));
+            static constexpr auto next_event_count = (0 + ... + (invokable_mod<Funcs, ctx_view, next_event_tag> ? 1 : 0));
             static_assert(load_event_count <= 1, "There should only be one single load_event in the mods");
             static_assert(load_event_count + next_event_count >= 1, "Someone needs to provide the events.");
             for (;;) {
@@ -630,9 +596,7 @@ export namespace fs8 {
             return fork_emit(event_type{inp_ev});
         }
 
-        context_action fork_emit(type_type const  inp_type,
-                                 code_type const  inp_code,
-                                 value_type const inp_val) noexcept(is_nothrow) {
+        context_action fork_emit(type_type const inp_type, code_type const inp_code, value_type const inp_val) noexcept(is_nothrow) {
             return fork_emit(event_type{inp_type, inp_code, inp_val});
         }
 

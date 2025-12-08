@@ -178,12 +178,10 @@ namespace fs8 {
           KEY_MICMUTE);
 
         // Pointer (Mouse/Trackball)
-        constexpr auto pointer_wheels =
-          cap(EV_REL, REL_WHEEL, REL_HWHEEL, REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES);
+        constexpr auto pointer_wheels   = cap(EV_REL, REL_WHEEL, REL_HWHEEL, REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES);
         constexpr auto pointer_rel_all  = caps_range<EV_REL, REL_X, REL_MAX + 1>();
         constexpr auto pointer_rel_axes = cap(EV_REL, REL_X, REL_Y);
-        constexpr auto pointer_btns =
-          cap(EV_KEY, BTN_LEFT, BTN_RIGHT, BTN_MIDDLE, BTN_SIDE, BTN_EXTRA, BTN_FORWARD, BTN_BACK, BTN_TASK);
+        constexpr auto pointer_btns = cap(EV_KEY, BTN_LEFT, BTN_RIGHT, BTN_MIDDLE, BTN_SIDE, BTN_EXTRA, BTN_FORWARD, BTN_BACK, BTN_TASK);
 
         // Touch Devices (Touchpad/Touchscreen)
         constexpr auto touch_abs_axes = cap(EV_ABS, ABS_X, ABS_Y);
@@ -209,15 +207,8 @@ namespace fs8 {
           ABS_HAT0Y);
 
         // Tablet (Stylus)
-        constexpr auto tablet_tool_btns = cap(
-          EV_KEY,
-          BTN_TOOL_PEN,
-          BTN_TOOL_RUBBER,
-          BTN_STYLUS,
-          BTN_STYLUS2,
-          BTN_TOOL_BRUSH,
-          BTN_TOOL_PENCIL,
-          BTN_TOOL_AIRBRUSH);
+        constexpr auto tablet_tool_btns =
+          cap(EV_KEY, BTN_TOOL_PEN, BTN_TOOL_RUBBER, BTN_STYLUS, BTN_STYLUS2, BTN_TOOL_BRUSH, BTN_TOOL_PENCIL, BTN_TOOL_AIRBRUSH);
         constexpr auto tablet_abs_axes   = cap(EV_ABS, ABS_PRESSURE, ABS_DISTANCE, ABS_TILT_X, ABS_TILT_Y);
         constexpr auto tablet_abs_common = cap(EV_ABS, ABS_X, ABS_Y, ABS_PRESSURE, ABS_TILT_X, ABS_TILT_Y);
 
@@ -606,8 +597,7 @@ namespace fs8 {
         constexpr auto gamepad = syn + gamepad_btns + joystick_abs_axes;
 
         // A graphics tablet for drawing
-        constexpr auto tablet =
-          syn + touch_abs_axes + tablet_abs_common + tablet_tool_btns + touch_btns - pointer_rel_all - EV_REL;
+        constexpr auto tablet = syn + touch_abs_axes + tablet_abs_common + tablet_tool_btns + touch_btns - pointer_rel_all - EV_REL;
 
         constexpr std::array<std::pair<std::string_view, dev_caps_view>, 8U> cap_maps{
           {

@@ -66,8 +66,7 @@ namespace {
 
     // ASCII-only case-insensitive equality (keeps your original semantics)
     template <typename CharT, typename CharT2>
-    [[nodiscard]] bool iequals(std::basic_string_view<CharT> const  lhs,
-                               std::basic_string_view<CharT2> const rhs) noexcept {
+    [[nodiscard]] bool iequals(std::basic_string_view<CharT> const lhs, std::basic_string_view<CharT2> const rhs) noexcept {
         if (lhs.size() != rhs.size()) {
             return false;
         }
@@ -179,10 +178,8 @@ namespace {
         return code != 0 ? code : alternative_modifier(key);
     }
 
-    [[nodiscard]] fs8::code32_t to_code(fs8::key_event::code_type const  code,
-                                        fs8::key_event::value_type const value = 1) noexcept {
-        return static_cast<fs8::code32_t>(
-          fs8::event_encoded_code32_t | fs8::hashed(fs8::key_event{.code = code, .value = value}));
+    [[nodiscard]] fs8::code32_t to_code(fs8::key_event::code_type const code, fs8::key_event::value_type const value = 1) noexcept {
+        return static_cast<fs8::code32_t>(fs8::event_encoded_code32_t | fs8::hashed(fs8::key_event{.code = code, .value = value}));
     }
 
     // [[nodiscard]] fs8::code32_t to_code(fs8::event_type const &event) noexcept {
@@ -194,8 +191,7 @@ namespace {
     }
 
     [[nodiscard]] fs8::key_event to_event(fs8::code32_t const code) noexcept {
-        return fs8::unhashed(
-          ~static_cast<std::uint32_t>(fs8::event_encoded_code32_t) & static_cast<std::uint32_t>(code));
+        return fs8::unhashed(~static_cast<std::uint32_t>(fs8::event_encoded_code32_t) & static_cast<std::uint32_t>(code));
     }
 
     /// Check if we've run it through `to_code` or is it a normal Unicode code point
@@ -295,8 +291,7 @@ char32_t fs8::parse_char_or_codepoint(std::string_view &src) noexcept {
 
 namespace {
     template <typename CharT>
-    std::size_t
-    find_delim_impl(std::basic_string_view<CharT> str, CharT const delim, std::size_t const pos) noexcept {
+    std::size_t find_delim_impl(std::basic_string_view<CharT> str, CharT const delim, std::size_t const pos) noexcept {
         auto lhsptr = str.find(delim, pos);
         if (lhsptr == 0) {
             return lhsptr;
@@ -320,8 +315,7 @@ std::size_t fs8::find_delim(std::string_view const str, char const delim, std::s
     return find_delim_impl(str, delim, pos);
 }
 
-std::size_t
-fs8::find_delim(std::u32string_view const str, char32_t const delim, std::size_t const pos) noexcept {
+std::size_t fs8::find_delim(std::u32string_view const str, char32_t const delim, std::size_t const pos) noexcept {
     return find_delim_impl(str, delim, pos);
 }
 
@@ -346,7 +340,7 @@ namespace {
             event = {.code = get_modifier_code(mod_str), .value = 0};
         } else {
             // handling <C-r> type of mods
-            constexpr auto max_len = static_cast<std::uint32_t>(max_simultaneous_key_presses);
+            constexpr auto                                          max_len = static_cast<std::uint32_t>(max_simultaneous_key_presses);
             std::array<std::uint16_t, max_simultaneous_key_presses> keys{};
             std::uint32_t                                           index = 0;
             while (index != max_len) {
@@ -446,8 +440,7 @@ std::u32string fs8::parse_modifier(std::u32string_view const mod_str) {
     return parse_modifier_impl(mod_str);
 }
 
-void fs8::on_modifier_tags(std::u32string_view const                       str,
-                           std::function<void(std::u32string_view)> const &callback) noexcept {
+void fs8::on_modifier_tags(std::u32string_view const str, std::function<void(std::u32string_view)> const &callback) noexcept {
     std::size_t index = 0;
     for (;;) {
         // find the first modifier:

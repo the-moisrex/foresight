@@ -59,9 +59,7 @@ export namespace fs8::xkb {
         /// Create from raw pointer (used internally)
         explicit keymap(xkb_keymap *km);
 
-        void load(context const        &ctx,
-                  xkb_rule_names const *names,
-                  xkb_keymap_format     keymap_format = XKB_KEYMAP_FORMAT_TEXT_V2);
+        void load(context const &ctx, xkb_rule_names const *names, xkb_keymap_format keymap_format = XKB_KEYMAP_FORMAT_TEXT_V2);
 
         /// Create keymap from compiled keymap string (file contents or XKB keymap text)
         static keymap from_string(context const &ctx, std::string_view xml);

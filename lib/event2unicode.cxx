@@ -19,17 +19,14 @@ namespace {
 
     // Shared core
     template <typename Fn>
-    [[nodiscard]] char32_t event2unicode_impl(
-      fs8::xkb::basic_state const& state_handle,
-      fs8::key_event const         event,
-      Fn                           get_unicode) noexcept {
+    [[nodiscard]] char32_t
+    event2unicode_impl(fs8::xkb::basic_state const& state_handle, fs8::key_event const event, Fn get_unicode) noexcept {
         auto* handle = state_handle.get();
         assert(handle != nullptr);
 
         // Map evdev code -> xkb keycode
         auto const              keycode = static_cast<xkb_keycode_t>(evdev_offset + event.code);
-        xkb_key_direction const dir =
-          static_cast<std::uint16_t>(event.value) == KEY_STATE_RELEASE ? XKB_KEY_UP : XKB_KEY_DOWN;
+        xkb_key_direction const dir     = static_cast<std::uint16_t>(event.value) == KEY_STATE_RELEASE ? XKB_KEY_UP : XKB_KEY_DOWN;
 
         // Update state
         xkb_state_update_key(handle, keycode, dir);
@@ -45,10 +42,7 @@ namespace {
 } // namespace
 
 // Version that uses xkb_state_key_get_utf32
-char32_t fs8::xkb::event2unicode(
-  basic_state const& state_handle,
-  key_event const    event,
-  handle_modifiers_type) noexcept {
+char32_t fs8::xkb::event2unicode(basic_state const& state_handle, key_event const event, handle_modifiers_type) noexcept {
     return event2unicode_impl(state_handle, event, [](xkb_state* handle, xkb_keycode_t const keycode) {
         return static_cast<char32_t>(xkb_state_key_get_utf32(handle, keycode));
     });
@@ -65,8 +59,7 @@ char32_t fs8::xkb::event2unicode(basic_state const& state_handle, key_event cons
     });
 }
 
-std::u32string fs8::xkb::event2unicode(basic_state const&                state_handle,
-                                       std::span<event_type const> const events) {
+std::u32string fs8::xkb::event2unicode(basic_state const& state_handle, std::span<event_type const> const events) {
     std::u32string result;
     result.resize(events.size());
     for (auto const& event : events) {

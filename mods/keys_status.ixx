@@ -53,8 +53,7 @@ export namespace fs8 {
         [[nodiscard]] code_type first_pressed(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
             code_type pressed = KEY_MAX;
-            std::ignore =
-              ((btns.at(key_codes) != 0 && (pressed = static_cast<code_type>(key_codes), true)) && ...);
+            std::ignore       = ((btns.at(key_codes) != 0 && (pressed = static_cast<code_type>(key_codes), true)) && ...);
             return pressed;
         }
 

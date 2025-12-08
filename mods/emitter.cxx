@@ -12,7 +12,7 @@ fs8::context_action fs8::basic_scheduled_emitter::operator()(event_type& event, 
         return ignore_event;
     }
 
-    event  = events.front();
+    event = events.front();
     event.reset_time();
     events = events.subspan(1); // pop out the first one
     return next;

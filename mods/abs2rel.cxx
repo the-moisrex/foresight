@@ -149,11 +149,7 @@ void basic_abs2rel::init(evdev const& dev, float const scale) noexcept {
     x_scale_factor = static_cast<float>(x_absinfo->resolution) / scale;
     y_scale_factor = static_cast<float>(y_absinfo->resolution) / scale;
 
-    log("Init abs2rel: ({}, {}) with resolution ({}, {})",
-        x_scale_factor,
-        y_scale_factor,
-        x_absinfo->resolution,
-        y_absinfo->resolution);
+    log("Init abs2rel: ({}, {}) with resolution ({}, {})", x_scale_factor, y_scale_factor, x_absinfo->resolution, y_absinfo->resolution);
 }
 
 void basic_abs2rel::operator()(start_tag) noexcept {
@@ -190,11 +186,11 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
         // Absolute position event from a tablet
         switch (code) {
             case ABS_X: {
-                auto const  delta       = static_cast<float>(value - (last_abs_x & ~x_init_state));
-                float const pixels_base = delta / x_scale_factor + x_epsilon;
-                auto        pixels      = static_cast<value_type>(pixels_base);
-                x_epsilon               = pixels_base - static_cast<float>(pixels);
-                pixels &= ~(0 - (last_abs_x >> x_bit_loc)); // don't move if we're in init state
+                auto const  delta        = static_cast<float>(value - (last_abs_x & ~x_init_state));
+                float const pixels_base  = delta / x_scale_factor + x_epsilon;
+                auto        pixels       = static_cast<value_type>(pixels_base);
+                x_epsilon                = pixels_base - static_cast<float>(pixels);
+                pixels                  &= ~(0 - (last_abs_x >> x_bit_loc)); // don't move if we're in init state
                 event.type(EV_REL);
                 event.code(REL_X);
                 event.value(pixels);
@@ -203,11 +199,11 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
                 break;
             }
             case ABS_Y: {
-                auto const  delta       = static_cast<float>(value - (last_abs_y & ~y_init_state));
-                float const pixels_base = delta / y_scale_factor + y_epsilon;
-                auto        pixels      = static_cast<value_type>(pixels_base);
-                y_epsilon               = pixels_base - static_cast<float>(pixels);
-                pixels &= ~(0 - (last_abs_y >> y_bit_loc)); // don't move if we're in init state
+                auto const  delta        = static_cast<float>(value - (last_abs_y & ~y_init_state));
+                float const pixels_base  = delta / y_scale_factor + y_epsilon;
+                auto        pixels       = static_cast<value_type>(pixels_base);
+                y_epsilon                = pixels_base - static_cast<float>(pixels);
+                pixels                  &= ~(0 - (last_abs_y >> y_bit_loc)); // don't move if we're in init state
                 event.type(EV_REL);
                 event.code(REL_Y);
                 event.value(pixels);

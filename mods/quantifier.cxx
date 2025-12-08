@@ -24,12 +24,8 @@ void basic_mice_quantifier::operator()(event_type const& event) noexcept {
     switch (event.hash()) {
         case hashed(EV_REL, REL_X): x_value += event.value(); break;
         case hashed(EV_REL, REL_Y): y_value += event.value(); break;
-        case hashed(EV_ABS, ABS_X):
-            x_value += event.value() - std::exchange(last_abs_x, event.value());
-            break;
-        case hashed(EV_ABS, ABS_Y):
-            y_value += event.value() - std::exchange(last_abs_y, event.value());
-            break;
+        case hashed(EV_ABS, ABS_X): x_value += event.value() - std::exchange(last_abs_x, event.value()); break;
+        case hashed(EV_ABS, ABS_Y): y_value += event.value() - std::exchange(last_abs_y, event.value()); break;
         default: break;
     }
 }

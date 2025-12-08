@@ -148,8 +148,7 @@ namespace fs8 {
         };
     }
 
-    export [[nodiscard]] constexpr std::array<user_event, 4> keypress(
-      event_type::code_type const code) noexcept {
+    export [[nodiscard]] constexpr std::array<user_event, 4> keypress(event_type::code_type const code) noexcept {
         return std::array{
           user_event{.type = EV_KEY, .code = code, .value = 1},
           syn_user_event,
@@ -158,16 +157,14 @@ namespace fs8 {
         };
     }
 
-    export [[nodiscard]] constexpr std::array<user_event, 2> turn_led_on(
-      event_type::code_type const code) noexcept {
+    export [[nodiscard]] constexpr std::array<user_event, 2> turn_led_on(event_type::code_type const code) noexcept {
         return std::array{
           user_event{.type = EV_LED, .code = code, .value = 1},
           syn_user_event
         };
     }
 
-    export [[nodiscard]] constexpr std::array<user_event, 2> turn_led_off(
-      event_type::code_type const code) noexcept {
+    export [[nodiscard]] constexpr std::array<user_event, 2> turn_led_off(event_type::code_type const code) noexcept {
         return std::array{
           user_event{.type = EV_LED, .code = code, .value = 0},
           syn_user_event
@@ -236,8 +233,7 @@ namespace fs8 {
         std::size_t               index = 0;
 
       public:
-        explicit constexpr basic_emit_all(std::array<user_event, N> const inp_events) noexcept
-          : events{inp_events} {}
+        explicit constexpr basic_emit_all(std::array<user_event, N> const inp_events) noexcept : events{inp_events} {}
 
         constexpr basic_emit_all() noexcept                            = default;
         constexpr basic_emit_all(basic_emit_all&&)                     = default;

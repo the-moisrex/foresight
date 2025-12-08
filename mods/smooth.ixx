@@ -24,11 +24,8 @@ export namespace fs8 {
         std::array<value_type, 2> cur_vals = {0, 0};
         bool                      cached   = false;
 
-        constexpr value_type next_step(value_type const  step,
-                                       value_type const  total_steps,
-                                       std::size_t const axis = REL_X) const noexcept {
-            static_assert(REL_X == 0x0 && REL_Y == 0x1,
-                          "We need REL_X and REL_Y events' values to be 0 and 1.");
+        constexpr value_type next_step(value_type const step, value_type const total_steps, std::size_t const axis = REL_X) const noexcept {
+            static_assert(REL_X == 0x0 && REL_Y == 0x1, "We need REL_X and REL_Y events' values to be 0 and 1.");
 
             float const t_normalized  = static_cast<float>(step) / (static_cast<float>(total_steps) - 1);
             float       interpolated  = t_normalized; // easeInQuad(t_normalized);
@@ -76,10 +73,8 @@ export namespace fs8 {
                     continue;
                 }
                 log("{}/{} {} {} ({}, {}) ||||", step, total_steps, cur_x, cur_y, all_x, all_y);
-                std::ignore =
-                  ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_X, .value = rel_x});
-                std::ignore =
-                  ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_Y, .value = rel_y});
+                std::ignore = ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_X, .value = rel_x});
+                std::ignore = ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_Y, .value = rel_y});
                 std::ignore = ctx.fork_emit(syn());
             }
 
@@ -178,8 +173,7 @@ export namespace fs8 {
         float k_y = 0.f; // Kalman gain for y
 
       public:
-        constexpr explicit basic_kalman_filter(float const process_noise,
-                                               float const measurement_noise = 0.5f) noexcept
+        constexpr explicit basic_kalman_filter(float const process_noise, float const measurement_noise = 0.5f) noexcept
           : q(process_noise),
             r(measurement_noise) {}
 
@@ -190,8 +184,7 @@ export namespace fs8 {
         constexpr basic_kalman_filter& operator=(basic_kalman_filter&&) noexcept = default;
         constexpr ~basic_kalman_filter() noexcept                                = default;
 
-        consteval basic_kalman_filter operator()(float const process_noise,
-                                                 float const measurement_noise = 0.5f) const noexcept {
+        consteval basic_kalman_filter operator()(float const process_noise, float const measurement_noise = 0.5f) const noexcept {
             return basic_kalman_filter{process_noise, measurement_noise};
         }
 

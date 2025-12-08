@@ -51,10 +51,7 @@ namespace fs8 {
         constexpr basic_on() noexcept = default;
 
         template <typename InpCond, typename... InpFunc>
-            requires(std::convertible_to<InpCond, CondT>
-                     && (sizeof...(InpFunc) >= 1)
-                     && !Context<InpCond>
-                     && (!Context<InpFunc> && ...))
+            requires(std::convertible_to<InpCond, CondT> && (sizeof...(InpFunc) >= 1) && !Context<InpCond> && (!Context<InpFunc> && ...))
         explicit constexpr basic_on(InpCond&& inp_cond, InpFunc&&... inp_funcs) noexcept
           : cond{std::forward<InpCond>(inp_cond)},
             funcs{std::forward<InpFunc>(inp_funcs)...} {}
@@ -77,9 +74,8 @@ namespace fs8 {
         template <typename NCondT, typename... NFuncs>
             requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && (!Context<NFuncs> && ...))
         consteval auto operator()(NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
-            return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{
-              std::forward<NCondT>(n_cond),
-              std::forward<NFuncs>(n_funcs)...};
+            return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{std::forward<NCondT>(n_cond),
+                                                                                         std::forward<NFuncs>(n_funcs)...};
         }
 
         template <typename NCondT, Context CtxT>
@@ -87,9 +83,7 @@ namespace fs8 {
         consteval auto operator()(NCondT&& n_cond, CtxT&& ctx) const noexcept {
             return std::apply(
               [&]<typename... ModT>(ModT&... mods) constexpr noexcept {
-                  return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<ModT>...>{
-                    std::forward<NCondT>(n_cond),
-                    mods...};
+                  return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<ModT>...>{std::forward<NCondT>(n_cond), mods...};
               },
               ctx.get_mods());
         }
@@ -148,10 +142,7 @@ namespace fs8 {
         constexpr basic_once() noexcept = default;
 
         template <typename InpCond, typename... InpFunc>
-            requires(std::convertible_to<InpCond, CondT>
-                     && (sizeof...(InpFunc) >= 1)
-                     && !Context<InpCond>
-                     && (!Context<InpFunc> && ...))
+            requires(std::convertible_to<InpCond, CondT> && (sizeof...(InpFunc) >= 1) && !Context<InpCond> && (!Context<InpFunc> && ...))
         explicit constexpr basic_once(InpCond&& inp_cond, InpFunc&&... inp_funcs) noexcept
           : cond{std::forward<InpCond>(inp_cond)},
             funcs{std::forward<InpFunc>(inp_funcs)...} {}
@@ -184,9 +175,7 @@ namespace fs8 {
         consteval auto operator()(NCondT&& n_cond, CtxT&& ctx) const noexcept {
             return std::apply(
               [&]<typename... ModT>(ModT&... mods) constexpr noexcept {
-                  return basic_once<std::remove_cvref_t<NCondT>, std::remove_cvref_t<ModT>...>{
-                    std::forward<NCondT>(n_cond),
-                    mods...};
+                  return basic_once<std::remove_cvref_t<NCondT>, std::remove_cvref_t<ModT>...>{std::forward<NCondT>(n_cond), mods...};
               },
               ctx.get_mods());
         }
@@ -241,11 +230,9 @@ namespace fs8 {
             requires(N == 1)
           : codes{{code}} {}
 
-        explicit constexpr basic_code_adaptor(std::array<code_type, N> const& inp_codes) noexcept
-          : codes{inp_codes} {}
+        explicit constexpr basic_code_adaptor(std::array<code_type, N> const& inp_codes) noexcept : codes{inp_codes} {}
 
-        explicit constexpr basic_code_adaptor(std::array<code_type, N>&& inp_codes) noexcept
-          : codes{std::move(inp_codes)} {}
+        explicit constexpr basic_code_adaptor(std::array<code_type, N>&& inp_codes) noexcept : codes{std::move(inp_codes)} {}
 
         template <typename... T>
             requires((std::convertible_to<T, code_type> && ...))
@@ -325,8 +312,7 @@ namespace fs8 {
       public:
         constexpr basic_longtime_released() noexcept = default;
 
-        constexpr explicit basic_longtime_released(FuncT const&                    inp_func,
-                                                   std::chrono::microseconds const inp_dur) noexcept
+        constexpr explicit basic_longtime_released(FuncT const& inp_func, std::chrono::microseconds const inp_dur) noexcept
           : func{inp_func},
             dur{inp_dur} {}
 
@@ -339,10 +325,8 @@ namespace fs8 {
         // todo: initialize the dur with repetition delay of the keyboard
 
         template <typename InpFuncT>
-        consteval auto operator()(InpFuncT&&                      inp_func,
-                                  std::chrono::microseconds const inp_dur = default_delay) const noexcept {
-            return basic_longtime_released<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func),
-                                                                          inp_dur};
+        consteval auto operator()(InpFuncT&& inp_func, std::chrono::microseconds const inp_dur = default_delay) const noexcept {
+            return basic_longtime_released<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func), inp_dur};
         }
 
         template <Context CtxT>
@@ -355,8 +339,7 @@ namespace fs8 {
                 if (last_time == std::chrono::microseconds(0)) {
                     return false;
                 }
-                return (ctx.event().micro_time() - std::exchange(last_time, std::chrono::microseconds(0)))
-                       >= dur;
+                return (ctx.event().micro_time() - std::exchange(last_time, std::chrono::microseconds(0))) >= dur;
             }
             return false;
         }
@@ -378,21 +361,14 @@ namespace fs8 {
       public:
         constexpr basic_limit_mouse_travel() noexcept = default;
 
-        constexpr explicit basic_limit_mouse_travel(
-          CondT const&     inp_cond,
-          value_type const x,
-          value_type const y) noexcept
+        constexpr explicit basic_limit_mouse_travel(CondT const& inp_cond, value_type const x, value_type const y) noexcept
           : x_amount{x},
             y_amount{y},
             cond{inp_cond} {}
 
-        constexpr explicit basic_limit_mouse_travel(value_type const x, value_type const y) noexcept
-          : x_amount{x},
-            y_amount{y} {}
+        constexpr explicit basic_limit_mouse_travel(value_type const x, value_type const y) noexcept : x_amount{x}, y_amount{y} {}
 
-        constexpr explicit basic_limit_mouse_travel(value_type const both) noexcept
-          : x_amount{both},
-            y_amount{both} {}
+        constexpr explicit basic_limit_mouse_travel(value_type const both) noexcept : x_amount{both}, y_amount{both} {}
 
         consteval basic_limit_mouse_travel(basic_limit_mouse_travel const&) noexcept            = default;
         consteval basic_limit_mouse_travel& operator=(basic_limit_mouse_travel const&) noexcept = default;
@@ -409,20 +385,13 @@ namespace fs8 {
         }
 
         template <typename InpCondT>
-        consteval auto
-        operator()(InpCondT&& inp_cond, value_type const x, value_type const y) const noexcept {
-            return basic_limit_mouse_travel<std::remove_cvref_t<InpCondT>>{
-              std::forward<InpCondT>(inp_cond),
-              x,
-              y};
+        consteval auto operator()(InpCondT&& inp_cond, value_type const x, value_type const y) const noexcept {
+            return basic_limit_mouse_travel<std::remove_cvref_t<InpCondT>>{std::forward<InpCondT>(inp_cond), x, y};
         }
 
         template <typename InpCondT>
         consteval auto operator()(InpCondT&& inp_cond, value_type const both) const noexcept {
-            return basic_limit_mouse_travel<std::remove_cvref_t<InpCondT>>{
-              std::forward<InpCondT>(inp_cond),
-              both,
-              both};
+            return basic_limit_mouse_travel<std::remove_cvref_t<InpCondT>>{std::forward<InpCondT>(inp_cond), both, both};
         }
 
         [[nodiscard]] constexpr bool operator()(Context auto& ctx) noexcept {
@@ -489,8 +458,7 @@ namespace fs8 {
       public:
         template <typename... InpFuncs>
             requires((std::convertible_to<InpFuncs, Funcs> && ...))
-        explicit(false) constexpr and_op(InpFuncs&&... inp_funcs) noexcept
-          : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
+        explicit(false) constexpr and_op(InpFuncs&&... inp_funcs) noexcept : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
 
         consteval and_op(and_op const&) noexcept            = default;
         consteval and_op& operator=(and_op const&) noexcept = default;
@@ -534,8 +502,7 @@ namespace fs8 {
       public:
         template <typename... InpFuncs>
             requires((std::convertible_to<InpFuncs, Funcs> && ...))
-        explicit(false) constexpr or_op(InpFuncs&&... inp_funcs) noexcept
-          : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
+        explicit(false) constexpr or_op(InpFuncs&&... inp_funcs) noexcept : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
 
         constexpr or_op(or_op const&) noexcept            = default;
         constexpr or_op& operator=(or_op const&) noexcept = default;
@@ -600,9 +567,7 @@ namespace fs8 {
         /// Returns the number of times X and Y have passed
         /// multiples of their respective thresholds.
         /// Returns a std::pair where .first is x_multiples_passed and .second is y_multiples_passed.
-        [[nodiscard]] std::pair<std::uint16_t, std::uint16_t> passed_threshold_count(
-          value_type x_axis,
-          value_type y_axis) const noexcept;
+        [[nodiscard]] std::pair<std::uint16_t, std::uint16_t> passed_threshold_count(value_type x_axis, value_type y_axis) const noexcept;
 
         void operator()(event_type const& event) noexcept;
     } swipe_detector;
@@ -615,9 +580,7 @@ namespace fs8 {
         std::uint16_t count = 0;
 
       public:
-        constexpr basic_swipe(value_type const inp_x_axis, value_type const inp_y_axis) noexcept
-          : x_axis{inp_x_axis},
-            y_axis{inp_y_axis} {}
+        constexpr basic_swipe(value_type const inp_x_axis, value_type const inp_y_axis) noexcept : x_axis{inp_x_axis}, y_axis{inp_y_axis} {}
 
         constexpr basic_swipe() noexcept                              = default;
         consteval basic_swipe(basic_swipe const&) noexcept            = default;
@@ -634,9 +597,8 @@ namespace fs8 {
                 return false;
             }
 
-            auto const [cur_x_count, cur_y_count] =
-              ctx.mod(swipe_detector).passed_threshold_count(x_axis, y_axis);
-            auto const cur_count = cur_x_count + cur_y_count;
+            auto const [cur_x_count, cur_y_count] = ctx.mod(swipe_detector).passed_threshold_count(x_axis, y_axis);
+            auto const cur_count                  = cur_x_count + cur_y_count;
             return cur_count > std::exchange(count, cur_count);
         }
     };

@@ -62,9 +62,7 @@ namespace fs8 {
          * @param idx The index part (truncated to lower 24 bits).
          * @param inp_gen The generation part (truncated to lower 8 bits).
          */
-        constexpr aho_state(std::uint32_t const idx, std::uint8_t const inp_gen) noexcept
-          : value{idx & INDEX_MASK},
-            gen{inp_gen} {
+        constexpr aho_state(std::uint32_t const idx, std::uint8_t const inp_gen) noexcept : value{idx & INDEX_MASK}, gen{inp_gen} {
             assert(idx <= INDEX_MASK);
         }
 
@@ -168,7 +166,7 @@ namespace fs8 {
         aho_state process(char32_t code_point, aho_state last_state) const noexcept;
 
         // todo: convert this to std::function_ref
-        void matches(std::uint32_t state, std::function<void(std::u32string_view)> const& callback) const;
+        void               matches(std::uint32_t state, std::function<void(std::u32string_view)> const& callback) const;
         [[nodiscard]] bool matches(std::uint32_t state, std::uint16_t trigger_id) const noexcept;
 
         /// Initialize empty
@@ -180,11 +178,8 @@ namespace fs8 {
         }
 
         /// Process and match
-        [[nodiscard]] bool search(
-          event_type const&       event,
-          std::uint16_t           trigger_id,
-          xkb::basic_state const& keyboard_state,
-          aho_state&              state) const noexcept;
+        [[nodiscard]] bool
+        search(event_type const& event, std::uint16_t trigger_id, xkb::basic_state const& keyboard_state, aho_state& state) const noexcept;
     };
 
     export constexpr basic_search_engine search_engine;
@@ -224,11 +219,9 @@ namespace fs8 {
 
         template <Context CtxT>
         [[nodiscard]] bool operator()(CtxT& ctx) noexcept {
-            static_assert(has_mod<basic_search_engine, CtxT>,
-                          "You need to have 'search_engine' in your pipeline.");
+            static_assert(has_mod<basic_search_engine, CtxT>, "You need to have 'search_engine' in your pipeline.");
 
-            bool result =
-              ctx.mod(search_engine).search(ctx.event(), trigger_id, keyboard_state, aho_search_state);
+            bool result = ctx.mod(search_engine).search(ctx.event(), trigger_id, keyboard_state, aho_search_state);
 
             log(
               "TYPED: Search result: {}, event type: {}, code: {}, value: {},  pattern: '{}', trigger_id: "

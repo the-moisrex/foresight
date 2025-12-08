@@ -33,10 +33,8 @@ export namespace fs8 {
         constexpr basic_uinput() noexcept = default;
         basic_uinput(evdev const& evdev_dev, std::filesystem::path const& file) noexcept;
         basic_uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept;
-        explicit basic_uinput(libevdev const* evdev_dev,
-                              int             file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
-        explicit basic_uinput(evdev const& evdev_dev,
-                              int          file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
+        explicit basic_uinput(libevdev const* evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
+        explicit basic_uinput(evdev const& evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
         consteval basic_uinput(basic_uinput const&)                     = default;
         constexpr basic_uinput(basic_uinput&&) noexcept                 = default;
         consteval basic_uinput& operator=(basic_uinput const&) noexcept = default;
@@ -62,12 +60,10 @@ export namespace fs8 {
          * @param evdev_dev libevdev device to get the device info from
          * @param file_descriptor file descriptor of the output virtual device
          */
-        void set_device(libevdev const* evdev_dev,
-                        int             file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
+        void set_device(libevdev const* evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
 
         void set_device(evdev const& inp_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
-        void set_device(int              file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED,
-                        std::string_view name            = empty_uinput_name) noexcept;
+        void set_device(int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED, std::string_view name = empty_uinput_name) noexcept;
 
 
         /**

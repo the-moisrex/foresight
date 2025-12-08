@@ -25,8 +25,7 @@ export namespace fs8 {
       public:
         constexpr basic_ignore_big_jumps() noexcept = default;
 
-        constexpr explicit basic_ignore_big_jumps(value_type const inp_threshold) noexcept
-          : threshold{inp_threshold} {}
+        constexpr explicit basic_ignore_big_jumps(value_type const inp_threshold) noexcept : threshold{inp_threshold} {}
 
         consteval basic_ignore_big_jumps(basic_ignore_big_jumps const&) noexcept            = default;
         constexpr basic_ignore_big_jumps(basic_ignore_big_jumps&&) noexcept                 = default;
@@ -59,9 +58,8 @@ export namespace fs8 {
       public:
         constexpr basic_ignore_init_moves() noexcept = default;
 
-        constexpr explicit basic_ignore_init_moves(
-          value_type const inp_threshold,
-          msec_type const  inp_time_threshold = default_time_threshold) noexcept
+        constexpr explicit basic_ignore_init_moves(value_type const inp_threshold,
+                                                   msec_type const  inp_time_threshold = default_time_threshold) noexcept
           : threshold{inp_threshold},
             time_threshold{inp_time_threshold} {}
 
@@ -71,9 +69,8 @@ export namespace fs8 {
         constexpr basic_ignore_init_moves& operator=(basic_ignore_init_moves&&) noexcept      = default;
         constexpr ~basic_ignore_init_moves() noexcept                                         = default;
 
-        consteval basic_ignore_init_moves operator()(
-          value_type const inp_threshold,
-          msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
+        consteval basic_ignore_init_moves operator()(value_type const inp_threshold,
+                                                     msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
             return basic_ignore_init_moves{inp_threshold, inp_time_threshold};
         }
 
@@ -97,9 +94,8 @@ export namespace fs8 {
       public:
         constexpr basic_ignore_fast_repeats() noexcept = default;
 
-        constexpr explicit basic_ignore_fast_repeats(
-          event_code const inp_code,
-          msec_type const  inp_time_threshold = default_time_threshold) noexcept
+        constexpr explicit basic_ignore_fast_repeats(event_code const inp_code,
+                                                     msec_type const  inp_time_threshold = default_time_threshold) noexcept
           : code{.type = inp_code.type, .code = inp_code.code, .value = 1},
             time_threshold{inp_time_threshold} {}
 
@@ -109,9 +105,8 @@ export namespace fs8 {
         constexpr basic_ignore_fast_repeats& operator=(basic_ignore_fast_repeats&&) noexcept      = default;
         constexpr ~basic_ignore_fast_repeats() noexcept                                           = default;
 
-        consteval basic_ignore_fast_repeats operator()(
-          event_code const inp_code,
-          msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
+        consteval basic_ignore_fast_repeats operator()(event_code const inp_code,
+                                                       msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
             return basic_ignore_fast_repeats{inp_code, inp_time_threshold};
         }
 
@@ -126,8 +121,7 @@ export namespace fs8 {
       public:
         constexpr basic_ignore_keys() noexcept = default;
 
-        constexpr explicit basic_ignore_keys(std::array<event_code, N> const inp_codes) noexcept
-          : codes{inp_codes} {}
+        constexpr explicit basic_ignore_keys(std::array<event_code, N> const inp_codes) noexcept : codes{inp_codes} {}
 
         consteval basic_ignore_keys(basic_ignore_keys const&) noexcept            = default;
         constexpr basic_ignore_keys(basic_ignore_keys&&) noexcept                 = default;
@@ -148,8 +142,8 @@ export namespace fs8 {
         template <typename... T>
             requires((std::convertible_to<T, event_type::code_type> && ...))
         consteval auto operator()(T... inp_codes) const noexcept {
-            return basic_ignore_keys<sizeof...(T)>{std::array<event_code, sizeof...(T)>{
-              event_code{.type = EV_KEY, .code = static_cast<event_type::code_type>(inp_codes)}...}};
+            return basic_ignore_keys<sizeof...(T)>{
+              std::array<event_code, sizeof...(T)>{event_code{.type = EV_KEY, .code = static_cast<event_type::code_type>(inp_codes)}...}};
         }
 
         context_action operator()(event_type const& event) const noexcept {
@@ -194,8 +188,7 @@ export namespace fs8 {
       public:
         constexpr basic_ignore_start_moves() noexcept = default;
 
-        constexpr explicit basic_ignore_start_moves(std::uint32_t const inp_time_threshold) noexcept
-          : emit_threshold{inp_time_threshold} {}
+        constexpr explicit basic_ignore_start_moves(std::uint32_t const inp_time_threshold) noexcept : emit_threshold{inp_time_threshold} {}
 
         consteval basic_ignore_start_moves(basic_ignore_start_moves const&) noexcept            = default;
         constexpr basic_ignore_start_moves(basic_ignore_start_moves&&) noexcept                 = default;
@@ -219,19 +212,15 @@ export namespace fs8 {
       public:
         constexpr basic_ignore_adjacent_repeats() noexcept = default;
 
-        constexpr explicit basic_ignore_adjacent_repeats(event_code const code) noexcept
-          : asked_event{code} {}
+        constexpr explicit basic_ignore_adjacent_repeats(event_code const code) noexcept : asked_event{code} {}
 
-        constexpr explicit basic_ignore_adjacent_repeats(event_type const code) noexcept
-          : asked_event{static_cast<event_code>(code)} {}
+        constexpr explicit basic_ignore_adjacent_repeats(event_type const code) noexcept : asked_event{static_cast<event_code>(code)} {}
 
-        consteval basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats const&) noexcept = default;
-        constexpr basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats&&) noexcept      = default;
-        consteval basic_ignore_adjacent_repeats& operator=(
-          basic_ignore_adjacent_repeats const&) noexcept = default;
-        constexpr basic_ignore_adjacent_repeats& operator=(
-          basic_ignore_adjacent_repeats&&) noexcept         = default;
-        constexpr ~basic_ignore_adjacent_repeats() noexcept = default;
+        consteval basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats const&) noexcept            = default;
+        constexpr basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats&&) noexcept                 = default;
+        consteval basic_ignore_adjacent_repeats& operator=(basic_ignore_adjacent_repeats const&) noexcept = default;
+        constexpr basic_ignore_adjacent_repeats& operator=(basic_ignore_adjacent_repeats&&) noexcept      = default;
+        constexpr ~basic_ignore_adjacent_repeats() noexcept                                               = default;
 
         consteval basic_ignore_adjacent_repeats operator()(event_code const code) const noexcept {
             return basic_ignore_adjacent_repeats{code};

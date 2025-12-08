@@ -24,13 +24,12 @@ export namespace fs8 {
         explicit constexpr basic_pressure2mouse_clicks(value_type const inp_pressure_threshold) noexcept
           : pressure_threshold{inp_pressure_threshold} {}
 
-        constexpr basic_pressure2mouse_clicks() noexcept                                   = default;
-        consteval basic_pressure2mouse_clicks(basic_pressure2mouse_clicks const&) noexcept = default;
-        constexpr basic_pressure2mouse_clicks(basic_pressure2mouse_clicks&&) noexcept      = default;
-        consteval basic_pressure2mouse_clicks& operator=(
-          basic_pressure2mouse_clicks const&) noexcept                                           = default;
-        constexpr basic_pressure2mouse_clicks& operator=(basic_pressure2mouse_clicks&&) noexcept = default;
-        constexpr ~basic_pressure2mouse_clicks() noexcept                                        = default;
+        constexpr basic_pressure2mouse_clicks() noexcept                                              = default;
+        consteval basic_pressure2mouse_clicks(basic_pressure2mouse_clicks const&) noexcept            = default;
+        constexpr basic_pressure2mouse_clicks(basic_pressure2mouse_clicks&&) noexcept                 = default;
+        consteval basic_pressure2mouse_clicks& operator=(basic_pressure2mouse_clicks const&) noexcept = default;
+        constexpr basic_pressure2mouse_clicks& operator=(basic_pressure2mouse_clicks&&) noexcept      = default;
+        constexpr ~basic_pressure2mouse_clicks() noexcept                                             = default;
 
         consteval auto operator()(value_type const inp_pressure_threshold) const noexcept {
             auto res{*this};

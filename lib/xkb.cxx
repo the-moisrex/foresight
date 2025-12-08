@@ -55,13 +55,7 @@ context& fs8::xkb::get_default_context() {
 //////////////////////////////////       KeyMap      ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-keymap::keymap(
-  context const& ctx,
-  char const*    rules,
-  char const*    model,
-  char const*    layout,
-  char const*    variant,
-  char const*    options) {
+keymap::keymap(context const& ctx, char const* rules, char const* model, char const* layout, char const* variant, char const* options) {
     xkb_rule_names names{};
     names.rules   = rules;
     names.model   = model;
@@ -80,12 +74,7 @@ void keymap::load(context const& ctx, xkb_rule_names const* names, xkb_keymap_fo
 }
 
 keymap keymap::from_string(context const& ctx, std::string_view const xml) {
-    return keymap{xkb_keymap_new_from_buffer(
-      ctx.get(),
-      xml.data(),
-      xml.size(),
-      XKB_KEYMAP_FORMAT_TEXT_V2,
-      XKB_KEYMAP_COMPILE_NO_FLAGS)};
+    return keymap{xkb_keymap_new_from_buffer(ctx.get(), xml.data(), xml.size(), XKB_KEYMAP_FORMAT_TEXT_V2, XKB_KEYMAP_COMPILE_NO_FLAGS)};
 }
 
 keymap::keymap(xkb_keymap* km) : handle{km} {

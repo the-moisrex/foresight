@@ -70,8 +70,7 @@ namespace fs8 {
       public:
         constexpr basic_replace() noexcept = default;
 
-        constexpr explicit basic_replace(event_code const                inp_from,
-                                         std::array<EventType, N> const& inp_to) noexcept
+        constexpr explicit basic_replace(event_code const inp_from, std::array<EventType, N> const& inp_to) noexcept
           : from{inp_from},
             to{inp_to} {}
 
@@ -84,25 +83,21 @@ namespace fs8 {
         template <typename... T>
             requires(std::convertible_to<T, event_code> && ...)
         consteval auto operator()(event_code const inp_from, T... inp_to) const noexcept {
-            return basic_replace<sizeof...(T)>{
-              inp_from,
-              std::array<event_code, sizeof...(T)>{static_cast<event_code>(inp_to)...}};
+            return basic_replace<sizeof...(T)>{inp_from, std::array<event_code, sizeof...(T)>{static_cast<event_code>(inp_to)...}};
         }
 
         template <typename... T>
             requires(std::convertible_to<T, event_code> && ...)
         consteval auto operator()(code_type const inp_code, T... inp_to) const noexcept {
-            return basic_replace<sizeof...(T)>{
-              key_code(inp_code),
-              std::array<event_code, sizeof...(T)>{static_cast<event_code>(inp_to)...}};
+            return basic_replace<sizeof...(T)>{key_code(inp_code),
+                                               std::array<event_code, sizeof...(T)>{static_cast<event_code>(inp_to)...}};
         }
 
         template <typename... T>
             requires(std::convertible_to<T, user_event> && ...)
         consteval auto operator()(event_code const inp_from, T... inp_to) const noexcept {
-            return basic_replace<sizeof...(T), user_event>{
-              inp_from,
-              std::array<user_event, sizeof...(T)>{static_cast<user_event>(inp_to)...}};
+            return basic_replace<sizeof...(T), user_event>{inp_from,
+                                                           std::array<user_event, sizeof...(T)>{static_cast<user_event>(inp_to)...}};
         }
 
         template <typename... T>
@@ -130,8 +125,7 @@ namespace fs8 {
         }
 
         template <std::size_t NN>
-        consteval auto operator()(code_type const                   inp_from,
-                                  std::array<event_type, NN> const& inp_to) const noexcept {
+        consteval auto operator()(code_type const inp_from, std::array<event_type, NN> const& inp_to) const noexcept {
             return basic_replace<NN, event_type>{
               event_code{EV_KEY, inp_from},
               inp_to
@@ -139,8 +133,7 @@ namespace fs8 {
         }
 
         template <std::size_t NN>
-        consteval auto operator()(code_type const                   inp_from,
-                                  std::array<user_event, NN> const& inp_to) const noexcept {
+        consteval auto operator()(code_type const inp_from, std::array<user_event, NN> const& inp_to) const noexcept {
             return basic_replace<NN, user_event>{
               event_code{EV_KEY, inp_from},
               inp_to
@@ -148,14 +141,12 @@ namespace fs8 {
         }
 
         template <std::size_t NN>
-        consteval auto operator()(event_code const                  inp_from,
-                                  std::array<event_type, NN> const& inp_to) const noexcept {
+        consteval auto operator()(event_code const inp_from, std::array<event_type, NN> const& inp_to) const noexcept {
             return basic_replace<NN, event_type>{inp_from, inp_to};
         }
 
         template <std::size_t NN>
-        consteval auto operator()(event_code const                  inp_from,
-                                  std::array<user_event, NN> const& inp_to) const noexcept {
+        consteval auto operator()(event_code const inp_from, std::array<user_event, NN> const& inp_to) const noexcept {
             return basic_replace<NN, user_event>{inp_from, inp_to};
         }
 

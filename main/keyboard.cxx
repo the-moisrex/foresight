@@ -90,8 +90,7 @@ namespace {
         static std::size_t tries = 1;
         ++tries;
         if (tries == fs8::give_up_limit + 1) {
-            fs8::log("Tried {0:d} times and failed everytime to start the loop (or in the loop); giving up!",
-                     tries);
+            fs8::log("Tried {0:d} times and failed everytime to start the loop (or in the loop); giving up!", tries);
             return false;
         }
         return true;

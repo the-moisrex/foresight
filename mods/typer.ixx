@@ -11,8 +11,7 @@ import foresight.lib.xkb.how2type;
 namespace fs8 {
 
     export template <typename CharT>
-    [[nodiscard]] constexpr std::basic_string_view<CharT> to_string(
-      std::basic_string_view<CharT> str) noexcept {
+    [[nodiscard]] constexpr std::basic_string_view<CharT> to_string(std::basic_string_view<CharT> str) noexcept {
         return str;
     }
 

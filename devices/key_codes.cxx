@@ -23,8 +23,7 @@ namespace {
 
     struct case_insensitive_less_t {
         template <typename CharT>
-        [[nodiscard]] constexpr bool operator()(keynames_type const&          lhs,
-                                                std::basic_string_view<CharT> rhs) const noexcept {
+        [[nodiscard]] constexpr bool operator()(keynames_type const& lhs, std::basic_string_view<CharT> rhs) const noexcept {
             auto len = std::min(lhs.name.size(), rhs.size());
             for (std::size_t i = 0; i < len; ++i) {
                 auto const ca = static_cast<CharT>(lhs.name[i]);
@@ -42,8 +41,7 @@ namespace {
 
     struct case_insensitive_equal_t {
         template <typename CharT>
-        [[nodiscard]] constexpr bool operator()(keynames_type const&          lhs,
-                                                std::basic_string_view<CharT> rhs) const noexcept {
+        [[nodiscard]] constexpr bool operator()(keynames_type const& lhs, std::basic_string_view<CharT> rhs) const noexcept {
             if (lhs.name.size() != rhs.size()) {
                 return false;
             }

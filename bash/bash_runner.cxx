@@ -83,10 +83,7 @@ std::string bash_runner::exec(std::string_view const command) {
             return result;
         }
     }
-    [[unlikely]] {
-        throw std::runtime_error(
-          n < 0 ? "Error reading from bash process" : "Unexpected end of output from bash process");
-    }
+    [[unlikely]] { throw std::runtime_error(n < 0 ? "Error reading from bash process" : "Unexpected end of output from bash process"); }
 }
 
 void bash_runner::start() {
@@ -147,8 +144,7 @@ std::string bash_runner::get_variable(std::string_view const name) {
     return exec(std::format("echo \"${{{}}}\"", name));
 }
 
-std::string bash_runner::call_function(std::string_view const                  func_name,
-                                       std::span<std::string_view const> const args) {
+std::string bash_runner::call_function(std::string_view const func_name, std::span<std::string_view const> const args) {
     std::string cmd(func_name);
     for (std::string_view const arg : args) {
         cmd += " '";

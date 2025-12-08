@@ -143,14 +143,7 @@ namespace {
         }
 
         // Header (still uses println; widths are constant here, so it compiles)
-        std::println(
-          "{: <{}}  {: <{}}  {: <{}}",
-          "Device",
-          w_name,
-          "Physical Location",
-          w_loc,
-          "Unique ID",
-          w_id);
+        std::println("{: <{}}  {: <{}}  {: <{}}", "Device", w_name, "Physical Location", w_loc, "Unique ID", w_id);
 
         // Separator
         std::println("{:-<{}}  {:-<{}}  {:-<{}}", "", w_name, "", w_loc, "", w_id);
@@ -206,26 +199,20 @@ namespace {
             switch (opts.action) {
                 case intercept: {
                     opts.files.emplace_back(opt, grab);
-                    if (auto const status = std::filesystem::status(opts.files.back().file); !exists(status))
-                    {
-                        throw invalid_argument(
-                          format("File does not exist: {}", opts.files.back().file.string()));
+                    if (auto const status = std::filesystem::status(opts.files.back().file); !exists(status)) {
+                        throw invalid_argument(format("File does not exist: {}", opts.files.back().file.string()));
                     } else if (!is_character_file(status)) { // NOLINT(*-else-after-return)
-                        throw invalid_argument(
-                          format("It's not a file: {}", opts.files.back().file.string()));
+                        throw invalid_argument(format("It's not a file: {}", opts.files.back().file.string()));
                     }
                     break;
                 }
 
                 case redirect: {
                     opts.files.emplace_back(opt);
-                    if (auto const status = std::filesystem::status(opts.files.back().file); !exists(status))
-                    {
-                        throw invalid_argument(
-                          format("File does not exist: {}", opts.files.back().file.string()));
+                    if (auto const status = std::filesystem::status(opts.files.back().file); !exists(status)) {
+                        throw invalid_argument(format("File does not exist: {}", opts.files.back().file.string()));
                     } else if (!is_character_file(status)) { // NOLINT(*-else-after-return)
-                        throw invalid_argument(
-                          format("It's not a file: {}", opts.files.back().file.string()));
+                        throw invalid_argument(format("It's not a file: {}", opts.files.back().file.string()));
                     }
                     break;
                 }
@@ -310,8 +297,7 @@ namespace {
                 auto const&      file = opts.files.front().file;
                 fs8::evdev const dev{file};
                 if (!dev.ok()) {
-                    throw std::runtime_error(
-                      std::format("Could not open device to write into {}", file.string()));
+                    throw std::runtime_error(std::format("Could not open device to write into {}", file.string()));
                 }
                 out.set_device(dev);
                 register_stop_signal(sig_stopper);

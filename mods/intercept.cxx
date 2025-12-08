@@ -37,9 +37,7 @@ basic_interceptor::basic_interceptor(std::span<input_file_type const> const inp_
     set_files(inp_paths);
 }
 
-basic_interceptor::basic_interceptor(std::vector<evdev>&& inp_devs)
-  : devs{std::move(inp_devs)},
-    fds{get_pollfds(devs)} {}
+basic_interceptor::basic_interceptor(std::vector<evdev>&& inp_devs) : devs{std::move(inp_devs)}, fds{get_pollfds(devs)} {}
 
 void basic_interceptor::set_files(std::span<std::filesystem::path const> const inp_paths) {
     // convert to `evdev`s.
@@ -49,10 +47,9 @@ void basic_interceptor::set_files(std::span<std::filesystem::path const> const i
     for (auto const& file : inp_paths) {
         auto& dev = devs.emplace_back(file);
         if (!dev.ok()) [[unlikely]] {
-            throw std::runtime_error(std::format(
-              "Failed to initialize event device ({}) while setting multiple files with error({}).",
-              file.string(),
-              to_string(dev.get_status())));
+            throw std::runtime_error(std::format("Failed to initialize event device ({}) while setting multiple files with error({}).",
+                                                 file.string(),
+                                                 to_string(dev.get_status())));
         }
     }
     fds = get_pollfds(devs);
@@ -81,9 +78,8 @@ void basic_interceptor::add_file(input_file_type const& inp_path) {
     auto const& [file, grab] = inp_path;
     auto& dev                = devs.emplace_back(file);
     if (!dev.ok()) [[unlikely]] {
-        throw std::runtime_error(std::format("Failed to initialize event device ({}) with error({}).",
-                                             file.string(),
-                                             to_string(dev.get_status())));
+        throw std::runtime_error(
+          std::format("Failed to initialize event device ({}) with error({}).", file.string(), to_string(dev.get_status())));
     }
     dev.grab_input(grab);
     fds.emplace_back(get_pollfd(dev));
@@ -155,8 +151,7 @@ fs8::context_action basic_interceptor::wait_for_event() noexcept {
     }
 
     // Poll file descriptors and handle errors properly
-    if (auto const poll_result = poll(fds.data(), fds.size(), poll_timeout_ms); poll_result <= 0) [[unlikely]]
-    {
+    if (auto const poll_result = poll(fds.data(), fds.size(), poll_timeout_ms); poll_result <= 0) [[unlikely]] {
         if (poll_result == 0) {
             // Timeout occurred
             return ignore_event;

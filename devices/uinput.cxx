@@ -87,9 +87,7 @@ void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descript
     // will open @c /dev/uinput in read/write mode and manage the file descriptor.
     // Otherwise, uinput_fd must be opened by the caller and opened with the
     // appropriate permissions.
-    if (auto const ret = libevdev_uinput_create_from_device(evdev_dev, file_descriptor, &dev); ret != 0)
-      [[unlikely]]
-    {
+    if (auto const ret = libevdev_uinput_create_from_device(evdev_dev, file_descriptor, &dev); ret != 0) [[unlikely]] {
         close();
         err_code = static_cast<std::errc>(-ret);
     }
@@ -150,9 +148,7 @@ namespace {
         int      rc;
         char     buf[sizeof(SYS_INPUT_DIR) + 64] = SYS_INPUT_DIR;
 
-        rc = ioctl(uinput_dev->fd,
-                   UI_GET_SYSNAME(sizeof(buf) - strlen(SYS_INPUT_DIR)),
-                   &buf[strlen(SYS_INPUT_DIR)]);
+        rc = ioctl(uinput_dev->fd, UI_GET_SYSNAME(sizeof(buf) - strlen(SYS_INPUT_DIR)), &buf[strlen(SYS_INPUT_DIR)]);
         if (rc != -1) {
             uinput_dev->syspath = strdup(buf);
             uinput_dev->devnode = fetch_device_node(buf);
@@ -181,13 +177,7 @@ namespace {
             }
 
             /* created before UI_DEV_CREATE, or after it finished */
-            if (fstat(fd, &st)
-                == -1
-                || st.st_ctime
-                < uinput_dev->ctime[0]
-                || st.st_ctime
-                > uinput_dev->ctime[1])
-            {
+            if (fstat(fd, &st) == -1 || st.st_ctime < uinput_dev->ctime[0] || st.st_ctime > uinput_dev->ctime[1]) {
                 close(fd);
                 continue;
             }
@@ -266,9 +256,7 @@ void basic_uinput::set_device(int fd, std::string_view const name) noexcept {
         return;
     }
 
-    if (unsigned int uinput_version = 0;
-        ::ioctl(fd, UI_GET_VERSION, &uinput_version) == 0 && uinput_version < 5U)
-    {
+    if (unsigned int uinput_version = 0; ::ioctl(fd, UI_GET_VERSION, &uinput_version) == 0 && uinput_version < 5U) {
         log("Kernel needs to supports uinput version 5, but it doesn't now.");
         return;
     }
@@ -462,9 +450,7 @@ void basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
                     for (auto const code : codes) {
                         if (libevdev_has_event_code(dev_ptr, type, code) == 0) {
                             libevdev_enable_event_code(dev_ptr, type, code, nullptr);
-                            log("  Enabled: {} {}",
-                                libevdev_event_type_get_name(type),
-                                libevdev_event_code_get_name(type, code));
+                            log("  Enabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
                         }
                     }
                     break;

@@ -53,8 +53,7 @@ export namespace fs8 {
 
       public:
         template <typename... Args>
-        explicit consteval basic_arguments(Args&&... defaults) noexcept
-          : defaults_{"", std::forward<Args>(defaults)...} {}
+        explicit consteval basic_arguments(Args&&... defaults) noexcept : defaults_{"", std::forward<Args>(defaults)...} {}
 
         auto operator()(int const argc, char const* const* argv) const& noexcept {
             auto const        beg   = argc <= 1 ? defaults_.data() : argv;

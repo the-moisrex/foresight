@@ -36,28 +36,23 @@ namespace {
         if (!initialized) {
             map[0].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_SHIFT);
             map[0].keycode = KEY_LEFTSHIFT;
-            map[0].mask =
-              map[0].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[0].index) : 0;
+            map[0].mask    = map[0].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[0].index) : 0;
 
             map[1].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_CTRL);
             map[1].keycode = KEY_LEFTCTRL;
-            map[1].mask =
-              map[1].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[1].index) : 0;
+            map[1].mask    = map[1].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[1].index) : 0;
 
             map[2].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_ALT);
             map[2].keycode = KEY_LEFTALT;
-            map[2].mask =
-              map[2].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[2].index) : 0;
+            map[2].mask    = map[2].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[2].index) : 0;
 
             map[3].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_LOGO);
             map[3].keycode = KEY_LEFTMETA;
-            map[3].mask =
-              map[3].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[3].index) : 0;
+            map[3].mask    = map[3].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[3].index) : 0;
 
             map[4].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_CAPS);
             map[4].keycode = KEY_CAPSLOCK;
-            map[4].mask =
-              map[4].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[4].index) : 0;
+            map[4].mask    = map[4].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[4].index) : 0;
 
             initialized = true;
         }
@@ -74,8 +69,7 @@ namespace {
      * - emit:   callable taking (const struct user_event&).
      */
     template <typename EmitFunc>
-    bool
-    invoke_mod_events(xkb_keymap *keymap, xkb_mod_mask_t const mask, bool const pressed, EmitFunc &&emit) {
+    bool invoke_mod_events(xkb_keymap *keymap, xkb_mod_mask_t const mask, bool const pressed, EmitFunc &&emit) {
         auto const &modmap = get_modmap(keymap);
 
         bool            mod_found = false;
@@ -104,9 +98,7 @@ namespace {
 
     /// For each keycode/layout/level with single keysym equal to keysym, call the callback with the
     /// key_position (one per mask returned).
-    bool on_keypos(fs8::xkb::keymap const          &map,
-                   xkb_keysym_t const               keysym,
-                   fs8::xkb::handle_keysym_callback callback) {
+    bool on_keypos(fs8::xkb::keymap const &map, xkb_keysym_t const keysym, fs8::xkb::handle_keysym_callback callback) {
         xkb_keycode_t const       min_keycode = xkb_keymap_min_keycode(map.get());
         xkb_keycode_t const       max_keycode = xkb_keymap_max_keycode(map.get());
         std::vector<xkb_keysym_t> seen_syms;
@@ -121,17 +113,15 @@ namespace {
 
             xkb_layout_index_t const num_layouts = xkb_keymap_num_layouts_for_key(map.get(), keycode);
             for (xkb_layout_index_t layout = 0; layout < num_layouts; ++layout) {
-                xkb_level_index_t const num_levels =
-                  xkb_keymap_num_levels_for_key(map.get(), keycode, layout);
+                xkb_level_index_t const num_levels = xkb_keymap_num_levels_for_key(map.get(), keycode, layout);
 
                 // keep track of which keysyms we have seen on lower levels of this key/layout
                 seen_syms.clear();
                 seen_syms.reserve(num_levels);
 
                 for (xkb_level_index_t level = 0; level < num_levels; ++level) {
-                    xkb_keysym_t const *syms = nullptr;
-                    int const           nsyms =
-                      xkb_keymap_key_get_syms_by_level(map.get(), keycode, layout, level, &syms);
+                    xkb_keysym_t const *syms  = nullptr;
+                    int const           nsyms = xkb_keymap_key_get_syms_by_level(map.get(), keycode, layout, level, &syms);
 
                     if (nsyms != 1) {
                         continue;              // only care about single keysym per level
@@ -157,13 +147,7 @@ namespace {
 
                     // Found keysym at this keycode/layout/level, collect masks
                     std::array<xkb_mod_mask_t, MAX_TYPE_MAP_ENTRIES> masks{};
-                    auto const n_masks = xkb_keymap_key_get_mods_for_level(
-                      map.get(),
-                      keycode,
-                      layout,
-                      level,
-                      masks.data(),
-                      masks.size());
+                    auto const n_masks = xkb_keymap_key_get_mods_for_level(map.get(), keycode, layout, level, masks.data(), masks.size());
 
                     // If there are no masks reported, still push a default mask 0
                     if (n_masks == 0) {
@@ -173,8 +157,7 @@ namespace {
                     } else {
                         found_positions |= n_masks > 0;
                         for (std::size_t mi = 0; mi < n_masks; ++mi) {
-                            callback(
-                              {.keycode = keycode, .layout = layout, .level = level, .mask = masks.at(mi)});
+                            callback({.keycode = keycode, .layout = layout, .level = level, .mask = masks.at(mi)});
                             // entry->positions.emplace_back();
                         }
                     }
@@ -185,10 +168,7 @@ namespace {
     }
 } // namespace
 
-void fs8::xkb::how2type::on_keysym(
-  keymap const          &map,
-  xkb_keysym_t const     target_keysym,
-  handle_keysym_callback callback) noexcept {
+void fs8::xkb::how2type::on_keysym(keymap const &map, xkb_keysym_t const target_keysym, handle_keysym_callback callback) noexcept {
     bool done = false;
     on_keypos(map, target_keysym, [&](key_position const &position) {
         // Return the first direct position (first-found strategy)
@@ -248,13 +228,7 @@ void fs8::xkb::how2type::emit(keymap const &map, char32_t const ucs32, user_even
 
         if (requires_mods) {
             // todo: can we cache these results if this function is heavy?
-            num_masks = xkb_keymap_key_get_mods_for_level(
-              map.get(),
-              pos.keycode,
-              pos.layout,
-              pos.level,
-              masks.data(),
-              masks.size());
+            num_masks = xkb_keymap_key_get_mods_for_level(map.get(), pos.keycode, pos.layout, pos.level, masks.data(), masks.size());
 
             if (num_masks > 0) {
                 if (invoke_mod_events(map.get(),
@@ -292,9 +266,7 @@ void fs8::xkb::how2type::emit(keymap const &map, char32_t const ucs32, user_even
     });
 }
 
-void fs8::xkb::how2type::emit(keymap const             &map,
-                              std::u32string_view const str,
-                              user_event_callback       callback) {
+void fs8::xkb::how2type::emit(keymap const &map, std::u32string_view const str, user_event_callback callback) {
     for (char32_t const ucs32 : str) {
         emit(map, ucs32, callback);
     }

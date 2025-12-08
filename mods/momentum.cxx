@@ -179,8 +179,7 @@ void momentum_calculator::init_interp() noexcept {
 
     // Calculate side length for control points using a weighted average approach
     // This ensures the curve has appropriate curvature based on initial momentum and distance to target
-    float const side =
-      to_target_dist / (2.0f * std::abs(delta_) / (std::abs(delta_) + to_target_dist) + 1.0f);
+    float const side = to_target_dist / (2.0f * std::abs(delta_) / (std::abs(delta_) + to_target_dist) + 1.0f);
 
     // Control points for the cubic Bezier curve
     float const ctrl1 = pos_ + side * delta_dir;   // First control point in momentum direction

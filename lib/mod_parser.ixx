@@ -43,8 +43,7 @@ namespace fs8 {
     [[nodiscard]] std::u32string parse_modifier(std::u32string_view mod_str);
 
     /// Next `<...>` section
-    export void on_modifier_tags(std::u32string_view                             str,
-                                 std::function<void(std::u32string_view)> const &callback) noexcept;
+    export void on_modifier_tags(std::u32string_view str, std::function<void(std::u32string_view)> const &callback) noexcept;
 
     /// Normalize the modifiers, for example replace keyboard event pairs X with Unicode Code Point X.
     /// Returns true if it was already normalized, false otherwise.

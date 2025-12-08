@@ -282,11 +282,9 @@ export namespace fs8 {
             return static_cast<T>(1);
         }
         if (t < static_cast<T>(0.5)) {
-            return std::pow(static_cast<T>(2), static_cast<T>(20) * t - static_cast<T>(10))
-                   / static_cast<T>(2);
+            return std::pow(static_cast<T>(2), static_cast<T>(20) * t - static_cast<T>(10)) / static_cast<T>(2);
         }
-        return (static_cast<T>(2) - std::pow(static_cast<T>(2), -static_cast<T>(20) * t + static_cast<T>(10)))
-               / static_cast<T>(2);
+        return (static_cast<T>(2) - std::pow(static_cast<T>(2), -static_cast<T>(20) * t + static_cast<T>(10))) / static_cast<T>(2);
     }
 
 } // namespace fs8

@@ -41,9 +41,7 @@ evdev::evdev(std::filesystem::path const& file) noexcept {
     set_file(file);
 }
 
-evdev::evdev(evdev&& inp) noexcept
-  : dev{std::exchange(inp.dev, nullptr)},
-    status{std::exchange(inp.status, evdev_status::unknown)} {}
+evdev::evdev(evdev&& inp) noexcept : dev{std::exchange(inp.dev, nullptr)}, status{std::exchange(inp.status, evdev_status::unknown)} {}
 
 evdev& evdev::operator=(evdev&& other) noexcept {
     if (&other != this) {
@@ -415,8 +413,7 @@ namespace {
     /// Function to calculate Levenshtein distance (case-insensitive: both strings to lowercase)
     /// Returns the minimum number of edits (insertions, deletions, substitutions)
     /// required to transform s1 into s2.
-    [[nodiscard]] std::uint32_t levenshtein_distance(std::string_view const lhs,
-                                                     std::string_view const rhs) noexcept {
+    [[nodiscard]] std::uint32_t levenshtein_distance(std::string_view const lhs, std::string_view const rhs) noexcept {
         try {
             auto const m = static_cast<std::uint32_t>(lhs.size());
             auto const n = static_cast<std::uint32_t>(rhs.size());
@@ -461,8 +458,7 @@ namespace {
     /// Function to perform a fuzzy search score between two strings (case-insensitive).
     /// Returns a score (0-100) indicating how well lhs matches rhs, using a simple
     /// subsequence and character match approach.
-    [[nodiscard]] std::uint16_t fuzzy_search(std::string_view const lhs,
-                                             std::string_view const rhs) noexcept {
+    [[nodiscard]] std::uint16_t fuzzy_search(std::string_view const lhs, std::string_view const rhs) noexcept {
         if (lhs.empty() && rhs.empty()) {
             return 100;
         }
@@ -493,12 +489,10 @@ namespace {
         }
 
         // Score: percent of lhs characters found in order in rhs
-        return static_cast<std::uint16_t>(
-          (static_cast<double>(match_count) / static_cast<double>(lhs_len)) * 100);
+        return static_cast<std::uint16_t>((static_cast<double>(match_count) / static_cast<double>(lhs_len)) * 100);
     }
 
-    [[nodiscard]] std::uint16_t subset_score(std::string_view const lhs,
-                                             std::string_view const rhs) noexcept {
+    [[nodiscard]] std::uint16_t subset_score(std::string_view const lhs, std::string_view const rhs) noexcept {
         std::uint16_t score   = 0;
         auto const    lhs_len = lhs.size();
         auto const    rhs_len = rhs.size();
@@ -521,8 +515,7 @@ namespace {
         return score;
     }
 
-    [[nodiscard]] std::uint16_t levenshtein_score(std::string_view const lhs,
-                                                  std::string_view const rhs) noexcept {
+    [[nodiscard]] std::uint16_t levenshtein_score(std::string_view const lhs, std::string_view const rhs) noexcept {
         auto const   distance = static_cast<double>(levenshtein_distance(lhs, rhs));
         double const max_len  = static_cast<double>(std::max(lhs.length(), rhs.length()));
 
@@ -542,15 +535,10 @@ namespace {
         }
 
         return static_cast<std::uint16_t>(
-          (levenshtein_score(lhs, rhs)
-           + fuzzy_search(lhs, rhs)
-           + subset_score(lhs, rhs)
-           + subset_score(rhs, lhs))
-          / 4);
+          (levenshtein_score(lhs, rhs) + fuzzy_search(lhs, rhs) + subset_score(lhs, rhs) + subset_score(rhs, lhs)) / 4);
     }
 
-    [[nodiscard]] std::pair<fs8::dev_caps_view, std::uint16_t> find_caps(
-      std::string_view const query) noexcept {
+    [[nodiscard]] std::pair<fs8::dev_caps_view, std::uint16_t> find_caps(std::string_view const query) noexcept {
         fs8::dev_caps_view caps{};
         std::uint16_t      score = 0;
         for (auto const& [name, cap_view] : fs8::caps::cap_maps) {
@@ -596,30 +584,17 @@ fs8::evdev_rank fs8::device(std::string_view query) {
         //     continue;
         // }
 
-        std::uint16_t const name_score = calc_score(query, name);
-        auto const          loc_score  = static_cast<std::uint16_t>(calc_score(query, loc) / 2);
-        auto const          id_score   = static_cast<std::uint16_t>(calc_score(query, id) * 1.5);
-        auto const          cur_caps_score =
-          static_cast<std::uint16_t>(dev.match_caps(caps) * (static_cast<double>(caps_score) / 100 + 1));
-        auto const score =
-          static_cast<std::uint8_t>((name_score + loc_score + id_score + cur_caps_score) / 4);
+        std::uint16_t const name_score     = calc_score(query, name);
+        auto const          loc_score      = static_cast<std::uint16_t>(calc_score(query, loc) / 2);
+        auto const          id_score       = static_cast<std::uint16_t>(calc_score(query, id) * 1.5);
+        auto const          cur_caps_score = static_cast<std::uint16_t>(dev.match_caps(caps) * (static_cast<double>(caps_score) / 100 + 1));
+        auto const          score          = static_cast<std::uint8_t>((name_score + loc_score + id_score + cur_caps_score) / 4);
         if (score > best.score) {
             best.score = score;
             best.dev   = std::move(dev);
         }
-        log("  - Score {}% ({}/{}/{}/{}): {} {} {}",
-            score,
-            name_score,
-            loc_score,
-            id_score,
-            cur_caps_score,
-            name,
-            loc,
-            id);
+        log("  - Score {}% ({}/{}/{}/{}): {} {} {}", score, name_score, loc_score, id_score, cur_caps_score, name, loc, id);
     }
-    log("  + Best device with score {}%: {} {}",
-        best.score,
-        best.dev.device_name(),
-        best.dev.physical_location());
+    log("  + Best device with score {}%: {} {}", best.score, best.dev.device_name(), best.dev.physical_location());
     return best;
 }

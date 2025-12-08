@@ -83,7 +83,7 @@ BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
 BreakStringLiterals: true
 BreakBinaryOperations: OnePerLine
-ColumnLimit: 110
+ColumnLimit: 140
 CommentPragmas: ((^\s*(todo|TODO|fixme|FIXME|NOLINT|NOLINTBEGIN|NOLINTEND|NOLINTNEXTLINE):.*)|^\s*\/\/)
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 2
@@ -163,7 +163,7 @@ PenaltyReturnTypeOnItsOwnLine: 100
 PointerAlignment: Left
 QualifierAlignment: Custom
 ReferenceAlignment: Pointer
-ReflowComments: true
+ReflowComments: Always
 RemoveBracesLLVM: false
 RemoveSemicolon: true
 RequiresClausePosition: OwnLine

@@ -30,9 +30,7 @@ export namespace fs8::xkb {
          * an ordered vector of key_position (each entry corresponds to
          * a physical key press to produce the final symbol).
          */
-        void on_keysym(keymap const&          map,
-                       xkb_keysym_t           target_keysym,
-                       handle_keysym_callback callback) noexcept;
+        void on_keysym(keymap const& map, xkb_keysym_t target_keysym, handle_keysym_callback callback) noexcept;
 
         /**
          *  Given a Unicode code point, return a best-effort sequence of events

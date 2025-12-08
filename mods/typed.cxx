@@ -30,26 +30,21 @@ namespace {
 } // namespace
 
 // NOLINTBEGIN(*-pro-bounds-constant-array-index)
-basic_search_engine::state_type basic_search_engine::find_child(
-  state_type const state,
-  char32_t const   code) const noexcept {
+basic_search_engine::state_type basic_search_engine::find_child(state_type const state, char32_t const code) const noexcept {
     auto const &node     = trie[state];
     auto const &children = node.children;
 
     // binary search since children is kept sorted by codepoint
-    auto const it =
-      std::lower_bound(children.begin(), children.end(), code, [](auto const &a, char32_t value) {
-          return a.first < value;
-      });
+    auto const it = std::lower_bound(children.begin(), children.end(), code, [](auto const &a, char32_t value) {
+        return a.first < value;
+    });
     if (it != children.end() && it->first == code) {
         return it->second;
     }
     return 0; // index to root
 }
 
-basic_search_engine::state_type basic_search_engine::quick_find_child(
-  state_type const state,
-  char32_t const   code) const noexcept {
+basic_search_engine::state_type basic_search_engine::quick_find_child(state_type const state, char32_t const code) const noexcept {
     if ((trie[state].children_mask & code) == 0) [[likely]] {
         // User most likely won't be typing the shortcuts all the time, so we put it in the slow path
         return 0; // index to root
@@ -60,10 +55,9 @@ basic_search_engine::state_type basic_search_engine::quick_find_child(
 std::uint32_t basic_search_engine::add_child(state_type const state, char32_t code, state_type child_index) {
     auto      &node     = trie[state];
     auto      &children = trie[state].children;
-    auto const it =
-      std::lower_bound(children.begin(), children.end(), code, [](auto const &a, char32_t value) {
-          return a.first < value;
-      });
+    auto const it       = std::lower_bound(children.begin(), children.end(), code, [](auto const &a, char32_t value) {
+        return a.first < value;
+    });
     children.emplace(it, code, child_index); // insert sorted
     node.children_mask |= code;
     return calc_children_mask(node);
@@ -173,8 +167,7 @@ std::uint16_t basic_search_engine::add_pattern(std::string_view pattern) {
     return static_cast<std::uint16_t>(patterns.size() - 1);
 }
 
-fs8::aho_state basic_search_engine::process(char32_t const  code_point,
-                                            aho_state const last_state) const noexcept {
+fs8::aho_state basic_search_engine::process(char32_t const code_point, aho_state const last_state) const noexcept {
     assert(!trie.empty());
     auto state = last_state.index();
 
@@ -187,8 +180,7 @@ fs8::aho_state basic_search_engine::process(char32_t const  code_point,
     return last_state.next_generation(next);
 }
 
-void basic_search_engine::matches(std::uint32_t const                             state,
-                                  std::function<void(std::u32string_view)> const &callback) const {
+void basic_search_engine::matches(std::uint32_t const state, std::function<void(std::u32string_view)> const &callback) const {
     assert(patterns.size() < MAX_PATTERNS);
     if (state >= trie.size()) [[unlikely]] {
         return;
@@ -222,11 +214,7 @@ bool basic_search_engine::search(
         return false;
     }
     auto const code = unicode_encoded_event(keyboard_state, static_cast<key_event>(event));
-    log("Code: {:x} {} {} {}",
-        static_cast<std::uint32_t>(code),
-        event.type_name(),
-        event.code_name(),
-        event.value());
+    log("Code: {:x} {} {} {}", static_cast<std::uint32_t>(code), event.type_name(), event.code_name(), event.value());
     if (event.value() != 1) {
         return false; // skip processing key-ups, but we do need to process key-ups for modifier states
     }

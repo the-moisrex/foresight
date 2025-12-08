@@ -158,7 +158,7 @@ namespace fs8 {
         /// May return nullptr
         [[nodiscard]] input_absinfo const* abs_info(code_type code) const noexcept;
         [[nodiscard]] bool                 has_abs_info(code_type code = ABS_X) const noexcept;
-        void abs_info(code_type abs_code, input_absinfo const& abs_info) noexcept;
+        void                               abs_info(code_type abs_code, input_absinfo const& abs_info) noexcept;
 
         /**
          * Get a new input_event from the input device
@@ -204,8 +204,7 @@ namespace fs8 {
                  });
     }
 
-    export constexpr struct [[nodiscard]]
-    basic_grab_inputs : std::ranges::range_adaptor_closure<basic_grab_inputs> {
+    export constexpr struct [[nodiscard]] basic_grab_inputs : std::ranges::range_adaptor_closure<basic_grab_inputs> {
         evdev operator()(evdev&& dev, bool const grab = true) const noexcept {
             dev.grab_input(grab);
             return std::move(dev);
@@ -223,8 +222,7 @@ namespace fs8 {
         evdev        dev;
     };
 
-    export [[nodiscard]] constexpr auto match_devices(dev_caps_view const       inp_caps,
-                                                      std::ranges::range auto&& devs) {
+    export [[nodiscard]] constexpr auto match_devices(dev_caps_view const inp_caps, std::ranges::range auto&& devs) {
         using std::ranges::views::transform;
         return devs | transform([=](evdev&& dev) {
                    auto const percentage = dev.match_caps(inp_caps);
@@ -247,14 +245,12 @@ namespace fs8 {
     /// Example: tablet
     export [[nodiscard]] evdev_rank device(std::string_view);
 
-    export constexpr struct [[nodiscard]]
-    basic_only_matching : std::ranges::range_adaptor_closure<basic_only_matching> {
+    export constexpr struct [[nodiscard]] basic_only_matching : std::ranges::range_adaptor_closure<basic_only_matching> {
       private:
         std::uint8_t percentage = 40;
 
       public:
-        constexpr explicit basic_only_matching(std::uint8_t const inp_percentage) noexcept
-          : percentage(inp_percentage) {}
+        constexpr explicit basic_only_matching(std::uint8_t const inp_percentage) noexcept : percentage(inp_percentage) {}
 
         basic_only_matching()                                      = default;
         basic_only_matching(basic_only_matching const&)            = default;
@@ -295,8 +291,7 @@ namespace fs8 {
         }
     } only_ok;
 
-    export constexpr struct [[nodiscard]]
-    basic_find_devices : std::ranges::range_adaptor_closure<basic_find_devices> {
+    export constexpr struct [[nodiscard]] basic_find_devices : std::ranges::range_adaptor_closure<basic_find_devices> {
         template <std::ranges::sized_range Range>
             requires(std::same_as<std::ranges::range_value_t<Range>, std::string_view>)
         constexpr auto operator()(Range&& rng) const noexcept {
@@ -317,8 +312,7 @@ namespace fs8 {
 
     } find_devices;
 
-    export constexpr struct [[nodiscard]]
-    basic_to_evdev : std::ranges::range_adaptor_closure<basic_to_evdev> {
+    export constexpr struct [[nodiscard]] basic_to_evdev : std::ranges::range_adaptor_closure<basic_to_evdev> {
         [[nodiscard]] constexpr auto operator()(evdev_rank&& ranker) const noexcept {
             return std::move(std::move(ranker).dev);
         }

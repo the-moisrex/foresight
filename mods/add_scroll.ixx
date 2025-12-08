@@ -34,10 +34,7 @@ export namespace fs8 {
       public:
         constexpr basic_add_scroll() noexcept = default;
 
-        constexpr explicit basic_add_scroll(
-          CondT const     &inp_cond,
-          value_type const inp_reverse = 5,
-          Func const      &inp_func    = {}) noexcept
+        constexpr explicit basic_add_scroll(CondT const &inp_cond, value_type const inp_reverse = 5, Func const &inp_func = {}) noexcept
           : reverse{inp_reverse},
             cond{inp_cond},
             func{inp_func} {
@@ -57,16 +54,13 @@ export namespace fs8 {
         void operator()(auto &&, tag auto) = delete;
 
         template <typename InpCondT, typename InpFuncT = basic_noop>
-        [[nodiscard]] consteval auto operator()(
-          InpCondT const  &inp_cond,
-          value_type const inp_reverse = 8,
-          InpFuncT const  &inp_func    = {}) const noexcept {
+        [[nodiscard]] consteval auto
+        operator()(InpCondT const &inp_cond, value_type const inp_reverse = 8, InpFuncT const &inp_func = {}) const noexcept {
             return basic_add_scroll<InpCondT, InpFuncT>{inp_cond, inp_reverse, inp_func};
         }
 
         template <typename InpCondT, typename InpFuncT = basic_noop>
-        [[nodiscard]] consteval auto operator()(InpCondT const &inp_cond,
-                                                InpFuncT const &inp_func = {}) const noexcept {
+        [[nodiscard]] consteval auto operator()(InpCondT const &inp_cond, InpFuncT const &inp_func = {}) const noexcept {
             return basic_add_scroll<InpCondT, InpFuncT>{inp_cond, reverse, inp_func};
         }
 

@@ -25,10 +25,10 @@ TEST(MouseVelocityTrackerTest, FirstEventInitializesState) {
 TEST(MouseVelocityTrackerTest, TwoEventsYieldVelocity) {
     velocity_tracker tracker;
 
-    tracker.process_event(5.0f, us(100));            // t = 100 ms
-    tracker.process_event(10.0f, us(150));           // t = 150 ms → dt = 50 ms
+    tracker.process_event(5.0f, us(100));                                                    // t = 100 ms
+    tracker.process_event(10.0f, us(150));                                                   // t = 150 ms → dt = 50 ms
 
-    float const expected_instant_v  = 10.0f / 0.05f; // 200 units/sec
+    float const expected_instant_v  = 10.0f / 0.05f;                                         // 200 units/sec
     float const expected_filtered_v = (1.0f - std::exp(-0.05f / 0.1f)) * expected_instant_v; // ~78.6
 
     float const actual_v = tracker.velocity();

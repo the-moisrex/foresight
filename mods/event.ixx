@@ -95,12 +95,10 @@ export namespace fs8 {
 
     template <typename... T>
     [[nodiscard]] consteval event_codes<sizeof...(T)> key_codes(T... codes) noexcept {
-        return event_codes<sizeof...(T)>{
-          std::array<event_code, sizeof...(T)>{key_code(static_cast<event_code::code_type>(codes))...}};
+        return event_codes<sizeof...(T)>{std::array<event_code, sizeof...(T)>{key_code(static_cast<event_code::code_type>(codes))...}};
     }
 
-    [[nodiscard]] constexpr std::uint32_t hashed(event_code::type_type const type,
-                                                 event_code::code_type const code) noexcept {
+    [[nodiscard]] constexpr std::uint32_t hashed(event_code::type_type const type, event_code::code_type const code) noexcept {
         return hashed(event_code{.type = type, .code = code});
     }
 
@@ -114,12 +112,9 @@ export namespace fs8 {
 
         constexpr explicit event_type(input_event const& inp_ev) noexcept : ev{inp_ev} {}
 
-        constexpr explicit event_type(user_event const& inp_ev) noexcept
-          : event_type{inp_ev.type, inp_ev.code, inp_ev.value} {}
+        constexpr explicit event_type(user_event const& inp_ev) noexcept : event_type{inp_ev.type, inp_ev.code, inp_ev.value} {}
 
-        constexpr event_type(type_type const  inp_type,
-                             code_type const  inp_code,
-                             value_type const inp_val) noexcept {
+        constexpr event_type(type_type const inp_type, code_type const inp_code, value_type const inp_val) noexcept {
             reset_time();
             ev.type  = inp_type;
             ev.code  = inp_code;
@@ -182,9 +177,7 @@ export namespace fs8 {
             ev.value = rhs.value;
         }
 
-        constexpr void set(type_type const  inp_type,
-                           code_type const  inp_code,
-                           value_type const inp_value) noexcept {
+        constexpr void set(type_type const inp_type, code_type const inp_code, value_type const inp_value) noexcept {
             ev.type  = inp_type;
             ev.code  = inp_code;
             ev.value = inp_value;
@@ -257,8 +250,7 @@ export namespace fs8 {
             return ev.type == inp_type && ev.code == inp_code;
         }
 
-        [[nodiscard]] constexpr bool is_of(type_type const inp_type,
-                                           code_type const inp_code) const noexcept {
+        [[nodiscard]] constexpr bool is_of(type_type const inp_type, code_type const inp_code) const noexcept {
             return libevdev_event_is_code(&ev, inp_type, inp_code) == 1;
         }
 
@@ -272,8 +264,7 @@ export namespace fs8 {
             return libevdev_event_is_code(&ev, rhs.type, rhs.code) == 1;
         }
 
-        [[nodiscard]] constexpr bool
-        is(type_type const inp_type, code_type const inp_code, value_type const inp_value) const noexcept {
+        [[nodiscard]] constexpr bool is(type_type const inp_type, code_type const inp_code, value_type const inp_value) const noexcept {
             return ev.type == inp_type && ev.code == inp_code && ev.value == inp_value;
         }
 
@@ -350,8 +341,7 @@ export namespace fs8 {
     [[nodiscard]] constexpr bool is_mouse_event(event_type const& event) noexcept {
         auto const code = event.code();
         auto const type = event.type();
-        return (type == EV_REL)
-               || (type == EV_KEY && (code == BTN_LEFT || code == BTN_RIGHT || code == BTN_MIDDLE));
+        return (type == EV_REL) || (type == EV_KEY && (code == BTN_LEFT || code == BTN_RIGHT || code == BTN_MIDDLE));
     }
 
     [[nodiscard]] constexpr bool is_syn(event_type const& event) noexcept {
