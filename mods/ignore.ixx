@@ -21,7 +21,7 @@ export namespace fs8 {
         using value_type = event_type::value_type;
 
       private:
-        value_type threshold = 20; // pixels to resistance to move
+        value_type threshold = 50; // pixels to resistance to move
       public:
         constexpr basic_ignore_big_jumps() noexcept = default;
 

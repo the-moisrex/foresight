@@ -45,7 +45,7 @@ context_action fs8::basic_ignore_tablet::operator()(event_type const& event) con
 
 context_action basic_ignore_big_jumps::operator()(event_type const& event) const noexcept {
     using enum context_action;
-    if (is_mouse_movement(event) && std::abs(event.value()) > threshold) {
+    if (is_mouse_movement(event) && std::abs(event.value()) > threshold) [[unlikely]] {
         return ignore_event;
     }
     return next;
