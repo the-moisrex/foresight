@@ -17,11 +17,17 @@ export namespace fs8 {
         context_action operator()(event_type const& event) const noexcept;
     } ignore_tablet;
 
+    /**
+     * Ignore Big Mouse Jumps
+     * Any jumps bigger than specified threshold is ignored
+     */
     constexpr struct [[nodiscard]] basic_ignore_big_jumps {
         using value_type = event_type::value_type;
 
+        static constexpr value_type default_threshold = 50;
+
       private:
-        value_type threshold = 50; // pixels to resistance to move
+        value_type threshold = default_threshold; // pixels to resistance to move
       public:
         constexpr basic_ignore_big_jumps() noexcept = default;
 
@@ -40,6 +46,9 @@ export namespace fs8 {
         context_action operator()(event_type const& event) const noexcept;
     } ignore_big_jumps;
 
+    /**
+     * Ignore initial mouse moves
+     */
     constexpr struct [[nodiscard]] basic_ignore_init_moves {
         using value_type = event_type::value_type;
         using msec_type  = std::chrono::microseconds;
