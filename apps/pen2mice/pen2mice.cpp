@@ -20,14 +20,14 @@ int main(int const argc, char const* const* argv) try {
              | abs2rel                             // Convert Drawing Tablet absolute moves into mouse moves
              | pen2mice                            // Convert the buttons
              | ignore_tablet
+             | ignore_big_jumps
              | ignore_fast_left_clicks             // Ignore fast left clicks
            )
       | mice_quantifier                            // Quantify the mouse movements
       | swipe_detector                             // Detects swipes
       | on(pressed(BTN_RIGHT), ignore_start_moves) // fix right-click jumps
       | once(op & pressed(BTN_MIDDLE) & triple_click, emit(press(KEY_LEFTMETA, KEY_TAB)))
-      | once(op & limit_mouse_travel(pressed(KEY_CAPSLOCK), 50) & keyup(BTN_LEFT),
-             schedule_emit + press(BTN_RIGHT))
+      | once(op & limit_mouse_travel(pressed(KEY_CAPSLOCK), 50) & keyup(BTN_LEFT), schedule_emit + press(BTN_RIGHT))
       | on(op & (op | pressed(BTN_MIDDLE) | pressed(KEY_CAPSLOCK)) & pressed(BTN_LEFT),
            context
              | on(swipe_right, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT)))
@@ -49,7 +49,6 @@ int main(int const argc, char const* const* argv) try {
           | replace(KEY_E, KEY_LEFTMETA, KEY_TAB)
           | on(pressed(KEY_ESC), switch_mode(0))
           | ignore_caps(caps::keyboard_alphabets))
-      | ignore_big_jumps
       | ignore_adjacent_syns
       | update_mod(keys_status)
       | once(pressed(KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC), exit_pipeline) // Restart/Quit
