@@ -43,6 +43,19 @@ export namespace fs8::xkb {
          */
         void emit(keymap const& map, std::u32string_view str, user_event_callback callback);
         void emit(keymap const& map, std::string_view str, user_event_callback callback);
+
+        enum struct output_syntax : std::uint8_t {
+            evtest,
+            cpp_code,
+            // todo: add `libinput debug-events` syntax
+        };
+
+        void print(keymap const& map, std::string_view, output_syntax);
+
+        /**
+         * Print how to type the specified input in the specified syntax
+         */
+        void print(std::string_view, output_syntax syntax = output_syntax::evtest);
     }; // namespace how2type
 
 } // namespace fs8::xkb

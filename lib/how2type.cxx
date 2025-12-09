@@ -2,8 +2,11 @@
 
 module;
 #include <algorithm>
+#include <chrono>
+#include <format>
 #include <linux/input.h>
 #include <memory>
+#include <print>
 #include <ranges>
 #include <vector>
 #include <xkbcommon/xkbcommon.h>
@@ -277,4 +280,55 @@ void fs8::xkb::how2type::emit(keymap const &map, std::string_view str, user_even
         char32_t const ucs32 = utf8_next_code_point(str);
         emit(map, ucs32, callback);
     }
+}
+
+void fs8::xkb::how2type::print(keymap const &map, std::string_view const str, output_syntax const syntax) {
+    using enum output_syntax;
+
+    switch (syntax) {
+        case evtest: {
+            emit(map, str, [](user_event const &usr_event) {
+                event_type event{usr_event};
+                event.reset_time();
+
+                auto const time = std::chrono::duration<double>(event.micro_time()).count();
+                if (is_syn(event)) {
+                    std::println("Event: time {:.6f}, -------------- SYN_REPORT ------------", time);
+                    return;
+                }
+                std::println(
+                  "Event: time {:.6f}, type {} ({}), code {} ({}), value {}",
+                  time,
+                  event.type(),
+                  event.type_name(),
+                  event.code(),
+                  event.code_name(),
+                  event.value());
+            });
+            break;
+        }
+        case cpp_code: {
+            emit(map, str, [](user_event const &usr_event) {
+                event_type const event{usr_event};
+                auto const       type_name_view = event.type_name();
+                std::string      type_name{type_name_view.data(), type_name_view.size()};
+                if (type_name.empty()) {
+                    type_name = std::format("{}", event.type());
+                }
+
+                auto const  code_name_view = event.code_name();
+                std::string code_name{code_name_view.data(), code_name_view.size()};
+                if (code_name.empty()) {
+                    code_name = std::format("{}", event.code());
+                }
+                std::println("{{.type = {}, .code = {}, .value = {}}},", type_name, code_name, event.value());
+            });
+            break;
+        }
+        default: log("Invalid syntax provided."); break;
+    }
+}
+
+void fs8::xkb::how2type::print(std::string_view const str, output_syntax const syntax) {
+    print(get_default_keymap(), str, syntax);
 }

@@ -16,6 +16,7 @@ import foresight.devices.uinput;
 import foresight.mods.context;
 import foresight.mods.stopper;
 import foresight.mods.inout;
+import foresight.lib.xkb.how2type;
 import foresight.devices.uinput;
 import foresight.main.utils;
 import foresight.main.systemd;
@@ -31,6 +32,7 @@ namespace {
             redirect,
             systemd,
             list_devices,
+            how_to_type,
         } action = action_type::none;
 
         /// intercept file
@@ -65,6 +67,7 @@ namespace {
     to       [files...]           Alias for 'redirect'
     systemd  exec-file [args...]  Install exec-file as a user service to systemd.
     list-devices                  List input devices
+    how-to-type [--evtest] [str]  How to type the specified input?
 
     help                 Print help.
 
@@ -181,6 +184,9 @@ namespace {
             return opts;
         } else if (action_str == "list-devices") {
             set_action(opts, list_devices);
+            return opts;
+        } else if (action_str == "how-to-type" || action_str == "how2type") {
+            set_action(opts, how_to_type);
             return opts;
         }
 
@@ -322,6 +328,27 @@ namespace {
             }
             case list_devices: {
                 print_input_devices_table();
+                return EXIT_SUCCESS;
+            }
+            case how_to_type: {
+                using enum fs8::xkb::how2type::output_syntax;
+                auto const args =
+                  opts.args
+                  | std::views::drop(2) // remove "foresight how-to-type"
+                  | fs8::transform_to<std::string_view>()
+                  | std::ranges::to<std::vector>();
+                if (args.empty()) [[unlikely]] {
+                    std::println(stderr, "No input specified.");
+                    return EXIT_FAILURE;
+                }
+                bool const                              evtest_syntax = std::ranges::contains(args, "--evtest");
+                fs8::xkb::how2type::output_syntax const syntax        = evtest_syntax ? evtest : cpp_code;
+                for (auto const str : args) {
+                    if (str == "--evtest" || str == "--cpp") {
+                        continue;
+                    }
+                    fs8::xkb::how2type::print(str, syntax);
+                }
                 return EXIT_SUCCESS;
             }
             default: {
