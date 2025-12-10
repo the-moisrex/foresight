@@ -285,9 +285,11 @@ void fs8::xkb::how2type::emit(keymap const &map, std::string_view str, user_even
 void fs8::xkb::how2type::print(keymap const &map, std::string_view const str, output_syntax const syntax) {
     using enum output_syntax;
 
+    auto const pattern = encoded_modifiers(str);
+
     switch (syntax) {
         case evtest: {
-            emit(map, str, [](user_event const &usr_event) {
+            emit(map, pattern, [](user_event const &usr_event) {
                 event_type event{usr_event};
                 event.reset_time();
 
@@ -308,7 +310,7 @@ void fs8::xkb::how2type::print(keymap const &map, std::string_view const str, ou
             break;
         }
         case cpp_code: {
-            emit(map, str, [](user_event const &usr_event) {
+            emit(map, pattern, [](user_event const &usr_event) {
                 event_type const event{usr_event};
                 auto const       type_name_view = event.type_name();
                 std::string      type_name{type_name_view.data(), type_name_view.size()};

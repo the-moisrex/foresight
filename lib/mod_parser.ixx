@@ -52,4 +52,8 @@ namespace fs8 {
     /// Parse the string and return the next UTF-32 code point
     export void replace_modifier_strings(std::u32string &str) noexcept;
 
+    /// Conver to UTF-32 and encode the modifier strings into it as well
+    /// Throws exceptions if input is invalid.
+    export std::u32string encoded_modifiers(std::string_view);
+
 } // namespace fs8

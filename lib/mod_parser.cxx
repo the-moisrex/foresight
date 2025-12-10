@@ -521,4 +521,22 @@ void fs8::replace_modifier_strings(std::u32string &str) noexcept {
     }
 }
 
+std::u32string fs8::encoded_modifiers(std::string_view pattern) {
+    std::u32string encoded_pattern;
+    encoded_pattern.reserve(pattern.size());
+
+    // Convert to UTF-32 string
+    while (!pattern.empty()) {
+        char32_t const code_point = parse_char_or_codepoint(pattern);
+        if (code_point == invalid_code_point) [[unlikely]] {
+            throw std::invalid_argument("ERROR: Invalid Code Point was found in the input pattern.");
+        }
+        encoded_pattern += code_point;
+    }
+
+    // Handle custom modifiers and actions
+    replace_modifier_strings(encoded_pattern);
+    return encoded_pattern;
+}
+
 // NOLINTEND(*-magic-numbers)

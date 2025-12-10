@@ -143,24 +143,8 @@ std::uint32_t basic_search_engine::build_machine() {
     return last_state;
 }
 
-std::uint16_t basic_search_engine::add_pattern(std::string_view pattern) {
-    std::u32string encoded_pattern;
-    encoded_pattern.reserve(pattern.size());
-
-    // Convert to UTF-32 string
-    while (!pattern.empty()) {
-        char32_t const code_point = parse_char_or_codepoint(pattern);
-        if (code_point == invalid_code_point) {
-            log("ERROR: Invalid Code Point was found.");
-            continue;
-        }
-        encoded_pattern += code_point;
-    }
-
-    // Handle custom modifiers and actions
-    replace_modifier_strings(encoded_pattern);
-
-    patterns.emplace_back(std::move(encoded_pattern));
+std::uint16_t basic_search_engine::add_pattern(std::string_view const pattern) {
+    patterns.emplace_back(encoded_modifiers(pattern));
 
     // Rebuild machine (can be optimized to incremental insertion if needed)
     build_machine();
