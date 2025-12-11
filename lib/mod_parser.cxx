@@ -309,6 +309,27 @@ namespace {
         }
         return lhsptr;
     }
+
+    template <typename CharT>
+    std::size_t
+    find_any_delim_impl(std::basic_string_view<CharT> str, std::basic_string_view<CharT> const delims, std::size_t const pos) noexcept {
+        auto lhsptr = str.find_first_of(delims, pos);
+        if (lhsptr == 0) {
+            return lhsptr;
+        }
+        while (lhsptr != std::basic_string_view<CharT>::npos) {
+            bool escaped = false;
+            for (auto escape_pos = lhsptr; str.at(escape_pos) == U'\\'; --escape_pos) [[unlikely]] {
+                escaped = !escaped;
+            }
+            if (!escaped) {
+                break;
+            }
+            // skip the escaped ones
+            lhsptr = str.find_first_of(delims, lhsptr + 1);
+        }
+        return lhsptr;
+    }
 } // namespace
 
 std::size_t fs8::find_delim(std::string_view const str, char const delim, std::size_t const pos) noexcept {
@@ -319,15 +340,25 @@ std::size_t fs8::find_delim(std::u32string_view const str, char32_t const delim,
     return find_delim_impl(str, delim, pos);
 }
 
+std::size_t fs8::find_delim(std::string_view const str, std::string_view const delims, std::size_t const pos) noexcept {
+    return find_any_delim_impl(str, delims, pos);
+}
+
+std::size_t fs8::find_delim(std::u32string_view const str, std::u32string_view const delims, std::size_t const pos) noexcept {
+    return find_any_delim_impl(str, delims, pos);
+}
+
 namespace {
 
     template <typename CharT>
     bool parse_modifier_impl(std::basic_string_view<CharT> mod_str, fs8::key_code_callback callback) {
-        assert(mod_str.starts_with(U'<') && mod_str.ends_with(U'>'));
+        // assert(mod_str.starts_with(U'<') && mod_str.ends_with(U'>'));
+        static constexpr std::array<CharT, 3>          delims{'-', '+', ' '};
+        static constexpr std::basic_string_view<CharT> delims_str{delims.data(), delims.size()};
         mod_str.remove_prefix(1);
         mod_str.remove_suffix(1);
         bool const     is_release   = mod_str.starts_with(U'/');
-        auto           dash_start   = mod_str.find(U'-');
+        auto           dash_start   = mod_str.find_first_of(delims_str);
         bool const     is_monotonic = !is_release && dash_start == std::u32string_view::npos;
         fs8::key_event event;
 
@@ -500,11 +531,11 @@ void fs8::replace_modifier_strings(std::u32string &str) noexcept {
     std::size_t index = 0;
     for (;;) {
         // find the first modifier:
-        auto const lhsptr = find_delim(str, U'<', index);
+        auto const lhsptr = find_delim(str, U"<[", index);
         if (lhsptr == std::u32string_view::npos) {
             break;
         }
-        auto const rhsptr = find_delim(str, U'>', lhsptr);
+        auto const rhsptr = find_delim(str, U">]", lhsptr);
         auto const code   = str.substr(0, rhsptr + 1);
 
         auto encoded = parse_modifier(code);

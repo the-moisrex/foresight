@@ -30,6 +30,8 @@ namespace fs8 {
     /// Find the specified delimiter, but also checks if it's escaped or not.
     export std::size_t find_delim(std::string_view str, char delim, std::size_t pos = 0) noexcept;
     export std::size_t find_delim(std::u32string_view str, char32_t delim, std::size_t pos = 0) noexcept;
+    export std::size_t find_delim(std::string_view str, std::string_view delims, std::size_t pos = 0) noexcept;
+    export std::size_t find_delim(std::u32string_view str, std::u32string_view delims, std::size_t pos = 0) noexcept;
 
     /// Parse a string that starts with `<` and ends with `>`, call the callback function on them.
     export [[nodiscard]] bool parse_modifier(std::u32string_view mod_str, key_code_callback callback);
