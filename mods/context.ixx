@@ -9,7 +9,9 @@ module;
 #include <utility>
 export module foresight.mods.context;
 export import foresight.mods.event;
+export import :vars;
 import foresight.mods.event;
+import foresight.utils.hash;
 
 namespace fs8 {
     // Base case: index 0, type is the first type T
@@ -334,13 +336,19 @@ export namespace fs8 {
     template <std::size_t Index, Modifier... Funcs>
     struct [[nodiscard]] basic_context_view;
 
+    /**
+     * This is the main context object that holds all the mods in it, and runs them all, and also holds the event.
+     * @tparam Funcs Modules or event Modifiers
+     */
     template <Modifier... Funcs>
     struct [[nodiscard]] basic_context {
         // static constexpr bool is_nothrow =
         //   (std::is_nothrow_invocable_v<std::remove_cvref_t<Funcs>, basic_context &> && ...);
 
-        using mods_type                  = std::tuple<std::remove_cvref_t<Funcs>...>;
         static constexpr bool is_nothrow = true;
+        // static constexpr std::size_t variables_count = variable_size_v<Funcs...>;
+
+        using mods_type = std::tuple<std::remove_cvref_t<Funcs>...>;
 
       private:
         event_type ev;
@@ -417,6 +425,13 @@ export namespace fs8 {
         template <std::size_t Index = 0>
         [[nodiscard]] constexpr auto &mod() noexcept {
             return get<Index>(mods);
+        }
+
+        template <constexpr_string VariableName>
+        [[nodiscard]] consteval auto const &operator[]() const noexcept {
+            static constexpr std::size_t index = variable_index_v<ci_hash(VariableName.view())>;
+            static_assert(index != variable_not_found, "Variable not found.");
+            return mod<index>().operator[](VariableName);
         }
 
         /// Unwrap basic_context

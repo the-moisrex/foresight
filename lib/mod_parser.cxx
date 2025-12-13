@@ -15,12 +15,22 @@ import foresight.devices.key_codes;
 import foresight.utils.hash;
 import foresight.lib.xkb.event2unicode;
 import foresight.main.log;
+import foresight.utils.strings;
 
 using fs8::user_event;
 
 // NOLINTBEGIN(*-magic-numbers)
 namespace {
     constexpr std::size_t max_simultaneous_key_presses = 32;
+
+    enum struct [[nodiscard]] modifier_mode : std::uint8_t {
+        unknown         = 0,
+        keydown         = 2,
+        keyup           = 3,
+        ordered_keydown = 5,
+        ordered_keyup   = 6,
+    };
+
 
     /**
      * Array mapping the leading byte to the length of a UTF-8 sequence.
@@ -52,34 +62,6 @@ namespace {
         return utf8_sequence_length_by_leading_byte.at(static_cast<unsigned char>(src));
     }
 
-    /**
-     * Check if a Unicode code point is a surrogate.
-     * Those code points are used only in UTF-16 encodings.
-     */
-    [[nodiscard]] bool is_surrogate(char32_t const cp) noexcept {
-        return cp >= 0xd800 && cp <= 0xDFFFU;
-    }
-
-    [[nodiscard]] bool is_empty(char const *src) noexcept {
-        return src == nullptr || *src == '\0';
-    }
-
-    // ASCII-only case-insensitive equality (keeps your original semantics)
-    template <typename CharT, typename CharT2>
-    [[nodiscard]] bool iequals(std::basic_string_view<CharT> const lhs, std::basic_string_view<CharT2> const rhs) noexcept {
-        if (lhs.size() != rhs.size()) {
-            return false;
-        }
-
-        static constexpr auto to_lower = []<typename CC>(CC const ch32) constexpr noexcept -> CC {
-            if (ch32 >= static_cast<CC>('A') && ch32 <= static_cast<CC>('Z')) {
-                return ch32 + static_cast<CC>(U'a' - U'A');
-            }
-            return ch32;
-        };
-
-        return std::ranges::equal(lhs, rhs, {}, to_lower, to_lower);
-    }
 
     struct mod_entry {
         std::u32string_view key;      // must refer to a static literal (we use U"...")
@@ -166,7 +148,7 @@ namespace {
             return fs8::invalid_user_event.code;
         }
         auto const &[key, code, _] = *it;
-        if (!iequals(key, str)) [[unlikely]] {
+        if (!fs8::iequals(key, str)) [[unlikely]] {
             return fs8::invalid_user_event.code;
         }
         return code;
@@ -389,7 +371,7 @@ namespace {
                     break;
                 }
                 mod_str.remove_prefix(dash_start + 1);
-                dash_start = mod_str.find(U'-');
+                dash_start = mod_str.find_first_of(delims_str);
             }
 
             // release the keys in reverse order:
@@ -475,11 +457,11 @@ void fs8::on_modifier_tags(std::u32string_view const str, std::function<void(std
     std::size_t index = 0;
     for (;;) {
         // find the first modifier:
-        auto const lhsptr = find_delim(str, U'<', index);
+        auto const lhsptr = find_delim(str, U"<[", index);
         if (lhsptr == std::u32string_view::npos) {
             break;
         }
-        auto const rhsptr = find_delim(str, U'>', lhsptr);
+        auto const rhsptr = find_delim(str, U">]", lhsptr);
         auto const code   = str.substr(0, rhsptr);
 
         callback(code);
@@ -528,6 +510,7 @@ bool fs8::normalize_modifiers(std::u32string &str) noexcept {
 }
 
 void fs8::replace_modifier_strings(std::u32string &str) noexcept {
+    using enum modifier_mode;
     std::size_t index = 0;
     for (;;) {
         // find the first modifier:
@@ -535,9 +518,19 @@ void fs8::replace_modifier_strings(std::u32string &str) noexcept {
         if (lhsptr == std::u32string_view::npos) {
             break;
         }
+        modifier_mode mode;
+        switch (str.at(lhsptr)) {
+            case U'<': mode = keydown; break;
+            case U'[': mode = keyup; break;
+            default: mode = unknown; break;
+        }
         auto const rhsptr = find_delim(str, U">]", lhsptr);
         auto const code   = str.substr(0, rhsptr + 1);
+        if (str.at(rhsptr) != str.at(lhsptr)) {
+            mode = unknown;
+        }
 
+        // todo: handle modes
         auto encoded = parse_modifier(code);
         for (char32_t const code : encoded) {
             log("Encoded: {:x}", static_cast<std::uint32_t>(code));

@@ -105,12 +105,14 @@ target_sources(${LIB_NAME}
         mods/add_scroll.ixx
         mods/caps.ixx
         mods/context.ixx
+        mods/context_vars.ixx
         mods/emitter.ixx
         mods/event.ixx
         mods/ignore.ixx
         mods/inout.ixx
         mods/intercept.ixx
         mods/keys_status.ixx
+        mods/lambda.ixx
         mods/modes.ixx
         mods/mods.ixx
         mods/momentum.ixx
@@ -123,8 +125,10 @@ target_sources(${LIB_NAME}
         mods/stopper.ixx
         mods/typed.ixx
         mods/typer.ixx
+        mods/vars.ixx
         utils/easings.ixx
         utils/hash.ixx
+        utils/strings.ixx
 )
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)
 set_target_properties(${LIB_NAME} PROPERTIES

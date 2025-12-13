@@ -11,6 +11,8 @@ export import foresight.mods.quantifier;
 export import foresight.mods.caps;
 export import foresight.mods.router;
 export import foresight.mods.modes;
+export import foresight.mods.lambda;
+export import foresight.mods.vars;
 
 // Mods:
 export import foresight.devices.uinput;
