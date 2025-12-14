@@ -1,7 +1,6 @@
 // Created by moisrex on 12/12/25.
 
 module;
-#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <string_view>
@@ -19,6 +18,7 @@ export namespace fs8 {
 
     template <typename ModT>
     concept has_variables = requires(ModT mod, std::string_view name) {
+        typename ModT::value_type;
         mod[get_variables];
         mod[name];
     };
@@ -45,43 +45,69 @@ export namespace fs8 {
     template <typename... ModsT>
     constexpr std::size_t variable_size_v = variable_size<ModsT...>::value;
 
-    constexpr std::size_t variable_not_found = std::string_view::npos;
-
-    template <std::size_t N>
-    [[nodiscard]] consteval bool contains_hash(std::array<std::string_view, N> const arr, std::uint32_t hash) noexcept {
-        for (auto const str : arr) {
-            if (ci_hash(str) == hash) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
-     * Find the variable's index
+     * Get a tuple of types of variables
      */
-    template <std::size_t, std::uint32_t, typename...>
-    struct variable_index {};
+    template <template <typename...> typename, typename, typename...>
+    struct variable_types {};
 
-    template <std::size_t Index, std::uint32_t Hash, typename ModT, typename... ModsT>
-    struct variable_index<Index, Hash, ModT, ModsT...> {
-        static constexpr std::size_t value = variable_index<Index + 1U, Hash, ModsT...>::value;
+    template <template <typename...> typename Templ, typename T, typename ModT, typename... ModsT>
+    struct variable_types<Templ, T, ModT, ModsT...> {
+        using type = variable_types<Templ, T, ModsT...>;
     };
 
-    template <std::size_t Index, std::uint32_t Hash, typename ModT, typename... ModsT>
-        requires(has_variables<ModT> && contains_hash(std::declval<ModT>().operator[](get_variables), Hash))
-    struct variable_index<Index, Hash, ModT, ModsT...> {
-        static constexpr std::size_t value = Index;
+    template <template <typename...> typename Templ, typename... T, typename ModT, typename... ModsT>
+        requires(has_variables<ModT>)
+    struct variable_types<Templ, Templ<T...>, ModT, ModsT...> {
+        using type = variable_types<Templ, Templ<T..., typename ModT::value_type>, ModsT...>;
     };
 
     // End condition
-    template <std::size_t Index, std::uint32_t Hash>
-    struct variable_index<Index, Hash> {
-        static constexpr std::size_t value = variable_not_found;
+    template <template <typename...> typename Templ, typename T>
+    struct variable_types<Templ, T> {
+        using type = T;
     };
 
-    template <std::uint32_t Hash, typename... ModsT>
-    constexpr std::size_t variable_index_v = variable_index<0U, Hash, ModsT...>::value;
+    template <template <typename...> typename Templ, typename... ModsT>
+    using variable_types_t = variable_types<Templ, Templ<>, ModsT...>::type;
+
+    // constexpr std::size_t variable_not_found = std::string_view::npos;
+    //
+    // template <std::size_t N>
+    // [[nodiscard]] consteval bool contains_hash(std::array<std::string_view, N> const arr, std::uint32_t hash) noexcept {
+    //     for (auto const str : arr) {
+    //         if (ci_hash(str) == hash) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
+    //
+    // /**
+    //  * Find the variable's index
+    //  */
+    // template <std::size_t, std::uint32_t, typename...>
+    // struct variable_index {};
+    //
+    // template <std::size_t Index, std::uint32_t Hash, typename ModT, typename... ModsT>
+    // struct variable_index<Index, Hash, ModT, ModsT...> {
+    //     static constexpr std::size_t value = variable_index<Index + 1U, Hash, ModsT...>::value;
+    // };
+    //
+    // template <std::size_t Index, std::uint32_t Hash, typename ModT, typename... ModsT>
+    //     requires(has_variables<ModT> && contains_hash(std::declval<ModT>().operator[](get_variables), Hash))
+    // struct variable_index<Index, Hash, ModT, ModsT...> {
+    //     static constexpr std::size_t value = Index;
+    // };
+    //
+    // // End condition
+    // template <std::size_t Index, std::uint32_t Hash>
+    // struct variable_index<Index, Hash> {
+    //     static constexpr std::size_t value = variable_not_found;
+    // };
+    //
+    // template <std::uint32_t Hash, typename... ModsT>
+    // constexpr std::size_t variable_index_v = variable_index<0U, Hash, ModsT...>::value;
 
     // /**
     //  * This describes the variable

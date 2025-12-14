@@ -11,13 +11,12 @@ export module foresight.mods.context;
 export import foresight.mods.event;
 export import :vars;
 import foresight.mods.event;
-import foresight.utils.hash;
 
 namespace fs8 {
     // Base case: index 0, type is the first type T
     template <std::size_t I, typename T, typename... Ts>
     struct type_at_impl {
-        using type = typename type_at_impl<I - 1, Ts...>::type;
+        using type = type_at_impl<I - 1, Ts...>::type;
     };
 
     // Specialization for index 0
@@ -27,7 +26,7 @@ namespace fs8 {
     };
 
     template <std::size_t I, typename... Ts>
-    using type_at = typename type_at_impl<I, Ts...>::type;
+    using type_at = type_at_impl<I, Ts...>::type;
 
     template <std::size_t Index, typename F, typename T1, typename... Ts>
     struct index_at_impl {
@@ -367,72 +366,44 @@ export namespace fs8 {
         consteval basic_context &operator=(basic_context const &inp_ctx)     = default;
         constexpr ~basic_context() noexcept                                  = default;
 
-        [[nodiscard]] constexpr event_type const &event() const noexcept {
-            return ev;
+        template <typename Self>
+        [[nodiscard]] constexpr decltype(auto) event(this Self &&self) noexcept {
+            return std::forward_like<Self>(self.ev);
         }
 
-        [[nodiscard]] constexpr event_type &event() noexcept {
-            return ev;
-        }
-
-        [[nodiscard]] constexpr auto const &get_mods() const noexcept {
-            return mods;
-        }
-
-        [[nodiscard]] constexpr auto &get_mods() noexcept {
-            return mods;
+        template <typename Self>
+        [[nodiscard]] constexpr decltype(auto) get_mods(this Self &&self) noexcept {
+            return std::forward_like<Self>(self.mods);
         }
 
         constexpr void event(event_type const &inp_event) noexcept {
             ev = inp_event;
         }
 
-        template <typename Func>
+        template <typename Func, typename Self>
             requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
-        [[nodiscard]] constexpr auto &mod() noexcept {
+        [[nodiscard]] constexpr auto &mod(this Self &&self) noexcept {
             using mod_type = mod_of<Func, Funcs...>;
             // we're not using Func directly because we may have duplicate types in the tuple, and we want the
             // first one to be returned instead of throwing error that there's multiple of that type.
-            return get<index_at<mod_type, Funcs...>>(mods);
+            return get<index_at<mod_type, Funcs...>>(std::forward_like<Self>(self.mods));
         }
 
-        template <typename Func>
+        template <typename Func, typename Self>
             requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
-        [[nodiscard]] constexpr auto const &mod() const noexcept {
+        [[nodiscard]] constexpr auto &mod(this Self &&self, [[maybe_unused]] Func const &) noexcept {
             using mod_type = mod_of<Func, Funcs...>;
-            return get<index_at<mod_type, Funcs...>>(mods);
+            return get<index_at<mod_type, Funcs...>>(std::forward_like<Self>(self.mods));
         }
 
-        template <typename Func>
-            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
-        [[nodiscard]] constexpr auto &mod([[maybe_unused]] Func const &) noexcept {
-            using mod_type = mod_of<Func, Funcs...>;
-            return get<index_at<mod_type, Funcs...>>(mods);
+        template <std::size_t Index = 0, typename Self>
+        [[nodiscard]] constexpr auto &mod(this Self &&self) noexcept {
+            return get<Index>(std::forward_like<Self>(self.mods));
         }
 
-        template <typename Func>
-            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
-        [[nodiscard]] constexpr auto const &mod([[maybe_unused]] Func const &) const noexcept {
-            using mod_type = mod_of<Func, Funcs...>;
-            return get<index_at<mod_type, Funcs...>>(mods);
-        }
-
-        template <std::size_t Index = 0>
-        [[nodiscard]] constexpr auto const &mod() const noexcept {
-            return get<Index>(mods);
-        }
-
-        template <std::size_t Index = 0>
-        [[nodiscard]] constexpr auto &mod() noexcept {
-            return get<Index>(mods);
-        }
-
-        template <constexpr_string VariableName>
-        [[nodiscard]] consteval auto const &operator[]() const noexcept {
-            static constexpr std::size_t index = variable_index_v<ci_hash(VariableName.view())>;
-            static_assert(index != variable_not_found, "Variable not found.");
-            return mod<index>().operator[](VariableName);
-        }
+        // [[nodiscard]] consteval auto const &operator[](std::string_view const name) const noexcept {
+        //     // todo
+        // }
 
         /// Unwrap basic_context
         template <Modifier... NMods>
@@ -591,12 +562,9 @@ export namespace fs8 {
         constexpr basic_context_view &operator=(basic_context_view &&) noexcept = default;
         constexpr ~basic_context_view() noexcept                                = default;
 
-        [[nodiscard]] constexpr ctx_type &context() noexcept {
-            return *ctx;
-        }
-
-        [[nodiscard]] constexpr ctx_type const &context() const noexcept {
-            return *ctx;
+        template <typename Self>
+        [[nodiscard]] constexpr auto &&context(this Self &&self) noexcept {
+            return std::forward_like<Self>(*self.ctx);
         }
 
         context_action fork_emit() noexcept(is_nothrow) {
@@ -615,49 +583,35 @@ export namespace fs8 {
             return fork_emit(event_type{inp_type, inp_code, inp_val});
         }
 
-        [[nodiscard]] constexpr event_type const &event() const noexcept {
-            return ctx->event();
-        }
-
-        [[nodiscard]] constexpr event_type &event() noexcept {
-            return ctx->event();
+        template <typename Self>
+        [[nodiscard]] constexpr auto &&event(this Self &&self) noexcept {
+            return std::forward_like<Self>(self.ctx->event());
         }
 
         constexpr void event(event_type const &inp_event) noexcept {
             ctx->event(inp_event);
         }
 
-        [[nodiscard]] constexpr auto &get_mods() noexcept {
-            return ctx->get_mods();
+        template <typename Self>
+        [[nodiscard]] constexpr auto &&get_mods(this Self &&self) noexcept {
+            return std::forward_like<Self>(self.ctx->get_mods());
         }
 
-        template <typename Func>
+        template <typename Func, typename Self>
             requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
-        [[nodiscard]] constexpr auto &mod() noexcept {
-            return ctx->template mod<Func>();
+        [[nodiscard]] constexpr decltype(auto) mod(this Self &&self) noexcept {
+            return std::forward_like<Self>(self.ctx->template mod<Func>());
         }
 
-        template <typename Func>
+        template <typename Func, typename Self>
             requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
-        [[nodiscard]] constexpr auto const &mod() const noexcept {
-            return ctx->template mod<Func>();
+        [[nodiscard]] constexpr decltype(auto) mod(this Self &&self, [[maybe_unused]] Func const &) noexcept {
+            return std::forward_like<Self>(self.ctx->template mod<Func>());
         }
 
-        template <typename Func>
-            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
-        [[nodiscard]] constexpr auto &mod([[maybe_unused]] Func const &) noexcept {
-            return ctx->template mod<Func>();
-        }
-
-        template <typename Func>
-            requires((std::same_as<mod_of<Func, Funcs...>, Funcs> || ...))
-        [[nodiscard]] constexpr auto const &mod([[maybe_unused]] Func const &) const noexcept {
-            return ctx->template mod<Func>();
-        }
-
-        template <std::size_t NIndex = Index>
-        [[nodiscard]] constexpr auto const &mod() const noexcept {
-            return ctx->template mod<NIndex>();
+        template <std::size_t NIndex = Index, typename Self>
+        [[nodiscard]] constexpr decltype(auto) mod(this Self &&self) noexcept {
+            return std::forward_like<Self>(self.ctx->template mod<NIndex>());
         }
 
         // Re-Forking
