@@ -8,6 +8,7 @@ module;
 #include <functional>
 #include <linux/input-event-codes.h>
 #include <queue>
+#include <ranges>
 #include <string>
 module foresight.mods.typed;
 import foresight.lib.xkb.how2type;
@@ -143,12 +144,21 @@ std::uint32_t basic_search_engine::build_machine() {
     return last_state;
 }
 
-std::uint16_t basic_search_engine::add_pattern(std::string_view const pattern) {
-    patterns.emplace_back(encoded_modifiers(pattern));
+std::uint16_t basic_search_engine::emplace_pattern(std::string_view const pattern) {
+    auto          e_pattern = encoded_modifiers(pattern);
+    auto const    it        = std::ranges::find(patterns, e_pattern);
+    std::uint16_t index     = 0;
+    if (it == patterns.end()) {
+        // insert it if we didn't find it
+        patterns.emplace_back(std::move(e_pattern));
+        index = static_cast<std::uint16_t>(patterns.size() - 1);
 
-    // Rebuild machine (can be optimized to incremental insertion if needed)
-    build_machine();
-    return static_cast<std::uint16_t>(patterns.size() - 1);
+        // Rebuild machine (can be optimized to incremental insertion if needed)
+        build_machine();
+    } else {
+        index = static_cast<std::uint16_t>(std::distance(patterns.begin(), it));
+    }
+    return index;
 }
 
 fs8::aho_state basic_search_engine::process(char32_t const code_point, aho_state const last_state) const noexcept {
@@ -185,6 +195,8 @@ bool basic_search_engine::matches(std::uint32_t const state, std::uint16_t const
 }
 
 void basic_search_engine::operator()(start_tag) {
+    trie.clear(); // clear the trie in case of a restart
+
     // create empty machine (root-only)
     build_machine();
 }

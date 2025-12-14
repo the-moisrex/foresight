@@ -158,7 +158,7 @@ namespace fs8 {
          * Add a new pattern to search for
          * @param pattern It's a UTF-8-encoded string that we will try to find later on
          */
-        [[nodiscard("Don't lose your trigger id")]] std::uint16_t add_pattern(std::string_view pattern);
+        [[nodiscard("Don't lose your trigger id")]] std::uint16_t emplace_pattern(std::string_view pattern);
 
         /**
          * Process this new event, and return a new state
@@ -214,7 +214,7 @@ namespace fs8 {
         /// Register the pattern into the search engine
         void operator()(Context auto& ctx, start_tag) {
             keyboard_state.initialize(xkb::get_default_keymap());
-            trigger_id = ctx.mod(search_engine).add_pattern(pattern);
+            trigger_id = ctx.mod(search_engine).emplace_pattern(pattern);
         }
 
         template <Context CtxT>

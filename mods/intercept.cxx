@@ -164,17 +164,24 @@ fs8::context_action basic_interceptor::wait_for_event() noexcept {
     return next;
 }
 
-bool basic_interceptor::get_next_event(event_type& event) noexcept {
+fs8::context_action basic_interceptor::get_next_event(event_type& event) noexcept {
     using enum context_action;
 
     for (; index != fds.size(); ++index) {
         auto const pfd = fds[index];
         if ((pfd.revents & POLLIN) == 0) {
             // Check for errors on this file descriptor
+            // todo: give better error messages
             if ((pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) != 0) [[unlikely]] {
-                // Could handle device errors/disconnections here
-                // todo
-                log("Device {} disconnected?", devs[index].device_name());
+                // Handle device errors/disconnections here.
+                // If any of them get disconnected, we go to idle mode.
+                auto const name = devs[index].device_name();
+                if (name == invalid_device_name) {
+                    log("Device #{} disconnected?", index);
+                } else {
+                    log("Device #{} {} disconnected?", index, name);
+                }
+                return idle;
             }
 
             continue;
@@ -185,7 +192,7 @@ bool basic_interceptor::get_next_event(event_type& event) noexcept {
             continue;
         }
         event = input.value();
-        return true;
+        return next;
     }
-    return false;
+    return ignore_event;
 }

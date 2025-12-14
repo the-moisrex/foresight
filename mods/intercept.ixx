@@ -65,21 +65,24 @@ export namespace fs8 {
          */
         context_action operator()(Context auto& ctx, load_event_tag) noexcept {
             using enum context_action;
-            if (auto const ret = wait_for_event(); ret != next) [[unlikely]] {
-                return ret;
-            }
-            event_type event;
-            while (get_next_event(event)) {
-                if (ctx.fork_emit(event) == exit) [[unlikely]] {
-                    return exit;
+            for (;;) {
+                // try to get the next event
+                if (auto const action = get_next_event(ctx.event()); action != ignore_event) {
+                    return action;
+                }
+                // if it fails, wait for the events to come from input devices
+                if (auto const action = wait_for_event(); !action) [[unlikely]] {
+                    return action;
                 }
             }
-            return next;
         }
 
       private:
+        /// Wait for the next event from devices
         context_action wait_for_event() noexcept;
-        bool           get_next_event(event_type& event) noexcept;
+
+        /// Returns `next` if we have one, otherwise it'll return `ignore_event` or `idle`
+        context_action get_next_event(event_type& event) noexcept;
 
         std::vector<evdev>  devs;
         std::vector<pollfd> fds;

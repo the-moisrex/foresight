@@ -91,8 +91,8 @@ namespace fs8 {
         /// Pass-through the starts
         context_action operator()(Context auto& ctx, start_tag) {
             using enum context_action;
-            if (invoke_start(cond, ctx) == exit) [[unlikely]] {
-                return exit;
+            if (auto const action = invoke_start(cond, ctx); !action) [[unlikely]] {
+                return action;
             }
             return invoke_mods(ctx, funcs, start);
         }
@@ -115,8 +115,10 @@ namespace fs8 {
                 }
                 return next;
             }
-            if (is_switched && invoke_mods(ctx, funcs, toggle_on) == exit) {
-                return exit;
+            if (is_switched) {
+                if (auto const action = invoke_mods(ctx, funcs, toggle_on); !action) {
+                    return action;
+                }
             }
             return invoke_mods(ctx, funcs);
         }
@@ -183,8 +185,8 @@ namespace fs8 {
         /// Pass-through the starts
         context_action operator()(Context auto& ctx, start_tag) {
             using enum context_action;
-            if (invoke_start(cond, ctx) == exit) [[unlikely]] {
-                return exit;
+            if (auto const action = invoke_start(cond, ctx); !action) [[unlikely]] {
+                return action;
             }
             return invoke_mods(ctx, funcs, start);
         }
@@ -207,8 +209,10 @@ namespace fs8 {
                 }
                 return next;
             }
-            if (is_switched && invoke_mods(ctx, funcs) == exit) {
-                return exit;
+            if (is_switched) {
+                if (auto const action = invoke_mods(ctx, funcs); !action) {
+                    return action;
+                }
             }
             return next;
         }

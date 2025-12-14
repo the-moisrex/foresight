@@ -11,6 +11,7 @@ export module foresight.mods.context;
 export import foresight.mods.event;
 export import :vars;
 import foresight.mods.event;
+import foresight.main.log;
 
 namespace fs8 {
     // Base case: index 0, type is the first type T
@@ -116,21 +117,25 @@ export namespace fs8 {
     concept ContextWith = (has_mod<T...[sizeof...(T) - 1], T> || ...);
 
 
+    /**
+     * Actions that each mod can take
+     */
     enum struct [[nodiscard]] context_action : std::uint8_t {
-        next,
-        ignore_event,
-        exit,
+        next,         // pass it to the next mod
+        ignore_event, // ignore this event (drop it)
+        idle,         // idle mode, or watching mode, or restart mode
+        exit,         // exit the software
     };
 
-    [[nodiscard]] constexpr std::string_view to_string(context_action const action) noexcept {
+    [[nodiscard]] std::string_view to_string(context_action action) noexcept;
+
+    [[nodiscard]] constexpr bool is_exiting(context_action const action) noexcept {
         using enum context_action;
-        switch (action) {
-            case next: return {"Next"};
-            case ignore_event: return {"Ignore Event"};
-            case exit: return {"Exit"};
-            default: return {"<unknown>"};
-        }
-        std::unreachable();
+        return action == idle || action == exit;
+    }
+
+    [[nodiscard]] constexpr bool operator!(context_action const action) noexcept {
+        return is_exiting(action);
     }
 
     constexpr struct [[nodiscard]] no_init_tag {
@@ -473,9 +478,22 @@ export namespace fs8 {
             return invoke_mods(*this, mods, start);
         }
 
-        void operator()() noexcept(is_nothrow) {
+        /// returns false if we need to terminate
+        [[nodiscard]] bool restart_if(context_action const prev_action = context_action::idle) noexcept(false) {
             using enum context_action;
-            if (operator()(start) == exit) [[unlikely]] {
+            if (!prev_action) {
+                if (prev_action == idle) {
+                    log("Restarting pipeline...");
+                }
+                auto const action = operator()(start);
+                // idle is ignored here
+                return action != exit;
+            }
+            return !!prev_action;
+        }
+
+        void operator()() noexcept(false) {
+            if (!restart_if(context_action::exit)) {
                 return;
             }
             operator()(no_init);
@@ -501,13 +519,18 @@ export namespace fs8 {
                 if constexpr (next_event_count > 0) {
                     switch (invoke_first_mod_of(*this, mods, next_event)) {
                         case next:
-                            if (invoke_mods(*this, mods) == exit) {
+                            if (!restart_if(invoke_mods(*this, mods))) {
                                 return;
                             }
                             continue;
                         [[likely]] case ignore_event:
                             break;
                         [[unlikely]] default:
+                        [[unlikely]] case idle:
+                            if (!restart_if(idle)) {
+                                return;
+                            }
+                            break;
                         [[unlikely]] case exit:
                             return;
                     }
@@ -520,12 +543,17 @@ export namespace fs8 {
                         case ignore_event:
                             continue;
                         [[unlikely]] default:
+                        [[unlikely]] case idle:
+                            if (!restart_if(idle)) {
+                                return;
+                            }
+                            break;
                         [[unlikely]] case exit:
                             return;
                     }
                 }
 
-                if (invoke_mods(*this, mods) == exit) [[unlikely]] {
+                if (!restart_if(invoke_mods(*this, mods))) [[unlikely]] {
                     return;
                 }
             }

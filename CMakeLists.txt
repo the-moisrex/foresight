@@ -74,6 +74,7 @@ target_sources(${LIB_NAME}
         main/keyboard.cxx
         main/systemd.cxx
         mods/abs2rel.cxx
+        mods/context.cxx
         mods/emitter.cxx
         mods/ignore.cxx
         mods/intercept.cxx
