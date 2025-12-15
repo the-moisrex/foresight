@@ -51,6 +51,7 @@ void basic_interceptor::set_files(std::span<std::filesystem::path const> const i
                                                  file.string(),
                                                  to_string(dev.get_status())));
         }
+        devs_descs.emplace_back(file.generic_string(), false);
     }
     fds = get_pollfds(devs);
 }
@@ -70,6 +71,7 @@ void basic_interceptor::set_files(std::span<input_file_type const> const inp_pat
               to_string(dev.get_status())));
         }
         dev.grab_input(grab);
+        devs_descs.emplace_back(file.generic_string(), grab);
     }
     fds = get_pollfds(devs);
 }
@@ -83,18 +85,21 @@ void basic_interceptor::add_file(input_file_type const& inp_path) {
     }
     dev.grab_input(grab);
     fds.emplace_back(get_pollfd(dev));
+    devs_descs.emplace_back(inp_path.file.generic_string(), grab);
 }
 
 void basic_interceptor::add_dev(evdev&& inp_dev) {
-    auto& dev = devs.emplace_back(std::move(inp_dev));
+    auto&      dev  = devs.emplace_back(std::move(inp_dev));
+    auto const name = dev.device_name();
     if (!dev.ok()) [[unlikely]] {
         throw std::runtime_error(std::format(
           "Failed to initialize event device ({}) while trying to start intercepting it with error ({}).",
-          dev.device_name(),
+          name,
           to_string(dev.get_status())));
     }
-    log("Intercepting: '{}' {}", dev.device_name(), dev.physical_location());
+    log("Intercepting: '{}' {}", name, dev.physical_location());
     fds.emplace_back(get_pollfd(dev));
+    devs_descs.emplace_back(std::string{name.data(), name.size()}, false);
 }
 
 void basic_interceptor::add_files(std::string_view const query_all) {
@@ -135,11 +140,49 @@ void basic_interceptor::commit() {
     fds = get_pollfds(this->devices());
 }
 
+void basic_interceptor::retry_failed_devices() noexcept {
+    if (devs_descs.size() == devs.size()) [[likely]] {
+        return;
+    }
+
+    auto const now = std::chrono::steady_clock::now();
+
+    // don't retry too soon
+    if ((now - last_retry) < retry_period) {
+        return;
+    }
+    last_retry = now;
+
+    for (auto const& desc : devs_descs) {
+        bool found = false;
+        for (auto const& dev : devs) {
+            if (dev.device_name() == desc.name) {
+                // We already have this device
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            continue;
+        }
+
+        // found a removed device, try finding it again:
+        auto dev = device(desc.name);
+        if (!only_matching(dev) || !only_ok(dev)) {
+            log("Failed to reconnect to {}, tried {}", desc.name, dev.dev.device_name());
+            // failed to find a working device
+            continue;
+        }
+
+        // Add the device again if it's okay now
+        // todo: check if it's the same device somehow, checking the name is not enough because we might have the location instead of the name of the device
+        dev.dev.grab_input(desc.grabbed);
+        add_dev(std::move(dev.dev));
+    }
+}
+
 fs8::context_action basic_interceptor::wait_for_event() noexcept {
     using enum context_action;
-
-    // Use a configurable timeout (could be made a member variable)
-    static constexpr int poll_timeout_ms = -1;
 
     // reset device index
     index = 0;
@@ -151,8 +194,9 @@ fs8::context_action basic_interceptor::wait_for_event() noexcept {
     }
 
     // Poll file descriptors and handle errors properly
-    if (auto const poll_result = poll(fds.data(), fds.size(), poll_timeout_ms); poll_result <= 0) [[unlikely]] {
+    if (auto const poll_result = poll(fds.data(), fds.size(), retry_period.count()); poll_result <= 0) [[unlikely]] {
         if (poll_result == 0) {
+            retry_failed_devices();
             // Timeout occurred
             return ignore_event;
         }
@@ -181,7 +225,17 @@ fs8::context_action basic_interceptor::get_next_event(event_type& event) noexcep
                 } else {
                     log("Device #{} {} disconnected?", index, name);
                 }
-                return idle;
+
+                // Remove the device from watch list
+                fds.erase(std::next(fds.begin(), index));
+                devs.erase(std::next(devs.begin(), index));
+
+                // Reset the index
+                if (index == devs.size()) {
+                    index = 0;
+                }
+
+                return ignore_event;
             }
 
             continue;

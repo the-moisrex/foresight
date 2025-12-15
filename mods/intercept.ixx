@@ -20,6 +20,10 @@ export namespace fs8 {
      * Intercept the keyboard and print them into stdout
      */
     constexpr struct [[nodiscard]] basic_interceptor {
+        // Retry to reconnect every N milliseconds:
+        static constexpr std::chrono::milliseconds retry_period{5000}; // 5 seconds
+
+
         explicit basic_interceptor(std::span<std::filesystem::path const> inp_paths);
         explicit basic_interceptor(std::span<input_file_type const> inp_paths);
         explicit basic_interceptor(std::vector<evdev>&& inp_devs);
@@ -78,11 +82,24 @@ export namespace fs8 {
         }
 
       private:
+        struct device_information {
+            std::string name; // or location
+            bool        grabbed = false;
+        };
+
+        void retry_failed_devices() noexcept;
+
         /// Wait for the next event from devices
         context_action wait_for_event() noexcept;
 
         /// Returns `next` if we have one, otherwise it'll return `ignore_event` or `idle`
         context_action get_next_event(event_type& event) noexcept;
+
+
+        // Store Device Descriptions just in case the device gets disconnected, we can find it again
+        // It's either the device's name or the devices' location
+        std::vector<device_information>       devs_descs;
+        std::chrono::steady_clock::time_point last_retry;
 
         std::vector<evdev>  devs;
         std::vector<pollfd> fds;

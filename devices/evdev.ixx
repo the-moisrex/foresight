@@ -160,6 +160,8 @@ namespace fs8 {
         [[nodiscard]] bool                 has_abs_info(code_type code = ABS_X) const noexcept;
         void                               abs_info(code_type abs_code, input_absinfo const& abs_info) noexcept;
 
+        [[nodiscard]] bool operator==(evdev const& other) const noexcept;
+
         /**
          * Get a new input_event from the input device
          */
@@ -244,10 +246,11 @@ namespace fs8 {
     /// Example: keyboard
     /// Example: tablet
     export [[nodiscard]] evdev_rank device(std::string_view);
+    export [[nodiscard]] evdev_rank device(std::string_view, std::span<evdev const> excluded);
 
     export constexpr struct [[nodiscard]] basic_only_matching : std::ranges::range_adaptor_closure<basic_only_matching> {
       private:
-        std::uint8_t percentage = 40;
+        std::uint8_t percentage = 30;
 
       public:
         constexpr explicit basic_only_matching(std::uint8_t const inp_percentage) noexcept : percentage(inp_percentage) {}
@@ -259,7 +262,7 @@ namespace fs8 {
         basic_only_matching& operator=(basic_only_matching&&)      = default;
         ~basic_only_matching()                                     = default;
 
-        [[nodiscard]] constexpr auto operator()(evdev_rank const& ranker) const noexcept {
+        [[nodiscard]] constexpr bool operator()(evdev_rank const& ranker) const noexcept {
             return ranker.score >= percentage;
         }
 
@@ -275,7 +278,7 @@ namespace fs8 {
 
     export constexpr struct [[nodiscard]] basic_only_ok : std::ranges::range_adaptor_closure<basic_only_ok> {
         template <typename R>
-        [[nodiscard]] constexpr auto operator()(R const& obj) const noexcept {
+        [[nodiscard]] constexpr bool operator()(R const& obj) const noexcept {
             if constexpr (std::same_as<R, evdev_rank>) {
                 return obj.dev.ok();
             } else if constexpr (std::same_as<R, evdev>) {

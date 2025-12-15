@@ -369,6 +369,44 @@ void evdev::abs_info(code_type const abs_code, input_absinfo const& abs_info) no
     libevdev_set_abs_info(dev, abs_code, &abs_info);
 }
 
+bool evdev::operator==(evdev const& other) const noexcept {
+    auto const dev2 = other.dev;
+    if (dev == dev2) {
+        return true; // Same pointer (trivial case, zero cost)
+    }
+    if (!dev || !dev2) [[unlikely]] {
+        return false;
+    }
+
+    // Primary: phys path (most reliable and usually present)
+    char const* phys1 = libevdev_get_phys(dev);
+    char const* phys2 = libevdev_get_phys(dev2);
+
+    if (phys1 && phys2) {
+        return std::strcmp(phys1, phys2) == 0;
+    }
+    if (phys1 || phys2) [[unlikely]] {
+        return false; // One has phys, the other doesn't → different
+    }
+
+    // Fallback: uniq (serial-like identifier)
+    char const* uniq1 = libevdev_get_uniq(dev);
+    char const* uniq2 = libevdev_get_uniq(dev2);
+
+    if (uniq1 && uniq2) {
+        return std::strcmp(uniq1, uniq2) == 0;
+    }
+    if (uniq1 || uniq2) {
+        return false;
+    }
+
+    // Last resort: device ID (same model, not guaranteed same instance)
+    return (libevdev_get_id_bustype(dev) == libevdev_get_id_bustype(dev2))
+           && (libevdev_get_id_vendor(dev) == libevdev_get_id_vendor(dev2))
+           && (libevdev_get_id_product(dev) == libevdev_get_id_product(dev2))
+           && (libevdev_get_id_version(dev) == libevdev_get_id_version(dev2));
+}
+
 std::optional<input_event> evdev::next() noexcept {
     input_event input{};
 
@@ -554,47 +592,69 @@ namespace {
         return {caps, score};
     }
 
+    fs8::evdev_rank device_impl(std::string_view query, auto&& should_ignore) {
+        trim(query);
+
+        // check if it's a path
+        if (query.starts_with('/')) {
+            std::filesystem::path const path{query};
+            if (exists(path)) {
+                return {.score = 100, .dev = evdev{path}};
+            }
+        }
+
+        auto const [caps, caps_score] = find_caps(query);
+
+        fs8::evdev_rank best{};
+        for (evdev&& dev : fs8::all_input_devices()) {
+            auto const name = dev.device_name();
+            auto const loc  = dev.physical_location();
+            auto const id   = dev.unique_identifier();
+
+            if (!dev.is_fd_initialized() || name == fs8::invalid_device_name) {
+                fs8::log("  * Not valid: {} {} {}", name, loc, id);
+                continue;
+            }
+            // if (dev.grab() == grab_state::grabbing_by_others) {
+            //     log("  * Ignore Already Grabbed: {} {} {}", name, loc, id);
+            //     continue;
+            // }
+
+            std::uint16_t const name_score = calc_score(query, name);
+            auto const          loc_score  = static_cast<std::uint16_t>(calc_score(query, loc) / 2);
+            auto const          id_score   = static_cast<std::uint16_t>(calc_score(query, id) * 1.5);
+            auto const cur_caps_score      = static_cast<std::uint16_t>(dev.match_caps(caps) * (static_cast<double>(caps_score) / 100 + 1));
+            auto const score               = static_cast<std::uint8_t>((name_score + loc_score + id_score + cur_caps_score) / 4);
+
+            if (should_ignore(score, dev)) {
+                fs8::log("  * Ignored: {} {} {}", name, loc, id);
+                continue;
+            }
+
+            if (score > best.score) {
+                best.score = score;
+                best.dev   = std::move(dev);
+            }
+            fs8::log("  - Score {}% ({}/{}/{}/{}): {} {} {}", score, name_score, loc_score, id_score, cur_caps_score, name, loc, id);
+        }
+        fs8::log("  + Best device with score {}%: {} {}", best.score, best.dev.device_name(), best.dev.physical_location());
+        return best;
+    }
 } // namespace
 
-fs8::evdev_rank fs8::device(std::string_view query) {
-    trim(query);
+fs8::evdev_rank fs8::device(std::string_view const query) {
+    return device_impl(query, [](auto const&...) {
+        return false;
+    });
+}
 
-    // check if it's a path
-    if (query.starts_with('/')) {
-        std::filesystem::path const path{query};
-        if (exists(path)) {
-            return {.score = 100, .dev = evdev{path}};
+fs8::evdev_rank fs8::device(std::string_view const query, std::span<evdev const> excluded) {
+    return device_impl(query, [&](std::uint8_t const, evdev const& dev) {
+        for (auto const& ex_dev : excluded) {
+            if (ex_dev != dev) {
+                return true;
+            }
         }
-    }
-
-    auto const [caps, caps_score] = find_caps(query);
-
-    evdev_rank best{};
-    for (evdev&& dev : all_input_devices()) {
-        auto const name = dev.device_name();
-        auto const loc  = dev.physical_location();
-        auto const id   = dev.unique_identifier();
-
-        if (!dev.is_fd_initialized() || name == invalid_device_name) {
-            log("  * Not valid: {} {} {}", name, loc, id);
-            continue;
-        }
-        // if (dev.grab() == grab_state::grabbing_by_others) {
-        //     log("  * Ignore Already Grabbed: {} {} {}", name, loc, id);
-        //     continue;
-        // }
-
-        std::uint16_t const name_score     = calc_score(query, name);
-        auto const          loc_score      = static_cast<std::uint16_t>(calc_score(query, loc) / 2);
-        auto const          id_score       = static_cast<std::uint16_t>(calc_score(query, id) * 1.5);
-        auto const          cur_caps_score = static_cast<std::uint16_t>(dev.match_caps(caps) * (static_cast<double>(caps_score) / 100 + 1));
-        auto const          score          = static_cast<std::uint8_t>((name_score + loc_score + id_score + cur_caps_score) / 4);
-        if (score > best.score) {
-            best.score = score;
-            best.dev   = std::move(dev);
-        }
-        log("  - Score {}% ({}/{}/{}/{}): {} {} {}", score, name_score, loc_score, id_score, cur_caps_score, name, loc, id);
-    }
-    log("  + Best device with score {}%: {} {}", best.score, best.dev.device_name(), best.dev.physical_location());
-    return best;
+        return false;
+    });
 }
