@@ -66,6 +66,7 @@ target_sources(${LIB_NAME}
         bash/bash_runner.cxx
         devices/evdev.cxx
         devices/key_codes.cxx
+        devices/udev.cxx
         devices/uinput.cxx
         lib/event2unicode.cxx
         lib/how2type.cxx
@@ -91,6 +92,7 @@ target_sources(${LIB_NAME}
         devices/evdev.ixx
         devices/inputs-event-codes.ixx
         devices/key_codes.ixx
+        devices/udev.ixx
         devices/uinput.ixx
         lib/event2unicode.ixx
         lib/how2type.ixx
