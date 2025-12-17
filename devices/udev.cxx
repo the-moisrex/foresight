@@ -18,6 +18,10 @@ fs8::udev::operator bool() const noexcept {
     return is_valid();
 }
 
+udev* fs8::udev::native() const noexcept {
+    return handle;
+}
+
 fs8::udev::udev(fs8::udev const& other) noexcept : handle{udev_ref(other.handle)} {}
 
 fs8::udev& fs8::udev::operator=(udev const& other) noexcept {
@@ -99,7 +103,7 @@ std::string_view fs8::udev_device::devnode() const noexcept {
     return udev_device_get_devnode(dev);
 }
 
-std::string_view fs8::udev_device::property(std::string_view name) const noexcept {
+std::string_view fs8::udev_device::property(std::string_view const name) const noexcept {
     return udev_device_get_property_value(dev, name.data());
 }
 
@@ -117,4 +121,101 @@ std::string_view fs8::udev_device::sysattr(std::string_view const name) const no
 
 bool fs8::udev_device::has_tag(std::string_view const name) const noexcept {
     return udev_device_has_tag(dev, name.data());
+}
+
+udev_device* fs8::udev_device::native() const noexcept {
+    return dev;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+fs8::udev_enumerate::udev_enumerate(udev const& dev) noexcept : handle{::udev_enumerate_new(dev.native())} {
+    if (handle == nullptr) [[unlikely]] {
+        code = -1;
+    }
+}
+
+fs8::udev_enumerate::udev_enumerate() noexcept : udev_enumerate{udev::instance()} {}
+
+fs8::udev_enumerate::~udev_enumerate() noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return;
+    }
+    udev_enumerate_unref(handle);
+}
+
+udev_enumerate* fs8::udev_enumerate::native() const noexcept {
+    return handle;
+}
+
+bool fs8::udev_enumerate::is_valid() const noexcept {
+    return code >= 0;
+}
+
+fs8::udev_enumerate::operator bool() const noexcept {
+    return is_valid();
+}
+
+fs8::udev_enumerate& fs8::udev_enumerate::match_subsystem(std::string_view const subsystem) noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return *this;
+    }
+    code = ::udev_enumerate_add_match_subsystem(handle, subsystem.data());
+    return *this;
+}
+
+fs8::udev_enumerate& fs8::udev_enumerate::nomatch_subsystem(std::string_view const subsystem) noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return *this;
+    }
+    code = ::udev_enumerate_add_nomatch_subsystem(handle, subsystem.data());
+    return *this;
+}
+
+fs8::udev_enumerate& fs8::udev_enumerate::match_sysattr(std::string_view const name, std::string_view const value) noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return *this;
+    }
+    code = ::udev_enumerate_add_match_sysattr(handle, name.data(), value.empty() ? nullptr : value.data());
+    return *this;
+}
+
+fs8::udev_enumerate& fs8::udev_enumerate::nomatch_sysattr(std::string_view const name, std::string_view const value) noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return *this;
+    }
+    code = ::udev_enumerate_add_nomatch_sysattr(handle, name.data(), value.empty() ? nullptr : value.data());
+    return *this;
+}
+
+fs8::udev_enumerate& fs8::udev_enumerate::match_property(std::string_view const name, std::string_view const value) noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return *this;
+    }
+    code = ::udev_enumerate_add_match_property(handle, name.data(), value.empty() ? nullptr : value.data());
+    return *this;
+}
+
+fs8::udev_enumerate& fs8::udev_enumerate::match_sysname(std::string_view const sysname) noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return *this;
+    }
+    code = ::udev_enumerate_add_match_sysname(handle, sysname.data());
+    return *this;
+}
+
+fs8::udev_enumerate& fs8::udev_enumerate::match_tag(std::string_view const tag) noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return *this;
+    }
+    code = ::udev_enumerate_add_match_tag(handle, tag.data());
+    return *this;
+}
+
+fs8::udev_enumerate& fs8::udev_enumerate::match_parent(udev_device const& dev) noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return *this;
+    }
+    code = ::udev_enumerate_add_match_parent(handle, dev.native());
+    return *this;
 }

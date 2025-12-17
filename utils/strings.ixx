@@ -7,6 +7,14 @@ export module foresight.utils.strings;
 
 export namespace fs8 {
 
+    /**
+     * Convert `string_view`s to `string`s
+     */
+    template <typename CharT = char, typename CharTraits = std::char_traits<CharT>>
+    [[nodiscard]] constexpr std::basic_string<CharT, CharTraits> operator+(std::basic_string_view<CharT, CharTraits> const str) {
+        return {str.data(), str.size()};
+    }
+
     template <std::size_t N>
     struct constexpr_string {
         char data[N]{};
