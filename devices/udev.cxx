@@ -219,3 +219,61 @@ fs8::udev_enumerate& fs8::udev_enumerate::match_parent(udev_device const& dev) n
     code = ::udev_enumerate_add_match_parent(handle, dev.native());
     return *this;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+// "udev" → monitors events from the udev daemon (processed device events; most common).
+// "kernel" → monitors raw events directly from the kernel (unprocessed; rarely used).
+fs8::udev_monitor::udev_monitor(udev const& dev) noexcept : mon{::udev_monitor_new_from_netlink(dev.native(), "udev")} {
+    if (mon == nullptr) [[unlikely]] {
+        code = -1;
+        return;
+    }
+    fd = ::udev_monitor_get_fd(mon);
+    if (fd < 0) {
+        code = fd;
+    }
+}
+
+fs8::udev_monitor::udev_monitor() noexcept : udev_monitor{udev::instance()} {}
+
+fs8::udev_monitor::~udev_monitor() noexcept {
+    if (!is_valid()) {
+        return;
+    }
+    udev_monitor_unref(mon);
+}
+
+void fs8::udev_monitor::match_device(std::string_view subsystem, std::string_view type) noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return;
+    }
+    auto const s = type.empty() ? nullptr : type.data();
+    code         = ::udev_monitor_filter_add_match_subsystem_devtype(mon, subsystem.data(), s);
+}
+
+void fs8::udev_monitor::match_tag(std::string_view const name) noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return;
+    }
+    code = ::udev_monitor_filter_add_match_tag(mon, name.data());
+}
+
+bool fs8::udev_monitor::is_valid() const noexcept {
+    return code >= 0;
+}
+
+int fs8::udev_monitor::file_descriptor() const noexcept {
+    return fd;
+}
+
+void fs8::udev_monitor::enable() noexcept {
+    if (!is_valid()) [[unlikely]] {
+        return;
+    }
+    code = ::udev_monitor_enable_receiving(mon);
+}
+
+fs8::udev_device fs8::udev_monitor::next_device() const noexcept {
+    return fs8::udev_device{::udev_monitor_receive_device(mon)};
+}
