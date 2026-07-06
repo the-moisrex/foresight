@@ -185,14 +185,14 @@ namespace fs8 {
     export constexpr basic_search_engine search_engine;
 
     /**
-     * This class calculates and stores the state of the keys being typed by the user in a style of a hash.
+     * This class calculates and stores the state of the keys being typed by the user in style of a hash.
      */
     export constexpr struct [[nodiscard]] basic_typed {
         static constexpr std::uint16_t invalid_trigger_id = std::numeric_limits<std::uint16_t>::max();
 
       private:
         std::string_view pattern;                         // pattern string
-        std::uint16_t    trigger_id = invalid_trigger_id; // pattern id in search engine
+        std::uint16_t    trigger_id = invalid_trigger_id; // pattern id in the search engine
         xkb::basic_state keyboard_state;                  // the state of the modifier keys and what not
         aho_state        aho_search_state{};              // the state of where we are in search engine
 

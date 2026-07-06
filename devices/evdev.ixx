@@ -74,7 +74,7 @@ namespace fs8 {
         [[nodiscard]] bool is_fd_initialized() const noexcept;
 
         /// check if everything is okay
-        [[nodiscard]] bool ok() const noexcept {
+        [[nodiscard]] bool is_ok() const noexcept {
             using enum evdev_status;
             return dev != nullptr && (status == success || status == success_grabbed);
         }
@@ -202,7 +202,7 @@ namespace fs8 {
                // 3. Filter again to discard any evdev objects that failed initialization.
                //    (e.g., due to permissions issues when calling `open`).
                | filter([](evdev const& dev) noexcept {
-                     return dev.ok();
+                     return dev.is_ok();
                  });
     }
 
@@ -280,9 +280,9 @@ namespace fs8 {
         template <typename R>
         [[nodiscard]] constexpr bool operator()(R const& obj) const noexcept {
             if constexpr (std::same_as<R, evdev_rank>) {
-                return obj.dev.ok();
+                return obj.dev.is_ok();
             } else if constexpr (std::same_as<R, evdev>) {
-                return obj.ok();
+                return obj.is_ok();
             } else {
                 return true;
             }
@@ -310,7 +310,7 @@ namespace fs8 {
         }
 
         [[nodiscard]] constexpr auto operator()(std::string_view const query) const noexcept {
-            return std::span<std::string_view const>{query} | *this;
+            return std::span<std::string_view const>{{query}} | *this;
         }
 
     } find_devices;

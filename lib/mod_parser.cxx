@@ -62,7 +62,6 @@ namespace {
         return utf8_sequence_length_by_leading_byte.at(static_cast<unsigned char>(src));
     }
 
-
     struct mod_entry {
         std::u32string_view key;      // must refer to a static literal (we use U"...")
         std::uint16_t       code;
@@ -164,10 +163,6 @@ namespace {
         return static_cast<fs8::code32_t>(fs8::event_encoded_code32_t | fs8::hashed(fs8::key_event{.code = code, .value = value}));
     }
 
-    // [[nodiscard]] fs8::code32_t to_code(fs8::event_type const &event) noexcept {
-    //     return to_code(event.code(), event.value());
-    // }
-
     [[nodiscard]] fs8::code32_t to_code(fs8::key_event const event) noexcept {
         return to_code(event.code, event.value);
     }
@@ -180,20 +175,6 @@ namespace {
     [[nodiscard]] bool is_encoded_event(fs8::code32_t const code) noexcept {
         return (fs8::event_encoded_code32_t & code) == fs8::event_encoded_code32_t;
     }
-
-    // [[nodiscard]] foresight::code32_t to_code(std::u32string_view const key) noexcept {
-    //     return to_code(get_modifier_code(key));
-    // }
-
-    /// Convert key names or single characters to user_event (with value=1)
-    // user_event to_event(std::u32string_view const key) noexcept {
-    //     return user_event{
-    //       .type  = EV_KEY,
-    //       .code  = get_modifier_code(key),
-    //       .value = 1,
-    //     };
-    // }
-
 } // namespace
 
 fs8::code32_t fs8::unicode_encoded_event(xkb::basic_state const &state, key_event const event) noexcept {
@@ -334,7 +315,6 @@ namespace {
 
     template <typename CharT>
     bool parse_modifier_impl(std::basic_string_view<CharT> mod_str, fs8::key_code_callback callback) {
-        // assert(mod_str.starts_with(U'<') && mod_str.ends_with(U'>'));
         static constexpr std::array<CharT, 3>          delims{'-', '+', ' '};
         static constexpr std::basic_string_view<CharT> delims_str{delims.data(), delims.size()};
         mod_str.remove_prefix(1);
@@ -375,10 +355,10 @@ namespace {
             }
 
             // release the keys in reverse order:
-            for (std::uint32_t cindex = 0; cindex != index; ++cindex) {
+            for (std::uint32_t cindex = index; cindex > 0; --cindex) {
                 // keyup:
                 callback({
-                  .code  = keys.at(cindex),
+                  .code  = keys.at(cindex - 1),
                   .value = 0,
                 });
             }
@@ -482,6 +462,7 @@ bool fs8::normalize_modifiers(std::u32string &str) noexcept {
         // Ignore Unicode Code Points
         if (!is_encoded_event(code)) {
             code_to_remove = KEY_MAX;
+            *lhs           = code;
             ++lhs;
             continue;
         }
@@ -490,9 +471,11 @@ bool fs8::normalize_modifiers(std::u32string &str) noexcept {
         auto const recoded = unicode_encoded_event(keyboard_state, event);
         if (event.value != 1 || is_encoded_event(recoded)) {
             if (code_to_remove == event.code) {
-                continue; // remove current code point
+                code_to_remove = KEY_MAX; // Reset, but don't skip!
+                // continue; // remove current code point
             }
             assert(recoded == code);
+            *lhs = code;
             ++lhs;
             continue;
         }
@@ -525,19 +508,19 @@ void fs8::replace_modifier_strings(std::u32string &str) noexcept {
             default: mode = unknown; break;
         }
         auto const rhsptr = find_delim(str, U">]", lhsptr);
-        auto const code   = str.substr(0, rhsptr + 1);
+        auto const code   = str.substr(lhsptr, rhsptr - lhsptr + 1);
         if (str.at(rhsptr) != str.at(lhsptr)) {
             mode = unknown;
         }
 
         // todo: handle modes
         auto encoded = parse_modifier(code);
-        for (char32_t const code : encoded) {
-            log("Encoded: {:x}", static_cast<std::uint32_t>(code));
+        for (char32_t const cur_code : encoded) {
+            log("Encoded: {:x}", static_cast<std::uint32_t>(cur_code));
         }
         normalize_modifiers(encoded);
-        for (char32_t const code : encoded) {
-            log("Normalized: {:x}", static_cast<std::uint32_t>(code));
+        for (char32_t const cur_code : encoded) {
+            log("Normalized: {:x}", static_cast<std::uint32_t>(cur_code));
         }
         str.replace(lhsptr, code.size(), encoded);
 

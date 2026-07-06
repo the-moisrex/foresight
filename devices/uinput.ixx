@@ -135,36 +135,36 @@ export namespace fs8 {
         bool emit(event_type const& event) noexcept;
         bool emit_syn() noexcept;
 
-        void init(dev_caps_view caps_view) noexcept;
-        void set_device_from(dev_caps_view caps_view) noexcept;
+        bool init(dev_caps_view caps_view) noexcept;
+        bool set_device_from(dev_caps_view caps_view) noexcept;
 
         /// Set the start on start
-        void operator()(dev_caps_view caps_view, start_tag) noexcept;
+        bool operator()(dev_caps_view caps_view, start_tag) noexcept;
 
         /// Set the device on start
-        void operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, start_tag) noexcept {
-            operator()(caps_view, start);
+        bool operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, start_tag) noexcept {
+            return operator()(caps_view, start);
         }
 
         /// Find the device if possible on start
         /// The first device in the interceptor, we automatically find it, and use that one
-        void operator()(std::span<evdev const> devs, start_tag) noexcept;
+        bool operator()(std::span<evdev const> devs, start_tag) noexcept;
 
         /// Find the device if possible on start
         /// The first device in the interceptor, we automatically find it, and use that one
         template <ContextWith<basic_interceptor> CtxT>
-        void operator()(CtxT& ctx, start_tag) noexcept {
+        bool operator()(CtxT& ctx, start_tag) noexcept {
             if (is_ok()) {
-                return;
+                return true;
             }
-            operator()(ctx.mod(intercept).devices(), start);
+            return operator()(ctx.mod(intercept).devices(), start);
         }
 
         context_action operator()(event_type const& event) noexcept;
 
       private:
         libevdev_uinput* dev      = nullptr;
-        std::errc        err_code = std::errc{};
+        int              err_code = 0;
     } uinput;
 
     static_assert(OutputModifier<basic_uinput>, "Must be an output modifier.");

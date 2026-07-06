@@ -302,7 +302,7 @@ namespace {
 
                 auto const&      file = opts.files.front().file;
                 fs8::evdev const dev{file};
-                if (!dev.ok()) {
+                if (!dev.is_ok()) {
                     throw std::runtime_error(std::format("Could not open device to write into {}", file.string()));
                 }
                 out.set_device(dev);

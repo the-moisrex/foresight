@@ -1,5 +1,5 @@
-#include <linux/input-event-codes.h>
 #include <stdexcept>
+
 import foresight.mods;
 import foresight.main.log;
 import foresight.main.utils;
@@ -11,7 +11,7 @@ int main(int const argc, char const* const* argv) try {
 
     static constinit auto pipeline =
       context
-      | intercept
+      | intercept // Intercept the events
       | search_engine
       | on(typed("@test"), type_string("nice"))
       | ignore_adjacent_syns

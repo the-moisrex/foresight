@@ -123,7 +123,7 @@ bool evdev::is_fd_initialized() const noexcept {
 
 void evdev::grab_input(bool const grab) noexcept {
     using enum evdev_status;
-    if (!ok()) [[unlikely]] {
+    if (!is_ok()) [[unlikely]] {
         return;
     }
     if (!grab && status == success) {
@@ -142,7 +142,7 @@ void evdev::grab_input(bool const grab) noexcept {
 
 fs8::grab_state evdev::grab() const noexcept {
     using enum grab_state;
-    if (!ok()) {
+    if (!is_ok()) {
         return error;
     }
     if (get_status() == evdev_status::success_grabbed) {
@@ -602,6 +602,8 @@ namespace {
                 return {.score = 100, .dev = evdev{path}};
             }
         }
+
+        fs8::log("Query: {}", query);
 
         auto const [caps, caps_score] = find_caps(query);
 

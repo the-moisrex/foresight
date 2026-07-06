@@ -24,8 +24,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         # Use CPM to download the source only
         CPMAddPackage(
             NAME libevdev
-            URL https://www.freedesktop.org/software/libevdev/libevdev-1.11.0.tar.xz
-            VERSION 1.11.0
+            URL https://www.freedesktop.org/software/libevdev/libevdev-1.13.6.tar.xz
+            VERSION 1.13.6
             DOWNLOAD_ONLY YES
         )
 

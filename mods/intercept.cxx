@@ -46,7 +46,7 @@ void basic_interceptor::set_files(std::span<std::filesystem::path const> const i
     devs.reserve(inp_paths.size());
     for (auto const& file : inp_paths) {
         auto& dev = devs.emplace_back(file);
-        if (!dev.ok()) [[unlikely]] {
+        if (!dev.is_ok()) [[unlikely]] {
             throw std::runtime_error(std::format("Failed to initialize event device ({}) while setting multiple files with error({}).",
                                                  file.string(),
                                                  to_string(dev.get_status())));
@@ -63,7 +63,7 @@ void basic_interceptor::set_files(std::span<input_file_type const> const inp_pat
     // convert to `evdev`s.
     for (auto const& [file, grab] : inp_paths) {
         auto& dev = devs.emplace_back(file);
-        if (!dev.ok()) [[unlikely]] {
+        if (!dev.is_ok()) [[unlikely]] {
             throw std::runtime_error(std::format(
               "Failed to initialize event device ({}) while trying to initialize multiple files with error "
               "({}).",
@@ -79,7 +79,7 @@ void basic_interceptor::set_files(std::span<input_file_type const> const inp_pat
 void basic_interceptor::add_file(input_file_type const& inp_path) {
     auto const& [file, grab] = inp_path;
     auto& dev                = devs.emplace_back(file);
-    if (!dev.ok()) [[unlikely]] {
+    if (!dev.is_ok()) [[unlikely]] {
         throw std::runtime_error(
           std::format("Failed to initialize event device ({}) with error({}).", file.string(), to_string(dev.get_status())));
     }
@@ -91,7 +91,7 @@ void basic_interceptor::add_file(input_file_type const& inp_path) {
 void basic_interceptor::add_dev(evdev&& inp_dev) {
     auto&      dev  = devs.emplace_back(std::move(inp_dev));
     auto const name = dev.device_name();
-    if (!dev.ok()) [[unlikely]] {
+    if (!dev.is_ok()) [[unlikely]] {
         throw std::runtime_error(std::format(
           "Failed to initialize event device ({}) while trying to start intercepting it with error ({}).",
           name,

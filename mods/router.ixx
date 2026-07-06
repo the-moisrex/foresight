@@ -72,6 +72,16 @@ export namespace fs8 {
         };
     }
 
+    template <typename FuncT, typename... Args>
+    [[nodiscard]] bool invoke_bool(FuncT&& func, Args&&... args) {
+        if constexpr (std::convertible_to<bool, std::invoke_result_t<FuncT, Args...>>) {
+            return (std::forward<FuncT>(func))(std::forward<Args>(args)...);
+        } else {
+            (std::forward<FuncT>(func))(std::forward<Args>(args)...);
+            return true;
+        }
+    }
+
     /**
      * This struct helps to pick which virtual device should be chosen as output based on the even type.
      */
@@ -121,22 +131,27 @@ export namespace fs8 {
         template <Context CtxT>
         context_action operator()(CtxT& ctx, start_tag) {
             set_caps();
-            [&]<std::size_t... I>(std::index_sequence<I...>) constexpr {
-                (([&]<typename Func>(Func& route) constexpr {
-                     if constexpr (requires(dev_caps_view caps_view) { route(ctx, caps_view, start); }) {
-                         route(ctx, caps[I], start);
-                     } else if constexpr (requires(dev_caps_view caps_view) { route(caps_view, start); }) {
-                         route(caps[I], start);
-                     } else if constexpr (requires(dev_caps_view caps_view) { route(ctx, start); }) {
-                         route(ctx, start);
-                     } else if constexpr (requires { route.init(); }) {
-                         route(start);
-                     } else {
-                         // Intentionally Ignored since most mods don't need init.
-                     }
-                 }(get<I>(routes))),
-                 ...);
+            bool const init_valid = [&]<std::size_t... I>(std::index_sequence<I...>) constexpr {
+                return (([&]<typename Func>(Func& route) constexpr {
+                            if constexpr (requires(dev_caps_view caps_view) { route(ctx, caps_view, start); }) {
+                                return invoke_bool(route, ctx, caps[I], start);
+                            } else if constexpr (requires(dev_caps_view caps_view) { route(caps_view, start); }) {
+                                return invoke_bool(route, caps[I], start);
+                            } else if constexpr (requires(dev_caps_view caps_view) { route(ctx, start); }) {
+                                return invoke_bool(route, ctx, start);
+                            } else if constexpr (requires { route.init(); }) {
+                                return invoke_bool(route, start);
+                            } else {
+                                // Intentionally Ignored since most mods don't need init.
+                                return true;
+                            }
+                        }(get<I>(routes)))
+                        && ...);
             }(std::make_index_sequence<sizeof...(Routes)>{});
+            if (!init_valid) [[unlikely]] {
+                fs8::log("Router failed to start at least one of the routes.");
+                return context_action::exit;
+            }
             return context_action::next;
         }
 
@@ -290,5 +305,14 @@ export namespace fs8 {
     constexpr basic_router<> router;
 
     static_assert(OutputModifier<basic_router<>>, "Must be an output modifier.");
+
+    template <typename R>
+    [[nodiscard]] bool is_ok(R&& udevs) noexcept {
+        bool ok = true;
+        for (auto const& dev : udevs) {
+            ok &= dev.is_ok();
+        }
+        return ok;
+    }
 
 } // namespace fs8

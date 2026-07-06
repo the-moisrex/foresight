@@ -58,6 +58,14 @@ int main(int const argc, char const* const* argv) try {
       | router(caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput);
 
     pipeline.mod(intercept).add_devs(args(argc, argv) | find_devices | grab_inputs);
+    if (!is_ok(pipeline.mod(intercept).devices())) [[unlikely]] {
+        fs8::log("Device/Devices have failures.");
+        return 1;
+    }
+    // if (!is_ok(pipeline.mod(router).uinput_devices())) [[unlikely]] {
+    //     fs8::log("Virtual device(s) creation failed.");
+    //     return 1;
+    // }
     pipeline();
 
     return 0;
