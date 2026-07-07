@@ -92,6 +92,9 @@ void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descript
         err_code = -ret;
         log("Failed to create virtual device (uinput) from device ({}): {}", ret, this->error().message());
         log("File descriptor: {} (-2 == LIBEVDEV_UINPUT_OPEN_MANAGED)", file_descriptor);
+        if (static_cast<std::errc>(err_code) == std::errc::no_such_file_or_directory) {
+            log("Maybe it'll be fixed by `modprobe uinput`.");
+        }
         close();
         return;
     }
