@@ -1,7 +1,6 @@
 // Created by moisrex on 12/12/25.
 
 module;
-#include <any>
 #include <array>
 #include <cassert>
 #include <optional>
@@ -16,7 +15,7 @@ export namespace fs8 {
      * Variable support
      * This struct only holds one single variable
      */
-    template <typename T = std::any>
+    template <typename T>
     struct [[nodiscard]] var_type {
         static_assert(std::default_initializable<T> && std::copyable<T>, "T Must be Constructible and Copyable");
 
@@ -50,18 +49,6 @@ export namespace fs8 {
             return {name};
         }
 
-        /// Get variable
-        [[nodiscard]] constexpr T const& operator[](std::string_view const inp_name) const noexcept {
-            assert(inp_name == name);
-            return value();
-        }
-
-        /// Get variable
-        [[nodiscard]] constexpr T& operator[](std::string_view const inp_name) noexcept {
-            assert(inp_name == name);
-            return value();
-        }
-
         [[nodiscard]] constexpr T const& value() const noexcept {
             if constexpr (is_constructible_at_compile_time) {
                 return obj;
@@ -88,7 +75,7 @@ export namespace fs8 {
         }
     };
 
-    template <typename T = std::any>
+    template <typename T>
     var_type(std::string_view, T&&) -> var_type<T>;
 
 } // namespace fs8

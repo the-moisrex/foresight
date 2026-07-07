@@ -406,9 +406,14 @@ export namespace fs8 {
             return get<Index>(std::forward_like<Self>(self.mods));
         }
 
-        // [[nodiscard]] consteval auto const &operator[](std::string_view const name) const noexcept {
-        //     // todo
-        // }
+      private:
+        std::array<variable_pointer, variable_size_v<Funcs...>> variables = extract_variables(mods);
+
+      public:
+        /// @returns variant<monostate, Var::value_type...>
+        [[nodiscard]] constexpr auto operator[](std::string_view const name) const {
+            return find_variable(name, variables, mods);
+        }
 
         /// Unwrap basic_context
         template <Modifier... NMods>
