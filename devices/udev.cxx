@@ -1,10 +1,32 @@
 // Created by moisrex on 12/16/25.
 module;
+#include <cassert>
 #include <libudev.h>
 #include <string_view>
+#include <utility>
 module foresight.devices.udev;
 
+namespace {
+    // constructing string_view with nullptr pointer is UB.
+    [[nodiscard]] std::string_view viewify(char const* str) noexcept {
+        return str == nullptr ? "" : str;
+    }
+} // namespace
+
 fs8::udev::udev() noexcept : handle{udev_new()} {}
+
+fs8::udev::udev(fs8::udev&& other) noexcept : handle{std::exchange(other.handle, nullptr)} {}
+
+fs8::udev& fs8::udev::operator=(udev&& other) noexcept {
+    if (&other == this) [[unlikely]] {
+        return *this;
+    }
+    if (handle) {
+        udev_unref(handle);
+    }
+    handle = std::exchange(other.handle, nullptr);
+    return *this;
+}
 
 fs8::udev::~udev() {
     udev_unref(handle);
@@ -40,7 +62,7 @@ fs8::udev fs8::udev::instance() {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-fs8::udev_device::udev_device(::udev* udev, std::string_view const path) noexcept : dev{udev_device_new_from_syspath(udev, path.data())} {}
+fs8::udev_device::udev_device(::udev* udev, char const* const path) noexcept : dev{udev_device_new_from_syspath(udev, path)} {}
 
 fs8::udev_device::~udev_device() noexcept {
     if (dev == nullptr) [[unlikely]] {
@@ -65,11 +87,12 @@ fs8::udev_device fs8::udev_device::parent() const noexcept {
 
     // udev_device_get_parent() returns reference whose lifetime is tied to the child's lifetime,
     // we have to copy the device
-    return udev_device{udev_device_get_udev(device), udev_device_get_syspath(device)};
+    // return udev_device{udev_device_get_udev(device), udev_device_get_syspath(device)};
+    return udev_device{udev_device_ref(device)};
 }
 
-fs8::udev_device fs8::udev_device::parent(std::string_view const subsystem, std::string_view const devtype) const noexcept {
-    auto const device = udev_device_get_parent_with_subsystem_devtype(dev, subsystem.data(), devtype.size() ? devtype.data() : nullptr);
+fs8::udev_device fs8::udev_device::parent(char const* const subsystem, char const* const devtype) const noexcept {
+    auto const device = udev_device_get_parent_with_subsystem_devtype(dev, subsystem, devtype);
     if (device == nullptr) [[unlikely]] {
         return {}; // return empty device
     }
@@ -80,47 +103,47 @@ fs8::udev_device fs8::udev_device::parent(std::string_view const subsystem, std:
 }
 
 std::string_view fs8::udev_device::subsystem() const noexcept {
-    return udev_device_get_subsystem(dev);
+    return viewify(udev_device_get_subsystem(dev));
 }
 
 std::string_view fs8::udev_device::devtype() const noexcept {
-    return udev_device_get_devtype(dev);
+    return viewify(udev_device_get_devtype(dev));
 }
 
 std::string_view fs8::udev_device::syspath() const noexcept {
-    return udev_device_get_syspath(dev);
+    return viewify(udev_device_get_syspath(dev));
 }
 
 std::string_view fs8::udev_device::sysname() const noexcept {
-    return udev_device_get_sysname(dev);
+    return viewify(udev_device_get_sysname(dev));
 }
 
 std::string_view fs8::udev_device::sysnum() const noexcept {
-    return udev_device_get_sysnum(dev);
+    return viewify(udev_device_get_sysnum(dev));
 }
 
 std::string_view fs8::udev_device::devnode() const noexcept {
-    return udev_device_get_devnode(dev);
+    return viewify(udev_device_get_devnode(dev));
 }
 
-std::string_view fs8::udev_device::property(std::string_view const name) const noexcept {
-    return udev_device_get_property_value(dev, name.data());
+std::string_view fs8::udev_device::property(char const* const name) const noexcept {
+    return viewify(udev_device_get_property_value(dev, name));
 }
 
 std::string_view fs8::udev_device::driver() const noexcept {
-    return udev_device_get_driver(dev);
+    return viewify(udev_device_get_driver(dev));
 }
 
 std::string_view fs8::udev_device::action() const noexcept {
-    return udev_device_get_action(dev);
+    return viewify(udev_device_get_action(dev));
 }
 
-std::string_view fs8::udev_device::sysattr(std::string_view const name) const noexcept {
-    return udev_device_get_sysattr_value(dev, name.data());
+std::string_view fs8::udev_device::sysattr(char const* const name) const noexcept {
+    return viewify(udev_device_get_sysattr_value(dev, name));
 }
 
-bool fs8::udev_device::has_tag(std::string_view const name) const noexcept {
-    return udev_device_has_tag(dev, name.data());
+bool fs8::udev_device::has_tag(char const* const name) const noexcept {
+    return udev_device_has_tag(dev, name);
 }
 
 udev_device* fs8::udev_device::native() const noexcept {
@@ -137,8 +160,25 @@ fs8::udev_enumerate::udev_enumerate(udev const& dev) noexcept : handle{::udev_en
 
 fs8::udev_enumerate::udev_enumerate() noexcept : udev_enumerate{udev::instance()} {}
 
+fs8::udev_enumerate::udev_enumerate(fs8::udev_enumerate&& other) noexcept
+  : handle{std::exchange(other.handle, nullptr)},
+    code{std::exchange(other.code, 0)} {}
+
+fs8::udev_enumerate& fs8::udev_enumerate::operator=(udev_enumerate&& other) noexcept {
+    if (&other == this) [[unlikely]] {
+        return *this;
+    }
+    if (handle) {
+        udev_enumerate_unref(handle);
+    }
+    handle = std::exchange(other.handle, nullptr);
+    code   = std::exchange(other.code, 0);
+    return *this;
+}
+
 fs8::udev_enumerate::~udev_enumerate() noexcept {
-    if (!is_valid()) [[unlikely]] {
+    // don't check for is_valid instead of handle's nullness
+    if (handle == nullptr) [[unlikely]] {
         return;
     }
     udev_enumerate_unref(handle);
@@ -156,59 +196,59 @@ fs8::udev_enumerate::operator bool() const noexcept {
     return is_valid();
 }
 
-fs8::udev_enumerate& fs8::udev_enumerate::match_subsystem(std::string_view const subsystem) noexcept {
+fs8::udev_enumerate& fs8::udev_enumerate::match_subsystem(char const* const subsystem) noexcept {
     if (!is_valid()) [[unlikely]] {
         return *this;
     }
-    code = ::udev_enumerate_add_match_subsystem(handle, subsystem.data());
+    code = ::udev_enumerate_add_match_subsystem(handle, subsystem);
     return *this;
 }
 
-fs8::udev_enumerate& fs8::udev_enumerate::nomatch_subsystem(std::string_view const subsystem) noexcept {
+fs8::udev_enumerate& fs8::udev_enumerate::nomatch_subsystem(char const* subsystem) noexcept {
     if (!is_valid()) [[unlikely]] {
         return *this;
     }
-    code = ::udev_enumerate_add_nomatch_subsystem(handle, subsystem.data());
+    code = ::udev_enumerate_add_nomatch_subsystem(handle, subsystem);
     return *this;
 }
 
-fs8::udev_enumerate& fs8::udev_enumerate::match_sysattr(std::string_view const name, std::string_view const value) noexcept {
+fs8::udev_enumerate& fs8::udev_enumerate::match_sysattr(char const* const name, char const* const value) noexcept {
     if (!is_valid()) [[unlikely]] {
         return *this;
     }
-    code = ::udev_enumerate_add_match_sysattr(handle, name.data(), value.empty() ? nullptr : value.data());
+    code = ::udev_enumerate_add_match_sysattr(handle, name, value);
     return *this;
 }
 
-fs8::udev_enumerate& fs8::udev_enumerate::nomatch_sysattr(std::string_view const name, std::string_view const value) noexcept {
+fs8::udev_enumerate& fs8::udev_enumerate::nomatch_sysattr(char const* const name, char const* const value) noexcept {
     if (!is_valid()) [[unlikely]] {
         return *this;
     }
-    code = ::udev_enumerate_add_nomatch_sysattr(handle, name.data(), value.empty() ? nullptr : value.data());
+    code = ::udev_enumerate_add_nomatch_sysattr(handle, name, value);
     return *this;
 }
 
-fs8::udev_enumerate& fs8::udev_enumerate::match_property(std::string_view const name, std::string_view const value) noexcept {
+fs8::udev_enumerate& fs8::udev_enumerate::match_property(char const* const name, char const* const value) noexcept {
     if (!is_valid()) [[unlikely]] {
         return *this;
     }
-    code = ::udev_enumerate_add_match_property(handle, name.data(), value.empty() ? nullptr : value.data());
+    code = ::udev_enumerate_add_match_property(handle, name, value);
     return *this;
 }
 
-fs8::udev_enumerate& fs8::udev_enumerate::match_sysname(std::string_view const sysname) noexcept {
+fs8::udev_enumerate& fs8::udev_enumerate::match_sysname(char const* const sysname) noexcept {
     if (!is_valid()) [[unlikely]] {
         return *this;
     }
-    code = ::udev_enumerate_add_match_sysname(handle, sysname.data());
+    code = ::udev_enumerate_add_match_sysname(handle, sysname);
     return *this;
 }
 
-fs8::udev_enumerate& fs8::udev_enumerate::match_tag(std::string_view const tag) noexcept {
+fs8::udev_enumerate& fs8::udev_enumerate::match_tag(char const* const tag) noexcept {
     if (!is_valid()) [[unlikely]] {
         return *this;
     }
-    code = ::udev_enumerate_add_match_tag(handle, tag.data());
+    code = ::udev_enumerate_add_match_tag(handle, tag);
     return *this;
 }
 
@@ -237,26 +277,46 @@ fs8::udev_monitor::udev_monitor(udev const& dev) noexcept : mon{::udev_monitor_n
 
 fs8::udev_monitor::udev_monitor() noexcept : udev_monitor{udev::instance()} {}
 
+fs8::udev_monitor::udev_monitor(fs8::udev_monitor&& other) noexcept
+  : mon{std::exchange(other.mon, nullptr)},
+    fd{std::exchange(other.fd, 0)},
+    code{std::exchange(other.code, 0)} {}
+
+fs8::udev_monitor& fs8::udev_monitor::operator=(udev_monitor&& other) noexcept {
+    if (&other == this) [[unlikely]] {
+        return *this;
+    }
+    if (mon != nullptr) {
+        udev_monitor_unref(mon);
+    }
+    mon  = std::exchange(other.mon, nullptr);
+    fd   = std::exchange(other.fd, 0);
+    code = std::exchange(other.code, 0);
+    return *this;
+}
+
 fs8::udev_monitor::~udev_monitor() noexcept {
-    if (!is_valid()) {
+    // don't check for is_valid instead of mon's nullness.
+    if (mon == nullptr) [[unlikely]] {
         return;
     }
     udev_monitor_unref(mon);
 }
 
-void fs8::udev_monitor::match_device(std::string_view subsystem, std::string_view type) noexcept {
+void fs8::udev_monitor::match_device(char const* const subsystem, char const* const type) noexcept {
+    assert(mon != nullptr);
     if (!is_valid()) [[unlikely]] {
         return;
     }
-    auto const s = type.empty() ? nullptr : type.data();
-    code         = ::udev_monitor_filter_add_match_subsystem_devtype(mon, subsystem.data(), s);
+    code = ::udev_monitor_filter_add_match_subsystem_devtype(mon, subsystem, type);
 }
 
-void fs8::udev_monitor::match_tag(std::string_view const name) noexcept {
+void fs8::udev_monitor::match_tag(char const* const name) noexcept {
+    assert(mon != nullptr);
     if (!is_valid()) [[unlikely]] {
         return;
     }
-    code = ::udev_monitor_filter_add_match_tag(mon, name.data());
+    code = ::udev_monitor_filter_add_match_tag(mon, name);
 }
 
 bool fs8::udev_monitor::is_valid() const noexcept {
@@ -268,6 +328,7 @@ int fs8::udev_monitor::file_descriptor() const noexcept {
 }
 
 void fs8::udev_monitor::enable() noexcept {
+    assert(mon != nullptr);
     if (!is_valid()) [[unlikely]] {
         return;
     }

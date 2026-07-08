@@ -14,8 +14,8 @@ namespace fs8 {
         udev() noexcept;
         udev(udev const&) noexcept;
         udev& operator=(udev const&) noexcept;
-        udev(udev&&) noexcept            = default;
-        udev& operator=(udev&&) noexcept = default;
+        udev(udev&&) noexcept;
+        udev& operator=(udev&&) noexcept;
         ~udev();
 
         [[nodiscard]] bool is_valid() const noexcept;
@@ -39,7 +39,7 @@ namespace fs8 {
 
         explicit udev_device(::udev_device* device) noexcept : dev{device} {}
 
-        udev_device(::udev*, std::string_view) noexcept;
+        udev_device(::udev*, char const*) noexcept;
         udev_device(udev_device const&) noexcept            = delete;
         udev_device& operator=(udev_device const&) noexcept = delete;
         udev_device(udev_device&&) noexcept                 = default;
@@ -52,7 +52,7 @@ namespace fs8 {
         [[nodiscard]] explicit operator bool() const noexcept;
 
         udev_device parent() const noexcept;
-        udev_device parent(std::string_view subsystem, std::string_view devtype = {}) const noexcept;
+        udev_device parent(char const* subsystem, char const* devtype = nullptr) const noexcept;
 
         [[nodiscard]] std::string_view subsystem() const noexcept;
         [[nodiscard]] std::string_view devtype() const noexcept;
@@ -60,11 +60,11 @@ namespace fs8 {
         [[nodiscard]] std::string_view sysname() const noexcept;
         [[nodiscard]] std::string_view sysnum() const noexcept;
         [[nodiscard]] std::string_view devnode() const noexcept;
-        [[nodiscard]] std::string_view property(std::string_view) const noexcept;
+        [[nodiscard]] std::string_view property(char const*) const noexcept;
         [[nodiscard]] std::string_view driver() const noexcept;
         [[nodiscard]] std::string_view action() const noexcept;
-        [[nodiscard]] std::string_view sysattr(std::string_view) const noexcept;
-        [[nodiscard]] bool             has_tag(std::string_view) const noexcept;
+        [[nodiscard]] std::string_view sysattr(char const*) const noexcept;
+        [[nodiscard]] bool             has_tag(char const*) const noexcept;
 
         [[nodiscard]] ::udev_device* native() const noexcept;
 
@@ -78,10 +78,10 @@ namespace fs8 {
     export struct [[nodiscard]] udev_enumerate {
         explicit udev_enumerate(udev const&) noexcept;
         udev_enumerate() noexcept;
-        udev_enumerate(udev_enumerate const&)                = delete;
-        udev_enumerate(udev_enumerate&&) noexcept            = default;
-        udev_enumerate& operator=(udev_enumerate const&)     = default;
-        udev_enumerate& operator=(udev_enumerate&&) noexcept = default;
+        udev_enumerate(udev_enumerate const&) = delete;
+        udev_enumerate(udev_enumerate&&) noexcept;
+        udev_enumerate& operator=(udev_enumerate const&) = delete;
+        udev_enumerate& operator=(udev_enumerate&&) noexcept;
         ~udev_enumerate() noexcept;
 
         [[nodiscard]] ::udev_enumerate* native() const noexcept;
@@ -90,16 +90,17 @@ namespace fs8 {
 
         [[nodiscard]] explicit operator bool() const noexcept;
 
-        udev_enumerate& match_subsystem(std::string_view) noexcept;
-        udev_enumerate& nomatch_subsystem(std::string_view) noexcept;
+        // we use char const* because std::string_view may not be null terminated.
+        udev_enumerate& match_subsystem(char const*) noexcept;
+        udev_enumerate& nomatch_subsystem(char const*) noexcept;
 
-        udev_enumerate& match_sysattr(std::string_view name, std::string_view value = {}) noexcept;
-        udev_enumerate& nomatch_sysattr(std::string_view name, std::string_view value = {}) noexcept;
+        udev_enumerate& match_sysattr(char const* name, char const* value = nullptr) noexcept;
+        udev_enumerate& nomatch_sysattr(char const* name, char const* value = nullptr) noexcept;
 
-        udev_enumerate& match_property(std::string_view name, std::string_view value = {}) noexcept;
+        udev_enumerate& match_property(char const* name, char const* value = nullptr) noexcept;
 
-        udev_enumerate& match_sysname(std::string_view) noexcept;
-        udev_enumerate& match_tag(std::string_view) noexcept;
+        udev_enumerate& match_sysname(char const*) noexcept;
+        udev_enumerate& match_tag(char const*) noexcept;
 
         udev_enumerate& match_parent(udev_device const&) noexcept;
 
@@ -114,14 +115,14 @@ namespace fs8 {
     struct [[nodiscard]] udev_monitor {
         explicit udev_monitor(udev const&) noexcept;
         udev_monitor() noexcept;
-        udev_monitor(udev_monitor const&)                = delete;
-        udev_monitor& operator=(udev_monitor const&)     = delete;
-        udev_monitor(udev_monitor&&) noexcept            = default;
-        udev_monitor& operator=(udev_monitor&&) noexcept = default;
+        udev_monitor(udev_monitor const&)            = delete;
+        udev_monitor& operator=(udev_monitor const&) = delete;
+        udev_monitor(udev_monitor&&) noexcept;
+        udev_monitor& operator=(udev_monitor&&) noexcept;
         ~udev_monitor() noexcept;
 
-        void match_device(std::string_view subsystem, std::string_view type = {}) noexcept;
-        void match_tag(std::string_view) noexcept;
+        void match_device(char const* subsystem, char const* type = nullptr) noexcept;
+        void match_tag(char const*) noexcept;
 
         [[nodiscard]] bool is_valid() const noexcept;
 

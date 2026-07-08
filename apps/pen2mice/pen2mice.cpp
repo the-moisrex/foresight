@@ -36,7 +36,7 @@ int main(int const argc, char const* const* argv) try {
              | on(swipe_down, emit(press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)))
              | ignore_mouse_moves)
       | modes(
-        multi_click(KEY_CAPSLOCK),
+        multi_click(KEY_RIGHTCTRL),
         // Normal Mode:
         context, // empty context as the default
 
