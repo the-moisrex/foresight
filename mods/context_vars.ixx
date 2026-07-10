@@ -168,15 +168,17 @@ export namespace fs8 {
               std::size_t                                             index = 0;
               (
                 [&]<typename ModT>(ModT const& mod) {
-                    std::size_t sub_index = 0;
-                    for (auto const variable_name : mod.operator[](get_variables)) {
-                        values.at(index + sub_index) =
-                          variable_pointer{.name  = variable_name,
-                                           .hash  = ci_hash(variable_name),
-                                           .index = static_cast<std::uint32_t>(index)};
-                        ++sub_index;
+                    if constexpr (has_variables<ModT>) {
+                        std::size_t sub_index = 0;
+                        for (auto const variable_name : mod[get_variables]) {
+                            values.at(index + sub_index) =
+                              variable_pointer{.name  = variable_name,
+                                               .hash  = ci_hash(variable_name),
+                                               .index = static_cast<std::uint32_t>(index)};
+                            ++sub_index;
+                        }
+                        ++index;
                     }
-                    ++index;
                 }(mods),
                 ...);
               return values;
