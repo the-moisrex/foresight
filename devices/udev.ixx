@@ -1,8 +1,10 @@
 // Created by moisrex on 12/16/25.
 
 module;
+#include <cstdint>
 #include <libudev.h>
 #include <string_view>
+#include <utility>
 export module foresight.devices.udev;
 
 namespace fs8 {
@@ -31,13 +33,69 @@ namespace fs8 {
         ::udev* handle;
     };
 
+    export struct [[nodiscard]] udev_list_entry {
+      private:
+        ::udev_list_entry* entry;
+
+      public:
+        explicit udev_list_entry(::udev_list_entry* e) noexcept : entry(e) {}
+
+        [[nodiscard]] std::string_view name() const noexcept;
+        [[nodiscard]] std::string_view value() const noexcept;
+
+        struct [[nodiscard]] iterator {
+          private:
+            ::udev_list_entry* current;
+
+          public:
+            using iterator_category = std::forward_iterator_tag;
+            using value_type        = udev_list_entry;
+            using difference_type   = std::ptrdiff_t;
+            using pointer           = udev_list_entry*;
+            using reference         = udev_list_entry;
+
+            explicit iterator(::udev_list_entry* e) noexcept : current(e) {}
+
+            [[nodiscard]] reference operator*() const noexcept {
+                return udev_list_entry{current};
+            }
+
+            iterator& operator++() noexcept {
+                current = ::udev_list_entry_get_next(current);
+                return *this;
+            }
+
+            iterator operator++(int) noexcept {
+                iterator const tmp = *this;
+                ++(*this);
+                return tmp;
+            }
+
+            [[nodiscard]] bool operator==(iterator const& other) const {
+                return current == other.current;
+            }
+        };
+
+        iterator begin() const noexcept {
+            return iterator{entry};
+        }
+
+        iterator end() const noexcept {
+            return iterator{nullptr};
+        }
+    };
+
     /**
      * Represents a `udev` device.
      */
-    struct [[nodiscard]] udev_device {
+    export struct [[nodiscard]] udev_device {
         udev_device() noexcept = default;
+        explicit udev_device(::udev* ctx);
 
         explicit udev_device(::udev_device* device) noexcept : dev{device} {}
+
+        udev_device(::udev* ctx, char const* subsystem, char const* sysname);
+        udev_device(::udev* ctx, char type, dev_t devnum);
 
         udev_device(::udev*, char const*) noexcept;
         udev_device(udev_device const&) noexcept            = delete;
@@ -68,8 +126,19 @@ namespace fs8 {
 
         [[nodiscard]] ::udev_device* native() const noexcept;
 
+        // List iterators
+        udev_list_entry properties() const noexcept;
+        udev_list_entry tags() const noexcept;
+        udev_list_entry sysattrs() const noexcept;
+        udev_list_entry devlinks() const noexcept;
+
+        // State and Sequence
+        [[nodiscard]] bool          is_initialized() const noexcept;
+        [[nodiscard]] std::uint64_t usec_since_initialized() const noexcept;
+        [[nodiscard]] std::uint64_t seqnum() const noexcept;
+
       private:
-        ::udev_device* dev;
+        ::udev_device* dev = nullptr;
     };
 
     /**
@@ -104,6 +173,11 @@ namespace fs8 {
 
         udev_enumerate& match_parent(udev_device const&) noexcept;
 
+        udev_list_entry list_entries() const noexcept;
+
+        void scan_devices() noexcept;
+        void scan_subsystems() noexcept;
+
       private:
         ::udev_enumerate* handle = nullptr;
         int               code   = 0;
@@ -112,7 +186,7 @@ namespace fs8 {
     /**
      * Monitor udev devices for events
      */
-    struct [[nodiscard]] udev_monitor {
+    export struct [[nodiscard]] udev_monitor {
         explicit udev_monitor(udev const&) noexcept;
         udev_monitor() noexcept;
         udev_monitor(udev_monitor const&)            = delete;
@@ -135,11 +209,50 @@ namespace fs8 {
         /// Get the device that just we have received a new event for
         udev_device next_device() const noexcept;
 
+        void set_receive_buffer_size(int size) noexcept;
+        void filter_update() noexcept;
+        void filter_remove() noexcept;
+
         // todo: add manually watching in this class for completeness as well
       private:
         ::udev_monitor* mon;
         int             fd   = 0;
         int             code = 0;
+    };
+
+    export struct [[nodiscard]] udev_hwdb {
+      private:
+        ::udev_hwdb* handle;
+
+      public:
+        explicit udev_hwdb(::udev* ctx);
+
+        ~udev_hwdb();
+
+        udev_hwdb(udev_hwdb const&)            = delete;
+        udev_hwdb& operator=(udev_hwdb const&) = delete;
+
+        udev_hwdb(udev_hwdb&& other) noexcept;
+
+        udev_list_entry get_properties(char const* modalias, unsigned int flags = 0) const noexcept;
+    };
+
+    export struct [[nodiscard]] udev_queue {
+      private:
+        ::udev_queue* handle;
+
+      public:
+        explicit udev_queue(::udev* ctx);
+
+        ~udev_queue();
+
+        udev_queue(udev_queue const&)            = delete;
+        udev_queue& operator=(udev_queue const&) = delete;
+
+        udev_queue(udev_queue&& other) noexcept;
+
+        [[nodiscard]] bool is_active() const noexcept;
+        [[nodiscard]] bool is_empty() const noexcept;
     };
 
 

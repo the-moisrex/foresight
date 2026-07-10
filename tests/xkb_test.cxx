@@ -30,7 +30,7 @@ TEST(XKB, Basic) {
 
 TEST(XKB, BasicStringU32) {
     constexpr std::array<std::uint16_t, 6> codes{KEY_A, KEY_A, KEY_B, KEY_B, KEY_C, KEY_C};
-    fs8::xkb::how2type::emit(get_default_keymap(), U"ABC", [&, index = 0](user_event const& event) mutable {
+    fs8::xkb::how2type::emit(get_default_keymap(), U"ABC", [&, index = 0U](user_event const& event) mutable {
         if (is_syn(event) || event.code == KEY_LEFTSHIFT) {
             return;
         }

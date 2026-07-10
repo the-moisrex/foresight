@@ -143,6 +143,7 @@ target_compile_options(${LIB_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
 target_link_options(${LIB_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
 target_link_libraries(${LIB_NAME}
         PUBLIC libevdev
+        PUBLIC udev
         PUBLIC xkbcommon
 )
 

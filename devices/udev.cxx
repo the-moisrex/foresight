@@ -1,6 +1,7 @@
 // Created by moisrex on 12/16/25.
 module;
 #include <cassert>
+#include <cstdint>
 #include <libudev.h>
 #include <string_view>
 #include <utility>
@@ -62,6 +63,13 @@ fs8::udev fs8::udev::instance() {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
+fs8::udev_device::udev_device(::udev* ctx, char const* subsystem, char const* sysname)
+  : dev(::udev_device_new_from_subsystem_sysname(ctx, subsystem, sysname)) {}
+
+fs8::udev_device::udev_device(::udev* ctx, char type, dev_t devnum) : dev(::udev_device_new_from_devnum(ctx, type, devnum)) {}
+
+fs8::udev_device::udev_device(::udev* ctx) : dev(::udev_device_new_from_environment(ctx)) {}
+
 fs8::udev_device::udev_device(::udev* udev, char const* const path) noexcept : dev{udev_device_new_from_syspath(udev, path)} {}
 
 fs8::udev_device::~udev_device() noexcept {
@@ -99,7 +107,8 @@ fs8::udev_device fs8::udev_device::parent(char const* const subsystem, char cons
 
     // udev_device_get_parent() returns reference whose lifetime is tied to the child's lifetime,
     // we have to copy the device
-    return udev_device{udev_device_get_udev(device), udev_device_get_syspath(device)};
+    // return udev_device{udev_device_get_udev(device), udev_device_get_syspath(device)};
+    return udev_device{udev_device_ref(device)};
 }
 
 std::string_view fs8::udev_device::subsystem() const noexcept {
@@ -148,6 +157,45 @@ bool fs8::udev_device::has_tag(char const* const name) const noexcept {
 
 udev_device* fs8::udev_device::native() const noexcept {
     return dev;
+}
+
+fs8::udev_list_entry fs8::udev_device::properties() const noexcept {
+    return udev_list_entry{::udev_device_get_properties_list_entry(dev)};
+}
+
+fs8::udev_list_entry fs8::udev_device::tags() const noexcept {
+    return udev_list_entry{::udev_device_get_tags_list_entry(dev)};
+}
+
+fs8::udev_list_entry fs8::udev_device::sysattrs() const noexcept {
+    return udev_list_entry{::udev_device_get_sysattr_list_entry(dev)};
+}
+
+fs8::udev_list_entry fs8::udev_device::devlinks() const noexcept {
+    return udev_list_entry{::udev_device_get_devlinks_list_entry(dev)};
+}
+
+bool fs8::udev_device::is_initialized() const noexcept {
+    return ::udev_device_get_is_initialized(dev) > 0;
+}
+
+std::uint64_t fs8::udev_device::usec_since_initialized() const noexcept {
+    return ::udev_device_get_usec_since_initialized(dev);
+}
+
+std::uint64_t fs8::udev_device::seqnum() const noexcept {
+    return ::udev_device_get_seqnum(dev);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+
+std::string_view fs8::udev_list_entry::name() const noexcept {
+    return viewify(::udev_list_entry_get_name(entry));
+}
+
+std::string_view fs8::udev_list_entry::value() const noexcept {
+    return viewify(::udev_list_entry_get_value(entry));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -260,6 +308,18 @@ fs8::udev_enumerate& fs8::udev_enumerate::match_parent(udev_device const& dev) n
     return *this;
 }
 
+fs8::udev_list_entry fs8::udev_enumerate::list_entries() const noexcept {
+    return udev_list_entry{::udev_enumerate_get_list_entry(handle)};
+}
+
+void fs8::udev_enumerate::scan_devices() noexcept {
+    ::udev_enumerate_scan_devices(handle);
+}
+
+void fs8::udev_enumerate::scan_subsystems() noexcept {
+    ::udev_enumerate_scan_subsystems(handle);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 // "udev" → monitors events from the udev daemon (processed device events; most common).
@@ -337,4 +397,57 @@ void fs8::udev_monitor::enable() noexcept {
 
 fs8::udev_device fs8::udev_monitor::next_device() const noexcept {
     return fs8::udev_device{::udev_monitor_receive_device(mon)};
+}
+
+void fs8::udev_monitor::set_receive_buffer_size(int size) noexcept {
+    assert(mon != nullptr);
+    ::udev_monitor_set_receive_buffer_size(mon, size);
+}
+
+void fs8::udev_monitor::filter_update() noexcept {
+    assert(mon != nullptr);
+    ::udev_monitor_filter_update(mon);
+}
+
+void fs8::udev_monitor::filter_remove() noexcept {
+    assert(mon != nullptr);
+    ::udev_monitor_filter_remove(mon);
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+
+fs8::udev_hwdb::udev_hwdb(::udev* ctx) : handle(::udev_hwdb_new(ctx)) {}
+
+fs8::udev_hwdb::~udev_hwdb() {
+    if (handle != nullptr) {
+        ::udev_hwdb_unref(handle);
+    }
+}
+
+fs8::udev_hwdb::udev_hwdb(udev_hwdb&& other) noexcept : handle(std::exchange(other.handle, nullptr)) {}
+
+fs8::udev_list_entry fs8::udev_hwdb::get_properties(char const* modalias, unsigned int const flags) const noexcept {
+    return udev_list_entry{::udev_hwdb_get_properties_list_entry(handle, modalias, flags)};
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+
+fs8::udev_queue::udev_queue(::udev* ctx) : handle(::udev_queue_new(ctx)) {}
+
+fs8::udev_queue::~udev_queue() {
+    if (handle != nullptr) {
+        ::udev_queue_unref(handle);
+    }
+}
+
+fs8::udev_queue::udev_queue(udev_queue&& other) noexcept : handle(std::exchange(other.handle, nullptr)) {}
+
+bool fs8::udev_queue::is_active() const noexcept {
+    return ::udev_queue_get_udev_is_active(handle) > 0;
+}
+
+bool fs8::udev_queue::is_empty() const noexcept {
+    return ::udev_queue_get_queue_is_empty(handle) > 0;
 }
