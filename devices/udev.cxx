@@ -72,6 +72,19 @@ fs8::udev_device::udev_device(::udev* ctx) : dev(::udev_device_new_from_environm
 
 fs8::udev_device::udev_device(::udev* udev, char const* const path) noexcept : dev{udev_device_new_from_syspath(udev, path)} {}
 
+fs8::udev_device::udev_device(udev_device&& other) noexcept : dev{std::exchange(other.dev, nullptr)} {}
+
+fs8::udev_device& fs8::udev_device::operator=(udev_device&& other) noexcept {
+    if (this == &other) {
+        return *this;
+    }
+    if (dev != nullptr) {
+        udev_device_unref(dev);
+    }
+    dev = std::exchange(other.dev, nullptr);
+    return *this;
+}
+
 fs8::udev_device::~udev_device() noexcept {
     if (dev == nullptr) [[unlikely]] {
         return;

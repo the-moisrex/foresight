@@ -89,6 +89,7 @@ target_sources(${LIB_NAME}
         utils/hash.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         bash/bash_runner.ixx
+        devices/classification.ixx
         devices/evdev.ixx
         devices/inputs-event-codes.ixx
         devices/key_codes.ixx
@@ -109,6 +110,7 @@ target_sources(${LIB_NAME}
         mods/caps.ixx
         mods/context.ixx
         mods/context_vars.ixx
+        mods/device_manager.ixx
         mods/emitter.ixx
         mods/event.ixx
         mods/ignore.ixx
@@ -133,6 +135,7 @@ target_sources(${LIB_NAME}
         utils/hash.ixx
         utils/strings.ixx
 )
+
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)
 set_target_properties(${LIB_NAME} PROPERTIES
         CXX_STANDARD 26

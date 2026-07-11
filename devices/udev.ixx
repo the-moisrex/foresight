@@ -1,6 +1,7 @@
 // Created by moisrex on 12/16/25.
 
 module;
+#include <cassert>
 #include <cstdint>
 #include <libudev.h>
 #include <string_view>
@@ -119,6 +120,8 @@ namespace fs8 {
             using pointer           = udev_list_entry*;
             using reference         = udev_list_entry;
 
+            constexpr iterator() noexcept : current(nullptr) {}
+
             /**
              * @brief Constructs an iterator starting at the given list entry.
              * @param e Raw pointer to a `::udev_list_entry`.
@@ -130,6 +133,7 @@ namespace fs8 {
              * @return A `udev_list_entry` object.
              */
             [[nodiscard]] reference operator*() const noexcept {
+                assert(current != nullptr);
                 return udev_list_entry{current};
             }
 
@@ -138,6 +142,7 @@ namespace fs8 {
              * @return Reference to the updated iterator.
              */
             iterator& operator++() noexcept {
+                assert(current != nullptr);
                 current = ::udev_list_entry_get_next(current);
                 return *this;
             }
@@ -147,6 +152,7 @@ namespace fs8 {
              * @return A copy of the iterator before incrementing.
              */
             iterator operator++(int) noexcept {
+                assert(current != nullptr);
                 iterator const tmp = *this;
                 ++(*this);
                 return tmp;
@@ -227,8 +233,8 @@ namespace fs8 {
 
         udev_device(udev_device const&) noexcept            = delete;
         udev_device& operator=(udev_device const&) noexcept = delete;
-        udev_device(udev_device&&) noexcept                 = default;
-        udev_device& operator=(udev_device&&) noexcept      = default;
+        udev_device(udev_device&&) noexcept;
+        udev_device& operator=(udev_device&&) noexcept;
 
         /**
          * @brief Destroys the device, dropping its reference count.
@@ -527,7 +533,7 @@ namespace fs8 {
         explicit udev_monitor(udev const& ctx) noexcept;
 
         /**
-         * @brief Default constructs an invalid monitor.
+         * @brief Default constructs with a global udev instance.
          */
         udev_monitor() noexcept;
 
