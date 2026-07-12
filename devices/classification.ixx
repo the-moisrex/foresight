@@ -70,7 +70,7 @@ export namespace fs8::classify {
     };
 
     // 1. Check if an existing device belongs to this classification
-    [[nodiscard]] bool matches(Classification auto const& cls, udev_device const& dev) noexcept {
+    [[nodiscard]] bool matches(udev_device const& dev, Classification auto const& cls) noexcept {
         bool res = dev.subsystem() == subsystem(cls);
         for (auto const& [key, value] : properties(cls)) {
             res &= dev.property(key.data()) == value;
@@ -79,7 +79,7 @@ export namespace fs8::classify {
     }
 
     // 2. Apply rules to find these devices
-    void match(Classification auto const& cls, udev_enumerate& e) noexcept {
+    void match(udev_enumerate& e, Classification auto const& cls) noexcept {
         e.match_subsystem(subsystem(cls).data());
         for (auto const& [key, value] : properties(cls)) {
             e.match_property(key.data(), value.data());
@@ -89,7 +89,7 @@ export namespace fs8::classify {
     // 3. Apply rules to monitor these devices
     // Note: udev_monitor cannot filter by property directly, only by subsystem/devtype/tag.
     // We filter by subsystem here, and use `matches()` on the received event later.
-    void match(Classification auto const& cls, udev_monitor& m) noexcept {
+    void match(udev_monitor& m, Classification auto const& cls) noexcept {
         m.match_device(subsystem(cls).data());
     }
 
@@ -116,17 +116,17 @@ export namespace fs8::classify {
         std::string_view value;
     };
 
-    [[nodiscard]] bool matches(property_matcher const& matcher, udev_device const& dev) noexcept {
+    [[nodiscard]] bool matches(udev_device const& dev, property_matcher const& matcher) noexcept {
         // todo: check if it's null terminated.
         return dev.property(matcher.key.data()) == matcher.value;
     }
 
-    void match(property_matcher const& matcher, udev_enumerate& e) noexcept {
+    void match(udev_enumerate& e, property_matcher const& matcher) noexcept {
         // todo: check if it's null terminated.
         e.match_property(matcher.key.data(), matcher.value.data());
     }
 
-    void match(property_matcher const&, udev_monitor&) noexcept {
+    void match(udev_monitor&, property_matcher const&) noexcept {
         // Monitors can't filter by property pre-event, handled post-event via matches()
     }
 

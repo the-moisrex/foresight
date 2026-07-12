@@ -106,7 +106,7 @@ class UdevEnvironment : public ::testing::Test {
     enumerate_with(auto const& cls) const {
         udev_enumerate en(ctx_);
         EXPECT_TRUE(static_cast<bool>(en));
-        match(cls, en);
+        match(en, cls);
         en.scan_devices();
 
         std::vector<udev_device> out;
@@ -280,15 +280,15 @@ TEST_F(MatchesIntegrationTest, InvalidDeviceDoesNotMatchKeyboard) {
     udev_device const invalid{};
     ASSERT_FALSE(invalid.is_valid());
     // subsystem()/property() on null device should yield empty views → no match
-    EXPECT_FALSE(matches(keyboard, invalid));
-    EXPECT_FALSE(matches(mouse, invalid));
-    EXPECT_FALSE(matches(drawing_tablet, invalid));
+    EXPECT_FALSE(matches(invalid, keyboard));
+    EXPECT_FALSE(matches(invalid, mouse));
+    EXPECT_FALSE(matches(invalid, drawing_tablet));
 }
 
 TEST_F(MatchesIntegrationTest, InvalidDeviceDoesNotMatchPropertyMatcher) {
     udev_device const invalid{};
-    EXPECT_FALSE(matches(via_usb, invalid));
-    EXPECT_FALSE(matches(with_name("anything"), invalid));
+    EXPECT_FALSE(matches(invalid, via_usb));
+    EXPECT_FALSE(matches(invalid, with_name("anything")));
 }
 
 TEST_F(MatchesIntegrationTest, EmptyClassificationMatchesOnlyUnknownSubsystem) {
@@ -297,7 +297,7 @@ TEST_F(MatchesIntegrationTest, EmptyClassificationMatchesOnlyUnknownSubsystem) {
     if (!input) {
         GTEST_SKIP() << "No input devices present on this host";
     }
-    EXPECT_FALSE(matches(empty_classification{}, input));
+    EXPECT_FALSE(matches(input, empty_classification{}));
 }
 
 // =============================================================================
@@ -314,7 +314,7 @@ TEST_F(MatchesIntegrationTest, KeyboardMatchesAreConsistentWithProperties) {
         ASSERT_TRUE(dev.is_valid());
         EXPECT_EQ(dev.subsystem(), "input");
         EXPECT_EQ(dev.property("ID_INPUT_KEYBOARD"), "1");
-        EXPECT_TRUE(matches(keyboard, dev));
+        EXPECT_TRUE(matches(dev, keyboard));
     }
 }
 
@@ -328,7 +328,7 @@ TEST_F(MatchesIntegrationTest, MouseMatchesAreConsistentWithProperties) {
         ASSERT_TRUE(dev.is_valid());
         EXPECT_EQ(dev.subsystem(), "input");
         EXPECT_EQ(dev.property("ID_INPUT_MOUSE"), "1");
-        EXPECT_TRUE(matches(mouse, dev));
+        EXPECT_TRUE(matches(dev, mouse));
     }
 }
 
@@ -342,7 +342,7 @@ TEST_F(MatchesIntegrationTest, DrawingTabletMatchesAreConsistentWithProperties) 
         ASSERT_TRUE(dev.is_valid());
         EXPECT_EQ(dev.subsystem(), "input");
         EXPECT_EQ(dev.property("ID_INPUT_TABLET"), "1");
-        EXPECT_TRUE(matches(drawing_tablet, dev));
+        EXPECT_TRUE(matches(dev, drawing_tablet));
     }
 }
 
@@ -357,7 +357,7 @@ TEST_F(MatchesIntegrationTest, KeyboardDoesNotMatchMouseOnlyDevice) {
         // matches(keyboard) may still be true — only assert the inverse when
         // the keyboard flag is absent.
         if (dev.property("ID_INPUT_KEYBOARD") != "1") {
-            EXPECT_FALSE(matches(keyboard, dev));
+            EXPECT_FALSE(matches(dev, keyboard));
         }
     }
 }
@@ -374,7 +374,7 @@ TEST_F(MatchesIntegrationTest, MultiPropertyRequiresAllPairs) {
             dev.subsystem() == "input" &&
             dev.property("ID_INPUT_KEYBOARD") == "1" &&
             dev.property("ID_BUS") == "usb";
-        EXPECT_EQ(matches(cls, dev), expect);
+        EXPECT_EQ(matches(dev, cls), expect);
     }
 }
 
@@ -395,10 +395,10 @@ TEST_F(PropertyMatcherTest, MatchesViaUsbWhenBusIsUsb) {
         auto const bus = dev.property("ID_BUS");
         if (bus == "usb") {
             saw_usb = true;
-            EXPECT_TRUE(matches(via_usb, dev));
+            EXPECT_TRUE(matches(dev, via_usb));
         } else if (!bus.empty()) {
             saw_non_usb = true;
-            EXPECT_FALSE(matches(via_usb, dev));
+            EXPECT_FALSE(matches(dev, via_usb));
         }
     }
 
@@ -436,9 +436,9 @@ TEST_F(PropertyMatcherTest, MatchesWithNameExact) {
     for (auto const& dev : keyboards) {
         if (dev.property("NAME") == observed_name) {
             any = true;
-            EXPECT_TRUE(matches(exact, dev));
+            EXPECT_TRUE(matches(dev, exact));
         } else if (!dev.property("NAME").empty()) {
-            EXPECT_FALSE(matches(exact, dev));
+            EXPECT_FALSE(matches(dev, exact));
         }
     }
     EXPECT_TRUE(any);
@@ -450,7 +450,7 @@ TEST_F(PropertyMatcherTest, MatchesWithNameWrongValueIsFalse) {
         GTEST_SKIP() << "No input devices";
     }
     property_matcher const bogus{.key = "NAME", .value = "__no_such_device_name__"};
-    EXPECT_FALSE(matches(bogus, input));
+    EXPECT_FALSE(matches(input, bogus));
 }
 
 TEST_F(PropertyMatcherTest, MatchesMissingPropertyIsFalse) {
@@ -462,14 +462,14 @@ TEST_F(PropertyMatcherTest, MatchesMissingPropertyIsFalse) {
         .key   = "__FS8_TEST_PROPERTY_THAT_SHOULD_NOT_EXIST__",
         .value = "1",
     };
-    EXPECT_FALSE(matches(missing, input));
+    EXPECT_FALSE(matches(input, missing));
 }
 
 TEST_F(PropertyMatcherTest, ApplyFilterOnEnumerateRestrictsByProperty) {
     udev_enumerate en(ctx());
     ASSERT_TRUE(static_cast<bool>(en));
 
-    match(via_usb, en);
+    match(en, via_usb);
     en.scan_devices();
 
     std::size_t count = 0;
@@ -496,8 +496,8 @@ TEST_F(PropertyMatcherTest, ApplyFilterOnMonitorIsNoOpButCallable) {
         GTEST_SKIP() << "udev_monitor unavailable";
     }
     // Specialized overload intentionally does nothing (property filter post-event)
-    EXPECT_NO_FATAL_FAILURE(match(via_usb, mon));
-    EXPECT_NO_FATAL_FAILURE(match(with_name("x"), mon));
+    EXPECT_NO_FATAL_FAILURE(match(mon, via_usb));
+    EXPECT_NO_FATAL_FAILURE(match(mon, with_name("x")));
 }
 
 // =============================================================================
@@ -524,8 +524,8 @@ TEST_F(ApplyFilterEnumerateTest, ChainedClassificationAndPropertyMatcherSemantic
     // apply_filter(keyboard) then additional property filter on a fresh enumerate
     udev_enumerate en(ctx());
     ASSERT_TRUE(static_cast<bool>(en));
-    match(keyboard, en);
-    match(via_usb, en);
+    match(en, keyboard);
+    match(en, via_usb);
     en.scan_devices();
 
     for (auto const entry : en.list_entries()) {
@@ -552,7 +552,7 @@ TEST_F(ApplyFilterEnumerateTest, EmptyPropertiesStillAppliesSubsystem) {
 
     udev_enumerate en(ctx());
     ASSERT_TRUE(static_cast<bool>(en));
-    match(subsystem_only{}, en);
+    match(en, subsystem_only{});
     en.scan_devices();
 
     for (auto const entry : en.list_entries()) {
@@ -585,9 +585,9 @@ TEST_F(ApplyFilterMonitorTest, KeyboardFilterDoesNotThrowAndKeepsMonitorValid) {
         GTEST_SKIP() << "udev_monitor unavailable";
     }
 
-    EXPECT_NO_FATAL_FAILURE(match(keyboard, mon));
-    EXPECT_NO_FATAL_FAILURE(match(mouse, mon));
-    EXPECT_NO_FATAL_FAILURE(match(drawing_tablet, mon));
+    EXPECT_NO_FATAL_FAILURE(match(mon, keyboard));
+    EXPECT_NO_FATAL_FAILURE(match(mon, mouse));
+    EXPECT_NO_FATAL_FAILURE(match(mon, drawing_tablet));
     EXPECT_TRUE(mon.is_valid());
 }
 
@@ -597,7 +597,7 @@ TEST_F(ApplyFilterMonitorTest, EnableAndPollNextDeviceIsSafeWhenIdle) {
         GTEST_SKIP() << "udev_monitor unavailable";
     }
 
-    match(keyboard, mon);
+    match(mon, keyboard);
     mon.enable();
 
     // Non-blocking receive: typically empty when no events are pending
@@ -606,7 +606,7 @@ TEST_F(ApplyFilterMonitorTest, EnableAndPollNextDeviceIsSafeWhenIdle) {
         // If an event raced in, classification must still be coherent
         if (ev.subsystem() == "input") {
             // Post-filter: only accept if matches() says so
-            if (matches(keyboard, ev)) {
+            if (matches(ev, keyboard)) {
                 EXPECT_EQ(ev.property("ID_INPUT_KEYBOARD"), "1");
             }
         }
@@ -636,7 +636,7 @@ TEST_F(PropertyMatcherTest, EmptyKeyMatcherDoesNotMatchNormalDevices) {
     }
     property_matcher const m{.key = "", .value = "1"};
     // libudev property lookup with empty / odd keys should not equal "1"
-    EXPECT_FALSE(matches(m, input));
+    EXPECT_FALSE(matches(input, m));
 }
 
 struct keyboard_and_impossible_bus {
@@ -655,7 +655,7 @@ TEST_F(MatchesIntegrationTest, MatchesIsConjunctionOverProperties) {
     }
 
     for (auto const& dev : devices) {
-        EXPECT_FALSE(matches(keyboard_and_impossible_bus{}, dev));
+        EXPECT_FALSE(matches(dev, keyboard_and_impossible_bus{}));
     }
 }
 
@@ -670,7 +670,7 @@ TEST_F(MatchesIntegrationTest, SubsystemMismatchFailsEvenIfPropertiesHappenToMat
         GTEST_SKIP() << "No keyboards";
     }
     for (auto const& dev : devices) {
-        EXPECT_FALSE(matches(wrong_subsystem{}, dev));
+        EXPECT_FALSE(matches(dev, wrong_subsystem{}));
     }
 }
 
@@ -687,7 +687,7 @@ struct impossible {
 TEST_F(ApplyFilterEnumerateTest, ListEntriesBeginEndOnEmptyResult) {
     udev_enumerate en(ctx());
     ASSERT_TRUE(static_cast<bool>(en));
-    match(impossible{}, en);
+    match(en, impossible{});
     en.scan_devices();
 
     auto const list = en.list_entries();
