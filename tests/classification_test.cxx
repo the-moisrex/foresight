@@ -17,7 +17,7 @@ using fs8::udev_list_entry;
 using fs8::udev_monitor;
 
 using fs8::classify::Classification;
-using fs8::classify::apply_filter;
+using fs8::classify::match;
 using fs8::classify::drawing_tablet;
 using fs8::classify::keyboard;
 using fs8::classify::matches;
@@ -106,7 +106,7 @@ class UdevEnvironment : public ::testing::Test {
     enumerate_with(auto const& cls) const {
         udev_enumerate en(ctx_);
         EXPECT_TRUE(static_cast<bool>(en));
-        apply_filter(cls, en);
+        match(cls, en);
         en.scan_devices();
 
         std::vector<udev_device> out;
@@ -469,7 +469,7 @@ TEST_F(PropertyMatcherTest, ApplyFilterOnEnumerateRestrictsByProperty) {
     udev_enumerate en(ctx());
     ASSERT_TRUE(static_cast<bool>(en));
 
-    apply_filter(via_usb, en);
+    match(via_usb, en);
     en.scan_devices();
 
     std::size_t count = 0;
@@ -480,8 +480,8 @@ TEST_F(PropertyMatcherTest, ApplyFilterOnEnumerateRestrictsByProperty) {
         if (!dev) {
             continue;
         }
-        // enumerate match_property is AND with other filters; property matcher
-        // does not force subsystem in apply_filter — only property.
+        // enumerate match_property behaves as an OR with other property filters.
+        // property matcher does not force subsystem in apply_filter — only property.
         EXPECT_EQ(dev.property("ID_BUS"), "usb")
             << "syspath=" << syspath;
     }
@@ -496,8 +496,8 @@ TEST_F(PropertyMatcherTest, ApplyFilterOnMonitorIsNoOpButCallable) {
         GTEST_SKIP() << "udev_monitor unavailable";
     }
     // Specialized overload intentionally does nothing (property filter post-event)
-    EXPECT_NO_FATAL_FAILURE(apply_filter(via_usb, mon));
-    EXPECT_NO_FATAL_FAILURE(apply_filter(with_name("x"), mon));
+    EXPECT_NO_FATAL_FAILURE(match(via_usb, mon));
+    EXPECT_NO_FATAL_FAILURE(match(with_name("x"), mon));
 }
 
 // =============================================================================
@@ -524,8 +524,8 @@ TEST_F(ApplyFilterEnumerateTest, ChainedClassificationAndPropertyMatcherSemantic
     // apply_filter(keyboard) then additional property filter on a fresh enumerate
     udev_enumerate en(ctx());
     ASSERT_TRUE(static_cast<bool>(en));
-    apply_filter(keyboard, en);
-    apply_filter(via_usb, en);
+    match(keyboard, en);
+    match(via_usb, en);
     en.scan_devices();
 
     for (auto const entry : en.list_entries()) {
@@ -535,10 +535,12 @@ TEST_F(ApplyFilterEnumerateTest, ChainedClassificationAndPropertyMatcherSemantic
             continue;
         }
         EXPECT_EQ(dev.subsystem(), "input");
-        EXPECT_EQ(dev.property("ID_INPUT_KEYBOARD"), "1");
-        EXPECT_EQ(dev.property("ID_BUS"), "usb");
-        EXPECT_TRUE(matches(keyboard, dev));
-        EXPECT_TRUE(matches(via_usb, dev));
+
+        // Multiple udev_enumerate_add_match_property calls act as a logical OR.
+        // The device should match at least one of the applied property filters.
+        bool const is_keyboard = dev.property("ID_INPUT_KEYBOARD") == "1";
+        bool const is_usb      = dev.property("ID_BUS") == "usb";
+        EXPECT_TRUE(is_keyboard || is_usb);
     }
 }
 
@@ -550,7 +552,7 @@ TEST_F(ApplyFilterEnumerateTest, EmptyPropertiesStillAppliesSubsystem) {
 
     udev_enumerate en(ctx());
     ASSERT_TRUE(static_cast<bool>(en));
-    apply_filter(subsystem_only{}, en);
+    match(subsystem_only{}, en);
     en.scan_devices();
 
     for (auto const entry : en.list_entries()) {
@@ -583,9 +585,9 @@ TEST_F(ApplyFilterMonitorTest, KeyboardFilterDoesNotThrowAndKeepsMonitorValid) {
         GTEST_SKIP() << "udev_monitor unavailable";
     }
 
-    EXPECT_NO_FATAL_FAILURE(apply_filter(keyboard, mon));
-    EXPECT_NO_FATAL_FAILURE(apply_filter(mouse, mon));
-    EXPECT_NO_FATAL_FAILURE(apply_filter(drawing_tablet, mon));
+    EXPECT_NO_FATAL_FAILURE(match(keyboard, mon));
+    EXPECT_NO_FATAL_FAILURE(match(mouse, mon));
+    EXPECT_NO_FATAL_FAILURE(match(drawing_tablet, mon));
     EXPECT_TRUE(mon.is_valid());
 }
 
@@ -595,7 +597,7 @@ TEST_F(ApplyFilterMonitorTest, EnableAndPollNextDeviceIsSafeWhenIdle) {
         GTEST_SKIP() << "udev_monitor unavailable";
     }
 
-    apply_filter(keyboard, mon);
+    match(keyboard, mon);
     mon.enable();
 
     // Non-blocking receive: typically empty when no events are pending
@@ -646,7 +648,7 @@ struct keyboard_and_impossible_bus {
 };
 
 TEST_F(MatchesIntegrationTest, MatchesIsConjunctionOverProperties) {
-    // Device must fail if any required property differs
+    // Device must fail if any required property differs (manual iteration acts as AND)
     auto const devices = enumerate_with(keyboard);
     if (devices.empty()) {
         GTEST_SKIP() << "No keyboards";
@@ -685,10 +687,9 @@ struct impossible {
 TEST_F(ApplyFilterEnumerateTest, ListEntriesBeginEndOnEmptyResult) {
     udev_enumerate en(ctx());
     ASSERT_TRUE(static_cast<bool>(en));
-    apply_filter(impossible{}, en);
+    match(impossible{}, en);
     en.scan_devices();
 
     auto const list = en.list_entries();
     EXPECT_EQ(list.begin(), list.end());
 }
-

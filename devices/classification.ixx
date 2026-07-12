@@ -18,17 +18,17 @@ namespace fs8::classify {
     using properties_storage = std::array<properties_pair_type const, N>;
 
     template <typename T>
-    static constexpr properties_storage<1> default_properties_k{{{T::property_key, "1"}}};
+    constexpr properties_storage<1> default_properties_k{{{T::property_key, "1"}}};
 
     template <typename T>
-    static constexpr properties_storage<1> default_properties_kv{{{T::property_key, T::property_value}}};
+    constexpr properties_storage<1> default_properties_kv{{{T::property_key, T::property_value}}};
 } // namespace fs8::classify
 
 export namespace fs8::classify {
 
 
     template <typename T>
-    [[nodiscard]] consteval std::string_view subsystem(T const&) noexcept {
+    [[nodiscard]] constexpr std::string_view subsystem(T const&) noexcept {
         if constexpr (requires { T::subsystem; }) {
             return T::subsystem;
         } else {
@@ -37,17 +37,12 @@ export namespace fs8::classify {
     }
 
     template <typename T>
-    [[nodiscard]] consteval properties_type properties(T const&) noexcept {
+    [[nodiscard]] constexpr properties_type properties(T const&) noexcept {
         if constexpr (requires {
                           { T::properties } -> std::convertible_to<properties_type>;
                       })
         {
             return T::properties;
-        } else if constexpr (requires {
-                                 { T::properties } -> std::convertible_to<properties_type>;
-                             })
-        {
-            return {T::properties};
         } else if constexpr (requires {
                                  { T::property_key } -> std::convertible_to<std::string_view>;
                                  { T::property_value } -> std::convertible_to<std::string_view>;
@@ -84,7 +79,7 @@ export namespace fs8::classify {
     }
 
     // 2. Apply rules to find these devices
-    void apply_filter(Classification auto const& cls, udev_enumerate& e) noexcept {
+    void match(Classification auto const& cls, udev_enumerate& e) noexcept {
         e.match_subsystem(subsystem(cls).data());
         for (auto const& [key, value] : properties(cls)) {
             e.match_property(key.data(), value.data());
@@ -94,7 +89,7 @@ export namespace fs8::classify {
     // 3. Apply rules to monitor these devices
     // Note: udev_monitor cannot filter by property directly, only by subsystem/devtype/tag.
     // We filter by subsystem here, and use `matches()` on the received event later.
-    void apply_filter(Classification auto const& cls, udev_monitor& m) noexcept {
+    void match(Classification auto const& cls, udev_monitor& m) noexcept {
         m.match_device(subsystem(cls).data());
     }
 
@@ -126,12 +121,12 @@ export namespace fs8::classify {
         return dev.property(matcher.key.data()) == matcher.value;
     }
 
-    void apply_filter(property_matcher const& matcher, udev_enumerate& e) noexcept {
+    void match(property_matcher const& matcher, udev_enumerate& e) noexcept {
         // todo: check if it's null terminated.
         e.match_property(matcher.key.data(), matcher.value.data());
     }
 
-    void apply_filter(property_matcher const&, udev_monitor&) noexcept {
+    void match(property_matcher const&, udev_monitor&) noexcept {
         // Monitors can't filter by property pre-event, handled post-event via matches()
     }
 
