@@ -36,10 +36,6 @@ namespace {
 // Custom classifications used only in tests
 // ---------------------------------------------------------------------------
 
-struct empty_classification {
-    // no subsystem / properties members → defaults
-};
-
 struct explicit_subsystem_only {
     static constexpr std::string_view subsystem = "hid";
 };
@@ -59,10 +55,6 @@ struct multi_property_classification {
         {"ID_INPUT_KEYBOARD", "1"},
         {"ID_BUS", "usb"},
     }};
-};
-
-struct unknown_subsystem_type {
-    // intentionally no members
 };
 
 // ---------------------------------------------------------------------------
@@ -154,14 +146,6 @@ TEST(ClassificationConcept, BuiltinsSatisfyConcept) {
     SUCCEED();
 }
 
-TEST(ClassificationConcept, EmptyAndDefaultsStillFormValidCallables) {
-    // Defaults: subsystem → "unknown", properties → empty span
-    static_assert(std::same_as<decltype(subsystem(empty_classification{})), std::string_view>);
-    static_assert(std::same_as<decltype(properties(empty_classification{})), properties_type>);
-    EXPECT_EQ(subsystem(empty_classification{}), "unknown");
-    EXPECT_TRUE(properties(empty_classification{}).empty());
-}
-
 // =============================================================================
 // subsystem() extraction
 // =============================================================================
@@ -180,10 +164,6 @@ TEST_F(ClassificationMetaTest, DrawingTabletSubsystemIsInput) {
 
 TEST_F(ClassificationMetaTest, ExplicitSubsystemOnly) {
     EXPECT_EQ(subsystem(explicit_subsystem_only{}), "hid");
-}
-
-TEST_F(ClassificationMetaTest, DefaultSubsystemIsUnknown) {
-    EXPECT_EQ(subsystem(unknown_subsystem_type{}), "unknown");
 }
 
 TEST_F(ClassificationMetaTest, PropertyMatcherStaticSubsystemIsInput) {
@@ -241,10 +221,6 @@ TEST_F(ClassificationMetaTest, MultiPropertyClassificationExposesAllPairs) {
     EXPECT_EQ(props[1].second, "usb");
 }
 
-TEST_F(ClassificationMetaTest, EmptyClassificationHasNoProperties) {
-    EXPECT_TRUE(properties(empty_classification{}).empty());
-}
-
 // =============================================================================
 // via_usb / with_name helpers
 // =============================================================================
@@ -289,15 +265,6 @@ TEST_F(MatchesIntegrationTest, InvalidDeviceDoesNotMatchPropertyMatcher) {
     udev_device const invalid{};
     EXPECT_FALSE(matches(invalid, via_usb));
     EXPECT_FALSE(matches(invalid, with_name("anything")));
-}
-
-TEST_F(MatchesIntegrationTest, EmptyClassificationMatchesOnlyUnknownSubsystem) {
-    // Real devices use real subsystems; empty_classification wants "unknown"
-    auto const input = first_device_in_subsystem("input");
-    if (!input) {
-        GTEST_SKIP() << "No input devices present on this host";
-    }
-    EXPECT_FALSE(matches(input, empty_classification{}));
 }
 
 // =============================================================================
@@ -546,6 +513,7 @@ TEST_F(ApplyFilterEnumerateTest, ChainedClassificationAndPropertyMatcherSemantic
 
 struct subsystem_only {
     static constexpr std::string_view subsystem = "input";
+    static constexpr std::string_view property_key = "";
 };
 TEST_F(ApplyFilterEnumerateTest, EmptyPropertiesStillAppliesSubsystem) {
     static_assert(Classification<subsystem_only>);

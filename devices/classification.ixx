@@ -32,7 +32,8 @@ export namespace fs8::classify {
         if constexpr (requires { T::subsystem; }) {
             return T::subsystem;
         } else {
-            return {"unknown"};
+            static_assert(false, "T don't have properties.");
+            return {};
         }
     }
 
@@ -55,6 +56,7 @@ export namespace fs8::classify {
         {
             return {default_properties_k<T>};
         } else {
+            static_assert(false, "T don't have properties.");
             return {};
         }
     }
@@ -138,7 +140,7 @@ export namespace fs8::classify {
     }
 
     // Returns a lazy range of ALL devices in the system
-    auto all_devices() {
+    [[nodiscard]] auto all_devices() {
         udev_enumerate enumerator;
         enumerator.scan_devices();
 
