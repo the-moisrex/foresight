@@ -29,7 +29,7 @@ fs8::udev& fs8::udev::operator=(udev&& other) noexcept {
     return *this;
 }
 
-fs8::udev::~udev() {
+fs8::udev::~udev() noexcept {
     udev_unref(handle);
 }
 
@@ -56,19 +56,21 @@ fs8::udev& fs8::udev::operator=(udev const& other) noexcept {
     return *this;
 }
 
-fs8::udev fs8::udev::instance() {
+fs8::udev fs8::udev::instance() noexcept {
     static fs8::udev instance;
     return instance;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-fs8::udev_device::udev_device(::udev* ctx, char const* subsystem, char const* sysname)
+fs8::udev_device::udev_device(::udev* ctx, char const* subsystem, char const* sysname) noexcept
   : dev(::udev_device_new_from_subsystem_sysname(ctx, subsystem, sysname)) {}
 
-fs8::udev_device::udev_device(::udev* ctx, char type, dev_t devnum) : dev(::udev_device_new_from_devnum(ctx, type, devnum)) {}
+fs8::udev_device::udev_device(udev_list_entry const& entry) noexcept : udev_device{udev::instance().native(), entry.name().data()} {}
 
-fs8::udev_device::udev_device(::udev* ctx) : dev(::udev_device_new_from_environment(ctx)) {}
+fs8::udev_device::udev_device(::udev* ctx, char type, dev_t devnum) noexcept : dev(::udev_device_new_from_devnum(ctx, type, devnum)) {}
+
+fs8::udev_device::udev_device(::udev* ctx) noexcept : dev(::udev_device_new_from_environment(ctx)) {}
 
 fs8::udev_device::udev_device(::udev* udev, char const* const path) noexcept : dev{udev_device_new_from_syspath(udev, path)} {}
 

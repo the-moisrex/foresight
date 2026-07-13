@@ -50,7 +50,7 @@ namespace fs8 {
         /**
          * @brief Destroys the udev context, dropping the reference count.
          */
-        ~udev();
+        ~udev() noexcept;
 
         /**
          * @brief Checks if the underlying udev context is valid (not null).
@@ -74,7 +74,7 @@ namespace fs8 {
          * @brief Retrieves a singleton or shared instance of the udev context.
          * @return A valid udev instance.
          */
-        static udev instance();
+        static udev instance() noexcept;
 
       private:
         ::udev* handle;
@@ -200,7 +200,7 @@ namespace fs8 {
          * @brief Constructs a device from a given udev context.
          * @param ctx Raw pointer to the `::udev` context.
          */
-        explicit udev_device(::udev* ctx);
+        explicit udev_device(::udev* ctx) noexcept;
 
         /**
          * @brief Constructs a device taking ownership of a raw libudev device pointer.
@@ -214,7 +214,9 @@ namespace fs8 {
          * @param subsystem Null-terminated string of the subsystem name.
          * @param sysname Null-terminated string of the sysname.
          */
-        udev_device(::udev* ctx, char const* subsystem, char const* sysname);
+        udev_device(::udev* ctx, char const* subsystem, char const* sysname) noexcept;
+
+        udev_device(udev_list_entry const&) noexcept;
 
         /**
          * @brief Constructs a device from device type and number.
@@ -222,7 +224,7 @@ namespace fs8 {
          * @param type The device type character (e.g., 'c' or 'b').
          * @param devnum The `dev_t` device number.
          */
-        udev_device(::udev* ctx, char type, dev_t devnum);
+        udev_device(::udev* ctx, char type, dev_t devnum) noexcept;
 
         /**
          * @brief Constructs a device from a syspath.

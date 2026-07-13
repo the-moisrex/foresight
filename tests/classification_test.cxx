@@ -1,4 +1,5 @@
 #include "./common/tests_common_pch.hpp"
+
 #include <array>
 #include <concepts>
 #include <span>
@@ -17,9 +18,9 @@ using fs8::udev_list_entry;
 using fs8::udev_monitor;
 
 using fs8::classify::Classification;
-using fs8::classify::match;
 using fs8::classify::drawing_tablet;
 using fs8::classify::keyboard;
+using fs8::classify::match;
 using fs8::classify::matches;
 using fs8::classify::mouse;
 using fs8::classify::properties;
@@ -32,103 +33,106 @@ using fs8::classify::with_name;
 
 namespace {
 
-// ---------------------------------------------------------------------------
-// Custom classifications used only in tests
-// ---------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------
+    // Custom classifications used only in tests
+    // ---------------------------------------------------------------------------
 
-struct explicit_subsystem_only {
-    static constexpr std::string_view subsystem = "hid";
-};
+    struct explicit_subsystem_only {
+        static constexpr std::string_view subsystem = "hid";
+    };
 
-struct single_flag_property {
-    static constexpr std::string_view property_key = "ID_INPUT_TOUCHPAD";
-};
+    struct single_flag_property {
+        static constexpr std::string_view property_key = "ID_INPUT_TOUCHPAD";
+    };
 
-struct key_and_value_property {
-    static constexpr std::string_view property_key   = "ID_BUS";
-    static constexpr std::string_view property_value = "bluetooth";
-};
+    struct key_and_value_property {
+        static constexpr std::string_view property_key   = "ID_BUS";
+        static constexpr std::string_view property_value = "bluetooth";
+    };
 
-struct multi_property_classification {
-    static constexpr std::string_view subsystem = "input";
-    static constexpr properties_storage<2> properties{{
-        {"ID_INPUT_KEYBOARD", "1"},
-        {"ID_BUS", "usb"},
-    }};
-};
+    struct multi_property_classification {
+        static constexpr std::string_view      subsystem = "input";
+        static constexpr properties_storage<2> properties{
+          {
+           {"ID_INPUT_KEYBOARD", "1"},
+           {"ID_BUS", "usb"},
+           }
+        };
+    };
 
-// ---------------------------------------------------------------------------
-// Fixtures
-// ---------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------
+    // Fixtures
+    // ---------------------------------------------------------------------------
 
-class UdevEnvironment : public ::testing::Test {
-  protected:
-    void SetUp() override {
-        ctx_ = udev::instance();
-        ASSERT_TRUE(ctx_.is_valid()) << "libudev context could not be created";
-    }
+    class UdevEnvironment : public ::testing::Test {
+      protected:
+        void SetUp() override {
+            ctx_ = udev::instance();
+            ASSERT_TRUE(ctx_.is_valid()) << "libudev context could not be created";
+        }
 
-    [[nodiscard]] udev const& ctx() const noexcept { return ctx_; }
+        [[nodiscard]] udev const& ctx() const noexcept {
+            return ctx_;
+        }
 
-    /// Best-effort: first enumerated device matching subsystem (may be empty).
-    [[nodiscard]] udev_device first_device_in_subsystem(char const* sub) const {
-        udev_enumerate en(ctx_);
-        if (!en) {
+        /// Best-effort: first enumerated device matching subsystem (may be empty).
+        [[nodiscard]] udev_device first_device_in_subsystem(char const* sub) const {
+            udev_enumerate en(ctx_);
+            if (!en) {
+                return {};
+            }
+            en.match_subsystem(sub);
+            en.scan_devices();
+            for (auto const entry : en.list_entries()) {
+                auto const path = entry.name();
+                if (path.empty()) {
+                    continue;
+                }
+                // syspath must be a null-terminated C string for libudev
+                std::string const syspath{path};
+                udev_device       dev(ctx_.native(), syspath.c_str());
+                if (dev) {
+                    return dev;
+                }
+            }
             return {};
         }
-        en.match_subsystem(sub);
-        en.scan_devices();
-        for (auto const entry : en.list_entries()) {
-            auto const path = entry.name();
-            if (path.empty()) {
-                continue;
+
+        /// Enumerate devices after applying a classification filter.
+        [[nodiscard]] std::vector<udev_device> enumerate_with(auto const& cls) const {
+            udev_enumerate en(ctx_);
+            EXPECT_TRUE(static_cast<bool>(en));
+            match(en, cls);
+            en.scan_devices();
+
+            std::vector<udev_device> out;
+            for (auto const entry : en.list_entries()) {
+                auto const path = entry.name();
+                if (path.empty()) {
+                    continue;
+                }
+                std::string const syspath{path};
+                udev_device       dev(ctx_.native(), syspath.c_str());
+                if (dev) {
+                    out.push_back(std::move(dev));
+                }
             }
-            // syspath must be a null-terminated C string for libudev
-            std::string const syspath{path};
-            udev_device dev(ctx_.native(), syspath.c_str());
-            if (dev) {
-                return dev;
-            }
+            return out;
         }
-        return {};
-    }
 
-    /// Enumerate devices after applying a classification filter.
-    [[nodiscard]] std::vector<udev_device>
-    enumerate_with(auto const& cls) const {
-        udev_enumerate en(ctx_);
-        EXPECT_TRUE(static_cast<bool>(en));
-        match(en, cls);
-        en.scan_devices();
+      private:
+        udev ctx_{};
+    };
 
-        std::vector<udev_device> out;
-        for (auto const entry : en.list_entries()) {
-            auto const path = entry.name();
-            if (path.empty()) {
-                continue;
-            }
-            std::string const syspath{path};
-            udev_device dev(ctx_.native(), syspath.c_str());
-            if (dev) {
-                out.push_back(std::move(dev));
-            }
-        }
-        return out;
-    }
+    class ClassificationMetaTest : public ::testing::Test {};
 
-  private:
-    udev ctx_{};
-};
+    class PropertyMatcherTest : public UdevEnvironment {};
 
-class ClassificationMetaTest : public ::testing::Test {};
+    class MatchesIntegrationTest : public UdevEnvironment {};
 
-class PropertyMatcherTest : public UdevEnvironment {};
+    class ApplyFilterEnumerateTest : public UdevEnvironment {};
 
-class MatchesIntegrationTest : public UdevEnvironment {};
-
-class ApplyFilterEnumerateTest : public UdevEnvironment {};
-
-class ApplyFilterMonitorTest : public UdevEnvironment {};
+    class ApplyFilterMonitorTest : public UdevEnvironment {};
 
 } // namespace
 
@@ -337,10 +341,7 @@ TEST_F(MatchesIntegrationTest, MultiPropertyRequiresAllPairs) {
 
     multi_property_classification const cls{};
     for (auto const& dev : keyboards) {
-        bool const expect =
-            dev.subsystem() == "input" &&
-            dev.property("ID_INPUT_KEYBOARD") == "1" &&
-            dev.property("ID_BUS") == "usb";
+        bool const expect = dev.subsystem() == "input" && dev.property("ID_INPUT_KEYBOARD") == "1" && dev.property("ID_BUS") == "usb";
         EXPECT_EQ(matches(dev, cls), expect);
     }
 }
@@ -396,7 +397,7 @@ TEST_F(PropertyMatcherTest, MatchesWithNameExact) {
     // property_matcher compares against property(key); ensure key is used.
     // Note: production code uses matcher.key.data() — values must be
     // backed by null-terminated storage for libudev.
-    std::string const name_storage{observed_name};
+    std::string const      name_storage{observed_name};
     property_matcher const exact{.key = "NAME", .value = name_storage};
 
     bool any = false;
@@ -426,8 +427,8 @@ TEST_F(PropertyMatcherTest, MatchesMissingPropertyIsFalse) {
         GTEST_SKIP() << "No input devices";
     }
     property_matcher const missing{
-        .key   = "__FS8_TEST_PROPERTY_THAT_SHOULD_NOT_EXIST__",
-        .value = "1",
+      .key   = "__FS8_TEST_PROPERTY_THAT_SHOULD_NOT_EXIST__",
+      .value = "1",
     };
     EXPECT_FALSE(matches(input, missing));
 }
@@ -449,12 +450,11 @@ TEST_F(PropertyMatcherTest, ApplyFilterOnEnumerateRestrictsByProperty) {
         }
         // enumerate match_property behaves as an OR with other property filters.
         // property matcher does not force subsystem in apply_filter — only property.
-        EXPECT_EQ(dev.property("ID_BUS"), "usb")
-            << "syspath=" << syspath;
+        EXPECT_EQ(dev.property("ID_BUS"), "usb") << "syspath=" << syspath;
     }
 
     // Host may legitimately have zero USB-tagged devices in the match set
-    (void)count;
+    (void) count;
 }
 
 TEST_F(PropertyMatcherTest, ApplyFilterOnMonitorIsNoOpButCallable) {
@@ -512,9 +512,10 @@ TEST_F(ApplyFilterEnumerateTest, ChainedClassificationAndPropertyMatcherSemantic
 }
 
 struct subsystem_only {
-    static constexpr std::string_view subsystem = "input";
+    static constexpr std::string_view subsystem    = "input";
     static constexpr std::string_view property_key = "";
 };
+
 TEST_F(ApplyFilterEnumerateTest, EmptyPropertiesStillAppliesSubsystem) {
     static_assert(Classification<subsystem_only>);
 
@@ -608,11 +609,13 @@ TEST_F(PropertyMatcherTest, EmptyKeyMatcherDoesNotMatchNormalDevices) {
 }
 
 struct keyboard_and_impossible_bus {
-    static constexpr std::string_view subsystem = "input";
-    static constexpr properties_storage<2> properties{{
-        {"ID_INPUT_KEYBOARD", "1"},
-        {"ID_BUS", "__not_a_real_bus__"},
-    }};
+    static constexpr std::string_view      subsystem = "input";
+    static constexpr properties_storage<2> properties{
+      {
+       {"ID_INPUT_KEYBOARD", "1"},
+       {"ID_BUS", "__not_a_real_bus__"},
+       }
+    };
 };
 
 TEST_F(MatchesIntegrationTest, MatchesIsConjunctionOverProperties) {
@@ -647,7 +650,7 @@ TEST_F(MatchesIntegrationTest, SubsystemMismatchFailsEvenIfPropertiesHappenToMat
 // =============================================================================
 
 struct impossible {
-    static constexpr std::string_view subsystem    = "input";
+    static constexpr std::string_view subsystem      = "input";
     static constexpr std::string_view property_key   = "ID_INPUT_KEYBOARD";
     static constexpr std::string_view property_value = "__impossible__";
 };
@@ -660,4 +663,10 @@ TEST_F(ApplyFilterEnumerateTest, ListEntriesBeginEndOnEmptyResult) {
 
     auto const list = en.list_entries();
     EXPECT_EQ(list.begin(), list.end());
+}
+
+TEST(ClassificationRanges, Basic) {
+    for (auto const& dev : fs8::classify::all_devices() | keyboard) {
+        EXPECT_EQ(dev.property(fs8::classify::keyboard.property_key.data()), "1");
+    }
 }

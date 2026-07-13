@@ -3,6 +3,7 @@
 module;
 #include <array>
 #include <concepts>
+#include <generator>
 #include <ranges>
 #include <span>
 #include <string_view>
@@ -139,15 +140,34 @@ export namespace fs8::classify {
         return {.key = "NAME", .value = name}; // Or ID_MODEL depending on udev specifics
     }
 
-    // Returns a lazy range of ALL devices in the system
-    [[nodiscard]] auto all_devices() {
-        udev_enumerate enumerator;
+    template <Classification C>
+    struct [[nodiscard]] filter_by : std::ranges::range_adaptor_closure<filter_by<C>> {
+        C cls{};
+
+        template <std::ranges::viewable_range R>
+        [[nodiscard]] constexpr auto operator()(R&& r) const noexcept {
+            return std::forward<R>(r) | std::views::filter([c = cls](udev_device const& d) noexcept {
+                       return matches(d, c);
+                   });
+        }
+    };
+
+    // Pipe: range | Classification  →  same as range | filter_by{cls}
+    template <std::ranges::viewable_range R, Classification C>
+    [[nodiscard]] constexpr auto operator|(R&& r, C const& cls) noexcept {
+        return std::forward<R>(r) | filter_by<C>{.cls = cls};
+    }
+
+    /**
+     * Returns a lazy, owning range of all current udev devices.
+     */
+    [[nodiscard]] std::generator<udev_device> all_devices() noexcept {
+        udev_enumerate enumerator{};
         enumerator.scan_devices();
 
-        // Transform the udev_list_entry into a udev_device lazily
-        return enumerator.list_entries() | std::views::transform([](auto entry) {
-                   return udev_device(&*udev::instance().native(), entry.name().data());
-               });
+        for (auto const& entry : enumerator.list_entries()) {
+            co_yield udev_device{entry};
+        }
     }
 
 } // namespace fs8::classify
