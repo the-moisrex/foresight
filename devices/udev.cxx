@@ -328,17 +328,12 @@ fs8::udev_monitor::udev_monitor(udev const& dev) noexcept : mon{::udev_monitor_n
         code = -1;
         return;
     }
-    fd = ::udev_monitor_get_fd(mon);
-    if (fd < 0) {
-        code = fd;
-    }
 }
 
 fs8::udev_monitor::udev_monitor() noexcept : udev_monitor{udev::instance()} {}
 
 fs8::udev_monitor::udev_monitor(fs8::udev_monitor&& other) noexcept
   : mon{std::exchange(other.mon, nullptr)},
-    fd{std::exchange(other.fd, 0)},
     code{std::exchange(other.code, 0)} {}
 
 fs8::udev_monitor& fs8::udev_monitor::operator=(udev_monitor&& other) noexcept {
@@ -349,7 +344,6 @@ fs8::udev_monitor& fs8::udev_monitor::operator=(udev_monitor&& other) noexcept {
         udev_monitor_unref(mon);
     }
     mon  = std::exchange(other.mon, nullptr);
-    fd   = std::exchange(other.fd, 0);
     code = std::exchange(other.code, 0);
     return *this;
 }
@@ -377,7 +371,7 @@ bool fs8::udev_monitor::is_valid() const noexcept {
 }
 
 int fs8::udev_monitor::file_descriptor() const noexcept {
-    return fd;
+    return is_valid() ? ::udev_monitor_get_fd(mon) : -1;
 }
 
 void fs8::udev_monitor::enable() noexcept {

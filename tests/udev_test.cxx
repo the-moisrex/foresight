@@ -141,7 +141,7 @@ TEST(UdevMonitorTest, MoveSemantics) {
     udev_monitor mon2 = std::move(mon1);
     EXPECT_TRUE(mon2.is_valid());
     EXPECT_EQ(mon2.file_descriptor(), fd);
-    EXPECT_EQ(mon1.file_descriptor(), 0);
+    EXPECT_EQ(mon1.file_descriptor(), -1);
 }
 
 TEST(UdevMonitorTest, SetupAndEnableDoesNotCrash) {
