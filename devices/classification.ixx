@@ -3,6 +3,7 @@
 module;
 #include <array>
 #include <concepts>
+#include <coroutine>
 #include <generator>
 #include <ranges>
 #include <span>
@@ -26,8 +27,6 @@ namespace fs8::classify {
 } // namespace fs8::classify
 
 export namespace fs8::classify {
-
-
     template <typename T>
     [[nodiscard]] constexpr std::string_view subsystem(T const&) noexcept {
         if constexpr (requires { T::subsystem; }) {
@@ -111,6 +110,9 @@ export namespace fs8::classify {
         static constexpr std::string_view property_key = "ID_INPUT_TABLET";
     } drawing_tablet;
 
+    constexpr struct [[nodiscard]] basic_any_device {
+    } any_device;
+
     /// A generic property matcher
     struct [[nodiscard]] property_matcher {
         static constexpr std::string_view subsystem{"input"};
@@ -123,6 +125,14 @@ export namespace fs8::classify {
         // todo: check if it's null terminated.
         return dev.property(matcher.key.data()) == matcher.value;
     }
+
+    [[nodiscard]] bool matches(udev_device const&, basic_any_device const&) noexcept {
+        return true;
+    }
+
+    void match(udev_enumerate&, basic_any_device const&) noexcept {}
+
+    void match(udev_monitor&, basic_any_device const&) noexcept {}
 
     void match(udev_enumerate& e, property_matcher const& matcher) noexcept {
         // todo: check if it's null terminated.
@@ -161,13 +171,28 @@ export namespace fs8::classify {
     /**
      * Returns a lazy, owning range of all current udev devices.
      */
-    [[nodiscard]] std::generator<udev_device> all_devices() noexcept {
+    [[nodiscard]] std::generator<udev_device> all_devices(Classification auto... cls) noexcept {
         udev_enumerate enumerator{};
+        (match(enumerator, cls), ...);
         enumerator.scan_devices();
 
         for (auto const& entry : enumerator.list_entries()) {
-            co_yield udev_device{entry};
+            auto dev = udev_device{entry};
+            if (!dev || (!matches(dev, cls) || ...)) [[unlikely]] {
+                continue;
+            }
+            co_yield std::move(dev);
         }
+    }
+
+    // Workaround: coroutine_traits not visible when defining a variadic
+    // template coroutine inside a module (even with <coroutine> in global fragment).
+    // Non-templated wrapper ensures clean definition context.
+    //
+    // We shouldn't need this function, but making all_devices a template causes the Clang
+    // to not be able to figure out early that we need to export coroutines or whatever.
+    [[nodiscard]] decltype(auto) all_devices() noexcept {
+        return all_devices(any_device);
     }
 
 } // namespace fs8::classify

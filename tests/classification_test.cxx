@@ -666,7 +666,19 @@ TEST_F(ApplyFilterEnumerateTest, ListEntriesBeginEndOnEmptyResult) {
 }
 
 TEST(ClassificationRanges, Basic) {
+    int count = 0;
+    for (auto const& dev : all_devices(keyboard)) {
+        EXPECT_EQ(dev.property(fs8::classify::keyboard.property_key.data()), "1");
+        ++count;
+    }
+    EXPECT_NE(count, 0);
+}
+
+TEST(ClassificationRanges, BasicRanges) {
+    int count = 0;
     for (auto const& dev : fs8::classify::all_devices() | keyboard) {
         EXPECT_EQ(dev.property(fs8::classify::keyboard.property_key.data()), "1");
+        ++count;
     }
+    EXPECT_NE(count, 0);
 }
