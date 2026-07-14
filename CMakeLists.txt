@@ -110,7 +110,7 @@ target_sources(${LIB_NAME}
         mods/caps.ixx
         mods/context.ixx
         mods/context_vars.ixx
-        mods/device_manager.ixx
+        mods/device_registry.ixx
         mods/emitter.ixx
         mods/event.ixx
         mods/ignore.ixx

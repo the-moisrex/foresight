@@ -614,8 +614,8 @@ namespace fs8 {
 
         // todo: add manually watching in this class for completeness as well
       private:
-        ::udev_monitor* mon;
-        int             fd   = 0;
+        ::udev_monitor* mon  = nullptr;
+        int             fd   = -1;
         int             code = 0;
     };
 

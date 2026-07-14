@@ -252,7 +252,7 @@ udev_enumerate* fs8::udev_enumerate::native() const noexcept {
 }
 
 bool fs8::udev_enumerate::is_valid() const noexcept {
-    return code >= 0;
+    return handle != nullptr && code >= 0;
 }
 
 fs8::udev_enumerate::operator bool() const noexcept {
@@ -260,65 +260,49 @@ fs8::udev_enumerate::operator bool() const noexcept {
 }
 
 fs8::udev_enumerate& fs8::udev_enumerate::match_subsystem(char const* const subsystem) noexcept {
-    if (!is_valid()) [[unlikely]] {
-        return *this;
-    }
+    assert(is_valid());
     code = ::udev_enumerate_add_match_subsystem(handle, subsystem);
     return *this;
 }
 
 fs8::udev_enumerate& fs8::udev_enumerate::nomatch_subsystem(char const* subsystem) noexcept {
-    if (!is_valid()) [[unlikely]] {
-        return *this;
-    }
+    assert(is_valid());
     code = ::udev_enumerate_add_nomatch_subsystem(handle, subsystem);
     return *this;
 }
 
 fs8::udev_enumerate& fs8::udev_enumerate::match_sysattr(char const* const name, char const* const value) noexcept {
-    if (!is_valid()) [[unlikely]] {
-        return *this;
-    }
+    assert(is_valid());
     code = ::udev_enumerate_add_match_sysattr(handle, name, value);
     return *this;
 }
 
 fs8::udev_enumerate& fs8::udev_enumerate::nomatch_sysattr(char const* const name, char const* const value) noexcept {
-    if (!is_valid()) [[unlikely]] {
-        return *this;
-    }
+    assert(is_valid());
     code = ::udev_enumerate_add_nomatch_sysattr(handle, name, value);
     return *this;
 }
 
 fs8::udev_enumerate& fs8::udev_enumerate::match_property(char const* const name, char const* const value) noexcept {
-    if (!is_valid()) [[unlikely]] {
-        return *this;
-    }
+    assert(is_valid());
     code = ::udev_enumerate_add_match_property(handle, name, value);
     return *this;
 }
 
 fs8::udev_enumerate& fs8::udev_enumerate::match_sysname(char const* const sysname) noexcept {
-    if (!is_valid()) [[unlikely]] {
-        return *this;
-    }
+    assert(is_valid());
     code = ::udev_enumerate_add_match_sysname(handle, sysname);
     return *this;
 }
 
 fs8::udev_enumerate& fs8::udev_enumerate::match_tag(char const* const tag) noexcept {
-    if (!is_valid()) [[unlikely]] {
-        return *this;
-    }
+    assert(is_valid());
     code = ::udev_enumerate_add_match_tag(handle, tag);
     return *this;
 }
 
 fs8::udev_enumerate& fs8::udev_enumerate::match_parent(udev_device const& dev) noexcept {
-    if (!is_valid()) [[unlikely]] {
-        return *this;
-    }
+    assert(is_valid());
     code = ::udev_enumerate_add_match_parent(handle, dev.native());
     return *this;
 }
@@ -379,23 +363,17 @@ fs8::udev_monitor::~udev_monitor() noexcept {
 }
 
 void fs8::udev_monitor::match_device(char const* const subsystem, char const* const type) noexcept {
-    assert(mon != nullptr);
-    if (!is_valid()) [[unlikely]] {
-        return;
-    }
+    assert(is_valid());
     code = ::udev_monitor_filter_add_match_subsystem_devtype(mon, subsystem, type);
 }
 
 void fs8::udev_monitor::match_tag(char const* const name) noexcept {
-    assert(mon != nullptr);
-    if (!is_valid()) [[unlikely]] {
-        return;
-    }
+    assert(is_valid());
     code = ::udev_monitor_filter_add_match_tag(mon, name);
 }
 
 bool fs8::udev_monitor::is_valid() const noexcept {
-    return code >= 0;
+    return mon != nullptr && code >= 0;
 }
 
 int fs8::udev_monitor::file_descriptor() const noexcept {
@@ -403,10 +381,7 @@ int fs8::udev_monitor::file_descriptor() const noexcept {
 }
 
 void fs8::udev_monitor::enable() noexcept {
-    assert(mon != nullptr);
-    if (!is_valid()) [[unlikely]] {
-        return;
-    }
+    assert(is_valid());
     code = ::udev_monitor_enable_receiving(mon);
 }
 
@@ -415,17 +390,17 @@ fs8::udev_device fs8::udev_monitor::next_device() const noexcept {
 }
 
 void fs8::udev_monitor::set_receive_buffer_size(int size) noexcept {
-    assert(mon != nullptr);
+    assert(is_valid());
     ::udev_monitor_set_receive_buffer_size(mon, size);
 }
 
 void fs8::udev_monitor::filter_update() noexcept {
-    assert(mon != nullptr);
+    assert(is_valid());
     ::udev_monitor_filter_update(mon);
 }
 
 void fs8::udev_monitor::filter_remove() noexcept {
-    assert(mon != nullptr);
+    assert(is_valid());
     ::udev_monitor_filter_remove(mon);
 }
 
