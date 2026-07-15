@@ -37,6 +37,10 @@ namespace fs8 {
             devices.emplace_back(std::move(inp_dev), class_index);
         }
 
+        void operator()(start_tag) noexcept {
+            monitor = std::make_optional<udev_monitor>();
+        }
+
       private:
         std::optional<udev_monitor> monitor = std::nullopt;
         std::vector<device_pick>    devices;
