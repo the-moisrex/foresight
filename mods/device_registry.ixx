@@ -7,11 +7,15 @@ export module foresight.mods.device_registry;
 import foresight.devices.udev;
 import foresight.mods.context;
 import foresight.devices.evdev;
-import foresight.devices.classification;
+import foresight.devices.device_query;
 
 namespace fs8 {
 
     static constexpr std::uint8_t no_classification = std::numeric_limits<std::uint8_t>::max();
+
+    export struct [[nodiscard]] query_info {
+        bool grabbed = false;
+    };
 
     struct [[nodiscard]] device_pick {
         evdev device;
