@@ -195,4 +195,16 @@ export namespace fs8::classify {
         return all_devices(any_device);
     }
 
+    /**
+     * This is a snapshot in time of a classification
+     */
+    struct [[nodiscard]] classification_snapshot {
+        std::string_view subsystem = "input";
+        properties_type  properties{};
+    };
+
+    constexpr classification_snapshot snapshot(Classification auto const& cls) noexcept {
+        return {.subsystem = subsystem(cls), .properties = properties(cls)};
+    }
+
 } // namespace fs8::classify
