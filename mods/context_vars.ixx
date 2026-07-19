@@ -215,7 +215,8 @@ export namespace fs8 {
               using res_type = variable_types_t<std::variant, std::monostate, std::conditional_t<std::is_const_v<TupT>, T const&, T&>...>;
               res_type                     res;
               [[maybe_unused]] std::size_t cur_i = 0;
-              ((cur_i++ == index && (res = funcs.value(), true)), ...);
+
+              std::ignore = ((cur_i++ == index && (res = funcs.value(), false)), ...);
               return res;
           },
           tup);

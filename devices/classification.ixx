@@ -28,8 +28,16 @@ namespace fs8::classify {
 
 export namespace fs8::classify {
     template <typename T>
-    [[nodiscard]] constexpr std::string_view subsystem(T const&) noexcept {
-        if constexpr (requires { T::subsystem; }) {
+    [[nodiscard]] constexpr std::string_view subsystem(T const& cls) noexcept {
+        if constexpr (requires {
+                          { cls.subsystem } -> std::convertible_to<std::string_view>;
+                      })
+        {
+            return cls.subsystem;
+        } else if constexpr (requires {
+                                 { T::subsystem } -> std::convertible_to<std::string_view>;
+                             })
+        {
             return T::subsystem;
         } else {
             static_assert(false, "T don't have properties.");
@@ -38,10 +46,15 @@ export namespace fs8::classify {
     }
 
     template <typename T>
-    [[nodiscard]] constexpr properties_type properties(T const&) noexcept {
+    [[nodiscard]] constexpr properties_type properties(T const& cls) noexcept {
         if constexpr (requires {
-                          { T::properties } -> std::convertible_to<properties_type>;
+                          { cls.properties } -> std::convertible_to<properties_type>;
                       })
+        {
+            return cls.properties;
+        } else if constexpr (requires {
+                                 { T::properties } -> std::convertible_to<properties_type>;
+                             })
         {
             return T::properties;
         } else if constexpr (requires {
@@ -70,6 +83,18 @@ export namespace fs8::classify {
         { subsystem(cls) } noexcept -> std::convertible_to<std::string_view>;
         { properties(cls) } noexcept -> std::convertible_to<properties_type>;
     };
+
+    [[nodiscard]] constexpr std::string to_string(Classification auto const& cls) {
+        std::string str;
+        str += subsystem(cls);
+        for (auto const& [key, value] : properties(cls)) {
+            str += " ";
+            str += key;
+            str += "=";
+            str += value;
+        }
+        return str;
+    }
 
     // 1. Check if an existing device belongs to this classification
     [[nodiscard]] bool matches(udev_device const& dev, Classification auto const& cls) noexcept {
@@ -205,6 +230,27 @@ export namespace fs8::classify {
 
     constexpr classification_snapshot snapshot(Classification auto const& cls) noexcept {
         return {.subsystem = subsystem(cls), .properties = properties(cls)};
+    }
+
+    [[nodiscard]] constexpr bool operator==(basic_keyboard const&, basic_keyboard const&) noexcept {
+        return true;
+    }
+
+    [[nodiscard]] constexpr bool operator==(basic_mouse const&, basic_mouse const&) noexcept {
+        return true;
+    }
+
+    [[nodiscard]] constexpr bool operator==(basic_any_device const&, basic_any_device const&) noexcept {
+        return true;
+    }
+
+    [[nodiscard]] constexpr bool operator==(classification_snapshot const& lhs, classification_snapshot const& rhs) {
+        return lhs.subsystem == rhs.subsystem && std::ranges::equal(lhs.properties, rhs.properties);
+    }
+
+    template <classify::Classification Cl>
+    [[nodiscard]] constexpr bool operator==(Cl const& lhs, Cl const& rhs) noexcept {
+        return subsystem(lhs) == subsystem(rhs) && std::ranges::equal(properties(lhs), properties(rhs));
     }
 
 } // namespace fs8::classify

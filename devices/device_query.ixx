@@ -29,6 +29,22 @@ export namespace fs8 {
         bool fail_on_no_match = false;
     };
 
+    template <fs8::classify::Classification Cl>
+    [[nodiscard]] constexpr bool operator==(device_query<Cl> const& lhs, device_query<Cl> const& rhs) noexcept {
+        // Note: Assuming `classification` is stateless or has its own operator==.
+        // If Cl doesn't have operator==, omit `lhs.classification == rhs.classification &&`
+        return lhs.classification
+               == rhs.classification
+               && lhs.name
+               == rhs.name
+               && lhs.grab
+               == rhs.grab
+               && lhs.matches_limit
+               == rhs.matches_limit
+               && lhs.fail_on_no_match
+               == rhs.fail_on_no_match;
+    }
+
     struct query_tag {};
 
     constexpr struct grab_tag : query_tag {
@@ -120,11 +136,16 @@ export namespace fs8 {
         };
     }
 
+    [[nodiscard]] std::string to_string(device_query_snapshot const& query);
+
     struct [[nodiscard]] udev_device_pick {
         udev_device device{};
 
         // User query to re-get this device
         device_query_snapshot query{};
+
+        // The index of the query
+        std::uint8_t query_index = 0;
     };
 
     template <classify::Classification... Cl>
@@ -146,7 +167,7 @@ export namespace fs8 {
             std::uint8_t index = 0;
             ((matches(dev, queries)
               && (limits[index++]-- != 0)
-              && (co_yield udev_device_pick{.device = std::move(dev), .query = snapshot(queries)}, true)),
+              && (co_yield udev_device_pick{.device = std::move(dev), .query = snapshot(queries), .query_index = index}, true)),
              ...);
         }
     }

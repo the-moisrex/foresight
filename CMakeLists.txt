@@ -64,6 +64,7 @@ set_target_properties(${LIB_NAME} PROPERTIES
 target_sources(${LIB_NAME}
         PRIVATE
         bash/bash_runner.cxx
+        devices/device_query.cxx
         devices/evdev.cxx
         devices/key_codes.cxx
         devices/udev.cxx
@@ -76,6 +77,7 @@ target_sources(${LIB_NAME}
         main/systemd.cxx
         mods/abs2rel.cxx
         mods/context.cxx
+        mods/device_registry.cxx
         mods/emitter.cxx
         mods/ignore.cxx
         mods/intercept.cxx

@@ -1,6 +1,8 @@
 // Created by moisrex on 7/10/26.
 module;
 #include <cassert>
+#include <cstdint>
+#include <limits>
 #include <optional>
 #include <ranges>
 #include <vector>
@@ -12,10 +14,17 @@ import foresight.devices.device_query;
 
 namespace fs8 {
 
+    export constexpr std::uint8_t no_query = std::numeric_limits<std::uint8_t>::max();
+
+    struct [[nodiscard]] evdev_pick {
+        evdev        device;
+        std::uint8_t query_index = no_query;
+    };
+
     /// Convert a `udev device` into a `evdev device`.
     export constexpr struct [[nodiscard]] basic_to_evdev_pick : std::ranges::range_adaptor_closure<basic_to_evdev_pick> {
         [[nodiscard]] constexpr auto operator()(udev_device_pick const& pick) const noexcept {
-            return evdev{pick.device.subsystem()};
+            return evdev_pick{.device = evdev{pick.device.subsystem()}, .query_index = pick.query_index};
         }
 
         template <std::ranges::range Range>
@@ -59,10 +68,7 @@ namespace fs8 {
         }
 
         /// Add device manually
-        void add(evdev&& inp_dev, device_query_snapshot query) {
-            devices.emplace_back(std::move(inp_dev));
-            queries.emplace_back(std::move(query));
-        }
+        void add(evdev&& inp_dev, device_query_snapshot query);
 
         /// Append new queries and their devices
         template <classify::Classification... Cls>
@@ -71,13 +77,12 @@ namespace fs8 {
             (queries.emplace_back(inp_queries), ...);
         }
 
-        void operator()(start_tag) noexcept {
-            monitor = std::make_optional<udev_monitor>();
-        }
+        /// Initialize monitoring
+        context_action operator()(start_tag);
 
       private:
         std::optional<udev_monitor>        monitor = std::nullopt;
-        std::vector<evdev>                 devices;
+        std::vector<evdev_pick>            devices;
         std::vector<device_query_snapshot> queries;
     };
 
