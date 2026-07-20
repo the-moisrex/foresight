@@ -19,7 +19,9 @@ import fs8.event;
 import fs8.log;
 
 using fs8::basic_uinput;
+using fs8::uinput_access_result;
 
+static constexpr std::string_view uinput_path = "/dev/uinput";
 
 #define SYS_INPUT_DIR "/sys/devices/virtual/input/"
 
@@ -39,6 +41,55 @@ struct my_libevdev_uinput {
     char*  devnode;       /**< device node */
     time_t ctime[2];      /**< before/after UI_DEV_CREATE */
 };
+
+uinput_access_result fs8::verify_access_to_uinput() noexcept {
+    using enum uinput_access_result;
+
+    struct stat device_stat{};
+    if (::stat(uinput_path.data(), &device_stat) != 0) [[unlikely]] {
+        if (errno == ENOENT) {
+            return device_not_found;
+        }
+
+        if (errno == EACCES || errno == EPERM) {
+            return permission_denied;
+        }
+
+        return open_failed;
+    }
+
+    if (!S_ISCHR(device_stat.st_mode)) [[unlikely]] {
+        return not_a_character_device;
+    }
+
+    int const fd = ::open(uinput_path.data(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+    if (fd < 0) [[unlikely]] {
+        if (errno == EACCES || errno == EPERM) {
+            return permission_denied;
+        }
+
+        if (errno == ENOENT || errno == ENODEV) {
+            return device_not_found;
+        }
+
+        return open_failed;
+    }
+
+    ::close(fd);
+    return available;
+}
+
+[[nodiscard]] std::string_view fs8::to_string(uinput_access_result const result) noexcept {
+    using enum uinput_access_result;
+    switch (result) {
+        case available: return {"uinput is available and accessible"};
+        case device_not_found: return {"/dev/uinput was not found; the uinput kernel module may not be loaded"};
+        case permission_denied: return {"permission denied while accessing /dev/uinput"};
+        case not_a_character_device: return {"/dev/uinput exists but is not a character device"};
+        case open_failed: return {"failed to open /dev/uinput"};
+        default: return {"unknown uinput access status"};
+    }
+}
 
 basic_uinput::basic_uinput(evdev const& evdev_dev, std::filesystem::path const& file) noexcept
   : basic_uinput(evdev_dev.device_ptr(), file) {}

@@ -8,6 +8,7 @@ module;
 export module fs8.devices.uinput;
 export import fs8.devices.evdev;
 export import fs8.event;
+import fs8.log;
 import fs8.context;
 import fs8.mods.caps;
 import fs8.mods.intercept;
@@ -17,6 +18,36 @@ export namespace fs8 {
     constexpr std::string_view invalid_syspath   = "/dev/null";
     constexpr std::string_view invalid_devnode   = "/dev/null";
     constexpr std::string_view empty_uinput_name = "Empty-Device";
+
+
+    enum struct [[nodiscard]] uinput_access_result {
+        available,
+
+        device_not_found,       // /dev/uinput does not exist
+        permission_denied,      // Exists, but current process cannot open it
+        not_a_character_device, // Exists but is not a device node
+        open_failed,            // Other open() failure
+    };
+
+
+
+    /**
+     * Check and verify we have access to /dev/uinput in Linux and essentially know if the kernel module is loaded and we have access or
+     * not.
+     *
+     * Checks whether /dev/uinput is present and can be opened for use.
+     *
+     * This verifies practical availability for the current process:
+     * - /dev/uinput exists
+     * - it is a character device
+     * - it can be opened read/write
+     *
+     * A successful result generally means the uinput kernel module/driver is
+     * available and the process has sufficient permissions.
+     */
+    uinput_access_result verify_access_to_uinput() noexcept;
+
+    [[nodiscard]] std::string_view to_string(uinput_access_result) noexcept;
 
     /**
      * A virtual device
@@ -153,11 +184,16 @@ export namespace fs8 {
         /// Find the device if possible on start
         /// The first device in the interceptor, we automatically find it, and use that one
         template <ContextWith<basic_interceptor> CtxT>
-        bool operator()(CtxT& ctx, start_tag) noexcept {
+        context_action operator()(CtxT& ctx, start_tag) noexcept {
+            using enum context_action;
             if (is_ok()) {
-                return true;
+                return next;
             }
-            return operator()(ctx.mod(intercept).devices(), start);
+            if (auto const res = verify_access_to_uinput(); res != uinput_access_result::available) [[unlikely]] {
+                log("Uinput init error: {}", to_string(res));
+                return idle;
+            }
+            return operator()(ctx.mod(intercept).devices(), start) ? next : idle;
         }
 
         context_action operator()(event_type const& event) noexcept;
