@@ -64,9 +64,9 @@ set_target_properties(${LIB_NAME} PROPERTIES
 target_sources(${LIB_NAME}
         PRIVATE
         bash/bash_runner.cxx
-        devices/device_query.cxx
         devices/evdev.cxx
         devices/key_codes.cxx
+        devices/queries.cxx
         devices/udev.cxx
         devices/uinput.cxx
         lib/event2unicode.cxx
@@ -92,10 +92,10 @@ target_sources(${LIB_NAME}
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         bash/bash_runner.ixx
         devices/classification.ixx
-        devices/device_query.ixx
         devices/evdev.ixx
         devices/inputs-event-codes.ixx
         devices/key_codes.ixx
+        devices/queries.ixx
         devices/udev.ixx
         devices/uinput.ixx
         lib/event2unicode.ixx

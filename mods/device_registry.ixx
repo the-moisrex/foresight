@@ -10,7 +10,7 @@ export module fs8.mods.device_registry;
 import fs8.devices.udev;
 import fs8.context;
 import fs8.devices.evdev;
-import fs8.devices.device_query;
+import fs8.devices.queries;
 
 namespace fs8 {
 

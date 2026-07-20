@@ -3,7 +3,7 @@
 module;
 #include <generator>
 #include <string_view>
-export module fs8.devices.device_query;
+export module fs8.devices.queries;
 export import fs8.devices.classification;
 
 export namespace fs8 {
@@ -15,7 +15,7 @@ export namespace fs8 {
         Cl classification{};
 
         // Rank device names in a fuzzy manner based on this query for device name
-        std::string name;
+        std::string name{};
 
         // If we should grab the device's events and not give it to anyone else
         bool grab = false;
