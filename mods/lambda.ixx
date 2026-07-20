@@ -17,23 +17,22 @@ export namespace fs8 {
     struct [[nodiscard]] run : Bases... {
         static_assert((std::copyable<Bases> && ...), "The bases must be copyable");
 
-        template <typename... Args>
-        explicit(false) consteval run(Args&&... args) : Bases{std::forward<Args>(args)...}... {}
+        consteval explicit(false) run(Bases... bases) : Bases(std::move(bases))... {}
 
-        // template <typename... Args>
-        // explicit(false) run(Args&&...) {
-        //     static_assert(false, "Your lambda must be constructible at compile time.");
-        // }
+        consteval run()
+            requires(std::default_initializable<Bases> && ...)
+        = default;
 
-        consteval run()                          = default;
         constexpr run(run const&)                = default;
         constexpr run(run&&) noexcept            = default;
         constexpr run& operator=(run const&)     = default;
         constexpr run& operator=(run&&) noexcept = default;
         constexpr ~run()                         = default;
+
+        using Bases::operator()...;
     };
 
-    template <typename... Bases>
-    run(Bases&&...) -> run<Bases...>;
+    template <typename... Ts>
+    run(Ts&&...) -> run<std::remove_cvref_t<Ts>...>;
 
 } // namespace fs8
