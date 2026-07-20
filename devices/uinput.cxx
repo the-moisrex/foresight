@@ -45,34 +45,23 @@ struct my_libevdev_uinput {
 uinput_access_result fs8::verify_access_to_uinput() noexcept {
     using enum uinput_access_result;
 
-    struct stat device_stat{};
-    if (::stat(uinput_path.data(), &device_stat) != 0) [[unlikely]] {
-        if (errno == ENOENT) {
-            return device_not_found;
-        }
-
-        if (errno == EACCES || errno == EPERM) {
-            return permission_denied;
-        }
-
-        return open_failed;
-    }
-
-    if (!S_ISCHR(device_stat.st_mode)) [[unlikely]] {
-        return not_a_character_device;
-    }
-
+    // 1. Try to open directly first
     int const fd = ::open(uinput_path.data(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
     if (fd < 0) [[unlikely]] {
         if (errno == EACCES || errno == EPERM) {
             return permission_denied;
         }
-
         if (errno == ENOENT || errno == ENODEV) {
             return device_not_found;
         }
-
         return open_failed;
+    }
+
+    // 2. If opened, verify it is a character device using the file descriptor
+    struct stat device_stat{};
+    if (::fstat(fd, &device_stat) != 0 || !S_ISCHR(device_stat.st_mode)) [[unlikely]] {
+        ::close(fd);
+        return not_a_character_device;
     }
 
     ::close(fd);
