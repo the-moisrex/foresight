@@ -5,10 +5,10 @@ module;
 #include <poll.h>
 #include <span>
 #include <vector>
-export module foresight.mods.intercept;
-import foresight.devices.evdev;
-import foresight.mods.context;
-import foresight.main.utils;
+export module fs8.mods.intercept;
+import fs8.devices.evdev;
+import fs8.context;
+import fs8.utils;
 
 export namespace fs8 {
     struct input_file_type {

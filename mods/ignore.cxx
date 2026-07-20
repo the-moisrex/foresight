@@ -5,7 +5,7 @@ module;
 #include <cmath>
 #include <linux/input-event-codes.h>
 #include <utility>
-module foresight.mods.ignore;
+module fs8.mods.ignore;
 
 using fs8::basic_ignore_abs;
 using fs8::basic_ignore_big_jumps;

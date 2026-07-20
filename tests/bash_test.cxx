@@ -1,6 +1,6 @@
 #include "./common/tests_common_pch.hpp"
 
-import foresight.bash;
+import fs8.bash;
 
 using fs8::bash_runner;
 

@@ -6,8 +6,8 @@ module;
 #include <linux/input-event-codes.h>
 #include <span>
 #include <string_view>
-export module foresight.mods.caps;
-import foresight.mods.event;
+export module fs8.mods.caps;
+import fs8.event;
 
 namespace fs8 {
     using ev_type   = event_type::type_type;

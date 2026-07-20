@@ -5,12 +5,12 @@ module;
 #include <libevdev/libevdev-uinput.h>
 #include <string_view>
 #include <system_error>
-export module foresight.devices.uinput;
-export import foresight.devices.evdev;
-export import foresight.mods.event;
-import foresight.mods.context;
-import foresight.mods.caps;
-import foresight.mods.intercept;
+export module fs8.devices.uinput;
+export import fs8.devices.evdev;
+export import fs8.event;
+import fs8.context;
+import fs8.mods.caps;
+import fs8.mods.intercept;
 
 export namespace fs8 {
 

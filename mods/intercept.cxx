@@ -9,8 +9,8 @@ module;
 #include <ranges>
 #include <span>
 #include <vector>
-module foresight.mods.intercept;
-import foresight.main.log;
+module fs8.mods.intercept;
+import fs8.log;
 
 using fs8::basic_interceptor;
 

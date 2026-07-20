@@ -9,13 +9,13 @@ module;
 #include <linux/input-event-codes.h>
 #include <ranges>
 #include <stdexcept>
-module foresight.lib.mod_parser;
-import foresight.mods.event;
-import foresight.devices.key_codes;
-import foresight.utils.hash;
-import foresight.lib.xkb.event2unicode;
-import foresight.main.log;
-import foresight.utils.strings;
+module fs8.lib.mod_parser;
+import fs8.event;
+import fs8.devices.key_codes;
+import fs8.utils.hash;
+import fs8.lib.xkb.event2unicode;
+import fs8.log;
+import fs8.utils.strings;
 
 using fs8::user_event;
 

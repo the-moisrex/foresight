@@ -1,7 +1,7 @@
 
 module;
 #include <string>
-module foresight.devices.device_query;
+module fs8.devices.device_query;
 
 using fs8::device_query_snapshot;
 using fs8::classify::Classification;

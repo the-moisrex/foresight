@@ -8,7 +8,7 @@ module;
 #include <functional>
 #include <libevdev/libevdev.h>
 #include <linux/uinput.h>
-export module foresight.mods.event;
+export module fs8.event;
 
 // don't import log here.
 

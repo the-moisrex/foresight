@@ -3,7 +3,7 @@
 module;
 #include <ranges>
 #include <string_view>
-export module foresight.utils.strings;
+export module fs8.utils.strings;
 
 export namespace fs8 {
 

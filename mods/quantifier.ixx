@@ -1,9 +1,9 @@
 // Created by moisrex on 6/9/25.
 
 module;
-export module foresight.mods.quantifier;
-import foresight.mods.event;
-import foresight.mods.context;
+export module fs8.mods.quantifier;
+import fs8.event;
+import fs8.context;
 
 export namespace fs8 {
 

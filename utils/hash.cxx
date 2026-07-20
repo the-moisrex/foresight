@@ -2,7 +2,7 @@
 
 module;
 #include <cstdint>
-module foresight.utils.hash;
+module fs8.utils.hash;
 
 void fs8::fnv1a_init(std::uint32_t& hash) noexcept {
     hash = FNV1A_32_INIT;

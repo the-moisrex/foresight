@@ -3,7 +3,7 @@
 module;
 #include <string_view>
 #include <utility>
-module foresight.mods.context;
+module fs8.context;
 
 [[nodiscard]] std::string_view fs8::to_string(context_action const action) noexcept {
     using enum context_action;

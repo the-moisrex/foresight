@@ -3,9 +3,9 @@
 module;
 #include <span>
 #include <string>
-export module foresight.lib.xkb.event2unicode;
-import foresight.mods.event;
-import foresight.lib.xkb;
+export module fs8.lib.xkb.event2unicode;
+import fs8.event;
+import fs8.lib.xkb;
 
 export namespace fs8::xkb {
 

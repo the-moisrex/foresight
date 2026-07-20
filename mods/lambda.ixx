@@ -3,7 +3,7 @@
 module;
 #include <concepts>
 #include <utility>
-export module foresight.mods.lambda;
+export module fs8.mods.lambda;
 
 export namespace fs8 {
 

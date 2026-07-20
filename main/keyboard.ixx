@@ -5,9 +5,9 @@ module;
 #include <string>
 #include <string_view>
 #include <vector>
-export module foresight.main.keyboard;
-import foresight.devices.evdev;
-import foresight.main.translate;
+export module fs8.keyboard;
+import fs8.devices.evdev;
+import fs8.translate;
 
 namespace fs8 {
     export constexpr std::size_t give_up_limit = 5;

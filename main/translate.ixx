@@ -5,7 +5,7 @@ module;
 #include <array>
 #include <cstdint>
 
-export module foresight.main.translate;
+export module fs8.translate;
 
 export namespace fs8 {
     constexpr auto KEY_RELEASE         = 0;

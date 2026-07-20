@@ -5,9 +5,9 @@ module;
 #include <cassert>
 #include <linux/input-event-codes.h>
 #include <span>
-export module foresight.mods.keys_status;
-import foresight.mods.event;
-import foresight.mods.context;
+export module fs8.mods.keys_status;
+import fs8.event;
+import fs8.context;
 
 export namespace fs8 {
 

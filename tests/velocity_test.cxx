@@ -1,7 +1,7 @@
 #include "common/tests_common_pch.hpp"
 
 #include <cmath>
-import foresight.mods;
+import fs8.mods;
 
 using namespace fs8;
 

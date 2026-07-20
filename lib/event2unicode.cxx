@@ -6,9 +6,9 @@ module;
 #include <span>
 #include <string>
 #include <xkbcommon/xkbcommon.h>
-module foresight.lib.xkb.event2unicode;
-import foresight.mods.event;
-import foresight.lib.xkb;
+module fs8.lib.xkb.event2unicode;
+import fs8.event;
+import fs8.lib.xkb;
 
 namespace {
     constexpr int           evdev_offset      = 8;

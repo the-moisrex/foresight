@@ -4,9 +4,9 @@ module;
 #include <functional>
 #include <memory>
 #include <xkbcommon/xkbcommon.h>
-export module foresight.lib.xkb.how2type;
-import foresight.lib.xkb;
-import foresight.mods.event;
+export module fs8.lib.xkb.how2type;
+import fs8.lib.xkb;
+import fs8.event;
 
 export namespace fs8::xkb {
 

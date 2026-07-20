@@ -8,11 +8,11 @@ module;
 #include <linux/input-event-codes.h>
 #include <tuple>
 #include <utility>
-export module foresight.mods.on;
+export module fs8.mods.on;
 
-export import foresight.main.utils;
-import foresight.mods.keys_status;
-import foresight.mods.context;
+export import fs8.utils;
+import fs8.mods.keys_status;
+import fs8.context;
 
 namespace fs8 {
 

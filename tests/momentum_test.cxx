@@ -2,7 +2,7 @@
 
 #include <cmath>
 #include <limits>
-import foresight.mods;
+import fs8.mods;
 
 using namespace fs8;
 

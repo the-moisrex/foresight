@@ -1,6 +1,6 @@
 #include "./common/tests_common_pch.hpp"
 
-import foresight.devices.udev;
+import fs8.devices.udev;
 
 using fs8::udev;
 using fs8::udev_device;

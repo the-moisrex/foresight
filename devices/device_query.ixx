@@ -3,8 +3,8 @@
 module;
 #include <generator>
 #include <string_view>
-export module foresight.devices.device_query;
-export import foresight.devices.classification;
+export module fs8.devices.device_query;
+export import fs8.devices.classification;
 
 export namespace fs8 {
 

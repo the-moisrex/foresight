@@ -7,11 +7,11 @@ module;
 #include <tuple>
 #include <type_traits>
 #include <utility>
-export module foresight.mods.context;
-export import foresight.mods.event;
+export module fs8.context;
+export import fs8.event;
 export import :vars;
-import foresight.mods.event;
-import foresight.main.log;
+import fs8.event;
+import fs8.log;
 
 namespace fs8 {
     // Base case: index 0, type is the first type T

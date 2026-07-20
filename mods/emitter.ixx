@@ -5,9 +5,9 @@ module;
 #include <array>
 #include <linux/input-event-codes.h>
 #include <span>
-export module foresight.mods.emitter;
-import foresight.mods.event;
-import foresight.mods.context;
+export module fs8.mods.emitter;
+import fs8.event;
+import fs8.context;
 
 namespace fs8 {
 

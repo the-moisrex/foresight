@@ -2,8 +2,8 @@ module;
 #include <chrono>
 #include <cmath>
 #include <optional>
-export module foresight.mods.momentum;
-import foresight.mods.context;
+export module fs8.mods.momentum;
+import fs8.context;
 
 namespace fs8 {
 

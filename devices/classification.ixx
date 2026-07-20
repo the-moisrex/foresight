@@ -8,8 +8,8 @@ module;
 #include <ranges>
 #include <span>
 #include <string_view>
-export module foresight.devices.classification;
-export import foresight.devices.udev;
+export module fs8.devices.classification;
+export import fs8.devices.udev;
 
 namespace fs8::classify {
 

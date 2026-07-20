@@ -9,17 +9,17 @@
 #include <span>
 #include <string_view>
 #include <vector>
-import foresight.main;
-import foresight.mods.intercept;
-import foresight.devices.evdev;
-import foresight.devices.uinput;
-import foresight.mods.context;
-import foresight.mods.stopper;
-import foresight.mods.inout;
-import foresight.lib.xkb.how2type;
-import foresight.devices.uinput;
-import foresight.main.utils;
-import foresight.main.systemd;
+import fs8;
+import fs8.mods.intercept;
+import fs8.devices.evdev;
+import fs8.devices.uinput;
+import fs8.context;
+import fs8.mods.stopper;
+import fs8.mods.inout;
+import fs8.lib.xkb.how2type;
+import fs8.devices.uinput;
+import fs8.utils;
+import fs8.systemd;
 
 namespace {
 

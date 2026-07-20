@@ -5,8 +5,8 @@ module;
 #include <cmath>
 #include <cstdint>
 #include <linux/input-event-codes.h>
-module foresight.mods.abs2rel;
-import foresight.main.log;
+module fs8.mods.abs2rel;
+import fs8.log;
 
 using fs8::basic_abs2rel;
 using fs8::context_action;

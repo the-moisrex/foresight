@@ -1,8 +1,8 @@
 #include <stdexcept>
 
-import foresight.mods;
-import foresight.main.log;
-import foresight.main.utils;
+import fs8.mods;
+import fs8.log;
+import fs8.utils;
 
 int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)

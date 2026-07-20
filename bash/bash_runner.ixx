@@ -5,7 +5,7 @@ module;
 #include <span>
 #include <string>
 #include <string_view>
-export module foresight.bash;
+export module fs8.bash;
 
 namespace fs8 {
 

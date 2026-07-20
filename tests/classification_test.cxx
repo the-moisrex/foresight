@@ -9,7 +9,7 @@
 #include <vector>
 
 
-import foresight.devices.classification;
+import fs8.devices.classification;
 
 using fs8::udev;
 using fs8::udev_device;

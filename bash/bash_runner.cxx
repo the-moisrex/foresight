@@ -15,7 +15,7 @@ module;
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-module foresight.bash;
+module fs8.bash;
 
 using fs8::bash_runner;
 

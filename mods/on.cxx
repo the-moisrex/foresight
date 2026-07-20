@@ -5,7 +5,7 @@ module;
 #include <linux/input-event-codes.h>
 #include <tuple>
 #include <utility>
-module foresight.mods.on;
+module fs8.mods.on;
 
 using fs8::basic_swipe_detector;
 

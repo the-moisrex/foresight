@@ -10,12 +10,12 @@ module;
 #include <queue>
 #include <ranges>
 #include <string>
-module foresight.mods.typed;
-import foresight.lib.xkb.how2type;
-import foresight.main.log;
-import foresight.utils.hash;
-import foresight.mods.event;
-import foresight.lib.mod_parser;
+module fs8.mods.typed;
+import fs8.lib.xkb.how2type;
+import fs8.log;
+import fs8.utils.hash;
+import fs8.event;
+import fs8.lib.mod_parser;
 
 using fs8::basic_search_engine;
 

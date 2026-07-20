@@ -6,7 +6,7 @@ module;
 #include <memory>
 #include <string_view>
 #include <xkbcommon/xkbcommon.h>
-module foresight.lib.xkb;
+module fs8.lib.xkb;
 
 using fs8::xkb::basic_state;
 using fs8::xkb::context;

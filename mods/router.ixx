@@ -7,14 +7,14 @@ module;
 #include <print>
 #include <ranges>
 #include <type_traits>
-export module foresight.mods.router;
-import foresight.mods.caps;
-import foresight.mods.context;
-import foresight.devices.uinput;
-import foresight.mods.event;
-import foresight.main.log;
-import foresight.main.utils;
-import foresight.mods.intercept;
+export module fs8.mods.router;
+import fs8.mods.caps;
+import fs8.context;
+import fs8.devices.uinput;
+import fs8.event;
+import fs8.log;
+import fs8.utils;
+import fs8.mods.intercept;
 
 namespace fs8 {
 

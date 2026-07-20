@@ -7,11 +7,11 @@ module;
 #include <functional>
 #include <string_view>
 #include <vector>
-export module foresight.mods.typed;
-import foresight.mods.context;
-import foresight.lib.xkb;
-import foresight.lib.mod_parser;
-import foresight.main.log;
+export module fs8.mods.typed;
+import fs8.context;
+import fs8.lib.xkb;
+import fs8.lib.mod_parser;
+import fs8.log;
 
 namespace fs8 {
 

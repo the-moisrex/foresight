@@ -16,9 +16,9 @@ module;
 #include <unistd.h>
 #include <utility>
 #include <vector>
-module foresight.devices.evdev;
-import foresight.mods.caps;
-import foresight.main.log;
+module fs8.devices.evdev;
+import fs8.mods.caps;
+import fs8.log;
 
 using fs8::evdev;
 

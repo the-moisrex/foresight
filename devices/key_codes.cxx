@@ -4,8 +4,8 @@ module;
 #include <algorithm>
 #include <cstdint>
 #include <string_view>
-module foresight.devices.key_codes;
-import foresight.devices.event_codes;
+module fs8.devices.key_codes;
+import fs8.devices.event_codes;
 
 using fs8::keynames_type;
 

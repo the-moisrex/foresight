@@ -2,7 +2,7 @@
 module;
 #include <cstdint>
 #include <string_view>
-export module foresight.devices.key_codes;
+export module fs8.devices.key_codes;
 
 namespace fs8 {
 

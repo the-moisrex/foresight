@@ -2,9 +2,9 @@ module;
 #include <array>
 #include <cstdint>
 #include <linux/input-event-codes.h>
-export module foresight.mods.replace;
-import foresight.mods.event;
-import foresight.mods.context;
+export module fs8.mods.replace;
+import fs8.event;
+import fs8.context;
 
 namespace fs8 {
 

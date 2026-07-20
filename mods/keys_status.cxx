@@ -3,7 +3,7 @@ module;
 #include <cassert>
 #include <linux/input-event-codes.h>
 #include <span>
-module foresight.mods.keys_status;
+module fs8.mods.keys_status;
 using fs8::basic_keys_status;
 using fs8::basic_led_status;
 

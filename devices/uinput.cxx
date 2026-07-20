@@ -14,9 +14,9 @@ module;
 #include <sys/stat.h>
 #include <system_error>
 #include <unistd.h>
-module foresight.devices.uinput;
-import foresight.mods.event;
-import foresight.main.log;
+module fs8.devices.uinput;
+import fs8.event;
+import fs8.log;
 
 using fs8::basic_uinput;
 

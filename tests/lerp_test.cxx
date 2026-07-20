@@ -1,8 +1,8 @@
 #include "common/tests_common_pch.hpp"
 
 #include <linux/input-event-codes.h>
-import foresight.mods;
-import foresight.main.log;
+import fs8.mods;
+import fs8.log;
 
 using namespace fs8;
 

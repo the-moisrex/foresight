@@ -2,7 +2,7 @@ module;
 #include <ranges>
 #include <type_traits>
 #include <utility>
-export module foresight.main.utils;
+export module fs8.utils;
 
 export namespace fs8 {
 

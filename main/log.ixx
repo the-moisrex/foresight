@@ -1,7 +1,7 @@
 module;
 #include <print>
-export module foresight.main.log;
-import foresight.mods.event;
+export module fs8.log;
+import fs8.event;
 
 export namespace fs8 {
 

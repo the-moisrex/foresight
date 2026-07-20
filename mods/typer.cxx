@@ -3,9 +3,9 @@
 module;
 #include <functional>
 #include <string_view>
-module foresight.mods.typer;
-import foresight.lib.mod_parser;
-import foresight.lib.xkb;
+module fs8.mods.typer;
+import fs8.lib.mod_parser;
+import fs8.lib.xkb;
 
 namespace {
 

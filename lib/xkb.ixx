@@ -4,7 +4,7 @@ module;
 #include <memory>
 #include <stdexcept>
 #include <xkbcommon/xkbcommon.h>
-export module foresight.lib.xkb;
+export module fs8.lib.xkb;
 
 export namespace fs8::xkb {
 

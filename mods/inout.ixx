@@ -6,9 +6,9 @@ module;
 #include <oneapi/tbb/profiling.h>
 #include <unistd.h>
 #include <utility>
-export module foresight.mods.inout;
-import foresight.mods.context;
-import foresight.mods.event;
+export module fs8.mods.inout;
+import fs8.context;
+import fs8.event;
 
 export namespace fs8 {
 

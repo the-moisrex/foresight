@@ -3,7 +3,7 @@
 module;
 #include <chrono>
 #include <cmath>
-module foresight.mods.momentum;
+module fs8.mods.momentum;
 
 using fs8::fsecs;
 using fs8::momentum_calculator;

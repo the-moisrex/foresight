@@ -3,9 +3,9 @@
 module;
 #include <functional>
 #include <string_view>
-export module foresight.lib.mod_parser;
-import foresight.mods.event;
-import foresight.lib.xkb;
+export module fs8.lib.mod_parser;
+import fs8.event;
+import fs8.lib.xkb;
 
 namespace fs8 {
 

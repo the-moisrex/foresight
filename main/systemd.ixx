@@ -1,7 +1,7 @@
 module;
 #include <span>
 #include <string_view>
-export module foresight.main.systemd;
+export module fs8.systemd;
 
 namespace fs8 {
 

@@ -6,9 +6,9 @@ module;
 #include <linux/input.h>
 #include <ranges>
 #include <thread>
-module foresight.main.keyboard;
-import foresight.main.translate;
-import foresight.main.log;
+module fs8.keyboard;
+import fs8.translate;
+import fs8.log;
 
 using fs8::keyboard;
 

@@ -6,11 +6,11 @@ module;
 #include <optional>
 #include <ranges>
 #include <vector>
-export module foresight.mods.device_registry;
-import foresight.devices.udev;
-import foresight.mods.context;
-import foresight.devices.evdev;
-import foresight.devices.device_query;
+export module fs8.mods.device_registry;
+import fs8.devices.udev;
+import fs8.context;
+import fs8.devices.evdev;
+import fs8.devices.device_query;
 
 namespace fs8 {
 
@@ -46,9 +46,9 @@ namespace fs8 {
         constexpr basic_device_registry(basic_device_registry const& other) {
             if consteval {
                 assert(other.queries.empty());
-                assert(other.devices.empty());
+                assert(other.devs.empty());
                 assert(queries.empty());
-                assert(devices.empty());
+                assert(devs.empty());
             } else {
                 std::abort();
             }
@@ -58,9 +58,9 @@ namespace fs8 {
         constexpr basic_device_registry& operator=(basic_device_registry const& other) {
             if consteval {
                 assert(other.queries.empty());
-                assert(other.devices.empty());
+                assert(other.devs.empty());
                 assert(queries.empty());
-                assert(devices.empty());
+                assert(devs.empty());
             } else {
                 std::abort();
             }
@@ -73,8 +73,14 @@ namespace fs8 {
         /// Append new queries and their devices
         template <classify::Classification... Cls>
         void add(device_query<Cls> const&... inp_queries) {
-            devices.append_range(all_devices(inp_queries...) | to_evdev_pick);
+            devs.append_range(all_devices(inp_queries...) | to_evdev_pick);
             (queries.emplace_back(inp_queries), ...);
+        }
+
+        [[nodiscard]] auto devices(this auto&& self) noexcept {
+            return self.devs | std::views::transform([]<typename PickT>(PickT&& pick) noexcept {
+                       return std::forward_like<PickT>(pick.device);
+                   });
         }
 
         /// Initialize monitoring
@@ -82,7 +88,7 @@ namespace fs8 {
 
       private:
         std::optional<udev_monitor>        monitor = std::nullopt;
-        std::vector<evdev_pick>            devices;
+        std::vector<evdev_pick>            devs;
         std::vector<device_query_snapshot> queries;
     };
 

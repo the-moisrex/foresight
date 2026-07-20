@@ -5,9 +5,9 @@ module;
 #include <cassert>
 #include <optional>
 #include <string_view>
-export module foresight.mods.vars;
-import foresight.mods.context;
-import foresight.main.utils;
+export module fs8.mods.vars;
+import fs8.context;
+import fs8.utils;
 
 export namespace fs8 {
 

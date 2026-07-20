@@ -5,7 +5,7 @@ module;
 #include <libudev.h>
 #include <string_view>
 #include <utility>
-module foresight.devices.udev;
+module fs8.devices.udev;
 
 namespace {
     // constructing string_view with nullptr pointer is UB.

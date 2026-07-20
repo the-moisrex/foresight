@@ -5,7 +5,7 @@ module;
 #include <cmath>
 #include <linux/input-event-codes.h>
 #include <utility>
-module foresight.mods.quantifier;
+module fs8.mods.quantifier;
 
 using fs8::basic_mice_quantifier;
 using fs8::basic_quantifier;

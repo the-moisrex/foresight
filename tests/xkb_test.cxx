@@ -4,9 +4,9 @@
 #include <linux/input.h>
 #include <xkbcommon/xkbcommon-compose.h>
 
-import foresight.lib.xkb;
-import foresight.lib.xkb.how2type;
-import foresight.mods.event;
+import fs8.lib.xkb;
+import fs8.lib.xkb.how2type;
+import fs8.event;
 
 using fs8::user_event;
 using fs8::xkb::get_default_keymap;

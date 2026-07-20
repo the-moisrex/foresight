@@ -4,12 +4,12 @@ module;
 #include <cmath>
 #include <cstdint>
 #include <linux/input-event-codes.h>
-export module foresight.mods.smooth;
-import foresight.mods.mouse_status;
-import foresight.mods.event;
-import foresight.mods.context;
-import foresight.utils.easings;
-import foresight.main.log;
+export module fs8.mods.smooth;
+import fs8.mods.mouse_status;
+import fs8.event;
+import fs8.context;
+import fs8.utils.easings;
+import fs8.log;
 
 export namespace fs8 {
 

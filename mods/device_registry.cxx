@@ -3,9 +3,9 @@
 module;
 #include <cstdint>
 #include <optional>
-module foresight.mods.device_registry;
-import foresight.mods.context;
-import foresight.main.log;
+module fs8.mods.device_registry;
+import fs8.context;
+import fs8.log;
 
 using fs8::basic_device_registry;
 using fs8::context_action;
@@ -22,7 +22,7 @@ void basic_device_registry::add(evdev&& inp_dev, device_query_snapshot query) {
         query_index = fs8::no_query;
     }
 
-    devices.emplace_back(std::move(inp_dev), query_index);
+    devs.emplace_back(std::move(inp_dev), query_index);
     queries.emplace_back(std::move(query));
 }
 
@@ -43,7 +43,7 @@ context_action basic_device_registry::operator()(start_tag) {
         }
 
         bool found = false;
-        for (auto const& pick : devices) {
+        for (auto const& pick : devs) {
             if (pick.query_index == index) {
                 found = true;
                 break;

@@ -2,7 +2,7 @@
 
 #include <linux/input-event-codes.h>
 
-import foresight.mods;
+import fs8.mods;
 
 int happened = 0;        // NOLINT
 

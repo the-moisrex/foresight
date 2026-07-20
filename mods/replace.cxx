@@ -1,5 +1,5 @@
 module;
-module foresight.mods.replace;
+module fs8.mods.replace;
 
 using fs8::basic_replace;
 using fs8::context_action;

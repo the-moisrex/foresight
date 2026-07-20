@@ -4,13 +4,13 @@ module;
 #include <cassert>
 #include <linux/uinput.h>
 #include <span>
-export module foresight.mods.add_scroll;
-import foresight.mods.context;
-import foresight.mods.keys_status;
-import foresight.mods.quantifier;
-import foresight.mods.inout;
-import foresight.mods.event;
-import foresight.main.utils;
+export module fs8.mods.add_scroll;
+import fs8.context;
+import fs8.mods.keys_status;
+import fs8.mods.quantifier;
+import fs8.mods.inout;
+import fs8.event;
+import fs8.utils;
 
 export namespace fs8 {
 

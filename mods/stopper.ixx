@@ -1,7 +1,7 @@
 // Created by moisrex on 6/11/25.
 
-export module foresight.mods.stopper;
-import foresight.mods.context;
+export module fs8.mods.stopper;
+import fs8.context;
 
 export namespace fs8 {
 

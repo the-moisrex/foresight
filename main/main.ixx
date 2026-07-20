@@ -1,6 +1,6 @@
 // Created by moisrex on 6/8/25.
 
-export module foresight.main;
-export import foresight.main.keyboard;
-export import foresight.main.translate;
-export import foresight.main.log;
+export module fs8;
+export import fs8.keyboard;
+export import fs8.translate;
+export import fs8.log;

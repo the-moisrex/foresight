@@ -2,13 +2,13 @@ module;
 #include <cassert>
 #include <linux/input-event-codes.h>
 #include <utility>
-export module foresight.mods.abs2rel;
-import foresight.mods.context;
-import foresight.devices.evdev;
-import foresight.mods.intercept;
-import foresight.mods.caps;
-import foresight.mods.ignore;
-import foresight.mods.keys_status;
+export module fs8.mods.abs2rel;
+import fs8.context;
+import fs8.devices.evdev;
+import fs8.mods.intercept;
+import fs8.mods.caps;
+import fs8.mods.ignore;
+import fs8.mods.keys_status;
 
 export namespace fs8 {
 

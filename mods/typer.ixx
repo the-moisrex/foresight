@@ -3,10 +3,10 @@
 module;
 #include <string_view>
 #include <vector>
-export module foresight.mods.typer;
-import foresight.mods.context;
-import foresight.mods.event;
-import foresight.lib.xkb.how2type;
+export module fs8.mods.typer;
+import fs8.context;
+import fs8.event;
+import fs8.lib.xkb.how2type;
 
 namespace fs8 {
 

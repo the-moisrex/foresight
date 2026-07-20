@@ -3,9 +3,9 @@
 module;
 #include <chrono>
 #include <linux/input-event-codes.h>
-export module foresight.mods.ignore;
-import foresight.mods.context;
-import foresight.mods.caps;
+export module fs8.mods.ignore;
+import fs8.context;
+import fs8.mods.caps;
 
 export namespace fs8 {
 

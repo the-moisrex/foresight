@@ -5,7 +5,7 @@ module;
 #include <print>
 #include <stdexcept>
 #include <string>
-module foresight.main.systemd;
+module fs8.systemd;
 
 using fs8::systemd_service;
 

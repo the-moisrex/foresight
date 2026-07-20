@@ -18,7 +18,7 @@ BEGIN {
     print "#include <cstdint>"
     print "#include <array>"
     print "#include <linux/input-event-codes.h>"
-    print "export module foresight.devices.event_codes;"
+    print "export module fs8.devices.event_codes;"
     print
     print "export namespace fs8 {"
     print "\tstruct keynames_type {";

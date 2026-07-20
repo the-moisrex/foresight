@@ -1,8 +1,8 @@
 #include "common/tests_common_pch.hpp"
 
-import foresight.mods;
-import foresight.main.log;
-import foresight.utils.hash;
+import fs8.mods;
+import fs8.log;
+import fs8.utils.hash;
 
 using namespace fs8;
 

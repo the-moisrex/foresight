@@ -8,14 +8,14 @@ module;
 #include <ranges>
 #include <string_view>
 #include <utility>
-export module foresight.devices.evdev;
-export import foresight.mods.event;
-import foresight.mods.caps;
-import foresight.main.utils;
+export module fs8.devices.evdev;
+export import fs8.event;
+import fs8.mods.caps;
+import fs8.utils;
 
 namespace fs8 {
 
-    export enum struct evdev_status : std::uint8_t {
+    export enum struct [[nodiscard]] evdev_status : std::uint8_t {
         unknown,
         success,
         success_grabbed,
@@ -79,7 +79,7 @@ namespace fs8 {
             return dev != nullptr && (status == success || status == success_grabbed);
         }
 
-        [[nodiscard]] evdev_status get_status() const noexcept {
+        evdev_status get_status() const noexcept {
             return status;
         }
 

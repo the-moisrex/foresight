@@ -8,9 +8,9 @@ module;
 #include <string_view>
 #include <tuple>
 #include <variant>
-export module foresight.mods.context:vars;
-import foresight.utils.strings;
-import foresight.utils.hash;
+export module fs8.context:vars;
+import fs8.utils.strings;
+import fs8.utils.hash;
 
 namespace details {
 

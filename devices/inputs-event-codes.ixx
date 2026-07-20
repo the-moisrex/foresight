@@ -4,7 +4,7 @@ module;
 #include <cstdint>
 #include <linux/input-event-codes.h>
 #include <string_view>
-export module foresight.devices.event_codes;
+export module fs8.devices.event_codes;
 
 export namespace fs8 {
     struct keynames_type {

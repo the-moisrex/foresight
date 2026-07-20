@@ -73,10 +73,10 @@ target_sources(${LIB_NAME}
         lib/how2type.cxx
         lib/mod_parser.cxx
         lib/xkb.cxx
+        main/context.cxx
         main/keyboard.cxx
         main/systemd.cxx
         mods/abs2rel.cxx
-        mods/context.cxx
         mods/device_registry.cxx
         mods/emitter.cxx
         mods/ignore.cxx
@@ -102,6 +102,8 @@ target_sources(${LIB_NAME}
         lib/how2type.ixx
         lib/mod_parser.ixx
         lib/xkb.ixx
+        main/context.ixx
+        main/event.ixx
         main/keyboard.ixx
         main/log.ixx
         main/main.ixx
@@ -111,11 +113,9 @@ target_sources(${LIB_NAME}
         mods/abs2rel.ixx
         mods/add_scroll.ixx
         mods/caps.ixx
-        mods/context.ixx
         mods/context_vars.ixx
         mods/device_registry.ixx
         mods/emitter.ixx
-        mods/event.ixx
         mods/ignore.ixx
         mods/inout.ixx
         mods/intercept.ixx

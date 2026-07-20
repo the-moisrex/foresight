@@ -3,9 +3,9 @@ module;
 #include <cassert>
 #include <cstdint>
 #include <tuple>
-export module foresight.mods.modes;
-import foresight.main.utils;
-import foresight.mods.context;
+export module fs8.mods.modes;
+import fs8.utils;
+import fs8.context;
 
 namespace fs8 {
 
