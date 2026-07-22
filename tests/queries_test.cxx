@@ -6,6 +6,8 @@
 
 import fs8.devices.queries;
 
+using namespace fs8;
+
 // Ensure you are importing the real concepts/types at the top:
 // import fs8.devices.device_query;
 // import fs8.devices.classification;
@@ -27,7 +29,6 @@ fs8::classify::classification_snapshot snapshot(MockClassification const&) {
 // ---------------------------------------------------------
 // Tests for Query Tags and Pipeline Operators
 // ---------------------------------------------------------
-using namespace fs8;
 
 class DeviceQueryTest : public ::testing::Test {
   protected:

@@ -1,14 +1,31 @@
 // Created by moisrex on 7/18/26.
 
 module;
-#include <cstdint>
-#include <optional>
+#include <poll.h>
+#include <ranges>
+#include <vector>
 module fs8.mods.device_registry;
 import fs8.context;
 import fs8.log;
 
 using fs8::basic_device_registry;
 using fs8::context_action;
+
+namespace {
+
+    pollfd get_pollfd(fs8::evdev const& dev) {
+        return pollfd{dev.native_handle(), POLLIN, 0};
+    }
+
+    auto get_pollfds(auto const& devs) {
+        return devs
+               | std::views::transform([](fs8::evdev const& dev) noexcept {
+                     return pollfd{dev.native_handle(), POLLIN, 0};
+                 })
+               | std::ranges::to<std::vector>();
+    }
+
+} // namespace
 
 void basic_device_registry::add(evdev&& inp_dev, device_query_snapshot query) {
     std::uint8_t query_index = 0;
@@ -34,6 +51,7 @@ context_action basic_device_registry::operator()(start_tag) {
     }
 
     monitor = std::make_optional<udev_monitor>();
+    fds     = get_pollfds(devices());
 
     std::uint8_t index = 0;
     for (auto const& query : queries) {

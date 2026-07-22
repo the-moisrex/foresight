@@ -4,6 +4,7 @@ module;
 #include <cstdint>
 #include <limits>
 #include <optional>
+#include <poll.h>
 #include <ranges>
 #include <vector>
 export module fs8.mods.device_registry;
@@ -78,6 +79,7 @@ namespace fs8 {
         }
 
         [[nodiscard]] auto devices(this auto&& self) noexcept {
+            assert(self.monitor.has_value());
             return self.devs | std::views::transform([]<typename PickT>(PickT&& pick) noexcept {
                        return std::forward_like<PickT>(pick.device);
                    });
@@ -90,6 +92,7 @@ namespace fs8 {
         std::optional<udev_monitor>        monitor = std::nullopt;
         std::vector<evdev_pick>            devs;
         std::vector<device_query_snapshot> queries;
+        std::vector<pollfd>                fds;
     };
 
     export constexpr basic_device_registry device_registry;
