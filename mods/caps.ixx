@@ -4,6 +4,7 @@ module;
 #include <array>
 #include <cstdint>
 #include <linux/input-event-codes.h>
+#include <ranges>
 #include <span>
 #include <string_view>
 export module fs8.mods.caps;
@@ -131,13 +132,50 @@ namespace fs8 {
         return dev_cap_view{.type = inp_cap.type, .codes = inp_cap.codes};
     }
 
-    /// The return type is convertible to dev_caps_view
+    /// The return dev_caps_view
     export template <std::size_t N>
-    [[nodiscard]] constexpr auto views(dev_cap<N> const& inp_cap) noexcept {
-        return std::array<dev_cap_view, 1>{view(inp_cap)};
+    [[nodiscard]] constexpr dev_caps_view view(dev_caps<N> const& inp_caps) noexcept {
+        return {inp_caps.begin(), inp_caps.end()};
+    }
+
+    // Shortcut to make it a view (dev_caps_view)
+    export template <std::size_t N>
+    [[nodiscard]] constexpr auto operator+(dev_cap<N> const& inp_cap) noexcept {
+        return view(inp_cap);
+    }
+
+    // Shortcut to make it a view (dev_caps_view)
+    export template <std::size_t N>
+    [[nodiscard]] constexpr auto operator+(dev_caps<N> const& inp_caps) noexcept {
+        return view(inp_caps);
+    }
+
+    // Shortcut to create dev_caps
+    export template <std::size_t N>
+    [[nodiscard]] constexpr auto operator*(dev_cap<N> const& inp_cap) noexcept {
+        return dev_caps<1>{view(inp_cap)};
+    }
+
+    // Shortcut to create dev_caps
+    export [[nodiscard]] constexpr auto operator*(dev_cap_view const& inp_cap) noexcept {
+        return dev_caps{inp_cap};
+    }
+
+    export [[nodiscard]] constexpr bool operator==(dev_cap_view const& lhs, dev_cap_view const& rhs) noexcept {
+        return lhs.type == rhs.type && lhs.action == rhs.action && std::ranges::equal(lhs.codes, rhs.codes);
+    }
+
+    export [[nodiscard]] constexpr bool operator==(dev_caps_view const& lhs, dev_caps_view rhs) noexcept {
+        return std::ranges::equal(lhs, rhs);
     }
 
     export namespace caps {
+
+        // Nothing
+        constexpr auto empty   = cap(EV_MAX);
+        constexpr auto nothing = *empty;
+
+
         // Synchronization
         constexpr auto syn = cap(EV_SYN, SYN_REPORT);
 
@@ -568,9 +606,9 @@ namespace fs8 {
         //      Min        0
         //      Max      572
 
-        constexpr auto keyboard_numpad    = views(numpad);
-        constexpr auto keyboard_alphabets = views(alphabets);
-        constexpr auto all_misc           = views(misc);
+        constexpr auto keyboard_numpad    = *numpad;
+        constexpr auto keyboard_alphabets = *alphabets;
+        constexpr auto all_misc           = *misc;
 
         // A keyboard with additional media controls
         constexpr auto multimedia_keyboard = keyboard + keys_media;
