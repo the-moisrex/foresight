@@ -447,14 +447,12 @@ namespace fs8 {
         /**
          * @brief Adds a subsystem match to the enumerator filter.
          * @param subsystem The subsystem to match (null-terminated).
-         * @return Reference to this instance for chaining.
          */
         udev_enumerate& match_subsystem(char const* subsystem) noexcept;
 
         /**
          * @brief Adds a negative subsystem match to the enumerator filter.
          * @param subsystem The subsystem to exclude (null-terminated).
-         * @return Reference to this instance for chaining.
          */
         udev_enumerate& nomatch_subsystem(char const* subsystem) noexcept;
 
@@ -462,7 +460,6 @@ namespace fs8 {
          * @brief Adds a sysfs attribute match to the enumerator filter.
          * @param name The attribute name (null-terminated).
          * @param value The attribute value to match (null-terminated), or `nullptr` to just test existence.
-         * @return Reference to this instance for chaining.
          */
         udev_enumerate& match_sysattr(char const* name, char const* value = nullptr) noexcept;
 
@@ -470,7 +467,6 @@ namespace fs8 {
          * @brief Adds a negative sysfs attribute match to the enumerator filter.
          * @param name The attribute name (null-terminated).
          * @param value The attribute value to exclude (null-terminated).
-         * @return Reference to this instance for chaining.
          */
         udev_enumerate& nomatch_sysattr(char const* name, char const* value = nullptr) noexcept;
 
@@ -478,30 +474,34 @@ namespace fs8 {
          * @brief Adds a property match to the enumerator filter.
          * @param name The property name (null-terminated).
          * @param value The property value to match (null-terminated).
-         * @return Reference to this instance for chaining.
          */
         udev_enumerate& match_property(char const* name, char const* value = nullptr) noexcept;
 
         /**
          * @brief Adds a sysname match to the enumerator filter.
          * @param sysname The sysname to match (null-terminated).
-         * @return Reference to this instance for chaining.
          */
         udev_enumerate& match_sysname(char const* sysname) noexcept;
 
         /**
          * @brief Adds a tag match to the enumerator filter.
          * @param tag The tag to match (null-terminated).
-         * @return Reference to this instance for chaining.
          */
         udev_enumerate& match_tag(char const* tag) noexcept;
 
         /**
          * @brief Adds a parent device match to the enumerator filter.
          * @param parent The `udev_device` to match as parent.
-         * @return Reference to this instance for chaining.
          */
         udev_enumerate& match_parent(udev_device const& parent) noexcept;
+
+
+        /**
+         * Explicitly adds a specific device's sysfs path to a udev enumeration list so it can be sorted in parent/child dependency order
+         * alongside other devices
+         */
+        udev_enumerate& add_syspath(char const* syspath) noexcept;
+
 
         /**
          * @brief Retrieves the list entries containing the scan results.

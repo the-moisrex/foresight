@@ -91,6 +91,7 @@ target_sources(${LIB_NAME}
         utils/hash.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         bash/bash_runner.ixx
+        devices/capabilities.ixx
         devices/classification.ixx
         devices/evdev.ixx
         devices/inputs-event-codes.ixx
@@ -112,7 +113,6 @@ target_sources(${LIB_NAME}
         main/utils.ixx
         mods/abs2rel.ixx
         mods/add_scroll.ixx
-        mods/caps.ixx
         mods/context_vars.ixx
         mods/device_registry.ixx
         mods/emitter.ixx

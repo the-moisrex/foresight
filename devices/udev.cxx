@@ -307,6 +307,12 @@ fs8::udev_enumerate& fs8::udev_enumerate::match_parent(udev_device const& dev) n
     return *this;
 }
 
+fs8::udev_enumerate& fs8::udev_enumerate::add_syspath(char const* syspath) noexcept {
+    assert(is_valid());
+    code = ::udev_enumerate_add_syspath(handle, syspath);
+    return *this;
+}
+
 fs8::udev_list_entry fs8::udev_enumerate::list_entries() const noexcept {
     return udev_list_entry{::udev_enumerate_get_list_entry(handle)};
 }

@@ -17,7 +17,7 @@ module;
 #include <utility>
 #include <vector>
 module fs8.devices.evdev;
-import fs8.mods.caps;
+import fs8.devices.capabilities;
 import fs8.log;
 
 using fs8::evdev;
@@ -451,46 +451,44 @@ namespace {
     /// Function to calculate Levenshtein distance (case-insensitive: both strings to lowercase)
     /// Returns the minimum number of edits (insertions, deletions, substitutions)
     /// required to transform s1 into s2.
-    [[nodiscard]] std::uint32_t levenshtein_distance(std::string_view const lhs, std::string_view const rhs) noexcept {
-        try {
-            auto const m = static_cast<std::uint32_t>(lhs.size());
-            auto const n = static_cast<std::uint32_t>(rhs.size());
-            if (m == 0) {
-                return n;
-            }
-            if (n == 0) {
-                return m;
-            }
-            std::array<std::byte, 2048>                          buffer; // NOLINT(*-init)
-            std::pmr::monotonic_buffer_resource                  mbr{buffer.data(), buffer.size()};
-            std::pmr::polymorphic_allocator<std::uint32_t> const pa{&mbr};
-            std::pmr::vector<std::pmr::vector<std::uint32_t>>    matrix(m + 1, pa);
-            for (std::uint32_t i = 0; i <= m; ++i) {
-                matrix[i].resize(n + 1);
-                matrix[i][0] = i;
-            }
-            for (std::uint32_t i = 0; i <= n; ++i) {
-                matrix[0][i] = i;
-            }
-            std::uint32_t above_cell    = 0;
-            std::uint32_t left_cell     = 0;
-            std::uint32_t diagonal_cell = 0;
-            std::uint32_t cost          = 0;
-            for (std::uint32_t i = 1; i <= m; ++i) {
-                for (std::uint32_t j = 1; j <= n; ++j) {
-                    auto const l  = static_cast<char>(std::tolower(static_cast<unsigned char>(lhs[i - 1])));
-                    auto const r  = static_cast<char>(std::tolower(static_cast<unsigned char>(rhs[j - 1])));
-                    cost          = l == r ? 0 : 1;
-                    above_cell    = matrix[i - 1][j];
-                    left_cell     = matrix[i][j - 1];
-                    diagonal_cell = matrix[i - 1][j - 1];
-                    matrix[i][j]  = std::min({above_cell + 1, left_cell + 1, diagonal_cell + cost});
-                }
-            }
-            return matrix[m][n];
-        } catch (...) {
-            return 0;
+    [[nodiscard]] std::uint32_t levenshtein_distance(std::string_view const lhs, std::string_view const rhs) noexcept try {
+        auto const m = static_cast<std::uint32_t>(lhs.size());
+        auto const n = static_cast<std::uint32_t>(rhs.size());
+        if (m == 0) {
+            return n;
         }
+        if (n == 0) {
+            return m;
+        }
+        std::array<std::byte, 2048>                          buffer; // NOLINT(*-init)
+        std::pmr::monotonic_buffer_resource                  mbr{buffer.data(), buffer.size()};
+        std::pmr::polymorphic_allocator<std::uint32_t> const pa{&mbr};
+        std::pmr::vector<std::pmr::vector<std::uint32_t>>    matrix(m + 1, pa);
+        for (std::uint32_t i = 0; i <= m; ++i) {
+            matrix[i].resize(n + 1);
+            matrix[i][0] = i;
+        }
+        for (std::uint32_t i = 0; i <= n; ++i) {
+            matrix[0][i] = i;
+        }
+        std::uint32_t above_cell    = 0;
+        std::uint32_t left_cell     = 0;
+        std::uint32_t diagonal_cell = 0;
+        std::uint32_t cost          = 0;
+        for (std::uint32_t i = 1; i <= m; ++i) {
+            for (std::uint32_t j = 1; j <= n; ++j) {
+                auto const l  = static_cast<char>(std::tolower(static_cast<unsigned char>(lhs[i - 1])));
+                auto const r  = static_cast<char>(std::tolower(static_cast<unsigned char>(rhs[j - 1])));
+                cost          = l == r ? 0 : 1;
+                above_cell    = matrix[i - 1][j];
+                left_cell     = matrix[i][j - 1];
+                diagonal_cell = matrix[i - 1][j - 1];
+                matrix[i][j]  = std::min({above_cell + 1, left_cell + 1, diagonal_cell + cost});
+            }
+        }
+        return matrix[m][n];
+    } catch (...) {
+        return 0;
     }
 
     /// Function to perform a fuzzy search score between two strings (case-insensitive).

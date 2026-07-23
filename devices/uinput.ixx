@@ -10,7 +10,7 @@ export import fs8.devices.evdev;
 export import fs8.event;
 import fs8.log;
 import fs8.context;
-import fs8.mods.caps;
+import fs8.devices.capabilities;
 import fs8.mods.intercept;
 
 export namespace fs8 {

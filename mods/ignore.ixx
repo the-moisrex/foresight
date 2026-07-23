@@ -5,7 +5,7 @@ module;
 #include <linux/input-event-codes.h>
 export module fs8.mods.ignore;
 import fs8.context;
-import fs8.mods.caps;
+import fs8.devices.capabilities;
 
 export namespace fs8 {
 

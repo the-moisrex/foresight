@@ -10,7 +10,7 @@ module;
 #include <utility>
 export module fs8.devices.evdev;
 export import fs8.event;
-import fs8.mods.caps;
+import fs8.devices.capabilities;
 import fs8.utils;
 
 namespace fs8 {

@@ -8,7 +8,7 @@ export import fs8.mods.keys_status;
 export import fs8.mods.mouse_status;
 export import fs8.event;
 export import fs8.mods.quantifier;
-export import fs8.mods.caps;
+export import fs8.devices.capabilities;
 export import fs8.mods.router;
 export import fs8.mods.modes;
 export import fs8.mods.lambda;

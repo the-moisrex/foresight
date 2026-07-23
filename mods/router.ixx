@@ -8,7 +8,7 @@ module;
 #include <ranges>
 #include <type_traits>
 export module fs8.mods.router;
-import fs8.mods.caps;
+import fs8.devices.capabilities;
 import fs8.context;
 import fs8.devices.uinput;
 import fs8.event;

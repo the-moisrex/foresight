@@ -7,7 +7,7 @@ module;
 #include <ranges>
 #include <span>
 #include <string_view>
-export module fs8.mods.caps;
+export module fs8.devices.capabilities;
 import fs8.event;
 
 namespace fs8 {

@@ -6,7 +6,7 @@ export module fs8.mods.abs2rel;
 import fs8.context;
 import fs8.devices.evdev;
 import fs8.mods.intercept;
-import fs8.mods.caps;
+import fs8.devices.capabilities;
 import fs8.mods.ignore;
 import fs8.mods.keys_status;
 
