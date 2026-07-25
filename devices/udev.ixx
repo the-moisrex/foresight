@@ -5,7 +5,6 @@ module;
 #include <cstdint>
 #include <libudev.h>
 #include <string_view>
-#include <utility>
 export module fs8.devices.udev;
 
 namespace fs8 {

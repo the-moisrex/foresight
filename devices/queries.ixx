@@ -5,24 +5,55 @@ module;
 #include <generator>
 #include <string_view>
 export module fs8.devices.queries;
-export import fs8.devices.classification;
 export import fs8.devices.capabilities;
+import fs8.devices.udev;
 import fs8.devices.evdev;
 
 export namespace fs8 {
 
-
-    enum struct [[nodiscard]] attribute_type {
-        match_subsystem,
-        match_sysattr,
-        match_property,
-        match_tag,
-        syspath,
-        match_sysname,
-        nomatch_subsystem,
-        nomatch_sysattr,
-        nomatch_property,
+    template <typename T, std::size_t N>
+    struct value_or_view {
+        using type = std::array<T, N>;
     };
+
+    template <typename T>
+    struct value_or_view<T, std::dynamic_extent> {
+        using type = std::span<T const>;
+    };
+
+    template <typename T, std::size_t N>
+    using value_or_view_t = value_or_view<T, N>::type;
+
+    // The factory function
+    template <typename T, std::size_t N = std::dynamic_extent>
+    [[nodiscard]] constexpr auto capture(T const* data, std::size_t size) -> value_or_view_t<T, N> {
+        if constexpr (N == std::dynamic_extent) {
+            return std::span<T const>{data, size}; // Non-owning view
+        } else {
+            std::array<T, N> arr{};                // Owning copy
+            for (std::size_t i = 0; i < N; ++i) {
+                arr[i] = data[i];
+            }
+            return arr;
+        }
+    }
+
+
+
+    enum struct [[nodiscard]] matching_action_type : std::uint8_t {
+        match_subsystem = 0U,                               // Match the device's kernel subsystem, e.g. "block", "net", "usb"
+        match_sysattr   = 1U,                               // Match a sysfs attribute exposed under /sys for the device
+        match_property  = 2U,                               // Match a udev property / environment value, e.g. ENV{ID_FS_TYPE}
+        match_tag       = 3U,                               // Match a udev tag attached to the device
+        syspath         = 4U,                               // The device's sysfs path, e.g. /sys/... for this device
+        match_sysname   = 5U,                               // Match the device's sysfs name / kernel device name
+
+        nomatch_flag      = 1U << 7U,                       // Bitmask flag for inverted match
+        nomatch_subsystem = match_subsystem | nomatch_flag, // Exclude devices from a subsystem
+        nomatch_sysattr   = match_sysattr | nomatch_flag,   // Exclude devices by a sysfs attribute value
+        nomatch_property  = match_property | nomatch_flag,  // Exclude devices by a udev property / environment value
+    };
+
 
     constexpr std::uint8_t globe_search = 101;
 
@@ -32,26 +63,32 @@ export namespace fs8 {
      * You can get attributes:
      *   udevadm info --attribute-walk --name=input/mouse0
      */
-    struct [[nodiscard]] attribute_kv {
-        attribute_type type;
+    struct [[nodiscard]] field_type {
+        // NOLINTBEGIN(*-non-private-member-variables-in-classes)
+        std::string_view key; // example: device/name
+        std::string_view value;
 
-        std::string_view key{}; // example: device/name
-        std::string_view value{};
+        /// Matching action
+        matching_action_type matching_action;
 
         /// How much fuzzy search should match the specified "value"?
         ///   100% means exactly
         ///   101% means normal udev matching which can use '*' and '?' and '[...]'
         /// anything less means fuzzy search match
         std::uint8_t percentage = globe_search; // NOLINT(*-magic-numbers)
+
+        // NOLINTEND(*-non-private-member-variables-in-classes)
+        [[nodiscard]] constexpr bool operator==(field_type const&) const noexcept = default;
     };
 
     /**
-     * A Query object that describes what kinda device the user is looking for so we can find it again and don't just go and find the wrong
-     * one after it's disconnected or whatever.
+     * A Query object that describes what kinda device the user is looking for so we can find it again and don't just go
+     * and find the wrong one after it's disconnected or whatever.
      */
-    struct [[nodiscard]] device_query {
-        /// udev queries
-        std::span<attribute_kv> props{};
+    template <std::size_t N = std::dynamic_extent>
+    struct [[nodiscard]] basic_device_query {
+        /// udev fields
+        value_or_view_t<field_type, N> fields{};
 
         /// If we should grab the device's events and not give it to anyone else
         bool grab = false;
@@ -72,14 +109,11 @@ export namespace fs8 {
         std::uint8_t caps_support_percentage = 80; // NOLINT(*-magic-numbers)
     };
 
-    namespace attr {
-        constexpr attribute_kv name{.type = attribute_type::match_sysattr, .key = "device/name"};
-    } // namespace attr
+    using device_query = basic_device_query<>;
+    constexpr basic_device_query<0> query{};
 
     [[nodiscard]] constexpr bool operator==(device_query const& lhs, device_query const& rhs) noexcept {
-        // Note: Assuming `classification` is stateless or has its own operator==.
-        // If Cl doesn't have operator==, omit `lhs.classification == rhs.classification &&`
-        return std::ranges::equal(lhs.props, rhs.props)
+        return std::ranges::equal(lhs.fields, rhs.fields)
                && (lhs.grab == rhs.grab)
                && (lhs.matches_limit == rhs.matches_limit)
                && (lhs.fail_on_no_match == rhs.fail_on_no_match)
@@ -87,21 +121,19 @@ export namespace fs8 {
                && (lhs.caps_support_percentage == rhs.caps_support_percentage);
     }
 
-    struct query_tag {};
-
-    constexpr struct grab_tag : query_tag {
+    constexpr struct grab_tag {
         constexpr void operator()(device_query& query) const noexcept {
             query.grab = true;
         }
     } grab;
 
-    constexpr struct allow_multiple_matches_tag : query_tag {
+    constexpr struct allow_multiple_matches_tag {
         constexpr void operator()(device_query& query) const noexcept {
             query.matches_limit = std::numeric_limits<std::uint8_t>::max();
         }
     } allow_multiple_matches;
 
-    constexpr struct [[nodiscard]] matches_limit : query_tag {
+    constexpr struct [[nodiscard]] matches_limit {
         std::uint8_t limit = 1;
 
         constexpr void operator()(device_query& query) const noexcept {
@@ -113,53 +145,113 @@ export namespace fs8 {
         }
     } matches_limit;
 
-    constexpr struct [[nodiscard]] matches_percentage : query_tag {
+    constexpr struct [[nodiscard]] matches_percentage {
         std::uint8_t percentage = 100;
 
         constexpr void operator()(device_query& query) const noexcept {
             query.caps_support_percentage = percentage;
         }
 
-        consteval matches_percentage operator()(std::uint8_t const percentage) const noexcept {
-            assert(percentage <= 100);
-            return matches_percentage{.percentage = percentage};
+        consteval matches_percentage operator()(std::uint8_t const inp_percentage) const noexcept {
+            assert(inp_percentage <= 100);
+            return matches_percentage{.percentage = inp_percentage};
         }
     } matches_percentage;
 
-    constexpr struct fail_on_no_match_tag : query_tag {
+    constexpr struct fail_on_no_match_tag {
         constexpr void operator()(device_query& query) const noexcept {
             query.fail_on_no_match = true;
         }
     } fail_on_no_match;
 
     template <typename T>
-    concept QueryTag = std::is_base_of_v<query_tag, T>;
+    concept QueryTag = std::invocable<T, device_query&>;
+
+    template <std::size_t N>
+    [[nodiscard]] consteval auto operator+(std::array<field_type, N> const& lhs, field_type rhs) noexcept {
+        std::array<field_type, N + 1U> arr;
+        std::size_t                    index = 0;
+        for (auto const& field : lhs) {
+            arr[index++] = field;
+        }
+        arr[index] = rhs;
+        return arr;
+    }
+
+    consteval matching_action_type unmatch(matching_action_type const action) {
+        using enum matching_action_type;
+        auto const val         = std::to_underlying(action);
+        auto const base_action = static_cast<std::uint8_t>(val & ~std::to_underlying(nomatch_flag));
+
+        if (base_action > std::to_underlying(match_property)) {
+            throw "Matching action cannot be unmatched!";
+        }
+
+        return static_cast<matching_action_type>(val ^ std::to_underlying(nomatch_flag));
+    }
+
+    consteval matching_action_type operator-(matching_action_type const action) {
+        return unmatch(action);
+    }
+
+    [[nodiscard]] consteval field_type unmatch(field_type const& field) {
+        field_type result      = field;
+        result.matching_action = unmatch(field.matching_action);
+        return result;
+    }
+
+    [[nodiscard]] consteval field_type operator-(field_type const& field) {
+        return unmatch(field);
+    }
+
+    template <std::size_t N>
+    [[nodiscard]] consteval auto operator-(std::array<field_type, N> const& lhs, field_type const rhs) {
+        return operator+(lhs, unmatch(rhs));
+    }
+
+    [[nodiscard]] consteval std::array<field_type, 2U> operator+(field_type lhs, field_type rhs) noexcept {
+        return std::array{std::move(lhs), std::move(rhs)};
+    }
 
     // Pipe: device_query | option  →  device_query
     template <QueryTag Tag>
-    [[nodiscard]] constexpr device_query operator|(device_query&& query, Tag tag) noexcept {
+    [[nodiscard]] consteval device_query operator|(device_query query, Tag tag) noexcept {
         tag(query);
-        return std::move(query);
+        return query;
     }
 
     template <std::size_t N>
-    [[nodiscard]] constexpr device_query operator|(device_query&& query, dev_caps<N> const& inp_cap) noexcept {
+    [[nodiscard]] consteval device_query operator|(device_query query, dev_caps<N> const& inp_cap) noexcept {
         query.caps = view(inp_cap);
-        return std::move(query);
+        return query;
+    }
+
+    [[nodiscard]] consteval device_query operator|(device_query query, dev_caps_view const& inp_cap) noexcept {
+        query.caps = inp_cap;
+        return query;
     }
 
     template <std::size_t N>
-    [[nodiscard]] constexpr device_query operator|(device_query&& query, dev_caps_view const& inp_cap) noexcept {
-        query.caps = inp_cap;
-        return std::move(query);
+        requires(N != std::dynamic_extent)
+    consteval basic_device_query<N + 1> operator+(basic_device_query<N> query, field_type const new_field) noexcept {
+        basic_device_query<N + 1> res;
+        std::size_t               index = 0;
+        for (auto const& field : query.fields) {
+            res.fields[index++] = field;
+        }
+        res.fields[index]           = new_field;
+        res.matches_limit           = query.matches_limit;
+        res.caps                    = query.caps;
+        res.caps_support_percentage = query.caps_support_percentage;
+        res.fail_on_no_match        = query.fail_on_no_match;
+        res.grab                    = query.grab;
+        return query;
     }
 
-    [[nodiscard]] constexpr device_query snapshot(device_query const& query) noexcept {
-        return device_query{.grab                    = query.grab,
-                            .matches_limit           = query.matches_limit,
-                            .fail_on_no_match        = query.fail_on_no_match,
-                            .caps                    = query.caps,
-                            .caps_support_percentage = query.caps_support_percentage};
+    template <std::size_t N>
+        requires(N != std::dynamic_extent)
+    consteval basic_device_query<N + 1> operator-(basic_device_query<N> query, field_type const new_field) noexcept {
+        return operator+(query, unmatch(new_field));
     }
 
     [[nodiscard]] std::string to_string(device_query const& query);
@@ -199,10 +291,19 @@ export namespace fs8 {
             std::uint8_t index = 0;
             ((matches(dev, queries)
               && (limits[index++]-- != 0)
-              && (co_yield udev_device_pick{.device = std::move(dev), .query = snapshot(queries), .query_index = index}, true)),
+              && (co_yield udev_device_pick{.device = std::move(dev), .query = queries, .query_index = index}, true)),
              ...);
         }
     }
+
+    namespace attr {
+        constexpr field_type name{.key = "device/name", .matching_action = matching_action_type::match_sysattr};
+        constexpr field_type keyboard{.key = "ID_INPUT_KEYBOARD", .value = "1", .matching_action = matching_action_type::match_property};
+        constexpr field_type mouse{.key = "ID_INPUT_MOUSE", .value = "1", .matching_action = matching_action_type::match_property};
+        constexpr field_type tablet{.key = "ID_INPUT_TABLET", .value = "1", .matching_action = matching_action_type::match_property};
+    } // namespace attr
+
+    constexpr auto keyboard = query + attr::keyboard;
 
 
 } // namespace fs8
