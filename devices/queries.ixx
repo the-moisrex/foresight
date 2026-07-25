@@ -6,23 +6,52 @@ module;
 #include <string_view>
 export module fs8.devices.queries;
 export import fs8.devices.classification;
-export import fs8.mods.caps;
+export import fs8.devices.capabilities;
+import fs8.devices.evdev;
 
 export namespace fs8 {
 
 
-    template <classify::Classification Cl>
-    struct [[nodiscard]] device_query {
-        /// The classification
-        Cl classification{};
+    enum struct [[nodiscard]] attribute_type {
+        match_subsystem,
+        match_sysattr,
+        match_property,
+        match_tag,
+        syspath,
+        match_sysname,
+        nomatch_subsystem,
+        nomatch_sysattr,
+        nomatch_property,
+    };
 
-        /// Rank device names in a fuzzy manner based on this query for device name
-        std::string name{};
+    constexpr std::uint8_t globe_search = 101;
 
-        /// How much fuzzy search should match the specified "name"?
-        /// 100% means exactly
+    /**
+     * Attribute Key/Value
+     *
+     * You can get attributes:
+     *   udevadm info --attribute-walk --name=input/mouse0
+     */
+    struct [[nodiscard]] attribute_kv {
+        attribute_type type;
+
+        std::string_view key{}; // example: device/name
+        std::string_view value{};
+
+        /// How much fuzzy search should match the specified "value"?
+        ///   100% means exactly
+        ///   101% means normal udev matching which can use '*' and '?' and '[...]'
         /// anything less means fuzzy search match
-        std::uint8_t name_match_percentage = 100; // NOLINT(*-magic-numbers)
+        std::uint8_t percentage = globe_search; // NOLINT(*-magic-numbers)
+    };
+
+    /**
+     * A Query object that describes what kinda device the user is looking for so we can find it again and don't just go and find the wrong
+     * one after it's disconnected or whatever.
+     */
+    struct [[nodiscard]] device_query {
+        /// udev queries
+        std::span<attribute_kv> props{};
 
         /// If we should grab the device's events and not give it to anyone else
         bool grab = false;
@@ -38,17 +67,19 @@ export namespace fs8 {
         /// Capabilities supported by the device
         dev_caps_view caps = +caps::nothing;
 
-        /// The percentage of the support of the caps
-        std::uint8_t caps_support_percentage = 100; // NOLINT(*-magic-numbers)
+        /// Hard limit on caps support
+        /// If any device matched would have less than this number matched capabilities, we remove them.
+        std::uint8_t caps_support_percentage = 80; // NOLINT(*-magic-numbers)
     };
 
-    template <classify::Classification Cl>
-    [[nodiscard]] constexpr bool operator==(device_query<Cl> const& lhs, device_query<Cl> const& rhs) noexcept {
+    namespace attr {
+        constexpr attribute_kv name{.type = attribute_type::match_sysattr, .key = "device/name"};
+    } // namespace attr
+
+    [[nodiscard]] constexpr bool operator==(device_query const& lhs, device_query const& rhs) noexcept {
         // Note: Assuming `classification` is stateless or has its own operator==.
         // If Cl doesn't have operator==, omit `lhs.classification == rhs.classification &&`
-        return (lhs.classification == rhs.classification)
-               && (lhs.name == rhs.name)
-               && (lhs.name_match_percentage == rhs.name_match_percentage)
+        return std::ranges::equal(lhs.props, rhs.props)
                && (lhs.grab == rhs.grab)
                && (lhs.matches_limit == rhs.matches_limit)
                && (lhs.fail_on_no_match == rhs.fail_on_no_match)
@@ -59,15 +90,13 @@ export namespace fs8 {
     struct query_tag {};
 
     constexpr struct grab_tag : query_tag {
-        template <classify::Classification Cl>
-        constexpr void operator()(device_query<Cl>& query) const noexcept {
+        constexpr void operator()(device_query& query) const noexcept {
             query.grab = true;
         }
     } grab;
 
     constexpr struct allow_multiple_matches_tag : query_tag {
-        template <classify::Classification Cl>
-        constexpr void operator()(device_query<Cl>& query) const noexcept {
+        constexpr void operator()(device_query& query) const noexcept {
             query.matches_limit = std::numeric_limits<std::uint8_t>::max();
         }
     } allow_multiple_matches;
@@ -75,8 +104,7 @@ export namespace fs8 {
     constexpr struct [[nodiscard]] matches_limit : query_tag {
         std::uint8_t limit = 1;
 
-        template <classify::Classification Cl>
-        constexpr void operator()(device_query<Cl>& query) const noexcept {
+        constexpr void operator()(device_query& query) const noexcept {
             query.matches_limit = limit;
         }
 
@@ -88,8 +116,7 @@ export namespace fs8 {
     constexpr struct [[nodiscard]] matches_percentage : query_tag {
         std::uint8_t percentage = 100;
 
-        template <classify::Classification Cl>
-        constexpr void operator()(device_query<Cl>& query) const noexcept {
+        constexpr void operator()(device_query& query) const noexcept {
             query.caps_support_percentage = percentage;
         }
 
@@ -100,119 +127,68 @@ export namespace fs8 {
     } matches_percentage;
 
     constexpr struct fail_on_no_match_tag : query_tag {
-        template <classify::Classification Cl>
-        constexpr void operator()(device_query<Cl>& query) const noexcept {
+        constexpr void operator()(device_query& query) const noexcept {
             query.fail_on_no_match = true;
         }
     } fail_on_no_match;
 
-    constexpr struct [[nodiscard]] name_tag : query_tag {
-      private:
-        std::string name_query;
-
-      public:
-        constexpr name_tag()                                   = default;
-        constexpr name_tag(name_tag const& tag)                = default;
-        constexpr name_tag(name_tag&& tag) noexcept            = default;
-        constexpr name_tag& operator=(name_tag const& tag)     = default;
-        constexpr name_tag& operator=(name_tag&& tag) noexcept = default;
-        constexpr ~name_tag()                                  = default;
-
-        constexpr name_tag operator()(std::string_view const inp_query) const noexcept {
-            name_tag tag;
-            tag.name_query = inp_query;
-            return tag;
-        }
-
-        template <classify::Classification Cl>
-        constexpr void operator()(device_query<Cl>& query) noexcept {
-            query.name = std::move(name_query);
-        }
-    } name;
-
     template <typename T>
     concept QueryTag = std::is_base_of_v<query_tag, T>;
 
-    // Pipe: Classification | option  →  device_query
-    template <classify::Classification C, QueryTag Tag>
-    [[nodiscard]] constexpr auto operator|(C const& cls, Tag tag) noexcept {
-        device_query<C> query{.classification = cls};
-        tag(query);
-        return query;
-    }
-
     // Pipe: device_query | option  →  device_query
-    template <classify::Classification C, QueryTag Tag>
-    [[nodiscard]] constexpr device_query<C> operator|(device_query<C>&& query, Tag tag) noexcept {
+    template <QueryTag Tag>
+    [[nodiscard]] constexpr device_query operator|(device_query&& query, Tag tag) noexcept {
         tag(query);
         return std::move(query);
     }
 
-    template <classify::Classification C, std::size_t N>
-    [[nodiscard]] constexpr device_query<C> operator|(device_query<C>&& query, dev_caps<N> const& inp_cap) noexcept {
+    template <std::size_t N>
+    [[nodiscard]] constexpr device_query operator|(device_query&& query, dev_caps<N> const& inp_cap) noexcept {
         query.caps = view(inp_cap);
         return std::move(query);
     }
 
-    template <classify::Classification C, std::size_t N>
-    [[nodiscard]] constexpr device_query<C> operator|(device_query<C>&& query, dev_caps_view const& inp_cap) noexcept {
+    template <std::size_t N>
+    [[nodiscard]] constexpr device_query operator|(device_query&& query, dev_caps_view const& inp_cap) noexcept {
         query.caps = inp_cap;
         return std::move(query);
     }
 
-    using device_query_snapshot = device_query<classify::classification_snapshot>;
-
-    template <classify::Classification Cl>
-    [[nodiscard]] constexpr device_query_snapshot snapshot(device_query<Cl> const& query) noexcept {
-        return device_query_snapshot{
-          .classification          = snapshot(query.classification),
-          .name                    = query.name,
-          .grab                    = query.grab,
-          .matches_limit           = query.matches_limit,
-          .fail_on_no_match        = query.fail_on_no_match,
-          .caps                    = query.caps,
-          .caps_support_percentage = query.caps_support_percentage};
+    [[nodiscard]] constexpr device_query snapshot(device_query const& query) noexcept {
+        return device_query{.grab                    = query.grab,
+                            .matches_limit           = query.matches_limit,
+                            .fail_on_no_match        = query.fail_on_no_match,
+                            .caps                    = query.caps,
+                            .caps_support_percentage = query.caps_support_percentage};
     }
 
-    [[nodiscard]] std::string to_string(device_query_snapshot const& query);
+    [[nodiscard]] std::string to_string(device_query const& query);
 
     struct [[nodiscard]] udev_device_pick {
         udev_device device{};
 
         // User query to re-get this device
-        device_query_snapshot query{};
+        device_query query{};
 
         // The index of the query
         std::uint8_t query_index = 0;
     };
 
-    template <classify::Classification Cl>
-    [[nodiscard]] bool matches(udev_device const& dev, device_query<Cl> const& query) noexcept {
-        bool result = matches(dev, query.classification);
-        // todo
-        return result;
-    }
+    [[nodiscard]] bool matches(evdev const& dev, device_query const& query) noexcept;
+    [[nodiscard]] bool matches(udev_device const& dev, device_query const& query) noexcept;
+    [[nodiscard]] bool matches(udev_enumerate const& dev, device_query const& query) noexcept;
+    [[nodiscard]] bool matches(udev_monitor const& dev, device_query const& query) noexcept;
 
-    template <classify::Classification Cl>
-    [[nodiscard]] bool matches(udev_enumerate const& dev, device_query<Cl> const& query) noexcept {
-        return matches(dev, query.classification);
-    }
-
-    template <classify::Classification Cl>
-    [[nodiscard]] bool matches(udev_monitor const& dev, device_query<Cl> const& query) noexcept {
-        return matches(dev, query.classification);
-    }
-
-
-    template <classify::Classification... Cl>
-    [[nodiscard]] std::generator<udev_device_pick> all_devices(device_query<Cl> const&... queries) noexcept {
-        static_assert(sizeof...(Cl) < std::numeric_limits<std::uint8_t>::max(), "Too many queries.");
+    template <typename... T>
+        requires((std::convertible_to<T, device_query> && ...))
+    [[nodiscard]] std::generator<udev_device_pick> all_devices(T const&... queries) noexcept {
+        static_assert(sizeof...(T) < std::numeric_limits<std::uint8_t>::max(), "Too many queries.");
 
         udev_enumerate enumerator{};
         (match(enumerator, queries.classification), ...);
         enumerator.scan_devices();
 
-        std::array<std::uint8_t, sizeof...(Cl)> limits{queries.matches_limit...};
+        std::array<std::uint8_t, sizeof...(T)> limits{queries.matches_limit...};
 
         for (auto const& entry : enumerator.list_entries()) {
             auto dev = udev_device{entry};
