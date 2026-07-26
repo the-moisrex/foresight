@@ -9,7 +9,7 @@ export import fs8.devices.capabilities;
 import fs8.devices.udev;
 import fs8.devices.evdev;
 
-export namespace fs8 {
+namespace fs8 {
 
     template <typename T, std::size_t N>
     struct value_or_view {
@@ -38,8 +38,14 @@ export namespace fs8 {
         }
     }
 
+} // namespace fs8
+
+export namespace fs8 {
 
 
+    /**
+     * Matching Action Type
+     */
     enum struct [[nodiscard]] matching_action_type : std::uint8_t {
         match_subsystem = 0U,                               // Match the device's kernel subsystem, e.g. "block", "net", "usb"
         match_sysattr   = 1U,                               // Match a sysfs attribute exposed under /sys for the device
@@ -90,29 +96,30 @@ export namespace fs8 {
         /// udev fields
         value_or_view_t<field_type, N> fields{};
 
-        /// If we should grab the device's events and not give it to anyone else
-        bool grab = false;
-
-        /// Multiple Matches are allowed or not?
-        /// Default: 1
-        std::uint8_t matches_limit = 1;
-
-        /// Should we fail if we find no device match for the query?
-        /// Default: false
-        bool fail_on_no_match = false;
-
         /// Capabilities supported by the device
         dev_caps_view caps = +caps::nothing;
 
         /// Hard limit on caps support
         /// If any device matched would have less than this number matched capabilities, we remove them.
         std::uint8_t caps_support_percentage = 80; // NOLINT(*-magic-numbers)
+
+        /// Multiple Matches are allowed or not?
+        /// Default: 1
+        std::uint8_t matches_limit = 1;
+
+        /// If we should grab the device's events and not give it to anyone else
+        bool grab = false;
+
+        /// Should we fail if we find no device match for the query?
+        /// Default: false
+        bool fail_on_no_match = false;
     };
 
     using device_query = basic_device_query<>;
     constexpr basic_device_query<0> query{};
 
-    [[nodiscard]] constexpr bool operator==(device_query const& lhs, device_query const& rhs) noexcept {
+    template <std::size_t N>
+    [[nodiscard]] constexpr bool operator==(basic_device_query<N> const& lhs, basic_device_query<N> const& rhs) noexcept {
         return std::ranges::equal(lhs.fields, rhs.fields)
                && (lhs.grab == rhs.grab)
                && (lhs.matches_limit == rhs.matches_limit)
@@ -121,14 +128,16 @@ export namespace fs8 {
                && (lhs.caps_support_percentage == rhs.caps_support_percentage);
     }
 
-    constexpr struct grab_tag {
-        constexpr void operator()(device_query& query) const noexcept {
+    constexpr struct [[nodiscard]] grab_tag {
+        template <std::size_t N>
+        constexpr void operator()(basic_device_query<N>& query) const noexcept {
             query.grab = true;
         }
     } grab;
 
-    constexpr struct allow_multiple_matches_tag {
-        constexpr void operator()(device_query& query) const noexcept {
+    constexpr struct [[nodiscard]] allow_multiple_matches_tag {
+        template <std::size_t N>
+        constexpr void operator()(basic_device_query<N>& query) const noexcept {
             query.matches_limit = std::numeric_limits<std::uint8_t>::max();
         }
     } allow_multiple_matches;
@@ -136,7 +145,8 @@ export namespace fs8 {
     constexpr struct [[nodiscard]] matches_limit {
         std::uint8_t limit = 1;
 
-        constexpr void operator()(device_query& query) const noexcept {
+        template <std::size_t N>
+        constexpr void operator()(basic_device_query<N>& query) const noexcept {
             query.matches_limit = limit;
         }
 
@@ -148,7 +158,8 @@ export namespace fs8 {
     constexpr struct [[nodiscard]] matches_percentage {
         std::uint8_t percentage = 100;
 
-        constexpr void operator()(device_query& query) const noexcept {
+        template <std::size_t N>
+        constexpr void operator()(basic_device_query<N>& query) const noexcept {
             query.caps_support_percentage = percentage;
         }
 
@@ -158,8 +169,9 @@ export namespace fs8 {
         }
     } matches_percentage;
 
-    constexpr struct fail_on_no_match_tag {
-        constexpr void operator()(device_query& query) const noexcept {
+    constexpr struct [[nodiscard]] fail_on_no_match_tag {
+        template <std::size_t N>
+        constexpr void operator()(basic_device_query<N>& query) const noexcept {
             query.fail_on_no_match = true;
         }
     } fail_on_no_match;
@@ -178,34 +190,34 @@ export namespace fs8 {
         return arr;
     }
 
-    consteval matching_action_type unmatch(matching_action_type const action) {
+    consteval matching_action_type unmatch(matching_action_type const action) noexcept {
         using enum matching_action_type;
         auto const val         = std::to_underlying(action);
         auto const base_action = static_cast<std::uint8_t>(val & ~std::to_underlying(nomatch_flag));
 
         if (base_action > std::to_underlying(match_property)) {
-            throw "Matching action cannot be unmatched!";
+            throw std::invalid_argument("Matching action cannot be unmatched!");
         }
 
         return static_cast<matching_action_type>(val ^ std::to_underlying(nomatch_flag));
     }
 
-    consteval matching_action_type operator-(matching_action_type const action) {
+    consteval matching_action_type operator-(matching_action_type const action) noexcept {
         return unmatch(action);
     }
 
-    [[nodiscard]] consteval field_type unmatch(field_type const& field) {
+    [[nodiscard]] consteval field_type unmatch(field_type const& field) noexcept {
         field_type result      = field;
         result.matching_action = unmatch(field.matching_action);
         return result;
     }
 
-    [[nodiscard]] consteval field_type operator-(field_type const& field) {
+    [[nodiscard]] consteval field_type operator-(field_type const& field) noexcept {
         return unmatch(field);
     }
 
     template <std::size_t N>
-    [[nodiscard]] consteval auto operator-(std::array<field_type, N> const& lhs, field_type const rhs) {
+    [[nodiscard]] consteval auto operator-(std::array<field_type, N> const& lhs, field_type const rhs) noexcept {
         return operator+(lhs, unmatch(rhs));
     }
 
@@ -214,19 +226,20 @@ export namespace fs8 {
     }
 
     // Pipe: device_query | option  →  device_query
-    template <QueryTag Tag>
-    [[nodiscard]] consteval device_query operator|(device_query query, Tag tag) noexcept {
+    template <std::size_t N, QueryTag Tag>
+    [[nodiscard]] consteval auto operator|(basic_device_query<N> query, Tag tag) noexcept {
         tag(query);
         return query;
     }
 
-    template <std::size_t N>
-    [[nodiscard]] consteval device_query operator|(device_query query, dev_caps<N> const& inp_cap) noexcept {
+    template <std::size_t N1, std::size_t N2>
+    [[nodiscard]] consteval auto operator|(basic_device_query<N1> query, dev_caps<N2> const& inp_cap) noexcept {
         query.caps = view(inp_cap);
         return query;
     }
 
-    [[nodiscard]] consteval device_query operator|(device_query query, dev_caps_view const& inp_cap) noexcept {
+    template <std::size_t N>
+    [[nodiscard]] consteval auto operator|(basic_device_query<N> query, dev_caps_view const& inp_cap) noexcept {
         query.caps = inp_cap;
         return query;
     }
@@ -245,7 +258,7 @@ export namespace fs8 {
         res.caps_support_percentage = query.caps_support_percentage;
         res.fail_on_no_match        = query.fail_on_no_match;
         res.grab                    = query.grab;
-        return query;
+        return res;
     }
 
     template <std::size_t N>
@@ -303,7 +316,8 @@ export namespace fs8 {
         constexpr field_type tablet{.key = "ID_INPUT_TABLET", .value = "1", .matching_action = matching_action_type::match_property};
     } // namespace attr
 
-    constexpr auto keyboard = query + attr::keyboard;
-
+    constexpr auto keyboard = query + attr::keyboard | caps::keyboard;
+    constexpr auto mouse    = query + attr::mouse | caps::mouse;
+    constexpr auto tablet   = query + attr::tablet | caps::tablet;
 
 } // namespace fs8
