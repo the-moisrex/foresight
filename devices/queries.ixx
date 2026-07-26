@@ -9,7 +9,7 @@ export import fs8.devices.capabilities;
 import fs8.devices.udev;
 import fs8.devices.evdev;
 
-namespace fs8 {
+namespace {
 
     template <typename T, std::size_t N>
     struct value_or_view {
@@ -130,15 +130,15 @@ export namespace fs8 {
 
     constexpr struct [[nodiscard]] grab_tag {
         template <std::size_t N>
-        constexpr void operator()(basic_device_query<N>& query) const noexcept {
-            query.grab = true;
+        constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
+            out_query.grab = true;
         }
     } grab;
 
     constexpr struct [[nodiscard]] allow_multiple_matches_tag {
         template <std::size_t N>
-        constexpr void operator()(basic_device_query<N>& query) const noexcept {
-            query.matches_limit = std::numeric_limits<std::uint8_t>::max();
+        constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
+            out_query.matches_limit = std::numeric_limits<std::uint8_t>::max();
         }
     } allow_multiple_matches;
 
@@ -146,8 +146,8 @@ export namespace fs8 {
         std::uint8_t limit = 1;
 
         template <std::size_t N>
-        constexpr void operator()(basic_device_query<N>& query) const noexcept {
-            query.matches_limit = limit;
+        constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
+            out_query.matches_limit = limit;
         }
 
         consteval matches_limit operator()(std::uint8_t const inp_limit) const noexcept {
@@ -159,8 +159,8 @@ export namespace fs8 {
         std::uint8_t percentage = 100;
 
         template <std::size_t N>
-        constexpr void operator()(basic_device_query<N>& query) const noexcept {
-            query.caps_support_percentage = percentage;
+        constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
+            out_query.caps_support_percentage = percentage;
         }
 
         consteval matches_percentage operator()(std::uint8_t const inp_percentage) const noexcept {
@@ -171,8 +171,8 @@ export namespace fs8 {
 
     constexpr struct [[nodiscard]] fail_on_no_match_tag {
         template <std::size_t N>
-        constexpr void operator()(basic_device_query<N>& query) const noexcept {
-            query.fail_on_no_match = true;
+        constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
+            out_query.fail_on_no_match = true;
         }
     } fail_on_no_match;
 
@@ -267,7 +267,8 @@ export namespace fs8 {
         return operator+(query, unmatch(new_field));
     }
 
-    [[nodiscard]] std::string to_string(device_query const& query);
+    [[nodiscard]] std::string_view to_string(matching_action_type) noexcept;
+    [[nodiscard]] std::string      to_string(device_query const& inp_query);
 
     struct [[nodiscard]] udev_device_pick {
         udev_device device{};
@@ -279,10 +280,10 @@ export namespace fs8 {
         std::uint8_t query_index = 0;
     };
 
-    [[nodiscard]] bool matches(evdev const& dev, device_query const& query) noexcept;
-    [[nodiscard]] bool matches(udev_device const& dev, device_query const& query) noexcept;
-    [[nodiscard]] bool matches(udev_enumerate const& dev, device_query const& query) noexcept;
-    [[nodiscard]] bool matches(udev_monitor const& dev, device_query const& query) noexcept;
+    [[nodiscard]] bool matches(evdev const& dev, device_query const& inp_query) noexcept;
+    [[nodiscard]] bool matches(udev_device const& dev, device_query const& inp_query) noexcept;
+    [[nodiscard]] bool matches(udev_enumerate const& dev, device_query const& inp_query) noexcept;
+    [[nodiscard]] bool matches(udev_monitor const& dev, device_query const& inp_query) noexcept;
 
     template <typename... T>
         requires((std::convertible_to<T, device_query> && ...))

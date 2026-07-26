@@ -64,6 +64,7 @@ set_target_properties(${LIB_NAME} PROPERTIES
 target_sources(${LIB_NAME}
         PRIVATE
         bash/bash_runner.cxx
+        devices/capabilities.cxx
         devices/evdev.cxx
         devices/key_codes.cxx
         devices/queries.cxx

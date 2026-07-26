@@ -59,8 +59,8 @@ namespace fs8 {
     export template <std::size_t N1, std::size_t N2>
     [[nodiscard]] consteval auto operator+(dev_cap<N1> const& lhs, dev_cap<N2> const& rhs) noexcept {
         return dev_caps<2>{
-          dev_cap_view{lhs.type, lhs.codes},
-          dev_cap_view{rhs.type, rhs.codes}
+          dev_cap_view{.type = lhs.type, .codes = lhs.codes},
+          dev_cap_view{.type = rhs.type, .codes = rhs.codes}
         };
     }
 
@@ -660,4 +660,6 @@ namespace fs8 {
         return dev_caps_view{};
     }
 
+    export [[nodiscard]] std::string to_string(dev_cap_view caps);
+    export [[nodiscard]] std::string to_string(dev_caps_view caps);
 } // namespace fs8

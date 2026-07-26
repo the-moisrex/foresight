@@ -27,10 +27,10 @@ namespace {
 
 } // namespace
 
-void basic_device_registry::add(evdev&& inp_dev, device_query_snapshot query) {
+void basic_device_registry::add(evdev&& inp_dev, device_query inp_query) {
     std::uint8_t query_index = 0;
     for (auto const& cur_query : queries) {
-        if (query == cur_query) {
+        if (inp_query == cur_query) {
             break;
         }
         ++query_index;
@@ -40,7 +40,7 @@ void basic_device_registry::add(evdev&& inp_dev, device_query_snapshot query) {
     }
 
     devs.emplace_back(std::move(inp_dev), query_index);
-    queries.emplace_back(std::move(query));
+    queries.emplace_back(std::move(inp_query));
 }
 
 context_action basic_device_registry::operator()(start_tag) {

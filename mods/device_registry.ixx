@@ -69,11 +69,12 @@ namespace fs8 {
         }
 
         /// Add device manually
-        void add(evdev&& inp_dev, device_query_snapshot query);
+        void add(evdev&& inp_dev, device_query inp_query);
 
         /// Append new queries and their devices
-        template <classify::Classification... Cls>
-        void add(device_query<Cls> const&... inp_queries) {
+        template <typename ... QueryT>
+            requires((std::convertible_to<QueryT, device_query> && ...))
+        void add(QueryT const&... inp_queries) {
             devs.append_range(all_devices(inp_queries...) | to_evdev_pick);
             (queries.emplace_back(inp_queries), ...);
         }
@@ -89,10 +90,10 @@ namespace fs8 {
         context_action operator()(start_tag);
 
       private:
-        std::optional<udev_monitor>        monitor = std::nullopt;
-        std::vector<evdev_pick>            devs;
-        std::vector<device_query_snapshot> queries;
-        std::vector<pollfd>                fds;
+        std::optional<udev_monitor> monitor = std::nullopt;
+        std::vector<evdev_pick>     devs;
+        std::vector<device_query>   queries;
+        std::vector<pollfd>         fds;
     };
 
     export constexpr basic_device_registry device_registry;
