@@ -660,6 +660,6 @@ namespace fs8 {
         return dev_caps_view{};
     }
 
-    export [[nodiscard]] std::string to_string(dev_cap_view caps);
+    export [[nodiscard]] std::string to_string(dev_cap_view const& caps);
     export [[nodiscard]] std::string to_string(dev_caps_view caps);
 } // namespace fs8

@@ -3,7 +3,7 @@ module;
 #include <string>
 module fs8.devices.capabilities;
 
-[[nodiscard]] std::string fs8::to_string(dev_cap_view caps) {
+[[nodiscard]] std::string fs8::to_string(dev_cap_view const &caps) {
     std::string action_str;
     switch (caps.action) {
         case caps_action::append: action_str = "append"; break;

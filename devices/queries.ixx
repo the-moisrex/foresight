@@ -26,19 +26,19 @@ namespace {
 
     // The factory function
     template <typename T, std::size_t N = std::dynamic_extent>
-    [[nodiscard]] constexpr auto capture(T const* data, std::size_t size) -> value_or_view_t<T, N> {
+    [[nodiscard]] constexpr value_or_view_t<T, N> capture(T const* data, std::size_t size) noexcept {
         if constexpr (N == std::dynamic_extent) {
             return std::span<T const>{data, size}; // Non-owning view
         } else {
             std::array<T, N> arr{};                // Owning copy
             for (std::size_t i = 0; i < N; ++i) {
-                arr[i] = data[i];
+                arr[i] = data[i]; // NOLINT(*-pointer-arithmetic)
             }
             return arr;
         }
     }
 
-} // namespace fs8
+} // namespace
 
 export namespace fs8 {
 
@@ -190,7 +190,7 @@ export namespace fs8 {
         return arr;
     }
 
-    consteval matching_action_type unmatch(matching_action_type const action) noexcept {
+    consteval matching_action_type unmatch(matching_action_type const action) {
         using enum matching_action_type;
         auto const val         = std::to_underlying(action);
         auto const base_action = static_cast<std::uint8_t>(val & ~std::to_underlying(nomatch_flag));
@@ -227,44 +227,44 @@ export namespace fs8 {
 
     // Pipe: device_query | option  →  device_query
     template <std::size_t N, QueryTag Tag>
-    [[nodiscard]] consteval auto operator|(basic_device_query<N> query, Tag tag) noexcept {
-        tag(query);
-        return query;
+    [[nodiscard]] consteval auto operator|(basic_device_query<N> inp_query, Tag tag) noexcept {
+        tag(inp_query);
+        return inp_query;
     }
 
     template <std::size_t N1, std::size_t N2>
-    [[nodiscard]] consteval auto operator|(basic_device_query<N1> query, dev_caps<N2> const& inp_cap) noexcept {
-        query.caps = view(inp_cap);
-        return query;
+    [[nodiscard]] consteval auto operator|(basic_device_query<N1> inp_query, dev_caps<N2> const& inp_cap) noexcept {
+        inp_query.caps = view(inp_cap);
+        return inp_query;
     }
 
     template <std::size_t N>
-    [[nodiscard]] consteval auto operator|(basic_device_query<N> query, dev_caps_view const& inp_cap) noexcept {
-        query.caps = inp_cap;
-        return query;
+    [[nodiscard]] consteval auto operator|(basic_device_query<N> inp_query, dev_caps_view const& inp_cap) noexcept {
+        inp_query.caps = inp_cap;
+        return inp_query;
     }
 
     template <std::size_t N>
         requires(N != std::dynamic_extent)
-    consteval basic_device_query<N + 1> operator+(basic_device_query<N> query, field_type const new_field) noexcept {
+    consteval basic_device_query<N + 1> operator+(basic_device_query<N> inp_query, field_type const new_field) noexcept {
         basic_device_query<N + 1> res;
         std::size_t               index = 0;
-        for (auto const& field : query.fields) {
+        for (auto const& field : inp_query.fields) {
             res.fields[index++] = field;
         }
         res.fields[index]           = new_field;
-        res.matches_limit           = query.matches_limit;
-        res.caps                    = query.caps;
-        res.caps_support_percentage = query.caps_support_percentage;
-        res.fail_on_no_match        = query.fail_on_no_match;
-        res.grab                    = query.grab;
+        res.matches_limit           = inp_query.matches_limit;
+        res.caps                    = inp_query.caps;
+        res.caps_support_percentage = inp_query.caps_support_percentage;
+        res.fail_on_no_match        = inp_query.fail_on_no_match;
+        res.grab                    = inp_query.grab;
         return res;
     }
 
     template <std::size_t N>
         requires(N != std::dynamic_extent)
-    consteval basic_device_query<N + 1> operator-(basic_device_query<N> query, field_type const new_field) noexcept {
-        return operator+(query, unmatch(new_field));
+    consteval basic_device_query<N + 1> operator-(basic_device_query<N> inp_query, field_type const new_field) noexcept {
+        return operator+(inp_query, unmatch(new_field));
     }
 
     [[nodiscard]] std::string_view to_string(matching_action_type) noexcept;
@@ -311,7 +311,7 @@ export namespace fs8 {
     }
 
     namespace attr {
-        constexpr field_type name{.key = "device/name", .matching_action = matching_action_type::match_sysattr};
+        constexpr field_type name{.key = "device/name", .value = "", .matching_action = matching_action_type::match_sysattr};
         constexpr field_type keyboard{.key = "ID_INPUT_KEYBOARD", .value = "1", .matching_action = matching_action_type::match_property};
         constexpr field_type mouse{.key = "ID_INPUT_MOUSE", .value = "1", .matching_action = matching_action_type::match_property};
         constexpr field_type tablet{.key = "ID_INPUT_TABLET", .value = "1", .matching_action = matching_action_type::match_property};
