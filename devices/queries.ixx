@@ -1,6 +1,7 @@
 // Created by moisrex on 7/17/26.
 
 module;
+#include <algorithm>
 #include <cassert>
 #include <generator>
 #include <string_view>
@@ -32,7 +33,7 @@ namespace {
         } else {
             std::array<T, N> arr{};                // Owning copy
             for (std::size_t i = 0; i < N; ++i) {
-                arr[i] = data[i]; // NOLINT(*-pointer-arithmetic)
+                arr[i] = data[i];                  // NOLINT(*-pointer-arithmetic)
             }
             return arr;
         }
@@ -71,7 +72,11 @@ export namespace fs8 {
      */
     struct [[nodiscard]] field_type {
         // NOLINTBEGIN(*-non-private-member-variables-in-classes)
+
+        // in case of "subsystem", key stores the subsystem, and value stores the devtype
         std::string_view key; // example: device/name
+
+        // in case of subsystem, this stores the devtype
         std::string_view value;
 
         /// Matching action
@@ -85,7 +90,14 @@ export namespace fs8 {
 
         // NOLINTEND(*-non-private-member-variables-in-classes)
         [[nodiscard]] constexpr bool operator==(field_type const&) const noexcept = default;
+
+        [[nodiscard]] explicit constexpr operator bool() const noexcept {
+            return !key.empty();
+        }
     };
+
+    /// Official invalid field
+    constexpr field_type invalid_field{.key = {}, .value = {}, .matching_action = matching_action_type::match_subsystem};
 
     /**
      * A Query object that describes what kinda device the user is looking for so we can find it again and don't just go
@@ -282,8 +294,52 @@ export namespace fs8 {
 
     [[nodiscard]] bool matches(evdev const& dev, device_query const& inp_query) noexcept;
     [[nodiscard]] bool matches(udev_device const& dev, device_query const& inp_query) noexcept;
-    [[nodiscard]] bool matches(udev_enumerate const& dev, device_query const& inp_query) noexcept;
-    [[nodiscard]] bool matches(udev_monitor const& dev, device_query const& inp_query) noexcept;
+
+    void match(udev_enumerate& enumerate, device_query const& inp_query) noexcept;
+    void match(udev_monitor& monitor, device_query const& inp_query) noexcept;
+
+
+    template <typename T>
+    concept field_range = std::ranges::forward_range<T> && std::same_as<std::ranges::range_value_t<T>, field_type>;
+
+    [[nodiscard]] constexpr bool is_subsystem(field_type const& field) noexcept {
+        return field.matching_action == matching_action_type::match_subsystem;
+    }
+
+    [[nodiscard]] constexpr bool is_property(field_type const& field) noexcept {
+        return field.matching_action == matching_action_type::match_subsystem;
+    }
+
+    [[nodiscard]] constexpr bool is_sysattr(field_type const& field) noexcept {
+        return field.matching_action == matching_action_type::match_sysattr;
+    }
+
+    template <std::size_t N>
+    [[nodiscard]] constexpr auto subsystems(basic_device_query<N> const& inp_query) noexcept {
+        return inp_query.fields | std::views::filter(is_subsystem);
+    }
+
+
+    [[nodiscard]] constexpr field_type subsystem(std::string_view const sub, std::string_view const devtype = {}) noexcept {
+        return field_type{.key = sub, .value = devtype, .matching_action = matching_action_type::match_subsystem};
+    }
+
+    template <std::size_t N>
+    [[nodiscard]] constexpr auto properties(basic_device_query<N> const& inp_query) noexcept {
+        return inp_query.fields | std::views::filter(is_property);
+    }
+
+    field_type property(device_query const& inp_query, std::string_view key) noexcept;
+
+    template <field_range R>
+    [[nodiscard]] constexpr bool has_subsystem(R&& range, std::string_view const subsystem) noexcept {
+        return std::ranges::contains(std::forward<R>(range), subsystem, &field_type::key);
+    }
+
+    template <field_range R>
+    [[nodiscard]] constexpr bool has_property(R&& range, std::string_view const key) noexcept {
+        return std::ranges::contains(std::forward<R>(range), key, &field_type::key);
+    }
 
     template <typename... T>
         requires((std::convertible_to<T, device_query> && ...))

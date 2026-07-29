@@ -1,6 +1,7 @@
 
 module;
 #include <format>
+#include <ranges>
 #include <string>
 #include <utility>
 module fs8.devices.queries;
@@ -64,4 +65,51 @@ std::string_view fs8::to_string(matching_action_type const action) noexcept {
 
     result += "]}";
     return result;
+}
+
+bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
+    // todo
+}
+
+// 1. Check if an existing device belongs to this classification
+bool fs8::matches(udev_device const& dev, device_query const& inp_query) noexcept {
+    bool res = has_subsystem(subsystems(inp_query), dev.subsystem());
+    for (auto const& field : properties(inp_query)) {
+        // todo
+        res &= dev.property(field.key.data()) == field.value;
+    }
+    return res;
+}
+
+// 2. Apply rules to find these devices
+void fs8::match(udev_enumerate& enumerate, device_query const& inp_query) noexcept {
+    for (auto const& field : inp_query.fields) {
+        if (is_subsystem(field)) {
+            enumerate.match_subsystem(field.key.data());
+            if (!field.value.empty()) {
+                // Property-level filter (The equivalent of matching devtype)
+                enumerate.match_property("DEVTYPE", field.value.data());
+            }
+        } else if (is_property(field)) {
+            enumerate.match_property(field.key.data(), field.value.data());
+        }
+    }
+}
+
+// 3. Apply rules to monitor these devices
+// Note: udev_monitor cannot filter by property directly, only by subsystem/devtype/tag.
+// We filter by subsystem here, and use `matches()` on the received event later.
+void fs8::match(udev_monitor& monitor, device_query const& inp_query) noexcept {
+    for (auto const& field : subsystems(inp_query)) {
+        monitor.match_device(field.key.data(), field.value.empty() ? nullptr : field.value.data());
+    }
+}
+
+fs8::field_type fs8::property(device_query const& inp_query, std::string_view const key) noexcept {
+    for (auto const& field : inp_query.fields) {
+        if (field.matching_action == matching_action_type::match_property && field.key == key) {
+            return field;
+        }
+    }
+    return invalid_field;
 }
