@@ -1,7 +1,6 @@
 // Created by moisrex on 7/17/26.
 
 module;
-#include <algorithm>
 #include <cassert>
 #include <generator>
 #include <string_view>
@@ -319,7 +318,6 @@ export namespace fs8 {
         return inp_query.fields | std::views::filter(is_subsystem);
     }
 
-
     [[nodiscard]] constexpr field_type subsystem(std::string_view const sub, std::string_view const devtype = {}) noexcept {
         return field_type{.key = sub, .value = devtype, .matching_action = matching_action_type::match_subsystem};
     }
@@ -331,15 +329,8 @@ export namespace fs8 {
 
     field_type property(device_query const& inp_query, std::string_view key) noexcept;
 
-    template <field_range R>
-    [[nodiscard]] constexpr bool has_subsystem(R&& range, std::string_view const subsystem) noexcept {
-        return std::ranges::contains(std::forward<R>(range), subsystem, &field_type::key);
-    }
-
-    template <field_range R>
-    [[nodiscard]] constexpr bool has_property(R&& range, std::string_view const key) noexcept {
-        return std::ranges::contains(std::forward<R>(range), key, &field_type::key);
-    }
+    [[nodiscard]] bool has_subsystem(device_query const& inp_query, std::string_view subsystem) noexcept;
+    [[nodiscard]] bool has_property(device_query const& inp_query, std::string_view key) noexcept;
 
     template <typename... T>
         requires((std::convertible_to<T, device_query> && ...))

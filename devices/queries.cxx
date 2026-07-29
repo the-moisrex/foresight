@@ -1,5 +1,6 @@
 
 module;
+#include <algorithm>
 #include <format>
 #include <ranges>
 #include <string>
@@ -73,7 +74,7 @@ bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
 
 // 1. Check if an existing device belongs to this classification
 bool fs8::matches(udev_device const& dev, device_query const& inp_query) noexcept {
-    bool res = has_subsystem(subsystems(inp_query), dev.subsystem());
+    bool res = has_subsystem(inp_query, dev.subsystem());
     for (auto const& field : properties(inp_query)) {
         // todo
         res &= dev.property(field.key.data()) == field.value;
@@ -103,6 +104,14 @@ void fs8::match(udev_monitor& monitor, device_query const& inp_query) noexcept {
     for (auto const& field : subsystems(inp_query)) {
         monitor.match_device(field.key.data(), field.value.empty() ? nullptr : field.value.data());
     }
+}
+
+bool fs8::has_subsystem(device_query const& inp_query, std::string_view const subsystem) noexcept {
+    return std::ranges::contains(subsystems(inp_query), subsystem, &field_type::key);
+}
+
+bool fs8::has_property(device_query const& inp_query, std::string_view const key) noexcept {
+    return std::ranges::contains(properties(inp_query), key, &field_type::key);
 }
 
 fs8::field_type fs8::property(device_query const& inp_query, std::string_view const key) noexcept {
