@@ -1,6 +1,7 @@
 
 module;
 #include <algorithm>
+#include <cassert>
 #include <format>
 #include <ranges>
 #include <string>
@@ -15,9 +16,9 @@ std::string_view fs8::to_string(matching_action_type const action) noexcept {
         case match_subsystem: return {"match_subsystem"};
         case match_sysattr: return {"match_sysattr"};
         case match_property: return {"match_property"};
-        case match_tag: return {"match_tag"};
+        case tag: return {"match_tag"};
         case syspath: return {"syspath"};
-        case match_sysname: return {"match_sysname"};
+        case sysname: return {"match_sysname"};
         case nomatch_subsystem: return {"nomatch_subsystem"};
         case nomatch_sysattr: return {"nomatch_sysattr"};
         case nomatch_property:
@@ -74,10 +75,34 @@ bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
 
 // 1. Check if an existing device belongs to this classification
 bool fs8::matches(udev_device const& dev, device_query const& inp_query) noexcept {
+    using enum matching_action_type;
+
     bool res = has_subsystem(inp_query, dev.subsystem());
-    for (auto const& field : properties(inp_query)) {
-        // todo
-        res &= dev.property(field.key.data()) == field.value;
+    for (auto const& field : inp_query.fields) {
+        if (is_property(field)) {
+            res &= is_matched(field, &field_type::value, dev.property(field.key.data()));
+        } else if (is_subsystem(field)) {
+            res &= is_matched(field, &field_type::key, dev.subsystem());
+            res &= is_matched(field, &field_type::value, dev.devtype());
+        } else if (is_sysattr(field)) {
+            res &= is_matched(field, &field_type::value, dev.sysattr(field.key.data()));
+        } else if (field.matching_action == tag) {
+            res &= dev.has_tag(field.value.data());
+            assert(field.key.empty());
+        } else if (field.matching_action == syspath) {
+            res &= is_matched(field, &field_type::value, dev.syspath());
+            assert(field.key.empty());
+        } else if (field.matching_action == sysname) {
+            res &= is_matched(field, &field_type::value, dev.sysname());
+            assert(field.key.empty());
+        } else {
+            // Have not yet implemented.
+            assert(false);
+        }
+
+        if (!res) {
+            break;
+        }
     }
     return res;
 }

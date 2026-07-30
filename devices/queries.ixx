@@ -47,12 +47,14 @@ export namespace fs8 {
      * Matching Action Type
      */
     enum struct [[nodiscard]] matching_action_type : std::uint8_t {
-        match_subsystem = 0U,                               // Match the device's kernel subsystem, e.g. "block", "net", "usb"
-        match_sysattr   = 1U,                               // Match a sysfs attribute exposed under /sys for the device
-        match_property  = 2U,                               // Match a udev property / environment value, e.g. ENV{ID_FS_TYPE}
-        match_tag       = 3U,                               // Match a udev tag attached to the device
-        syspath         = 4U,                               // The device's sysfs path, e.g. /sys/... for this device
-        match_sysname   = 5U,                               // Match the device's sysfs name / kernel device name
+        match_subsystem = 0U, // Match the device's kernel subsystem, e.g. "block", "net", "usb"
+        match_sysattr   = 1U, // Match a sysfs attribute exposed under /sys for the device
+        match_property  = 2U, // Match a udev property / environment value, e.g. ENV{ID_FS_TYPE}
+
+        // stored in value; "key" must be empty
+        tag     = 3U,                                       // Match a udev tag attached to the device
+        syspath = 4U,                                       // The device's sysfs path, e.g. /sys/... for this device
+        sysname = 5U,                                       // Match the device's sysfs name / kernel device name
 
         nomatch_flag      = 1U << 7U,                       // Bitmask flag for inverted match
         nomatch_subsystem = match_subsystem | nomatch_flag, // Exclude devices from a subsystem
@@ -73,9 +75,15 @@ export namespace fs8 {
         // NOLINTBEGIN(*-non-private-member-variables-in-classes)
 
         // in case of "subsystem", key stores the subsystem, and value stores the devtype
+        // if action == tag then key must be empty
+        // if action == syspath then key must be empty
+        // if action == sysname then key must be empty
         std::string_view key; // example: device/name
 
         // in case of subsystem, this stores the devtype
+        // tags are stored in "value"
+        // syspath are stored in "value"
+        // sysname are stored in "value"
         std::string_view value;
 
         /// Matching action
@@ -95,8 +103,22 @@ export namespace fs8 {
         }
     };
 
+    [[nodiscard]] constexpr auto operator+(matching_action_type const action) noexcept {
+        return std::to_underlying(action);
+    }
+
     /// Official invalid field
     constexpr field_type invalid_field{.key = {}, .value = {}, .matching_action = matching_action_type::match_subsystem};
+
+    [[nodiscard]] constexpr bool
+    is_matched(field_type const& field, std::string_view field_type::* key_val, std::string_view const val) noexcept {
+        using enum matching_action_type;
+        // todo: handle percentage
+        if ((+field.matching_action & +nomatch_flag) != 0) {
+            return field.*key_val != val;
+        }
+        return field.*key_val == val;
+    }
 
     /**
      * A Query object that describes what kinda device the user is looking for so we can find it again and don't just go

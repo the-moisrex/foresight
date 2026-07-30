@@ -22,9 +22,9 @@ TEST(MatchingActionTypeToString, AllKnownActionsReturnNonEmpty) {
          {match_subsystem,
           match_sysattr,
           match_property,
-          match_tag,
+          tag,
           syspath,
-          match_sysname,
+          sysname,
           nomatch_subsystem,
           nomatch_sysattr,
           nomatch_property})
@@ -41,9 +41,9 @@ TEST(MatchingActionTypeToString, EachActionProducesUniqueString) {
          {match_subsystem,
           match_sysattr,
           match_property,
-          match_tag,
+          tag,
           syspath,
-          match_sysname,
+          sysname,
           nomatch_subsystem,
           nomatch_sysattr,
           nomatch_property})
