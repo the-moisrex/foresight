@@ -349,7 +349,14 @@ export namespace fs8 {
         return inp_query.fields | std::views::filter(is_property);
     }
 
-    field_type property(device_query const& inp_query, std::string_view key) noexcept;
+    template <std::size_t N>
+    [[nodiscard]] constexpr auto sysattrs(basic_device_query<N> const& inp_query) noexcept {
+        return inp_query.fields | std::views::filter(is_sysattr);
+    }
+
+    field_type       property(device_query const& inp_query, std::string_view key) noexcept;
+    field_type       sysattr(device_query const& inp_query, std::string_view key) noexcept;
+    std::string_view name(device_query const& inp_query) noexcept;
 
     [[nodiscard]] bool has_subsystem(device_query const& inp_query, std::string_view subsystem) noexcept;
     [[nodiscard]] bool has_property(device_query const& inp_query, std::string_view key) noexcept;

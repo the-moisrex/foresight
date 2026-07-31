@@ -147,3 +147,17 @@ fs8::field_type fs8::property(device_query const& inp_query, std::string_view co
     }
     return invalid_field;
 }
+
+fs8::field_type fs8::sysattr(device_query const& inp_query, std::string_view const key) noexcept {
+    for (field_type const& field : sysattrs(inp_query)) {
+        if (is_matched(field, &field_type::key, key)) {
+            return field;
+        }
+    }
+    return invalid_field;
+}
+
+std::string_view fs8::name(device_query const& inp_query) noexcept {
+    auto const field = sysattr(inp_query, "DEVICE/NAME");
+    return field ? "" : field.value;
+}
