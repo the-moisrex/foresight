@@ -3,6 +3,7 @@ module;
 #include <algorithm>
 #include <cassert>
 #include <format>
+#include <generator>
 #include <ranges>
 #include <string>
 #include <utility>
@@ -139,6 +140,20 @@ bool fs8::has_property(device_query const& inp_query, std::string_view const key
     return std::ranges::contains(properties(inp_query), key, &field_type::key);
 }
 
+std::generator<fs8::udev_device> fs8::filter_devices(udev_enumerate const& enumerate, device_query const& query) noexcept {
+    std::uint8_t limit = query.matches_limit;
+
+    for (auto const& entry : enumerate.list_entries()) {
+        auto dev = udev_device{entry};
+        if (!dev) [[unlikely]] {
+            continue;
+        }
+        if (matches(dev, query) && limit-- != 0) {
+            co_yield std::move(dev);
+        }
+    }
+}
+
 fs8::field_type fs8::property(device_query const& inp_query, std::string_view const key) noexcept {
     for (auto const& field : inp_query.fields) {
         if (field.matching_action == matching_action_type::match_property && field.key == key) {
@@ -158,6 +173,6 @@ fs8::field_type fs8::sysattr(device_query const& inp_query, std::string_view con
 }
 
 std::string_view fs8::name(device_query const& inp_query) noexcept {
-    auto const field = sysattr(inp_query, "DEVICE/NAME");
+    auto const field = sysattr(inp_query, "device/name");
     return field ? "" : field.value;
 }

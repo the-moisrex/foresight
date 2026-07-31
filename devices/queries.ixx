@@ -3,13 +3,14 @@
 module;
 #include <cassert>
 #include <generator>
+#include <span>
 #include <string_view>
 export module fs8.devices.queries;
 export import fs8.devices.capabilities;
 import fs8.devices.udev;
 import fs8.devices.evdev;
 
-namespace {
+export namespace fs8 {
 
     template <typename T, std::size_t N>
     struct value_or_view {
@@ -37,10 +38,6 @@ namespace {
             return arr;
         }
     }
-
-} // namespace
-
-export namespace fs8 {
 
 
     /**
@@ -303,16 +300,6 @@ export namespace fs8 {
     [[nodiscard]] std::string_view to_string(matching_action_type) noexcept;
     [[nodiscard]] std::string      to_string(device_query const& inp_query);
 
-    struct [[nodiscard]] udev_device_pick {
-        udev_device device{};
-
-        // User query to re-get this device
-        device_query query{};
-
-        // The index of the query
-        std::uint8_t query_index = 0;
-    };
-
     [[nodiscard]] bool matches(evdev const& dev, device_query const& inp_query) noexcept;
     [[nodiscard]] bool matches(udev_device const& dev, device_query const& inp_query) noexcept;
 
@@ -361,28 +348,40 @@ export namespace fs8 {
     [[nodiscard]] bool has_subsystem(device_query const& inp_query, std::string_view subsystem) noexcept;
     [[nodiscard]] bool has_property(device_query const& inp_query, std::string_view key) noexcept;
 
-    template <typename... T>
-        requires((std::convertible_to<T, device_query> && ...))
-    [[nodiscard]] std::generator<udev_device_pick> all_devices(T const&... queries) noexcept {
-        static_assert(sizeof...(T) < std::numeric_limits<std::uint8_t>::max(), "Too many queries.");
+    struct [[nodiscard]] udev_device_pick {
+        udev_device device{};
 
+        // User query to re-get this device
+        device_query query{};
+
+        // The index of the query
+        std::uint8_t query_index = 0;
+    };
+
+    [[nodiscard]] std::generator<udev_device> filter_devices(udev_enumerate const& enumerate, device_query const& query) noexcept;
+
+    [[nodiscard]] constexpr field_type match_property(std::string_view const key, std::string_view const value) noexcept {
+        return {.key = key, .value = value, .matching_action = matching_action_type::match_property};
+    }
+
+    [[nodiscard]] constexpr field_type match_sysattr(std::string_view const key, std::string_view const value) noexcept {
+        return {.key = key, .value = value, .matching_action = matching_action_type::match_sysattr};
+    }
+
+    template <typename... T>
+        requires(std::convertible_to<T, device_query> && ...)
+    [[nodiscard]] std::generator<udev_device_pick> filter_devices(T const&... queries) noexcept {
+        static_assert(sizeof...(T) >= 1 && sizeof...(T) < 255, "Too many or too little queries specified.");
         udev_enumerate enumerator{};
-        (match(enumerator, queries.classification), ...);
+        (match(enumerator, queries), ...);
         enumerator.scan_devices();
 
-        std::array<std::uint8_t, sizeof...(T)> limits{queries.matches_limit...};
-
-        for (auto const& entry : enumerator.list_entries()) {
-            auto dev = udev_device{entry};
-            if (!dev) [[unlikely]] {
-                continue;
+        std::uint8_t index = 0;
+        template for (auto const& cur_query : {queries...}) {
+            for (auto device : filter_devices(enumerator, cur_query)) {
+                co_yield udev_device_pick{.device = std::move(device), .query = cur_query, .query_index = index};
             }
-            // todo: use `template for` whenever compilers start to support it
-            std::uint8_t index = 0;
-            ((matches(dev, queries)
-              && (limits[index++]-- != 0)
-              && (co_yield udev_device_pick{.device = std::move(dev), .query = queries, .query_index = index}, true)),
-             ...);
+            ++index;
         }
     }
 
@@ -391,10 +390,12 @@ export namespace fs8 {
         constexpr field_type keyboard{.key = "ID_INPUT_KEYBOARD", .value = "1", .matching_action = matching_action_type::match_property};
         constexpr field_type mouse{.key = "ID_INPUT_MOUSE", .value = "1", .matching_action = matching_action_type::match_property};
         constexpr field_type tablet{.key = "ID_INPUT_TABLET", .value = "1", .matching_action = matching_action_type::match_property};
+
+        constexpr field_type via_usb = match_property("ID_BUS", "usb");
     } // namespace attr
 
-    constexpr auto keyboard = query + attr::keyboard | caps::keyboard;
-    constexpr auto mouse    = query + attr::mouse | caps::mouse;
-    constexpr auto tablet   = query + attr::tablet | caps::tablet;
+    constexpr auto keyboard = (query + attr::keyboard) | caps::keyboard;
+    constexpr auto mouse    = (query + attr::mouse) | caps::mouse;
+    constexpr auto tablet   = (query + attr::tablet) | caps::tablet;
 
 } // namespace fs8

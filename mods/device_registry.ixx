@@ -75,7 +75,7 @@ namespace fs8 {
         template <typename ... QueryT>
             requires((std::convertible_to<QueryT, device_query> && ...))
         void add(QueryT const&... inp_queries) {
-            devs.append_range(all_devices(inp_queries...) | to_evdev_pick);
+            devs.append_range(filter_devices(inp_queries...) | to_evdev_pick);
             (queries.emplace_back(inp_queries), ...);
         }
 
