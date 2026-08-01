@@ -123,6 +123,8 @@ export namespace fs8 {
      */
     template <std::size_t N = std::dynamic_extent>
     struct [[nodiscard]] basic_device_query {
+        // NOLINTBEGIN(*-non-private-member-variables-in-classes)
+
         /// udev fields
         value_or_view_t<field_type, N> fields{};
 
@@ -143,6 +145,17 @@ export namespace fs8 {
         /// Should we fail if we find no device match for the query?
         /// Default: false
         bool fail_on_no_match = false;
+
+        // NOLINTEND(*-non-private-member-variables-in-classes)
+        [[nodiscard]] explicit(false) constexpr operator basic_device_query<std::dynamic_extent>() const noexcept {
+            return basic_device_query<std::dynamic_extent>{
+              .fields                  = std::span<field_type const>{fields},
+              .caps                    = caps,
+              .caps_support_percentage = caps_support_percentage,
+              .matches_limit           = matches_limit,
+              .grab                    = grab,
+              .fail_on_no_match        = fail_on_no_match};
+        }
     };
 
     using device_query = basic_device_query<>;
@@ -358,15 +371,16 @@ export namespace fs8 {
         std::uint8_t query_index = 0;
     };
 
-    [[nodiscard]] std::generator<udev_device> filter_devices(udev_enumerate const& enumerate, device_query const& query) noexcept;
 
-    [[nodiscard]] constexpr field_type match_property(std::string_view const key, std::string_view const value) noexcept {
+    constexpr field_type match_property(std::string_view const key, std::string_view const value) noexcept {
         return {.key = key, .value = value, .matching_action = matching_action_type::match_property};
     }
 
-    [[nodiscard]] constexpr field_type match_sysattr(std::string_view const key, std::string_view const value) noexcept {
+    constexpr field_type match_sysattr(std::string_view const key, std::string_view const value) noexcept {
         return {.key = key, .value = value, .matching_action = matching_action_type::match_sysattr};
     }
+
+    [[nodiscard]] std::generator<udev_device> filter_devices(udev_enumerate const& enumerate, device_query const& query) noexcept;
 
     template <typename... T>
         requires(std::convertible_to<T, device_query> && ...)
@@ -386,10 +400,10 @@ export namespace fs8 {
     }
 
     namespace attr {
-        constexpr field_type name{.key = "device/name", .value = "", .matching_action = matching_action_type::match_sysattr};
-        constexpr field_type keyboard{.key = "ID_INPUT_KEYBOARD", .value = "1", .matching_action = matching_action_type::match_property};
-        constexpr field_type mouse{.key = "ID_INPUT_MOUSE", .value = "1", .matching_action = matching_action_type::match_property};
-        constexpr field_type tablet{.key = "ID_INPUT_TABLET", .value = "1", .matching_action = matching_action_type::match_property};
+        constexpr field_type name     = match_sysattr("device/name", "");
+        constexpr field_type keyboard = match_property("ID_INPUT_KEYBOARD", "1");
+        constexpr field_type mouse    = match_property("ID_INPUT_MOUSE", "1");
+        constexpr field_type tablet   = match_property("ID_INPUT_TABLET", "1");
 
         constexpr field_type via_usb = match_property("ID_BUS", "usb");
     } // namespace attr

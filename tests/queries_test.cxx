@@ -8,7 +8,7 @@
 #include <vector>
 
 import fs8.devices.queries;
-import fs8.devices.capabilities;
+import fs8.devices.evdev;
 
 using namespace fs8;
 
@@ -19,15 +19,7 @@ using namespace fs8;
 TEST(MatchingActionTypeToString, AllKnownActionsReturnNonEmpty) {
     using enum matching_action_type;
     for (auto const action :
-         {match_subsystem,
-          match_sysattr,
-          match_property,
-          tag,
-          syspath,
-          sysname,
-          nomatch_subsystem,
-          nomatch_sysattr,
-          nomatch_property})
+         {match_subsystem, match_sysattr, match_property, tag, syspath, sysname, nomatch_subsystem, nomatch_sysattr, nomatch_property})
     {
         SCOPED_TRACE("action = " + std::to_string(static_cast<unsigned>(action)));
         EXPECT_FALSE(to_string(action).empty());
@@ -38,15 +30,7 @@ TEST(MatchingActionTypeToString, EachActionProducesUniqueString) {
     using enum matching_action_type;
     std::vector<std::string_view> results;
     for (auto const action :
-         {match_subsystem,
-          match_sysattr,
-          match_property,
-          tag,
-          syspath,
-          sysname,
-          nomatch_subsystem,
-          nomatch_sysattr,
-          nomatch_property})
+         {match_subsystem, match_sysattr, match_property, tag, syspath, sysname, nomatch_subsystem, nomatch_sysattr, nomatch_property})
     {
         results.push_back(to_string(action));
     }
@@ -68,4 +52,10 @@ TEST(MatchingActionTypeToString, MatchAndNomatchDiffer) {
 TEST(MatchingActionTypeToString, UnknownValueReturnsNonEmpty) {
     auto const unknown = static_cast<matching_action_type>(0xFF);
     EXPECT_FALSE(to_string(unknown).empty());
+}
+
+TEST(DeviceList, Basic) {
+    for (auto dev : filter_devices(keyboard)) {
+        EXPECT_TRUE(dev.device.is_valid());
+    }
 }

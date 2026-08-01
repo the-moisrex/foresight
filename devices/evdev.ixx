@@ -29,6 +29,10 @@ namespace fs8 {
 
     export std::string_view to_string(evdev_status) noexcept;
 
+    export constexpr bool is_valid(evdev_status const status) noexcept {
+        return status == evdev_status::success || status == evdev_status::success_grabbed;
+    }
+
     export enum struct [[nodiscard]] grab_state : std::uint8_t {
         grabbing,     // this FD currently has the grab
         not_grabbing, // this FD does NOT have the grab
