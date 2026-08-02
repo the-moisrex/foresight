@@ -93,7 +93,6 @@ target_sources(${LIB_NAME}
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         bash/bash_runner.ixx
         devices/capabilities.ixx
-        devices/classification.ixx
         devices/evdev.ixx
         devices/inputs-event-codes.ixx
         devices/key_codes.ixx

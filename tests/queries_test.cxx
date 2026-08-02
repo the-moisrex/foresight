@@ -1,8 +1,6 @@
 
 #include "common/tests_common_pch.hpp"
 
-#include <array>
-#include <span>
 #include <string>
 #include <string_view>
 #include <vector>

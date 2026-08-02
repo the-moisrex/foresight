@@ -74,7 +74,7 @@ bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
     // todo
 }
 
-// 1. Check if an existing device belongs to this classification
+// 1. Check if an existing device belongs to this query
 bool fs8::matches(udev_device const& dev, device_query const& inp_query) noexcept {
     using enum matching_action_type;
 
