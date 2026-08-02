@@ -1,13 +1,15 @@
 
 #include "common/tests_common_pch.hpp"
 
+#include <coroutine>
+#include <print>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <coroutine>
 
 import fs8.devices.queries;
 import fs8.devices.evdev;
+import fs8.devices.udev;
 
 using namespace fs8;
 
@@ -54,7 +56,13 @@ TEST(MatchingActionTypeToString, UnknownValueReturnsNonEmpty) {
 }
 
 TEST(DeviceList, Basic) {
+    int count = 0;
     for (auto dev : filter_devices(keyboard)) {
         EXPECT_TRUE(dev.device.is_valid());
+        EXPECT_TRUE(matches(dev.device, keyboard));
+        EXPECT_FALSE(matches(dev.device, mouse));
+        // std::println("{}", attr::name(dev.device));
+        ++count;
     }
+    EXPECT_NE(count, 0);
 }

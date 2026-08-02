@@ -78,7 +78,7 @@ bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
 bool fs8::matches(udev_device const& dev, device_query const& inp_query) noexcept {
     using enum matching_action_type;
 
-    bool res = has_subsystem(inp_query, dev.subsystem());
+    bool res = true;
     for (auto const& field : inp_query.fields) {
         if (is_property(field)) {
             res &= is_matched(field, &field_type::value, dev.property(field.key.data()));
@@ -130,6 +130,10 @@ void fs8::match(udev_monitor& monitor, device_query const& inp_query) noexcept {
     for (auto const& field : subsystems(inp_query)) {
         monitor.match_device(field.key.data(), field.value.empty() ? nullptr : field.value.data());
     }
+}
+
+bool fs8::has_subsystem(device_query const& inp_query) noexcept {
+    return !subsystems(inp_query).empty();
 }
 
 bool fs8::has_subsystem(device_query const& inp_query, std::string_view const subsystem) noexcept {

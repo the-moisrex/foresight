@@ -441,3 +441,30 @@ bool fs8::udev_queue::is_active() const noexcept {
 bool fs8::udev_queue::is_empty() const noexcept {
     return ::udev_queue_get_queue_is_empty(handle) > 0;
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+
+
+std::string_view fs8::name(udev_device const& dev) noexcept {
+    return dev.sysattr("device/name");
+}
+
+std::string_view fs8::sysattr(udev_device const& dev, std::string_view const key) noexcept {
+    return dev.sysattr(key.data());
+}
+
+std::string_view fs8::property(udev_device const& dev, std::string_view const key) noexcept {
+    return dev.property(key.data());
+}
+
+bool fs8::is_virtual_syspath(udev_device const&dev) noexcept {
+    return dev.syspath().contains("/device/virtual");
+}
+
+bool fs8::is_input_virtual(udev_device const& dev) noexcept {
+    return dev.property("ID_INPUT_VIRTUAL") == "1";
+}
+
+bool fs8::is_virtual(udev_device const& dev) noexcept {
+    return is_virtual_syspath(dev) || is_input_virtual(dev);
+}

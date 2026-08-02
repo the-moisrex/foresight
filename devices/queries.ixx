@@ -59,6 +59,10 @@ export namespace fs8 {
         nomatch_property  = match_property | nomatch_flag,  // Exclude devices by a udev property / environment value
     };
 
+    [[nodiscard]] constexpr auto operator+(matching_action_type const action) noexcept {
+        return std::to_underlying(action);
+    }
+
 
     constexpr std::uint8_t globe_search = 101;
 
@@ -98,11 +102,26 @@ export namespace fs8 {
         [[nodiscard]] explicit constexpr operator bool() const noexcept {
             return !key.empty();
         }
-    };
 
-    [[nodiscard]] constexpr auto operator+(matching_action_type const action) noexcept {
-        return std::to_underlying(action);
-    }
+        [[nodiscard]] std::string_view operator()(udev_device const& dev) const noexcept {
+            using enum matching_action_type;
+            switch (static_cast<matching_action_type>(+matching_action & ~+nomatch_flag)) {
+                case match_subsystem:
+                    return dev.subsystem();
+                case match_sysattr:
+                    return dev.sysattr(key.data());
+                    case match_property:
+                    return dev.property(key.data());
+                case sysname:
+                    return dev.sysname();
+                case syspath:
+                    return dev.syspath();
+                default:
+                    break;
+            }
+            return {};
+        }
+    };
 
     /// Official invalid field
     constexpr field_type invalid_field{.key = {}, .value = {}, .matching_action = matching_action_type::match_subsystem};
@@ -358,6 +377,7 @@ export namespace fs8 {
     field_type       sysattr(device_query const& inp_query, std::string_view key) noexcept;
     std::string_view name(device_query const& inp_query) noexcept;
 
+    [[nodiscard]] bool has_subsystem(device_query const& inp_query) noexcept;
     [[nodiscard]] bool has_subsystem(device_query const& inp_query, std::string_view subsystem) noexcept;
     [[nodiscard]] bool has_property(device_query const& inp_query, std::string_view key) noexcept;
 

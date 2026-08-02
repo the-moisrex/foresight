@@ -521,16 +521,16 @@ bool basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
         this->set_device(best.dev);
 
         if (!is_ok()) [[unlikely]] {
-            fs8::log("  Device initialization failed: {}", best.dev.device_name());
-            fs8::log("  Error: {}", this->error().message());
+            log("  Device initialization failed: {}", best.dev.device_name());
+            log("  Error: {}", this->error().message());
             return false;
         }
     } else {
         this->set_device();
         this->apply_caps(caps_view);
         if (!is_ok()) [[unlikely]] {
-            fs8::log("  Device init failed.");
-            fs8::log("  Error: {}", this->error().message());
+            log("  Device init failed.");
+            log("  Error: {}", this->error().message());
             return false;
         }
     }
@@ -553,7 +553,7 @@ bool basic_uinput::operator()(std::span<evdev const> const devs, start_tag) noex
 
         set_device(cur_dev);
         if (!is_ok()) [[unlikely]] {
-            fs8::log("  Failed to set device: {}", cur_dev.device_name());
+            log("  Failed to set device: {}", cur_dev.device_name());
         }
         break;
     }
