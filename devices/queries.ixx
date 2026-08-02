@@ -328,7 +328,7 @@ export namespace fs8 {
     }
 
     [[nodiscard]] constexpr bool is_property(field_type const& field) noexcept {
-        return field.matching_action == matching_action_type::match_subsystem;
+        return field.matching_action == matching_action_type::match_property;
     }
 
     [[nodiscard]] constexpr bool is_sysattr(field_type const& field) noexcept {

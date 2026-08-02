@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <coroutine>
 
 import fs8.devices.queries;
 import fs8.devices.evdev;
