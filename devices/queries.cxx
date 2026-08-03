@@ -50,10 +50,10 @@ namespace {
 
 } // namespace
 
-bool fs8::is_matched(field_type const& field, std::string_view field_type::* key_val, std::string_view const val) noexcept {
-    using enum matching_action_type;
+bool fs8::is_matched(query_term const& field, std::string_view query_term::* key_val, std::string_view const val) noexcept {
+    using enum query_target;
     // todo: handle percentage
-    if ((+field.matching_action & +nomatch_flag) != 0) {
+    if ((+field.target & +nomatch_flag) != 0) {
         return field.*key_val != val;
     }
     if ((field.*key_val).contains('*')) {
@@ -62,8 +62,8 @@ bool fs8::is_matched(field_type const& field, std::string_view field_type::* key
     return field.*key_val == val;
 }
 
-std::string_view fs8::to_string(matching_action_type const action) noexcept {
-    using enum matching_action_type;
+std::string_view fs8::to_string(query_target const action) noexcept {
+    using enum query_target;
 
     switch (action) {
         case match_subsystem: return {"match_subsystem"};
@@ -128,25 +128,25 @@ bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
 
 // 1. Check if an existing device belongs to this query
 bool fs8::matches(udev_device const& dev, device_query const& inp_query) noexcept {
-    using enum matching_action_type;
+    using enum query_target;
 
     bool res = true;
     for (auto const& field : inp_query.fields) {
         if (is_property(field)) {
-            res &= is_matched(field, &field_type::value, dev.property(field.key.data()));
+            res &= is_matched(field, &query_term::value, dev.property(field.key.data()));
         } else if (is_subsystem(field)) {
-            res &= is_matched(field, &field_type::key, dev.subsystem());
-            res &= is_matched(field, &field_type::value, dev.devtype());
+            res &= is_matched(field, &query_term::key, dev.subsystem());
+            res &= is_matched(field, &query_term::value, dev.devtype());
         } else if (is_sysattr(field)) {
-            res &= is_matched(field, &field_type::value, dev.sysattr(field.key.data()));
-        } else if (field.matching_action == tag) {
+            res &= is_matched(field, &query_term::value, dev.sysattr(field.key.data()));
+        } else if (field.target == tag) {
             res &= dev.has_tag(field.value.data());
             assert(field.key.empty());
-        } else if (field.matching_action == syspath) {
-            res &= is_matched(field, &field_type::value, dev.syspath());
+        } else if (field.target == syspath) {
+            res &= is_matched(field, &query_term::value, dev.syspath());
             assert(field.key.empty());
-        } else if (field.matching_action == sysname) {
-            res &= is_matched(field, &field_type::value, dev.sysname());
+        } else if (field.target == sysname) {
+            res &= is_matched(field, &query_term::value, dev.sysname());
             assert(field.key.empty());
         } else {
             // Have not yet implemented.
@@ -189,11 +189,11 @@ bool fs8::has_subsystem(device_query const& inp_query) noexcept {
 }
 
 bool fs8::has_subsystem(device_query const& inp_query, std::string_view const subsystem) noexcept {
-    return std::ranges::contains(subsystems(inp_query), subsystem, &field_type::key);
+    return std::ranges::contains(subsystems(inp_query), subsystem, &query_term::key);
 }
 
 bool fs8::has_property(device_query const& inp_query, std::string_view const key) noexcept {
-    return std::ranges::contains(properties(inp_query), key, &field_type::key);
+    return std::ranges::contains(properties(inp_query), key, &query_term::key);
 }
 
 std::generator<fs8::udev_device> fs8::filter_devices(udev_enumerate const& enumerate, device_query const& query) noexcept {
@@ -210,18 +210,18 @@ std::generator<fs8::udev_device> fs8::filter_devices(udev_enumerate const& enume
     }
 }
 
-fs8::field_type fs8::property(device_query const& inp_query, std::string_view const key) noexcept {
+fs8::query_term fs8::property(device_query const& inp_query, std::string_view const key) noexcept {
     for (auto const& field : inp_query.fields) {
-        if (field.matching_action == matching_action_type::match_property && field.key == key) {
+        if (field.target == query_target::match_property && field.key == key) {
             return field;
         }
     }
     return invalid_field;
 }
 
-fs8::field_type fs8::sysattr(device_query const& inp_query, std::string_view const key) noexcept {
-    for (field_type const& field : sysattrs(inp_query)) {
-        if (is_matched(field, &field_type::key, key)) {
+fs8::query_term fs8::sysattr(device_query const& inp_query, std::string_view const key) noexcept {
+    for (query_term const& field : sysattrs(inp_query)) {
+        if (is_matched(field, &query_term::key, key)) {
             return field;
         }
     }

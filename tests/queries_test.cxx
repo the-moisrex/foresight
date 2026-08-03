@@ -19,7 +19,7 @@ using namespace fs8;
 // ===========================================================================
 
 TEST(MatchingActionTypeToString, AllKnownActionsReturnNonEmpty) {
-    using enum matching_action_type;
+    using enum query_target;
     for (auto const action :
          {match_subsystem, match_sysattr, match_property, tag, syspath, sysname, nomatch_subsystem, nomatch_sysattr, nomatch_property})
     {
@@ -29,7 +29,7 @@ TEST(MatchingActionTypeToString, AllKnownActionsReturnNonEmpty) {
 }
 
 TEST(MatchingActionTypeToString, EachActionProducesUniqueString) {
-    using enum matching_action_type;
+    using enum query_target;
     std::vector<std::string_view> results;
     for (auto const action :
          {match_subsystem, match_sysattr, match_property, tag, syspath, sysname, nomatch_subsystem, nomatch_sysattr, nomatch_property})
@@ -45,14 +45,14 @@ TEST(MatchingActionTypeToString, EachActionProducesUniqueString) {
 }
 
 TEST(MatchingActionTypeToString, MatchAndNomatchDiffer) {
-    using enum matching_action_type;
+    using enum query_target;
     EXPECT_NE(to_string(match_subsystem), to_string(nomatch_subsystem));
     EXPECT_NE(to_string(match_sysattr), to_string(nomatch_sysattr));
     EXPECT_NE(to_string(match_property), to_string(nomatch_property));
 }
 
 TEST(MatchingActionTypeToString, UnknownValueReturnsNonEmpty) {
-    auto const unknown = static_cast<matching_action_type>(0xFF);
+    auto const unknown = static_cast<query_target>(0xFF);
     EXPECT_FALSE(to_string(unknown).empty());
 }
 
