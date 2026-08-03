@@ -8,6 +8,7 @@ module;
 export module fs8.devices.queries;
 export import fs8.devices.capabilities;
 import fs8.devices.udev;
+import fs8.log;
 import fs8.devices.evdev;
 
 export namespace fs8 {
@@ -63,7 +64,6 @@ export namespace fs8 {
         return std::to_underlying(action);
     }
 
-
     constexpr std::uint8_t globe_search = 101;
 
     /**
@@ -106,18 +106,12 @@ export namespace fs8 {
         [[nodiscard]] std::string_view operator()(udev_device const& dev) const noexcept {
             using enum matching_action_type;
             switch (static_cast<matching_action_type>(+matching_action & ~+nomatch_flag)) {
-                case match_subsystem:
-                    return dev.subsystem();
-                case match_sysattr:
-                    return dev.sysattr(key.data());
-                    case match_property:
-                    return dev.property(key.data());
-                case sysname:
-                    return dev.sysname();
-                case syspath:
-                    return dev.syspath();
-                default:
-                    break;
+                case match_subsystem: return dev.subsystem();
+                case match_sysattr: return dev.sysattr(key.data());
+                case match_property: return dev.property(key.data());
+                case sysname: return dev.sysname();
+                case syspath: return dev.syspath();
+                default: break;
             }
             return {};
         }
@@ -126,15 +120,7 @@ export namespace fs8 {
     /// Official invalid field
     constexpr field_type invalid_field{.key = {}, .value = {}, .matching_action = matching_action_type::match_subsystem};
 
-    [[nodiscard]] constexpr bool
-    is_matched(field_type const& field, std::string_view field_type::* key_val, std::string_view const val) noexcept {
-        using enum matching_action_type;
-        // todo: handle percentage
-        if ((+field.matching_action & +nomatch_flag) != 0) {
-            return field.*key_val != val;
-        }
-        return field.*key_val == val;
-    }
+    [[nodiscard]] bool is_matched(field_type const& field, std::string_view field_type::* key_val, std::string_view const val) noexcept;
 
     /**
      * A Query object that describes what kinda device the user is looking for so we can find it again and don't just go
@@ -391,6 +377,13 @@ export namespace fs8 {
         std::uint8_t query_index = 0;
     };
 
+    constexpr field_type match_subsystem(std::string_view const sub, std::string_view const devtype = {}) noexcept {
+        return {.key = sub, .value = devtype, .matching_action = matching_action_type::match_subsystem};
+    }
+
+    constexpr field_type match_sysname(std::string_view const name) noexcept {
+        return {.key = {}, .value = name, .matching_action = matching_action_type::sysname};
+    }
 
     constexpr field_type match_property(std::string_view const key, std::string_view const value) noexcept {
         return {.key = key, .value = value, .matching_action = matching_action_type::match_property};
@@ -425,11 +418,15 @@ export namespace fs8 {
         constexpr field_type mouse    = match_property("ID_INPUT_MOUSE", "1");
         constexpr field_type tablet   = match_property("ID_INPUT_TABLET", "1");
 
-        constexpr field_type via_usb = match_property("ID_BUS", "usb");
+        constexpr field_type input           = match_property("ID_INPUT", "1");
+        constexpr field_type via_usb         = match_property("ID_BUS", "usb");
+        constexpr field_type input_subsystem = match_subsystem("input");
+        constexpr field_type event_sysname   = match_sysname("event*");
     } // namespace attr
 
-    constexpr auto keyboard = (query + attr::keyboard) | caps::keyboard;
-    constexpr auto mouse    = (query + attr::mouse) | caps::mouse;
-    constexpr auto tablet   = (query + attr::tablet) | caps::tablet;
+    constexpr auto input    = query + attr::input + attr::input_subsystem + attr::event_sysname;
+    constexpr auto keyboard = (input + attr::keyboard) | caps::keyboard;
+    constexpr auto mouse    = (input + attr::mouse) | caps::mouse;
+    constexpr auto tablet   = (input + attr::tablet) | caps::tablet;
 
 } // namespace fs8

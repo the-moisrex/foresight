@@ -10,6 +10,58 @@ module;
 module fs8.devices.queries;
 import fs8.devices.capabilities;
 
+namespace {
+
+    [[nodiscard]] bool matches(std::string_view const pattern, std::string_view const text) noexcept {
+        std::size_t i         = 0;
+        std::size_t j         = 0;
+        std::size_t star_idx  = std::string_view::npos;
+        std::size_t match_idx = 0;
+
+        while (i < text.size()) {
+            // If characters match
+            if (j < pattern.size() && pattern[j] == text[i]) {
+                i++;
+                j++;
+            }
+            // If pattern has a wildcard, mark the position for backtracking
+            else if (j < pattern.size() && pattern[j] == '*')
+            {
+                star_idx  = j++;
+                match_idx = i;
+            }
+            // If mismatch occurs, backtrack to the last '*'
+            else if (star_idx != std::string_view::npos)
+            {
+                j = star_idx + 1;
+                i = ++match_idx;
+            } else {
+                return false;
+            }
+        }
+
+        // Check for trailing wildcards
+        while (j < pattern.size() && pattern[j] == '*') {
+            j++;
+        }
+
+        return j == pattern.size();
+    }
+
+} // namespace
+
+bool fs8::is_matched(field_type const& field, std::string_view field_type::* key_val, std::string_view const val) noexcept {
+    using enum matching_action_type;
+    // todo: handle percentage
+    if ((+field.matching_action & +nomatch_flag) != 0) {
+        return field.*key_val != val;
+    }
+    if ((field.*key_val).contains('*')) {
+        return ::matches(field.*key_val, val);
+    }
+    return field.*key_val == val;
+}
+
 std::string_view fs8::to_string(matching_action_type const action) noexcept {
     using enum matching_action_type;
 

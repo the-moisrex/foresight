@@ -3,6 +3,7 @@
 
 #include <coroutine>
 #include <print>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -65,4 +66,16 @@ TEST(DeviceList, Basic) {
         ++count;
     }
     EXPECT_NE(count, 0);
+}
+
+TEST(DeviceList, MultiQuery) {
+    int count = 0;
+    for (auto dev : filter_devices(keyboard, mouse)) {
+        EXPECT_TRUE(dev.device.is_valid());
+        EXPECT_TRUE(matches(dev.device, keyboard) || matches(dev.device, mouse));
+        // std::println("Name {} {}", attr::name(dev.device), dev.device.sysname());
+        ++count;
+    }
+    auto const vec = filter_devices(keyboard) | std::ranges::to<std::vector>();
+    EXPECT_NE(count, vec.size());
 }
