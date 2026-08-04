@@ -5,6 +5,7 @@ module;
 #include <generator>
 #include <span>
 #include <string_view>
+#include <vector>
 export module fs8.devices.queries;
 export import fs8.devices.capabilities;
 import fs8.devices.udev;
@@ -114,6 +115,13 @@ export namespace fs8 {
                 default: break;
             }
             return {};
+        }
+
+        /// Usage: attr::name["USB Keyboard"]
+        consteval query_term operator[](std::string_view const new_value) const noexcept {
+            query_term copy = *this;
+            copy.value = new_value;
+            return copy;
         }
     };
 
@@ -411,6 +419,12 @@ export namespace fs8 {
             ++index;
         }
     }
+
+    /// Parse a single string_view into a query_term
+    query_term parse_query_term(std::string_view str) noexcept;
+
+    /// Parse argc and argv into a dynamic device_query
+    device_query parse_device_query(int argc, char const* const* argv, std::vector<query_term>& fields);
 
     namespace attr {
         constexpr query_term name     = match_sysattr("device/name", "");

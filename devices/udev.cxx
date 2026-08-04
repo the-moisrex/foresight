@@ -210,6 +210,7 @@ std::string_view fs8::udev_list_entry::name() const noexcept {
 }
 
 std::string_view fs8::udev_list_entry::value() const noexcept {
+    // fot sysattrs this might just return null, but properties it may not
     return viewify(::udev_list_entry_get_value(entry));
 }
 

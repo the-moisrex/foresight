@@ -232,3 +232,71 @@ std::string_view fs8::name(device_query const& inp_query) noexcept {
     auto const field = sysattr(inp_query, "device/name");
     return field ? "" : field.value;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////
+
+fs8::query_term fs8::parse_query_term(std::string_view str) noexcept {
+    bool invert = false;
+    if (str.starts_with('!')) {
+        invert = true;
+        str.remove_prefix(1);
+    }
+
+    auto const eq_pos = str.find('=');
+    if (eq_pos == std::string_view::npos) {
+        return invalid_field; // Or handle error
+    }
+
+    auto const target_key_part = str.substr(0, eq_pos);
+    auto const value           = str.substr(eq_pos + 1);
+
+    auto const colon_pos  = target_key_part.find(':');
+    auto const target_str = target_key_part.substr(0, colon_pos);
+    auto const key        = (colon_pos != std::string_view::npos) ? target_key_part.substr(colon_pos + 1) : std::string_view{};
+
+    query_target target{};
+    if (target_str == "sub") {
+        target = query_target::match_subsystem;
+    } else if (target_str == "attr") {
+        target = query_target::match_sysattr;
+    } else if (target_str == "prop") {
+        target = query_target::match_property;
+    } else if (target_str == "tag") {
+        target = query_target::tag;
+    } else if (target_str == "path") {
+        target = query_target::syspath;
+    } else if (target_str == "name") {
+        target = query_target::sysname;
+    } else {
+        return invalid_field;
+    }
+
+    if (invert) {
+        target = static_cast<query_target>(+target | +query_target::nomatch_flag);
+    }
+
+    return query_term{.key = key, .value = value, .target = target, .percentage = globe_search};
+}
+
+fs8::device_query fs8::parse_device_query(int const argc, char const* const* argv, std::vector<query_term>& fields) {
+    if (argc <= 1) {
+        return query; // Empty query
+    }
+    assert(fields.empty());
+
+    fields.reserve(static_cast<std::size_t>(argc - 1));
+
+    for (int i = 1; i < argc; ++i) {
+        auto cur_query = parse_query_term(std::string_view{argv[i]});
+        if (!cur_query) [[unlikely]] {
+            continue;
+        }
+        fields.emplace_back(std::move(cur_query));
+    }
+
+    device_query res{};
+    res.fields = std::span<query_term const>{fields.data(), fields.size()};
+    return res;
+}
+
