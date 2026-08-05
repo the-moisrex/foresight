@@ -65,8 +65,6 @@ export namespace fs8 {
         return std::to_underlying(target);
     }
 
-    constexpr std::uint8_t globe_search = 101;
-
     /**
      * Attribute Key/Value
      *
@@ -95,7 +93,7 @@ export namespace fs8 {
         ///   100% means exactly
         ///   101% means normal udev matching which can use '*' and '?' and '[...]'
         /// anything less means fuzzy search match
-        std::uint8_t percentage = globe_search; // NOLINT(*-magic-numbers)
+        std::uint8_t percentage = 100; // NOLINT(*-magic-numbers)
 
         // NOLINTEND(*-non-private-member-variables-in-classes)
         [[nodiscard]] constexpr bool operator==(query_term const&) const noexcept = default;
@@ -120,7 +118,7 @@ export namespace fs8 {
         /// Usage: attr::name["USB Keyboard"]
         consteval query_term operator[](std::string_view const new_value) const noexcept {
             query_term copy = *this;
-            copy.value = new_value;
+            copy.value      = new_value;
             return copy;
         }
     };

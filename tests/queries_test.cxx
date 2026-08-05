@@ -86,7 +86,7 @@ TEST(ParseQueryTermTest, ValidTargetsNoKey) {
     EXPECT_EQ(q1.target, query_target::match_subsystem);
     EXPECT_TRUE(q1.key.empty());
     EXPECT_EQ(q1.value, "input");
-    EXPECT_EQ(q1.percentage, globe_search);
+    EXPECT_EQ(q1.percentage, 100);
 
     auto q2 = parse_query_term("name=event0");
     EXPECT_EQ(q2.target, query_target::sysname);
@@ -138,4 +138,87 @@ TEST(ParseQueryTermTest, ValueContainsEquals) {
     EXPECT_EQ(q.target, query_target::match_sysattr);
     EXPECT_EQ(q.key, "test");
     EXPECT_EQ(q.value, "a=b=c");
+}
+
+
+
+
+class IsMatchedTest : public ::testing::Test {
+protected:
+    // Helper function to easily create a query_term for testing
+    query_term create_term(std::string_view val, std::uint8_t percentage, query_target target = query_target::match_sysattr) {
+        query_term term{};
+        term.value = val; // Assuming 'value' is the target field string in query_term
+        term.percentage = percentage;
+        term.target = target;
+        return term;
+    }
+};
+
+// 1. Globe Search (101%)
+TEST_F(IsMatchedTest, GlobeSearch) {
+    auto term = create_term("usb*", 100);
+
+    // Wildcard matches
+    EXPECT_TRUE(is_matched(term, &query_term::value, "usb"));
+    EXPECT_TRUE(is_matched(term, &query_term::value, "usb_device"));
+    EXPECT_FALSE(is_matched(term, &query_term::value, "pci_usb"));
+
+    // Multiple wildcards
+    auto term2 = create_term("*usb*", 100);
+    EXPECT_TRUE(is_matched(term2, &query_term::value, "pci_usb_device"));
+
+    // No wildcards in target (fallback to exact match)
+    auto term3 = create_term("usb_device", 100);
+    EXPECT_TRUE(is_matched(term3, &query_term::value, "usb_device"));
+    EXPECT_FALSE(is_matched(term3, &query_term::value, "usb_device_1"));
+}
+
+// 2. Exact Match (100%)
+TEST_F(IsMatchedTest, ExactMatch) {
+    auto term = create_term("exact_string", 100);
+
+    EXPECT_TRUE(is_matched(term, &query_term::value, "exact_string"));
+    EXPECT_FALSE(is_matched(term, &query_term::value, "exact_string_extra"));
+    EXPECT_FALSE(is_matched(term, &query_term::value, "Exact_string")); // Case sensitive
+}
+
+// 3. Fuzzy Match (< 100%)
+TEST_F(IsMatchedTest, FuzzyMatch) {
+    // "hello" vs "helo" -> dist = 1, max_len = 5 -> sim = 100 - (1*100/5) = 80%
+    auto term = create_term("hello", 80);
+
+    EXPECT_TRUE(is_matched(term, &query_term::value, "helo"));   // Exactly 80%
+    EXPECT_TRUE(is_matched(term, &query_term::value, "hello"));  // 100% (>= 80%)
+    EXPECT_FALSE(is_matched(term, &query_term::value, "hero"));  // dist = 2 -> sim = 60% (< 80%)
+
+    // "kitten" vs "sitting" -> dist = 3, max_len = 7 -> sim = 100 - 42 = 58%
+    auto term2 = create_term("kitten", 50);
+    EXPECT_TRUE(is_matched(term2, &query_term::value, "sitting")); // 58% >= 50%
+
+    auto term3 = create_term("kitten", 60);
+    EXPECT_FALSE(is_matched(term3, &query_term::value, "sitting")); // 58% < 60%
+
+    // Edge cases (empty strings)
+    auto empty_term = create_term("", 50);
+    EXPECT_TRUE(is_matched(empty_term, &query_term::value, ""));    // Both empty = 100%
+    EXPECT_FALSE(is_matched(empty_term, &query_term::value, "a"));  // One empty = 0%
+}
+
+// 4. Inversion (nomatch_flag)
+TEST_F(IsMatchedTest, InvertedMatch) {
+    // Globe match inverted
+    auto term1 = create_term("usb*", 100, query_target::nomatch_flag);
+    EXPECT_FALSE(is_matched(term1, &query_term::value, "usb_device")); // Match -> False
+    EXPECT_TRUE(is_matched(term1, &query_term::value, "pci_device"));  // No match -> True
+
+    // Exact match inverted
+    auto term2 = create_term("exact", 100, query_target::nomatch_flag);
+    EXPECT_FALSE(is_matched(term2, &query_term::value, "exact")); // Match -> False
+    EXPECT_TRUE(is_matched(term2, &query_term::value, "other"));  // No match -> True
+
+    // Fuzzy match inverted (threshold 80%)
+    auto term3 = create_term("hello", 80, query_target::nomatch_flag);
+    EXPECT_FALSE(is_matched(term3, &query_term::value, "helo")); // Match -> False
+    EXPECT_TRUE(is_matched(term3, &query_term::value, "hero"));  // No match -> True
 }

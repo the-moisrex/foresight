@@ -12,6 +12,7 @@ import fs8.devices.capabilities;
 
 namespace {
 
+
     [[nodiscard]] bool matches(std::string_view const pattern, std::string_view const text) noexcept {
         std::size_t i         = 0;
         std::size_t j         = 0;
@@ -20,12 +21,12 @@ namespace {
 
         while (i < text.size()) {
             // If characters match
-            if (j < pattern.size() && pattern[j] == text[i]) {
+            if (j < pattern.size() && pattern.at(j) == text.at(i)) {
                 i++;
                 j++;
             }
             // If pattern has a wildcard, mark the position for backtracking
-            else if (j < pattern.size() && pattern[j] == '*')
+            else if (j < pattern.size() && pattern.at(j) == '*')
             {
                 star_idx  = j++;
                 match_idx = i;
@@ -41,25 +42,68 @@ namespace {
         }
 
         // Check for trailing wildcards
-        while (j < pattern.size() && pattern[j] == '*') {
+        while (j < pattern.size() && pattern.at(j) == '*') {
             j++;
         }
 
         return j == pattern.size();
     }
 
+    [[nodiscard]] std::uint8_t calculate_similarity(std::string_view const s1, std::string_view const s2) noexcept {
+        // NOLINTBEGIN(*-magic-numbers)
+        if (s1.empty() && s2.empty()) {
+            return 100;
+        }
+        if (s1.empty() || s2.empty()) {
+            return 0;
+        }
+
+        std::vector<std::size_t> dist(s2.size() + 1);
+        for (std::size_t i = 0; i <= s2.size(); ++i) {
+            dist[i] = i;
+        }
+
+        for (std::size_t i = 1; i <= s1.size(); ++i) {
+            std::size_t prev = dist[0];
+            dist[0]          = i;
+            for (std::size_t j = 1; j <= s2.size(); ++j) {
+                std::size_t temp = dist[j];
+                if (s1.at(i - 1) == s2.at(j - 1)) {
+                    dist[j] = prev;
+                } else {
+                    dist[j] = 1 + std::min({dist[j - 1], dist[j], prev});
+                }
+                prev = temp;
+            }
+        }
+
+        std::size_t const max_len = std::max(s1.size(), s2.size());
+        return static_cast<std::uint8_t>(100 - (dist.back() * 100 / max_len));
+        // NOLINTEND(*-magic-numbers)
+    }
+
 } // namespace
 
 bool fs8::is_matched(query_term const& field, std::string_view query_term::* key_val, std::string_view const val) noexcept {
     using enum query_target;
-    // todo: handle percentage
+
+    std::string_view const target_val = field.*key_val;
+    bool                   is_match   = false;
+
+    if (field.percentage == 100) {
+        // 100% -> Exact match or Wildcard/Globe match
+        is_match = target_val.contains('*') ? ::matches(target_val, val) : (target_val == val);
+    } else {
+        // < 100% -> Fuzzy search based on Levenshtein distance
+        is_match = calculate_similarity(target_val, val) >= field.percentage;
+    }
+
+    // Handle inversion flag
     if ((+field.target & +nomatch_flag) != 0) {
-        return field.*key_val != val;
+        return !is_match;
     }
-    if ((field.*key_val).contains('*')) {
-        return ::matches(field.*key_val, val);
-    }
-    return field.*key_val == val;
+
+    return is_match;
 }
 
 std::string_view fs8::to_string(query_target const action) noexcept {
@@ -172,7 +216,6 @@ bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
     return true;
 }
 
-
 // 1. Check if an existing device belongs to this query
 bool fs8::matches(udev_device const& dev, device_query const& inp_query) noexcept {
     using enum query_target;
@@ -280,7 +323,6 @@ std::string_view fs8::name(device_query const& inp_query) noexcept {
     return field ? "" : field.value;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////
 
 fs8::query_term fs8::parse_query_term(std::string_view str) noexcept {
@@ -323,7 +365,7 @@ fs8::query_term fs8::parse_query_term(std::string_view str) noexcept {
         target = static_cast<query_target>(+target | +query_target::nomatch_flag);
     }
 
-    return query_term{.key = key, .value = value, .target = target, .percentage = globe_search};
+    return query_term{.key = key, .value = value, .target = target};
 }
 
 fs8::device_query fs8::parse_device_query(int const argc, char const* const* argv, std::vector<query_term>& fields) {
@@ -346,4 +388,3 @@ fs8::device_query fs8::parse_device_query(int const argc, char const* const* arg
     res.fields = std::span<query_term const>{fields.data(), fields.size()};
     return res;
 }
-
