@@ -123,8 +123,55 @@ std::string_view fs8::to_string(query_target const action) noexcept {
 }
 
 bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
-    // todo
+    using enum query_target;
+
+    if (!dev.is_ok()) {
+        return false;
+    }
+
+    // 1. Check capability match threshold if capabilities are specified
+    if (!inp_query.caps.empty()) {
+        auto const score = dev.match_caps(inp_query.caps);
+        if (score < inp_query.caps_support_percentage) {
+            return false;
+        }
+    }
+
+    // 2. Evaluate query fields against evdev attributes
+    // for (auto const& field : inp_query.fields) {
+    //     bool term_matched = true;
+    //
+    //     if (field.target == sysname || (+field.target & +nomatch_flag && (+field.target & ~+nomatch_flag) == +sysname)) {
+    //         term_matched = is_matched(field, &query_term::value, dev.device_name());
+    //     } else if (field.target == syspath || (+field.target & +nomatch_flag && (+field.target & ~+nomatch_flag) == +syspath)) {
+    //         term_matched = is_matched(field, &query_term::value, dev.physical_location());
+    //     } else if (is_sysattr(field)) {
+    //         if (field.key == "name" || field.key == "device/name") {
+    //             term_matched = is_matched(field, &query_term::value, dev.device_name());
+    //         } else if (field.key == "phys" || field.key == "device/phys") {
+    //             term_matched = is_matched(field, &query_term::value, dev.physical_location());
+    //         } else if (field.key == "uniq" || field.key == "device/uniq") {
+    //             term_matched = is_matched(field, &query_term::value, dev.unique_identifier());
+    //         } else {
+    //             // evdev does not expose arbitrary sysfs attributes
+    //             term_matched = false;
+    //         }
+    //     } else if (is_subsystem(field)) {
+    //         // evdev devices belong strictly to the "input" subsystem
+    //         term_matched = is_matched(field, &query_term::key, "input");
+    //     } else {
+    //         // Properties and tags require udev metadata
+    //         term_matched = false;
+    //     }
+    //
+    //     if (!term_matched) {
+    //         return false;
+    //     }
+    // }
+
+    return true;
 }
+
 
 // 1. Check if an existing device belongs to this query
 bool fs8::matches(udev_device const& dev, device_query const& inp_query) noexcept {
