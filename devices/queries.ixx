@@ -336,21 +336,41 @@ export namespace fs8 {
     template <typename T>
     concept field_range = std::ranges::forward_range<T> && std::same_as<std::ranges::range_value_t<T>, query_term>;
 
+    constexpr query_target positive(query_target target) noexcept {
+        return static_cast<query_target>(std::to_underlying(target) & ~+query_target::nomatch_flag);
+    }
+
+    [[nodiscard]] constexpr bool is_negated(query_target const target) noexcept {
+        return (std::to_underlying(target) & +query_target::nomatch_flag) != 0;
+    }
+
     [[nodiscard]] constexpr bool is_subsystem(query_term const& field) noexcept {
-        return field.target == query_target::match_subsystem;
+        return positive(field.target) == query_target::match_subsystem;
     }
 
     [[nodiscard]] constexpr bool is_property(query_term const& field) noexcept {
-        return field.target == query_target::match_property;
+        return positive(field.target) == query_target::match_property;
     }
 
     [[nodiscard]] constexpr bool is_sysattr(query_term const& field) noexcept {
-        return field.target == query_target::match_sysattr;
+        return positive(field.target) == query_target::match_sysattr;
+    }
+
+    [[nodiscard]] constexpr bool is_positive_subsystem(query_term const& field) noexcept {
+        return is_subsystem(field) && !is_negated(field.target);
+    }
+
+    [[nodiscard]] constexpr bool is_positive_property(query_term const& field) noexcept {
+        return is_property(field) && !is_negated(field.target);
+    }
+
+    [[nodiscard]] constexpr bool is_positive_sysattr(query_term const& field) noexcept {
+        return is_sysattr(field) && !is_negated(field.target);
     }
 
     template <std::size_t N>
     [[nodiscard]] constexpr auto subsystems(basic_device_query<N> const& inp_query) noexcept {
-        return inp_query.fields | std::views::filter(is_subsystem);
+        return inp_query.fields | std::views::filter(is_positive_subsystem);
     }
 
     [[nodiscard]] constexpr query_term subsystem(std::string_view const sub, std::string_view const devtype = {}) noexcept {
@@ -359,12 +379,12 @@ export namespace fs8 {
 
     template <std::size_t N>
     [[nodiscard]] constexpr auto properties(basic_device_query<N> const& inp_query) noexcept {
-        return inp_query.fields | std::views::filter(is_property);
+        return inp_query.fields | std::views::filter(is_positive_property);
     }
 
     template <std::size_t N>
     [[nodiscard]] constexpr auto sysattrs(basic_device_query<N> const& inp_query) noexcept {
-        return inp_query.fields | std::views::filter(is_sysattr);
+        return inp_query.fields | std::views::filter(is_positive_sysattr);
     }
 
     query_term       property(device_query const& inp_query, std::string_view key) noexcept;

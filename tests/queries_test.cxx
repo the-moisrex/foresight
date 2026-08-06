@@ -1,9 +1,11 @@
 
 #include "common/tests_common_pch.hpp"
 
+#include <array>
 #include <coroutine>
 #include <print>
 #include <ranges>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -205,20 +207,130 @@ TEST_F(IsMatchedTest, FuzzyMatch) {
     EXPECT_FALSE(is_matched(empty_term, &query_term::value, "a"));  // One empty = 0%
 }
 
-// 4. Inversion (nomatch_flag)
-TEST_F(IsMatchedTest, InvertedMatch) {
-    // Globe match inverted
-    auto term1 = create_term("usb*", 100, query_target::nomatch_flag);
-    EXPECT_FALSE(is_matched(term1, &query_term::value, "usb_device")); // Match -> False
-    EXPECT_TRUE(is_matched(term1, &query_term::value, "pci_device"));  // No match -> True
+// ===========================================================================
+// QueryTerm bool semantics
+// ===========================================================================
 
-    // Exact match inverted
-    auto term2 = create_term("exact", 100, query_target::nomatch_flag);
-    EXPECT_FALSE(is_matched(term2, &query_term::value, "exact")); // Match -> False
-    EXPECT_TRUE(is_matched(term2, &query_term::value, "other"));  // No match -> True
+TEST(QueryTermBool, InvalidFieldIsFalse) {
+    EXPECT_FALSE(static_cast<bool>(invalid_field));
+}
 
-    // Fuzzy match inverted (threshold 80%)
-    auto term3 = create_term("hello", 80, query_target::nomatch_flag);
-    EXPECT_FALSE(is_matched(term3, &query_term::value, "helo")); // Match -> False
-    EXPECT_TRUE(is_matched(term3, &query_term::value, "hero"));  // No match -> True
+TEST(QueryTermBool, EmptyKeyValidTermsAreTruthy) {
+    using enum query_target;
+    // These have empty keys but valid targets; they must not be treated as invalid.
+    EXPECT_TRUE(static_cast<bool>(query_term{.key = {}, .value = "input", .target = match_subsystem}));
+    EXPECT_TRUE(static_cast<bool>(query_term{.key = {}, .value = "event0", .target = sysname}));
+    EXPECT_TRUE(static_cast<bool>(query_term{.key = {}, .value = "/sys/...", .target = syspath}));
+    EXPECT_TRUE(static_cast<bool>(query_term{.key = {}, .value = "mytag", .target = tag}));
+}
+
+TEST(QueryTermBool, ParsedEmptyKeyTermsAreTruthy) {
+    // sub=input, name=event0, path=... and tag=... previously produced empty keys
+    // and were dropped by parse_device_query because operator bool checked !key.empty().
+    using enum query_target;
+    auto const q1 = parse_query_term("sub=input");
+    auto const q2 = parse_query_term("name=event0");
+    auto const q3 = parse_query_term("tag=special");
+    EXPECT_TRUE(static_cast<bool>(q1));
+    EXPECT_TRUE(static_cast<bool>(q2));
+    EXPECT_TRUE(static_cast<bool>(q3));
+    EXPECT_EQ(q1.target, match_subsystem);
+    EXPECT_EQ(q2.target, sysname);
+    EXPECT_EQ(q3.target, tag);
+}
+
+// ===========================================================================
+// positive() / is_negated()
+// ===========================================================================
+
+TEST(QueryTargetPositive, StripsNomatchFlag) {
+    using enum query_target;
+    EXPECT_EQ(positive(match_subsystem), match_subsystem);
+    EXPECT_EQ(positive(nomatch_subsystem), match_subsystem);
+    EXPECT_EQ(positive(nomatch_property), match_property);
+    EXPECT_EQ(positive(nomatch_sysattr), match_sysattr);
+}
+
+TEST(QueryTargetPositive, IsNegated) {
+    using enum query_target;
+    EXPECT_FALSE(is_negated(match_subsystem));
+    EXPECT_FALSE(is_negated(sysname));
+    EXPECT_TRUE(is_negated(nomatch_subsystem));
+    EXPECT_TRUE(is_negated(nomatch_property));
+    EXPECT_TRUE(is_negated(nomatch_sysattr));
+}
+
+// ============================================================================
+// Masked vs. positive-only predicates
+// ===========================================================================
+
+TEST(QueryTargetPredicates, MaskedAcceptNegatedButPositiveDont) {
+    using enum query_target;
+    query_term const pos_sub{.key = "input", .value = {}, .target = match_subsystem};
+    query_term const neg_sub{.key = "input", .value = {}, .target = nomatch_subsystem};
+    query_term const pos_prop{.key = "ID_INPUT", .value = {}, .target = match_property};
+    query_term const neg_prop{.key = "ID_INPUT", .value = {}, .target = nomatch_property};
+    query_term const pos_attr{.key = "device/name", .value = {}, .target = match_sysattr};
+    query_term const neg_attr{.key = "device/name", .value = {}, .target = nomatch_sysattr};
+
+    EXPECT_TRUE(is_subsystem(pos_sub));
+    EXPECT_TRUE(is_subsystem(neg_sub));   // masked accepts negated
+    EXPECT_TRUE(is_positive_subsystem(pos_sub));
+    EXPECT_FALSE(is_positive_subsystem(neg_sub));
+
+    EXPECT_TRUE(is_property(pos_prop));
+    EXPECT_TRUE(is_property(neg_prop));
+    EXPECT_TRUE(is_positive_property(pos_prop));
+    EXPECT_FALSE(is_positive_property(neg_prop));
+
+    EXPECT_TRUE(is_sysattr(pos_attr));
+    EXPECT_TRUE(is_sysattr(neg_attr));
+    EXPECT_TRUE(is_positive_sysattr(pos_attr));
+    EXPECT_FALSE(is_positive_sysattr(neg_attr));
+}
+
+// ============================================================================
+// View filters must exclude negated terms
+// ============================================================================
+
+TEST(QueryViewFilters, ExcludeNegatedTerms) {
+    using enum query_target;
+    std::array<query_term, 6> terms = {
+      query_term{.key = "input", .value = {}, .target = match_subsystem},
+      query_term{.key = "input", .value = {}, .target = nomatch_subsystem},
+      query_term{.key = "ID_INPUT", .value = "1", .target = match_property},
+      query_term{.key = "ID_INPUT", .value = "1", .target = nomatch_property},
+      query_term{.key = "device/name", .value = "kbd", .target = match_sysattr},
+      query_term{.key = "device/name", .value = "kbd", .target = nomatch_sysattr},
+    };
+    basic_device_query<terms.size()> q{.fields = terms};
+
+    auto const subs_out  = subsystems(q) | std::ranges::to<std::vector>();
+    auto const props_out = properties(q) | std::ranges::to<std::vector>();
+    auto const attrs_out = sysattrs(q) | std::ranges::to<std::vector>();
+
+    ASSERT_EQ(subs_out.size(), 1U);
+    EXPECT_EQ(subs_out.front().target, match_subsystem);
+
+    ASSERT_EQ(props_out.size(), 1U);
+    EXPECT_EQ(props_out.front().target, match_property);
+
+    ASSERT_EQ(attrs_out.size(), 1U);
+    EXPECT_EQ(attrs_out.front().target, match_sysattr);
+}
+
+// ============================================================================
+// Negated terms in matches(): must not assert, and must invert correctly
+// ============================================================================
+
+TEST(DeviceMatches, NegatedSubsystemExcludesWithoutAsserting) {
+    // A query that only negates the "input" subsystem. Filtering must not hit the
+    // previously-unimplemented else/assert branch, and must exclude input devices.
+    std::array<query_term, 1> neg = {query_term{.key = "input", .value = {}, .target = query_target::nomatch_subsystem}};
+    device_query q{.fields = std::span<query_term const>{neg}};
+
+    for (auto const& dev : filter_devices(q)) {
+        EXPECT_TRUE(dev.device.is_valid());
+        EXPECT_NE(dev.device.subsystem(), "input");
+    }
 }

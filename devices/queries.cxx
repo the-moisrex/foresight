@@ -253,13 +253,13 @@ bool fs8::matches(udev_device const& dev, device_query const& inp_query) noexcep
 // 2. Apply rules to find these devices
 void fs8::match(udev_enumerate& enumerate, device_query const& inp_query) noexcept {
     for (auto const& field : inp_query.fields) {
-        if (is_subsystem(field)) {
+        if (is_positive_subsystem(field)) {
             enumerate.match_subsystem(field.key.data());
             if (!field.value.empty()) {
                 // Property-level filter (The equivalent of matching devtype)
                 enumerate.match_property("DEVTYPE", field.value.data());
             }
-        } else if (is_property(field)) {
+        } else if (is_positive_property(field)) {
             enumerate.match_property(field.key.data(), field.value.data());
         }
     }
