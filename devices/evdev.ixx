@@ -324,6 +324,20 @@ namespace fs8 {
             return std::move(std::move(ranker).dev);
         }
 
+        // udev_device_pick
+        template <typename T>
+            requires requires(T pick) { pick.device.subsystem(); }
+        [[nodiscard]] auto operator()(T const& pick) const noexcept {
+            return evdev{pick.device.subsystem()};
+        }
+
+        // udev_device
+        template <typename T>
+            requires requires(T device) { device.subsystem(); }
+        [[nodiscard]] auto operator()(T const& device) const noexcept {
+            return evdev{device.subsystem()};
+        }
+
         template <std::ranges::range Range>
         [[nodiscard]] constexpr auto operator()(Range&& rng) const noexcept {
             return std::forward<Range>(rng) | std::views::transform(*this);

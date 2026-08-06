@@ -15,24 +15,6 @@ import fs8.devices.queries;
 
 namespace fs8 {
 
-    export constexpr std::uint8_t no_query = std::numeric_limits<std::uint8_t>::max();
-
-    struct [[nodiscard]] evdev_pick {
-        evdev        device;
-        std::uint8_t query_index = no_query;
-    };
-
-    /// Convert a `udev device` into a `evdev device`.
-    export constexpr struct [[nodiscard]] basic_to_evdev_pick : std::ranges::range_adaptor_closure<basic_to_evdev_pick> {
-        [[nodiscard]] constexpr auto operator()(udev_device_pick const& pick) const noexcept {
-            return evdev_pick{.device = evdev{pick.device.subsystem()}, .query_index = pick.query_index};
-        }
-
-        template <std::ranges::range Range>
-        [[nodiscard]] constexpr auto operator()(Range&& rng) const noexcept {
-            return std::forward<Range>(rng) | std::views::transform(*this);
-        }
-    } to_evdev_pick;
 
     /**
      * Monitor and manage input devices.
@@ -69,21 +51,20 @@ namespace fs8 {
         }
 
         /// Add device manually
-        void add(evdev&& inp_dev, device_query inp_query);
+        void add(evdev&& inp_dev);
+        void add(device_query const& inp_query);
 
         /// Append new queries and their devices
-        template <typename ... QueryT>
+        template <typename... QueryT>
             requires((std::convertible_to<QueryT, device_query> && ...))
         void add(QueryT const&... inp_queries) {
-            devs.append_range(filter_devices(inp_queries...) | to_evdev_pick);
+            devs.append_range(filter_devices(inp_queries...) | to_evdev);
             (queries.emplace_back(inp_queries), ...);
         }
 
         [[nodiscard]] auto devices(this auto&& self) noexcept {
             assert(self.monitor.has_value());
-            return self.devs | std::views::transform([]<typename PickT>(PickT&& pick) noexcept {
-                       return std::forward_like<PickT>(pick.device);
-                   });
+            return std::span{self.devs};
         }
 
         /// Initialize monitoring
@@ -91,7 +72,7 @@ namespace fs8 {
 
       private:
         std::optional<udev_monitor> monitor = std::nullopt;
-        std::vector<evdev_pick>     devs;
+        std::vector<evdev>          devs;
         std::vector<device_query>   queries;
         std::vector<pollfd>         fds;
     };

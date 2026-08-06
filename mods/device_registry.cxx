@@ -1,6 +1,8 @@
 // Created by moisrex on 7/18/26.
 
 module;
+#include <algorithm>
+#include <functional>
 #include <poll.h>
 #include <ranges>
 #include <vector>
@@ -27,19 +29,11 @@ namespace {
 
 } // namespace
 
-void basic_device_registry::add(evdev&& inp_dev, device_query inp_query) {
-    std::uint8_t query_index = 0;
-    for (auto const& cur_query : queries) {
-        if (inp_query == cur_query) {
-            break;
-        }
-        ++query_index;
-    }
-    if (query_index == queries.size()) {
-        query_index = fs8::no_query;
-    }
+void basic_device_registry::add(evdev&& inp_dev) {
+    devs.emplace_back(std::move(inp_dev));
+}
 
-    devs.emplace_back(std::move(inp_dev), query_index);
+void basic_device_registry::add(device_query const& inp_query) {
     queries.emplace_back(std::move(inp_query));
 }
 
@@ -53,25 +47,17 @@ context_action basic_device_registry::operator()(start_tag) {
     monitor = std::make_optional<udev_monitor>();
     fds     = get_pollfds(devices());
 
-    std::uint8_t index = 0;
-    for (auto const& query : queries) {
-        if (!query.fail_on_no_match) {
-            ++index;
+
+    for (auto const& cur_query : queries) {
+        if (!cur_query.fail_on_no_match) {
             continue;
         }
 
-        bool found = false;
-        for (auto const& pick : devs) {
-            if (pick.query_index == index) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            log("Needed this query but didn't found it: {}", to_string(query));
+        auto const are_matched = std::bind_back(static_cast<bool (*)(evdev const&, device_query const&)>(matches), cur_query);
+        if (!std::ranges::any_of(devs, are_matched)) [[unlikely]] {
+            log("Needed this query but didn't found it: {}", to_string(cur_query));
             return exit;
         }
-        ++index;
     }
     return next;
 }
