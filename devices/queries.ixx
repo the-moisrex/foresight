@@ -98,9 +98,7 @@ export namespace fs8 {
         // NOLINTEND(*-non-private-member-variables-in-classes)
         [[nodiscard]] constexpr bool operator==(query_term const&) const noexcept = default;
 
-        [[nodiscard]] explicit constexpr operator bool() const noexcept {
-            return !key.empty();
-        }
+        [[nodiscard]] explicit constexpr operator bool() const noexcept;
 
         [[nodiscard]] std::string_view operator()(udev_device const& dev) const noexcept {
             using enum query_target;
@@ -125,6 +123,10 @@ export namespace fs8 {
 
     /// Official invalid field
     constexpr query_term invalid_field{.key = {}, .value = {}, .target = query_target::match_subsystem};
+
+    constexpr query_term::operator bool() const noexcept {
+        return *this != invalid_field;
+    }
 
     [[nodiscard]] bool is_matched(query_term const& field, std::string_view query_term::* key_val, std::string_view const val) noexcept;
 

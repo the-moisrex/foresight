@@ -291,11 +291,15 @@ std::generator<fs8::udev_device> fs8::filter_devices(udev_enumerate const& enume
 
     for (auto const& entry : enumerate.list_entries()) {
         auto dev = udev_device{entry};
+        if (limit == 0) {
+            break;
+        }
         if (!dev) [[unlikely]] {
             continue;
         }
-        if (matches(dev, query) && limit-- != 0) {
+        if (matches(dev, query)) {
             co_yield std::move(dev);
+            --limit;
         }
     }
 }
@@ -320,7 +324,7 @@ fs8::query_term fs8::sysattr(device_query const& inp_query, std::string_view con
 
 std::string_view fs8::name(device_query const& inp_query) noexcept {
     auto const field = sysattr(inp_query, "device/name");
-    return field ? "" : field.value;
+    return field ? field.value : "";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
