@@ -75,9 +75,9 @@ export namespace fs8 {
     template <typename FuncT, typename... Args>
     [[nodiscard]] bool invoke_bool(FuncT&& func, Args&&... args) {
         if constexpr (std::convertible_to<bool, std::invoke_result_t<FuncT, Args...>>) {
-            return (std::forward<FuncT>(func))(std::forward<Args>(args)...);
+            return std::forward<FuncT>(func)(std::forward<Args>(args)...);
         } else {
-            (std::forward<FuncT>(func))(std::forward<Args>(args)...);
+            std::forward<FuncT>(func)(std::forward<Args>(args)...);
             return true;
         }
     }

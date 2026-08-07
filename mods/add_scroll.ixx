@@ -11,6 +11,7 @@ import fs8.mods.quantifier;
 import fs8.mods.inout;
 import fs8.event;
 import fs8.utils;
+import fs8.traits;
 
 export namespace fs8 {
 
@@ -21,7 +22,9 @@ export namespace fs8 {
     }
 
     template <typename CondT = basic_noop, typename Func = basic_noop>
-    struct [[nodiscard]] basic_add_scroll {
+    struct [[nodiscard]] basic_add_scroll : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using value_type = event_type::value_type;
         using code_type  = event_type::code_type;
 
@@ -32,20 +35,12 @@ export namespace fs8 {
         [[no_unique_address]] Func  func;
 
       public:
-        constexpr basic_add_scroll() noexcept = default;
-
         constexpr explicit basic_add_scroll(CondT const &inp_cond, value_type const inp_reverse = 5, Func const &inp_func = {}) noexcept
           : reverse{inp_reverse},
             cond{inp_cond},
             func{inp_func} {
             assert(reverse != 0);
         }
-
-        consteval basic_add_scroll(basic_add_scroll const &) noexcept            = default;
-        constexpr basic_add_scroll(basic_add_scroll &&) noexcept                 = default;
-        consteval basic_add_scroll &operator=(basic_add_scroll const &) noexcept = default;
-        constexpr basic_add_scroll &operator=(basic_add_scroll &&) noexcept      = default;
-        constexpr ~basic_add_scroll() noexcept                                   = default;
 
         [[nodiscard]] constexpr bool is_locked() const noexcept {
             return lock;

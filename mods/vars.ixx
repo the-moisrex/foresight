@@ -8,6 +8,7 @@ module;
 export module fs8.mods.vars;
 import fs8.context;
 import fs8.utils;
+import fs8.traits;
 
 export namespace fs8 {
 
@@ -16,7 +17,9 @@ export namespace fs8 {
      * This struct only holds one single variable
      */
     template <typename T>
-    struct [[nodiscard]] var_type {
+    struct [[nodiscard]] var_type : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         static_assert(std::default_initializable<T> && std::copyable<T>, "T Must be Constructible and Copyable");
 
         // We don't want to wrap the value in std::optional when we don't need to.
@@ -37,12 +40,6 @@ export namespace fs8 {
             obj{std::forward<Arg>(initial_value)} {}
 
         explicit(false) consteval var_type(std::string_view const inp_name) noexcept : name{inp_name} {}
-
-        consteval var_type(var_type const&)                = default;
-        constexpr var_type(var_type&&) noexcept            = default;
-        consteval var_type& operator=(var_type const&)     = default;
-        constexpr var_type& operator=(var_type&&) noexcept = default;
-        constexpr ~var_type()                              = default;
 
         /// Get variable names
         [[nodiscard]] consteval std::array<std::string_view, 1> operator[](get_variables_tag) const noexcept {

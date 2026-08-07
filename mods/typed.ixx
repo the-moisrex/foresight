@@ -12,6 +12,7 @@ import fs8.context;
 import fs8.lib.xkb;
 import fs8.lib.mod_parser;
 import fs8.log;
+import fs8.traits;
 
 namespace fs8 {
 
@@ -23,7 +24,9 @@ namespace fs8 {
      * This allows checking if a state is still valid by comparing generations, useful for
      * detecting invalidations in structures like vectors where elements may be moved or removed.
      */
-    export struct [[nodiscard]] aho_state {
+    export struct [[nodiscard]] aho_state : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         /// Number of bits for the index.
         static constexpr std::uint32_t INDEX_BITS       = 24U;
         /// Number of bits for the generation counter.
@@ -39,16 +42,6 @@ namespace fs8 {
         std::uint32_t value : 24U; // The index bit-field (24 bits).
         std::uint8_t  gen   : 8U;  // The generation bit-field (8 bits).
       public:
-        /**
-         * @brief Default constructor, initializes index and generation to 0.
-         */
-        constexpr aho_state() noexcept                            = default;
-        constexpr aho_state(aho_state const&)                     = default;
-        constexpr aho_state(aho_state&&) noexcept                 = default;
-        constexpr aho_state& operator=(aho_state&&) noexcept      = default;
-        constexpr aho_state& operator=(aho_state const&) noexcept = default;
-        constexpr ~aho_state() noexcept                           = default;
-
         /**
          * @brief Constructor from a raw 32-bit unsigned integer value.
          * @param raw_value The raw value to wrap.
@@ -112,7 +105,9 @@ namespace fs8 {
     /**
      * Aho-Corasick status
      */
-    export struct [[nodiscard]] basic_search_engine {
+    export struct [[nodiscard]] basic_search_engine : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using state_type = std::uint32_t;
 
         using output_link_type                    = std::uint32_t;
@@ -147,13 +142,6 @@ namespace fs8 {
         [[nodiscard]] std::uint32_t add_child(state_type state, char32_t code, state_type child_index);
 
       public:
-        consteval basic_search_engine() noexcept                                 = default;
-        consteval basic_search_engine(basic_search_engine const&)                = default;
-        constexpr basic_search_engine(basic_search_engine&&) noexcept            = default;
-        consteval basic_search_engine& operator=(basic_search_engine const&)     = default;
-        constexpr basic_search_engine& operator=(basic_search_engine&&) noexcept = default;
-        constexpr ~basic_search_engine()                                         = default;
-
         /**
          * Add a new pattern to search for
          * @param pattern It's a UTF-8-encoded string that we will try to find later on
@@ -187,7 +175,9 @@ namespace fs8 {
     /**
      * This class calculates and stores the state of the keys being typed by the user in style of a hash.
      */
-    export constexpr struct [[nodiscard]] basic_typed {
+    export constexpr struct [[nodiscard]] basic_typed : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         static constexpr std::uint16_t invalid_trigger_id = std::numeric_limits<std::uint16_t>::max();
 
       private:
@@ -198,13 +188,6 @@ namespace fs8 {
 
       public:
         explicit consteval basic_typed(std::string_view const inp_pattern) noexcept : pattern{inp_pattern} {}
-
-        consteval basic_typed() noexcept                               = default;
-        consteval basic_typed(basic_typed const& other)                = default;
-        constexpr basic_typed(basic_typed&& other) noexcept            = default;
-        consteval basic_typed& operator=(basic_typed const& other)     = default;
-        constexpr basic_typed& operator=(basic_typed&& other) noexcept = default;
-        constexpr ~basic_typed()                                       = default;
 
         /// Return a new typed class that trigger when "str" is typed by the user.
         consteval basic_typed operator()(std::string_view const inp_trigger) const noexcept {

@@ -9,8 +9,8 @@ module;
 #include <tuple>
 #include <variant>
 export module fs8.context:vars;
-import fs8.utils.strings;
-import fs8.utils.hash;
+import fs8.strings;
+import fs8.hash;
 
 namespace details {
 

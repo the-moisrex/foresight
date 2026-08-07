@@ -9,6 +9,7 @@ export module fs8.mods.intercept;
 import fs8.devices.evdev;
 import fs8.context;
 import fs8.utils;
+import fs8.traits;
 
 export namespace fs8 {
     struct input_file_type {
@@ -19,7 +20,9 @@ export namespace fs8 {
     /**
      * Intercept the keyboard and print them into stdout
      */
-    constexpr struct [[nodiscard]] basic_interceptor {
+    constexpr struct [[nodiscard]] basic_interceptor : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         // Retry to reconnect every N milliseconds:
         static constexpr std::chrono::milliseconds retry_period{5000}; // 5 seconds
 
@@ -27,13 +30,6 @@ export namespace fs8 {
         explicit basic_interceptor(std::span<std::filesystem::path const> inp_paths);
         explicit basic_interceptor(std::span<input_file_type const> inp_paths);
         explicit basic_interceptor(std::vector<evdev>&& inp_devs);
-
-        constexpr basic_interceptor() noexcept                                    = default;
-        consteval basic_interceptor(basic_interceptor const&)                     = default;
-        constexpr basic_interceptor(basic_interceptor&&) noexcept                 = default;
-        consteval basic_interceptor& operator=(basic_interceptor const&) noexcept = default;
-        constexpr basic_interceptor& operator=(basic_interceptor&&) noexcept      = default;
-        constexpr ~basic_interceptor() noexcept                                   = default;
 
         void set_files(std::span<std::filesystem::path const>);
         void set_files(std::span<input_file_type const>);

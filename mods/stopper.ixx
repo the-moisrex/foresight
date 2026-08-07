@@ -2,21 +2,17 @@
 
 export module fs8.mods.stopper;
 import fs8.context;
+import fs8.traits;
 
 export namespace fs8 {
 
-    constexpr struct [[nodiscard]] basic_stopper {
+    constexpr struct [[nodiscard]] basic_stopper : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         bool stopped = false;
 
       public:
-        constexpr basic_stopper() noexcept                                 = default;
-        constexpr basic_stopper(basic_stopper const &) noexcept            = default;
-        constexpr basic_stopper(basic_stopper &&) noexcept                 = default;
-        constexpr basic_stopper &operator=(basic_stopper const &) noexcept = default;
-        constexpr basic_stopper &operator=(basic_stopper &&) noexcept      = default;
-        constexpr ~basic_stopper() noexcept                                = default;
-
         constexpr void stop() noexcept {
             stopped = true;
         }

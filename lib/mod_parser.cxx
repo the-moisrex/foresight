@@ -12,10 +12,10 @@ module;
 module fs8.lib.mod_parser;
 import fs8.event;
 import fs8.devices.key_codes;
-import fs8.utils.hash;
+import fs8.hash;
 import fs8.lib.xkb.event2unicode;
 import fs8.log;
-import fs8.utils.strings;
+import fs8.strings;
 
 using fs8::user_event;
 

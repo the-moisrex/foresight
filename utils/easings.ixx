@@ -2,7 +2,7 @@ module;
 #include <cmath>
 #include <concepts>
 #include <numbers>
-export module fs8.utils.easings;
+export module fs8.easings;
 
 export namespace fs8 {
 

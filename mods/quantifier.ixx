@@ -4,6 +4,7 @@ module;
 export module fs8.mods.quantifier;
 import fs8.event;
 import fs8.context;
+import fs8.traits;
 
 export namespace fs8 {
 
@@ -12,7 +13,9 @@ export namespace fs8 {
      * If you need to act upon each N pixels movement, then this is what you need.
      * This works for SINGLE event code.
      */
-    constexpr struct [[nodiscard]] basic_quantifier {
+    constexpr struct [[nodiscard]] basic_quantifier : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using value_type = event_type::value_type;
         using code_type  = event_type::code_type;
 
@@ -21,15 +24,7 @@ export namespace fs8 {
         value_type value = 0;
 
       public:
-        constexpr basic_quantifier() noexcept = default;
-
         explicit basic_quantifier(value_type inp_step) noexcept;
-
-        consteval basic_quantifier(basic_quantifier const&)                = default;
-        constexpr basic_quantifier(basic_quantifier&&) noexcept            = default;
-        consteval basic_quantifier& operator=(basic_quantifier const&)     = default;
-        constexpr basic_quantifier& operator=(basic_quantifier&&) noexcept = default;
-        constexpr ~basic_quantifier() noexcept                             = default;
 
         void process(event_type const& event, code_type btn_code) noexcept;
 
@@ -39,7 +34,9 @@ export namespace fs8 {
     /**
      * If you want to quantify your mouse movements into steps, this is what you need.
      */
-    constexpr struct [[nodiscard]] basic_mice_quantifier {
+    constexpr struct [[nodiscard]] basic_mice_quantifier : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using value_type = event_type::value_type;
         using code_type  = event_type::code_type;
 
@@ -51,15 +48,7 @@ export namespace fs8 {
         value_type last_abs_y = 0;
 
       public:
-        constexpr basic_mice_quantifier() noexcept = default;
-
         explicit basic_mice_quantifier(value_type inp_step) noexcept;
-
-        consteval basic_mice_quantifier(basic_mice_quantifier const&)                = default;
-        constexpr basic_mice_quantifier(basic_mice_quantifier&&) noexcept            = default;
-        consteval basic_mice_quantifier& operator=(basic_mice_quantifier const&)     = default;
-        constexpr basic_mice_quantifier& operator=(basic_mice_quantifier&&) noexcept = default;
-        constexpr ~basic_mice_quantifier() noexcept                                  = default;
 
         [[nodiscard]] value_type consume_x() noexcept;
         [[nodiscard]] value_type consume_y() noexcept;

@@ -13,7 +13,7 @@ module;
 module fs8.mods.typed;
 import fs8.lib.xkb.how2type;
 import fs8.log;
-import fs8.utils.hash;
+import fs8.hash;
 import fs8.event;
 import fs8.lib.mod_parser;
 

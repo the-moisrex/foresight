@@ -9,10 +9,13 @@ module;
 export module fs8.mods.inout;
 import fs8.context;
 import fs8.event;
+import fs8.traits;
 
 export namespace fs8 {
 
-    constexpr struct [[nodiscard]] basic_output {
+    constexpr struct [[nodiscard]] basic_output : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using ev_type    = event_type::type_type;
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
@@ -21,15 +24,7 @@ export namespace fs8 {
         int file_descriptor = STDOUT_FILENO;
 
       public:
-        constexpr basic_output() noexcept = default;
-
         constexpr explicit basic_output(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
-
-        consteval basic_output(basic_output const&) noexcept            = default;
-        constexpr basic_output(basic_output&&) noexcept                 = default;
-        consteval basic_output& operator=(basic_output const&) noexcept = default;
-        constexpr basic_output& operator=(basic_output&&) noexcept      = default;
-        constexpr ~basic_output() noexcept                              = default;
 
         constexpr void set_output(int const inp_fd) noexcept {
             file_descriptor = inp_fd;
@@ -68,20 +63,14 @@ export namespace fs8 {
 
     static_assert(OutputModifier<basic_output>, "Must be a output modifier.");
 
-    constexpr struct [[nodiscard]] basic_input {
+    constexpr struct [[nodiscard]] basic_input : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         int file_descriptor = STDIN_FILENO;
 
       public:
-        constexpr basic_input() noexcept = default;
-
         constexpr explicit basic_input(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
-
-        consteval basic_input(basic_input const&) noexcept            = default;
-        constexpr basic_input(basic_input&&) noexcept                 = default;
-        consteval basic_input& operator=(basic_input const&) noexcept = default;
-        constexpr basic_input& operator=(basic_input&&) noexcept      = default;
-        constexpr ~basic_input() noexcept                             = default;
 
         context_action operator()(Context auto& ctx, load_event_tag) const noexcept {
             using enum context_action;

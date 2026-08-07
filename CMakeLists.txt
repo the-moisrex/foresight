@@ -138,6 +138,7 @@ target_sources(${LIB_NAME}
         utils/hash.ixx
         utils/nullable_indirect.ixx
         utils/strings.ixx
+        utils/traits.ixx
 )
 
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)

@@ -9,10 +9,13 @@ import fs8.mods.intercept;
 import fs8.devices.capabilities;
 import fs8.mods.ignore;
 import fs8.mods.keys_status;
+import fs8.traits;
 
 export namespace fs8 {
 
-    constexpr struct [[nodiscard]] basic_pressure2mouse_clicks {
+    constexpr struct [[nodiscard]] basic_pressure2mouse_clicks : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
@@ -23,13 +26,6 @@ export namespace fs8 {
       public:
         explicit constexpr basic_pressure2mouse_clicks(value_type const inp_pressure_threshold) noexcept
           : pressure_threshold{inp_pressure_threshold} {}
-
-        constexpr basic_pressure2mouse_clicks() noexcept                                              = default;
-        consteval basic_pressure2mouse_clicks(basic_pressure2mouse_clicks const&) noexcept            = default;
-        constexpr basic_pressure2mouse_clicks(basic_pressure2mouse_clicks&&) noexcept                 = default;
-        consteval basic_pressure2mouse_clicks& operator=(basic_pressure2mouse_clicks const&) noexcept = default;
-        constexpr basic_pressure2mouse_clicks& operator=(basic_pressure2mouse_clicks&&) noexcept      = default;
-        constexpr ~basic_pressure2mouse_clicks() noexcept                                             = default;
 
         consteval auto operator()(value_type const inp_pressure_threshold) const noexcept {
             auto res{*this};
@@ -84,7 +80,9 @@ export namespace fs8 {
         context_action operator()(event_type& event) const noexcept;
     } pen2touch;
 
-    constexpr struct [[nodiscard]] basic_pen2mice {
+    constexpr struct [[nodiscard]] basic_pen2mice : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
@@ -92,17 +90,13 @@ export namespace fs8 {
         code_type active_tool = KEY_MAX;
 
       public:
-        constexpr basic_pen2mice() noexcept                                 = default;
-        consteval basic_pen2mice(basic_pen2mice const&) noexcept            = default;
-        constexpr basic_pen2mice(basic_pen2mice&&) noexcept                 = default;
-        consteval basic_pen2mice& operator=(basic_pen2mice const&) noexcept = default;
-        constexpr basic_pen2mice& operator=(basic_pen2mice&&) noexcept      = default;
-        constexpr ~basic_pen2mice() noexcept                                = default;
-
         void operator()(event_type& event) noexcept;
     } pen2mice;
 
-    constexpr struct [[nodiscard]] basic_abs2rel {
+    constexpr struct [[nodiscard]] basic_abs2rel : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
@@ -123,13 +117,6 @@ export namespace fs8 {
 
       public:
         explicit constexpr basic_abs2rel(bool const inp_inherit) noexcept : inherit(inp_inherit) {}
-
-        constexpr basic_abs2rel() noexcept                                = default;
-        consteval basic_abs2rel(basic_abs2rel const&) noexcept            = default;
-        constexpr basic_abs2rel(basic_abs2rel&&) noexcept                 = default;
-        consteval basic_abs2rel& operator=(basic_abs2rel const&) noexcept = default;
-        constexpr basic_abs2rel& operator=(basic_abs2rel&&) noexcept      = default;
-        constexpr ~basic_abs2rel() noexcept                               = default;
 
         void init(evdev const& dev, float scale = 20.0F) noexcept;
 

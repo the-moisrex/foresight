@@ -2,6 +2,7 @@
 
 module;
 #include <algorithm>
+#include <cassert>
 #include <functional>
 #include <memory>
 #include <poll.h>
@@ -33,11 +34,11 @@ namespace {
     }
 } // namespace
 
-struct [[nodiscard]] fs8::basic_device_registry::impl {
-    std::optional<udev_monitor> monitor = std::nullopt;
-    std::vector<evdev>          devs;
-    std::vector<device_query>   queries;
-    std::vector<pollfd>         fds;
+struct [[nodiscard]] basic_device_registry::impl {
+    udev_monitor              monitor;
+    std::vector<evdev>        devs;
+    std::vector<device_query> queries;
+    std::vector<pollfd>       fds;
 };
 
 void basic_device_registry::add(evdev&& inp_dev) {
@@ -59,13 +60,18 @@ std::span<fs8::evdev> basic_device_registry::devices() noexcept {
 context_action basic_device_registry::operator()(start_tag) {
     using enum context_action;
 
-    pimpl = nullable_indirect<impl>::make();
-
-    if (pimpl->monitor.has_value()) {
+    if (pimpl.get() != nullptr) {
         return next;
     }
 
-    pimpl->monitor = std::make_optional<udev_monitor>();
+    pimpl = nullable_indirect<impl>::make();
+
+    if (!pimpl->monitor.is_valid()) [[unlikely]] {
+        log("Cannot start monitoring.");
+        return exit;
+    }
+
+    pimpl->monitor = udev_monitor{};
     pimpl->fds     = get_pollfds(devices());
 
 
@@ -80,6 +86,8 @@ context_action basic_device_registry::operator()(start_tag) {
             return exit;
         }
     }
+
+    pimpl->monitor.enable();
+
     return next;
 }
-

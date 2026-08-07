@@ -6,6 +6,7 @@ module;
 export module fs8.mods.ignore;
 import fs8.context;
 import fs8.devices.capabilities;
+import fs8.traits;
 
 export namespace fs8 {
 
@@ -21,7 +22,9 @@ export namespace fs8 {
      * Ignore Big Mouse Jumps
      * Any jumps bigger than specified threshold is ignored
      */
-    constexpr struct [[nodiscard]] basic_ignore_big_jumps {
+    constexpr struct [[nodiscard]] basic_ignore_big_jumps : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using value_type = event_type::value_type;
 
         static constexpr value_type default_threshold = 50;
@@ -29,15 +32,7 @@ export namespace fs8 {
       private:
         value_type threshold = default_threshold; // pixels to resistance to move
       public:
-        constexpr basic_ignore_big_jumps() noexcept = default;
-
         constexpr explicit basic_ignore_big_jumps(value_type const inp_threshold) noexcept : threshold{inp_threshold} {}
-
-        consteval basic_ignore_big_jumps(basic_ignore_big_jumps const&) noexcept            = default;
-        constexpr basic_ignore_big_jumps(basic_ignore_big_jumps&&) noexcept                 = default;
-        consteval basic_ignore_big_jumps& operator=(basic_ignore_big_jumps const&) noexcept = default;
-        constexpr basic_ignore_big_jumps& operator=(basic_ignore_big_jumps&&) noexcept      = default;
-        constexpr ~basic_ignore_big_jumps() noexcept                                        = default;
 
         consteval basic_ignore_big_jumps operator()(value_type const inp_threshold) const noexcept {
             return basic_ignore_big_jumps{inp_threshold};
@@ -49,7 +44,9 @@ export namespace fs8 {
     /**
      * Ignore initial mouse moves
      */
-    constexpr struct [[nodiscard]] basic_ignore_init_moves {
+    constexpr struct [[nodiscard]] basic_ignore_init_moves : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using value_type = event_type::value_type;
         using msec_type  = std::chrono::microseconds;
 
@@ -65,18 +62,10 @@ export namespace fs8 {
         msec_type  last_moved{0};
 
       public:
-        constexpr basic_ignore_init_moves() noexcept = default;
-
         constexpr explicit basic_ignore_init_moves(value_type const inp_threshold,
                                                    msec_type const  inp_time_threshold = default_time_threshold) noexcept
           : threshold{inp_threshold},
             time_threshold{inp_time_threshold} {}
-
-        consteval basic_ignore_init_moves(basic_ignore_init_moves const&) noexcept            = default;
-        constexpr basic_ignore_init_moves(basic_ignore_init_moves&&) noexcept                 = default;
-        consteval basic_ignore_init_moves& operator=(basic_ignore_init_moves const&) noexcept = default;
-        constexpr basic_ignore_init_moves& operator=(basic_ignore_init_moves&&) noexcept      = default;
-        constexpr ~basic_ignore_init_moves() noexcept                                         = default;
 
         consteval basic_ignore_init_moves operator()(value_type const inp_threshold,
                                                      msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
@@ -90,7 +79,8 @@ export namespace fs8 {
         context_action operator()(event_type const& event) noexcept;
     } ignore_mouse_moves;
 
-    constexpr struct [[nodiscard]] basic_ignore_fast_repeats {
+    constexpr struct [[nodiscard]] basic_ignore_fast_repeats : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
         using msec_type = std::chrono::microseconds;
 
       private:
@@ -101,18 +91,10 @@ export namespace fs8 {
         msec_type  last_emitted{0};
 
       public:
-        constexpr basic_ignore_fast_repeats() noexcept = default;
-
         constexpr explicit basic_ignore_fast_repeats(event_code const inp_code,
                                                      msec_type const  inp_time_threshold = default_time_threshold) noexcept
           : code{.type = inp_code.type, .code = inp_code.code, .value = 1},
             time_threshold{inp_time_threshold} {}
-
-        consteval basic_ignore_fast_repeats(basic_ignore_fast_repeats const&) noexcept            = default;
-        constexpr basic_ignore_fast_repeats(basic_ignore_fast_repeats&&) noexcept                 = default;
-        consteval basic_ignore_fast_repeats& operator=(basic_ignore_fast_repeats const&) noexcept = default;
-        constexpr basic_ignore_fast_repeats& operator=(basic_ignore_fast_repeats&&) noexcept      = default;
-        constexpr ~basic_ignore_fast_repeats() noexcept                                           = default;
 
         consteval basic_ignore_fast_repeats operator()(event_code const inp_code,
                                                        msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
@@ -123,20 +105,14 @@ export namespace fs8 {
     } ignore_fast_repeats;
 
     template <std::size_t N>
-    struct [[nodiscard]] basic_ignore_keys {
+    struct [[nodiscard]] basic_ignore_keys : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         std::array<event_code, N> codes{};
 
       public:
-        constexpr basic_ignore_keys() noexcept = default;
-
         constexpr explicit basic_ignore_keys(std::array<event_code, N> const inp_codes) noexcept : codes{inp_codes} {}
-
-        consteval basic_ignore_keys(basic_ignore_keys const&) noexcept            = default;
-        constexpr basic_ignore_keys(basic_ignore_keys&&) noexcept                 = default;
-        consteval basic_ignore_keys& operator=(basic_ignore_keys const&) noexcept = default;
-        constexpr basic_ignore_keys& operator=(basic_ignore_keys&&) noexcept      = default;
-        constexpr ~basic_ignore_keys() noexcept                                   = default;
 
         template <std::size_t NN>
         consteval basic_ignore_keys operator()(std::array<event_code, NN> const inp_codes) const noexcept {
@@ -167,20 +143,14 @@ export namespace fs8 {
 
     constexpr basic_ignore_keys<0> ignore_keys;
 
-    constexpr struct [[nodiscard]] basic_ignore_caps {
+    constexpr struct [[nodiscard]] basic_ignore_caps : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         dev_caps_view caps{};
 
       public:
-        constexpr basic_ignore_caps() noexcept = default;
-
         constexpr explicit basic_ignore_caps(dev_caps_view const inp_caps) noexcept : caps{inp_caps} {}
-
-        consteval basic_ignore_caps(basic_ignore_caps const&) noexcept            = default;
-        constexpr basic_ignore_caps(basic_ignore_caps&&) noexcept                 = default;
-        consteval basic_ignore_caps& operator=(basic_ignore_caps const&) noexcept = default;
-        constexpr basic_ignore_caps& operator=(basic_ignore_caps&&) noexcept      = default;
-        constexpr ~basic_ignore_caps() noexcept                                   = default;
 
         consteval auto operator()(dev_caps_view const inp_caps) const noexcept {
             return basic_ignore_caps{inp_caps};
@@ -189,21 +159,15 @@ export namespace fs8 {
         context_action operator()(event_type const& event) const noexcept;
     } ignore_caps;
 
-    constexpr struct [[nodiscard]] basic_ignore_start_moves {
+    constexpr struct [[nodiscard]] basic_ignore_start_moves : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         std::uint32_t emit_threshold = 50;
         std::uint32_t emitted_count{0};
 
       public:
-        constexpr basic_ignore_start_moves() noexcept = default;
-
         constexpr explicit basic_ignore_start_moves(std::uint32_t const inp_time_threshold) noexcept : emit_threshold{inp_time_threshold} {}
-
-        consteval basic_ignore_start_moves(basic_ignore_start_moves const&) noexcept            = default;
-        constexpr basic_ignore_start_moves(basic_ignore_start_moves&&) noexcept                 = default;
-        consteval basic_ignore_start_moves& operator=(basic_ignore_start_moves const&) noexcept = default;
-        constexpr basic_ignore_start_moves& operator=(basic_ignore_start_moves&&) noexcept      = default;
-        constexpr ~basic_ignore_start_moves() noexcept                                          = default;
 
         consteval basic_ignore_start_moves operator()(std::uint32_t const inp_time_threshold) const noexcept {
             return basic_ignore_start_moves{inp_time_threshold};
@@ -213,23 +177,17 @@ export namespace fs8 {
         context_action operator()(event_type const& event) noexcept;
     } ignore_start_moves;
 
-    constexpr struct [[nodiscard]] basic_ignore_adjacent_repeats {
+    constexpr struct [[nodiscard]] basic_ignore_adjacent_repeats : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         event_code asked_event{};
         bool       is_found = false;
 
       public:
-        constexpr basic_ignore_adjacent_repeats() noexcept = default;
-
         constexpr explicit basic_ignore_adjacent_repeats(event_code const code) noexcept : asked_event{code} {}
 
         constexpr explicit basic_ignore_adjacent_repeats(event_type const code) noexcept : asked_event{static_cast<event_code>(code)} {}
-
-        consteval basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats const&) noexcept            = default;
-        constexpr basic_ignore_adjacent_repeats(basic_ignore_adjacent_repeats&&) noexcept                 = default;
-        consteval basic_ignore_adjacent_repeats& operator=(basic_ignore_adjacent_repeats const&) noexcept = default;
-        constexpr basic_ignore_adjacent_repeats& operator=(basic_ignore_adjacent_repeats&&) noexcept      = default;
-        constexpr ~basic_ignore_adjacent_repeats() noexcept                                               = default;
 
         consteval basic_ignore_adjacent_repeats operator()(event_code const code) const noexcept {
             return basic_ignore_adjacent_repeats{code};
@@ -253,11 +211,11 @@ export namespace fs8 {
     constexpr basic_ignore_adjacent_repeats ignore_adjacent_syns{syn()};
 
     constexpr basic_ignore_fast_repeats ignore_fast_left_clicks{
-      {EV_KEY, BTN_LEFT}
+      {.type = EV_KEY, .code = BTN_LEFT}
     };
 
     constexpr basic_ignore_fast_repeats ignore_fast_right_clicks{
-      {EV_KEY, BTN_RIGHT}
+      {.type = EV_KEY, .code = BTN_RIGHT}
     };
 
     // todo: ignore_types(EV_ABS)

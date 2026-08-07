@@ -2,7 +2,7 @@
 module;
 #include <cstdint>
 #include <string_view>
-export module fs8.utils.hash;
+export module fs8.hash;
 
 namespace fs8 {
 

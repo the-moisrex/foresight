@@ -7,6 +7,7 @@ export module fs8.mods.typer;
 import fs8.context;
 import fs8.event;
 import fs8.lib.xkb.how2type;
+import fs8.traits;
 
 namespace fs8 {
 
@@ -29,7 +30,9 @@ namespace fs8 {
      * This struct will help you emit events corresponding to a string
      */
     export template <typename StrGetter = std::u32string_view>
-    struct [[nodiscard]] basic_type_string {
+    struct [[nodiscard]] basic_type_string : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         // we ust optional to make `constexpr` possible
         [[no_unique_address]] StrGetter event_getter;
@@ -38,13 +41,6 @@ namespace fs8 {
         template <typename Getter>
             requires(std::convertible_to<Getter, StrGetter>)
         explicit constexpr basic_type_string(Getter&& getter) : event_getter{std::forward<Getter>(getter)} {}
-
-        constexpr basic_type_string()                                        = default;
-        constexpr basic_type_string(basic_type_string const&)                = default;
-        constexpr basic_type_string(basic_type_string&&) noexcept            = default;
-        constexpr basic_type_string& operator=(basic_type_string const&)     = default;
-        constexpr basic_type_string& operator=(basic_type_string&&) noexcept = default;
-        constexpr ~basic_type_string()                                       = default;
 
         consteval auto operator()(std::u32string_view const str) const noexcept {
             return basic_type_string<std::u32string_view>{str};

@@ -13,6 +13,7 @@ export module fs8.mods.on;
 export import fs8.utils;
 import fs8.mods.keys_status;
 import fs8.context;
+import fs8.traits;
 
 namespace fs8 {
 
@@ -38,7 +39,9 @@ namespace fs8 {
      * @tparam Funcs What to run when the condition is true
      */
     export template <typename CondT = basic_always_enable, typename... Funcs>
-    struct [[nodiscard]] basic_on {
+    struct [[nodiscard]] basic_on : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         template <typename CtxT>
         static constexpr bool can_generate_events = (invokable_mod<Funcs, CtxT, next_event_tag> || ...);
 
@@ -48,8 +51,6 @@ namespace fs8 {
         bool                                       was_active = false;
 
       public:
-        constexpr basic_on() noexcept = default;
-
         template <typename InpCond, typename... InpFunc>
             requires(std::convertible_to<InpCond, CondT> && (sizeof...(InpFunc) >= 1) && !Context<InpCond> && (!Context<InpFunc> && ...))
         explicit constexpr basic_on(InpCond&& inp_cond, InpFunc&&... inp_funcs) noexcept
@@ -61,12 +62,6 @@ namespace fs8 {
         explicit constexpr basic_on(InpCond&& inp_cond, std::tuple<Funcs...> const& inp_funcs) noexcept
           : cond{std::forward<InpCond>(inp_cond)},
             funcs{inp_funcs} {}
-
-        consteval basic_on(basic_on const&)                = default;
-        consteval basic_on& operator=(basic_on const&)     = default;
-        constexpr basic_on(basic_on&&) noexcept            = default;
-        constexpr basic_on& operator=(basic_on&&) noexcept = default;
-        constexpr ~basic_on() noexcept                     = default;
 
         // todo: should we propagate these to sub-on conditions as well?
         void operator()(auto&&, tag auto) = delete;
@@ -131,7 +126,9 @@ namespace fs8 {
      * @tparam Funcs What to run when the condition is true
      */
     export template <typename CondT = basic_always_enable, typename... Funcs>
-    struct [[nodiscard]] basic_once {
+    struct [[nodiscard]] basic_once : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         template <typename CtxT>
         static constexpr bool can_generate_events = (invokable_mod<Funcs, CtxT, next_event_tag> || ...);
 
@@ -141,8 +138,6 @@ namespace fs8 {
         bool                                       was_active = false;
 
       public:
-        constexpr basic_once() noexcept = default;
-
         template <typename InpCond, typename... InpFunc>
             requires(std::convertible_to<InpCond, CondT> && (sizeof...(InpFunc) >= 1) && !Context<InpCond> && (!Context<InpFunc> && ...))
         explicit constexpr basic_once(InpCond&& inp_cond, InpFunc&&... inp_funcs) noexcept
@@ -154,12 +149,6 @@ namespace fs8 {
         explicit constexpr basic_once(InpCond&& inp_cond, std::tuple<Funcs...> const& inp_funcs) noexcept
           : cond{std::forward<InpCond>(inp_cond)},
             funcs{inp_funcs} {}
-
-        consteval basic_once(basic_once const&)                = default;
-        consteval basic_once& operator=(basic_once const&)     = default;
-        constexpr basic_once(basic_once&&) noexcept            = default;
-        constexpr basic_once& operator=(basic_once&&) noexcept = default;
-        constexpr ~basic_once() noexcept                       = default;
 
         // todo: should we propagate these to sub-on conditions as well?
         void operator()(auto&&, tag auto) = delete;
@@ -219,17 +208,13 @@ namespace fs8 {
     };
 
     export template <template <std::size_t> typename A, std::size_t N>
-    struct [[nodiscard]] basic_code_adaptor {
+    struct [[nodiscard]] basic_code_adaptor : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       protected:
         std::array<code_type, N> codes{};
 
       public:
-        constexpr basic_code_adaptor() noexcept                                     = default;
-        consteval basic_code_adaptor(basic_code_adaptor const&) noexcept            = default;
-        consteval basic_code_adaptor& operator=(basic_code_adaptor const&) noexcept = default;
-        constexpr basic_code_adaptor(basic_code_adaptor&&) noexcept                 = default;
-        constexpr basic_code_adaptor& operator=(basic_code_adaptor&&) noexcept      = default;
-
         explicit constexpr basic_code_adaptor(code_type const code) noexcept
             requires(N == 1)
           : codes{{code}} {}
@@ -305,7 +290,9 @@ namespace fs8 {
     };
 
     export template <typename FuncT>
-    struct [[nodiscard]] basic_longtime_released {
+    struct [[nodiscard]] basic_longtime_released : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         static constexpr std::chrono::milliseconds default_delay{100};
 
       private:
@@ -314,17 +301,9 @@ namespace fs8 {
         std::chrono::microseconds   last_time{};
 
       public:
-        constexpr basic_longtime_released() noexcept = default;
-
         constexpr explicit basic_longtime_released(FuncT const& inp_func, std::chrono::microseconds const inp_dur) noexcept
           : func{inp_func},
             dur{inp_dur} {}
-
-        consteval basic_longtime_released(basic_longtime_released const&) noexcept            = default;
-        consteval basic_longtime_released& operator=(basic_longtime_released const&) noexcept = default;
-        constexpr basic_longtime_released(basic_longtime_released&&) noexcept                 = default;
-        constexpr basic_longtime_released& operator=(basic_longtime_released&&) noexcept      = default;
-        constexpr ~basic_longtime_released() noexcept                                         = default;
 
         // todo: initialize the dur with repetition delay of the keyboard
 
@@ -352,7 +331,9 @@ namespace fs8 {
     export constexpr basic_longtime_released<basic_noop> longtime_released;
 
     export template <typename CondT = basic_noop>
-    struct [[nodiscard]] basic_limit_mouse_travel {
+    struct [[nodiscard]] basic_limit_mouse_travel : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         value_type x_amount = 50;
         value_type y_amount = 50;
@@ -363,8 +344,6 @@ namespace fs8 {
         [[no_unique_address]] CondT cond{};
 
       public:
-        constexpr basic_limit_mouse_travel() noexcept = default;
-
         constexpr explicit basic_limit_mouse_travel(CondT const& inp_cond, value_type const x, value_type const y) noexcept
           : x_amount{x},
             y_amount{y},
@@ -373,12 +352,6 @@ namespace fs8 {
         constexpr explicit basic_limit_mouse_travel(value_type const x, value_type const y) noexcept : x_amount{x}, y_amount{y} {}
 
         constexpr explicit basic_limit_mouse_travel(value_type const both) noexcept : x_amount{both}, y_amount{both} {}
-
-        consteval basic_limit_mouse_travel(basic_limit_mouse_travel const&) noexcept            = default;
-        consteval basic_limit_mouse_travel& operator=(basic_limit_mouse_travel const&) noexcept = default;
-        constexpr basic_limit_mouse_travel(basic_limit_mouse_travel&&) noexcept                 = default;
-        constexpr basic_limit_mouse_travel& operator=(basic_limit_mouse_travel&&) noexcept      = default;
-        constexpr ~basic_limit_mouse_travel() noexcept                                          = default;
 
         consteval basic_limit_mouse_travel operator()(value_type const x, value_type const y) const noexcept {
             return basic_limit_mouse_travel{x, y};
@@ -451,11 +424,13 @@ namespace fs8 {
 
     export template <typename... Funcs>
         requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
-    struct or_op;
+    struct [[nodiscard]] or_op;
 
     export template <typename... Funcs>
         requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
-    struct and_op {
+    struct [[nodiscard]] and_op : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         std::tuple<std::remove_cvref_t<Funcs>...> funcs;
 
@@ -463,12 +438,6 @@ namespace fs8 {
         template <typename... InpFuncs>
             requires((std::convertible_to<InpFuncs, Funcs> && ...))
         explicit(false) constexpr and_op(InpFuncs&&... inp_funcs) noexcept : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
-
-        consteval and_op(and_op const&) noexcept            = default;
-        consteval and_op& operator=(and_op const&) noexcept = default;
-        constexpr and_op& operator=(and_op&&) noexcept      = default;
-        constexpr and_op(and_op&&) noexcept                 = default;
-        constexpr ~and_op() noexcept                        = default;
 
         template <typename Func>
         [[nodiscard]] consteval auto operator&(Func func) const noexcept {
@@ -499,7 +468,9 @@ namespace fs8 {
 
     export template <typename... Funcs>
         requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
-    struct or_op {
+    struct [[nodiscard]] or_op : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         std::tuple<std::remove_cvref_t<Funcs>...> funcs;
 
@@ -507,12 +478,6 @@ namespace fs8 {
         template <typename... InpFuncs>
             requires((std::convertible_to<InpFuncs, Funcs> && ...))
         explicit(false) constexpr or_op(InpFuncs&&... inp_funcs) noexcept : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
-
-        constexpr or_op(or_op const&) noexcept            = default;
-        constexpr or_op& operator=(or_op const&) noexcept = default;
-        constexpr or_op& operator=(or_op&&) noexcept      = default;
-        constexpr or_op(or_op&&) noexcept                 = default;
-        constexpr ~or_op() noexcept                       = default;
 
         template <typename Func>
         [[nodiscard]] consteval auto operator&(Func func) const noexcept {
@@ -543,19 +508,14 @@ namespace fs8 {
         }
     };
 
-    export constexpr struct [[nodiscard]] basic_swipe_detector {
+    export constexpr struct [[nodiscard]] basic_swipe_detector : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         value_type cur_x = 0;
         value_type cur_y = 0;
 
       public:
-        constexpr basic_swipe_detector() noexcept                                       = default;
-        consteval basic_swipe_detector(basic_swipe_detector const&) noexcept            = default;
-        consteval basic_swipe_detector& operator=(basic_swipe_detector const&) noexcept = default;
-        constexpr basic_swipe_detector(basic_swipe_detector&&) noexcept                 = default;
-        constexpr basic_swipe_detector& operator=(basic_swipe_detector&&) noexcept      = default;
-        constexpr ~basic_swipe_detector() noexcept                                      = default;
-
         void reset() noexcept;
 
         [[nodiscard]] constexpr value_type x() const noexcept {
@@ -576,7 +536,9 @@ namespace fs8 {
         void operator()(event_type const& event) noexcept;
     } swipe_detector;
 
-    export struct [[nodiscard]] basic_swipe {
+    export struct [[nodiscard]] basic_swipe : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         value_type x_axis = 0;
         value_type y_axis = 0;
@@ -585,13 +547,6 @@ namespace fs8 {
 
       public:
         constexpr basic_swipe(value_type const inp_x_axis, value_type const inp_y_axis) noexcept : x_axis{inp_x_axis}, y_axis{inp_y_axis} {}
-
-        constexpr basic_swipe() noexcept                              = default;
-        consteval basic_swipe(basic_swipe const&) noexcept            = default;
-        consteval basic_swipe& operator=(basic_swipe const&) noexcept = default;
-        constexpr basic_swipe(basic_swipe&&) noexcept                 = default;
-        constexpr basic_swipe& operator=(basic_swipe&&) noexcept      = default;
-        constexpr ~basic_swipe() noexcept                             = default;
 
         template <Context CtxT>
         [[nodiscard]] bool operator()(CtxT& ctx) noexcept {
@@ -607,7 +562,9 @@ namespace fs8 {
         }
     };
 
-    export struct [[nodiscard]] multi_click {
+    export struct [[nodiscard]] multi_click : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using duration_type = std::chrono::microseconds;
         using msec          = std::chrono::milliseconds;
         using code_type     = user_event::code_type;
@@ -647,12 +604,6 @@ namespace fs8 {
               200
         }) noexcept
           : multi_click{user_event{.type = EV_KEY, .code = code, .value = 0}, inp_count, dur_threshold} {}
-
-        consteval multi_click(multi_click const&) noexcept            = default;
-        consteval multi_click& operator=(multi_click const&) noexcept = default;
-        constexpr multi_click(multi_click&&) noexcept                 = default;
-        constexpr multi_click& operator=(multi_click&&) noexcept      = default;
-        constexpr ~multi_click() noexcept                             = default;
 
         [[nodiscard]] bool operator()(event_type const& event) noexcept;
     };

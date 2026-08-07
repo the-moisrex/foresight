@@ -3,11 +3,12 @@
 //
 
 module;
+#include <cassert>
 #include <memory>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
-export module fs8.utils.nullable_indirect;
+export module fs8.nullable_indirect;
 
 export namespace fs8 {
 
@@ -160,14 +161,16 @@ export namespace fs8 {
         }
 
         [[nodiscard]] constexpr T* operator->() const noexcept {
+            assert(ptr != nullptr);
             return ptr;
         }
 
         [[nodiscard]] constexpr T& operator*() const noexcept {
+            assert(ptr != nullptr);
             return *ptr;
         }
 
-        constexpr explicit operator bool() const noexcept {
+        [[nodiscard]] constexpr explicit operator bool() const noexcept {
             return ptr != nullptr;
         }
 

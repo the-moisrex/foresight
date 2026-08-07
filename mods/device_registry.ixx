@@ -1,26 +1,20 @@
 // Created by moisrex on 7/10/26.
 module;
-#include <memory>
 #include <span>
 export module fs8.mods.device_registry;
 import fs8.context;
 import fs8.devices.evdev;
 import fs8.devices.queries;
-import fs8.utils.nullable_indirect;
+import fs8.nullable_indirect;
+import fs8.traits;
 
-namespace fs8 {
+export namespace fs8 {
 
 
     /**
      * Monitor and manage input devices.
      */
-    export struct [[nodiscard]] basic_device_registry {
-        consteval basic_device_registry() noexcept                                     = default;
-        constexpr basic_device_registry(basic_device_registry&&) noexcept              = default;
-        constexpr basic_device_registry& operator=(basic_device_registry&&) noexcept   = default;
-        consteval basic_device_registry(basic_device_registry const& other)            = default;
-        consteval basic_device_registry& operator=(basic_device_registry const& other) = default;
-        constexpr ~basic_device_registry() noexcept                                    = default;
+    constexpr struct [[nodiscard]] basic_device_registry : consteval_copyable {
 
         /// Add device manually
         void add(evdev&& inp_dev);
@@ -41,10 +35,10 @@ namespace fs8 {
         context_action operator()(start_tag);
 
       private:
+        // can't use std::indirect since it doesn't do what we want at compile-time.
         struct [[nodiscard]] impl;
         nullable_indirect<impl> pimpl{};
-    };
+    } device_registry;
 
-    export constexpr basic_device_registry device_registry;
 
 } // namespace fs8

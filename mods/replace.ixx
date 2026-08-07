@@ -5,6 +5,7 @@ module;
 export module fs8.mods.replace;
 import fs8.event;
 import fs8.context;
+import fs8.traits;
 
 namespace fs8 {
 
@@ -13,22 +14,16 @@ namespace fs8 {
      * Usage: on(cond, put(event_type{...})
      */
     export template <typename EventType = event_code>
-    struct [[nodiscard]] basic_put {
+    struct [[nodiscard]] basic_put : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using code_type = event_code::code_type;
 
       private:
         EventType to;
 
       public:
-        constexpr basic_put() noexcept = default;
-
         constexpr explicit basic_put(EventType const inp_to) noexcept : to{inp_to} {}
-
-        constexpr basic_put(basic_put const&) noexcept            = default;
-        constexpr basic_put(basic_put&&) noexcept                 = default;
-        constexpr basic_put& operator=(basic_put const&) noexcept = default;
-        constexpr basic_put& operator=(basic_put&&) noexcept      = default;
-        constexpr ~basic_put() noexcept                           = default;
 
         consteval auto operator()(event_code const& code) const noexcept {
             return basic_put<event_code>{code};
@@ -60,7 +55,9 @@ namespace fs8 {
      * This doesn't change the value or timestamp, just the type and the code.
      */
     export template <std::size_t N = 0, typename EventType = event_code>
-    struct [[nodiscard]] basic_replace {
+    struct [[nodiscard]] basic_replace : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using code_type = event_code::code_type;
 
       private:
@@ -68,17 +65,9 @@ namespace fs8 {
         std::array<EventType, N> to;
 
       public:
-        constexpr basic_replace() noexcept = default;
-
         constexpr explicit basic_replace(event_code const inp_from, std::array<EventType, N> const& inp_to) noexcept
           : from{inp_from},
             to{inp_to} {}
-
-        consteval basic_replace(basic_replace const&) noexcept            = default;
-        constexpr basic_replace(basic_replace&&) noexcept                 = default;
-        consteval basic_replace& operator=(basic_replace const&) noexcept = default;
-        constexpr basic_replace& operator=(basic_replace&&) noexcept      = default;
-        constexpr ~basic_replace() noexcept                               = default;
 
         template <typename... T>
             requires(std::convertible_to<T, event_code> && ...)

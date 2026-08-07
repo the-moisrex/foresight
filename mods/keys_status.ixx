@@ -8,13 +8,16 @@ module;
 export module fs8.mods.keys_status;
 import fs8.event;
 import fs8.context;
+import fs8.traits;
 
 export namespace fs8 {
 
     /**
      * If you need to check if a key is pressed or not, this is what you need to use.
      */
-    constexpr struct [[nodiscard]] basic_keys_status {
+    constexpr struct [[nodiscard]] basic_keys_status : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
@@ -24,14 +27,6 @@ export namespace fs8 {
         std::array<value_type, KEY_MAX> btns{};
 
       public:
-        // the copy ctor/assignment-op are marked consteval to stop from copying at run time.
-        constexpr basic_keys_status() noexcept                               = default;
-        consteval basic_keys_status(basic_keys_status const&)                = default;
-        constexpr basic_keys_status(basic_keys_status&&) noexcept            = default;
-        consteval basic_keys_status& operator=(basic_keys_status const&)     = default;
-        constexpr basic_keys_status& operator=(basic_keys_status&&) noexcept = default;
-        constexpr ~basic_keys_status() noexcept                              = default;
-
         [[nodiscard]] bool is_pressed(std::span<code_type const> key_codes) const noexcept;
         [[nodiscard]] bool is_pressed_any(std::span<code_type const> key_codes) const noexcept;
         [[nodiscard]] bool is_released(std::span<code_type const> key_codes) const noexcept;
@@ -106,7 +101,9 @@ export namespace fs8 {
     /**
      * Keeps the track of LEDs
      */
-    constexpr struct [[nodiscard]] basic_led_status {
+    constexpr struct [[nodiscard]] basic_led_status : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using code_type = event_type::code_type;
 
       private:
@@ -114,14 +111,6 @@ export namespace fs8 {
         std::array<event_type::value_type, LED_MAX> leds{};
 
       public:
-        // the copy ctor/assignment-op are marked consteval to stop from copying at run time.
-        constexpr basic_led_status() noexcept                              = default;
-        consteval basic_led_status(basic_led_status const&)                = default;
-        constexpr basic_led_status(basic_led_status&&) noexcept            = default;
-        consteval basic_led_status& operator=(basic_led_status const&)     = default;
-        constexpr basic_led_status& operator=(basic_led_status&&) noexcept = default;
-        constexpr ~basic_led_status() noexcept                             = default;
-
         [[nodiscard]] bool is_on(std::span<code_type const> key_codes) const noexcept;
         [[nodiscard]] bool is_off(std::span<code_type const> key_codes) const noexcept;
 

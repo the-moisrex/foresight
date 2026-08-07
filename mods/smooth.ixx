@@ -8,8 +8,9 @@ export module fs8.mods.smooth;
 import fs8.mods.mouse_status;
 import fs8.event;
 import fs8.context;
-import fs8.utils.easings;
+import fs8.easings;
 import fs8.log;
+import fs8.traits;
 
 export namespace fs8 {
 
@@ -17,7 +18,9 @@ export namespace fs8 {
      * Linear Interpolation
      *   lerp(start, end, t) = start × (1 − t) + end × t
      */
-    constexpr struct [[nodiscard]] basic_lerp {
+    constexpr struct [[nodiscard]] basic_lerp : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using value_type = event_type::value_type;
 
       private:
@@ -34,13 +37,6 @@ export namespace fs8 {
         }
 
       public:
-        constexpr basic_lerp() noexcept                        = default;
-        consteval basic_lerp(basic_lerp const&)                = default;
-        constexpr basic_lerp(basic_lerp&&) noexcept            = default;
-        consteval basic_lerp& operator=(basic_lerp const&)     = default;
-        constexpr basic_lerp& operator=(basic_lerp&&) noexcept = default;
-        constexpr ~basic_lerp() noexcept                       = default;
-
         context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
 
@@ -101,7 +97,9 @@ export namespace fs8 {
      *
      * smoothed = α × newInput + (1 − α) × previousSmoothed
      */
-    constexpr struct [[nodiscard]] basic_low_pass_filter {
+    constexpr struct [[nodiscard]] basic_low_pass_filter : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using value_type = event_type::value_type;
 
       private:
@@ -112,13 +110,6 @@ export namespace fs8 {
 
       public:
         constexpr explicit basic_low_pass_filter(float const inp_alpha) noexcept : alpha{inp_alpha} {}
-
-        constexpr basic_low_pass_filter() noexcept                                   = default;
-        consteval basic_low_pass_filter(basic_low_pass_filter const&)                = default;
-        constexpr basic_low_pass_filter(basic_low_pass_filter&&) noexcept            = default;
-        consteval basic_low_pass_filter& operator=(basic_low_pass_filter const&)     = default;
-        constexpr basic_low_pass_filter& operator=(basic_low_pass_filter&&) noexcept = default;
-        constexpr ~basic_low_pass_filter() noexcept                                  = default;
 
         consteval basic_low_pass_filter operator()(float const inp_alpha) const noexcept {
             return basic_low_pass_filter{inp_alpha};
@@ -159,7 +150,9 @@ export namespace fs8 {
     /**
      * Kalman Filter
      */
-    constexpr struct [[nodiscard]] basic_kalman_filter {
+    constexpr struct [[nodiscard]] basic_kalman_filter : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using value_type = event_type::value_type;
 
       private:
@@ -176,13 +169,6 @@ export namespace fs8 {
         constexpr explicit basic_kalman_filter(float const process_noise, float const measurement_noise = 0.5f) noexcept
           : q(process_noise),
             r(measurement_noise) {}
-
-        constexpr basic_kalman_filter() noexcept                                 = default;
-        consteval basic_kalman_filter(basic_kalman_filter const&)                = default;
-        constexpr basic_kalman_filter(basic_kalman_filter&&) noexcept            = default;
-        consteval basic_kalman_filter& operator=(basic_kalman_filter const&)     = default;
-        constexpr basic_kalman_filter& operator=(basic_kalman_filter&&) noexcept = default;
-        constexpr ~basic_kalman_filter() noexcept                                = default;
 
         consteval basic_kalman_filter operator()(float const process_noise, float const measurement_noise = 0.5f) const noexcept {
             return basic_kalman_filter{process_noise, measurement_noise};

@@ -6,11 +6,14 @@ module;
 export module fs8.mods.modes;
 import fs8.utils;
 import fs8.context;
+import fs8.traits;
 
 namespace fs8 {
 
     export template <typename CondT = basic_noop, typename... Mods>
-    struct [[nodiscard]] basic_modes {
+    struct [[nodiscard]] basic_modes : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using mods_type = std::tuple<Mods...>;
 
       private:
@@ -22,15 +25,7 @@ namespace fs8 {
         static_assert(sizeof...(Mods) <= std::numeric_limits<std::uint8_t>::max(), "Too many mods.");
 
       public:
-        consteval basic_modes() noexcept = default;
-
         explicit consteval basic_modes(CondT inp_cond, Mods... inp_mods) noexcept : cond{inp_cond}, mods{inp_mods...} {}
-
-        consteval basic_modes(basic_modes const&) noexcept            = default;
-        constexpr basic_modes(basic_modes&&) noexcept                 = default;
-        consteval basic_modes& operator=(basic_modes const&) noexcept = default;
-        constexpr basic_modes& operator=(basic_modes&&) noexcept      = default;
-        constexpr ~basic_modes() noexcept                             = default;
 
         void operator()(auto&&, tag auto) = delete;
         void operator()(tag auto)         = delete;
@@ -59,20 +54,14 @@ namespace fs8 {
 
     export constexpr basic_modes<> modes{};
 
-    export struct [[nodiscard]] basic_switch_mode {
+    export struct [[nodiscard]] basic_switch_mode : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         std::uint8_t mode = 0;
 
       public:
-        basic_switch_mode() noexcept = default;
-
         explicit constexpr basic_switch_mode(std::uint8_t const in_mode) noexcept : mode{in_mode} {}
-
-        basic_switch_mode(basic_switch_mode const&) noexcept            = default;
-        basic_switch_mode(basic_switch_mode&&) noexcept                 = default;
-        basic_switch_mode& operator=(basic_switch_mode const&) noexcept = default;
-        basic_switch_mode& operator=(basic_switch_mode&&) noexcept      = default;
-        ~basic_switch_mode() noexcept                                   = default;
 
         consteval basic_switch_mode operator()(std::uint8_t const in_mode) const noexcept {
             return basic_switch_mode{in_mode};

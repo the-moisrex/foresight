@@ -8,23 +8,19 @@ module;
 export module fs8.mods.emitter;
 import fs8.event;
 import fs8.context;
+import fs8.traits;
 
 namespace fs8 {
 
     export template <std::size_t N>
-    struct [[nodiscard]] basic_emit {
+    struct [[nodiscard]] basic_emit : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         std::array<user_event, N> events{};
 
       public:
         explicit consteval basic_emit(std::array<user_event, N> const inp) noexcept : events{inp} {}
-
-        constexpr basic_emit() noexcept                        = default;
-        constexpr basic_emit(basic_emit&&)                     = default;
-        constexpr basic_emit(basic_emit const&) noexcept       = default;
-        constexpr basic_emit& operator=(basic_emit const&)     = default;
-        constexpr basic_emit& operator=(basic_emit&&) noexcept = default;
-        constexpr ~basic_emit()                                = default;
 
         template <std::size_t NN>
         consteval auto operator+(std::array<user_event, NN> const& new_events) const noexcept {
@@ -69,18 +65,13 @@ namespace fs8 {
 
     export constexpr basic_emit<0> emit;
 
-    export constexpr struct [[nodiscard]] basic_scheduled_emitter {
+    export constexpr struct [[nodiscard]] basic_scheduled_emitter : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         std::span<user_event const> events;
 
       public:
-        constexpr basic_scheduled_emitter() noexcept                                     = default;
-        constexpr basic_scheduled_emitter(basic_scheduled_emitter&&)                     = default;
-        constexpr basic_scheduled_emitter(basic_scheduled_emitter const&) noexcept       = default;
-        constexpr basic_scheduled_emitter& operator=(basic_scheduled_emitter const&)     = default;
-        constexpr basic_scheduled_emitter& operator=(basic_scheduled_emitter&&) noexcept = default;
-        constexpr ~basic_scheduled_emitter()                                             = default;
-
         void schedule(std::span<user_event const> const new_events) noexcept {
             events = new_events;
         }
@@ -92,19 +83,14 @@ namespace fs8 {
     } scheduled_emitter;
 
     export template <std::size_t N>
-    struct [[nodiscard]] basic_schedule_emit {
+    struct [[nodiscard]] basic_schedule_emit : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         std::array<user_event, N> events;
 
       public:
         explicit consteval basic_schedule_emit(std::array<user_event, N> const inp) noexcept : events{inp} {}
-
-        constexpr basic_schedule_emit() noexcept                                 = default;
-        constexpr basic_schedule_emit(basic_schedule_emit&&)                     = default;
-        constexpr basic_schedule_emit(basic_schedule_emit const&) noexcept       = default;
-        constexpr basic_schedule_emit& operator=(basic_schedule_emit const&)     = default;
-        constexpr basic_schedule_emit& operator=(basic_schedule_emit&&) noexcept = default;
-        constexpr ~basic_schedule_emit()                                         = default;
 
         template <std::size_t NN>
         consteval auto operator+(std::array<user_event, NN> const& new_events) const noexcept {
@@ -184,7 +170,9 @@ namespace fs8 {
         return events;
     }
 
-    export constexpr struct [[nodiscard]] basic_replace_code {
+    export constexpr struct [[nodiscard]] basic_replace_code : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using ev_type   = event_type::type_type;
         using code_type = event_type::code_type;
 
@@ -206,13 +194,6 @@ namespace fs8 {
             rep_type{inp_rep_type},
             rep_code{inp_rep_code} {}
 
-        constexpr basic_replace_code() noexcept                                     = default;
-        consteval basic_replace_code(basic_replace_code const&) noexcept            = default;
-        consteval basic_replace_code(basic_replace_code&&) noexcept                 = default;
-        consteval basic_replace_code& operator=(basic_replace_code const&) noexcept = default;
-        constexpr basic_replace_code& operator=(basic_replace_code&&) noexcept      = default;
-        constexpr ~basic_replace_code() noexcept                                    = default;
-
         consteval basic_replace_code operator()(
           ev_type const   inp_find_type,
           code_type const inp_find_code,
@@ -227,20 +208,15 @@ namespace fs8 {
     // todo: implement replace_all which used table lookup
 
     export template <std::size_t N = 0>
-    struct [[nodiscard]] basic_emit_all {
+    struct [[nodiscard]] basic_emit_all : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
       private:
         std::array<user_event, N> events{};
         std::size_t               index = 0;
 
       public:
         explicit constexpr basic_emit_all(std::array<user_event, N> const inp_events) noexcept : events{inp_events} {}
-
-        constexpr basic_emit_all() noexcept                            = default;
-        constexpr basic_emit_all(basic_emit_all&&)                     = default;
-        constexpr basic_emit_all(basic_emit_all const&) noexcept       = default;
-        constexpr basic_emit_all& operator=(basic_emit_all const&)     = default;
-        constexpr basic_emit_all& operator=(basic_emit_all&&) noexcept = default;
-        constexpr ~basic_emit_all()                                    = default;
 
         template <std::size_t NN>
         consteval auto operator()(std::array<user_event, NN> const new_events) const noexcept {

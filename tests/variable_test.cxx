@@ -2,7 +2,7 @@
 
 import fs8.mods;
 import fs8.log;
-import fs8.utils.hash;
+import fs8.hash;
 
 using namespace fs8;
 

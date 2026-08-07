@@ -9,6 +9,7 @@ module;
 export module fs8.mods.mouse_status;
 import fs8.event;
 import fs8.context;
+import fs8.traits;
 
 export namespace fs8 {
 
@@ -16,7 +17,9 @@ export namespace fs8 {
      * If you need to check if a key is pressed or not, this is what you need to use.
      */
     template <std::size_t N = 2>
-    struct [[nodiscard]] basic_mouse_history {
+    struct [[nodiscard]] basic_mouse_history : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using value_type = event_type::value_type;
 
         static_assert(N > 1, "History is too small.");
@@ -33,14 +36,6 @@ export namespace fs8 {
         std::uint16_t           cur_index  = 0;
 
       public:
-        // the copy ctor/assignment-op are marked consteval to stop from copying at run time.
-        constexpr basic_mouse_history() noexcept                                 = default;
-        consteval basic_mouse_history(basic_mouse_history const&)                = default;
-        constexpr basic_mouse_history(basic_mouse_history&&) noexcept            = default;
-        consteval basic_mouse_history& operator=(basic_mouse_history const&)     = default;
-        constexpr basic_mouse_history& operator=(basic_mouse_history&&) noexcept = default;
-        constexpr ~basic_mouse_history() noexcept                                = default;
-
         [[nodiscard]] constexpr position const& cur() const noexcept {
             assert(cur_index < hist.size());
             return hist.at(cur_index);
