@@ -34,7 +34,8 @@ namespace {
     }
 } // namespace
 
-struct [[nodiscard]] basic_device_registry::impl {
+template <>
+struct fs8::pimpl_idiom<basic_device_registry>::impl {
     udev_monitor              monitor;
     std::vector<evdev>        devs;
     std::vector<device_query> queries;
@@ -64,7 +65,7 @@ context_action basic_device_registry::operator()(start_tag) {
         return next;
     }
 
-    pimpl = nullable_indirect<impl>::make();
+    init_impl();
 
     if (!pimpl->monitor.is_valid()) [[unlikely]] {
         log("Cannot start monitoring.");

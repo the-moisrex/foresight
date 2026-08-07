@@ -137,6 +137,7 @@ target_sources(${LIB_NAME}
         utils/easings.ixx
         utils/hash.ixx
         utils/nullable_indirect.ixx
+        utils/pimpl.ixx
         utils/strings.ixx
         utils/traits.ixx
 )

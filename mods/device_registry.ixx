@@ -6,7 +6,7 @@ import fs8.context;
 import fs8.devices.evdev;
 import fs8.devices.queries;
 import fs8.nullable_indirect;
-import fs8.traits;
+import fs8.pimpl;
 
 export namespace fs8 {
 
@@ -14,8 +14,7 @@ export namespace fs8 {
     /**
      * Monitor and manage input devices.
      */
-    constexpr struct [[nodiscard]] basic_device_registry : consteval_copyable {
-
+    constexpr struct [[nodiscard]] basic_device_registry : pimpl_idiom<basic_device_registry> {
         /// Add device manually
         void add(evdev&& inp_dev);
         void add(device_query const& inp_query);
@@ -33,11 +32,6 @@ export namespace fs8 {
 
         /// Initialize monitoring
         context_action operator()(start_tag);
-
-      private:
-        // can't use std::indirect since it doesn't do what we want at compile-time.
-        struct [[nodiscard]] impl;
-        nullable_indirect<impl> pimpl{};
     } device_registry;
 
 
