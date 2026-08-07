@@ -336,7 +336,7 @@ export namespace fs8 {
     template <typename T>
     concept field_range = std::ranges::forward_range<T> && std::same_as<std::ranges::range_value_t<T>, query_term>;
 
-    constexpr query_target positive(query_target target) noexcept {
+    constexpr query_target positive(query_target const target) noexcept {
         return static_cast<query_target>(std::to_underlying(target) & ~+query_target::nomatch_flag);
     }
 

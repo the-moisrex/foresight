@@ -136,6 +136,7 @@ target_sources(${LIB_NAME}
         mods/vars.ixx
         utils/easings.ixx
         utils/hash.ixx
+        utils/nullable_indirect.ixx
         utils/strings.ixx
 )
 
