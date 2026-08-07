@@ -99,6 +99,7 @@ export namespace fs8 {
           : alloc(allocator_traits::select_on_container_copy_construction(other.alloc)),
             destroy_fn(other.destroy_fn),
             clone_fn(other.clone_fn) {
+            assert(other.ptr == nullptr || other.clone_fn != nullptr);
             if (other.ptr && other.clone_fn) {
                 ptr = clone_fn(other.ptr, alloc);
             }
