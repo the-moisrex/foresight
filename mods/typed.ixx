@@ -24,9 +24,7 @@ namespace fs8 {
      * This allows checking if a state is still valid by comparing generations, useful for
      * detecting invalidations in structures like vectors where elements may be moved or removed.
      */
-    export struct [[nodiscard]] aho_state : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
-
+    export struct [[nodiscard]] aho_state {
         /// Number of bits for the index.
         static constexpr std::uint32_t INDEX_BITS       = 24U;
         /// Number of bits for the generation counter.
@@ -42,6 +40,13 @@ namespace fs8 {
         std::uint32_t value : 24U; // The index bit-field (24 bits).
         std::uint8_t  gen   : 8U;  // The generation bit-field (8 bits).
       public:
+        aho_state() noexcept                       = default;
+        aho_state(aho_state&&) noexcept            = default;
+        aho_state(aho_state const&)                = default;
+        aho_state& operator=(aho_state const&)     = default;
+        aho_state& operator=(aho_state&&) noexcept = default;
+        ~aho_state() noexcept                      = default;
+
         /**
          * @brief Constructor from a raw 32-bit unsigned integer value.
          * @param raw_value The raw value to wrap.
