@@ -13,7 +13,7 @@ export namespace fs8 {
         consteval consteval_copyable() noexcept = default;
 
         // Compile-time copy OK, runtime copy rejected.
-        // unfortunately, marking copy-ctor consteval doesn't prevent compilers copying it at runtime.
+        // unfortunately, marking copy-ctor consteval doesn't prevent compilers from copying it at runtime.
         constexpr consteval_copyable(consteval_copyable const&) noexcept {
             if !consteval {
                 // don't use std::println since that one throws
@@ -27,7 +27,7 @@ export namespace fs8 {
         constexpr consteval_copyable& operator=(consteval_copyable&&) noexcept = default;
 
         constexpr consteval_copyable& operator=(consteval_copyable const&) noexcept {
-            if consteval {
+            if !consteval {
                 std::fprintf(stderr, "You're trying to copy an object that's copyable at compile time only.");
                 std::abort();
             }

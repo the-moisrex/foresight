@@ -206,8 +206,8 @@ export namespace fs8 {
             }
         }
 
-        void operator()(auto&&, tag auto) = delete;
-        void operator()(tag auto)         = delete;
+        void operator()(auto&&, Tag auto) = delete;
+        void operator()(Tag auto)         = delete;
 
         template <typename... C>
             requires(sizeof...(C) > 1)

@@ -46,7 +46,7 @@ export namespace fs8 {
             return lock;
         }
 
-        void operator()(auto &&, tag auto) = delete;
+        void operator()(auto &&, Tag auto) = delete;
 
         template <typename InpCondT, typename InpFuncT = basic_noop>
         [[nodiscard]] consteval auto

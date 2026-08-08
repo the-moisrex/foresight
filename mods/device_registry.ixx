@@ -31,7 +31,7 @@ export namespace fs8 {
         [[nodiscard]] std::span<evdev>       devices() noexcept;
 
         /// Initialize monitoring
-        context_action operator()(start_tag);
+        context_action operator()(start_tag) noexcept;
     } device_registry;
 
 

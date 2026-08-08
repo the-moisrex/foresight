@@ -119,6 +119,7 @@ target_sources(${LIB_NAME}
         mods/ignore.ixx
         mods/inout.ixx
         mods/intercept.ixx
+        mods/io_manager.ixx
         mods/keys_status.ixx
         mods/lambda.ixx
         mods/modes.ixx

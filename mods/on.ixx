@@ -64,7 +64,7 @@ namespace fs8 {
             funcs{inp_funcs} {}
 
         // todo: should we propagate these to sub-on conditions as well?
-        void operator()(auto&&, tag auto) = delete;
+        void operator()(auto&&, Tag auto) = delete;
 
         template <typename NCondT, typename... NFuncs>
             requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && (!Context<NFuncs> && ...))
@@ -151,7 +151,7 @@ namespace fs8 {
             funcs{inp_funcs} {}
 
         // todo: should we propagate these to sub-on conditions as well?
-        void operator()(auto&&, tag auto) = delete;
+        void operator()(auto&&, Tag auto) = delete;
 
         template <typename NCondT, typename... NFuncs>
             requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && (!Context<NFuncs> && ...))

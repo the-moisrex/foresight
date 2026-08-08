@@ -25,6 +25,8 @@ namespace fs8 {
         failed_setting_file_descriptor,
         failed_to_open_file,
         failed_to_set_options,
+
+        not_matched, // query doesn't match the device
     };
 
     export std::string_view to_string(evdev_status) noexcept;
@@ -55,12 +57,19 @@ namespace fs8 {
         using code_type = event_type::code_type;
 
         explicit evdev(std::filesystem::path const& file) noexcept;
+
+        explicit evdev(libevdev* ptr, evdev_status const inp_status) noexcept : dev{ptr}, status{inp_status} {}
+
         consteval evdev()                      = default;
         consteval evdev(evdev const&) noexcept = default;
         evdev(evdev&& inp) noexcept;
         evdev&           operator=(evdev&& other) noexcept;
         consteval evdev& operator=(evdev const&) noexcept = default;
         ~evdev() noexcept;
+
+        static constexpr evdev invalid(evdev_status const inp_status = evdev_status::unknown) noexcept {
+            return evdev{nullptr, inp_status};
+        }
 
         // evdev(evdev const&)            = delete;
         // evdev& operator=(evdev const&) = delete;

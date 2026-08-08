@@ -161,12 +161,22 @@ export namespace fs8 {
             return ptr;
         }
 
-        [[nodiscard]] constexpr T* operator->() const noexcept {
+        [[nodiscard]] constexpr T const* operator->() const noexcept {
             assert(ptr != nullptr);
             return ptr;
         }
 
-        [[nodiscard]] constexpr T& operator*() const noexcept {
+        [[nodiscard]] constexpr T* operator->() noexcept {
+            assert(ptr != nullptr);
+            return ptr;
+        }
+
+        [[nodiscard]] constexpr T const& operator*() const noexcept {
+            assert(ptr != nullptr);
+            return *ptr;
+        }
+
+        [[nodiscard]] constexpr T& operator*() noexcept {
             assert(ptr != nullptr);
             return *ptr;
         }

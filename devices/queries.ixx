@@ -446,6 +446,9 @@ export namespace fs8 {
     /// Parse argc and argv into a dynamic device_query
     device_query parse_device_query(int argc, char const* const* argv, std::vector<query_term>& fields);
 
+    //// Initialize the udev device with the specified query, and return the evdev device
+    evdev initialize(device_query const& inp_query, udev_device const& dev) noexcept;
+
     namespace attr {
         constexpr query_term name     = match_sysattr("device/name", "");
         constexpr query_term keyboard = match_property("ID_INPUT_KEYBOARD", "1");

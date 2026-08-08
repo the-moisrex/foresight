@@ -34,8 +34,8 @@ export namespace fs8 {
             return res;
         }
 
-        void           operator()(auto&&, tag auto) = delete;
-        void           operator()(tag auto)         = delete;
+        void           operator()(auto&&, Tag auto) = delete;
+        void           operator()(Tag auto)         = delete;
         context_action operator()(event_type& event) noexcept;
 
         template <Context CtxT>
@@ -48,8 +48,8 @@ export namespace fs8 {
     constexpr struct [[nodiscard]] basic_pen2touch {
         using code_type = event_type::code_type;
 
-        void operator()(auto&&, tag auto) = delete;
-        void operator()(tag auto)         = delete;
+        void operator()(auto&&, Tag auto) = delete;
+        void operator()(Tag auto)         = delete;
 
         template <Context CtxT>
         void operator()(CtxT& ctx, start_tag) const noexcept {
@@ -144,8 +144,8 @@ export namespace fs8 {
             return basic_abs2rel{inp_inherit};
         }
 
-        void operator()(auto&&, tag auto) = delete;
-        void operator()(tag auto)         = delete;
+        void operator()(auto&&, Tag auto) = delete;
+        void operator()(Tag auto)         = delete;
         void operator()(start_tag) noexcept;
 
         /// this fixes flickering of the pen after we switched while the pen (in mouse mode) is still active.

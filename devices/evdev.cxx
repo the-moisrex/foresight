@@ -33,6 +33,7 @@ std::string_view fs8::to_string(evdev_status const status) noexcept {
         case invalid_device: return {"The device is not valid."};
         case failed_setting_file_descriptor: return {"Failed to set the file descriptor."};
         case failed_to_open_file: return {"Failed to open the file."};
+        case not_matched: return {"Query doesn't match the device."};
         default: return {"Invalid state."};
     }
 }

@@ -83,8 +83,8 @@ export namespace fs8 {
 
     template <typename ModT = void>
     struct [[nodiscard]] basic_mod_updater {
-        void operator()(auto&&, tag auto) = delete;
-        void operator()(tag auto)         = delete;
+        void operator()(auto&&, Tag auto) = delete;
+        void operator()(Tag auto)         = delete;
 
         template <typename InpModT>
         consteval auto operator()([[maybe_unused]] InpModT&&) const noexcept {

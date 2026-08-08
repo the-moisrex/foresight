@@ -392,3 +392,26 @@ fs8::device_query fs8::parse_device_query(int const argc, char const* const* arg
     res.fields = std::span<query_term const>{fields.data(), fields.size()};
     return res;
 }
+
+fs8::evdev fs8::initialize(device_query const& inp_query, udev_device const& dev) noexcept {
+    using enum evdev_status;
+
+    if (!matches(dev, inp_query)) {
+        return evdev::invalid(not_matched);
+    }
+
+    auto edev = to_evdev(dev);
+    if (!edev.is_ok()) [[unlikely]] {
+        return edev;
+    }
+
+    // Honour the grab flag from the query.
+    if (inp_query.grab) {
+        if (edev.grab() != grab_state::grabbing) [[unlikely]] {
+            log("Grabbing failed for device: {}", edev.device_name());
+            return edev;
+        }
+    }
+
+    return edev;
+}

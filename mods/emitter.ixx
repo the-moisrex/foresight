@@ -76,8 +76,8 @@ namespace fs8 {
             events = new_events;
         }
 
-        void operator()(auto&&, tag auto) = delete;
-        void operator()(tag auto)         = delete;
+        void operator()(auto&&, Tag auto) = delete;
+        void operator()(Tag auto)         = delete;
 
         context_action operator()(event_type& event, next_event_tag) noexcept;
     } scheduled_emitter;
