@@ -6,6 +6,7 @@ module;
 #include <cassert>
 #include <cstdint>
 #include <functional>
+#include <inplace_vector>
 #include <linux/input-event-codes.h>
 #include <ranges>
 #include <stdexcept>
@@ -332,10 +333,8 @@ namespace {
             event = {.code = get_modifier_code(mod_str), .value = 0};
         } else {
             // handling <C-r> type of mods
-            constexpr auto                                          max_len = static_cast<std::uint32_t>(max_simultaneous_key_presses);
-            std::array<std::uint16_t, max_simultaneous_key_presses> keys{};
-            std::uint32_t                                           index = 0;
-            while (index != max_len) {
+            std::inplace_vector<std::uint16_t, max_simultaneous_key_presses> keys;
+            while (keys.size() != max_simultaneous_key_presses) {
                 auto const sub_mod = mod_str.substr(0, dash_start);
                 if (sub_mod.empty()) {
                     break;
@@ -344,7 +343,7 @@ namespace {
                 if (is_invalid(ev)) [[unlikely]] {
                     break;
                 }
-                keys.at(index++) = ev.code;
+                keys.push_back(ev.code);
                 callback(ev); // keydown
                 if (dash_start == std::u32string_view::npos) {
                     break;
@@ -354,14 +353,14 @@ namespace {
             }
 
             // release the keys in reverse order:
-            for (std::uint32_t cindex = index; cindex > 0; --cindex) {
+            for (std::uint32_t cindex = static_cast<std::uint32_t>(keys.size()); cindex > 0; --cindex) {
                 // keyup:
                 callback({
-                  .code  = keys.at(cindex - 1),
+                  .code  = keys[cindex - 1],
                   .value = 0,
                 });
             }
-            return keys.front() != 0;
+            return !keys.empty() && keys.front() != 0;
         }
 
         event.value = 1;
