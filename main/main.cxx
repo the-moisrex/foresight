@@ -244,7 +244,7 @@ namespace {
     inline namespace signals {
         // NOLINTBEGIN(*-avoid-non-const-global-variables)
         std::sig_atomic_t volatile sig;
-        std::vector<std::function<void(std::sig_atomic_t)>> actions{};
+        std::vector<std::move_only_function<void(std::sig_atomic_t) const>> actions{};
 
         // NOLINTEND(*-avoid-non-const-global-variables)
 
