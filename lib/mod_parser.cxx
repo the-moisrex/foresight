@@ -70,13 +70,12 @@ namespace {
 
     // Table of known names/synonyms. Add entries here as needed.
     // NOTE: keep keys lowercase where possible for readability — hash is case-insensitive anyway.
-    constexpr std::array<mod_entry, 45> mod_table = []() consteval {
+    constexpr std::array<mod_entry, 44> mod_table = []() consteval {
         // NOLINTBEGIN(*-use-designated-initializers)
-        std::array<mod_entry, 45> data{
+        std::array<mod_entry, 44> data{
           {
            {U"alt", KEY_LEFTALT},
            {U"alt_gr", KEY_RIGHTALT},
-           {U"altgr", KEY_RIGHTALT},
            {U"altgr", KEY_RIGHTALT},
            {U"caps", KEY_CAPSLOCK},
            {U"capslock", KEY_CAPSLOCK},
