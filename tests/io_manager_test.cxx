@@ -45,14 +45,26 @@ namespace {
         context_action operator()(io_fd const&) { return context_action::next; }
     };
 
+    struct exit_handler {
+        context_action operator()(io_fd const&) noexcept { return context_action::exit; }
+    };
+
+    struct idle_handler {
+        context_action operator()(io_fd const&) noexcept { return context_action::idle; }
+    };
+
     static_assert(!io_handler<not_a_handler>);
     static_assert(!io_handler<throwing_handler>);
     static_assert(io_handler<read_handler>);
     static_assert(io_handler<self_unwatch_handler>);
+    static_assert(io_handler<exit_handler>);
+    static_assert(io_handler<idle_handler>);
 
     static_assert((io_event::in | io_event::out) != io_event::in);
     static_assert(has(io_event::in | io_event::err, io_event::err));
     static_assert((io_event::in & ~io_event::in) == static_cast<io_event>(0));
+    static_assert(has(io_event::pri, io_event::pri));
+    static_assert(has(io_event::nval, io_event::nval));
 
     [[nodiscard]] auto& manager() noexcept {
         return io_pipeline.mod<basic_io_manager>();
@@ -60,7 +72,7 @@ namespace {
 
 } // namespace
 
-TEST(io_manager, DispatchesReadyFd) {
+TEST(IOManager, DispatchesReadyFd) {
     auto& mgr = manager();
     mgr.clear();
 
@@ -88,7 +100,7 @@ TEST(io_manager, DispatchesReadyFd) {
     close(fds[1]);
 }
 
-TEST(io_manager, DuplicateWatchReplacesInPlace) {
+TEST(IOManager, DuplicateWatchReplacesInPlace) {
     auto& mgr = manager();
     mgr.clear();
 
@@ -111,7 +123,7 @@ TEST(io_manager, DuplicateWatchReplacesInPlace) {
     close(fds[1]);
 }
 
-TEST(io_manager, RestartClearsStaleRegistrations) {
+TEST(IOManager, RestartClearsStaleRegistrations) {
     auto& mgr = manager();
     mgr.clear();
 
@@ -140,7 +152,7 @@ TEST(io_manager, RestartClearsStaleRegistrations) {
     close(fds[1]);
 }
 
-TEST(io_manager, SnapshotDispatchesSafelyDespiteUnwatch) {
+TEST(IOManager, SnapshotDispatchesSafelyDespiteUnwatch) {
     auto& mgr = manager();
     mgr.clear();
 
@@ -175,7 +187,7 @@ TEST(io_manager, SnapshotDispatchesSafelyDespiteUnwatch) {
     close(b[1]);
 }
 
-TEST(io_manager, UnwatchUnknownFdIsNoop) {
+TEST(IOManager, UnwatchUnknownFdIsNoop) {
     auto& mgr = manager();
     mgr.clear();
 
@@ -191,6 +203,125 @@ TEST(io_manager, UnwatchUnknownFdIsNoop) {
     EXPECT_FALSE(mgr.is_watched(fds[0]));
     EXPECT_TRUE(mgr.empty());
 
+    close(fds[0]);
+    close(fds[1]);
+}
+
+TEST(IOManager, FreshManagerHandlesNoRegistrations) {
+    basic_io_manager mgr;
+
+    EXPECT_TRUE(mgr.empty());
+    EXPECT_FALSE(mgr.is_watched(1));
+    mgr.unwatch(1);   // no-op, must not crash
+    mgr.clear();      // no-op, must not crash
+    EXPECT_EQ(mgr(start), context_action::next);
+
+    // Nothing is watched, so load_event falls through instead of exiting.
+    EXPECT_EQ(mgr(load_event), context_action::next);
+}
+
+TEST(IOManager, RejectsNegativeFd) {
+    auto& mgr = manager();
+    mgr.clear();
+
+    read_handler handler;
+    EXPECT_FALSE(mgr.watch(io_fd{.fd = -1}, handler));
+    EXPECT_TRUE(mgr.empty());
+    EXPECT_FALSE(mgr.is_watched(-1));
+}
+
+TEST(IOManager, DispatchesWritableFd) {
+    auto& mgr = manager();
+    mgr.clear();
+
+    int fds[2];
+    ASSERT_EQ(pipe(fds), 0);
+
+    read_handler handler;
+    ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[1], .events = io_event::out}, handler));
+
+    ASSERT_EQ(mgr(load_event), context_action::next);
+    EXPECT_EQ(handler.info.fd, fds[1]);
+    EXPECT_TRUE(has(handler.info.revents, io_event::out));
+
+    mgr.clear();
+    close(fds[0]);
+    close(fds[1]);
+}
+
+TEST(IOManager, ReportsHangup) {
+    auto& mgr = manager();
+    mgr.clear();
+
+    int fds[2];
+    ASSERT_EQ(pipe(fds), 0);
+
+    read_handler handler;
+    ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in | io_event::hup}, handler));
+
+    close(fds[1]);   // closing the write end hangs up the read end
+
+    ASSERT_EQ(mgr(load_event), context_action::next);
+    EXPECT_TRUE(has(handler.info.revents, io_event::hup));
+
+    mgr.clear();
+    close(fds[0]);
+}
+
+TEST(IOManager, HandlerExitPropagates) {
+    auto& mgr = manager();
+    mgr.clear();
+
+    int fds[2];
+    ASSERT_EQ(pipe(fds), 0);
+
+    exit_handler handler;
+    ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0]}, handler));
+
+    ASSERT_EQ(write(fds[1], "x", 1), 1);
+    ASSERT_EQ(mgr(load_event), context_action::exit);
+
+    mgr.clear();
+    close(fds[0]);
+    close(fds[1]);
+}
+
+TEST(IOManager, HandlerIdlePropagates) {
+    auto& mgr = manager();
+    mgr.clear();
+
+    int fds[2];
+    ASSERT_EQ(pipe(fds), 0);
+
+    idle_handler handler;
+    ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0]}, handler));
+
+    ASSERT_EQ(write(fds[1], "x", 1), 1);
+    ASSERT_EQ(mgr(load_event), context_action::idle);
+
+    mgr.clear();
+    close(fds[0]);
+    close(fds[1]);
+}
+
+TEST(IOManager, DuplicateWatchReplacesEventsMask) {
+    auto& mgr = manager();
+    mgr.clear();
+
+    int fds[2];
+    ASSERT_EQ(pipe(fds), 0);
+
+    read_handler handler;
+    ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::out}, handler));
+    ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
+
+    ASSERT_EQ(write(fds[1], "x", 1), 1);
+    ASSERT_EQ(mgr(load_event), context_action::next);
+
+    // The events mask is replaced, not OR'd with the earlier one.
+    EXPECT_EQ(handler.info.events, io_event::in);
+
+    mgr.clear();
     close(fds[0]);
     close(fds[1]);
 }

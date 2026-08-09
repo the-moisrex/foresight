@@ -13,11 +13,16 @@ export namespace fs8 {
 
     /// Events that can be watched and reported for a file descriptor.
     /// The values are the native poll masks, so no translation is needed.
+    /// `pri` and `nval` are not watchable but are reported in `revents`, so
+    /// every bit `poll` can produce is representable.
     enum struct [[nodiscard]] io_event : short {
-        in  = POLLIN,
-        out = POLLOUT,
-        err = POLLERR,
-        hup = POLLHUP,
+        none = 0,
+        in   = POLLIN,
+        out  = POLLOUT,
+        pri  = POLLPRI,
+        err  = POLLERR,
+        hup  = POLLHUP,
+        nval = POLLNVAL,
     };
 
     [[nodiscard]] constexpr io_event operator|(io_event const lhs, io_event const rhs) noexcept {
@@ -40,12 +45,11 @@ export namespace fs8 {
     struct [[nodiscard]] io_fd {
         int      fd      = -1;
         io_event events  = io_event::in;
-        io_event revents = {};   // filled by the manager before dispatching
+        io_event revents = io_event::none; // filled by the manager before dispatching
     };
 
     template <typename T>
-    concept io_handler =
-      !Context<T> && std::is_nothrow_invocable_r_v<context_action, T&, io_fd const&>;
+    concept io_handler = !Context<T> && std::is_nothrow_invocable_r_v<context_action, T&, io_fd const&>;
 
     /**
      * Register file descriptors, wait for events on all of them at once, and dispatch
@@ -61,8 +65,8 @@ export namespace fs8 {
             return watch(fd, io_callback{handler});
         }
 
-        void unwatch(int fd) noexcept;
-        void clear() noexcept;
+        void               unwatch(int fd) noexcept;
+        void               clear() noexcept;
         [[nodiscard]] bool is_watched(int fd) const noexcept;
         [[nodiscard]] bool empty() const noexcept;
 

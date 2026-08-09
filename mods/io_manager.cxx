@@ -76,13 +76,14 @@ bool basic_io_manager::watch(io_fd const& fd, io_callback const& cb) noexcept tr
         }
     }
 
-    auto const old_size = pimpl->fds.size();
+    // `push_back` only throws on allocation failure; each vector is kept
+    // consistent here and the outer function-try-block turns it into `false`.
+    pimpl->fds.emplace_back(pollfd{fd.fd, std::to_underlying(fd.events), 0});
     try {
-        pimpl->fds.emplace_back(pollfd{fd.fd, std::to_underlying(fd.events), 0});
         pimpl->callbacks.push_back(cb);
     } catch (...) {
-        pimpl->fds.resize(old_size); // noexcept; no-op if fds didn't grow
-        return false;
+        pimpl->fds.pop_back();
+        throw;
     }
     return true;
 } catch (...) {
@@ -104,9 +105,10 @@ context_action basic_io_manager::operator()(start_tag) noexcept try {
 
 context_action basic_io_manager::operator()(load_event_tag) noexcept {
     using enum context_action;
+    // Nothing watched is not fatal: the mods may not have re-registered their
+    // fds yet after a restart, so fall through and let the pipeline re-poll.
     if (pimpl.get() == nullptr || pimpl->fds.empty()) [[unlikely]] {
-        log("io_manager: no file descriptors are being watched");
-        return exit;
+        return next;
     }
 
     int ready = 0;
@@ -117,9 +119,6 @@ context_action basic_io_manager::operator()(load_event_tag) noexcept {
     if (ready < 0) [[unlikely]] {
         log("io_manager: poll failed: {}", std::strerror(errno));
         return exit;
-    }
-    if (ready == 0) {
-        return next;
     }
 
     // Dispatch the ready fds one at a time, re-scanning from the front on each
