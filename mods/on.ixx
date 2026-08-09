@@ -29,7 +29,7 @@ namespace fs8 {
 
     export constexpr struct [[nodiscard]] basic_always_disable {
         constexpr bool operator()() const noexcept {
-            return true;
+            return false;
         }
     } always_disable;
 
