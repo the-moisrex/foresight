@@ -374,26 +374,28 @@ namespace {
 
     template <typename CharT>
     bool parse_modifier_impl(std::basic_string_view<CharT> const mod_str, fs8::code32_callback callback) {
-        return parse_modifier_impl(mod_str, [&](fs8::key_event const &key) {
+        auto on_key = [&](fs8::key_event const &key) {
             callback(to_code(key));
-        });
+        };
+        return parse_modifier_impl(mod_str, on_key);
     }
 
     template <typename CharT>
     bool parse_modifier_impl(std::basic_string_view<CharT> const mod_str, fs8::user_event_callback callback) {
-        return parse_modifier_impl(mod_str, [&](fs8::key_event const &key) {
+        auto on_key = [&](fs8::key_event const &key) {
             callback(user_event{.type = EV_KEY, .code = key.code, .value = key.value});
             callback(fs8::syn_user_event);
-        });
+        };
+        return parse_modifier_impl(mod_str, on_key);
     }
 
     template <typename CharT>
     std::u32string parse_modifier_impl(std::basic_string_view<CharT> const mod_str) {
         std::u32string result;
-        if (!parse_modifier_impl(mod_str,
-                                 [&](fs8::key_event const &key) {
-                                     result += to_code(key);
-                                 })) [[unlikely]]
+        auto           on_key = [&](fs8::key_event const &key) {
+            result += to_code(key);
+        };
+        if (!parse_modifier_impl(mod_str, on_key)) [[unlikely]]
         {
             result.clear();
         }
@@ -433,7 +435,7 @@ std::u32string fs8::parse_modifier(std::u32string_view const mod_str) {
     return parse_modifier_impl(mod_str);
 }
 
-void fs8::on_modifier_tags(std::u32string_view const str, std::function<void(std::u32string_view)> const &callback) noexcept {
+void fs8::on_modifier_tags(std::u32string_view const str, std::function_ref<void(std::u32string_view)> callback) noexcept {
     std::size_t index = 0;
     for (;;) {
         // find the first modifier:

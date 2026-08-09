@@ -174,7 +174,7 @@ fs8::aho_state basic_search_engine::process(char32_t const code_point, aho_state
     return last_state.next_generation(next);
 }
 
-void basic_search_engine::matches(std::uint32_t const state, std::function<void(std::u32string_view)> const &callback) const {
+void basic_search_engine::matches(std::uint32_t const state, std::function_ref<void(std::u32string_view)> callback) const {
     assert(patterns.size() < MAX_PATTERNS);
     if (state >= trie.size()) [[unlikely]] {
         return;

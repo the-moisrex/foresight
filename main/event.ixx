@@ -27,7 +27,7 @@ export namespace fs8 {
     constexpr user_event invalid_user_event{.type = EV_MAX, .code = KEY_MAX, .value = 0};
     constexpr user_event syn_user_event{.type = EV_SYN, .code = SYN_REPORT, .value = 0};
 
-    using user_event_callback = std::function<void(user_event const&)> const&; // todo: use std::function_ref
+    using user_event_callback = std::function_ref<void(user_event const&)>;
 
     [[nodiscard]] constexpr bool operator==(user_event const& lhs, user_event const& rhs) noexcept {
         return lhs.type == rhs.type && lhs.code == rhs.code && lhs.value == rhs.value;

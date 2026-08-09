@@ -158,8 +158,7 @@ namespace fs8 {
          */
         aho_state process(char32_t code_point, aho_state last_state) const noexcept;
 
-        // todo: convert this to std::function_ref
-        void               matches(std::uint32_t state, std::function<void(std::u32string_view)> const& callback) const;
+        void               matches(std::uint32_t state, std::function_ref<void(std::u32string_view)> callback) const;
         [[nodiscard]] bool matches(std::uint32_t state, std::uint16_t trigger_id) const noexcept;
 
         /// Initialize empty

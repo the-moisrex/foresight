@@ -17,8 +17,7 @@ export namespace fs8::xkb {
         xkb_mod_mask_t     mask{};
     };
 
-    // todo: use std::function_ref instead of std::function
-    using handle_keysym_callback = std::function<void(key_position const&)> const&;
+    using handle_keysym_callback = std::function_ref<void(key_position const&)>;
 
     /**
      * XKB How-To-Type (without composed sequences)

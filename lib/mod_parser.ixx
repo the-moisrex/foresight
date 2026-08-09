@@ -15,8 +15,8 @@ namespace fs8 {
     export constexpr auto     invalid_code_point     = static_cast<char32_t>(0x10'FFFFU);
     export constexpr code32_t event_encoded_code32_t = 0b1U << 30U;
 
-    using code32_callback   = std::function<void(code32_t const &)> const &;  // todo: use std::function_ref
-    using key_code_callback = std::function<void(key_event const &)> const &; // todo: use std::function_ref
+    using code32_callback   = std::function_ref<void(code32_t const &)>;
+    using key_code_callback = std::function_ref<void(key_event const &)>;
 
     /// Convert an event into encoded code point
     export [[nodiscard]] code32_t unicode_encoded_event(xkb::basic_state const &state, key_event) noexcept;
@@ -45,7 +45,7 @@ namespace fs8 {
     [[nodiscard]] std::u32string parse_modifier(std::u32string_view mod_str);
 
     /// Next `<...>` section
-    export void on_modifier_tags(std::u32string_view str, std::function<void(std::u32string_view)> const &callback) noexcept;
+    export void on_modifier_tags(std::u32string_view str, std::function_ref<void(std::u32string_view)> callback) noexcept;
 
     /// Normalize the modifiers, for example replace keyboard event pairs X with Unicode Code Point X.
     /// Returns true if it was already normalized, false otherwise.
