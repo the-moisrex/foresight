@@ -198,11 +198,11 @@ export namespace fs8 {
             requires std::convertible_to<std::ranges::range_value_t<R>, evdev>
         void set_uinputs_from(R&& devs) {
             auto dev_iter = std::ranges::begin(devs);
-            for (auto& udev : uinput_devices()) {
+            for (auto& vdev : uinput_devices()) {
                 if (dev_iter == std::ranges::end(devs)) {
                     break;
                 }
-                udev.set_device(*dev_iter++);
+                vdev.set_device(*dev_iter++);
             }
         }
 
@@ -262,23 +262,23 @@ export namespace fs8 {
 
         template <std::ranges::sized_range R, typename Func = basic_noop>
         void init_from(R&& devs, Func&& func = {}) noexcept {
-            auto udevs = uinput_devices();
-            for (auto&& [dev, udev] : std::views::zip(std::forward<R>(devs), udevs)) {
-                udev.set_device(dev);
+            auto vdevs = uinput_devices();
+            for (auto&& [dev, vdev] : std::views::zip(std::forward<R>(devs), vdevs)) {
+                vdev.set_device(dev);
                 if constexpr (std::invocable<Func, evdev&, basic_uinput&>) {
-                    func(dev, udev);
+                    func(dev, vdev);
                 } else if constexpr (std::invocable<Func, basic_uinput&>) {
-                    func(udev);
+                    func(vdev);
                 } else if constexpr (std::invocable<Func, evdev const&>) {
                     func(dev);
                 }
             }
 
             // Set up an empty device
-            for (basic_uinput& udev : udevs | std::views::drop(devs.size())) {
-                udev.set_device();
+            for (basic_uinput& vdev : vdevs | std::views::drop(devs.size())) {
+                vdev.set_device();
                 if constexpr (std::invocable<Func, basic_uinput&>) {
-                    func(udev);
+                    func(vdev);
                 }
             }
         }
@@ -307,9 +307,9 @@ export namespace fs8 {
     static_assert(OutputModifier<basic_router<>>, "Must be an output modifier.");
 
     template <typename R>
-    [[nodiscard]] bool is_ok(R&& udevs) noexcept {
+    [[nodiscard]] bool is_ok(R&& vdevs) noexcept {
         bool ok = true;
-        for (auto const& dev : udevs) {
+        for (auto const& dev : vdevs) {
             ok &= dev.is_ok();
         }
         return ok;
