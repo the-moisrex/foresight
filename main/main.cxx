@@ -356,7 +356,8 @@ namespace {
                 return kbd.loop();
             }
         }
-        // std::unreachable();
+        assert(false);
+        std::unreachable();
     }
 
 } // namespace
