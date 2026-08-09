@@ -19,7 +19,7 @@ TEST(SmoothTest, LERPTest) {
     })
      | lerp
      | log
-     | ([](event_type &event) {
+     | ([](event_type &event) noexcept {
            EXPECT_LE(event.value(), 10);
        }))();
 }

@@ -194,11 +194,16 @@ bool basic_search_engine::matches(std::uint32_t const state, std::uint16_t const
     return (mask >> trigger_id & 0b1U) != 0u;
 }
 
-void basic_search_engine::operator()(start_tag) {
+fs8::context_action basic_search_engine::operator()(start_tag) noexcept try {
     trie.clear(); // clear the trie in case of a restart
 
     // create empty machine (root-only)
     build_machine();
+    return fs8::context_action::next;
+} catch (...) {
+    // clear the trie in case of a failed build; keep the pipeline running in a degraded state
+    trie.clear();
+    return fs8::context_action::idle;
 }
 
 bool basic_search_engine::search(

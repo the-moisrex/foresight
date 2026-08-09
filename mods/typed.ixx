@@ -162,7 +162,7 @@ namespace fs8 {
         [[nodiscard]] bool matches(std::uint32_t state, std::uint16_t trigger_id) const noexcept;
 
         /// Initialize empty
-        void operator()(start_tag);
+        context_action operator()(start_tag) noexcept;
 
         /// Handling events
         void operator()() const noexcept {
@@ -199,9 +199,14 @@ namespace fs8 {
         }
 
         /// Register the pattern into the search engine
-        void operator()(Context auto& ctx, start_tag) {
+        context_action operator()(Context auto& ctx, start_tag) noexcept try {
             keyboard_state.initialize(xkb::get_default_keymap());
             trigger_id = ctx.mod(search_engine).emplace_pattern(pattern);
+            return context_action::next;
+        } catch (...) {
+            // Keep the mod disabled instead of terminating the whole pipeline.
+            trigger_id = invalid_trigger_id;
+            return context_action::idle;
         }
 
         template <Context CtxT>

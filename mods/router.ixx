@@ -21,7 +21,7 @@ namespace fs8 {
     template <std::size_t I>
     struct visit_impl {
         template <typename T, typename F>
-        static constexpr decltype(auto) visit(T& tup, std::size_t idx, F&& fun) {
+        static constexpr decltype(auto) visit(T& tup, std::size_t idx, F&& fun) noexcept {
             if (idx == I - 1) {
                 return std::forward<F>(fun)(std::get<I - 1>(tup));
             }
@@ -32,7 +32,7 @@ namespace fs8 {
     template <>
     struct visit_impl<0> {
         template <typename T, typename F>
-        static constexpr decltype(auto) visit([[maybe_unused]] T& tup, [[maybe_unused]] std::size_t, [[maybe_unused]] F&& fun) {
+        static constexpr decltype(auto) visit([[maybe_unused]] T& tup, [[maybe_unused]] std::size_t, [[maybe_unused]] F&& fun) noexcept {
             assert(false);
 
             // just to make the return type the same as the others:
@@ -41,12 +41,12 @@ namespace fs8 {
     };
 
     template <typename F, typename... Ts>
-    constexpr decltype(auto) visit_at(std::tuple<Ts...> const& tup, std::size_t idx, F&& fun) {
+    constexpr decltype(auto) visit_at(std::tuple<Ts...> const& tup, std::size_t idx, F&& fun) noexcept {
         return visit_impl<sizeof...(Ts)>::visit(tup, idx, std::forward<F>(fun));
     }
 
     template <typename F, typename... Ts>
-    constexpr decltype(auto) visit_at(std::tuple<Ts...>& tup, std::size_t idx, F&& fun) {
+    constexpr decltype(auto) visit_at(std::tuple<Ts...>& tup, std::size_t idx, F&& fun) noexcept {
         return visit_impl<sizeof...(Ts)>::visit(tup, idx, std::forward<F>(fun));
     }
 } // namespace fs8
@@ -73,7 +73,8 @@ export namespace fs8 {
     }
 
     template <typename FuncT, typename... Args>
-    [[nodiscard]] bool invoke_bool(FuncT&& func, Args&&... args) {
+    [[nodiscard]] bool invoke_bool(FuncT&& func, Args&&... args) noexcept {
+        static_assert(std::is_nothrow_invocable_v<FuncT, Args...>, "Mark the mod as nothrow.");
         if constexpr (std::convertible_to<bool, std::invoke_result_t<FuncT, Args...>>) {
             return std::forward<FuncT>(func)(std::forward<Args>(args)...);
         } else {
@@ -129,10 +130,10 @@ export namespace fs8 {
 
         /// Pass-through the init
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, start_tag) {
+        context_action operator()(CtxT& ctx, start_tag) noexcept {
             set_caps();
-            bool const init_valid = [&]<std::size_t... I>(std::index_sequence<I...>) constexpr {
-                return (([&]<typename Func>(Func& route) constexpr {
+            bool const init_valid = [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+                return (([&]<typename Func>(Func& route) constexpr noexcept {
                             if constexpr (requires(dev_caps_view caps_view) { route(ctx, caps_view, start); }) {
                                 return invoke_bool(route, ctx, caps[I], start);
                             } else if constexpr (requires(dev_caps_view caps_view) { route(caps_view, start); }) {

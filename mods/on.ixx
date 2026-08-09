@@ -84,7 +84,7 @@ namespace fs8 {
         }
 
         /// Pass-through the starts
-        context_action operator()(Context auto& ctx, start_tag) {
+        context_action operator()(Context auto& ctx, start_tag) noexcept {
             using enum context_action;
             if (auto const action = invoke_start(cond, ctx); !action) [[unlikely]] {
                 return action;
@@ -172,7 +172,7 @@ namespace fs8 {
         }
 
         /// Pass-through the starts
-        context_action operator()(Context auto& ctx, start_tag) {
+        context_action operator()(Context auto& ctx, start_tag) noexcept {
             using enum context_action;
             if (auto const action = invoke_start(cond, ctx); !action) [[unlikely]] {
                 return action;

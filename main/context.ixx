@@ -299,42 +299,26 @@ export namespace fs8 {
         }
     }
 
-    template <Context CtxT, typename Mod, Tag... Tags>
-    constexpr context_action fork_mod(CtxT &ctx, Mod const &mod, context_action default_action, Tags... tags) noexcept {
-        if constexpr (invokable_mod<Mod, CtxT &, Tags...>) {
-            auto current_fork_view = ctx.template fork_view<Mod>();
-            return invoke_mod(mod, current_fork_view, default_action, tags...);
-        } else {
-            return default_action;
-        }
-    }
-
     /// Run the functions and give them the specified context and arguments (optionally)
     template <Context CtxT, typename... Mods, Tag... Tags>
     constexpr context_action invoke_mods(CtxT &ctx, std::tuple<Mods...> &mods, Tags... tags) noexcept {
         using enum context_action;
-        auto action = next;
-        template for (auto const &func : mods) {
-            action = fork_mod(ctx, func, next, tags...);
-            if (action != next) {
-                break;
-            }
-        }
-        return action;
+        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+            auto action = next;
+            std::ignore = (((action = fork_mod<I>(ctx, mods, next, tags...)) == next) && ...);
+            return action;
+        }(std::make_index_sequence<sizeof...(Mods)>{});
     }
 
     /// Run functions until one of them return "context_action::next"
     template <Context CtxT, typename... Funcs, Tag... Tags>
     constexpr context_action invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Tags... tags) noexcept {
         using enum context_action;
-        auto action = ignore_event;
-        template for (auto const &func : funcs) {
-            action = fork_mod(ctx, func, ignore_event, tags...);
-            if (action == next) {
-                break;
-            }
-        }
-        return action;
+        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+            auto action = ignore_event;
+            std::ignore = (((action = fork_mod<I>(ctx, funcs, ignore_event, tags...)) != next) && ...);
+            return action;
+        }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
 
     template <std::size_t Index, Modifier... Funcs>
@@ -477,7 +461,7 @@ export namespace fs8 {
 
         context_action operator()(start_tag) noexcept try {
             // invoke the mods
-            return invoke_start(*this, mods);
+            return invoke_mods(*this, mods, start);
         } catch (...) {
             // We don't know how to handle this.
             return context_action::exit;

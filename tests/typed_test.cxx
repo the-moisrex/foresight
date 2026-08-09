@@ -34,7 +34,7 @@ TEST(SearchTest, Basic) {
        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     })
      | search_engine
-     | on(typed("test"), [] {
+     | on(typed("test"), [] noexcept {
            happened = 1;
        }))();
     EXPECT_TRUE(happened == 1);
@@ -77,7 +77,7 @@ TEST(SearchTest, BasicStateful) {
        {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
     })
      | search_engine
-     | on(typed("@test"), [] {
+     | on(typed("@test"), [] noexcept {
            happened = 1;
        }))();
     EXPECT_TRUE(happened == 1);
@@ -111,11 +111,11 @@ TEST(SearchTest, Multi) {
     })
      | search_engine
      | on(typed("test"),
-          [] {
+          [] noexcept {
               ++happened;
               EXPECT_EQ(happened, 2);
           })
-     | on(typed("es"), [] {
+     | on(typed("es"), [] noexcept {
            ++happened;
            EXPECT_EQ(happened, 1);
        }))();
@@ -140,7 +140,7 @@ TEST(SearchTest, ModiferTest) {
        {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
     })
      | search_engine
-     | on(typed("<ctrl-r>"), [] {
+     | on(typed("<ctrl-r>"), [] noexcept {
            ++happened;
            EXPECT_EQ(happened, 1);
        }))();

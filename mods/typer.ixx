@@ -60,11 +60,13 @@ namespace fs8 {
             return basic_type_string<std::remove_cvref_t<T>>{std::forward<T>(getter)};
         }
 
-        void operator()(Context auto& ctx) noexcept {
+        void operator()(Context auto& ctx) noexcept try {
             auto const str = to_string(event_getter);
             emit(str, [&](user_event const& event) noexcept {
                 std::ignore = ctx.fork_emit(event_type{event});
             });
+        } catch (...) {
+            // drop the emission on failure
         }
     };
 
