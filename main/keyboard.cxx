@@ -19,7 +19,7 @@ keyboard::keyboard() {
 
 void keyboard::to_string() {
     str.reserve(events.size());
-    for ([[maybe_unused]] auto const &[time, type, code, value] : events) {
+    for (auto const &[_, _, code, _] : events) {
         char const cur = fs8::to_char(static_cast<std::uint8_t>(code));
         str.push_back(cur);
     }
