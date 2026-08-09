@@ -23,7 +23,7 @@ namespace {
     }
 
     [[nodiscard]] pollfd get_pollfd(fs8::evdev const& dev) noexcept {
-        return pollfd{dev.native_handle(), POLLIN, 0};
+        return pollfd{.fd = dev.native_handle(), .events = POLLIN, .revents = 0};
     }
 
     [[nodiscard]] auto get_pollfds(auto const& devs) {
@@ -33,7 +33,7 @@ namespace {
     void rebuild_pollfds(std::vector<pollfd>& fds, auto const& devs, fs8::udev_monitor* mon) {
         fds = get_pollfds(devs);
         if (mon != nullptr && mon->is_valid()) {
-            fds.push_back(pollfd{mon->file_descriptor(), POLLIN, 0});
+            fds.push_back(pollfd{.fd = mon->file_descriptor(), .events = POLLIN, .revents = 0});
         }
     }
 } // namespace

@@ -28,3 +28,4 @@ export import fs8.mods.replace;
 export import fs8.mods.momentum;
 export import fs8.mods.typed;
 export import fs8.mods.typer;
+export import fs8.mods.io_manager;

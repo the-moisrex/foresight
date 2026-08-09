@@ -82,6 +82,7 @@ target_sources(${LIB_NAME}
         mods/emitter.cxx
         mods/ignore.cxx
         mods/intercept.cxx
+        mods/io_manager.cxx
         mods/keys_status.cxx
         mods/momentum.cxx
         mods/on.cxx
