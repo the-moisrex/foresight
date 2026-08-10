@@ -340,8 +340,8 @@ export namespace fs8 {
         using mod_type = mod_of<T, Funcs...>;
 
       private:
-        event_type                                              ev;
-        mods_type                                               mods;
+        event_type                                              ev{};
+        mods_type                                               mods{};
         std::array<variable_pointer, variable_size_v<Funcs...>> variables = extract_variables(mods);
 
       public:
