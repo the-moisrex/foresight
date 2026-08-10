@@ -7,7 +7,6 @@ import fs8.context;
 import fs8.devices.evdev;
 import fs8.devices.queries;
 import fs8.mods.io_manager;
-import fs8.nullable_indirect;
 import fs8.pimpl;
 
 export namespace fs8 {

@@ -42,15 +42,21 @@ namespace {
     };
 
     struct throwing_handler {
-        context_action operator()(io_fd const&) { return context_action::next; }
+        context_action operator()(io_fd const&) {
+            return context_action::next;
+        }
     };
 
     struct exit_handler {
-        context_action operator()(io_fd const&) noexcept { return context_action::exit; }
+        context_action operator()(io_fd const&) noexcept {
+            return context_action::exit;
+        }
     };
 
     struct idle_handler {
-        context_action operator()(io_fd const&) noexcept { return context_action::idle; }
+        context_action operator()(io_fd const&) noexcept {
+            return context_action::idle;
+        }
     };
 
     static_assert(!io_handler<not_a_handler>);
@@ -196,7 +202,7 @@ TEST(IOManager, UnwatchUnknownFdIsNoop) {
 
     read_handler handler;
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0]}, handler));
-    mgr.unwatch(fds[1]);   // never watched
+    mgr.unwatch(fds[1]); // never watched
     ASSERT_TRUE(mgr.is_watched(fds[0]));
 
     mgr.clear();
@@ -212,8 +218,8 @@ TEST(IOManager, FreshManagerHandlesNoRegistrations) {
 
     EXPECT_TRUE(mgr.empty());
     EXPECT_FALSE(mgr.is_watched(1));
-    mgr.unwatch(1);   // no-op, must not crash
-    mgr.clear();      // no-op, must not crash
+    mgr.unwatch(1); // no-op, must not crash
+    mgr.clear();    // no-op, must not crash
     EXPECT_EQ(mgr(start), context_action::next);
 
     // Nothing is watched, so load_event falls through instead of exiting.
@@ -259,7 +265,7 @@ TEST(IOManager, ReportsHangup) {
     read_handler handler;
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in | io_event::hup}, handler));
 
-    close(fds[1]);   // closing the write end hangs up the read end
+    close(fds[1]); // closing the write end hangs up the read end
 
     ASSERT_EQ(mgr(load_event), context_action::next);
     EXPECT_TRUE(has(handler.info.revents, io_event::hup));

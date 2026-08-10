@@ -29,11 +29,7 @@ namespace {
     /// A udev add/bind/change notification can arrive before the device node is
     /// fully set up (e.g. udev still applying group permissions), so retry a
     /// bounded number of times before giving up on a device.
-    [[nodiscard]] fs8::evdev open_device(
-        fs8::device_query const& query,
-        fs8::udev_device const&  dev,
-        int const                retries = 15
-    ) {
+    [[nodiscard]] fs8::evdev open_device(fs8::device_query const& query, fs8::udev_device const& dev, int const retries = 15) {
         if (dev.devnode().empty()) [[unlikely]] {
             return fs8::initialize(query, dev); // no node; retrying would be pointless
         }
