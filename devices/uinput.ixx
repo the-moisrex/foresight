@@ -13,6 +13,7 @@ import fs8.log;
 import fs8.context;
 import fs8.devices.capabilities;
 import fs8.mods.input_manager;
+import fs8.traits;
 
 export namespace fs8 {
 
@@ -57,12 +58,13 @@ export namespace fs8 {
      * the file descriptor. Otherwise, uinput_fd must be opened by the caller and opened with the appropriate
      * permissions.
      */
-    constexpr struct [[nodiscard]] basic_uinput {
+    constexpr struct [[nodiscard]] basic_uinput : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using ev_type    = event_type::type_type;
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
-        constexpr basic_uinput() noexcept = default;
         basic_uinput(evdev const& evdev_dev, std::filesystem::path const& file) noexcept;
         basic_uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept;
         explicit basic_uinput(libevdev const* evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
@@ -170,7 +172,7 @@ export namespace fs8 {
         bool init(dev_caps_view caps_view) noexcept;
         bool set_device_from(dev_caps_view caps_view) noexcept;
 
-        /// Set the start on start
+        /// Set the caps on start
         bool operator()(dev_caps_view caps_view, start_tag) noexcept;
 
         /// Set the device on start

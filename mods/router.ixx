@@ -8,13 +8,14 @@ module;
 #include <ranges>
 #include <type_traits>
 export module fs8.mods.router;
-import fs8.devices.capabilities;
+import fs8.devices.queries;
 import fs8.context;
 import fs8.devices.uinput;
 import fs8.event;
 import fs8.log;
 import fs8.utils;
 import fs8.mods.input_manager;
+import fs8.traits;
 
 namespace fs8 {
 
@@ -54,31 +55,39 @@ namespace fs8 {
 export namespace fs8 {
 
     template <typename T>
-    struct route {
+    struct [[nodiscard]] route {
         using route_type = std::remove_cvref_t<T>;
 
-        dev_caps_view caps;
-        route_type    mod;
+        device_query query;
+        route_type   pipeline;
     };
 
     template <typename T>
-    route(dev_caps_view, T) -> route<std::remove_cvref_t<T>>;
+    route(device_query, T) -> route<std::remove_cvref_t<T>>;
 
     template <typename T>
-    [[nodiscard]] consteval auto operator>>(dev_caps_view lhs, T&& rhs) noexcept {
+    [[nodiscard]] consteval auto operator>>(device_query const lhs, T&& rhs) noexcept {
         return route<std::remove_cvref_t<T>>{
-          .caps = lhs,
-          .mod  = std::forward<T>(rhs),
+          .query    = lhs,
+          .pipeline = std::forward<T>(rhs),
+        };
+    }
+
+    template <typename T>
+    [[nodiscard]] consteval auto operator>>(dev_caps_view const lhs, T&& rhs) noexcept {
+        return route<std::remove_cvref_t<T>>{
+          .query    = query | lhs,
+          .pipeline = std::forward<T>(rhs),
         };
     }
 
     template <typename FuncT, typename... Args>
-    [[nodiscard]] bool invoke_bool(FuncT&& func, Args&&... args) noexcept {
+    [[nodiscard]] bool invoke_bool(FuncT& func, Args&&... args) noexcept {
         static_assert(std::is_nothrow_invocable_v<FuncT, Args...>, "Mark the mod as nothrow.");
         if constexpr (std::convertible_to<bool, std::invoke_result_t<FuncT, Args...>>) {
-            return std::forward<FuncT>(func)(std::forward<Args>(args)...);
+            return func(std::forward<Args>(args)...);
         } else {
-            std::forward<FuncT>(func)(std::forward<Args>(args)...);
+            func(std::forward<Args>(args)...);
             return true;
         }
     }
@@ -87,10 +96,14 @@ export namespace fs8 {
      * This struct helps to pick which virtual device should be chosen as output based on the even type.
      */
     template <typename... Routes>
-    struct [[nodiscard]] basic_router {
+    struct [[nodiscard]] basic_router : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
         using ev_type    = event_type::type_type;
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
+
+        static_assert((Modifier<Routes> && ...), "Bad routes");
 
       private:
         // equals to 9
@@ -105,85 +118,30 @@ export namespace fs8 {
 
 
         // the size is ~15KiB
+        // todo: use pimpl and move this into implementation
         std::array<std::int8_t, max_hash> hashes{};
 
         // outputs
-        std::array<dev_caps_view, sizeof...(Routes)> caps{};
-        std::tuple<Routes...>                        routes;
+        std::array<device_query, sizeof...(Routes)> queries{};
+        std::tuple<Routes...>                       routes;
 
         std::uint8_t last_index = 0;
 
       public:
         template <typename... C>
-        consteval explicit basic_router(route<C>&&... inp_routes) noexcept((std::is_nothrow_move_constructible_v<Routes> && ...))
-          : caps{inp_routes.caps...},
-            routes{std::move(inp_routes.mod)...} {
-            // set_caps(inp_routes.caps...);
+        consteval explicit basic_router(route<C>&&... inp_routes) noexcept
+          : queries{inp_routes.query...},
+            routes{std::move(inp_routes.pipeline)...} {
+            static_assert((std::is_nothrow_move_constructible_v<Routes> && ...), "Make it consteval copyable.");
         }
-
-        basic_router() noexcept((std::is_nothrow_default_constructible_v<Routes> && ...))                         = default;
-        basic_router(basic_router const&) noexcept((std::is_nothrow_copy_constructible_v<Routes> && ...))         = default;
-        basic_router(basic_router&&) noexcept((std::is_nothrow_move_constructible_v<Routes> && ...))              = default;
-        basic_router& operator=(basic_router const&) noexcept((std::is_nothrow_copy_assignable_v<Routes> && ...)) = default;
-        basic_router& operator=(basic_router&&) noexcept((std::is_nothrow_move_assignable_v<Routes> && ...))      = default;
-        ~basic_router() noexcept((std::is_nothrow_destructible_v<Routes> && ...))                                 = default;
-
-        /// Pass-through the init
-        template <Context CtxT>
-        context_action operator()(CtxT& ctx, start_tag) noexcept {
-            set_caps();
-            bool const init_valid = [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
-                return (([&]<typename Func>(Func& route) constexpr noexcept {
-                            if constexpr (requires(dev_caps_view caps_view) { route(ctx, caps_view, start); }) {
-                                return invoke_bool(route, ctx, caps[I], start);
-                            } else if constexpr (requires(dev_caps_view caps_view) { route(caps_view, start); }) {
-                                return invoke_bool(route, caps[I], start);
-                            } else if constexpr (requires(dev_caps_view caps_view) { route(ctx, start); }) {
-                                return invoke_bool(route, ctx, start);
-                            } else if constexpr (requires { route.init(); }) {
-                                return invoke_bool(route, start);
-                            } else {
-                                // Intentionally Ignored since most mods don't need init.
-                                return true;
-                            }
-                        }(get<I>(routes)))
-                        && ...);
-            }(std::make_index_sequence<sizeof...(Routes)>{});
-            if (!init_valid) [[unlikely]] {
-                fs8::log("Router failed to start at least one of the routes.");
-                return context_action::exit;
-            }
-            return context_action::next;
-        }
-
-        // template <typename... C>
-        //     requires(sizeof...(C) >= 1 && (std::convertible_to<C, dev_caps_view> && ...))
-        // constexpr void set_caps(C const&... caps_views) noexcept {
-        //     hashes.fill(-1);
-        //
-        //     // Declaring which hash belongs to which uinput device
-        //     (
-        //       [this, input_pick = static_cast<std::int8_t>(0)](dev_caps_view const caps_view) mutable {
-        //           for (auto const [type, codes, addition] : caps_view) {
-        //               for (auto const code : codes) {
-        //                   auto const index = hash({.type = type, .code = code});
-        //                   if (addition /* && hashes.at(index) == -1 */) {
-        //                       hashes.at(index) = input_pick;
-        //                   }
-        //               }
-        //           }
-        //           ++input_pick;
-        //       }(caps_views),
-        //       ...);
-        // }
 
         constexpr void set_caps() noexcept {
             hashes.fill(-1);
 
             // Declaring which hash belongs to which uinput device
             std::int8_t input_pick = 0;
-            for (auto const& cap_view : caps) {
-                for (auto const [type, codes, action] : cap_view) {
+            for (device_query const& cur_query : queries) {
+                for (auto const [type, codes, action] : cur_query.caps) {
                     for (auto const code : codes) {
                         auto const index = hash({.type = type, .code = code});
                         if (action == caps_action::append /* && hashes.at(index) == -1 */) {
@@ -192,18 +150,6 @@ export namespace fs8 {
                     }
                 }
                 ++input_pick;
-            }
-        }
-
-        template <std::ranges::input_range R>
-            requires std::convertible_to<std::ranges::range_value_t<R>, evdev>
-        void set_uinputs_from(R&& devs) {
-            auto dev_iter = std::ranges::begin(devs);
-            for (auto& vdev : uinput_devices()) {
-                if (dev_iter == std::ranges::end(devs)) {
-                    break;
-                }
-                vdev.set_device(*dev_iter++);
             }
         }
 
@@ -232,60 +178,107 @@ export namespace fs8 {
             return emit(syn());
         }
 
-        template <typename RouteType>
-        [[nodiscard]] constexpr auto routes_of() noexcept {
-            return std::apply(
-              [](auto&... cur_routes) {
-                  return std::views::concat(std::views::single([]<typename T>(T& route) constexpr noexcept {
-                             if constexpr (std::convertible_to<T, RouteType>) {
-                                 return &route;
-                             } else {
-                                 return nullptr;
-                             }
-                         }(cur_routes))...)
+        // template <typename RouteType>
+        // [[nodiscard]] constexpr auto routes_of() noexcept {
+        //     return std::apply(
+        //       [](auto&... cur_routes) {
+        //           return std::views::concat(std::views::single([]<typename T>(T& route) constexpr noexcept {
+        //                      if constexpr (std::convertible_to<T, RouteType>) {
+        //                          return &route;
+        //                      } else {
+        //                          return nullptr;
+        //                      }
+        //                  }(cur_routes))...)
+        //
+        //                  // exclude non-RouteTypes
+        //                  | std::views::filter([](auto* route) constexpr noexcept {
+        //                        return route != nullptr;
+        //                    })
+        //
+        //                  // convert to reference
+        //                  | std::views::transform([](RouteType* route) constexpr noexcept -> RouteType& {
+        //                        return *route;
+        //                    });
+        //       },
+        //       routes);
+        // }
 
-                         // exclude non-RouteTypes
-                         | std::views::filter([](auto* route) constexpr noexcept {
-                               return route != nullptr;
-                           })
+        // [[nodiscard]] constexpr auto uinput_devices() noexcept {
+        //     return routes_of<basic_uinput>();
+        // }
 
-                         // convert to reference
-                         | std::views::transform([](RouteType* route) constexpr noexcept -> RouteType& {
-                               return *route;
-                           });
-              },
-              routes);
-        }
+        // template <std::ranges::input_range R>
+        //     requires std::convertible_to<std::ranges::range_value_t<R>, evdev>
+        // void set_uinputs_from(R&& devs) {
+        //     auto dev_iter = std::ranges::begin(devs);
+        //     for (auto& vdev : uinput_devices()) {
+        //         if (dev_iter == std::ranges::end(devs)) {
+        //             break;
+        //         }
+        //         vdev.set_device(*dev_iter++);
+        //     }
+        // }
 
-        [[nodiscard]] constexpr auto uinput_devices() noexcept {
-            return routes_of<basic_uinput>();
-        }
+        // template <std::ranges::sized_range R, typename Func = basic_noop>
+        // void init_from(R&& devs, Func&& func = {}) noexcept {
+        //     auto vdevs = uinput_devices();
+        //     for (auto&& [dev, vdev] : std::views::zip(std::forward<R>(devs), vdevs)) {
+        //         vdev.set_device(dev);
+        //         if constexpr (std::invocable<Func, evdev&, basic_uinput&>) {
+        //             func(dev, vdev);
+        //         } else if constexpr (std::invocable<Func, basic_uinput&>) {
+        //             func(vdev);
+        //         } else if constexpr (std::invocable<Func, evdev const&>) {
+        //             func(dev);
+        //         }
+        //     }
+        //
+        //     // Set up an empty device
+        //     for (basic_uinput& vdev : vdevs | std::views::drop(devs.size())) {
+        //         vdev.set_device();
+        //         if constexpr (std::invocable<Func, basic_uinput&>) {
+        //             func(vdev);
+        //         }
+        //     }
+        // }
 
-        template <std::ranges::sized_range R, typename Func = basic_noop>
-        void init_from(R&& devs, Func&& func = {}) noexcept {
-            auto vdevs = uinput_devices();
-            for (auto&& [dev, vdev] : std::views::zip(std::forward<R>(devs), vdevs)) {
-                vdev.set_device(dev);
-                if constexpr (std::invocable<Func, evdev&, basic_uinput&>) {
-                    func(dev, vdev);
-                } else if constexpr (std::invocable<Func, basic_uinput&>) {
-                    func(vdev);
-                } else if constexpr (std::invocable<Func, evdev const&>) {
-                    func(dev);
+        // void init_from_intercepted_devices(Context auto& pipeline) noexcept {
+        //     init_from(pipeline.mod(input_manager).devices());
+        // }
+
+        /// Pass-through the init
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx, start_tag) noexcept {
+            set_caps();
+            auto cur_query = queries.begin();
+            template for (auto& route : routes) {
+                bool init_valid = false;
+
+                if constexpr (requires { route(ctx, query, start); }) {
+                    init_valid = invoke_bool(route, ctx, *cur_query, start);
+                } else if constexpr (requires { route(query, start); }) {
+                    init_valid = invoke_bool(route, *cur_query, start);
+                } else if constexpr (requires(dev_caps_view caps_view) { route(ctx, caps_view, start); }) {
+                    init_valid = invoke_bool(route, ctx, cur_query->caps, start);
+                } else if constexpr (requires(dev_caps_view caps_view) { route(caps_view, start); }) {
+                    init_valid = invoke_bool(route, cur_query->caps, start);
+                } else if constexpr (requires { route(ctx, start); }) {
+                    init_valid = invoke_bool(route, ctx, start);
+                } else if constexpr (requires { route.init(); }) {
+                    init_valid = invoke_bool(route, start);
+                } else {
+                    // Intentionally Ignored since most mods don't need init.
+                    init_valid = true;
                 }
-            }
 
-            // Set up an empty device
-            for (basic_uinput& vdev : vdevs | std::views::drop(devs.size())) {
-                vdev.set_device();
-                if constexpr (std::invocable<Func, basic_uinput&>) {
-                    func(vdev);
+                if (!init_valid) [[unlikely]] {
+                    fs8::log("Router failed to start at least one of the routes.");
+                    return context_action::idle;
                 }
+                ++cur_query;
+                assert(cur_query != queries.end());
             }
-        }
-
-        void init_from_intercepted_devices(Context auto& pipeline) noexcept {
-            init_from(pipeline.mod(input_manager).devices());
+            return context_action::next;
         }
 
         context_action operator()(Context auto& ctx) noexcept {
