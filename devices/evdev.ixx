@@ -335,16 +335,16 @@ namespace fs8 {
 
         // udev_device_pick
         template <typename T>
-            requires requires(T pick) { pick.device.subsystem(); }
+            requires requires(T pick) { pick.device.subsystem(); pick.device.devnode(); }
         [[nodiscard]] auto operator()(T const& pick) const noexcept {
-            return evdev{pick.device.subsystem()};
+            return evdev{pick.device.devnode()};
         }
 
         // udev_device
         template <typename T>
-            requires requires(T device) { device.subsystem(); }
+            requires requires(T device) { device.subsystem(); device.devnode(); }
         [[nodiscard]] auto operator()(T const& device) const noexcept {
-            return evdev{device.subsystem()};
+            return evdev{device.devnode()};
         }
 
         template <std::ranges::range Range>

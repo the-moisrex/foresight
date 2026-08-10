@@ -69,6 +69,7 @@ export namespace fs8 {
         void               clear() noexcept;
         [[nodiscard]] bool is_watched(int fd) const noexcept;
         [[nodiscard]] bool empty() const noexcept;
+        [[nodiscard]] std::size_t size() const noexcept;
 
         context_action operator()(start_tag) noexcept;
         context_action operator()(load_event_tag) noexcept;

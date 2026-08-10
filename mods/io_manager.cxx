@@ -44,6 +44,10 @@ bool basic_io_manager::empty() const noexcept {
     return pimpl.get() == nullptr || pimpl->fds.empty();
 }
 
+std::size_t basic_io_manager::size() const noexcept {
+    return pimpl.get() == nullptr ? 0 : pimpl->fds.size();
+}
+
 void basic_io_manager::unwatch(int const fd) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;

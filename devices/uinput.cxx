@@ -489,6 +489,16 @@ bool basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
 
     evdev_rank best{};
     for (evdev_rank&& cur : rank_devices(caps_view)) {
+        // Don't copy a device that another process has grabbed; our relay
+        // would fight the grabber for events.
+        cur.dev.grab_input(true);
+        if (cur.dev.get_status() == evdev_status::grab_failure) {
+            continue;
+        }
+        cur.dev.grab_input(false);
+        if (cur.dev.get_status() != evdev_status::success) {
+            continue;
+        }
         if (cur.score >= best.score) {
             best = std::move(cur);
         }
