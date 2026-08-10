@@ -67,14 +67,14 @@ namespace fs8 {
         void operator()(auto&&, Tag auto) = delete;
 
         template <typename NCondT, typename... NFuncs>
-            requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && (!Context<NFuncs> && ...))
+            requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && !Tag<NCondT> && ((!Context<NFuncs> && !Tag<NFuncs>) && ...))
         consteval auto operator()(NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
             return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{std::forward<NCondT>(n_cond),
                                                                                          std::forward<NFuncs>(n_funcs)...};
         }
 
         template <typename NCondT, Context CtxT>
-            requires(!Context<NCondT>)
+            requires(!Context<NCondT> && !Tag<NCondT>)
         consteval auto operator()(NCondT&& n_cond, CtxT&& ctx) const noexcept {
             return std::apply(
               [&]<typename... ModT>(ModT&... mods) constexpr noexcept {
@@ -308,6 +308,7 @@ namespace fs8 {
         // todo: initialize the dur with repetition delay of the keyboard
 
         template <typename InpFuncT>
+            requires(!Context<InpFuncT> && !Tag<InpFuncT>)
         consteval auto operator()(InpFuncT&& inp_func, std::chrono::microseconds const inp_dur = default_delay) const noexcept {
             return basic_longtime_released<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func), inp_dur};
         }

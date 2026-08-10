@@ -1,107 +1,125 @@
 // Created by moisrex on 6/22/24.
 
 module;
+#include <array>
+#include <concepts>
 #include <filesystem>
-#include <poll.h>
-#include <span>
-#include <vector>
+#include <optional>
+#include <ranges>
 export module fs8.mods.intercept;
 import fs8.devices.evdev;
+import fs8.devices.queries;
 import fs8.context;
-import fs8.utils;
-import fs8.traits;
+import fs8.mods.io_manager;
+import fs8.mods.input_manager;
+import fs8.pimpl;
 
 export namespace fs8 {
+
     struct input_file_type {
         std::filesystem::path file;
         bool                  grab = false;
     };
 
+    /// Owned copy of a device query: the fields are copied into inline storage so
+    /// the consteval pipeline form never holds dangling spans.
+    struct [[nodiscard]] owned_device_query {
+        std::array<query_term, 16> fields{};
+        std::uint8_t               field_count = 0;
+        dev_caps_view              caps = +caps::nothing;
+        std::uint8_t               caps_support_percentage = 80;
+        std::uint8_t               matches_limit = 1;
+        bool                       grab = false;
+        bool                       fail_on_no_match = false;
+
+        constexpr void set(device_query const& inp_query) noexcept {
+            field_count = static_cast<std::uint8_t>(inp_query.fields.size());
+            for (std::size_t i = 0; i < field_count; ++i) {
+                fields[i] = inp_query.fields[i];
+            }
+            caps                    = inp_query.caps;
+            caps_support_percentage = inp_query.caps_support_percentage;
+            matches_limit           = inp_query.matches_limit;
+            grab                    = inp_query.grab;
+            fail_on_no_match        = inp_query.fail_on_no_match;
+        }
+
+        constexpr explicit operator device_query() const noexcept {
+            return device_query{
+              .fields                  = std::span<query_term const>{fields.data(), field_count},
+              .caps                    = caps,
+              .caps_support_percentage = caps_support_percentage,
+              .matches_limit           = matches_limit,
+              .grab                    = grab,
+              .fail_on_no_match        = fail_on_no_match};
+        }
+    };
+
     /**
-     * Intercept the keyboard and print them into stdout
+     * Query-driven event provider.
+     *
+     * Owns no devices; it forwards queries/devices to `input_manager` and reads
+     * ready devices through `io_manager`. Blocking readiness is provided by
+     * `io_manager` (the `load_event` provider) and events are delivered as a
+     * `next_event` provider.
      */
-    constexpr struct [[nodiscard]] basic_interceptor : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
+    constexpr struct [[nodiscard]] basic_interceptor : pimpl_idiom<basic_interceptor> {
+        using pimpl_idiom::pimpl_idiom;
 
-        // Retry to reconnect every N milliseconds:
-        static constexpr std::chrono::milliseconds retry_period{5000}; // 5 seconds
+        /// Pipeline form: intercept(keyboard, mouse)
+        template <typename... Qs>
+            requires(sizeof...(Qs) >= 1 && (std::convertible_to<Qs, device_query> && ...))
+        consteval basic_interceptor operator()(Qs... qs) const noexcept {
+            std::array<owned_device_query, 16> arr{};
+            std::size_t                        index = 0;
+            ((arr[index++].set(qs)), ...);
+            return basic_interceptor{arr, index};
+        }
 
+        /// Runtime additions
+        void add(device_query const& q) noexcept; // udev-query based
+        void add(evdev&& dev) noexcept;           // manual (find_devices output)
 
-        explicit basic_interceptor(std::span<std::filesystem::path const> inp_paths);
-        explicit basic_interceptor(std::span<input_file_type const> inp_paths);
-        explicit basic_interceptor(std::vector<evdev>&& inp_devs);
-
-        void set_files(std::span<std::filesystem::path const>);
-        void set_files(std::span<input_file_type const>);
-        void set_files(std::string_view);
-        void set_files(std::span<std::string_view const>);
-
-        void add_dev(evdev&& dev);
-        void add_file(input_file_type const&);
-        void add_files(std::string_view);
-        void add_files(std::span<std::string_view const>);
-
+        /// Range of evdev and/or device_query
         template <std::ranges::range R>
-            requires std::convertible_to<std::ranges::range_value_t<R>, evdev&&>
-        void add_devs(R&& inp_devs) {
-            for (evdev&& dev : std::forward<R>(inp_devs)) {
-                add_dev(std::move(dev));
+        void add(R&& rng) noexcept {
+            for (auto&& e : std::forward<R>(rng)) {
+                add(std::forward<decltype(e)>(e));
             }
         }
 
-        /// Get a view of the devices, it's const to make sure it's not being modified since the file
-        /// descriptors may change, and if they do, we wouldn't know about it.
-        [[nodiscard]] std::span<evdev const> devices() const noexcept;
+        /// Forward queries/devices to input_manager; ensure it started.
+        template <ContextWith<basic_io_manager, basic_input_manager> ContextT>
+        context_action operator()(ContextT ctx, start_tag) noexcept {
+            return do_start(ctx.mod(input_manager), ctx.mod(io_manager));
+        }
 
-        /// Make sure to re-commit after modification
-        /// todo: write a RAII wrapper for it that calls commit on destructor, and return that instead
-        [[nodiscard]] std::span<evdev> devices() noexcept;
+        /// io_manager handler: drain a readable device fd into the pending queue.
+        context_action operator()(io_fd const& fd) noexcept;
 
-        /// Apply the changes to devices
-        void commit();
-
-        /**
-         * Start running the interceptor
-         */
-        context_action operator()(Context auto& ctx, load_event_tag) noexcept {
+        /// next_event provider: reconcile watches, pop one event, else ignore_event.
+        template <ContextWith<basic_io_manager, basic_input_manager> ContextT>
+        context_action operator()(ContextT ctx, next_event_tag) noexcept {
             using enum context_action;
-            for (;;) {
-                // try to get the next event
-                if (auto const action = get_next_event(ctx.event()); action != ignore_event) {
-                    return action;
-                }
-                // if it fails, wait for the events to come from input devices
-                if (auto const action = wait_for_event(); !action) [[unlikely]] {
-                    return action;
-                }
+            if (auto const ev = do_pop(ctx.mod(input_manager), ctx.mod(io_manager)); ev.has_value()) [[unlikely]] {
+                ctx.event(*ev);
+                return next;
             }
+            return ignore_event;
         }
 
       private:
-        struct device_information {
-            std::string name; // or location
-            bool        grabbed = false;
-        };
+        explicit consteval basic_interceptor(std::array<owned_device_query, 16> qs, std::size_t const count) noexcept
+          : queries{qs},
+            queries_count{count} {}
 
-        void retry_failed_devices() noexcept;
+        context_action            do_start(basic_input_manager& im, basic_io_manager& io) noexcept;
+        std::optional<event_type> do_pop(basic_input_manager& im, basic_io_manager& io) noexcept;
 
-        /// Wait for the next event from devices
-        context_action wait_for_event() noexcept;
-
-        /// Returns `next` if we have one, otherwise it'll return `ignore_event` or `idle`
-        context_action get_next_event(event_type& event) noexcept;
-
-
-        // Store Device Descriptions just in case the device gets disconnected, we can find it again
-        // It's either the device's name or the devices' location
-        std::vector<device_information>       devs_descs;
-        std::chrono::steady_clock::time_point last_retry;
-
-        std::vector<evdev>  devs;
-        std::vector<pollfd> fds;
-
-        // The index of the current device being processed:
-        std::uint16_t index = 0;
+        std::array<owned_device_query, 16> queries{}; // consteval-copyable part
+        std::size_t                        queries_count = 0;
     } intercept;
+
+    static_assert(Modifier<basic_interceptor>);
 
 } // namespace fs8

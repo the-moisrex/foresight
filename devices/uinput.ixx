@@ -3,6 +3,7 @@
 module;
 #include <filesystem>
 #include <libevdev/libevdev-uinput.h>
+#include <ranges>
 #include <string_view>
 #include <system_error>
 export module fs8.devices.uinput;
@@ -11,7 +12,7 @@ export import fs8.event;
 import fs8.log;
 import fs8.context;
 import fs8.devices.capabilities;
-import fs8.mods.intercept;
+import fs8.mods.input_manager;
 
 export namespace fs8 {
 
@@ -178,12 +179,31 @@ export namespace fs8 {
         }
 
         /// Find the device if possible on start
-        /// The first device in the interceptor, we automatically find it, and use that one
-        bool operator()(std::span<evdev const> devs, start_tag) noexcept;
+        /// The first device in the input_manager, we automatically find it, and use that one
+        template <std::ranges::range R>
+            requires std::convertible_to<std::ranges::range_value_t<R>, evdev>
+        bool operator()(R&& devs, start_tag) noexcept {
+            if (is_ok()) {
+                return true;
+            }
+            for (auto const& cur_dev : devs) {
+                // Don't intercept the one that's being grabbed.
+                // if (cur_dev.grab() == grab_state::grabbing_by_others) {
+                //     continue;
+                // }
+
+                set_device(cur_dev);
+                if (!is_ok()) [[unlikely]] {
+                    log("  Failed to set device: {}", cur_dev.device_name());
+                }
+                break;
+            }
+            return is_ok();
+        }
 
         /// Find the device if possible on start
-        /// The first device in the interceptor, we automatically find it, and use that one
-        template <ContextWith<basic_interceptor> CtxT>
+        /// The first device in the input_manager, we automatically find it, and use that one
+        template <ContextWith<basic_input_manager> CtxT>
         context_action operator()(CtxT& ctx, start_tag) noexcept {
             using enum context_action;
             if (is_ok()) {
@@ -193,7 +213,7 @@ export namespace fs8 {
                 log("Uinput init error: {}", to_string(res));
                 return idle;
             }
-            return operator()(ctx.mod(intercept).devices(), start) ? next : idle;
+            return operator()(ctx.mod(input_manager).devices(), start) ? next : idle;
         }
 
         context_action operator()(event_type const& event) noexcept;

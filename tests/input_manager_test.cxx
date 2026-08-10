@@ -120,12 +120,12 @@ TEST(InputManager, ManualAdditionsAreStoredButNotRediscovered) {
 
     im.add(evdev::invalid(evdev_status::success));
     im.add(evdev::invalid(evdev_status::success));
-    EXPECT_EQ(im.devices().size(), 2);
+    EXPECT_EQ(std::ranges::distance(im.devices()), 2);
 
     // Manual devices have no udev identity; a hotplug notification for an
     // unrelated device must leave them untouched.
     EXPECT_EQ(im(io_fd{.fd = 12345}), context_action::next);
-    EXPECT_EQ(im.devices().size(), 2);
+    EXPECT_EQ(std::ranges::distance(im.devices()), 2);
 }
 
 TEST(InputManager, UnexpectedCallbackFdIsIgnoredSafely) {
@@ -162,7 +162,7 @@ TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
         GTEST_SKIP() << "Cannot start the pipeline.";
     }
 
-    auto const before = im.devices().size();
+    auto const before = std::ranges::distance(im.devices());
 
     // Probe monitor confirms udev delivers events to the netlink socket so the
     // blocking `load_event` dispatch below cannot hang the test.
@@ -188,7 +188,7 @@ TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
         GTEST_SKIP() << "udev did not deliver the add event.";
     }
     EXPECT_EQ(io(load_event), context_action::next);
-    EXPECT_GT(im.devices().size(), before) << "Hotplug add was not registered.";
+    EXPECT_GT(std::ranges::distance(im.devices()), before) << "Hotplug add was not registered.";
 
     uin.close();
 
@@ -197,5 +197,5 @@ TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
         GTEST_SKIP() << "udev did not deliver the remove event.";
     }
     EXPECT_EQ(io(load_event), context_action::next);
-    EXPECT_EQ(im.devices().size(), before) << "Hotplug remove was not registered.";
+    EXPECT_EQ(std::ranges::distance(im.devices()), before) << "Hotplug remove was not registered.";
 }

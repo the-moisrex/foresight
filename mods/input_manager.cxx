@@ -6,11 +6,12 @@ module;
 #include <cstddef>
 #include <functional>
 #include <generator>
+#include <list>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <thread>
 #include <utility>
-#include <vector>
 module fs8.mods.input_manager;
 import fs8.devices.evdev;
 import fs8.devices.udev;
@@ -47,10 +48,10 @@ namespace {
 
 template <>
 struct fs8::pimpl_idiom<basic_input_manager>::impl {
-    bool                      started = false;
-    udev_monitor              monitor;
-    std::vector<evdev>        devs;
-    std::vector<std::string>  syspaths;
+    bool                     started = false;
+    udev_monitor             monitor;
+    std::list<evdev>         devs; // stable handles; todo: switch to std::hive once available
+    std::vector<std::string> syspaths;
     std::vector<device_query> queries;
     std::vector<bool>         query_matched;
 
@@ -61,11 +62,11 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
     }
 
     void erase_by_syspath(std::string_view const path) {
-        for (std::size_t i = 0; i < devs.size(); ++i) {
+        for (std::size_t i = 0; i < syspaths.size(); ++i) {
             if (syspaths[i] != path) {
                 continue;
             }
-            devs.erase(devs.begin() + static_cast<std::ptrdiff_t>(i));
+            devs.erase(std::next(devs.begin(), static_cast<std::ptrdiff_t>(i)));
             syspaths.erase(syspaths.begin() + static_cast<std::ptrdiff_t>(i));
             return;
         }
@@ -82,6 +83,14 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
             return;
         }
 
+        log("DEBUG add_udev_device: action={} syspath={} sysname={} subsystem={} ID_INPUT={} ID_INPUT_KEYBOARD={}",
+            action,
+            path,
+            event_dev.sysname(),
+            event_dev.subsystem(),
+            event_dev.property("ID_INPUT"),
+            event_dev.property("ID_INPUT_KEYBOARD"));
+
         if (action == "remove" || action == "unbind") {
             erase_by_syspath(path);
             return;
@@ -96,6 +105,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         }
 
         for (auto const& cur_query : queries) {
+            log("DEBUG query count={} matching {}", queries.size(), to_string(cur_query));
             if (!matches(event_dev, cur_query)) {
                 continue;
             }
@@ -162,12 +172,18 @@ void basic_input_manager::add(device_query const& inp_query) {
     pimpl->queries.emplace_back(inp_query);
 }
 
-std::span<fs8::evdev const> basic_input_manager::devices() const noexcept {
-    return std::span{pimpl->devs};
+std::ranges::subrange<std::list<fs8::evdev>::const_iterator> basic_input_manager::devices() const noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return {};
+    }
+    return std::ranges::subrange(pimpl->devs.begin(), pimpl->devs.end());
 }
 
-std::span<fs8::evdev> basic_input_manager::devices() noexcept {
-    return std::span{pimpl->devs};
+std::ranges::subrange<std::list<fs8::evdev>::iterator> basic_input_manager::devices() noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return {};
+    }
+    return std::ranges::subrange(pimpl->devs.begin(), pimpl->devs.end());
 }
 
 context_action basic_input_manager::operator()(io_fd const& ready_fd) noexcept {

@@ -3,6 +3,7 @@
 import fs8.mods;
 import fs8.log;
 import fs8.utils;
+import fs8.devices.queries;
 
 int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
@@ -11,7 +12,9 @@ int main(int const argc, char const* const* argv) try {
     static constexpr auto args = arguments["pen", "usb keyboard"];
     static constinit auto pipeline =
       context
-      | intercept                                  // Intercept the events
+      | io_manager
+      | intercept(tablet | fail_on_no_match, keyboard | fail_on_no_match)
+      | input_manager
       | scheduled_emitter
       | led_status
       | keys_status                                // Save key presses
@@ -57,15 +60,7 @@ int main(int const argc, char const* const* argv) try {
       | once(longtime_released(pressed(KEY_CAPSLOCK), 200ms), emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK))
       | router(caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput);
 
-    pipeline.mod(intercept).add_devs(args(argc, argv) | find_devices | grab_inputs);
-    if (!is_ok(pipeline.mod(intercept).devices())) [[unlikely]] {
-        fs8::log("Device/Devices have failures.");
-        return 1;
-    }
-    // if (!is_ok(pipeline.mod(router).uinput_devices())) [[unlikely]] {
-    //     fs8::log("Virtual device(s) creation failed.");
-    //     return 1;
-    // }
+    pipeline.mod(intercept).add(args(argc, argv) | find_devices | grab_inputs);
     pipeline();
 
     return 0;

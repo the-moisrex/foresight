@@ -11,6 +11,8 @@
 #include <vector>
 import fs8;
 import fs8.mods.intercept;
+import fs8.mods.io_manager;
+import fs8.mods.input_manager;
 import fs8.devices.evdev;
 import fs8.devices.uinput;
 import fs8.context;
@@ -279,13 +281,21 @@ namespace {
                 return EXIT_FAILURE;
             }
             case intercept: {
-                static constinit auto pipeline = fs8::context | fs8::stopper | fs8::intercept | fs8::output;
+                static constinit auto pipeline =
+                  fs8::context | fs8::io_manager | fs8::intercept | fs8::input_manager | fs8::stopper | fs8::output;
 
                 auto& sig_stopper = pipeline.mod(fs8::stopper);
                 auto& inpor       = pipeline.mod(fs8::intercept);
 
                 register_stop_signal(sig_stopper);
-                inpor.set_files(opts.files);
+                for (auto const& [file, grab] : opts.files) {
+                    fs8::evdev dev{file};
+                    if (!dev.is_ok()) [[unlikely]] {
+                        throw std::runtime_error(std::format("Could not open device {}", file.string()));
+                    }
+                    dev.grab_input(grab);
+                    inpor.add(std::move(dev));
+                }
 
                 pipeline();
                 return EXIT_SUCCESS;
@@ -341,7 +351,7 @@ namespace {
                     std::println(stderr, "No input specified.");
                     return EXIT_FAILURE;
                 }
-                bool const                              evtest_syntax = std::ranges::contains(args, "--evtest");
+                bool const evtest_syntax = std::ranges::any_of(args, [](std::string_view const str) { return str == "--evtest"; });
                 fs8::xkb::how2type::output_syntax const syntax        = evtest_syntax ? evtest : cpp_code;
                 for (auto const str : args) {
                     if (str == "--evtest" || str == "--cpp") {
@@ -356,7 +366,6 @@ namespace {
                 return kbd.loop();
             }
         }
-        assert(false);
         std::unreachable();
     }
 

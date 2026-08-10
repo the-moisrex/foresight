@@ -5,7 +5,7 @@ module;
 export module fs8.mods.abs2rel;
 import fs8.context;
 import fs8.devices.evdev;
-import fs8.mods.intercept;
+import fs8.mods.input_manager;
 import fs8.devices.capabilities;
 import fs8.mods.ignore;
 import fs8.mods.keys_status;
@@ -122,12 +122,12 @@ export namespace fs8 {
 
         /// Auto Initialize
         template <Context CtxT>
-            requires has_mod<basic_interceptor, CtxT>
+            requires has_mod<basic_input_manager, CtxT>
         void init(CtxT& ctx) noexcept {
             if (!inherit) {
                 return;
             }
-            for (evdev const& dev : ctx.mod(intercept).devices()) {
+            for (evdev const& dev : ctx.mod(input_manager).devices()) {
                 if (dev.has_abs_info()) {
                     init(dev);
                     break;

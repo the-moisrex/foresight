@@ -551,25 +551,6 @@ bool basic_uinput::operator()(dev_caps_view const caps_view, start_tag) noexcept
     return init(caps_view);
 }
 
-bool basic_uinput::operator()(std::span<evdev const> const devs, start_tag) noexcept {
-    if (is_ok()) {
-        return true;
-    }
-    for (auto const& cur_dev : devs) {
-        // Don't intercept the one that's being grabbed.
-        // if (cur_dev.grab() == grab_state::grabbing_by_others) {
-        //     continue;
-        // }
-
-        set_device(cur_dev);
-        if (!is_ok()) [[unlikely]] {
-            log("  Failed to set device: {}", cur_dev.device_name());
-        }
-        break;
-    }
-    return is_ok();
-}
-
 fs8::context_action basic_uinput::operator()(event_type const& event) noexcept {
     using enum context_action;
     // log("{}: {} {} {}", devnode(), event.type_name(), event.code_name(), event.value());

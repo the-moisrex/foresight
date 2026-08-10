@@ -14,7 +14,7 @@ import fs8.devices.uinput;
 import fs8.event;
 import fs8.log;
 import fs8.utils;
-import fs8.mods.intercept;
+import fs8.mods.input_manager;
 
 namespace fs8 {
 
@@ -285,7 +285,7 @@ export namespace fs8 {
         }
 
         void init_from_intercepted_devices(Context auto& pipeline) noexcept {
-            init_from(pipeline.mod(intercept).devices());
+            init_from(pipeline.mod(input_manager).devices());
         }
 
         context_action operator()(Context auto& ctx) noexcept {

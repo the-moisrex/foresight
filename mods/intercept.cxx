@@ -1,252 +1,135 @@
 // Created by moisrex on 6/22/24.
 
 module;
-#include <cassert>
-#include <cstring>
-#include <filesystem>
-#include <format>
-#include <poll.h>
-#include <ranges>
-#include <span>
+#include <algorithm>
+#include <deque>
+#include <list>
+#include <optional>
+#include <sys/poll.h>
+#include <type_traits>
+#include <utility>
 #include <vector>
 module fs8.mods.intercept;
+import fs8.devices.evdev;
+import fs8.context;
 import fs8.log;
+import fs8.mods.io_manager;
+import fs8.mods.input_manager;
 
 using fs8::basic_interceptor;
+using fs8::context_action;
+using fs8::event_type;
+using fs8::io_event;
+using fs8::io_fd;
 
-namespace {
+template <>
+struct fs8::pimpl_idiom<basic_interceptor>::impl {
+    basic_input_manager*   im = nullptr;
+    std::list<evdev>       manual_devs;
+    std::deque<event_type> pending;
+    std::vector<int>       watched_fds;
+};
 
-    pollfd get_pollfd(fs8::evdev const& dev) {
-        return pollfd{dev.native_handle(), POLLIN, 0};
+void basic_interceptor::add(evdev&& dev) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
     }
-
-    auto get_pollfds(std::span<fs8::evdev const> devs) {
-        auto const fd_iter = devs | std::views::transform([](fs8::evdev const& dev) noexcept {
-                                 return pollfd{dev.native_handle(), POLLIN, 0};
-                             });
-        return std::vector<pollfd>{fd_iter.begin(), fd_iter.end()};
-    }
-
-} // namespace
-
-basic_interceptor::basic_interceptor(std::span<std::filesystem::path const> const inp_paths) {
-    set_files(inp_paths);
-}
-
-basic_interceptor::basic_interceptor(std::span<input_file_type const> const inp_paths) {
-    set_files(inp_paths);
-}
-
-basic_interceptor::basic_interceptor(std::vector<evdev>&& inp_devs) : devs{std::move(inp_devs)}, fds{get_pollfds(devs)} {}
-
-void basic_interceptor::set_files(std::span<std::filesystem::path const> const inp_paths) {
-    // convert to `evdev`s.
-    devs.clear();
-    fds.clear();
-    devs.reserve(inp_paths.size());
-    for (auto const& file : inp_paths) {
-        auto& dev = devs.emplace_back(file);
-        if (!dev.is_ok()) [[unlikely]] {
-            throw std::runtime_error(std::format("Failed to initialize event device ({}) while setting multiple files with error({}).",
-                                                 file.string(),
-                                                 to_string(dev.get_status())));
-        }
-        devs_descs.emplace_back(file.generic_string(), false);
-    }
-    fds = get_pollfds(devs);
-}
-
-void basic_interceptor::set_files(std::span<input_file_type const> const inp_paths) {
-    devs.clear();
-    fds.clear();
-    devs.reserve(inp_paths.size());
-    // convert to `evdev`s.
-    for (auto const& [file, grab] : inp_paths) {
-        auto& dev = devs.emplace_back(file);
-        if (!dev.is_ok()) [[unlikely]] {
-            throw std::runtime_error(std::format(
-              "Failed to initialize event device ({}) while trying to initialize multiple files with error "
-              "({}).",
-              file.string(),
-              to_string(dev.get_status())));
-        }
-        dev.grab_input(grab);
-        devs_descs.emplace_back(file.generic_string(), grab);
-    }
-    fds = get_pollfds(devs);
-}
-
-void basic_interceptor::add_file(input_file_type const& inp_path) {
-    auto const& [file, grab] = inp_path;
-    auto& dev                = devs.emplace_back(file);
-    if (!dev.is_ok()) [[unlikely]] {
-        throw std::runtime_error(
-          std::format("Failed to initialize event device ({}) with error({}).", file.string(), to_string(dev.get_status())));
-    }
-    dev.grab_input(grab);
-    fds.emplace_back(get_pollfd(dev));
-    devs_descs.emplace_back(inp_path.file.generic_string(), grab);
-}
-
-void basic_interceptor::add_dev(evdev&& inp_dev) {
-    auto&      dev  = devs.emplace_back(std::move(inp_dev));
-    auto const name = dev.device_name();
-    if (!dev.is_ok()) [[unlikely]] {
-        throw std::runtime_error(std::format(
-          "Failed to initialize event device ({}) while trying to start intercepting it with error ({}).",
-          name,
-          to_string(dev.get_status())));
-    }
-    log("Intercepting: '{}' {}", name, dev.physical_location());
-    fds.emplace_back(get_pollfd(dev));
-    devs_descs.emplace_back(std::string{name.data(), name.size()}, false);
-}
-
-void basic_interceptor::add_files(std::string_view const query_all) {
-    for (evdev&& dev : find_devices(query_all)) {
-        add_dev(std::move(dev));
+    try {
+        pimpl->manual_devs.emplace_back(std::move(dev));
+    } catch (...) {
     }
 }
 
-void basic_interceptor::set_files(std::string_view const query_all) {
-    devs.clear();
-    fds.clear();
-    add_files(query_all);
-}
-
-void basic_interceptor::add_files(std::span<std::string_view const> const query_all) {
-    for (auto const query : query_all) {
-        for (evdev&& dev : find_devices(query)) {
-            add_dev(std::move(dev));
-        }
-    }
-}
-
-void basic_interceptor::set_files(std::span<std::string_view const> const query_all) {
-    devs.clear();
-    fds.clear();
-    add_files(query_all);
-}
-
-std::span<fs8::evdev const> basic_interceptor::devices() const noexcept {
-    return std::span{devs.begin(), devs.end()};
-}
-
-std::span<fs8::evdev> basic_interceptor::devices() noexcept {
-    return std::span{devs.begin(), devs.end()};
-}
-
-void basic_interceptor::commit() {
-    fds = get_pollfds(this->devices());
-}
-
-void basic_interceptor::retry_failed_devices() noexcept {
-    if (devs_descs.size() == devs.size()) [[likely]] {
+void basic_interceptor::add(device_query const& q) noexcept {
+    if (queries_count >= queries.size()) [[unlikely]] {
         return;
     }
-
-    auto const now = std::chrono::steady_clock::now();
-
-    // don't retry too soon
-    if ((now - last_retry) < retry_period) {
-        return;
-    }
-    last_retry = now;
-
-    for (auto const& desc : devs_descs) {
-        bool found = false;
-        for (auto const& dev : devs) {
-            if (dev.device_name() == desc.name) {
-                // We already have this device
-                found = true;
-                break;
-            }
-        }
-        if (found) {
-            continue;
-        }
-
-        // found a removed device, try finding it again:
-        auto dev = device(desc.name);
-        if (!only_matching(dev) || !only_ok(dev)) {
-            log("Failed to reconnect to {}, tried {}", desc.name, dev.dev.device_name());
-            // failed to find a working device
-            continue;
-        }
-
-        // Add the device again if it's okay now
-        // todo: check if it's the same device somehow, checking the name is not enough because we might have the location instead of the name of the device
-        dev.dev.grab_input(desc.grabbed);
-        add_dev(std::move(dev.dev));
-    }
+    queries[queries_count++].set(q);
 }
 
-fs8::context_action basic_interceptor::wait_for_event() noexcept {
+fs8::context_action basic_interceptor::do_start(basic_input_manager& im, basic_io_manager& io) noexcept try {
     using enum context_action;
-
-    // reset device index
-    index = 0;
-
-    // Check for empty containers to avoid undefined behavior
-    if (fds.empty() || devs.empty()) [[unlikely]] {
-        log("No devices to intercept");
-        return exit;
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
     }
 
-    // Poll file descriptors and handle errors properly
-    if (auto const poll_result = poll(fds.data(), fds.size(), retry_period.count()); poll_result <= 0) [[unlikely]] {
-        if (poll_result == 0) {
-            retry_failed_devices();
-            // Timeout occurred
-            return ignore_event;
-        }
-        // Error occurred (could log errno here)
-        log("Error: {}", std::strerror(errno));
-        return ignore_event;
-    }
+    pimpl->im = &im;
 
-    return next;
+    log("DEBUG do_start: queries_count={}", queries_count);
+
+    for (std::size_t i = 0; i < queries_count; ++i) {
+        im.add(static_cast<device_query>(queries[i]));
+    }
+    queries_count = 0;
+
+    for (auto& dev : pimpl->manual_devs) {
+        im.add(std::move(dev));
+    }
+    pimpl->manual_devs.clear();
+
+    return im.start(io);
+} catch (...) {
+    return context_action::exit;
 }
 
-fs8::context_action basic_interceptor::get_next_event(event_type& event) noexcept {
+fs8::context_action basic_interceptor::operator()(io_fd const& fd) noexcept try {
     using enum context_action;
-
-    for (; index != fds.size(); ++index) {
-        auto const pfd = fds[index];
-        if ((pfd.revents & POLLIN) == 0) {
-            // Check for errors on this file descriptor
-            // todo: give better error messages
-            if ((pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) != 0) [[unlikely]] {
-                // Handle device errors/disconnections here.
-                // If any of them get disconnected, we go to idle mode.
-                auto const name = devs[index].device_name();
-                if (name == invalid_device_name) {
-                    log("Device #{} disconnected?", index);
-                } else {
-                    log("Device #{} {} disconnected?", index, name);
-                }
-
-                // Remove the device from watch list
-                fds.erase(std::next(fds.begin(), index));
-                devs.erase(std::next(devs.begin(), index));
-
-                // Reset the index
-                if (index == devs.size()) {
-                    index = 0;
-                }
-
-                return ignore_event;
-            }
-
-            continue;
-        }
-
-        auto const input = devs[index].next();
-        if (!input) {
-            continue;
-        }
-        event = input.value();
+    if (pimpl.get() == nullptr || pimpl->im == nullptr) [[unlikely]] {
         return next;
     }
-    return ignore_event;
+    for (auto& dev : pimpl->im->devices()) {
+        if (dev.native_handle() != fd.fd) {
+            continue;
+        }
+        if ((std::to_underlying(fd.revents) & (POLLERR | POLLHUP | POLLNVAL)) != 0) [[unlikely]] {
+            log("Device '{}' error/disconnected.", dev.device_name());
+            return next;
+        }
+        while (auto const ev = dev.next()) {
+            pimpl->pending.emplace_back(*ev);
+        }
+        break;
+    }
+    return next;
+} catch (...) {
+    return context_action::next;
+}
+
+std::optional<fs8::event_type> basic_interceptor::do_pop(basic_input_manager& im, basic_io_manager& io) noexcept try {
+    if (pimpl.get() == nullptr || pimpl->im == nullptr) [[unlikely]] {
+        return std::nullopt;
+    }
+
+    // Unwatch fds whose devices are gone (hotplug removals).
+    for (auto it = pimpl->watched_fds.begin(); it != pimpl->watched_fds.end();) {
+        bool const found = std::ranges::any_of(im.devices(), [fd = *it](evdev const& dev) noexcept {
+            return dev.native_handle() == fd;
+        });
+        if (!found) {
+            io.unwatch(*it);
+            it = pimpl->watched_fds.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // Watch any device that is not watched yet (startup + hotplug adds).
+    for (auto& dev : im.devices()) {
+        int const fd = dev.native_handle();
+        if (io.is_watched(fd)) {
+            continue;
+        }
+        if (io.watch(io_fd{.fd = fd, .events = io_event::in}, *this)) {
+            pimpl->watched_fds.push_back(fd);
+        }
+    }
+
+    if (pimpl->pending.empty()) [[likely]] {
+        return std::nullopt;
+    }
+    auto const ev = pimpl->pending.front();
+    pimpl->pending.pop_front();
+    return ev;
+} catch (...) {
+    return std::nullopt;
 }

@@ -271,19 +271,21 @@ export namespace fs8 {
         return invoke_mod(mod, ctx, load_event);
     }
 
-    template <Context CtxT, typename... Mods>
-    constexpr context_action invoke_mod_at(CtxT &ctx, std::tuple<Mods...> &funcs, std::size_t const index) noexcept {
+    template <Context CtxT, typename... Funcs>
+    constexpr context_action invoke_mod_at(CtxT &ctx, std::tuple<Funcs...> &funcs, std::size_t const index) noexcept {
         using enum context_action;
-        auto action = next;
-        template for (constexpr std::size_t I : std::make_index_sequence<sizeof...(Mods)>{}) {
-            if (I == index) {
-                action = invoke_mod(get<I>(funcs), ctx.template fork_view<I>());
-                if (action != next) {
-                    break;
-                }
-            }
-        }
-        return action;
+        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+            auto action = next;
+            std::ignore = (([&]<std::size_t K>() constexpr noexcept {
+                               if (K == index) {
+                                   auto current_fork_view = ctx.template fork_view<K>();
+                                   action                 = invoke_mod(get<K>(funcs), current_fork_view);
+                               }
+                               return action == next;
+                           }).template operator()<I>()
+                           && ...);
+            return action;
+        }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
 
     template <std::size_t Index, Context CtxT, typename... Funcs, Tag... Tags>
@@ -291,7 +293,7 @@ export namespace fs8 {
         using enum context_action;
         using tuple_type = std::tuple<Funcs...>;
         using mod_type   = std::tuple_element_t<Index, tuple_type>;
-        if constexpr (invokable_mod<mod_type, CtxT &, Tags...>) {
+        if constexpr (invokable_mod<mod_type, CtxT, Tags...>) {
             auto current_fork_view = ctx.template fork_view<Index>();
             return invoke_mod(get<Index>(funcs), current_fork_view, default_action, tags...);
         } else {
@@ -507,7 +509,7 @@ export namespace fs8 {
             static_assert(load_event_count <= 1, "There should only be one single load_event in the mods");
             static_assert(load_event_count + next_event_count >= 1, "Someone needs to provide the events.");
             for (;;) {
-                // Exhaust the next events until there's no more events:
+                // Exhaust the next events until there's no more events.
                 if constexpr (next_event_count > 0) {
                     switch (invoke_first_mod_of(*this, mods, next_event)) {
                         case next:
@@ -526,9 +528,29 @@ export namespace fs8 {
                         [[unlikely]] case exit:
                             return;
                     }
-                }
-                // Wait until new event comes, we should only have one single load_event
-                if constexpr (load_event_count > 0) {
+                    // next_event exhausted -> block in load_event (pure wait; it does
+                    // NOT load an event). After it wakes, loop back to next_event.
+                    if constexpr (load_event_count > 0) {
+                        switch (invoke_mods(*this, mods, load_event)) {
+                            [[likely]] case next:
+                            case ignore_event:
+                                continue; // key change (was `break` -> trailing invoke_mods)
+                            [[unlikely]] default:
+                            [[unlikely]] case idle:
+                                if (!restart_if(idle)) {
+                                    return;
+                                }
+                                break;
+                            [[unlikely]] case exit:
+                                return;
+                        }
+                    }
+                    // no load_event provider
+                    if (!restart_if(invoke_mods(*this, mods))) [[unlikely]] {
+                        return;
+                    }
+                } else if constexpr (load_event_count > 0) {
+                    // Legacy: load_event providers load events directly (old intercept).
                     switch (invoke_mods(*this, mods, load_event)) {
                         [[likely]] case next:
                             break;
@@ -543,10 +565,9 @@ export namespace fs8 {
                         [[unlikely]] case exit:
                             return;
                     }
-                }
-
-                if (!restart_if(invoke_mods(*this, mods))) [[unlikely]] {
-                    return;
+                    if (!restart_if(invoke_mods(*this, mods))) [[unlikely]] {
+                        return;
+                    }
                 }
             }
         }
@@ -637,16 +658,16 @@ export namespace fs8 {
 
         // Re-Forking
         template <std::size_t NIndex>
-        constexpr auto fork_view() noexcept {
+        constexpr auto fork_view() const noexcept {
             static_assert(NIndex <= sizeof...(Funcs) - 1, "Index out of range.");
             return basic_context_view<NIndex + 1U, Funcs...>{*ctx};
         }
 
         // Re-Forking
         template <typename Mod>
-        constexpr auto fork_view() noexcept {
+        constexpr auto fork_view() const noexcept {
             static_assert((std::same_as<Mod, Funcs> || ...), "Index out of range.");
-            return basic_context_view<index_at<Mod, Funcs...>, Funcs...>{*this};
+            return basic_context_view<index_at<Mod, Funcs...>, Funcs...>{*ctx};
         }
     };
 
