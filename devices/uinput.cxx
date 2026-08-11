@@ -431,6 +431,10 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
         for (auto const& [type, codes, action] : caps_view) {
             switch (action) {
                 case append: {
+                    if (codes.empty()) [[unlikely]] {
+                        // Possible EV_MAX
+                        break;
+                    }
                     auto* dev_ptr = clone.device_ptr();
                     if (libevdev_has_event_type(dev_ptr, type) == 0) {
                         libevdev_enable_event_type(dev_ptr, type);
@@ -634,9 +638,11 @@ void basic_uinput::apply_caps(dev_caps_view const inp_caps) noexcept {
     for (auto const& [type, codes, action] : inp_caps) {
         switch (action) {
             case append:
-                enable_event_type(type);
-                for (auto const code : codes) {
-                    enable_event_code(type, code);
+                if (!codes.empty()) {
+                    enable_event_type(type);
+                    for (auto const code : codes) {
+                        enable_event_code(type, code);
+                    }
                 }
                 break;
             case remove_codes:
