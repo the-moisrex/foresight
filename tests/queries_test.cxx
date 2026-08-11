@@ -334,3 +334,38 @@ TEST(DeviceMatches, NegatedSubsystemExcludesWithoutAsserting) {
         EXPECT_NE(dev.device.subsystem(), "input");
     }
 }
+
+// ============================================================================
+// matches(evdev, device_query): fields expressible through evdev
+// ============================================================================
+
+TEST(EvdevMatches, NameSysattrFieldMatches) {
+    for (auto pick : filter_devices(keyboard)) {
+        auto edev = initialize(query, pick.device);
+        if (!edev.is_ok()) [[unlikely]] {
+            continue;
+        }
+        // A query matching the device's name must match the opened evdev.
+        std::array<query_term, 1> fields = {match_sysattr("device/name", edev.device_name())};
+        device_query              q{.fields = std::span<query_term const>{fields}, .caps = {}};
+        EXPECT_TRUE(matches(edev, q));
+        return;
+    }
+    GTEST_SKIP() << "No input devices found.";
+}
+
+TEST(EvdevMatches, UnverifiableFieldsDontExclude) {
+    // Properties/tags are not exposed by evdev; they must not make an evdev
+    // device fail the query.
+    for (auto pick : filter_devices(keyboard)) {
+        auto edev = initialize(query, pick.device);
+        if (!edev.is_ok()) [[unlikely]] {
+            continue;
+        }
+        std::array<query_term, 1> fields = {match_property("ID_INPUT", "1")};
+        device_query              q{.fields = std::span<query_term const>{fields}, .caps = {}};
+        EXPECT_TRUE(matches(edev, q));
+        return;
+    }
+    GTEST_SKIP() << "No input devices found.";
+}

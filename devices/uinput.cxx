@@ -17,6 +17,10 @@ module;
 module fs8.devices.uinput;
 import fs8.event;
 import fs8.log;
+import fs8.context;
+import fs8.devices.queries;
+import fs8.devices.udev;
+import fs8.mods.input_manager;
 
 using fs8::basic_uinput;
 using fs8::uinput_access_result;
@@ -276,7 +280,96 @@ namespace {
         return errno;
     }
 
+    /// Find a device matching the query via udev enumeration.
+    fs8::evdev find_device_from_query(fs8::device_query const& inp_query) noexcept {
+        fs8::udev_enumerate enumerator{};
+        if (!enumerator) [[unlikely]] {
+            return {};
+        }
+        match(enumerator, inp_query);
+        enumerator.scan_devices();
+        for (auto dev : filter_devices(enumerator, inp_query)) {
+            auto edev = fs8::initialize(inp_query, dev);
+            if (!edev.is_ok()) [[unlikely]] {
+                continue;
+            }
+            // `initialize` may leave the device grabbed when the query asks for
+            // it; a freshly opened handle must be released before we copy it.
+            if (!fs8::test_grab(edev)) {
+                continue;
+            }
+            return edev;
+        }
+        return {};
+    }
+
 } // namespace
+
+/// Check if a freshly-opened device can be grabbed without disrupting a grab
+/// this process already holds. Always leaves the device ungrabbed afterwards.
+bool fs8::test_grab(evdev& dev) noexcept {
+    dev.grab_input(true);
+    if (dev.get_status() == evdev_status::grab_failure) {
+        return false;
+    }
+    dev.grab_input(false);
+    return dev.get_status() == evdev_status::success;
+}
+
+/// Check if a device is usable as a source for a virtual device without
+/// disrupting a grab that this process already holds.
+bool fs8::is_usable(evdev& dev) noexcept {
+    if (dev.get_status() == evdev_status::success_grabbed) {
+        return true; // already grabbed by us; just copy from it
+    }
+    return test_grab(dev);
+}
+
+/// Copy a matching device into a virtual (uinput) device, applying caps.
+/// If `best` is not valid, falls back to an empty device and applies caps.
+bool fs8::finalize_device(basic_uinput& self, evdev best, dev_caps_view const caps_view) noexcept {
+    using enum caps_action;
+    if (best.is_ok()) {
+        std::string new_name;
+        new_name += best.device_name();
+        new_name += " (Copied)";
+        best.device_name(new_name); // this is okay, it's not changing the original device
+        for (auto const& [type, codes, action] : caps_view) {
+            switch (action) {
+                case append: {
+                    auto* dev_ptr = best.device_ptr();
+                    if (libevdev_has_event_type(dev_ptr, type) == 0) {
+                        libevdev_enable_event_type(dev_ptr, type);
+                    }
+                    for (auto const code : codes) {
+                        if (libevdev_has_event_code(dev_ptr, type, code) == 0) {
+                            libevdev_enable_event_code(dev_ptr, type, code, nullptr);
+                            log("  Enabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
+                        }
+                    }
+                    break;
+                }
+                case remove_codes:
+                case remove_type: break;
+            }
+        }
+        self.set_device(best);
+        if (!self.is_ok()) [[unlikely]] {
+            log("  Device initialization failed: {}", best.device_name());
+            log("  Error: {}", self.error().message());
+            return false;
+        }
+    } else {
+        self.set_device();
+        self.apply_caps(caps_view);
+        if (!self.is_ok()) [[unlikely]] {
+            log("  Device init failed.");
+            log("  Error: {}", self.error().message());
+            return false;
+        }
+    }
+    return true;
+}
 
 void basic_uinput::set_device(int fd, std::string_view const name) noexcept {
     close();
@@ -485,70 +578,43 @@ bool basic_uinput::init(dev_caps_view const caps_view) noexcept {
 }
 
 bool basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
-    using enum caps_action;
-
     evdev_rank best{};
     for (evdev_rank&& cur : rank_devices(caps_view)) {
         // Don't copy a device that another process has grabbed; our relay
         // would fight the grabber for events.
-        cur.dev.grab_input(true);
-        if (cur.dev.get_status() == evdev_status::grab_failure) {
-            continue;
-        }
-        cur.dev.grab_input(false);
-        if (cur.dev.get_status() != evdev_status::success) {
+        if (!test_grab(cur.dev)) {
             continue;
         }
         if (cur.score >= best.score) {
             best = std::move(cur);
         }
     }
-    if (best.dev.is_ok()) {
-        // best.dev.apply_caps(caps_view);
-        std::string new_name;
-        new_name += best.dev.device_name();
-        new_name += " (Copied)";
-        best.dev.device_name(new_name); // this is okay, it's not changing the original device
-        for (auto const& [type, codes, action] : caps_view) {
-            switch (action) {
-                case append: {
-                    auto* dev_ptr = best.dev.device_ptr();
-                    if (libevdev_has_event_type(dev_ptr, type) == 0) {
-                        libevdev_enable_event_type(dev_ptr, type);
-                    }
-                    for (auto const code : codes) {
-                        if (libevdev_has_event_code(dev_ptr, type, code) == 0) {
-                            libevdev_enable_event_code(dev_ptr, type, code, nullptr);
-                            log("  Enabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
-                        }
-                    }
-                    break;
-                }
-                case remove_codes:
-                case remove_type: break;
-            }
-        }
-        this->set_device(best.dev);
+    return finalize_device(*this, std::move(best.dev), caps_view);
+}
 
-        if (!is_ok()) [[unlikely]] {
-            log("  Device initialization failed: {}", best.dev.device_name());
-            log("  Error: {}", this->error().message());
-            return false;
-        }
-    } else {
-        this->set_device();
-        this->apply_caps(caps_view);
-        if (!is_ok()) [[unlikely]] {
-            log("  Device init failed.");
-            log("  Error: {}", this->error().message());
-            return false;
-        }
+bool basic_uinput::set_device_from(device_query const& inp_query) noexcept {
+    auto best = find_device_from_query(inp_query);
+    if (!best.is_ok() && inp_query.fail_on_no_match) {
+        log("  No device matched the query: {}", to_string(inp_query));
+        return false;
     }
-    return true;
+    return finalize_device(*this, std::move(best), inp_query.caps);
+}
+
+bool basic_uinput::init(device_query const& inp_query) noexcept {
+    // don't re-initialize
+    if (is_ok()) {
+        return true;
+    }
+    return set_device_from(inp_query);
 }
 
 bool basic_uinput::operator()(dev_caps_view const caps_view, start_tag) noexcept {
     return init(caps_view);
+}
+
+bool basic_uinput::operator()(device_query const& inp_query, start_tag) noexcept {
+    return init(inp_query);
 }
 
 fs8::context_action basic_uinput::operator()(event_type const& event) noexcept {

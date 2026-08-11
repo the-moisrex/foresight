@@ -12,6 +12,8 @@ export import fs8.event;
 import fs8.log;
 import fs8.context;
 import fs8.devices.capabilities;
+import fs8.devices.queries;
+import fs8.devices.udev;
 import fs8.mods.input_manager;
 import fs8.traits;
 
@@ -50,6 +52,20 @@ export namespace fs8 {
     uinput_access_result verify_access_to_uinput() noexcept;
 
     [[nodiscard]] std::string_view to_string(uinput_access_result) noexcept;
+
+    struct basic_uinput;
+
+    /// Check if a freshly-opened device can be grabbed without disrupting a grab
+    /// this process already holds. Always leaves the device ungrabbed afterwards.
+    [[nodiscard]] bool test_grab(evdev& dev) noexcept;
+
+    /// Check if a device is usable as a source for a virtual device without
+    /// disrupting a grab that this process already holds.
+    [[nodiscard]] bool is_usable(evdev& dev) noexcept;
+
+    /// Copy a matching device into a virtual (uinput) device, applying caps.
+    /// If `best` is not valid, falls back to an empty device and applies caps.
+    [[nodiscard]] bool finalize_device(basic_uinput& self, evdev best, dev_caps_view caps_view) noexcept;
 
     /**
      * A virtual device
@@ -172,12 +188,38 @@ export namespace fs8 {
         bool init(dev_caps_view caps_view) noexcept;
         bool set_device_from(dev_caps_view caps_view) noexcept;
 
+        bool init(device_query const& inp_query) noexcept;
+        bool set_device_from(device_query const& inp_query) noexcept;
+
         /// Set the caps on start
         bool operator()(dev_caps_view caps_view, start_tag) noexcept;
 
         /// Set the device on start
         bool operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, start_tag) noexcept {
             return operator()(caps_view, start);
+        }
+
+        /// Set the device based on the query on start
+        bool operator()(device_query const& inp_query, start_tag) noexcept;
+
+        /// Set the device based on the query on start, preferring the devices
+        /// known to the input_manager when it's available in the pipeline.
+        template <typename CtxT>
+            requires requires(CtxT& ctx) { ctx.mod(fs8::input_manager).devices(); }
+        bool operator()(CtxT& ctx, device_query const& inp_query, start_tag) noexcept {
+            if (is_ok()) {
+                return true;
+            }
+            // Prefer the devices the input_manager already knows about (they're
+            // already open and matched against queries); fall back to a fresh
+            // udev enumeration otherwise.
+            for (auto& cur_dev : ctx.mod(fs8::input_manager).devices()) {
+                if (!fs8::matches(cur_dev, inp_query) || !fs8::is_usable(cur_dev)) {
+                    continue;
+                }
+                return fs8::finalize_device(*this, cur_dev, inp_query.caps);
+            }
+            return set_device_from(inp_query);
         }
 
         /// Find the device if possible on start

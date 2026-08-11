@@ -4,7 +4,6 @@ module;
 #include <cassert>
 #include <libevdev/libevdev.h>
 #include <linux/uinput.h>
-#include <print>
 #include <ranges>
 #include <type_traits>
 export module fs8.mods.router;
@@ -272,11 +271,10 @@ export namespace fs8 {
                 }
 
                 if (!init_valid) [[unlikely]] {
-                    fs8::log("Router failed to start at least one of the routes.");
+                    log("Router failed to start at least one of the routes.");
                     return context_action::idle;
                 }
                 ++cur_query;
-                assert(cur_query != queries.end());
             }
             return context_action::next;
         }

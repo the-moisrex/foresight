@@ -182,36 +182,38 @@ bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
     }
 
     // 2. Evaluate query fields against evdev attributes
-    // for (auto const& field : inp_query.fields) {
-    //     bool term_matched = true;
-    //
-    //     if (field.target == sysname || (+field.target & +nomatch_flag && (+field.target & ~+nomatch_flag) == +sysname)) {
-    //         term_matched = is_matched(field, &query_term::value, dev.device_name());
-    //     } else if (field.target == syspath || (+field.target & +nomatch_flag && (+field.target & ~+nomatch_flag) == +syspath)) {
-    //         term_matched = is_matched(field, &query_term::value, dev.physical_location());
-    //     } else if (is_sysattr(field)) {
-    //         if (field.key == "name" || field.key == "device/name") {
-    //             term_matched = is_matched(field, &query_term::value, dev.device_name());
-    //         } else if (field.key == "phys" || field.key == "device/phys") {
-    //             term_matched = is_matched(field, &query_term::value, dev.physical_location());
-    //         } else if (field.key == "uniq" || field.key == "device/uniq") {
-    //             term_matched = is_matched(field, &query_term::value, dev.unique_identifier());
-    //         } else {
-    //             // evdev does not expose arbitrary sysfs attributes
-    //             term_matched = false;
-    //         }
-    //     } else if (is_subsystem(field)) {
-    //         // evdev devices belong strictly to the "input" subsystem
-    //         term_matched = is_matched(field, &query_term::key, "input");
-    //     } else {
-    //         // Properties and tags require udev metadata
-    //         term_matched = false;
-    //     }
-    //
-    //     if (!term_matched) {
-    //         return false;
-    //     }
-    // }
+    for (auto const& field : inp_query.fields) {
+        if (positive(field.target) == sysname) {
+            if (!is_matched(field, &query_term::value, dev.device_name())) {
+                return false;
+            }
+        } else if (positive(field.target) == syspath) {
+            if (!is_matched(field, &query_term::value, dev.physical_location())) {
+                return false;
+            }
+        } else if (is_sysattr(field)) {
+            if (field.key == "name" || field.key == "device/name") {
+                if (!is_matched(field, &query_term::value, dev.device_name())) {
+                    return false;
+                }
+            } else if (field.key == "phys" || field.key == "device/phys") {
+                if (!is_matched(field, &query_term::value, dev.physical_location())) {
+                    return false;
+                }
+            } else if (field.key == "uniq" || field.key == "device/uniq") {
+                if (!is_matched(field, &query_term::value, dev.unique_identifier())) {
+                    return false;
+                }
+            }
+            // Other sysattrs are not exposed by evdev; can't verify, so we don't exclude.
+        } else if (is_subsystem(field)) {
+            // evdev devices belong strictly to the "input" subsystem
+            if (!is_matched(field, &query_term::key, "input")) {
+                return false;
+            }
+        }
+        // Properties and tags require udev metadata; can't verify from evdev, so we don't exclude.
+    }
 
     return true;
 }
