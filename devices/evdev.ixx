@@ -185,6 +185,23 @@ namespace fs8 {
         evdev_status status = evdev_status::unknown;
     };
 
+    /// Check if a freshly-opened device can be grabbed without disrupting a grab
+    /// this process already holds. Always leaves the device ungrabbed afterwards.
+    export [[nodiscard]] bool test_grab(evdev& dev) noexcept;
+
+    /// Check if a device is usable as a source for a virtual device without
+    /// disrupting a grab that this process already holds.
+    export [[nodiscard]] bool is_usable(evdev& dev) noexcept;
+
+    /// sysname of an open device (e.g. "event10"), derived from its fd.
+    export [[nodiscard]] std::string device_sysname(evdev const& dev) noexcept;
+
+    /// Make an independent deep copy of a device so it can be reshaped
+    /// (name/uniq/bustype/caps) without mutating the caller's device, which
+    /// may still be in use (e.g. an input_manager device that shares this
+    /// libevdev handle).
+    export [[nodiscard]] evdev clone_device(evdev const& src) noexcept;
+
     /**
      * @brief Factory function to create a view over all valid input devices.
      *

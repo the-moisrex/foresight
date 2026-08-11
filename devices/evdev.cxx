@@ -8,9 +8,12 @@ module;
 #include <fcntl.h>
 #include <filesystem>
 #include <libevdev/libevdev.h>
+#include <linux/input-event-codes.h>
+#include <linux/limits.h>
 #include <memory_resource>
 #include <numeric>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <thread>
 #include <unistd.h>
@@ -658,4 +661,110 @@ fs8::evdev_rank fs8::device(std::string_view const query, std::span<evdev const>
         }
         return false;
     });
+}
+
+/// Check if a freshly-opened device can be grabbed without disrupting a grab
+/// this process already holds. Always leaves the device ungrabbed afterwards.
+bool fs8::test_grab(evdev& dev) noexcept {
+    dev.grab_input(true);
+    if (dev.get_status() == evdev_status::grab_failure) {
+        return false;
+    }
+    dev.grab_input(false);
+    return dev.get_status() == evdev_status::success;
+}
+
+/// Check if a device is usable as a source for a virtual device without
+/// disrupting a grab that this process already holds.
+bool fs8::is_usable(evdev& dev) noexcept {
+    if (dev.get_status() == evdev_status::success_grabbed) {
+        return true; // already grabbed by us; just copy from it
+    }
+    return test_grab(dev);
+}
+
+/// sysname of an open device (e.g. "event10"), derived from its fd.
+std::string fs8::device_sysname(evdev const& dev) noexcept {
+    int const fd = dev.native_handle();
+    if (fd < 0) [[unlikely]] {
+        return {};
+    }
+    char buf[PATH_MAX]{};
+    auto const n = ::readlink(("/proc/self/fd/" + std::to_string(fd)).c_str(), buf, sizeof(buf) - 1);
+    if (n <= 0) [[unlikely]] {
+        return {};
+    }
+    buf[n] = '\0';
+    std::string_view path{buf, static_cast<size_t>(n)};
+    if (auto const pos = path.find_last_of('/'); pos != std::string_view::npos) {
+        path.remove_prefix(pos + 1);
+    }
+    return std::string{path};
+}
+
+/// Make an independent deep copy of a device so we can reshape it
+/// (name/uniq/bustype/caps) without mutating the caller's device, which
+/// may still be in use (e.g. an input_manager device that shares this
+/// libevdev handle).
+evdev fs8::clone_device(evdev const& src) noexcept {
+    if (!src.is_ok()) [[unlikely]] {
+        return {};
+    }
+    auto* const raw = src.device_ptr();
+    libevdev* copy = libevdev_new();
+    if (copy == nullptr) [[unlikely]] {
+        return {};
+    }
+    if (auto const* name = libevdev_get_name(raw)) {
+        libevdev_set_name(copy, name);
+    }
+    if (auto const* phys = libevdev_get_phys(raw)) {
+        libevdev_set_phys(copy, phys);
+    }
+    if (auto const* uniq = libevdev_get_uniq(raw)) {
+        libevdev_set_uniq(copy, uniq);
+    }
+    libevdev_set_id_bustype(copy, libevdev_get_id_bustype(raw));
+    libevdev_set_id_vendor(copy, libevdev_get_id_vendor(raw));
+    libevdev_set_id_product(copy, libevdev_get_id_product(raw));
+    libevdev_set_id_version(copy, libevdev_get_id_version(raw));
+
+    for (unsigned type = 0; type <= EV_MAX; ++type) {
+        if (!libevdev_has_event_type(raw, type)) {
+            continue;
+        }
+        libevdev_enable_event_type(copy, type);
+        unsigned const code_max = [&] {
+            switch (type) {
+                case EV_KEY: return KEY_MAX;
+                case EV_REL: return REL_MAX;
+                case EV_ABS: return ABS_MAX;
+                case EV_MSC: return MSC_MAX;
+                case EV_SW:  return SW_MAX;
+                case EV_LED: return LED_MAX;
+                case EV_SND: return SND_MAX;
+                default:     return FF_MAX;
+            }
+        }();
+        for (unsigned code = 0; code <= code_max; ++code) {
+            if (!libevdev_has_event_code(raw, type, code)) {
+                continue;
+            }
+            if (type == EV_ABS) {
+                if (auto const* abs = libevdev_get_abs_info(raw, code)) {
+                    libevdev_enable_event_code(copy, type, code, abs);
+                    continue;
+                }
+            }
+            libevdev_enable_event_code(copy, type, code, nullptr);
+        }
+    }
+
+    for (unsigned prop = 0; prop <= INPUT_PROP_MAX; ++prop) {
+        if (libevdev_has_property(raw, prop)) {
+            libevdev_enable_property(copy, prop);
+        }
+    }
+
+    return evdev{copy, evdev_status::success};
 }

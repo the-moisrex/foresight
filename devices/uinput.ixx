@@ -55,17 +55,10 @@ export namespace fs8 {
 
     struct basic_uinput;
 
-    /// Check if a freshly-opened device can be grabbed without disrupting a grab
-    /// this process already holds. Always leaves the device ungrabbed afterwards.
-    [[nodiscard]] bool test_grab(evdev& dev) noexcept;
-
-    /// Check if a device is usable as a source for a virtual device without
-    /// disrupting a grab that this process already holds.
-    [[nodiscard]] bool is_usable(evdev& dev) noexcept;
-
     /// Copy a matching device into a virtual (uinput) device, applying caps.
     /// If `best` is not valid, falls back to an empty device and applies caps.
-    [[nodiscard]] bool finalize_device(basic_uinput& self, evdev best, dev_caps_view caps_view) noexcept;
+    /// The source device is deep-cloned; it is never modified or freed.
+    [[nodiscard]] bool finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view) noexcept;
 
     /**
      * A virtual device
@@ -126,7 +119,6 @@ export namespace fs8 {
          * @return The file descriptor used to create this device
          */
         [[nodiscard]] int native_handle() const noexcept;
-
 
         /**
          * Return the syspath representing this uinput device. If the UI_GET_SYSNAME
@@ -265,6 +257,13 @@ export namespace fs8 {
       private:
         libevdev_uinput* dev      = nullptr;
         int              err_code = 0;
+
+        /// An fd to /dev/uinput opened by finalize_device() so it could set the
+        /// origin chain (phys) before the kernel registered the device.
+        /// libevdev never closes a caller-provided fd; we own it.
+        int owned_fd = -1;
+
+        friend bool finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view) noexcept;
     } uinput;
 
     static_assert(OutputModifier<basic_uinput>, "Must be an output modifier.");
