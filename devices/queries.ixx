@@ -198,36 +198,51 @@ export namespace fs8 {
         static constexpr bool value = decltype(test(std::declval<T const&>()))::value;
     };
 
-    /// An owning copy of a query built from a string: the query terms are stored
-    /// inline so the query can safely outlive the source string (e.g. argv).
+    /// An owning copy of a query: the query terms are copied into inline storage
+    /// so the query can safely outlive the source string (e.g. argv) and so the
+    /// consteval pipeline form never holds dangling spans.
     struct [[nodiscard]] owned_query {
         // NOLINTBEGIN(*-non-private-member-variables-in-classes)
 
-        std::array<query_term, 2> storage{};
-        std::uint8_t              count = 0;
-        device_query              value{};
+        std::array<query_term, 16> storage{};
+        std::uint8_t               count = 0;
+        dev_caps_view              caps = +caps::nothing;
+        std::uint8_t               caps_support_percentage = 80;
+        std::uint8_t               matches_limit = 1;
+        bool                       grab = false;
+        bool                       fail_on_no_match = false;
 
         // NOLINTEND(*-non-private-member-variables-in-classes)
 
         constexpr owned_query() noexcept = default;
         explicit owned_query(std::string_view str) noexcept;
 
-        /// Re-point `value.fields` into the destination's own storage so copies
-        /// never alias the source's buffer.
-        constexpr owned_query(owned_query const& other) noexcept : storage{other.storage}, count{other.count}, value{other.value} {
-            value.fields = std::span<query_term const>{storage.data(), count};
+        /// Copy the fields of a `device_query` into inline storage.
+        constexpr void set(device_query const& inp_query) noexcept {
+            count = static_cast<std::uint8_t>(inp_query.fields.size());
+            for (std::size_t i = 0; i < count; ++i) {
+                storage[i] = inp_query.fields[i];
+            }
+            caps                    = inp_query.caps;
+            caps_support_percentage = inp_query.caps_support_percentage;
+            matches_limit           = inp_query.matches_limit;
+            grab                    = inp_query.grab;
+            fail_on_no_match        = inp_query.fail_on_no_match;
         }
 
-        constexpr owned_query& operator=(owned_query const& other) noexcept {
-            storage      = other.storage;
-            count        = other.count;
-            value        = other.value;
-            value.fields = std::span<query_term const>{storage.data(), count};
-            return *this;
+        /// View the owned fields as a `device_query`.
+        [[nodiscard]] constexpr device_query value() const noexcept {
+            return device_query{
+              .fields                  = std::span<query_term const>{storage.data(), count},
+              .caps                    = caps,
+              .caps_support_percentage = caps_support_percentage,
+              .matches_limit           = matches_limit,
+              .grab                    = grab,
+              .fail_on_no_match        = fail_on_no_match};
         }
 
         [[nodiscard]] explicit(false) constexpr operator device_query() const noexcept {
-            return value;
+            return value();
         }
     };
 
@@ -366,11 +381,15 @@ export namespace fs8 {
         return std::views::transform(std::forward<R>(rng), [tag]<typename T>(T&& elem) {
             if constexpr (std::convertible_to<T, std::string_view>) {
                 owned_query result{std::string_view{elem}};
-                tag(result.value);
+                device_query q = result;
+                tag(q);
+                result.set(q);
                 return result;
             } else if constexpr (std::same_as<T, owned_query>) {
                 owned_query result{elem};
-                tag(result.value);
+                device_query q = result;
+                tag(q);
+                result.set(q);
                 return result;
             } else {
                 static_assert(is_query<T>, "Only query ranges and string ranges can be piped into a query tag.");

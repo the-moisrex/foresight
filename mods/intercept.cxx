@@ -47,6 +47,10 @@ void basic_interceptor::add(device_query const& q) noexcept {
     queries[queries_count++].set(q);
 }
 
+void basic_interceptor::add(owned_query const& q) noexcept {
+    add(static_cast<device_query>(q));
+}
+
 fs8::context_action basic_interceptor::do_start(basic_input_manager& im, basic_io_manager& io) noexcept try {
     using enum context_action;
     if (pimpl.get() == nullptr) [[unlikely]] {
@@ -95,7 +99,7 @@ fs8::context_action basic_interceptor::operator()(io_fd const& fd) noexcept try 
     return context_action::next;
 }
 
-std::optional<fs8::event_type> basic_interceptor::do_pop(basic_input_manager& im, basic_io_manager& io) noexcept try {
+std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, basic_io_manager& io) noexcept try {
     if (pimpl.get() == nullptr || pimpl->im == nullptr) [[unlikely]] {
         return std::nullopt;
     }

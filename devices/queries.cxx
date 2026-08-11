@@ -299,7 +299,7 @@ fs8::evdev fs8::device(std::string_view const str) noexcept {
 }
 
 fs8::owned_query::owned_query(std::string_view const str) noexcept {
-    value = {}; // reset to defaults
+    *this = {}; // reset to defaults
     count = 0;
 
     if (str.empty()) {
@@ -315,8 +315,8 @@ fs8::owned_query::owned_query(std::string_view const str) noexcept {
         count           = 2;
     }
     // 2. A known capabilities name (e.g. "keyboard", "mouse", "pen")
-    else if (auto const caps = caps_of(str); !caps.empty()) {
-        value.caps = caps;
+    else if (auto const caps_value = caps_of(str); !caps_value.empty()) {
+        this->caps = caps_value;
         return;
     }
     // 3. A query term (e.g. "name=event0", "attr:device/name=my_mouse")
@@ -331,8 +331,6 @@ fs8::owned_query::owned_query(std::string_view const str) noexcept {
         storage[0]            = name_field;
         count                 = 1;
     }
-
-    value.fields = std::span<query_term const>{storage.data(), count};
 }
 
 fs8::owned_query fs8::query_from(std::string_view const str) noexcept {

@@ -2,7 +2,6 @@
 #include <coroutine>
 #include <csignal>
 #include <exception>
-#include <filesystem>
 #include <format>
 #include <functional>
 #include <print>
@@ -39,8 +38,8 @@ namespace {
             how_to_type,
         } action = action_type::none;
 
-        /// intercept file
-        std::vector<fs8::input_file_type> files;
+        /// intercept/redirect query
+        std::vector<fs8::owned_query> queries;
 
         /// All args
         std::span<char const* const> args;
@@ -62,18 +61,22 @@ namespace {
     -h | --help                   Print help.
 
   Actions:
-    intercept [files...]          Intercept the files and print everything to stdout.
+    intercept [queries...]        Intercept the devices matching the queries and
+                                  print everything to stdout.
        -g | --grab                Grab the input.
                                   Stops everyone else from using the input.
                                   Only use this if you know what you're doing!
 
-    redirect [files...]           Redirect stdin to the specified files.
-    to       [files...]           Alias for 'redirect'
+    redirect [query]              Redirect stdin to the device matching the query.
+    to       [query]              Alias for 'redirect'
     systemd  exec-file [args...]  Install exec-file as a user service to systemd.
     list-devices                  List input devices
     how-to-type [--evtest] [str]  How to type the specified input?
 
     help                 Print help.
+
+  Queries are device names, paths (e.g. /dev/input/event1), or udev terms
+  (e.g. "name=event0", "attr:device/name=My Mouse", "keyboard").
 
   Example Usages:
     $ keyboard=/dev/input/event1
@@ -213,23 +216,10 @@ namespace {
             }
 
             switch (opts.action) {
-                case intercept: {
-                    opts.files.emplace_back(opt, grab);
-                    if (auto const status = std::filesystem::status(opts.files.back().file); !exists(status)) {
-                        throw invalid_argument(format("File does not exist: {}", opts.files.back().file.string()));
-                    } else if (!is_character_file(status)) { // NOLINT(*-else-after-return)
-                        throw invalid_argument(format("It's not a file: {}", opts.files.back().file.string()));
-                    }
-                    break;
-                }
-
+                case intercept:
                 case redirect: {
-                    opts.files.emplace_back(opt);
-                    if (auto const status = std::filesystem::status(opts.files.back().file); !exists(status)) {
-                        throw invalid_argument(format("File does not exist: {}", opts.files.back().file.string()));
-                    } else if (!is_character_file(status)) { // NOLINT(*-else-after-return)
-                        throw invalid_argument(format("It's not a file: {}", opts.files.back().file.string()));
-                    }
+                    opts.queries.emplace_back(opt);
+                    opts.queries.back().grab = grab;
                     break;
                 }
 
@@ -241,8 +231,13 @@ namespace {
 
         switch (opts.action) {
             case intercept:
-                if (opts.files.empty()) {
-                    throw invalid_argument("Please provide /dev/input/eventX file as an argument.");
+                if (opts.queries.empty()) {
+                    throw invalid_argument("Please provide a device query as an argument.");
+                }
+                break;
+            case redirect:
+                if (opts.queries.size() != 1) {
+                    throw invalid_argument("Only pass one query for redirect.");
                 }
                 break;
             default: break;
@@ -296,21 +291,16 @@ namespace {
                 auto& inpor       = pipeline.mod(fs8::intercept);
 
                 register_stop_signal(sig_stopper);
-                for (auto const& [file, grab] : opts.files) {
-                    fs8::evdev dev{file};
-                    if (!dev.is_ok()) [[unlikely]] {
-                        throw std::runtime_error(std::format("Could not open device {}", file.string()));
-                    }
-                    dev.grab_input(grab);
-                    inpor.add(std::move(dev));
+                for (auto const& q : opts.queries) {
+                    inpor.add(q);
                 }
 
                 pipeline();
                 return EXIT_SUCCESS;
             }
             case redirect: {
-                if (opts.files.size() != 1) {
-                    throw std::invalid_argument("Only pass one file for redirect.");
+                if (opts.queries.size() != 1) {
+                    throw std::invalid_argument("Only pass one query for redirect.");
                 }
 
                 static constinit auto pipeline = fs8::context | fs8::stopper | fs8::from_input | fs8::uinput;
@@ -318,10 +308,9 @@ namespace {
                 auto& out         = pipeline.mod(fs8::uinput);
                 auto& sig_stopper = pipeline.mod(fs8::stopper);
 
-                auto const&      file = opts.files.front().file;
-                fs8::evdev const dev{file};
+                fs8::evdev const dev = fs8::device(opts.queries.front());
                 if (!dev.is_ok()) {
-                    throw std::runtime_error(std::format("Could not open device to write into {}", file.string()));
+                    throw std::runtime_error("Could not open device for the given query.");
                 }
                 out.set_device(dev);
                 register_stop_signal(sig_stopper);

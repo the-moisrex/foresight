@@ -3,7 +3,6 @@
 module;
 #include <array>
 #include <concepts>
-#include <filesystem>
 #include <optional>
 #include <ranges>
 export module fs8.mods.intercept;
@@ -15,45 +14,6 @@ import fs8.mods.input_manager;
 import fs8.pimpl;
 
 export namespace fs8 {
-
-    struct input_file_type {
-        std::filesystem::path file;
-        bool                  grab = false;
-    };
-
-    /// Owned copy of a device query: the fields are copied into inline storage so
-    /// the consteval pipeline form never holds dangling spans.
-    struct [[nodiscard]] owned_device_query {
-        std::array<query_term, 16> fields{};
-        std::uint8_t               field_count = 0;
-        dev_caps_view              caps = +caps::nothing;
-        std::uint8_t               caps_support_percentage = 80;
-        std::uint8_t               matches_limit = 1;
-        bool                       grab = false;
-        bool                       fail_on_no_match = false;
-
-        constexpr void set(device_query const& inp_query) noexcept {
-            field_count = static_cast<std::uint8_t>(inp_query.fields.size());
-            for (std::size_t i = 0; i < field_count; ++i) {
-                fields[i] = inp_query.fields[i];
-            }
-            caps                    = inp_query.caps;
-            caps_support_percentage = inp_query.caps_support_percentage;
-            matches_limit           = inp_query.matches_limit;
-            grab                    = inp_query.grab;
-            fail_on_no_match        = inp_query.fail_on_no_match;
-        }
-
-        constexpr explicit operator device_query() const noexcept {
-            return device_query{
-              .fields                  = std::span<query_term const>{fields.data(), field_count},
-              .caps                    = caps,
-              .caps_support_percentage = caps_support_percentage,
-              .matches_limit           = matches_limit,
-              .grab                    = grab,
-              .fail_on_no_match        = fail_on_no_match};
-        }
-    };
 
     /**
      * Query-driven event provider.
@@ -70,14 +30,12 @@ export namespace fs8 {
         template <typename... Qs>
             requires(sizeof...(Qs) >= 1 && (std::convertible_to<Qs, device_query> && ...))
         consteval basic_interceptor operator()(Qs... qs) const noexcept {
-            std::array<owned_device_query, 16> arr{};
-            std::size_t                        index = 0;
-            ((arr[index++].set(qs)), ...);
-            return basic_interceptor{arr, index};
+            return basic_interceptor{qs...};
         }
 
         /// Runtime additions
         void add(device_query const& q) noexcept; // udev-query based
+        void add(owned_query const& q) noexcept;  // udev-query based
         void add(evdev&& dev) noexcept;           // manual (find_devices output)
 
         /// Range of evdev and/or device_query
@@ -109,15 +67,19 @@ export namespace fs8 {
         }
 
       private:
-        explicit consteval basic_interceptor(std::array<owned_device_query, 16> qs, std::size_t const count) noexcept
-          : queries{qs},
-            queries_count{count} {}
+        template <typename... Qs>
+            requires(sizeof...(Qs) >= 1 && (std::convertible_to<Qs, device_query> && ...))
+        explicit consteval basic_interceptor(Qs... qs) noexcept {
+            std::size_t index = 0;
+            ((queries[index++].set(qs)), ...);
+            queries_count = index;
+        }
 
         context_action            do_start(basic_input_manager& im, basic_io_manager& io) noexcept;
         std::optional<event_type> do_pop(basic_input_manager& im, basic_io_manager& io) noexcept;
 
-        std::array<owned_device_query, 16> queries{}; // consteval-copyable part
-        std::size_t                        queries_count = 0;
+        std::array<owned_query, 16> queries{}; // consteval-copyable part
+        std::size_t                 queries_count = 0;
     } intercept;
 
     static_assert(Modifier<basic_interceptor>);
