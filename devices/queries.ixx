@@ -14,6 +14,7 @@ export import fs8.devices.capabilities;
 import fs8.devices.udev;
 import fs8.log;
 import fs8.devices.evdev;
+import fs8.traits;
 
 export namespace fs8 {
 
@@ -177,6 +178,59 @@ export namespace fs8 {
     using device_query = basic_device_query<>;
     constexpr basic_device_query<0> query{};
 
+    template <typename T>
+    inline constexpr bool is_query = false;
+
+    template <std::size_t N>
+    inline constexpr bool is_query<basic_device_query<N>> = true;
+
+    /// True when `T` derives from `std::ranges::range_adaptor_closure<D>` for
+    /// some `D` (e.g. `find_devices`, `to_queries`). Those are piped through the
+    /// standard views pipe operator, not through the query-tag pipe.
+    template <typename T>
+    struct is_range_adaptor_closure {
+      private:
+        template <typename D>
+        static std::true_type  test(std::ranges::range_adaptor_closure<D> const&) noexcept;
+        static std::false_type test(...) noexcept;
+
+      public:
+        static constexpr bool value = decltype(test(std::declval<T const&>()))::value;
+    };
+
+    /// An owning copy of a query built from a string: the query terms are stored
+    /// inline so the query can safely outlive the source string (e.g. argv).
+    struct [[nodiscard]] owned_query {
+        // NOLINTBEGIN(*-non-private-member-variables-in-classes)
+
+        std::array<query_term, 2> storage{};
+        std::uint8_t              count = 0;
+        device_query              value{};
+
+        // NOLINTEND(*-non-private-member-variables-in-classes)
+
+        constexpr owned_query() noexcept = default;
+        explicit owned_query(std::string_view str) noexcept;
+
+        /// Re-point `value.fields` into the destination's own storage so copies
+        /// never alias the source's buffer.
+        constexpr owned_query(owned_query const& other) noexcept : storage{other.storage}, count{other.count}, value{other.value} {
+            value.fields = std::span<query_term const>{storage.data(), count};
+        }
+
+        constexpr owned_query& operator=(owned_query const& other) noexcept {
+            storage      = other.storage;
+            count        = other.count;
+            value        = other.value;
+            value.fields = std::span<query_term const>{storage.data(), count};
+            return *this;
+        }
+
+        [[nodiscard]] explicit(false) constexpr operator device_query() const noexcept {
+            return value;
+        }
+    };
+
     template <std::size_t N>
     [[nodiscard]] constexpr bool operator==(basic_device_query<N> const& lhs, basic_device_query<N> const& rhs) noexcept {
         return std::ranges::equal(lhs.fields, rhs.fields)
@@ -201,22 +255,32 @@ export namespace fs8 {
         }
     } allow_multiple_matches;
 
-    constexpr struct [[nodiscard]] matches_limit {
+    constexpr struct [[nodiscard]] matches_limit : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+      private:
         std::uint8_t limit = 1;
 
+      public:
         template <std::size_t N>
         constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
             out_query.matches_limit = limit;
         }
 
         consteval matches_limit operator()(std::uint8_t const inp_limit) const noexcept {
-            return matches_limit{.limit = inp_limit};
+            matches_limit res;
+            res.limit = inp_limit;
+            return res;
         }
     } matches_limit;
 
-    constexpr struct [[nodiscard]] matches_percentage {
+    constexpr struct [[nodiscard]] matches_percentage : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+      private:
         std::uint8_t percentage = 100;
 
+      public:
         template <std::size_t N>
         constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
             out_query.caps_support_percentage = percentage;
@@ -224,7 +288,9 @@ export namespace fs8 {
 
         consteval matches_percentage operator()(std::uint8_t const inp_percentage) const noexcept {
             assert(inp_percentage <= 100);
-            return matches_percentage{.percentage = inp_percentage};
+            matches_percentage res;
+            res.percentage = inp_percentage;
+            return res;
         }
     } matches_percentage;
 
@@ -291,6 +357,30 @@ export namespace fs8 {
         return inp_query;
     }
 
+    // Pipe: <range of strings or queries> | option  →  <range of queries>
+    // Strings are converted through `query_from` first, so tags can be applied
+    // directly to a `args(argc, argv)` result without spelling out `to_queries`.
+    template <std::ranges::viewable_range R, QueryTag Tag>
+        requires(!is_query<std::remove_cvref_t<R>> && !is_range_adaptor_closure<std::remove_cvref_t<Tag>>::value)
+    [[nodiscard]] constexpr auto operator|(R&& rng, Tag tag) noexcept {
+        return std::views::transform(std::forward<R>(rng), [tag]<typename T>(T&& elem) {
+            if constexpr (std::convertible_to<T, std::string_view>) {
+                owned_query result{std::string_view{elem}};
+                tag(result.value);
+                return result;
+            } else if constexpr (std::same_as<T, owned_query>) {
+                owned_query result{elem};
+                tag(result.value);
+                return result;
+            } else {
+                static_assert(is_query<T>, "Only query ranges and string ranges can be piped into a query tag.");
+                device_query result = elem;
+                tag(result);
+                return result;
+            }
+        });
+    }
+
     template <std::size_t N1, std::size_t N2>
     [[nodiscard]] consteval auto operator|(basic_device_query<N1> inp_query, dev_caps<N2> const& inp_cap) noexcept {
         inp_query.caps = view(inp_cap);
@@ -354,28 +444,60 @@ export namespace fs8 {
 
     /// Find a device from a query string:
     ///   - a path ("/dev/input/event10") is opened directly
+    ///   - anything else is converted via `query_from` and resolved with `device(device_query)`
+    [[nodiscard]] evdev device(std::string_view str) noexcept;
+
+    /// Convert a string into an owning query:
+    ///   - a path ("/dev/input/event10") becomes subsystem + sysname terms
     ///   - a known capabilities name ("keyboard", "pen", ...) selects by caps
     ///   - a query term ("name=event0", "attr:device/name=...", ...) is parsed
     ///   - anything else is treated as a fuzzy device-name match
-    [[nodiscard]] evdev device(std::string_view str) noexcept;
+    ///   - an empty string yields an empty query
+    [[nodiscard]] owned_query query_from(std::string_view str) noexcept;
 
-    constexpr struct [[nodiscard]] basic_find_devices : std::ranges::range_adaptor_closure<basic_find_devices> {
-        template <std::ranges::sized_range Range>
-            requires(std::same_as<std::ranges::range_value_t<Range>, std::string_view>)
+    /// Convert a range of strings into a range of owning queries. Empty strings
+    /// are dropped so they can never produce a match-everything query.
+    constexpr struct [[nodiscard]] basic_to_queries : std::ranges::range_adaptor_closure<basic_to_queries> {
+        template <std::ranges::viewable_range Range>
+            requires(std::convertible_to<std::ranges::range_value_t<Range>, std::string_view>)
         constexpr auto operator()(Range&& rng) const noexcept {
             return std::forward<Range>(rng)
                    // exclude bad inputs
                    | std::views::filter([](std::string_view const q) {
                          return !q.empty();
                      })
-                   // Get a device
+                   // get an owning query for each string
                    | std::views::transform([](std::string_view const q) {
-                         return device(q);
+                         return owned_query{q};
                      });
         }
 
         [[nodiscard]] constexpr auto operator()(std::string_view const q) const noexcept {
             return std::span<std::string_view const>{{q}} | *this;
+        }
+
+    } to_queries;
+
+    /// Resolve a query (or a range of queries) into open evdev devices.
+    /// Queries that don't match any device produce invalid devices, which are
+    /// filtered out of the resulting range.
+    constexpr struct [[nodiscard]] basic_find_devices : std::ranges::range_adaptor_closure<basic_find_devices> {
+        template <std::ranges::viewable_range Range>
+            requires(std::convertible_to<std::ranges::range_value_t<Range>, device_query>)
+        constexpr auto operator()(Range&& rng) const noexcept {
+            return std::forward<Range>(rng)
+                   // Get a device for each query
+                   | std::views::transform([](auto&& q) {
+                         return device(static_cast<device_query>(q));
+                     })
+                   // exclude bad matches
+                   | std::views::filter([](evdev const& dev) noexcept {
+                         return dev.is_ok();
+                     });
+        }
+
+        [[nodiscard]] constexpr evdev operator()(device_query const& q) const noexcept {
+            return device(q);
         }
 
     } find_devices;

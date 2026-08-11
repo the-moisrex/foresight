@@ -289,27 +289,54 @@ fs8::evdev fs8::device(dev_caps_view const caps) noexcept {
 }
 
 fs8::evdev fs8::device(std::string_view const str) noexcept {
-    // 1. A device path
+    // 1. A device path is opened directly
     if (str.starts_with('/')) {
         return evdev{std::filesystem::path{str}};
     }
 
+    // 2. Everything else is converted to a query and resolved normally
+    return device(static_cast<device_query>(query_from(str)));
+}
+
+fs8::owned_query::owned_query(std::string_view const str) noexcept {
+    value = {}; // reset to defaults
+    count = 0;
+
+    if (str.empty()) {
+        return;
+    }
+
+    // 1. A device path
+    if (str.starts_with('/')) {
+        auto const pos  = str.find_last_of('/');
+        auto const base = (pos == std::string_view::npos) ? str : str.substr(pos + 1);
+        storage[0]      = subsystem("input");
+        storage[1]      = match_sysname(base);
+        count           = 2;
+    }
     // 2. A known capabilities name (e.g. "keyboard", "mouse", "pen")
-    if (auto const caps = caps_of(str); !caps.empty()) {
-        return device(device_query{.caps = caps});
+    else if (auto const caps = caps_of(str); !caps.empty()) {
+        value.caps = caps;
+        return;
     }
-
     // 3. A query term (e.g. "name=event0", "attr:device/name=my_mouse")
-    if (auto const term = parse_query_term(str); term) {
-        std::array fields{term};
-        return device(device_query{.fields = std::span<query_term const>{fields}});
+    else if (auto const term = parse_query_term(str); term) {
+        storage[0] = term;
+        count      = 1;
+    }
+    // 4. Fall back to a fuzzy device-name match
+    else {
+        query_term name_field = match_sysattr("device/name", str);
+        name_field.percentage = 60; // NOLINT(*-magic-numbers)
+        storage[0]            = name_field;
+        count                 = 1;
     }
 
-    // 4. Fall back to a fuzzy device-name match
-    query_term name_field = match_sysattr("device/name", str);
-    name_field.percentage = 60; // NOLINT(*-magic-numbers)
-    std::array fields{name_field};
-    return device(device_query{.fields = std::span<query_term const>{fields}});
+    value.fields = std::span<query_term const>{storage.data(), count};
+}
+
+fs8::owned_query fs8::query_from(std::string_view const str) noexcept {
+    return owned_query{str};
 }
 
 // 1. Check if an existing device belongs to this query

@@ -20,7 +20,7 @@ int main(int const argc, char const* const* argv) try {
       | ignore_adjacent_syns
       | uinput;
 
-    pipeline.mod(intercept).add(args(argc, argv) | find_devices /* , grab_inputs */);
+    pipeline.mod(intercept).add(args(argc, argv) | grab | fail_on_no_match);
     pipeline();
 
     return 0;

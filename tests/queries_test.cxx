@@ -494,3 +494,99 @@ TEST(EvdevMatchesFull, WrongNameDoesNotMatch) {
     }
     GTEST_SKIP() << "No input devices found.";
 }
+
+// ============================================================================
+// query_from / to_queries / tags on string ranges
+// ============================================================================
+
+TEST(QueryFrom, EmptyStringIsEmptyQuery) {
+    auto q = query_from("");
+    EXPECT_EQ(q.count, 0U);
+    EXPECT_TRUE(q.value.fields.empty());
+    EXPECT_EQ(q.value.caps, +caps::nothing);
+}
+
+TEST(QueryFrom, CapabilitiesName) {
+    auto q = query_from("keyboard");
+    EXPECT_EQ(q.count, 0U);
+    EXPECT_EQ(q.value.caps, caps_of("keyboard"));
+}
+
+TEST(QueryFrom, PathBecomesSubsystemAndSysname) {
+    auto q = query_from("/dev/input/event10");
+    ASSERT_EQ(q.count, 2U);
+    EXPECT_EQ(q.value.fields[0], subsystem("input"));
+    EXPECT_EQ(q.value.fields[1], match_sysname("event10"));
+}
+
+TEST(QueryFrom, QueryTerm) {
+    auto q = query_from("name=event0");
+    ASSERT_EQ(q.count, 1U);
+    EXPECT_EQ(q.value.fields[0], parse_query_term("name=event0"));
+}
+
+TEST(QueryFrom, FuzzyDeviceNameFallback) {
+    auto q = query_from("my_mouse");
+    ASSERT_EQ(q.count, 1U);
+    query_term expected = match_sysattr("device/name", "my_mouse");
+    expected.percentage = 60;
+    EXPECT_EQ(q.value.fields[0], expected);
+}
+
+TEST(OwnedQuery, CopyRepointsIntoOwnStorage) {
+    auto source = query_from("/dev/input/event10");
+    std::vector<owned_query> vec;
+    vec.push_back(source);
+    ASSERT_EQ(vec[0].count, 2U);
+    EXPECT_EQ(vec[0].value.fields[0], subsystem("input"));
+    EXPECT_EQ(vec[0].value.fields[1], match_sysname("event10"));
+}
+
+TEST(ToQueries, MapsStringsAndSkipsEmpty) {
+    std::array<std::string_view, 3> strs{"keyboard", "", "name=event0"};
+    auto queries = (strs | to_queries) | std::ranges::to<std::vector<owned_query>>();
+    ASSERT_EQ(queries.size(), 2U);
+    EXPECT_EQ(queries[0].value.caps, caps_of("keyboard"));
+    ASSERT_EQ(queries[1].value.fields.size(), 1U);
+    EXPECT_EQ(queries[1].value.fields[0], parse_query_term("name=event0"));
+}
+
+TEST(TaggedQueries, ApplyTagsToStringRange) {
+    std::array<std::string_view, 2> strs{"keyboard", "name=event0"};
+    auto queries = (strs | grab | fail_on_no_match) | std::ranges::to<std::vector<owned_query>>();
+    ASSERT_EQ(queries.size(), 2U);
+    for (auto const& q : queries) {
+        EXPECT_TRUE(q.value.grab);
+        EXPECT_TRUE(q.value.fail_on_no_match);
+    }
+}
+
+TEST(TaggedQueries, ApplyTagsToOwnedQueryRange) {
+    std::array<std::string_view, 1> strs{"keyboard"};
+    std::vector<owned_query>        vec;
+    for (auto q : (strs | to_queries | grab)) {
+        EXPECT_TRUE(q.value.grab);
+        EXPECT_FALSE(q.value.fail_on_no_match);
+        vec.push_back(q);
+    }
+    ASSERT_EQ(vec.size(), 1U);
+    EXPECT_TRUE(vec[0].value.grab);
+}
+
+TEST(TaggedQueries, SingleQueryPipeStillWorks) {
+    auto q = (keyboard | grab | fail_on_no_match);
+    EXPECT_TRUE(q.grab);
+    EXPECT_TRUE(q.fail_on_no_match);
+}
+
+TEST(FindDevices, OverQueriesYieldsOkDevices) {
+    std::array<std::string_view, 1> strs{"keyboard"};
+    int                             count = 0;
+    for (auto dev : (strs | to_queries | find_devices)) {
+        EXPECT_TRUE(dev.is_ok());
+        ++count;
+    }
+    if (count == 0) {
+        GTEST_SKIP() << "No keyboard devices found.";
+    }
+}

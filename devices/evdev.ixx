@@ -202,19 +202,6 @@ namespace fs8 {
     /// libevdev handle).
     export [[nodiscard]] evdev clone_device(evdev const& src) noexcept;
 
-    export constexpr struct [[nodiscard]] basic_grab_inputs : std::ranges::range_adaptor_closure<basic_grab_inputs> {
-        evdev operator()(evdev&& dev, bool const grab = true) const noexcept {
-            dev.grab_input(grab);
-            return std::move(dev);
-        }
-
-        template <std::ranges::range R>
-            requires(std::same_as<std::ranges::range_value_t<R>, evdev>)
-        constexpr auto operator()(R&& rng) const noexcept {
-            return std::forward<R>(rng) | std::views::transform(*this);
-        }
-    } grab_inputs;
-
     export constexpr struct [[nodiscard]] basic_only_ok : std::ranges::range_adaptor_closure<basic_only_ok> {
         template <typename R>
         [[nodiscard]] constexpr bool operator()(R const& obj) const noexcept {
