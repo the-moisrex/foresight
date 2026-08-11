@@ -684,12 +684,12 @@ bool fs8::is_usable(evdev& dev) noexcept {
 }
 
 /// sysname of an open device (e.g. "event10"), derived from its fd.
-std::string fs8::device_sysname(evdev const& dev) noexcept {
+std::string fs8::device_sysname(evdev const& dev) noexcept try {
     int const fd = dev.native_handle();
     if (fd < 0) [[unlikely]] {
         return {};
     }
-    char buf[PATH_MAX]{};
+    char       buf[PATH_MAX]{};
     auto const n = ::readlink(("/proc/self/fd/" + std::to_string(fd)).c_str(), buf, sizeof(buf) - 1);
     if (n <= 0) [[unlikely]] {
         return {};
@@ -700,28 +700,30 @@ std::string fs8::device_sysname(evdev const& dev) noexcept {
         path.remove_prefix(pos + 1);
     }
     return std::string{path};
+} catch (...) {
+    return {};
 }
 
 /// Make an independent deep copy of a device so we can reshape it
 /// (name/uniq/bustype/caps) without mutating the caller's device, which
 /// may still be in use (e.g. an input_manager device that shares this
 /// libevdev handle).
-evdev fs8::clone_device(evdev const& src) noexcept {
+evdev fs8::clone_device(evdev const& src) noexcept try {
     if (!src.is_ok()) [[unlikely]] {
         return {};
     }
-    auto* const raw = src.device_ptr();
-    libevdev* copy = libevdev_new();
+    auto* const raw  = src.device_ptr();
+    libevdev*   copy = libevdev_new();
     if (copy == nullptr) [[unlikely]] {
         return {};
     }
-    if (auto const* name = libevdev_get_name(raw)) {
+    if (auto const* name = libevdev_get_name(raw); name != nullptr) {
         libevdev_set_name(copy, name);
     }
-    if (auto const* phys = libevdev_get_phys(raw)) {
+    if (auto const* phys = libevdev_get_phys(raw); phys != nullptr) {
         libevdev_set_phys(copy, phys);
     }
-    if (auto const* uniq = libevdev_get_uniq(raw)) {
+    if (auto const* uniq = libevdev_get_uniq(raw); uniq != nullptr) {
         libevdev_set_uniq(copy, uniq);
     }
     libevdev_set_id_bustype(copy, libevdev_get_id_bustype(raw));
@@ -733,17 +735,20 @@ evdev fs8::clone_device(evdev const& src) noexcept {
         if (!libevdev_has_event_type(raw, type)) {
             continue;
         }
-        libevdev_enable_event_type(copy, type);
+        if (libevdev_enable_event_type(copy, type) < 0) [[unlikely]] {
+            libevdev_free(copy);
+            return {};
+        }
         unsigned const code_max = [&] {
             switch (type) {
                 case EV_KEY: return KEY_MAX;
                 case EV_REL: return REL_MAX;
                 case EV_ABS: return ABS_MAX;
                 case EV_MSC: return MSC_MAX;
-                case EV_SW:  return SW_MAX;
+                case EV_SW: return SW_MAX;
                 case EV_LED: return LED_MAX;
                 case EV_SND: return SND_MAX;
-                default:     return FF_MAX;
+                default: return FF_MAX;
             }
         }();
         for (unsigned code = 0; code <= code_max; ++code) {
@@ -751,20 +756,36 @@ evdev fs8::clone_device(evdev const& src) noexcept {
                 continue;
             }
             if (type == EV_ABS) {
+                // An absolute axis can only be re-enabled with its
+                // absinfo; skip axes that carry none.
                 if (auto const* abs = libevdev_get_abs_info(raw, code)) {
-                    libevdev_enable_event_code(copy, type, code, abs);
-                    continue;
+                    if (libevdev_enable_event_code(copy, type, code, abs) < 0) [[unlikely]] {
+                        libevdev_free(copy);
+                        return {};
+                    }
                 }
+                continue;
             }
-            libevdev_enable_event_code(copy, type, code, nullptr);
+            if (type == EV_REP) {
+                // uinput needs no EV_REP (the kernel derives it from
+                // the device); it also can't be enabled without data.
+                continue;
+            }
+            if (libevdev_enable_event_code(copy, type, code, nullptr) < 0) [[unlikely]] {
+                libevdev_free(copy);
+                return {};
+            }
         }
     }
 
     for (unsigned prop = 0; prop <= INPUT_PROP_MAX; ++prop) {
-        if (libevdev_has_property(raw, prop)) {
-            libevdev_enable_property(copy, prop);
+        if (libevdev_has_property(raw, prop) && libevdev_enable_property(copy, prop) < 0) [[unlikely]] {
+            libevdev_free(copy);
+            return {};
         }
     }
 
     return evdev{copy, evdev_status::success};
+} catch (...) {
+    return {};
 }

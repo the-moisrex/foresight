@@ -286,9 +286,9 @@ namespace {
 
     /// Name for a virtual device. Repeated " (Virtual)" suffixes from chained
     /// foresight devices are collapsed so the name stays clean and short.
-    std::string virtual_device_name(std::string_view const source_name) noexcept {
+    std::string virtual_device_name(std::string_view const source_name) {
         static constexpr std::string_view suffix = " (Virtual)";
-        std::string_view base = source_name;
+        std::string_view                  base   = source_name;
         if (base.ends_with(suffix)) {
             base.remove_suffix(suffix.size());
         }
@@ -296,7 +296,7 @@ namespace {
             base.remove_suffix(1);
         }
         constexpr size_t name_cap = UINPUT_MAX_NAME_SIZE - 1; // include the NUL
-        std::string res;
+        std::string      res;
         res.reserve(name_cap);
         auto const keep = std::min(base.size(), name_cap - suffix.size());
         res.append(base.data(), keep);
@@ -309,13 +309,13 @@ namespace {
     /// Format: "foresight:<entry>,<entry>,..." where the last entry is the
     /// immediate source's sysname. uinput has no way to set the kernel `uniq`
     /// field, so the chain lives in `phys` (settable via UI_SET_PHYS).
-    std::string virtual_device_phys(fs8::evdev const& src) noexcept {
+    std::string virtual_device_phys(fs8::evdev const& src) {
         static constexpr std::string_view prefix  = "foresight:";
         static constexpr std::string_view sep     = ",";
         static constexpr size_t           max_len = 512;
 
         std::string chain;
-        auto const source_phys = src.physical_location();
+        auto const  source_phys = src.physical_location();
         if (source_phys.starts_with(prefix)) {
             // already one of our virtual devices: extend the chain
             chain += source_phys.substr(prefix.size());
@@ -344,8 +344,27 @@ namespace {
         return prefix + chain;
     }
 
+    /// RAII ownership of a /dev/uinput fd that libevdev will not close (it is
+    /// caller-provided). Released (adopted) once the device owns it, otherwise
+    /// closed on scope exit — even when an exception is unwinding.
+    struct fd_guard {
+        int fd = -1;
+
+        ~fd_guard() {
+            if (fd >= 0) {
+                ::close(fd);
+            }
+        }
+
+        int release() noexcept {
+            int const ret = fd;
+            fd            = -1;
+            return ret;
+        }
+    };
+
     /// Find a device matching the query via udev enumeration.
-    fs8::evdev find_device_from_query(fs8::device_query const& inp_query) noexcept {
+    fs8::evdev find_device_from_query(fs8::device_query const& inp_query) {
         fs8::udev_enumerate enumerator{};
         if (!enumerator) [[unlikely]] {
             return {};
@@ -372,7 +391,7 @@ namespace {
 /// Copy a matching device into a virtual (uinput) device, applying caps.
 /// If `best` is not valid, falls back to an empty device and applies caps.
 /// The source device is deep-cloned; it is never modified or freed.
-bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view const caps_view) noexcept {
+bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view const caps_view) noexcept try {
     using enum caps_action;
     if (best.is_ok()) {
         // Work on an independent copy: the caller (e.g. input_manager) may
@@ -388,24 +407,25 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
         libevdev_set_id_bustype(clone.device_ptr(), BUS_VIRTUAL);
 
         // The origin chain lives in `phys` (uinput has no way to set the
-        // kernel `uniq` field). UI_SET_PHYS must precede UI_DEV_CREATE, so we
-        // open /dev/uinput ourselves, stamp the phys, and hand the fd to
-        // libevdev (which will keep it open for the device's lifetime but
-        // never close it — that's our `owned_fd`).
-        int fd = -1;
-        auto const phys = virtual_device_phys(best);
+        // kernel `uniq` field). Build the chain string before opening the
+        // fd so nothing throws between the open and the ownership transfer.
+        // UI_SET_PHYS must precede UI_DEV_CREATE, so we open /dev/uinput
+        // ourselves, stamp the phys, and hand the fd to libevdev (which
+        // keeps it open for the device's lifetime but never closes it —
+        // that's our `owned_fd`).
+        std::string const phys = virtual_device_phys(best);
+        int               fd   = -1;
         if (!phys.empty()) [[likely]] {
             fd = ::open(uinput_path.data(), O_RDWR | O_CLOEXEC);
             if (fd < 0) [[unlikely]] {
                 log("  Failed to open {} for the origin chain: {}", uinput_path, std::strerror(errno));
                 return false;
             }
-            std::string const value{phys};
-            if (::ioctl(fd, UI_SET_PHYS, value.data()) == -1) [[unlikely]] {
-                ::close(fd);
-                log("  Failed to set phys (origin chain) on the virtual device: {}", std::strerror(errno));
-                return false;
-            }
+        }
+        fd_guard guard{fd};
+        if (!phys.empty() && ::ioctl(guard.fd, UI_SET_PHYS, phys.data()) == -1) [[unlikely]] {
+            log("  Failed to set phys (origin chain) on the virtual device: {}", std::strerror(errno));
+            return false;
         }
 
         for (auto const& [type, codes, action] : caps_view) {
@@ -427,16 +447,13 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
                 case remove_type: break;
             }
         }
-        self.set_device(clone, fd < 0 ? LIBEVDEV_UINPUT_OPEN_MANAGED : fd);
+        self.set_device(clone, guard.fd < 0 ? LIBEVDEV_UINPUT_OPEN_MANAGED : guard.fd);
         if (!self.is_ok()) [[unlikely]] {
             log("  Device initialization failed: {}", clone.device_name());
             log("  Error: {}", self.error().message());
-            if (fd >= 0) {
-                ::close(fd); // libevdev left it open (not managed) even on failure
-            }
-            return false;
+            return false;                // guard closes the fd
         }
-        self.owned_fd = fd; // close() releases it when the device is destroyed
+        self.owned_fd = guard.release(); // close() releases it when the device is destroyed
     } else {
         self.set_device();
         self.apply_caps(caps_view);
@@ -447,6 +464,9 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
         }
     }
     return true;
+} catch (...) {
+    log("  Exception while creating the virtual device.");
+    return false;
 }
 
 void basic_uinput::set_device(int fd, std::string_view const name) noexcept {
@@ -655,12 +675,12 @@ bool basic_uinput::init(dev_caps_view const caps_view) noexcept {
     return set_device_from(caps_view);
 }
 
-bool basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
+bool basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept try {
     evdev_rank best{};
     for (evdev_rank&& cur : rank_devices(caps_view)) {
         // Don't copy a device that another process has grabbed; our relay
         // would fight the grabber for events.
-        if (!fs8::test_grab(cur.dev)) {
+        if (!test_grab(cur.dev)) {
             continue;
         }
         if (cur.score >= best.score) {
@@ -668,15 +688,21 @@ bool basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
         }
     }
     return finalize_device(*this, best.dev, caps_view);
+} catch (...) {
+    log("  Exception while enumerating devices.");
+    return false;
 }
 
-bool basic_uinput::set_device_from(device_query const& inp_query) noexcept {
+bool basic_uinput::set_device_from(device_query const& inp_query) noexcept try {
     auto best = find_device_from_query(inp_query);
     if (!best.is_ok() && inp_query.fail_on_no_match) {
         log("  No device matched the query: {}", to_string(inp_query));
         return false;
     }
     return finalize_device(*this, best, inp_query.caps);
+} catch (...) {
+    log("  Exception while matching the query.");
+    return false;
 }
 
 bool basic_uinput::init(device_query const& inp_query) noexcept {
