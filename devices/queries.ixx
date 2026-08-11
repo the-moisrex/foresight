@@ -1,8 +1,11 @@
 // Created by moisrex on 7/17/26.
 
 module;
+#include <array>
 #include <cassert>
+#include <coroutine>
 #include <generator>
+#include <ranges>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -328,6 +331,54 @@ export namespace fs8 {
 
     [[nodiscard]] bool matches(evdev const& dev, device_query const& inp_query) noexcept;
     [[nodiscard]] bool matches(udev_device const& dev, device_query const& inp_query) noexcept;
+
+    /**
+     * Fully match an `evdev` against a query: reconstructs the underlying udev
+     * device from the open evdev and verifies every query field against it
+     * (including properties/tags/arbitrary sysattrs), then re-checks the fields
+     * expressible through evdev plus capabilities.
+     *
+     * Unlike `matches(evdev, ...)`, this does not assume the device already went
+     * through udev-level filtering; it is safe to use on a device that was opened
+     * directly (e.g. from a path).
+     *
+     * Returns `false` if the evdev is invalid or its udev device cannot be found.
+     */
+    [[nodiscard]] bool matches_full(evdev const& dev, device_query const& inp_query) noexcept;
+
+    /// Find the best device that matches the query (udev enumeration + initialize).
+    /// When the query has capabilities, the device with the highest caps support
+    /// is picked; otherwise the first fully-matching device wins.
+    [[nodiscard]] evdev device(device_query const& inp_query) noexcept;
+    [[nodiscard]] evdev device(dev_caps_view caps) noexcept;
+
+    /// Find a device from a query string:
+    ///   - a path ("/dev/input/event10") is opened directly
+    ///   - a known capabilities name ("keyboard", "pen", ...) selects by caps
+    ///   - a query term ("name=event0", "attr:device/name=...", ...) is parsed
+    ///   - anything else is treated as a fuzzy device-name match
+    [[nodiscard]] evdev device(std::string_view str) noexcept;
+
+    constexpr struct [[nodiscard]] basic_find_devices : std::ranges::range_adaptor_closure<basic_find_devices> {
+        template <std::ranges::sized_range Range>
+            requires(std::same_as<std::ranges::range_value_t<Range>, std::string_view>)
+        constexpr auto operator()(Range&& rng) const noexcept {
+            return std::forward<Range>(rng)
+                   // exclude bad inputs
+                   | std::views::filter([](std::string_view const q) {
+                         return !q.empty();
+                     })
+                   // Get a device
+                   | std::views::transform([](std::string_view const q) {
+                         return device(q);
+                     });
+        }
+
+        [[nodiscard]] constexpr auto operator()(std::string_view const q) const noexcept {
+            return std::span<std::string_view const>{{q}} | *this;
+        }
+
+    } find_devices;
 
     void match(udev_enumerate& enumerate, device_query const& inp_query) noexcept;
     void match(udev_monitor& monitor, device_query const& inp_query) noexcept;

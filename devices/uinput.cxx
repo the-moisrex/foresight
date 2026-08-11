@@ -1,6 +1,7 @@
 // Created by moisrex on 6/29/24.
 
 module;
+#include <array>
 #include <cassert>
 #include <cstring>
 #include <dirent.h>
@@ -11,6 +12,7 @@ module;
 #include <linux/uinput.h>
 #include <print>
 #include <ranges>
+#include <span>
 #include <sys/stat.h>
 #include <system_error>
 #include <unistd.h>
@@ -365,25 +367,16 @@ namespace {
 
     /// Find a device matching the query via udev enumeration.
     fs8::evdev find_device_from_query(fs8::device_query const& inp_query) {
-        fs8::udev_enumerate enumerator{};
-        if (!enumerator) [[unlikely]] {
+        auto edev = fs8::device(inp_query);
+        if (!edev.is_ok()) [[unlikely]] {
             return {};
         }
-        match(enumerator, inp_query);
-        enumerator.scan_devices();
-        for (auto dev : filter_devices(enumerator, inp_query)) {
-            auto edev = fs8::initialize(inp_query, dev);
-            if (!edev.is_ok()) [[unlikely]] {
-                continue;
-            }
-            // `initialize` may leave the device grabbed when the query asks for
-            // it; a freshly opened handle must be released before we copy it.
-            if (!fs8::test_grab(edev)) {
-                continue;
-            }
-            return edev;
+        // `initialize` may leave the device grabbed when the query asks for
+        // it; a freshly opened handle must be released before we copy it.
+        if (!fs8::test_grab(edev)) {
+            return {};
         }
-        return {};
+        return edev;
     }
 
 } // namespace
@@ -681,22 +674,12 @@ bool basic_uinput::init(dev_caps_view const caps_view) noexcept {
     return set_device_from(caps_view);
 }
 
-bool basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept try {
-    evdev_rank best{};
-    for (evdev_rank&& cur : rank_devices(caps_view)) {
-        // Don't copy a device that another process has grabbed; our relay
-        // would fight the grabber for events.
-        if (!test_grab(cur.dev)) {
-            continue;
-        }
-        if (cur.score >= best.score) {
-            best = std::move(cur);
-        }
-    }
-    return finalize_device(*this, best.dev, caps_view);
-} catch (...) {
-    log("  Exception while enumerating devices.");
-    return false;
+bool basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
+    // Constrain the search to the input subsystem (caps alone don't say where
+    // to look), then pick the best matching device via the query system.
+    std::array<fs8::query_term, 1> fields  = {fs8::subsystem("input")};
+    fs8::device_query const        inp_query{.fields = std::span<fs8::query_term const>{fields}, .caps = caps_view};
+    return set_device_from(inp_query);
 }
 
 bool basic_uinput::set_device_from(device_query const& inp_query) noexcept try {

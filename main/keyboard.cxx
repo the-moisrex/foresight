@@ -10,14 +10,14 @@ module fs8.keyboard;
 import fs8.translate;
 import fs8.log;
 
-using fs8::keyboard;
+using fs8::keyboard_runner;
 
-keyboard::keyboard() {
+keyboard_runner::keyboard_runner() {
     setbuf(stdin, nullptr);
     setbuf(stdout, nullptr);
 }
 
-void keyboard::to_string() {
+void keyboard_runner::to_string() {
     str.reserve(events.size());
     for (auto const &[_, _, code, _] : events) {
         char const cur = fs8::to_char(static_cast<std::uint8_t>(code));
@@ -25,19 +25,19 @@ void keyboard::to_string() {
     }
 }
 
-void keyboard::replace(std::string_view const replace_it, std::string_view const replace_with) {
+void keyboard_runner::replace(std::string_view const replace_it, std::string_view const replace_with) {
     backspace(replace_it.size());
     put(replace_with);
     events.clear();
 }
 
-void keyboard::backspace(std::size_t count) {
+void keyboard_runner::backspace(std::size_t count) {
     for (; count != 0; count--) {
         put(input_event{.time = timeval{}, .type = EV_KEY, .code = KEY_BACKSPACE, .value = 0});
     }
 }
 
-void keyboard::put(std::string_view const text) {
+void keyboard_runner::put(std::string_view const text) {
     for (auto const cur_char : text) {
         put(input_event{.time  = timeval{},
                         .type  = EV_KEY,                              // key type
@@ -46,7 +46,7 @@ void keyboard::put(std::string_view const text) {
     }
 }
 
-void keyboard::put(input_event ev) {
+void keyboard_runner::put(input_event ev) {
     ev.value = KEY_PRESS;
     if (auto const press_res = std::fwrite(&ev, sizeof(ev), 1, stdout); press_res == 0) {
         log("Failed to press {:d}", ev.code);
@@ -64,7 +64,7 @@ void keyboard::put(input_event ev) {
     }
 }
 
-void keyboard::buffer(input_event &ev) {
+void keyboard_runner::buffer(input_event &ev) {
     switch (ev.value) {
         case KEY_PRESS: {
             break;
@@ -97,7 +97,7 @@ namespace {
     }
 } // namespace
 
-int keyboard::loop() noexcept {
+int keyboard_runner::loop() noexcept {
     try {
         while (std::fread(&event, sizeof(event), 1, stdin) == 1) {
             if (event.type == EV_KEY) {

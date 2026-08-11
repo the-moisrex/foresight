@@ -12,12 +12,12 @@ import fs8.translate;
 namespace fs8 {
     export constexpr std::size_t give_up_limit = 5;
 
-    export struct keyboard {
-        keyboard();
-        keyboard(keyboard const &)            = delete;
-        keyboard(keyboard &&)                 = delete;
-        keyboard &operator=(keyboard const &) = delete;
-        keyboard &operator=(keyboard &&)      = delete;
+    export struct keyboard_runner {
+        keyboard_runner();
+        keyboard_runner(keyboard_runner const &)            = delete;
+        keyboard_runner(keyboard_runner &&)                 = delete;
+        keyboard_runner &operator=(keyboard_runner const &) = delete;
+        keyboard_runner &operator=(keyboard_runner &&)      = delete;
 
         void to_string();
 

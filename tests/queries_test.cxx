@@ -369,3 +369,128 @@ TEST(EvdevMatches, UnverifiableFieldsDontExclude) {
     }
     GTEST_SKIP() << "No input devices found.";
 }
+
+TEST(EvdevMatches, PhysAndUniqSysattrFieldsMatch) {
+    // A query matching the device's physical location and unique id must match
+    // the opened evdev.
+    for (auto pick : filter_devices(keyboard)) {
+        auto edev = initialize(query, pick.device);
+        if (!edev.is_ok()) [[unlikely]] {
+            continue;
+        }
+        std::array<query_term, 2> fields = {
+          match_sysattr("device/phys", edev.physical_location()),
+          match_sysattr("device/uniq", edev.unique_identifier()),
+        };
+        device_query q{.fields = std::span<query_term const>{fields}, .caps = {}};
+        EXPECT_TRUE(matches(edev, q));
+        return;
+    }
+    GTEST_SKIP() << "No input devices found.";
+}
+
+TEST(EvdevMatches, NegatedNameFieldExcludes) {
+    // `!attr:device/name=...` must invert the match on the evdev path.
+    for (auto pick : filter_devices(keyboard)) {
+        auto edev = initialize(query, pick.device);
+        if (!edev.is_ok()) [[unlikely]] {
+            continue;
+        }
+        query_term term = match_sysattr("device/name", edev.device_name());
+        term.target     = query_target::nomatch_sysattr;
+        std::array<query_term, 1> fields = {term};
+        device_query              q{.fields = std::span<query_term const>{fields}, .caps = {}};
+        EXPECT_FALSE(matches(edev, q));
+
+        query_term term2 = match_sysattr("device/name", "definitely-not-this-device");
+        term2.target     = query_target::nomatch_sysattr;
+        std::array<query_term, 1> fields2 = {term2};
+        device_query              q2{.fields = std::span<query_term const>{fields2}, .caps = {}};
+        EXPECT_TRUE(matches(edev, q2));
+        return;
+    }
+    GTEST_SKIP() << "No input devices found.";
+}
+
+TEST(EvdevMatches, NegatedSubsystemExcludes) {
+    // All evdev devices belong to the "input" subsystem, so `!sub=input` must
+    // never match one.
+    for (auto pick : filter_devices(keyboard)) {
+        auto edev = initialize(query, pick.device);
+        if (!edev.is_ok()) [[unlikely]] {
+            continue;
+        }
+        query_term term = subsystem("input");
+        term.target     = query_target::nomatch_subsystem;
+        std::array<query_term, 1> fields = {term};
+        device_query              q{.fields = std::span<query_term const>{fields}, .caps = {}};
+        EXPECT_FALSE(matches(edev, q));
+        return;
+    }
+    GTEST_SKIP() << "No input devices found.";
+}
+
+TEST(EvdevMatches, WrongNameDoesNotMatch) {
+    for (auto pick : filter_devices(keyboard)) {
+        auto edev = initialize(query, pick.device);
+        if (!edev.is_ok()) [[unlikely]] {
+            continue;
+        }
+        std::array<query_term, 1> fields = {match_sysname("nonexistent-device-xyz")};
+        device_query              q{.fields = std::span<query_term const>{fields}, .caps = {}};
+        EXPECT_FALSE(matches(edev, q));
+        return;
+    }
+    GTEST_SKIP() << "No input devices found.";
+}
+
+// ============================================================================
+// matches_full(evdev, device_query): the device is looked up in udev and all
+// query fields (including udev metadata) are verified.
+// ============================================================================
+
+TEST(EvdevMatchesFull, PropertyFieldVerifiedViaUdev) {
+    for (auto pick : filter_devices(keyboard)) {
+        auto edev = initialize(query, pick.device);
+        if (!edev.is_ok()) [[unlikely]] {
+            continue;
+        }
+        // filter_devices(keyboard) guarantees ID_INPUT=1 on the udev device.
+        std::array<query_term, 1> fields = {match_property("ID_INPUT", "1")};
+        device_query              q{.fields = std::span<query_term const>{fields}, .caps = {}};
+        EXPECT_TRUE(matches_full(edev, q));
+        return;
+    }
+    GTEST_SKIP() << "No input devices found.";
+}
+
+TEST(EvdevMatchesFull, WrongPropertyDoesNotMatch) {
+    for (auto pick : filter_devices(keyboard)) {
+        auto edev = initialize(query, pick.device);
+        if (!edev.is_ok()) [[unlikely]] {
+            continue;
+        }
+        std::array<query_term, 1> fields = {match_property("ID_INPUT", "999")};
+        device_query              q{.fields = std::span<query_term const>{fields}, .caps = {}};
+        // The full match reconstructs the udev device and rejects it...
+        EXPECT_FALSE(matches_full(edev, q));
+        // ...while the partial match (which assumes udev filtering happened) ignores the property.
+        EXPECT_TRUE(matches(edev, q));
+        return;
+    }
+    GTEST_SKIP() << "No input devices found.";
+}
+
+TEST(EvdevMatchesFull, WrongNameDoesNotMatch) {
+    for (auto pick : filter_devices(keyboard)) {
+        auto edev = initialize(query, pick.device);
+        if (!edev.is_ok()) [[unlikely]] {
+            continue;
+        }
+        std::array<query_term, 1> fields = {match_sysname("nonexistent-device-xyz")};
+        device_query              q{.fields = std::span<query_term const>{fields}, .caps = {}};
+        EXPECT_FALSE(matches_full(edev, q));
+        return;
+    }
+    GTEST_SKIP() << "No input devices found.";
+}

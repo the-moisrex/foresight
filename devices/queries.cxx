@@ -1,7 +1,10 @@
 
 module;
 #include <algorithm>
+#include <array>
 #include <cassert>
+#include <cstdint>
+#include <filesystem>
 #include <format>
 #include <generator>
 #include <ranges>
@@ -181,7 +184,12 @@ bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
         }
     }
 
-    // 2. Evaluate query fields against evdev attributes
+    // 2. Evaluate query fields against evdev attributes.
+    // The device is assumed to have already gone through udev-level filtering,
+    // so only fields expressible through evdev are checked here. Fields that
+    // require udev metadata (properties, tags, arbitrary sysattrs) were already
+    // verified against the udev device and are therefore not re-checked; use
+    // `matches_full` when that assumption does not hold.
     for (auto const& field : inp_query.fields) {
         if (positive(field.target) == sysname) {
             if (!is_matched(field, &query_term::value, dev.device_name())) {
@@ -216,6 +224,92 @@ bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
     }
 
     return true;
+}
+
+bool fs8::matches_full(evdev const& dev, device_query const& inp_query) noexcept {
+    if (!dev.is_ok()) {
+        return false;
+    }
+
+    // Reconstruct the udev device this evdev was opened from; evdev devices
+    // belong to the "input" subsystem and their sysname is derived from the fd.
+    auto const sysname = device_sysname(dev);
+    if (sysname.empty()) [[unlikely]] {
+        return false;
+    }
+    udev_device const udev_dev{udev::instance().native(), "input", sysname.data()};
+    if (!udev_dev) [[unlikely]] {
+        return false;
+    }
+
+    // Verify every query field against udev (properties, tags, arbitrary
+    // sysattrs, subsystem/devtype, sysname/syspath), then the fields
+    // expressible through evdev plus the caps threshold.
+    return matches(udev_dev, inp_query) && matches(dev, inp_query);
+}
+
+fs8::evdev fs8::device(device_query const& inp_query) noexcept {
+    udev_enumerate enumerator{};
+    if (!enumerator) [[unlikely]] {
+        log("Failed init udev_enumerate");
+        return {};
+    }
+    match(enumerator, inp_query);
+    enumerator.scan_devices();
+
+    evdev        best{};
+    std::uint8_t best_score = 0;
+
+    for (auto const& entry : enumerator.list_entries()) {
+        auto dev = udev_device{entry};
+        if (!dev) [[unlikely]] {
+            continue;
+        }
+        auto edev = initialize(inp_query, dev);
+        if (!edev.is_ok()) [[unlikely]] {
+            continue;
+        }
+        if (!matches(edev, inp_query)) {
+            continue;
+        }
+        if (inp_query.caps.empty()) {
+            return edev; // first fully-matching device wins when no caps are requested
+        }
+        auto const score = edev.match_caps(inp_query.caps);
+        if (score >= best_score) {
+            best       = std::move(edev);
+            best_score = score;
+        }
+    }
+    return best;
+}
+
+fs8::evdev fs8::device(dev_caps_view const caps) noexcept {
+    return device(device_query{.caps = caps});
+}
+
+fs8::evdev fs8::device(std::string_view const str) noexcept {
+    // 1. A device path
+    if (str.starts_with('/')) {
+        return evdev{std::filesystem::path{str}};
+    }
+
+    // 2. A known capabilities name (e.g. "keyboard", "mouse", "pen")
+    if (auto const caps = caps_of(str); !caps.empty()) {
+        return device(device_query{.caps = caps});
+    }
+
+    // 3. A query term (e.g. "name=event0", "attr:device/name=my_mouse")
+    if (auto const term = parse_query_term(str); term) {
+        std::array fields{term};
+        return device(device_query{.fields = std::span<query_term const>{fields}});
+    }
+
+    // 4. Fall back to a fuzzy device-name match
+    query_term name_field = match_sysattr("device/name", str);
+    name_field.percentage = 60; // NOLINT(*-magic-numbers)
+    std::array fields{name_field};
+    return device(device_query{.fields = std::span<query_term const>{fields}});
 }
 
 // 1. Check if an existing device belongs to this query

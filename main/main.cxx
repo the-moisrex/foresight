@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <coroutine>
 #include <csignal>
 #include <exception>
 #include <filesystem>
@@ -14,6 +15,7 @@ import fs8.mods.intercept;
 import fs8.mods.io_manager;
 import fs8.mods.input_manager;
 import fs8.devices.evdev;
+import fs8.devices.queries;
 import fs8.devices.uinput;
 import fs8.context;
 import fs8.mods.stopper;
@@ -130,7 +132,13 @@ namespace {
         size_t w_id   = 9;  // "Unique ID"
 
         // Single pass: measure + store owned strings
-        for (auto const& dev : fs8::all_input_devices()) {
+        // Enumerate input devices through the query system (udev), then open
+        // each evdev to read name/location/unique-id fields.
+        for (auto pick : fs8::filter_devices(fs8::input)) {
+            auto dev = fs8::to_evdev(pick);
+            if (!dev.is_ok()) [[unlikely]] {
+                continue;
+            }
             auto const name_sv = dev.device_name();
             auto const loc_sv  = dev.physical_location();
             auto const id_sv   = dev.unique_identifier();
@@ -305,7 +313,7 @@ namespace {
                     throw std::invalid_argument("Only pass one file for redirect.");
                 }
 
-                static constinit auto pipeline = fs8::context | fs8::stopper | fs8::input | fs8::uinput;
+                static constinit auto pipeline = fs8::context | fs8::stopper | fs8::from_input | fs8::uinput;
 
                 auto& out         = pipeline.mod(fs8::uinput);
                 auto& sig_stopper = pipeline.mod(fs8::stopper);
@@ -362,7 +370,7 @@ namespace {
                 return EXIT_SUCCESS;
             }
             default: {
-                fs8::keyboard kbd;
+                fs8::keyboard_runner kbd;
                 return kbd.loop();
             }
         }

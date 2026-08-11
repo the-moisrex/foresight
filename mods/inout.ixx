@@ -63,14 +63,14 @@ export namespace fs8 {
 
     static_assert(OutputModifier<basic_output>, "Must be a output modifier.");
 
-    constexpr struct [[nodiscard]] basic_input : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_from_input : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
         int file_descriptor = STDIN_FILENO;
 
       public:
-        constexpr explicit basic_input(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
+        constexpr explicit basic_from_input(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
 
         context_action operator()(Context auto& ctx, load_event_tag) const noexcept {
             using enum context_action;
@@ -83,5 +83,5 @@ export namespace fs8 {
             }
             return next;
         }
-    } input;
+    } from_input;
 } // namespace fs8

@@ -202,40 +202,6 @@ namespace fs8 {
     /// libevdev handle).
     export [[nodiscard]] evdev clone_device(evdev const& src) noexcept;
 
-    /**
-     * @brief Factory function to create a view over all valid input devices.
-     *
-     * @param dir The path to the input device directory. Defaults to "/dev/input".
-     * @return A lazy view object that can be used in a range-based for loop.
-     */
-    export [[nodiscard]] auto all_input_devices(std::filesystem::path const& dir = "/dev/input") {
-        using std::filesystem::directory_entry;
-        using std::filesystem::directory_iterator;
-        using std::ranges::views::filter;
-        using std::ranges::views::transform;
-
-        // Create a view over the directory entries. This may throw if the path is invalid.
-        // We wrap it to return an empty view on error, making it safer for the caller.
-        auto dir_view = is_directory(dir) ? directory_iterator{dir} : directory_iterator{};
-
-        // Define the pipeline of operations:
-        return dir_view
-               // 1. Filter the directory entries to find potential device files.
-               | filter([](directory_entry const& entry) {
-                     std::string const file = entry.path().filename().string();
-                     return entry.is_character_file() && file.starts_with("event");
-                 })
-               // 2. Transform the valid directory entries into evdev objects.
-               | transform([](directory_entry const& entry) {
-                     return evdev{entry.path()};
-                 })
-               // 3. Filter again to discard any evdev objects that failed initialization.
-               //    (e.g., due to permissions issues when calling `open`).
-               | filter([](evdev const& dev) noexcept {
-                     return dev.is_ok();
-                 });
-    }
-
     export constexpr struct [[nodiscard]] basic_grab_inputs : std::ranges::range_adaptor_closure<basic_grab_inputs> {
         evdev operator()(evdev&& dev, bool const grab = true) const noexcept {
             dev.grab_input(grab);
@@ -249,69 +215,10 @@ namespace fs8 {
         }
     } grab_inputs;
 
-    export struct [[nodiscard]] evdev_rank {
-        std::uint8_t score = 0; // in percentage
-        evdev        dev;
-    };
-
-    export [[nodiscard]] constexpr auto match_devices(dev_caps_view const inp_caps, std::ranges::range auto&& devs) {
-        using std::ranges::views::transform;
-        return devs | transform([=](evdev&& dev) {
-                   auto const percentage = dev.match_caps(inp_caps);
-                   return evdev_rank{.score = percentage, .dev = std::move(dev)};
-               });
-    }
-
-    /// Get the list of devices and their ranks
-    export [[nodiscard]] auto rank_devices(dev_caps_view const inp_caps) {
-        return match_devices(inp_caps, all_input_devices());
-    }
-
-    /// Get the first device and its rank
-    export [[nodiscard]] evdev_rank device(dev_caps_view inp_caps);
-
-
-    /// Get the first device based on the query
-    /// Example: /dev/input/event10
-    /// Example: keyboard
-    /// Example: tablet
-    export [[nodiscard]] evdev_rank device(std::string_view);
-    export [[nodiscard]] evdev_rank device(std::string_view, std::span<evdev const> excluded);
-
-    export constexpr struct [[nodiscard]] basic_only_matching : std::ranges::range_adaptor_closure<basic_only_matching> {
-      private:
-        std::uint8_t percentage = 30;
-
-      public:
-        constexpr explicit basic_only_matching(std::uint8_t const inp_percentage) noexcept : percentage(inp_percentage) {}
-
-        basic_only_matching()                                      = default;
-        basic_only_matching(basic_only_matching const&)            = default;
-        basic_only_matching(basic_only_matching&&)                 = default;
-        basic_only_matching& operator=(basic_only_matching const&) = default;
-        basic_only_matching& operator=(basic_only_matching&&)      = default;
-        ~basic_only_matching()                                     = default;
-
-        [[nodiscard]] constexpr bool operator()(evdev_rank const& ranker) const noexcept {
-            return ranker.score >= percentage;
-        }
-
-        template <std::ranges::range Range>
-        [[nodiscard]] constexpr auto operator()(Range&& rng) const noexcept {
-            return std::forward<Range>(rng) | std::views::filter(*this);
-        }
-
-        constexpr basic_only_matching operator()(std::uint8_t const inp_percentage) const noexcept {
-            return basic_only_matching{inp_percentage};
-        }
-    } only_matching;
-
     export constexpr struct [[nodiscard]] basic_only_ok : std::ranges::range_adaptor_closure<basic_only_ok> {
         template <typename R>
         [[nodiscard]] constexpr bool operator()(R const& obj) const noexcept {
-            if constexpr (std::same_as<R, evdev_rank>) {
-                return obj.dev.is_ok();
-            } else if constexpr (std::same_as<R, evdev>) {
+            if constexpr (std::same_as<R, evdev>) {
                 return obj.is_ok();
             } else {
                 return true;
@@ -324,32 +231,7 @@ namespace fs8 {
         }
     } only_ok;
 
-    export constexpr struct [[nodiscard]] basic_find_devices : std::ranges::range_adaptor_closure<basic_find_devices> {
-        template <std::ranges::sized_range Range>
-            requires(std::same_as<std::ranges::range_value_t<Range>, std::string_view>)
-        constexpr auto operator()(Range&& rng) const noexcept {
-            return std::forward<Range>(rng)
-                   // exclude bad inputs
-                   | std::views::filter([](std::string_view const query) {
-                         return !query.empty();
-                     })
-                   // Get a device
-                   | std::views::transform([](std::string_view const query) {
-                         return device(query).dev;
-                     });
-        }
-
-        [[nodiscard]] constexpr auto operator()(std::string_view const query) const noexcept {
-            return std::span<std::string_view const>{{query}} | *this;
-        }
-
-    } find_devices;
-
     export constexpr struct [[nodiscard]] basic_to_evdev : std::ranges::range_adaptor_closure<basic_to_evdev> {
-        [[nodiscard]] constexpr auto operator()(evdev_rank&& ranker) const noexcept {
-            return std::move(std::move(ranker).dev);
-        }
-
         // udev_device_pick
         template <typename T>
             requires requires(T pick) { pick.device.subsystem(); pick.device.devnode(); }
