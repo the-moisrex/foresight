@@ -193,25 +193,36 @@ export namespace fs8 {
         }
     }
 
-    template <typename ModT, typename CtxT, Tag... Tags>
-    constexpr context_action invoke_mod(ModT &mod, CtxT &ctx, context_action const default_action, Tags... tags) noexcept {
+    template <typename ModT, typename CtxT, typename... Args>
+    constexpr context_action invoke_mod(ModT &mod, CtxT &ctx, context_action const default_action, Args... args) noexcept {
         using enum context_action;
-        if constexpr (std::invocable<ModT, CtxT &, Tags...>) {
-            return invoke_mod_inorder(mod, default_action, ctx, tags...);
-        } else if constexpr (std::invocable<ModT, event_type &, Tags...>) {
+        if constexpr (std::invocable<ModT, CtxT &, Args...>) {
+            return invoke_mod_inorder(mod, default_action, ctx, args...);
+        } else if constexpr (std::invocable<ModT, event_type &, Args...>) {
             auto &event = ctx.event();
-            return invoke_mod_inorder(mod, default_action, event, tags...);
-        } else if constexpr (std::invocable<ModT, Tags...>) {
-            return invoke_mod_inorder(mod, default_action, tags...);
+            return invoke_mod_inorder(mod, default_action, event, args...);
+        } else if constexpr (std::invocable<ModT, Args...>) {
+            return invoke_mod_inorder(mod, default_action, args...);
+        } else if constexpr (sizeof...(Args) >= 2) {
+            // Some mods don't accept the tag-specific arguments (e.g. the device_query the router
+            // pushes down a pipeline); drop the leading non-tag argument and retry with fewer args.
+            if constexpr (!Tag<type_at<0, Args...>> && Tag<type_at<sizeof...(Args) - 1, Args...>>) {
+                return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+                    auto const args_tuple = std::tuple{args...};
+                    return invoke_mod(mod, ctx, default_action, std::get<I + 1>(args_tuple)...);
+                }(std::make_index_sequence<sizeof...(Args) - 1>{});
+            } else {
+                return default_action;
+            }
         } else {
             // static_assert(false, "We're not able to run this function.");
             return default_action;
         }
     }
 
-    template <typename ModT, typename CtxT, Tag... Tags>
-    constexpr context_action invoke_mod(ModT &mod, CtxT &ctx, Tags... tags) noexcept {
-        return invoke_mod(mod, ctx, context_action::next, tags...);
+    template <typename ModT, typename CtxT, typename... Args>
+    constexpr context_action invoke_mod(ModT &mod, CtxT &ctx, Args... args) noexcept {
+        return invoke_mod(mod, ctx, context_action::next, args...);
     }
 
     template <typename CondT, typename... Args>
@@ -230,16 +241,16 @@ export namespace fs8 {
     }
 
     /// Invoke Condition
-    template <typename CondT, typename CtxT, Tag... Tags>
-    constexpr bool invoke_cond(CondT &cond, CtxT &ctx, Tags... tags) noexcept {
+    template <typename CondT, typename CtxT, typename... Args>
+    constexpr bool invoke_cond(CondT &cond, CtxT &ctx, Args... args) noexcept {
         using enum context_action;
-        if constexpr (std::invocable<CondT, CtxT &, Tags...>) {
-            return invoke_cond_inorder(cond, ctx, tags...);
-        } else if constexpr (std::invocable<CondT, event_type &, Tags...>) {
+        if constexpr (std::invocable<CondT, CtxT &, Args...>) {
+            return invoke_cond_inorder(cond, ctx, args...);
+        } else if constexpr (std::invocable<CondT, event_type &, Args...>) {
             auto &event = ctx.event();
-            return invoke_cond_inorder(cond, event, tags...);
-        } else if constexpr (std::invocable<CondT, Tags...>) {
-            return invoke_cond_inorder(cond, tags...);
+            return invoke_cond_inorder(cond, event, args...);
+        } else if constexpr (std::invocable<CondT, Args...>) {
+            return invoke_cond_inorder(cond, args...);
         } else {
             // static_assert(false, "We're not able to run this function.");
             return false;
@@ -288,37 +299,45 @@ export namespace fs8 {
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
 
-    template <std::size_t Index, Context CtxT, typename... Funcs, Tag... Tags>
-    constexpr context_action fork_mod(CtxT &ctx, std::tuple<Funcs...> &funcs, context_action default_action, Tags... tags) noexcept {
+    template <std::size_t Index, Context CtxT, typename... Funcs, typename... Args>
+    constexpr context_action fork_mod(CtxT &ctx, std::tuple<Funcs...> &funcs, context_action default_action, Args... args) noexcept {
         using enum context_action;
         using tuple_type = std::tuple<Funcs...>;
         using mod_type   = std::tuple_element_t<Index, tuple_type>;
-        if constexpr (invokable_mod<mod_type, CtxT, Tags...>) {
+        if constexpr (invokable_mod<mod_type, CtxT, Args...>) {
             auto current_fork_view = ctx.template fork_view<Index>();
-            return invoke_mod(get<Index>(funcs), current_fork_view, default_action, tags...);
+            return invoke_mod(get<Index>(funcs), current_fork_view, default_action, args...);
+        } else if constexpr (sizeof...(Args) >= 2) {
+            // Let invoke_mod's drop fallback try calling this mod with fewer args.
+            if constexpr (!Tag<type_at<0, Args...>> && Tag<type_at<sizeof...(Args) - 1, Args...>>) {
+                auto current_fork_view = ctx.template fork_view<Index>();
+                return invoke_mod(get<Index>(funcs), current_fork_view, default_action, args...);
+            } else {
+                return default_action;
+            }
         } else {
             return default_action;
         }
     }
 
     /// Run the functions and give them the specified context and arguments (optionally)
-    template <Context CtxT, typename... Mods, Tag... Tags>
-    constexpr context_action invoke_mods(CtxT &ctx, std::tuple<Mods...> &mods, Tags... tags) noexcept {
+    template <Context CtxT, typename... Mods, typename... Args>
+    constexpr context_action invoke_mods(CtxT &ctx, std::tuple<Mods...> &mods, Args... args) noexcept {
         using enum context_action;
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
             auto action = next;
-            std::ignore = (((action = fork_mod<I>(ctx, mods, next, tags...)) == next) && ...);
+            std::ignore = (((action = fork_mod<I>(ctx, mods, next, args...)) == next) && ...);
             return action;
         }(std::make_index_sequence<sizeof...(Mods)>{});
     }
 
     /// Run functions until one of them return "context_action::next"
-    template <Context CtxT, typename... Funcs, Tag... Tags>
-    constexpr context_action invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Tags... tags) noexcept {
+    template <Context CtxT, typename... Funcs, typename... Args>
+    constexpr context_action invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept {
         using enum context_action;
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
             auto action = ignore_event;
-            std::ignore = (((action = fork_mod<I>(ctx, funcs, ignore_event, tags...)) != next) && ...);
+            std::ignore = (((action = fork_mod<I>(ctx, funcs, ignore_event, args...)) != next) && ...);
             return action;
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
@@ -575,6 +594,19 @@ export namespace fs8 {
         /// Pass-through
         context_action operator()(Context auto &ctx) noexcept {
             return invoke_mods(ctx, mods);
+        }
+
+        /// Pass-through a plain start to the mods.
+        context_action operator()(Context auto &ctx, start_tag) noexcept {
+            return invoke_mods(ctx, mods, start);
+        }
+
+        /// Pass-through with extra arguments (e.g. a device_query pushed by the router on start).
+        /// The trailing argument is expected to be a tag.
+        template <typename... Args>
+            requires(sizeof...(Args) >= 2)
+        context_action operator()(Context auto &ctx, Args const &...args) noexcept {
+            return invoke_mods(ctx, mods, args...);
         }
     };
 
