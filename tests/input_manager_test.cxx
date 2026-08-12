@@ -164,11 +164,13 @@ TEST(InputManager, ProviderQueriesArePulledOnStartupAndRequery) {
     im.add_query_provider(provider_handle(provider));
 
     EXPECT_EQ(pipeline(start), context_action::next);
-    EXPECT_EQ(provider.calls, 1) << "Startup must pull each provider exactly once.";
+    // Each startup phase pulls every provider once: monitor match + the two
+    // enumerate passes (match-all, then per-query device filtering).
+    EXPECT_EQ(provider.calls, 3) << "Each startup pass must pull every registered provider.";
 
-    // Re-asking pulls the fresh queries again.
+    // Re-asking pulls the fresh queries again (monitor filter + two passes).
     im.requery();
-    EXPECT_EQ(provider.calls, 2) << "requery() must re-pull every registered provider.";
+    EXPECT_EQ(provider.calls, 6) << "requery() must re-pull every registered provider.";
 
     if (im.devices().empty()) {
         GTEST_SKIP() << "No matching input devices are present on this system.";

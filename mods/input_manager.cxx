@@ -50,36 +50,27 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
     bool                              started = false;
     udev_monitor                      monitor;
     std::list<evdev>                  devs; // stable handles; todo: switch to std::hive once available
-    std::vector<std::string>          syspaths;
     std::vector<query_provider_handle> providers;
 
-    [[nodiscard]] bool has_syspath(std::string_view const path) const noexcept {
-        return std::ranges::any_of(syspaths, [&](std::string const& cur) noexcept {
-            return cur == path;
+    /// Devices are identified by their udev sysname (derived from the fd),
+    /// which is the last component of their syspath; only nodes with a devnode
+    /// are ever tracked, so the two are equivalent.
+    [[nodiscard]] bool has_sysname(std::string_view const name) const noexcept {
+        if (name.empty()) [[unlikely]] {
+            return false;
+        }
+        return std::ranges::any_of(devs, [&](evdev const& dev) noexcept {
+            return device_sysname(dev) == name;
         });
     }
 
-    void erase_by_syspath(std::string_view const path) {
-        for (std::size_t i = 0; i < syspaths.size(); ++i) {
-            if (syspaths[i] != path) {
-                continue;
-            }
-            devs.erase(std::next(devs.begin(), static_cast<std::ptrdiff_t>(i)));
-            syspaths.erase(syspaths.begin() + static_cast<std::ptrdiff_t>(i));
+    void erase_by_sysname(std::string_view const name) {
+        if (name.empty()) [[unlikely]] {
             return;
         }
-    }
-
-    /// Pull every query known to this manager from every registered provider,
-    /// in registration order.
-    [[nodiscard]] std::vector<device_query> pull_query_list() {
-        std::vector<device_query> collected;
-        for (auto& provider : providers) {
-            for (device_query const cur_query : provider()) {
-                collected.push_back(cur_query);
-            }
-        }
-        return collected;
+        std::erase_if(devs, [&](evdev const& dev) noexcept {
+            return device_sysname(dev) == name;
+        });
     }
 
     void add_udev_device(udev_device&& event_dev) {
@@ -89,6 +80,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
 
         auto const action = event_dev.action();
         auto const path   = event_dev.syspath();
+        auto const name   = event_dev.sysname();
         if (path.empty()) [[unlikely]] {
             return;
         }
@@ -96,13 +88,13 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         log("DEBUG add_udev_device: action={} syspath={} sysname={} subsystem={} ID_INPUT={} ID_INPUT_KEYBOARD={}",
             action,
             path,
-            event_dev.sysname(),
+            name,
             event_dev.subsystem(),
             event_dev.property("ID_INPUT"),
             event_dev.property("ID_INPUT_KEYBOARD"));
 
         if (action == "remove" || action == "unbind") {
-            erase_by_syspath(path);
+            erase_by_sysname(name);
             return;
         }
 
@@ -110,7 +102,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
             return;
         }
 
-        if (has_syspath(path)) {
+        if (has_sysname(name)) {
             return; // already tracked; do not duplicate
         }
 
@@ -133,7 +125,6 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                     continue;
                 }
                 devs.emplace_back(std::move(edev));
-                syspaths.emplace_back(path);
                 added = true;
             }
         }
@@ -145,35 +136,51 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         }
     }
 
-    [[nodiscard]] std::vector<bool> enumerate(std::vector<device_query> const& collected) {
+    /// Enumerate all queries from every registered provider: match them into
+    /// the udev enumerator, then open the devices each query selects. Queries
+    /// whose `fail_on_no_match` flag is set and matched nothing are reported
+    /// through `on_fail_no_match`.
+    void enumerate(std::function_ref<void(device_query const&)> on_fail_no_match) {
         udev_enumerate enumerator{};
         if (!enumerator) [[unlikely]] {
-            return std::vector<bool>(collected.size(), false);
+            for (auto& provider : providers) {
+                for (device_query const cur_query : provider()) {
+                    if (cur_query.fail_on_no_match) {
+                        on_fail_no_match(cur_query);
+                    }
+                }
+            }
+            return;
         }
 
-        for (auto const& cur_query : collected) {
-            match(enumerator, cur_query);
+        for (auto& provider : providers) {
+            for (device_query const cur_query : provider()) {
+                match(enumerator, cur_query);
+            }
         }
         enumerator.scan_devices();
 
-        std::vector<bool> matched(collected.size(), false);
-        for (std::size_t i = 0; i < collected.size(); ++i) {
-            for (auto event_dev : filter_devices(enumerator, collected[i])) {
-                auto const path = event_dev.syspath();
-                if (path.empty() || has_syspath(path)) {
-                    continue;
+        for (auto& provider : providers) {
+            for (device_query const cur_query : provider()) {
+                bool found = false;
+                for (auto event_dev : filter_devices(enumerator, cur_query)) {
+                    auto const name = event_dev.sysname();
+                    if (name.empty() || has_sysname(name)) {
+                        continue;
+                    }
+                    auto edev = initialize(cur_query, event_dev);
+                    if (!edev.is_ok()) {
+                        log("Device '{}' status: {}", event_dev.syspath(), to_string(edev.get_status()));
+                        continue;
+                    }
+                    devs.emplace_back(std::move(edev));
+                    found = true;
                 }
-                auto edev = initialize(collected[i], event_dev);
-                if (!edev.is_ok()) {
-                    log("Device '{}' status: {}", path, to_string(edev.get_status()));
-                    continue;
+                if (cur_query.fail_on_no_match && !found) [[unlikely]] {
+                    on_fail_no_match(cur_query);
                 }
-                devs.emplace_back(std::move(edev));
-                syspaths.emplace_back(path);
-                matched[i] = true;
             }
         }
-        return matched;
     }
 };
 
@@ -182,7 +189,6 @@ void basic_input_manager::add(evdev&& inp_dev) {
         init_impl();
     }
     pimpl->devs.emplace_back(std::move(inp_dev));
-    pimpl->syspaths.emplace_back();
 }
 
 void basic_input_manager::add_query_provider(query_provider_handle provider) {
@@ -206,17 +212,18 @@ void basic_input_manager::requery() {
         return;
     }
 
-    std::vector<device_query> const collected = pimpl->pull_query_list();
-
     // Rebuild the udev monitor filter so future hotplug events match the
     // fresh set of queries.
     pimpl->monitor.filter_remove();
-    for (auto const& cur_query : collected) {
-        match(pimpl->monitor, cur_query);
+    for (auto& provider : pimpl->providers) {
+        for (device_query const cur_query : provider()) {
+            match(pimpl->monitor, cur_query);
+        }
     }
     pimpl->monitor.filter_update();
 
-    (void)pimpl->enumerate(collected);
+    // Runtime re-enumeration must not fail on no-match; hotplug catches up.
+    pimpl->enumerate([](device_query const&) noexcept {});
 }
 
 std::ranges::subrange<std::list<fs8::evdev>::const_iterator> basic_input_manager::devices() const noexcept {
@@ -266,26 +273,22 @@ context_action basic_input_manager::start(basic_io_manager& io) noexcept try {
             return exit;
         }
 
-        std::vector<device_query> const collected = pimpl->pull_query_list();
-
-        for (auto const& cur_query : collected) {
-            match(pimpl->monitor, cur_query);
+        for (auto& provider : pimpl->providers) {
+            for (device_query const cur_query : provider()) {
+                match(pimpl->monitor, cur_query);
+            }
         }
         pimpl->monitor.enable();
 
-        std::vector<bool> const matched = pimpl->enumerate(collected);
-
         // `fail_on_no_match` applies during startup; a runtime disconnection
         // waits for hotplug reconnection instead of failing.
-        for (std::size_t i = 0; i < collected.size(); ++i) {
-            auto const& cur_query = collected[i];
-            if (!cur_query.fail_on_no_match) {
-                continue;
-            }
-            if (i >= matched.size() || !matched[i]) [[unlikely]] {
-                log("Needed this query but didn't found it: {}", to_string(cur_query));
-                return exit;
-            }
+        bool failed = false;
+        pimpl->enumerate([&](device_query const& cur_query) {
+            log("Needed this query but didn't found it: {}", to_string(cur_query));
+            failed = true;
+        });
+        if (failed) [[unlikely]] {
+            return exit;
         }
     }
 

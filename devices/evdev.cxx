@@ -469,6 +469,10 @@ std::string fs8::device_sysname(evdev const& dev) noexcept try {
     if (auto const pos = path.find_last_of('/'); pos != std::string_view::npos) {
         path.remove_prefix(pos + 1);
     }
+    constexpr std::string_view deleted{" (deleted)"};
+    if (path.ends_with(deleted)) {
+        path.remove_suffix(deleted.size());
+    }
     return std::string{path};
 } catch (...) {
     return {};
