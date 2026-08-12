@@ -5,6 +5,7 @@ module;
 #include <concepts>
 #include <optional>
 #include <ranges>
+#include <span>
 export module fs8.mods.intercept;
 import fs8.devices.evdev;
 import fs8.devices.queries;
@@ -46,6 +47,11 @@ export namespace fs8 {
             }
         }
 
+        /// query_provider: hand every live query to the manager as a span over
+        /// owned storage (refreshed on each call). The queries stay owned here
+        /// so `input_manager` can pull them again via `requery()`.
+        [[nodiscard]] std::span<device_query const> queries() noexcept;
+
         /// Forward queries/devices to input_manager; ensure it started.
         template <ContextWith<basic_io_manager, basic_input_manager> ContextT>
         context_action operator()(ContextT ctx, start_tag) noexcept {
@@ -71,15 +77,16 @@ export namespace fs8 {
             requires(sizeof...(Qs) >= 1 && (std::convertible_to<Qs, device_query> && ...))
         explicit consteval basic_interceptor(Qs... qs) noexcept {
             std::size_t index = 0;
-            ((queries[index++].set(qs)), ...);
+            ((owned_queries[index++].set(qs)), ...);
             queries_count = index;
         }
 
         context_action            do_start(basic_input_manager& im, basic_io_manager& io) noexcept;
         std::optional<event_type> do_pop(basic_input_manager& im, basic_io_manager& io) noexcept;
 
-        std::array<owned_query, 16> queries{}; // consteval-copyable part
+        std::array<owned_query, 16> owned_queries{}; // consteval-copyable part
         std::size_t                 queries_count = 0;
+        std::array<device_query, 16> query_cache{}; // span source for queries()
     } intercept;
 
     static_assert(Modifier<basic_interceptor>);

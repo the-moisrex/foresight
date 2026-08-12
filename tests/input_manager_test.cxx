@@ -3,10 +3,12 @@
 #include "common/tests_common_pch.hpp"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <fcntl.h>
 #include <poll.h>
 #include <thread>
+#include <span>
 
 import fs8.mods;
 import fs8.devices.udev;
@@ -27,6 +29,22 @@ namespace {
     [[nodiscard]] auto& input_mgr() noexcept {
         return input_pipeline.mod<basic_input_manager>();
     }
+
+    /// A query provider backed by its own `owned_query`, exposing a span over
+    /// a refreshed `device_query` view.
+    struct test_query_provider {
+        owned_query q;
+        std::array<device_query, 1> views{};
+
+        explicit test_query_provider(device_query const query) noexcept {
+            q.set(query);
+        }
+
+        [[nodiscard]] std::span<device_query const> queries() noexcept {
+            views[0] = q;
+            return views;
+        }
+    };
 
     /// Poll `fd` until it becomes readable or `timeout_ms` elapses.
     [[nodiscard]] bool wait_for_event(int const fd, int timeout_ms) noexcept {
@@ -91,7 +109,8 @@ TEST(InputManager, StartupEnumeratesMatchingDevices) {
     auto& io = enumerate_pipeline.mod<basic_io_manager>();
     auto& im = enumerate_pipeline.mod<basic_input_manager>();
 
-    im.add(keyboard);
+    test_query_provider provider(keyboard);
+    im.add_query_provider(provider_handle(provider));
     EXPECT_EQ(enumerate_pipeline(start), context_action::next);
 
     // Only the monitor FD is registered; devices are stored, not watched.
@@ -110,9 +129,53 @@ TEST(InputManager, RequiredQueryFailsStartupWhenNoDeviceMatches) {
 
     auto& im = fail_pipeline.mod<basic_input_manager>();
     auto q   = (query + match_sysname("foresight_device_that_never_exists")) | fail_on_no_match;
-    im.add(q);
+    test_query_provider provider(q);
+    im.add_query_provider(provider_handle(provider));
 
     EXPECT_EQ(fail_pipeline(start), context_action::exit);
+}
+
+TEST(InputManager, ProviderQueriesArePulledOnStartupAndRequery) {
+    static constinit auto pipeline = context | io_manager | input_manager;
+    auto& io = pipeline.mod<basic_io_manager>();
+    auto& im = pipeline.mod<basic_input_manager>();
+    io.clear();
+
+    // A provider that hands its query over on demand and counts pulls.
+    struct counting_provider {
+        owned_query q;
+        mutable int calls = 0;
+        std::array<device_query, 1> views{};
+
+        counting_provider() noexcept {
+            q.set(query + attr::input_subsystem + attr::event_sysname);
+        }
+
+        [[nodiscard]] std::span<device_query const> queries() noexcept {
+            ++calls;
+            views[0] = q;
+            return views;
+        }
+    };
+    counting_provider provider;
+
+    // Registering the same provider twice must be a no-op (dedupe by address).
+    im.add_query_provider(provider_handle(provider));
+    im.add_query_provider(provider_handle(provider));
+
+    EXPECT_EQ(pipeline(start), context_action::next);
+    EXPECT_EQ(provider.calls, 1) << "Startup must pull each provider exactly once.";
+
+    // Re-asking pulls the fresh queries again.
+    im.requery();
+    EXPECT_EQ(provider.calls, 2) << "requery() must re-pull every registered provider.";
+
+    if (im.devices().empty()) {
+        GTEST_SKIP() << "No matching input devices are present on this system.";
+    }
+    for (auto const& dev : im.devices()) {
+        EXPECT_TRUE(dev.is_ok());
+    }
 }
 
 TEST(InputManager, ManualAdditionsAreStoredButNotRediscovered) {
@@ -157,7 +220,8 @@ TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
     auto& io = hotplug_pipeline.mod<basic_io_manager>();
     auto& im = hotplug_pipeline.mod<basic_input_manager>();
 
-    im.add(query + attr::input_subsystem + attr::event_sysname);
+    test_query_provider provider(query + attr::input_subsystem + attr::event_sysname);
+    im.add_query_provider(provider_handle(provider));
     if (hotplug_pipeline(start) != context_action::next) {
         GTEST_SKIP() << "Cannot start the pipeline.";
     }

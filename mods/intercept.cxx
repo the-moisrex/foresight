@@ -5,6 +5,7 @@ module;
 #include <deque>
 #include <list>
 #include <optional>
+#include <span>
 #include <sys/poll.h>
 #include <type_traits>
 #include <utility>
@@ -18,9 +19,11 @@ import fs8.mods.input_manager;
 
 using fs8::basic_interceptor;
 using fs8::context_action;
+using fs8::device_query;
 using fs8::event_type;
 using fs8::io_event;
 using fs8::io_fd;
+using fs8::provider_handle;
 
 template <>
 struct fs8::pimpl_idiom<basic_interceptor>::impl {
@@ -41,14 +44,21 @@ void basic_interceptor::add(evdev&& dev) noexcept {
 }
 
 void basic_interceptor::add(device_query const& q) noexcept {
-    if (queries_count >= queries.size()) [[unlikely]] {
+    if (queries_count >= owned_queries.size()) [[unlikely]] {
         return;
     }
-    queries[queries_count++].set(q);
+    owned_queries[queries_count++].set(q);
 }
 
 void basic_interceptor::add(owned_query const& q) noexcept {
     add(static_cast<device_query>(q));
+}
+
+std::span<device_query const> basic_interceptor::queries() noexcept {
+    for (std::size_t i = 0; i < queries_count; ++i) {
+        query_cache[i] = owned_queries[i];
+    }
+    return {query_cache.data(), queries_count};
 }
 
 fs8::context_action basic_interceptor::do_start(basic_input_manager& im, basic_io_manager& io) noexcept try {
@@ -61,10 +71,9 @@ fs8::context_action basic_interceptor::do_start(basic_input_manager& im, basic_i
 
     log("DEBUG do_start: queries_count={}", queries_count);
 
-    for (std::size_t i = 0; i < queries_count; ++i) {
-        im.add(static_cast<device_query>(queries[i]));
-    }
-    queries_count = 0;
+    // Queries stay owned here; register as a provider so `input_manager` can
+    // pull them again (e.g. on `requery`) instead of copying them over.
+    im.add_query_provider(provider_handle(*this));
 
     for (auto& dev : pimpl->manual_devs) {
         im.add(std::move(dev));
