@@ -34,7 +34,7 @@ export namespace fs8 {
       public:
         constexpr explicit basic_ignore_big_jumps(value_type const inp_threshold) noexcept : threshold{inp_threshold} {}
 
-        consteval basic_ignore_big_jumps operator()(value_type const inp_threshold) const noexcept {
+        consteval basic_ignore_big_jumps operator[](value_type const inp_threshold) const noexcept {
             return basic_ignore_big_jumps{inp_threshold};
         }
 
@@ -67,7 +67,7 @@ export namespace fs8 {
           : threshold{inp_threshold},
             time_threshold{inp_time_threshold} {}
 
-        consteval basic_ignore_init_moves operator()(value_type const inp_threshold,
+        consteval basic_ignore_init_moves operator[](value_type const inp_threshold,
                                                      msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
             return basic_ignore_init_moves{inp_threshold, inp_time_threshold};
         }
@@ -96,7 +96,7 @@ export namespace fs8 {
           : code{.type = inp_code.type, .code = inp_code.code, .value = 1},
             time_threshold{inp_time_threshold} {}
 
-        consteval basic_ignore_fast_repeats operator()(event_code const inp_code,
+        consteval basic_ignore_fast_repeats operator[](event_code const inp_code,
                                                        msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
             return basic_ignore_fast_repeats{inp_code, inp_time_threshold};
         }
@@ -115,18 +115,18 @@ export namespace fs8 {
         constexpr explicit basic_ignore_keys(std::array<event_code, N> const inp_codes) noexcept : codes{inp_codes} {}
 
         template <std::size_t NN>
-        consteval basic_ignore_keys operator()(std::array<event_code, NN> const inp_codes) const noexcept {
+        consteval basic_ignore_keys operator[](std::array<event_code, NN> const inp_codes) const noexcept {
             return basic_ignore_keys<NN>{inp_codes};
         }
 
         template <std::size_t NN>
-        consteval auto operator()(event_code (&&inp_codes)[NN]) const noexcept {
+        consteval auto operator[](event_code (&&inp_codes)[NN]) const noexcept {
             return basic_ignore_keys<NN>{std::to_array(std::move(inp_codes))};
         }
 
         template <typename... T>
             requires((std::convertible_to<T, event_type::code_type> && ...))
-        consteval auto operator()(T... inp_codes) const noexcept {
+        consteval auto operator[](T... inp_codes) const noexcept {
             return basic_ignore_keys<sizeof...(T)>{
               std::array<event_code, sizeof...(T)>{event_code{.type = EV_KEY, .code = static_cast<event_type::code_type>(inp_codes)}...}};
         }
@@ -152,7 +152,7 @@ export namespace fs8 {
       public:
         constexpr explicit basic_ignore_caps(dev_caps_view const inp_caps) noexcept : caps{inp_caps} {}
 
-        consteval auto operator()(dev_caps_view const inp_caps) const noexcept {
+        consteval auto operator[](dev_caps_view const inp_caps) const noexcept {
             return basic_ignore_caps{inp_caps};
         }
 
@@ -169,7 +169,7 @@ export namespace fs8 {
       public:
         constexpr explicit basic_ignore_start_moves(std::uint32_t const inp_time_threshold) noexcept : emit_threshold{inp_time_threshold} {}
 
-        consteval basic_ignore_start_moves operator()(std::uint32_t const inp_time_threshold) const noexcept {
+        consteval basic_ignore_start_moves operator[](std::uint32_t const inp_time_threshold) const noexcept {
             return basic_ignore_start_moves{inp_time_threshold};
         }
 
@@ -189,7 +189,7 @@ export namespace fs8 {
 
         constexpr explicit basic_ignore_adjacent_repeats(event_type const code) noexcept : asked_event{static_cast<event_code>(code)} {}
 
-        consteval basic_ignore_adjacent_repeats operator()(event_code const code) const noexcept {
+        consteval basic_ignore_adjacent_repeats operator[](event_code const code) const noexcept {
             return basic_ignore_adjacent_repeats{code};
         }
 

@@ -66,10 +66,7 @@ export namespace fs8 {
 
         /// Default construct if it's wrapped in std::optional
         void operator()(start_tag) noexcept
-            requires(
-              !is_constructible_at_compile_time
-              && std::is_nothrow_default_constructible_v<T>
-              && std::is_nothrow_assignable_v<T&, T>)
+            requires(!is_constructible_at_compile_time && std::is_nothrow_default_constructible_v<T> && std::is_nothrow_assignable_v<T&, T>)
         {
             obj.emplace();
         }

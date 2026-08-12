@@ -48,27 +48,27 @@ TEST(Uinput, SetDeviceFromQueryFailOnNoMatch) {
 
 namespace {
 
-std::string read_sysfs_file(std::filesystem::path const& path) {
-    std::ifstream in{path};
-    std::string   value;
-    std::getline(in, value);
-    return value;
-}
-
-fs8::evdev open_keyboard() {
-    for (auto pick : fs8::filter_devices(fs8::keyboard)) {
-        auto edev = fs8::initialize(fs8::query, pick.device);
-        if (edev.is_ok()) {
-            return edev;
-        }
+    std::string read_sysfs_file(std::filesystem::path const& path) {
+        std::ifstream in{path};
+        std::string   value;
+        std::getline(in, value);
+        return value;
     }
-    return {};
-}
 
-std::string sysname_of(std::string_view const devnode) {
-    auto const pos = devnode.find_last_of('/');
-    return std::string{pos == std::string_view::npos ? devnode : devnode.substr(pos + 1)};
-}
+    fs8::evdev open_keyboard() {
+        for (auto pick : fs8::filter_devices(fs8::keyboard)) {
+            auto edev = fs8::initialize(fs8::query, pick.device);
+            if (edev.is_ok()) {
+                return edev;
+            }
+        }
+        return {};
+    }
+
+    std::string sysname_of(std::string_view const devnode) {
+        auto const pos = devnode.find_last_of('/');
+        return std::string{pos == std::string_view::npos ? devnode : devnode.substr(pos + 1)};
+    }
 
 } // namespace
 
@@ -148,4 +148,3 @@ TEST(Uinput, VirtualDeviceChainingAppendsOrigin) {
     vdev_a.close();
     vdev_b.close();
 }
-

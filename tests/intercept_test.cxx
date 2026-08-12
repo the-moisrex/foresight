@@ -94,7 +94,7 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
         GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
     }
 
-    static constinit auto pipeline = context | io_manager | intercept(keyboard) | input_manager | collector{};
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | collector{};
 
     auto& io  = pipeline.mod<basic_io_manager>();
     auto& im  = pipeline.mod<basic_input_manager>();
@@ -102,8 +102,8 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
 
     EXPECT_EQ(pipeline(start), context_action::next);
 
-    basic_uinput   uin;
-    udev_monitor   probe;
+    basic_uinput uin;
+    udev_monitor probe;
     if (!create_uinput_keyboard(uin, probe)) {
         GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
     }
@@ -153,15 +153,15 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
         GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
     }
 
-    static constinit auto pipeline = context | io_manager | intercept(keyboard) | input_manager | collector{};
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | collector{};
 
     auto& io = pipeline.mod<basic_io_manager>();
     auto& im = pipeline.mod<basic_input_manager>();
 
     EXPECT_EQ(pipeline(start), context_action::next);
 
-    basic_uinput   uin;
-    udev_monitor   probe;
+    basic_uinput uin;
+    udev_monitor probe;
     if (!create_uinput_keyboard(uin, probe)) {
         GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
     }

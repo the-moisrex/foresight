@@ -315,12 +315,14 @@ fs8::owned_query::owned_query(std::string_view const str) noexcept {
         count           = 2;
     }
     // 2. A known capabilities name (e.g. "keyboard", "mouse", "pen")
-    else if (auto const caps_value = caps_of(str); !caps_value.empty()) {
+    else if (auto const caps_value = caps_of(str); !caps_value.empty())
+    {
         this->caps = caps_value;
         return;
     }
     // 3. A query term (e.g. "name=event0", "attr:device/name=my_mouse")
-    else if (auto const term = parse_query_term(str); term) {
+    else if (auto const term = parse_query_term(str); term)
+    {
         storage[0] = term;
         count      = 1;
     }

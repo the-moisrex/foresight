@@ -677,7 +677,7 @@ bool basic_uinput::init(dev_caps_view const caps_view) noexcept {
 bool basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
     // Constrain the search to the input subsystem (caps alone don't say where
     // to look), then pick the best matching device via the query system.
-    std::array<fs8::query_term, 1> fields  = {fs8::subsystem("input")};
+    std::array<fs8::query_term, 1> fields = {fs8::subsystem("input")};
     fs8::device_query const        inp_query{.fields = std::span<fs8::query_term const>{fields}, .caps = caps_view};
     return set_device_from(inp_query);
 }

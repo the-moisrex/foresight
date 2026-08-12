@@ -9,8 +9,12 @@ export namespace fs8 {
     /// Check if type T has a constexpr constructor
     /// and thus can be used in constexpr contexts, in other words,
     /// the type T can be constructed in compile-time.
-    template <typename T, typename ...Args>
-    concept constexpr_constructible = requires { []<T = {Args{}...}>{}(); };
+    template <typename T, typename... Args>
+    concept constexpr_constructible = requires {
+        []<T = {
+            Args{}...
+        }>{}();
+    };
 
     template <typename T>
     struct construct_it_from {

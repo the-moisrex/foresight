@@ -27,7 +27,7 @@ export namespace fs8 {
         explicit constexpr basic_pressure2mouse_clicks(value_type const inp_pressure_threshold) noexcept
           : pressure_threshold{inp_pressure_threshold} {}
 
-        consteval auto operator()(value_type const inp_pressure_threshold) const noexcept {
+        consteval auto operator[](value_type const inp_pressure_threshold) const noexcept {
             auto res{*this};
             res.pressure_threshold = inp_pressure_threshold;
             assert(inp_pressure_threshold > 0);
@@ -140,7 +140,7 @@ export namespace fs8 {
         //     init(ctx);
         // }
 
-        consteval basic_abs2rel operator()(bool const inp_inherit) const noexcept {
+        consteval basic_abs2rel operator[](bool const inp_inherit) const noexcept {
             return basic_abs2rel{inp_inherit};
         }
 

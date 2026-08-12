@@ -111,7 +111,7 @@ export namespace fs8 {
       public:
         constexpr explicit basic_low_pass_filter(float const inp_alpha) noexcept : alpha{inp_alpha} {}
 
-        consteval basic_low_pass_filter operator()(float const inp_alpha) const noexcept {
+        consteval basic_low_pass_filter operator[](float const inp_alpha) const noexcept {
             return basic_low_pass_filter{inp_alpha};
         }
 
@@ -170,7 +170,7 @@ export namespace fs8 {
           : q(process_noise),
             r(measurement_noise) {}
 
-        consteval basic_kalman_filter operator()(float const process_noise, float const measurement_noise = 0.5f) const noexcept {
+        consteval basic_kalman_filter operator[](float const process_noise, float const measurement_noise = 0.5f) const noexcept {
             return basic_kalman_filter{process_noise, measurement_noise};
         }
 

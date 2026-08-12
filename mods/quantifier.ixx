@@ -54,8 +54,8 @@ export namespace fs8 {
         [[nodiscard]] value_type consume_y() noexcept;
 
         // This can be used like:
-        //    mise_quantifier(20)
-        consteval basic_mice_quantifier operator()(value_type const steps) const noexcept {
+        //    mise_quantifier[20]
+        consteval basic_mice_quantifier operator[](value_type const steps) const noexcept {
             return basic_mice_quantifier{steps};
         }
 

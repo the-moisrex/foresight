@@ -194,7 +194,7 @@ namespace fs8 {
         explicit consteval basic_typed(std::string_view const inp_pattern) noexcept : pattern{inp_pattern} {}
 
         /// Return a new typed class that trigger when "str" is typed by the user.
-        consteval basic_typed operator()(std::string_view const inp_trigger) const noexcept {
+        consteval basic_typed operator[](std::string_view const inp_trigger) const noexcept {
             return basic_typed{inp_trigger};
         }
 

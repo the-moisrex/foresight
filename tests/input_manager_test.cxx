@@ -7,8 +7,8 @@
 #include <chrono>
 #include <fcntl.h>
 #include <poll.h>
-#include <thread>
 #include <span>
+#include <thread>
 
 import fs8.mods;
 import fs8.devices.udev;
@@ -33,7 +33,7 @@ namespace {
     /// A query provider backed by its own `owned_query`, exposing a span over
     /// a refreshed `device_query` view.
     struct test_query_provider {
-        owned_query q;
+        owned_query                 q;
         std::array<device_query, 1> views{};
 
         explicit test_query_provider(device_query const query) noexcept {
@@ -106,8 +106,8 @@ TEST(InputManager, RepeatedStartupRestoresMonitorRegistrationWithoutDuplicates) 
 
 TEST(InputManager, StartupEnumeratesMatchingDevices) {
     static constinit auto enumerate_pipeline = context | io_manager | input_manager;
-    auto& io = enumerate_pipeline.mod<basic_io_manager>();
-    auto& im = enumerate_pipeline.mod<basic_input_manager>();
+    auto&                 io                 = enumerate_pipeline.mod<basic_io_manager>();
+    auto&                 im                 = enumerate_pipeline.mod<basic_input_manager>();
 
     test_query_provider provider(keyboard);
     im.add_query_provider(provider_handle(provider));
@@ -127,8 +127,8 @@ TEST(InputManager, StartupEnumeratesMatchingDevices) {
 TEST(InputManager, RequiredQueryFailsStartupWhenNoDeviceMatches) {
     static constinit auto fail_pipeline = context | io_manager | input_manager;
 
-    auto& im = fail_pipeline.mod<basic_input_manager>();
-    auto q   = (query + match_sysname("foresight_device_that_never_exists")) | fail_on_no_match;
+    auto&               im = fail_pipeline.mod<basic_input_manager>();
+    auto                q  = (query + match_sysname("foresight_device_that_never_exists")) | fail_on_no_match;
     test_query_provider provider(q);
     im.add_query_provider(provider_handle(provider));
 
@@ -137,14 +137,14 @@ TEST(InputManager, RequiredQueryFailsStartupWhenNoDeviceMatches) {
 
 TEST(InputManager, ProviderQueriesArePulledOnStartupAndRequery) {
     static constinit auto pipeline = context | io_manager | input_manager;
-    auto& io = pipeline.mod<basic_io_manager>();
-    auto& im = pipeline.mod<basic_input_manager>();
+    auto&                 io       = pipeline.mod<basic_io_manager>();
+    auto&                 im       = pipeline.mod<basic_input_manager>();
     io.clear();
 
     // A provider that hands its query over on demand and counts pulls.
     struct counting_provider {
-        owned_query q;
-        mutable int calls = 0;
+        owned_query                 q;
+        mutable int                 calls = 0;
         std::array<device_query, 1> views{};
 
         counting_provider() noexcept {
@@ -157,6 +157,7 @@ TEST(InputManager, ProviderQueriesArePulledOnStartupAndRequery) {
             return views;
         }
     };
+
     counting_provider provider;
 
     // Registering the same provider twice must be a no-op (dedupe by address).
@@ -189,7 +190,7 @@ TEST(InputManager, ManualAdditionsAreStoredButNotRediscovered) {
 
     // Manual devices have no udev identity; a hotplug notification for an
     // unrelated device must leave them untouched.
-    EXPECT_EQ(im(io_fd{.fd = 12345}), context_action::next);
+    EXPECT_EQ(im(io_fd{.fd = 12'345}), context_action::next);
     EXPECT_EQ(std::ranges::distance(im.devices()), 2);
 }
 
@@ -197,7 +198,7 @@ TEST(InputManager, UnexpectedCallbackFdIsIgnoredSafely) {
     basic_input_manager im;
 
     EXPECT_EQ(im(io_fd{.fd = -1}), context_action::next);
-    EXPECT_EQ(im(io_fd{.fd = 424242}), context_action::next);
+    EXPECT_EQ(im(io_fd{.fd = 424'242}), context_action::next);
 }
 
 TEST(InputManager, UnknownFdOnStartedManagerIsIgnored) {
@@ -206,7 +207,7 @@ TEST(InputManager, UnknownFdOnStartedManagerIsIgnored) {
     io.clear();
 
     EXPECT_EQ(input_pipeline(start), context_action::next);
-    EXPECT_EQ(im(io_fd{.fd = 424242}), context_action::next);
+    EXPECT_EQ(im(io_fd{.fd = 424'242}), context_action::next);
 }
 
 TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
@@ -219,8 +220,8 @@ TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
     }
 
     static constinit auto hotplug_pipeline = context | io_manager | input_manager;
-    auto& io = hotplug_pipeline.mod<basic_io_manager>();
-    auto& im = hotplug_pipeline.mod<basic_input_manager>();
+    auto&                 io               = hotplug_pipeline.mod<basic_io_manager>();
+    auto&                 im               = hotplug_pipeline.mod<basic_input_manager>();
 
     test_query_provider provider(query + attr::input_subsystem + attr::event_sysname);
     im.add_query_provider(provider_handle(provider));

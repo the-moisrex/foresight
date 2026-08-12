@@ -205,12 +205,12 @@ export namespace fs8 {
         // NOLINTBEGIN(*-non-private-member-variables-in-classes)
 
         std::array<query_term, 16> storage{};
-        std::uint8_t               count = 0;
-        dev_caps_view              caps = +caps::nothing;
+        std::uint8_t               count                   = 0;
+        dev_caps_view              caps                    = +caps::nothing;
         std::uint8_t               caps_support_percentage = 80;
-        std::uint8_t               matches_limit = 1;
-        bool                       grab = false;
-        bool                       fail_on_no_match = false;
+        std::uint8_t               matches_limit           = 1;
+        bool                       grab                    = false;
+        bool                       fail_on_no_match        = false;
 
         // NOLINTEND(*-non-private-member-variables-in-classes)
 
@@ -238,7 +238,8 @@ export namespace fs8 {
               .caps_support_percentage = caps_support_percentage,
               .matches_limit           = matches_limit,
               .grab                    = grab,
-              .fail_on_no_match        = fail_on_no_match};
+              .fail_on_no_match        = fail_on_no_match
+            };
         }
 
         [[nodiscard]] explicit(false) constexpr operator device_query() const noexcept {
@@ -380,13 +381,13 @@ export namespace fs8 {
     [[nodiscard]] constexpr auto operator|(R&& rng, Tag tag) noexcept {
         return std::views::transform(std::forward<R>(rng), [tag]<typename T>(T&& elem) {
             if constexpr (std::convertible_to<T, std::string_view>) {
-                owned_query result{std::string_view{elem}};
+                owned_query  result{std::string_view{elem}};
                 device_query q = result;
                 tag(q);
                 result.set(q);
                 return result;
             } else if constexpr (std::same_as<T, owned_query>) {
-                owned_query result{elem};
+                owned_query  result{elem};
                 device_query q = result;
                 tag(q);
                 result.set(q);

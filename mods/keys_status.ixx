@@ -87,7 +87,8 @@ export namespace fs8 {
         void operator()(Tag auto)         = delete;
 
         template <typename InpModT>
-        consteval auto operator()([[maybe_unused]] InpModT&&) const noexcept {
+            requires(!Context<std::remove_cvref_t<InpModT>> && !Tag<std::remove_cvref_t<InpModT>>)
+        consteval auto operator[]([[maybe_unused]] InpModT&&) const noexcept {
             return basic_mod_updater<InpModT>{};
         }
 

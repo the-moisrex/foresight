@@ -27,10 +27,10 @@ export namespace fs8 {
     constexpr struct [[nodiscard]] basic_interceptor : pimpl_idiom<basic_interceptor> {
         using pimpl_idiom::pimpl_idiom;
 
-        /// Pipeline form: intercept(keyboard, mouse)
+        /// Pipeline form: intercept[keyboard, mouse]
         template <typename... Qs>
             requires(sizeof...(Qs) >= 1 && (std::convertible_to<Qs, device_query> && ...))
-        consteval basic_interceptor operator()(Qs... qs) const noexcept {
+        consteval basic_interceptor operator[](Qs... qs) const noexcept {
             return basic_interceptor{qs...};
         }
 
@@ -84,9 +84,9 @@ export namespace fs8 {
         context_action            do_start(basic_input_manager& im, basic_io_manager& io) noexcept;
         std::optional<event_type> do_pop(basic_input_manager& im, basic_io_manager& io) noexcept;
 
-        std::array<owned_query, 16> owned_queries{}; // consteval-copyable part
-        std::size_t                 queries_count = 0;
-        std::array<device_query, 16> query_cache{}; // span source for queries()
+        std::array<owned_query, 16>  owned_queries{}; // consteval-copyable part
+        std::size_t                  queries_count = 0;
+        std::array<device_query, 16> query_cache{};   // span source for queries()
     } intercept;
 
     static_assert(Modifier<basic_interceptor>);

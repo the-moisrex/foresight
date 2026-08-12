@@ -221,14 +221,20 @@ namespace fs8 {
     export constexpr struct [[nodiscard]] basic_to_evdev : std::ranges::range_adaptor_closure<basic_to_evdev> {
         // udev_device_pick
         template <typename T>
-            requires requires(T pick) { pick.device.subsystem(); pick.device.devnode(); }
+            requires requires(T pick) {
+                pick.device.subsystem();
+                pick.device.devnode();
+            }
         [[nodiscard]] auto operator()(T const& pick) const noexcept {
             return evdev{pick.device.devnode()};
         }
 
         // udev_device
         template <typename T>
-            requires requires(T device) { device.subsystem(); device.devnode(); }
+            requires requires(T device) {
+                device.subsystem();
+                device.devnode();
+            }
         [[nodiscard]] auto operator()(T const& device) const noexcept {
             return evdev{device.devnode()};
         }

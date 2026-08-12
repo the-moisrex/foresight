@@ -39,8 +39,7 @@ void basic_interceptor::add(evdev&& dev) noexcept {
     }
     try {
         pimpl->manual_devs.emplace_back(std::move(dev));
-    } catch (...) {
-    }
+    } catch (...) {}
 }
 
 void basic_interceptor::add(device_query const& q) noexcept {

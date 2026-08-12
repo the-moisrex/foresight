@@ -348,7 +348,9 @@ namespace {
                     std::println(stderr, "No input specified.");
                     return EXIT_FAILURE;
                 }
-                bool const evtest_syntax = std::ranges::any_of(args, [](std::string_view const str) { return str == "--evtest"; });
+                bool const                              evtest_syntax = std::ranges::any_of(args, [](std::string_view const str) {
+                    return str == "--evtest";
+                });
                 fs8::xkb::how2type::output_syntax const syntax        = evtest_syntax ? evtest : cpp_code;
                 for (auto const str : args) {
                     if (str == "--evtest" || str == "--cpp") {

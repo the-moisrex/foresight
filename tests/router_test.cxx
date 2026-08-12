@@ -36,9 +36,9 @@ namespace {
 
     static constinit auto pipeline =
       context
-      | router(caps::keyboard >> (context | counting_mod{&key_counter}), // sub-pipeline 1
+      | router[caps::keyboard >> (context | counting_mod{&key_counter}), // sub-pipeline 1
                caps::mouse >> (context | counting_mod{&mouse_counter})   // sub-pipeline 2
-      );
+    ];
 
     /// A mod that wants the device_query itself (the full-match path through the pipeline).
     struct query_record {
@@ -69,8 +69,8 @@ namespace {
 
     static constinit auto query_pipeline =
       context
-      | router(caps::keyboard >> (context | query_consumer{&keyboard_query_record}),
-               caps::mouse >> (context | query_consumer{&mouse_query_record}));
+      | router[caps::keyboard >> (context | query_consumer{&keyboard_query_record}),
+               caps::mouse >> (context | query_consumer{&mouse_query_record})];
 
 } // namespace
 

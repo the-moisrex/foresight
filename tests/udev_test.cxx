@@ -5,10 +5,10 @@ import fs8.devices.udev;
 using fs8::udev;
 using fs8::udev_device;
 using fs8::udev_enumerate;
-using fs8::udev_monitor;
 using fs8::udev_hwdb;
-using fs8::udev_queue;
 using fs8::udev_list_entry;
+using fs8::udev_monitor;
+using fs8::udev_queue;
 
 // ============================================================================
 // udev Context Tests
@@ -116,9 +116,7 @@ TEST(UdevEnumerateTest, MoveSemantics) {
 TEST(UdevEnumerateTest, ChainingMethodsKeepValidity) {
     udev_enumerate enumerator;
 
-    enumerator.match_subsystem("net")
-              .nomatch_subsystem("block")
-              .match_sysname("lo");
+    enumerator.match_subsystem("net").nomatch_subsystem("block").match_sysname("lo");
 
     EXPECT_TRUE(enumerator.is_valid());
 }
@@ -158,7 +156,7 @@ TEST(UdevMonitorTest, SetupAndEnableDoesNotCrash) {
 // ============================================================================
 
 TEST(UdevHwdbTest, CreationAndQuery) {
-    udev ctx;
+    udev      ctx;
     udev_hwdb hwdb(ctx.native());
 
     // Testing hwdb might return empty entries on some systems,
@@ -166,22 +164,22 @@ TEST(UdevHwdbTest, CreationAndQuery) {
     auto entries = hwdb.get_properties("usb:v046DpC52B*", 0);
     EXPECT_NO_THROW({
         for (auto entry : entries) {
-            (void)entry.name();
-            (void)entry.value();
+            (void) entry.name();
+            (void) entry.value();
         }
     });
 }
 
 TEST(UdevQueueTest, QueueStateCheck) {
-    udev ctx;
+    udev       ctx;
     udev_queue queue(ctx.native());
 
     // The daemon state varies, we just ensure the wrappers return booleans without crashing
     EXPECT_NO_THROW({
         bool active = queue.is_active();
-        bool empty = queue.is_empty();
-        (void)active;
-        (void)empty;
+        bool empty  = queue.is_empty();
+        (void) active;
+        (void) empty;
     });
 }
 
@@ -190,7 +188,7 @@ TEST(UdevQueueTest, QueueStateCheck) {
 // ============================================================================
 
 class UdevIntegrationTest : public ::testing::Test {
-protected:
+  protected:
     udev ctx;
 
     void SetUp() override {
@@ -203,7 +201,7 @@ protected:
         enumerator.scan_devices();
 
         auto entries = enumerator.list_entries();
-        auto it = entries.begin();
+        auto it      = entries.begin();
         if (it != entries.end()) {
             return udev_device(ctx.native(), (*it).name().data());
         }
@@ -228,7 +226,9 @@ TEST_F(UdevIntegrationTest, RetrieveAndInspectLoopbackDevice) {
 
 TEST_F(UdevIntegrationTest, ParentDeviceNavigation) {
     udev_device lo_dev = get_loopback_device();
-    if (!lo_dev.is_valid()) GTEST_SKIP();
+    if (!lo_dev.is_valid()) {
+        GTEST_SKIP();
+    }
 
     udev_device parent = lo_dev.parent();
     if (parent) {
@@ -239,12 +239,11 @@ TEST_F(UdevIntegrationTest, ParentDeviceNavigation) {
 
 TEST_F(UdevIntegrationTest, FindAllKeyboards) {
     udev_enumerate enumerator(ctx);
-    enumerator.match_subsystem("input")
-              .match_property("ID_INPUT_KEYBOARD", "1");
+    enumerator.match_subsystem("input").match_property("ID_INPUT_KEYBOARD", "1");
     enumerator.scan_devices();
 
-    auto entries = enumerator.list_entries();
-    int keyboard_count = 0;
+    auto entries        = enumerator.list_entries();
+    int  keyboard_count = 0;
 
     for (auto entry : entries) {
         udev_device dev(ctx.native(), entry.name().data());
@@ -262,12 +261,11 @@ TEST_F(UdevIntegrationTest, FindAllKeyboards) {
 
 TEST_F(UdevIntegrationTest, FindAllMice) {
     udev_enumerate enumerator(ctx);
-    enumerator.match_subsystem("input")
-              .match_property("ID_INPUT_MOUSE", "1");
+    enumerator.match_subsystem("input").match_property("ID_INPUT_MOUSE", "1");
     enumerator.scan_devices();
 
-    auto entries = enumerator.list_entries();
-    int mouse_count = 0;
+    auto entries     = enumerator.list_entries();
+    int  mouse_count = 0;
 
     for (auto entry : entries) {
         udev_device dev(ctx.native(), entry.name().data());
@@ -297,9 +295,11 @@ TEST_F(UdevIntegrationTest, ListEntryIteratorSanity) {
 
 TEST_F(UdevIntegrationTest, DevicePropertiesAndTagsList) {
     udev_device lo_dev = get_loopback_device();
-    if (!lo_dev.is_valid()) GTEST_SKIP();
+    if (!lo_dev.is_valid()) {
+        GTEST_SKIP();
+    }
 
-    auto props = lo_dev.properties();
+    auto props                = lo_dev.properties();
     bool found_subsystem_prop = false;
     for (auto prop : props) {
         if (prop.name() == "SUBSYSTEM" && prop.value() == "net") {
@@ -312,7 +312,7 @@ TEST_F(UdevIntegrationTest, DevicePropertiesAndTagsList) {
     auto tags = lo_dev.tags();
     EXPECT_NO_THROW({
         for (auto tag : tags) {
-            (void)tag.name();
+            (void) tag.name();
         }
     });
 }

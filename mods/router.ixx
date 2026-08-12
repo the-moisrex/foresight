@@ -157,7 +157,7 @@ export namespace fs8 {
 
         template <typename... C>
             requires(sizeof...(C) > 1)
-        consteval auto operator()(route<C>... inp_routes) const noexcept {
+        consteval auto operator[](route<C>... inp_routes) const noexcept {
             return basic_router<std::remove_cvref_t<C>...>{std::move(inp_routes)...};
         }
 

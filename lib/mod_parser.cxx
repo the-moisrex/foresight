@@ -75,50 +75,17 @@ namespace {
         // NOLINTBEGIN(*-use-designated-initializers)
         std::array<mod_entry, 44> data{
           {
-           {U"alt", KEY_LEFTALT},
-           {U"alt_gr", KEY_RIGHTALT},
-           {U"altgr", KEY_RIGHTALT},
-           {U"caps", KEY_CAPSLOCK},
-           {U"capslock", KEY_CAPSLOCK},
-           {U"cmd", KEY_LEFTMETA},
-           {U"command", KEY_LEFTMETA},
-           {U"control", KEY_LEFTCTRL},
-           {U"controlkey", KEY_LEFTCTRL},
-           {U"ctl", KEY_LEFTCTRL},
-           {U"ctrl", KEY_LEFTCTRL},
-           {U"lctrl", KEY_LEFTCTRL},
-           {U"leftalt", KEY_LEFTALT},
-           {U"leftctrl", KEY_LEFTCTRL},
-           {U"leftmeta", KEY_LEFTMETA},
-           {U"leftshift", KEY_LEFTSHIFT},
-           {U"lshift", KEY_LEFTSHIFT},
-           {U"meta", KEY_LEFTMETA},
-           {U"mod1", KEY_LEFTALT},
-           {U"mod2", KEY_LEFTALT},
-           {U"mod3", KEY_LEFTALT},
-           {U"mod4", KEY_LEFTMETA},
-           {U"mod5", KEY_LEFTALT},
-           {U"num", KEY_NUMLOCK},
-           {U"numlock", KEY_NUMLOCK},
-           {U"opt", KEY_LEFTALT},
-           {U"option", KEY_LEFTALT},
-           {U"optionkey", KEY_LEFTALT},
-           {U"rctrl", KEY_RIGHTCTRL},
-           {U"rightalt", KEY_RIGHTALT},
-           {U"rightctrl", KEY_RIGHTCTRL},
-           {U"rightmeta", KEY_RIGHTMETA},
-           {U"rightshift", KEY_RIGHTSHIFT},
-           {U"rshift", KEY_RIGHTSHIFT},
-           {U"scroll", KEY_SCROLLLOCK},
-           {U"scrolllock", KEY_SCROLLLOCK},
-           {U"shift", KEY_LEFTSHIFT},
-           {U"super", KEY_LEFTMETA},
-           {U"win", KEY_LEFTMETA},
-           {U"windows", KEY_LEFTMETA},
-           {U"⇧", KEY_LEFTSHIFT},
-           {U"⊞", KEY_LEFTMETA},
-           {U"⌘", KEY_LEFTMETA},
-           {U"⌥", KEY_LEFTALT},
+           {U"alt", KEY_LEFTALT},           {U"alt_gr", KEY_RIGHTALT},   {U"altgr", KEY_RIGHTALT},      {U"caps", KEY_CAPSLOCK},
+           {U"capslock", KEY_CAPSLOCK},     {U"cmd", KEY_LEFTMETA},      {U"command", KEY_LEFTMETA},    {U"control", KEY_LEFTCTRL},
+           {U"controlkey", KEY_LEFTCTRL},   {U"ctl", KEY_LEFTCTRL},      {U"ctrl", KEY_LEFTCTRL},       {U"lctrl", KEY_LEFTCTRL},
+           {U"leftalt", KEY_LEFTALT},       {U"leftctrl", KEY_LEFTCTRL}, {U"leftmeta", KEY_LEFTMETA},   {U"leftshift", KEY_LEFTSHIFT},
+           {U"lshift", KEY_LEFTSHIFT},      {U"meta", KEY_LEFTMETA},     {U"mod1", KEY_LEFTALT},        {U"mod2", KEY_LEFTALT},
+           {U"mod3", KEY_LEFTALT},          {U"mod4", KEY_LEFTMETA},     {U"mod5", KEY_LEFTALT},        {U"num", KEY_NUMLOCK},
+           {U"numlock", KEY_NUMLOCK},       {U"opt", KEY_LEFTALT},       {U"option", KEY_LEFTALT},      {U"optionkey", KEY_LEFTALT},
+           {U"rctrl", KEY_RIGHTCTRL},       {U"rightalt", KEY_RIGHTALT}, {U"rightctrl", KEY_RIGHTCTRL}, {U"rightmeta", KEY_RIGHTMETA},
+           {U"rightshift", KEY_RIGHTSHIFT}, {U"rshift", KEY_RIGHTSHIFT}, {U"scroll", KEY_SCROLLLOCK},   {U"scrolllock", KEY_SCROLLLOCK},
+           {U"shift", KEY_LEFTSHIFT},       {U"super", KEY_LEFTMETA},    {U"win", KEY_LEFTMETA},        {U"windows", KEY_LEFTMETA},
+           {U"⇧", KEY_LEFTSHIFT},           {U"⊞", KEY_LEFTMETA},        {U"⌘", KEY_LEFTMETA},          {U"⌥", KEY_LEFTALT},
            }
         };
         for (auto &field : data) {
@@ -393,8 +360,7 @@ namespace {
         auto           on_key = [&](fs8::key_event const &key) {
             result += to_code(key);
         };
-        if (!parse_modifier_impl(mod_str, on_key)) [[unlikely]]
-        {
+        if (!parse_modifier_impl(mod_str, on_key)) [[unlikely]] {
             result.clear();
         }
         return result;

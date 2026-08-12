@@ -68,14 +68,14 @@ namespace fs8 {
 
         template <typename NCondT, typename... NFuncs>
             requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && !Tag<NCondT> && ((!Context<NFuncs> && !Tag<NFuncs>) && ...))
-        consteval auto operator()(NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
+        consteval auto operator[](NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
             return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{std::forward<NCondT>(n_cond),
                                                                                          std::forward<NFuncs>(n_funcs)...};
         }
 
         template <typename NCondT, Context CtxT>
             requires(!Context<NCondT> && !Tag<NCondT>)
-        consteval auto operator()(NCondT&& n_cond, CtxT&& ctx) const noexcept {
+        consteval auto operator[](NCondT&& n_cond, CtxT&& ctx) const noexcept {
             return std::apply(
               [&]<typename... ModT>(ModT&... mods) constexpr noexcept {
                   return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<ModT>...>{std::forward<NCondT>(n_cond), mods...};
@@ -155,7 +155,7 @@ namespace fs8 {
 
         template <typename NCondT, typename... NFuncs>
             requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && (!Context<NFuncs> && ...))
-        consteval auto operator()(NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
+        consteval auto operator[](NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
             return basic_once<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{
               std::forward<NCondT>(n_cond),
               std::forward<NFuncs>(n_funcs)...};
@@ -163,7 +163,7 @@ namespace fs8 {
 
         template <typename NCondT, Context CtxT>
             requires(!Context<NCondT>)
-        consteval auto operator()(NCondT&& n_cond, CtxT&& ctx) const noexcept {
+        consteval auto operator[](NCondT&& n_cond, CtxT&& ctx) const noexcept {
             return std::apply(
               [&]<typename... ModT>(ModT&... mods) constexpr noexcept {
                   return basic_once<std::remove_cvref_t<NCondT>, std::remove_cvref_t<ModT>...>{std::forward<NCondT>(n_cond), mods...};
@@ -225,12 +225,12 @@ namespace fs8 {
 
         template <typename... T>
             requires((std::convertible_to<T, code_type> && ...))
-        consteval auto operator()(T... inp_codes) const noexcept {
+        consteval auto operator[](T... inp_codes) const noexcept {
             return A<sizeof...(T)>{std::array<code_type, sizeof...(T)>{static_cast<code_type>(inp_codes)...}};
         }
 
         template <std::size_t NN>
-        consteval auto operator()(std::array<code_type, NN> const& inp_codes) const noexcept {
+        consteval auto operator[](std::array<code_type, NN> const& inp_codes) const noexcept {
             return A<NN>{inp_codes};
         }
     };
@@ -238,7 +238,7 @@ namespace fs8 {
     export template <std::size_t N>
     struct [[nodiscard]] basic_pressed : basic_code_adaptor<basic_pressed, N> {
         using basic_code_adaptor<basic_pressed, N>::basic_code_adaptor;
-        using basic_code_adaptor<basic_pressed, N>::operator();
+        using basic_code_adaptor<basic_pressed, N>::operator[];
 
         template <Context CtxT>
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
@@ -252,7 +252,7 @@ namespace fs8 {
     export template <std::size_t N>
     struct [[nodiscard]] basic_pressed_any : basic_code_adaptor<basic_pressed_any, N> {
         using basic_code_adaptor<basic_pressed_any, N>::basic_code_adaptor;
-        using basic_code_adaptor<basic_pressed_any, N>::operator();
+        using basic_code_adaptor<basic_pressed_any, N>::operator[];
 
         template <Context CtxT>
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
@@ -309,7 +309,7 @@ namespace fs8 {
 
         template <typename InpFuncT>
             requires(!Context<InpFuncT> && !Tag<InpFuncT>)
-        consteval auto operator()(InpFuncT&& inp_func, std::chrono::microseconds const inp_dur = default_delay) const noexcept {
+        consteval auto operator[](InpFuncT&& inp_func, std::chrono::microseconds const inp_dur = default_delay) const noexcept {
             return basic_longtime_released<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func), inp_dur};
         }
 
@@ -354,21 +354,21 @@ namespace fs8 {
 
         constexpr explicit basic_limit_mouse_travel(value_type const both) noexcept : x_amount{both}, y_amount{both} {}
 
-        consteval basic_limit_mouse_travel operator()(value_type const x, value_type const y) const noexcept {
+        consteval basic_limit_mouse_travel operator[](value_type const x, value_type const y) const noexcept {
             return basic_limit_mouse_travel{x, y};
         }
 
-        consteval basic_limit_mouse_travel operator()(value_type const both) const noexcept {
+        consteval basic_limit_mouse_travel operator[](value_type const both) const noexcept {
             return basic_limit_mouse_travel{both};
         }
 
         template <typename InpCondT>
-        consteval auto operator()(InpCondT&& inp_cond, value_type const x, value_type const y) const noexcept {
+        consteval auto operator[](InpCondT&& inp_cond, value_type const x, value_type const y) const noexcept {
             return basic_limit_mouse_travel<std::remove_cvref_t<InpCondT>>{std::forward<InpCondT>(inp_cond), x, y};
         }
 
         template <typename InpCondT>
-        consteval auto operator()(InpCondT&& inp_cond, value_type const both) const noexcept {
+        consteval auto operator[](InpCondT&& inp_cond, value_type const both) const noexcept {
             return basic_limit_mouse_travel<std::remove_cvref_t<InpCondT>>{std::forward<InpCondT>(inp_cond), both, both};
         }
 
@@ -614,10 +614,10 @@ namespace fs8 {
     /// usage: op & pressed{...} | ...
     export constexpr and_op<> op;
 
-    /// usage: on(released{...}, [] { ... })
+    /// usage: on[released{...}, [] { ... }]
     export constexpr basic_on<> on;
 
-    /// usage: once(pressed{}, [] { ... })
+    /// usage: once[pressed{}, [] { ... }]
     export constexpr basic_once<> once;
 
     constexpr auto               no_axis           = std::numeric_limits<value_type>::max();

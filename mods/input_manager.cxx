@@ -3,7 +3,6 @@
 module;
 #include <algorithm>
 #include <chrono>
-#include <cstddef>
 #include <functional>
 #include <list>
 #include <ranges>
@@ -47,9 +46,9 @@ namespace {
 
 template <>
 struct fs8::pimpl_idiom<basic_input_manager>::impl {
-    bool                              started = false;
-    udev_monitor                      monitor;
-    std::list<evdev>                  devs; // stable handles; todo: switch to std::hive once available
+    bool                               started = false;
+    udev_monitor                       monitor;
+    std::list<evdev>                   devs; // stable handles; todo: switch to std::hive once available
     std::vector<query_provider_handle> providers;
 
     /// Devices are identified by their udev sysname (derived from the fd),

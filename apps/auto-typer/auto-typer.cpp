@@ -13,10 +13,10 @@ int main(int const argc, char const* const* argv) try {
     static constinit auto pipeline =
       context
       | io_manager
-      | intercept(keyboard | fail_on_no_match)
+      | intercept[keyboard | fail_on_no_match]
       | input_manager
       | search_engine
-      | on(typed("@test"), type_string("nice"))
+      | on[typed["@test"], type_string["nice"]]
       | ignore_adjacent_syns
       | uinput;
 

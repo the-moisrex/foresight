@@ -12,7 +12,7 @@ TEST(SearchTest, Basic) {
     happened = 0;
 
     (context
-     | emit_all({
+     | emit_all[{
        {.type = EV_KEY,      .code = KEY_T, .value = 1},
        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
        {.type = EV_KEY,      .code = KEY_T, .value = 0},
@@ -32,10 +32,10 @@ TEST(SearchTest, Basic) {
        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
        {.type = EV_KEY,      .code = KEY_T, .value = 0},
        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
-    })
+    }])
      | search_engine
-     | on(typed("test"), [] noexcept {
-           happened = 1;
+     | on[typed["test"], [] noexcept {
+        happened = 1;
        }))();
     EXPECT_TRUE(happened == 1);
 }
@@ -46,7 +46,7 @@ TEST(SearchTest, BasicStateful) {
     happened = 0;
 
     (context
-     | emit_all({
+     | emit_all[{
        {.type = EV_KEY, .code = KEY_LEFTSHIFT, .value = 1},
        {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
        {.type = EV_KEY,         .code = KEY_2, .value = 1}, // at-sight @
@@ -75,10 +75,10 @@ TEST(SearchTest, BasicStateful) {
        {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
        {.type = EV_KEY,         .code = KEY_T, .value = 0},
        {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
-    })
+    }])
      | search_engine
-     | on(typed("@test"), [] noexcept {
-           happened = 1;
+     | on[typed["@test"], [] noexcept {
+        happened = 1;
        }))();
     EXPECT_TRUE(happened == 1);
 }
@@ -88,7 +88,7 @@ TEST(SearchTest, Multi) {
     happened = 0;
 
     (context
-     | emit_all({
+     | emit_all[{
        {.type = EV_KEY,      .code = KEY_T, .value = 1},
        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
        {.type = EV_KEY,      .code = KEY_T, .value = 0},
@@ -108,17 +108,17 @@ TEST(SearchTest, Multi) {
        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
        {.type = EV_KEY,      .code = KEY_T, .value = 0},
        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
-    })
+    }])
      | search_engine
-     | on(typed("test"),
+     | on[typed["test"],
           [] noexcept {
-              ++happened;
-              EXPECT_EQ(happened, 2);
+        ++happened;
+        EXPECT_EQ(happened, 2);
           })
-     | on(typed("es"), [] noexcept {
-           ++happened;
-           EXPECT_EQ(happened, 1);
-       }))();
+      | on[typed["es"], [] noexcept {
+        ++happened;
+        EXPECT_EQ(happened, 1);
+        }]))();
     EXPECT_EQ(happened, 2);
 }
 
@@ -127,7 +127,7 @@ TEST(SearchTest, ModiferTest) {
     happened = 0;
 
     (context
-     | emit_all({
+     | emit_all[{
        {.type = EV_KEY, .code = KEY_LEFTCTRL, .value = 1},
        {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
 
@@ -138,11 +138,11 @@ TEST(SearchTest, ModiferTest) {
 
        {.type = EV_KEY, .code = KEY_LEFTCTRL, .value = 0},
        {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
-    })
+    }])
      | search_engine
-     | on(typed("<ctrl-r>"), [] noexcept {
-           ++happened;
-           EXPECT_EQ(happened, 1);
+     | on[typed["<ctrl-r>"], [] noexcept {
+        ++happened;
+        EXPECT_EQ(happened, 1);
        }))();
     EXPECT_EQ(happened, 1);
 }

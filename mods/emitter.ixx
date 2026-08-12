@@ -35,24 +35,24 @@ namespace fs8 {
         }
 
         template <std::size_t NN>
-        consteval auto operator()(std::array<user_event, NN> const& new_events) const noexcept {
+        consteval auto operator[](std::array<user_event, NN> const& new_events) const noexcept {
             return operator+(new_events);
         }
 
         // NOLINTBEGIN(*-avoid-c-arrays)
         template <std::size_t NN>
-        consteval auto operator()(user_event (&&new_events)[NN]) const noexcept {
-            return operator()(std::to_array(std::move(new_events)));
+        consteval auto operator[](user_event (&&new_events)[NN]) const noexcept {
+            return operator[](std::to_array(std::move(new_events)));
         }
 
         template <std::size_t NN>
         consteval auto operator+(user_event (&&new_events)[NN]) const noexcept {
-            return operator()(std::to_array(std::move(new_events)));
+            return operator[](std::to_array(std::move(new_events)));
         }
 
         // NOLINTEND(*-avoid-c-arrays)
 
-        consteval auto operator()(user_event const& event) const noexcept {
+        consteval auto operator[](user_event const& event) const noexcept {
             return operator+(std::array{event});
         }
 
@@ -105,11 +105,11 @@ namespace fs8 {
         }
 
         template <std::size_t NN>
-        consteval auto operator()(std::array<user_event, NN> const& new_events) const noexcept {
+        consteval auto operator[](std::array<user_event, NN> const& new_events) const noexcept {
             return operator+(new_events);
         }
 
-        consteval auto operator()(user_event const& event) const noexcept {
+        consteval auto operator[](user_event const& event) const noexcept {
             return operator+(std::array{event});
         }
 
@@ -194,7 +194,7 @@ namespace fs8 {
             rep_type{inp_rep_type},
             rep_code{inp_rep_code} {}
 
-        consteval basic_replace_code operator()(
+        consteval basic_replace_code operator[](
           ev_type const   inp_find_type,
           code_type const inp_find_code,
           ev_type const   inp_rep_type,
@@ -219,13 +219,13 @@ namespace fs8 {
         explicit constexpr basic_emit_all(std::array<user_event, N> const inp_events) noexcept : events{inp_events} {}
 
         template <std::size_t NN>
-        consteval auto operator()(std::array<user_event, NN> const new_events) const noexcept {
+        consteval auto operator[](std::array<user_event, NN> const new_events) const noexcept {
             return basic_emit_all<NN>{new_events};
         }
 
         // NOLINTBEGIN(*-avoid-c-arrays)
         template <std::size_t NN>
-        consteval auto operator()(user_event (&&new_events)[NN]) const noexcept {
+        consteval auto operator[](user_event (&&new_events)[NN]) const noexcept {
             return basic_emit_all<NN>{std::to_array(std::move(new_events))};
         }
 
@@ -233,7 +233,7 @@ namespace fs8 {
 
         // template <typename... T>
         //     requires(sizeof...(T) > 1)
-        // consteval auto operator()(T... new_events) const noexcept {
+        // consteval auto operator[](T... new_events) const noexcept {
         //     return basic_emit_all<sizeof...(T)>{std::array<user_event, sizeof...(T)>{new_events...}};
         // }
 

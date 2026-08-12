@@ -458,7 +458,7 @@ std::string_view fs8::property(udev_device const& dev, std::string_view const ke
     return dev.property(key.data());
 }
 
-bool fs8::is_virtual_syspath(udev_device const&dev) noexcept {
+bool fs8::is_virtual_syspath(udev_device const& dev) noexcept {
     return dev.syspath().contains("/device/virtual");
 }
 

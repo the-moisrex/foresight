@@ -698,8 +698,8 @@ namespace fs8 {
     [[nodiscard]] std::string_view name(udev_device const&) noexcept;
     [[nodiscard]] std::string_view sysattr(udev_device const&, std::string_view) noexcept;
     [[nodiscard]] std::string_view property(udev_device const&, std::string_view) noexcept;
-    [[nodiscard]] bool is_virtual_syspath(udev_device const&) noexcept;
-    [[nodiscard]] bool is_input_virtual(udev_device const&) noexcept;
-    [[nodiscard]] bool is_virtual(udev_device const&) noexcept;
+    [[nodiscard]] bool             is_virtual_syspath(udev_device const&) noexcept;
+    [[nodiscard]] bool             is_input_virtual(udev_device const&) noexcept;
+    [[nodiscard]] bool             is_virtual(udev_device const&) noexcept;
 
 } // namespace fs8

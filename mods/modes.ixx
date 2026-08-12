@@ -32,7 +32,7 @@ namespace fs8 {
 
         template <typename InpCondT, typename... InpMods>
             requires(sizeof...(InpMods) >= 1)
-        consteval auto operator()(InpCondT inp_cond, InpMods... inp_mods) const noexcept {
+        consteval auto operator[](InpCondT inp_cond, InpMods... inp_mods) const noexcept {
             return basic_modes<std::remove_cvref_t<InpCondT>, std::remove_cvref_t<InpMods>...>{inp_cond, inp_mods...};
         }
 
@@ -63,7 +63,7 @@ namespace fs8 {
       public:
         explicit constexpr basic_switch_mode(std::uint8_t const in_mode) noexcept : mode{in_mode} {}
 
-        consteval basic_switch_mode operator()(std::uint8_t const in_mode) const noexcept {
+        consteval basic_switch_mode operator[](std::uint8_t const in_mode) const noexcept {
             return basic_switch_mode{in_mode};
         }
 

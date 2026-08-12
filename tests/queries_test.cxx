@@ -82,7 +82,6 @@ TEST(DeviceList, MultiQuery) {
     EXPECT_NE(count, vec.size());
 }
 
-
 TEST(ParseQueryTermTest, ValidTargetsNoKey) {
     auto q1 = parse_query_term("sub=input");
     EXPECT_EQ(q1.target, query_target::match_subsystem);
@@ -128,10 +127,10 @@ TEST(ParseQueryTermTest, InvalidFormats) {
         EXPECT_EQ(q.value, invalid_field.value);
     };
 
-    expect_invalid("sub_input");       // Missing '='
-    expect_invalid("unknown=val");     // Unknown target
-    expect_invalid("!badtarget=val");  // Unknown target with invert
-    expect_invalid("");                // Empty string
+    expect_invalid("sub_input");      // Missing '='
+    expect_invalid("unknown=val");    // Unknown target
+    expect_invalid("!badtarget=val"); // Unknown target with invert
+    expect_invalid("");               // Empty string
 }
 
 TEST(ParseQueryTermTest, ValueContainsEquals) {
@@ -142,17 +141,14 @@ TEST(ParseQueryTermTest, ValueContainsEquals) {
     EXPECT_EQ(q.value, "a=b=c");
 }
 
-
-
-
 class IsMatchedTest : public ::testing::Test {
-protected:
+  protected:
     // Helper function to easily create a query_term for testing
     query_term create_term(std::string_view val, std::uint8_t percentage, query_target target = query_target::match_sysattr) {
         query_term term{};
-        term.value = val; // Assuming 'value' is the target field string in query_term
+        term.value      = val; // Assuming 'value' is the target field string in query_term
         term.percentage = percentage;
-        term.target = target;
+        term.target     = target;
         return term;
     }
 };
@@ -190,21 +186,21 @@ TEST_F(IsMatchedTest, FuzzyMatch) {
     // "hello" vs "helo" -> dist = 1, max_len = 5 -> sim = 100 - (1*100/5) = 80%
     auto term = create_term("hello", 80);
 
-    EXPECT_TRUE(is_matched(term, &query_term::value, "helo"));   // Exactly 80%
-    EXPECT_TRUE(is_matched(term, &query_term::value, "hello"));  // 100% (>= 80%)
-    EXPECT_FALSE(is_matched(term, &query_term::value, "hero"));  // dist = 2 -> sim = 60% (< 80%)
+    EXPECT_TRUE(is_matched(term, &query_term::value, "helo"));  // Exactly 80%
+    EXPECT_TRUE(is_matched(term, &query_term::value, "hello")); // 100% (>= 80%)
+    EXPECT_FALSE(is_matched(term, &query_term::value, "hero")); // dist = 2 -> sim = 60% (< 80%)
 
     // "kitten" vs "sitting" -> dist = 3, max_len = 7 -> sim = 100 - 42 = 58%
     auto term2 = create_term("kitten", 50);
-    EXPECT_TRUE(is_matched(term2, &query_term::value, "sitting")); // 58% >= 50%
+    EXPECT_TRUE(is_matched(term2, &query_term::value, "sitting"));  // 58% >= 50%
 
     auto term3 = create_term("kitten", 60);
     EXPECT_FALSE(is_matched(term3, &query_term::value, "sitting")); // 58% < 60%
 
     // Edge cases (empty strings)
     auto empty_term = create_term("", 50);
-    EXPECT_TRUE(is_matched(empty_term, &query_term::value, ""));    // Both empty = 100%
-    EXPECT_FALSE(is_matched(empty_term, &query_term::value, "a"));  // One empty = 0%
+    EXPECT_TRUE(is_matched(empty_term, &query_term::value, ""));   // Both empty = 100%
+    EXPECT_FALSE(is_matched(empty_term, &query_term::value, "a")); // One empty = 0%
 }
 
 // ===========================================================================
@@ -274,7 +270,7 @@ TEST(QueryTargetPredicates, MaskedAcceptNegatedButPositiveDont) {
     query_term const neg_attr{.key = "device/name", .value = {}, .target = nomatch_sysattr};
 
     EXPECT_TRUE(is_subsystem(pos_sub));
-    EXPECT_TRUE(is_subsystem(neg_sub));   // masked accepts negated
+    EXPECT_TRUE(is_subsystem(neg_sub)); // masked accepts negated
     EXPECT_TRUE(is_positive_subsystem(pos_sub));
     EXPECT_FALSE(is_positive_subsystem(neg_sub));
 
@@ -296,12 +292,12 @@ TEST(QueryTargetPredicates, MaskedAcceptNegatedButPositiveDont) {
 TEST(QueryViewFilters, ExcludeNegatedTerms) {
     using enum query_target;
     std::array<query_term, 6> terms = {
-      query_term{.key = "input", .value = {}, .target = match_subsystem},
-      query_term{.key = "input", .value = {}, .target = nomatch_subsystem},
-      query_term{.key = "ID_INPUT", .value = "1", .target = match_property},
-      query_term{.key = "ID_INPUT", .value = "1", .target = nomatch_property},
-      query_term{.key = "device/name", .value = "kbd", .target = match_sysattr},
-      query_term{.key = "device/name", .value = "kbd", .target = nomatch_sysattr},
+      query_term{      .key = "input",    .value = {},   .target = match_subsystem},
+      query_term{      .key = "input",    .value = {}, .target = nomatch_subsystem},
+      query_term{   .key = "ID_INPUT",   .value = "1",    .target = match_property},
+      query_term{   .key = "ID_INPUT",   .value = "1",  .target = nomatch_property},
+      query_term{.key = "device/name", .value = "kbd",     .target = match_sysattr},
+      query_term{.key = "device/name", .value = "kbd",   .target = nomatch_sysattr},
     };
     basic_device_query<terms.size()> q{.fields = terms};
 
@@ -326,7 +322,9 @@ TEST(QueryViewFilters, ExcludeNegatedTerms) {
 TEST(DeviceMatches, NegatedSubsystemExcludesWithoutAsserting) {
     // A query that only negates the "input" subsystem. Filtering must not hit the
     // previously-unimplemented else/assert branch, and must exclude input devices.
-    std::array<query_term, 1> neg = {query_term{.key = "input", .value = {}, .target = query_target::nomatch_subsystem}};
+    std::array<query_term, 1> neg = {
+      query_term{.key = "input", .value = {}, .target = query_target::nomatch_subsystem}
+    };
     device_query q{.fields = std::span<query_term const>{neg}};
 
     for (auto const& dev : filter_devices(q)) {
@@ -396,14 +394,14 @@ TEST(EvdevMatches, NegatedNameFieldExcludes) {
         if (!edev.is_ok()) [[unlikely]] {
             continue;
         }
-        query_term term = match_sysattr("device/name", edev.device_name());
-        term.target     = query_target::nomatch_sysattr;
+        query_term term                  = match_sysattr("device/name", edev.device_name());
+        term.target                      = query_target::nomatch_sysattr;
         std::array<query_term, 1> fields = {term};
         device_query              q{.fields = std::span<query_term const>{fields}, .caps = {}};
         EXPECT_FALSE(matches(edev, q));
 
-        query_term term2 = match_sysattr("device/name", "definitely-not-this-device");
-        term2.target     = query_target::nomatch_sysattr;
+        query_term term2                  = match_sysattr("device/name", "definitely-not-this-device");
+        term2.target                      = query_target::nomatch_sysattr;
         std::array<query_term, 1> fields2 = {term2};
         device_query              q2{.fields = std::span<query_term const>{fields2}, .caps = {}};
         EXPECT_TRUE(matches(edev, q2));
@@ -420,8 +418,8 @@ TEST(EvdevMatches, NegatedSubsystemExcludes) {
         if (!edev.is_ok()) [[unlikely]] {
             continue;
         }
-        query_term term = subsystem("input");
-        term.target     = query_target::nomatch_subsystem;
+        query_term term                  = subsystem("input");
+        term.target                      = query_target::nomatch_subsystem;
         std::array<query_term, 1> fields = {term};
         device_query              q{.fields = std::span<query_term const>{fields}, .caps = {}};
         EXPECT_FALSE(matches(edev, q));
@@ -534,7 +532,7 @@ TEST(QueryFrom, FuzzyDeviceNameFallback) {
 }
 
 TEST(OwnedQuery, CopyRepointsIntoOwnStorage) {
-    auto source = query_from("/dev/input/event10");
+    auto                     source = query_from("/dev/input/event10");
     std::vector<owned_query> vec;
     vec.push_back(source);
     ASSERT_EQ(vec[0].count, 2U);
@@ -544,7 +542,7 @@ TEST(OwnedQuery, CopyRepointsIntoOwnStorage) {
 
 TEST(ToQueries, MapsStringsAndSkipsEmpty) {
     std::array<std::string_view, 3> strs{"keyboard", "", "name=event0"};
-    auto queries = (strs | to_queries) | std::ranges::to<std::vector<owned_query>>();
+    auto                            queries = (strs | to_queries) | std::ranges::to<std::vector<owned_query>>();
     ASSERT_EQ(queries.size(), 2U);
     EXPECT_EQ(queries[0].value().caps, caps_of("keyboard"));
     ASSERT_EQ(queries[1].value().fields.size(), 1U);
@@ -553,7 +551,7 @@ TEST(ToQueries, MapsStringsAndSkipsEmpty) {
 
 TEST(TaggedQueries, ApplyTagsToStringRange) {
     std::array<std::string_view, 2> strs{"keyboard", "name=event0"};
-    auto queries = (strs | grab | fail_on_no_match) | std::ranges::to<std::vector<owned_query>>();
+    auto                            queries = (strs | grab | fail_on_no_match) | std::ranges::to<std::vector<owned_query>>();
     ASSERT_EQ(queries.size(), 2U);
     for (auto const& q : queries) {
         EXPECT_TRUE(q.value().grab);

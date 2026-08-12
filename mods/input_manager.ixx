@@ -20,7 +20,7 @@ export namespace fs8 {
     /// the input_manager (same requirement as `io_manager` handlers, since the
     /// identity is its address).
     struct [[nodiscard]] query_provider_handle {
-        void const* identity = nullptr;
+        void const*                                                       identity = nullptr;
         std::move_only_function<std::span<device_query const>() noexcept> invoke;
 
         [[nodiscard]] std::span<device_query const> operator()() noexcept {
@@ -39,7 +39,9 @@ export namespace fs8 {
     [[nodiscard]] query_provider_handle provider_handle(ProviderT& provider) {
         return query_provider_handle{
           .identity = std::addressof(provider),
-          .invoke   = [&provider]() noexcept -> std::span<device_query const> { return provider.queries(); },
+          .invoke   = [&provider]() noexcept -> std::span<device_query const> {
+              return provider.queries();
+          },
         };
     }
 
