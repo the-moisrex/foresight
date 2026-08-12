@@ -4,6 +4,8 @@
 #include <chrono>
 #include <coroutine>
 #include <filesystem>
+#include <libevdev/libevdev.h>
+#include <linux/input-event-codes.h>
 #include <span>
 #include <thread>
 
@@ -65,12 +67,67 @@ namespace {
         return {};
     }
 
+    fs8::evdev open_virtual_device(fs8::basic_uinput const& vdev) {
+        fs8::evdev opened;
+        for (int attempt = 0; attempt < 100; ++attempt) {
+            opened = fs8::evdev{vdev.devnode()};
+            if (opened.is_ok()) {
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds{50});
+        }
+        return opened;
+    }
+
+    void expect_fallback_caps(fs8::dev_caps_view const caps) {
+        std::array<fs8::query_term, 1> fields = {fs8::match_sysname("nonexistent-device-xyz")};
+        fs8::device_query const        q{.fields = std::span<fs8::query_term const>{fields}, .caps = caps};
+
+        fs8::basic_uinput vdev;
+        ASSERT_TRUE(vdev.set_device_from(q));
+        ASSERT_TRUE(vdev.is_ok());
+        EXPECT_FALSE(vdev.error());
+
+        auto opened = open_virtual_device(vdev);
+        ASSERT_TRUE(opened.is_ok());
+        for (auto const& [type, codes, action] : caps) {
+            if (action != fs8::caps_action::append || codes.empty()) {
+                continue;
+            }
+            EXPECT_TRUE(opened.has_event_type(type)) << libevdev_event_type_get_name(type);
+            for (auto const code : codes) {
+                EXPECT_TRUE(opened.has_event_code(type, code))
+                  << libevdev_event_type_get_name(type) << ' ' << libevdev_event_code_get_name(type, code);
+                if (type == EV_ABS) {
+                    EXPECT_NE(opened.abs_info(code), nullptr) << libevdev_event_code_get_name(type, code);
+                }
+            }
+        }
+        vdev.close();
+    }
+
     std::string sysname_of(std::string_view const devnode) {
         auto const pos = devnode.find_last_of('/');
         return std::string{pos == std::string_view::npos ? devnode : devnode.substr(pos + 1)};
     }
 
 } // namespace
+
+TEST(Uinput, SetDeviceFromQueryMouseFallbackHasCaps) {
+    auto const res = fs8::verify_access_to_uinput();
+    if (res != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(res);
+    }
+    expect_fallback_caps(fs8::caps::mouse);
+}
+
+TEST(Uinput, SetDeviceFromQueryTabletFallbackHasCaps) {
+    auto const res = fs8::verify_access_to_uinput();
+    if (res != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(res);
+    }
+    expect_fallback_caps(fs8::caps::tablet);
+}
 
 TEST(Uinput, VirtualDeviceHasStandardMarkers) {
     auto const res = fs8::verify_access_to_uinput();

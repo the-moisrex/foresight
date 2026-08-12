@@ -379,6 +379,42 @@ namespace {
         return edev;
     }
 
+    /// Add requested capabilities to a libevdev description before it is
+    /// handed to uinput. Capability ioctls are invalid after UI_DEV_CREATE.
+    bool append_caps(fs8::evdev& dev, fs8::dev_caps_view const caps_view) noexcept {
+        using enum fs8::caps_action;
+        auto* const dev_ptr = dev.device_ptr();
+        if (dev_ptr == nullptr) [[unlikely]] {
+            return false;
+        }
+
+        static constexpr input_absinfo default_abs_info{};
+        for (auto const& [type, codes, action] : caps_view) {
+            if (action != append || codes.empty()) {
+                continue;
+            }
+            if (libevdev_has_event_type(dev_ptr, type) == 0 && libevdev_enable_event_type(dev_ptr, type) < 0) [[unlikely]] {
+                fs8::log("  Failed to enable type {} on the virtual-device template.", libevdev_event_type_get_name(type));
+                return false;
+            }
+            for (auto const code : codes) {
+                if (libevdev_has_event_code(dev_ptr, type, code) != 0) {
+                    continue;
+                }
+                void const* const data = type == EV_ABS ? &default_abs_info : nullptr;
+                if (libevdev_enable_event_code(dev_ptr, type, code, data) < 0) [[unlikely]] {
+                    fs8::log(
+                      "  Failed to enable {} {} on the virtual-device template.",
+                      libevdev_event_type_get_name(type),
+                      libevdev_event_code_get_name(type, code));
+                    return false;
+                }
+                fs8::log("  Enabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
+            }
+        }
+        return true;
+    }
+
 } // namespace
 
 /// Copy a matching device into a virtual (uinput) device, applying caps.
@@ -421,28 +457,8 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
             return false;
         }
 
-        for (auto const& [type, codes, action] : caps_view) {
-            switch (action) {
-                case append: {
-                    if (codes.empty()) [[unlikely]] {
-                        // Possible EV_MAX
-                        break;
-                    }
-                    auto* dev_ptr = clone.device_ptr();
-                    if (libevdev_has_event_type(dev_ptr, type) == 0) {
-                        libevdev_enable_event_type(dev_ptr, type);
-                    }
-                    for (auto const code : codes) {
-                        if (libevdev_has_event_code(dev_ptr, type, code) == 0) {
-                            libevdev_enable_event_code(dev_ptr, type, code, nullptr);
-                            log("  Enabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
-                        }
-                    }
-                    break;
-                }
-                case remove_codes:
-                case remove_type: break;
-            }
+        if (!append_caps(clone, caps_view)) [[unlikely]] {
+            return false;
         }
         self.set_device(clone, guard.fd < 0 ? LIBEVDEV_UINPUT_OPEN_MANAGED : guard.fd);
         if (!self.is_ok()) [[unlikely]] {
@@ -452,8 +468,18 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
         }
         self.owned_fd = guard.release(); // close() releases it when the device is destroyed
     } else {
-        self.set_device();
-        self.apply_caps(caps_view);
+        auto* const template_ptr = libevdev_new();
+        if (template_ptr == nullptr) [[unlikely]] {
+            log("  Failed to allocate the virtual-device template.");
+            return false;
+        }
+        evdev device_template{template_ptr, evdev_status::success};
+        device_template.device_name(empty_uinput_name);
+        libevdev_set_id_bustype(template_ptr, BUS_VIRTUAL);
+        if (!append_caps(device_template, caps_view)) [[unlikely]] {
+            return false;
+        }
+        self.set_device(device_template);
         if (!self.is_ok()) [[unlikely]] {
             log("  Device init failed.");
             log("  Error: {}", self.error().message());
