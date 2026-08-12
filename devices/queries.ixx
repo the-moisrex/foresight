@@ -315,7 +315,7 @@ export namespace fs8 {
         constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
             out_query.fail_on_no_match = true;
         }
-    } fail_on_no_match;
+    } required;
 
     template <typename T>
     concept QueryTag = std::invocable<T, device_query&>;

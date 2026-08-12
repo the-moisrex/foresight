@@ -551,7 +551,7 @@ TEST(ToQueries, MapsStringsAndSkipsEmpty) {
 
 TEST(TaggedQueries, ApplyTagsToStringRange) {
     std::array<std::string_view, 2> strs{"keyboard", "name=event0"};
-    auto                            queries = (strs | grab | fail_on_no_match) | std::ranges::to<std::vector<owned_query>>();
+    auto                            queries = (strs | grab | required) | std::ranges::to<std::vector<owned_query>>();
     ASSERT_EQ(queries.size(), 2U);
     for (auto const& q : queries) {
         EXPECT_TRUE(q.value().grab);
@@ -572,7 +572,7 @@ TEST(TaggedQueries, ApplyTagsToOwnedQueryRange) {
 }
 
 TEST(TaggedQueries, SingleQueryPipeStillWorks) {
-    auto q = (keyboard | grab | fail_on_no_match);
+    auto q = (keyboard | grab | required);
     EXPECT_TRUE(q.grab);
     EXPECT_TRUE(q.fail_on_no_match);
 }

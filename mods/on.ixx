@@ -403,25 +403,45 @@ namespace fs8 {
 
     export constexpr basic_limit_mouse_travel<> limit_mouse_travel;
 
-    export struct [[nodiscard]] led_on {
+    export constexpr struct [[nodiscard]] basic_led_on : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+      private:
         code_type code = LED_MAX;
+
+      public:
+        consteval basic_led_on operator[](code_type const inp_code) const noexcept {
+            basic_led_on obj;
+            obj.code = inp_code;
+            return obj;
+        }
 
         template <Context CtxT>
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
             static_assert(has_mod<basic_led_status, CtxT>, "We need keys_status to be in the pipeline.");
             return ctx.mod(led_status).is_on(code);
         }
-    };
+    } led_on;
 
-    export struct [[nodiscard]] led_off {
+    export constexpr struct [[nodiscard]] basic_led_off : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+      private:
         code_type code = LED_MAX;
+
+      public:
+        consteval basic_led_off operator[](code_type const inp_code) const noexcept {
+            basic_led_off obj;
+            obj.code = inp_code;
+            return obj;
+        }
 
         template <Context CtxT>
         [[nodiscard]] bool operator()(CtxT& ctx) const noexcept {
             static_assert(has_mod<basic_led_status, CtxT>, "We need keys_status to be in the pipeline.");
             return ctx.mod(led_status).is_off(code);
         }
-    };
+    } led_off;
 
     export template <typename... Funcs>
         requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
@@ -563,7 +583,7 @@ namespace fs8 {
         }
     };
 
-    export struct [[nodiscard]] multi_click : consteval_copyable {
+    export constexpr struct [[nodiscard]] basic_multi_click : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
         using duration_type = std::chrono::microseconds;
@@ -576,38 +596,65 @@ namespace fs8 {
         user_event    usr{};
         std::uint8_t  count              = 2;
         duration_type duration_threshold = default_threshold;
-
-        std::uint8_t  cur_count = 0;
+        std::uint8_t  cur_count          = 0;
         duration_type last_click{};
 
       public:
-        constexpr explicit multi_click(user_event const&   inp_usr_event,
-                                       std::uint8_t const  inp_count     = 2,
-                                       duration_type const dur_threshold = default_threshold) noexcept
+        constexpr explicit basic_multi_click(
+          user_event const&   inp_usr_event,
+          std::uint8_t const  inp_count     = 2,
+          duration_type const dur_threshold = default_threshold) noexcept
           : usr{inp_usr_event},
             count{inp_count},
             duration_threshold{dur_threshold} {}
 
-        constexpr explicit multi_click(event_code const&   inp_usr_event,
-                                       std::uint8_t const  inp_count     = 2,
-                                       duration_type const dur_threshold = default_threshold) noexcept
-          : multi_click{
+        constexpr explicit basic_multi_click(
+          event_code const&   inp_usr_event,
+          std::uint8_t const  inp_count     = 2,
+          duration_type const dur_threshold = default_threshold) noexcept
+          : basic_multi_click{
               user_event{.type = inp_usr_event.type, .code = inp_usr_event.code, .value = 0},
               inp_count,
               dur_threshold
         } {}
 
-        constexpr explicit multi_click(
+        constexpr explicit basic_multi_click(
           code_type const&    code,
           std::uint8_t const  inp_count = 2,
           duration_type const dur_threshold =
             std::chrono::milliseconds{
               200
         }) noexcept
-          : multi_click{user_event{.type = EV_KEY, .code = code, .value = 0}, inp_count, dur_threshold} {}
+          : basic_multi_click{user_event{.type = EV_KEY, .code = code, .value = 0}, inp_count, dur_threshold} {}
+
+        consteval auto operator[](user_event const&   inp_usr_event,
+                                  std::uint8_t const  inp_count     = 2,
+                                  duration_type const dur_threshold = default_threshold) const noexcept {
+            return basic_multi_click{inp_usr_event, inp_count, dur_threshold};
+        }
+
+        consteval auto operator[](event_code const&   inp_usr_event,
+                                  std::uint8_t const  inp_count     = 2,
+                                  duration_type const dur_threshold = default_threshold) const noexcept {
+            return basic_multi_click{
+              user_event{.type = inp_usr_event.type, .code = inp_usr_event.code, .value = 0},
+              inp_count,
+              dur_threshold
+            };
+        }
+
+        consteval auto operator[](code_type const&    code,
+                                  std::uint8_t const  inp_count     = 2,
+                                  duration_type const dur_threshold = std::chrono::milliseconds{200}) const noexcept {
+            return basic_multi_click{
+              user_event{.type = EV_KEY, .code = code, .value = 0},
+              inp_count,
+              dur_threshold
+            };
+        }
 
         [[nodiscard]] bool operator()(event_type const& event) noexcept;
-    };
+    } multi_click;
 
     constexpr basic_on<> enable_only;
 
@@ -627,7 +674,7 @@ namespace fs8 {
     export constexpr basic_swipe swipe_up{no_axis, -default_sipe_step};
     export constexpr basic_swipe swipe_down{no_axis, default_sipe_step};
 
-    constexpr user_event         left_click{EV_KEY, BTN_LEFT, 0};
-    export constexpr multi_click double_click{left_click};
-    export constexpr multi_click triple_click{left_click, 3};
+    constexpr user_event               left_click{EV_KEY, BTN_LEFT, 0};
+    export constexpr basic_multi_click double_click{left_click};
+    export constexpr basic_multi_click triple_click{left_click, 3};
 } // namespace fs8

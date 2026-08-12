@@ -69,7 +69,7 @@ void basic_swipe_detector::operator()(event_type const& event) noexcept {
     }
 }
 
-bool fs8::multi_click::operator()(event_type const& event) noexcept {
+bool fs8::basic_multi_click::operator()(event_type const& event) noexcept {
     auto const now = event.micro_time();
     if (event != usr) {
         return false;

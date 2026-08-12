@@ -13,14 +13,14 @@ int main(int const argc, char const* const* argv) try {
     static constinit auto pipeline =
       context
       | io_manager
-      | intercept[keyboard | fail_on_no_match]
+      | intercept[keyboard | required]
       | input_manager
       | search_engine
       | on[typed["@test"], type_string["nice"]]
       | ignore_adjacent_syns
       | uinput;
 
-    pipeline.mod(intercept).add(args(argc, argv) | grab | fail_on_no_match);
+    pipeline.mod(intercept).add(args(argc, argv) | grab | required);
     pipeline();
 
     return 0;

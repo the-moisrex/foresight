@@ -13,19 +13,18 @@ int main(int const argc, char const* const* argv) try {
     static constinit auto pipeline =
       context
       | io_manager
-      | intercept[tablet | fail_on_no_match, keyboard | fail_on_no_match]
+      | intercept[tablet | required, keyboard | required]
       | input_manager
       | scheduled_emitter
       | led_status
       | keys_status                                // Save key presses
-      | on[op | pressed[KEY_CAPSLOCK] | led_off(LED_CAPSL),
+      | on[op | pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
            context
              | abs2rel                             // Convert Drawing Tablet absolute moves into mouse moves
              | pen2mice                            // Convert the buttons
              | ignore_tablet
              | ignore_big_jumps
-             | ignore_fast_left_clicks             // Ignore fast left clicks
-    ]
+             | ignore_fast_left_clicks]            // Ignore fast left clicks
       | mice_quantifier                            // Quantify the mouse movements
       | swipe_detector                             // Detects swipes
       | on[pressed[BTN_RIGHT], ignore_start_moves] // fix right-click jumps
@@ -38,7 +37,7 @@ int main(int const argc, char const* const* argv) try {
              | on[swipe_up, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)]]
              | on[swipe_down, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)]]
              | ignore_mouse_moves]
-      | modes[multi_click(KEY_RIGHTCTRL),
+      | modes[multi_click[KEY_RIGHTCTRL],
               // Normal Mode:
               context, // empty context as the default
 
@@ -59,12 +58,14 @@ int main(int const argc, char const* const* argv) try {
       | once[longtime_released[pressed[KEY_CAPSLOCK], 200ms], emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK)]
       | router[caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput];
 
-    pipeline.mod(intercept).add(args(argc, argv) | grab | fail_on_no_match);
+    pipeline.mod(intercept).add(args(argc, argv) | grab | required);
     pipeline();
 
     return 0;
 } catch (std::runtime_error const& err) {
     fs8::log("Runtime Error: {}", err.what());
+    throw;
 } catch (...) {
     fs8::log("Unknown Error.");
+    throw;
 }

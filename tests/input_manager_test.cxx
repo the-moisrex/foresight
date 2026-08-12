@@ -128,7 +128,7 @@ TEST(InputManager, RequiredQueryFailsStartupWhenNoDeviceMatches) {
     static constinit auto fail_pipeline = context | io_manager | input_manager;
 
     auto&               im = fail_pipeline.mod<basic_input_manager>();
-    auto                q  = (query + match_sysname("foresight_device_that_never_exists")) | fail_on_no_match;
+    auto                q  = (query + match_sysname("foresight_device_that_never_exists")) | required;
     test_query_provider provider(q);
     im.add_query_provider(provider_handle(provider));
 
