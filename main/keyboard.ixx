@@ -1,23 +1,24 @@
 // Created by moisrex on 9/9/22.
 
 module;
+#include <cstddef>
 #include <linux/input.h>
-#include <string>
 #include <string_view>
-#include <vector>
 export module fs8.keyboard;
 import fs8.devices.evdev;
 import fs8.translate;
+import fs8.pimpl;
 
 namespace fs8 {
     export constexpr std::size_t give_up_limit = 5;
 
-    export struct keyboard_runner {
+    export struct [[nodiscard]] keyboard_runner : plain_pimpl_idiom<keyboard_runner> {
         keyboard_runner();
         keyboard_runner(keyboard_runner const &)            = delete;
         keyboard_runner(keyboard_runner &&)                 = delete;
         keyboard_runner &operator=(keyboard_runner const &) = delete;
         keyboard_runner &operator=(keyboard_runner &&)      = delete;
+        ~keyboard_runner() noexcept;
 
         void to_string();
 
@@ -34,11 +35,5 @@ namespace fs8 {
 
         // this loop is the main loop
         int loop() noexcept;
-
-
-      private:
-        std::vector<input_event> events;
-        input_event              event{};
-        std::string              str;
     };
 } // namespace fs8

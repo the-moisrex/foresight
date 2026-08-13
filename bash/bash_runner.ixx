@@ -1,22 +1,16 @@
 // Created by moisrex on 10/27/25.
 
 module;
-#include <array>
 #include <span>
 #include <string>
 #include <string_view>
 export module fs8.bash;
+import fs8.pimpl;
 
 namespace fs8 {
 
-    export struct [[nodiscard]] bash_runner {
-      private:
-        std::array<int, 2> to_child{};
-        std::array<int, 2> from_child{};
-        pid_t              pid{};
-
-      public:
-        constexpr bash_runner()                        = default;
+    export struct [[nodiscard]] bash_runner : plain_pimpl_idiom<bash_runner> {
+        bash_runner();
         bash_runner(bash_runner const&)                = delete;
         bash_runner(bash_runner&&) noexcept            = default;
         bash_runner& operator=(bash_runner const&)     = delete;

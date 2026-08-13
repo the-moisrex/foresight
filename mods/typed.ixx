@@ -6,12 +6,12 @@ module;
 #include <cstdint>
 #include <functional>
 #include <string_view>
-#include <vector>
 export module fs8.mods.typed;
 import fs8.context;
 import fs8.lib.xkb;
 import fs8.lib.mod_parser;
 import fs8.log;
+import fs8.pimpl;
 import fs8.traits;
 
 namespace fs8 {
@@ -110,8 +110,8 @@ namespace fs8 {
     /**
      * Aho-Corasick status
      */
-    export struct [[nodiscard]] basic_search_engine : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
+    export struct [[nodiscard]] basic_search_engine : pimpl_idiom<basic_search_engine> {
+        using pimpl_idiom::pimpl_idiom;
 
         using state_type = std::uint32_t;
 
@@ -119,24 +119,6 @@ namespace fs8 {
         static constexpr std::size_t MAX_PATTERNS = sizeof(output_link_type) * CHAR_BIT;
 
       private:
-        struct node_type {
-            char32_t         value     = 0; // the incoming code point for this node (root = 0)
-            output_link_type out_link  = 0; // output bitmask (pattern IDs)
-            std::uint32_t    fail_link = 0; // failure link (state index)
-
-            // children: pair<codepoint, state_index>. kept sorted by codepoint for binary search.
-            std::vector<std::pair<char32_t, std::uint32_t>> children;
-
-            // A mask for all children keys for faster failures
-            std::uint32_t children_mask = 0U;
-        };
-
-        /// UTF-32-encoded patterns (some code points are special code points)
-        /// Trigger ID is the index that points to this patterns
-        /// todo: use inplace_vector<std::u32string, MAX_PATTERNS>
-        std::vector<std::u32string> patterns;
-        std::vector<node_type>      trie;
-
         /// Returns the number of states that the built machine has.
         /// States are numbered 0 up to the return value - 1, inclusive.
         std::uint32_t build_machine();
@@ -179,16 +161,20 @@ namespace fs8 {
     /**
      * This class calculates and stores the state of the keys being typed by the user in style of a hash.
      */
-    export constexpr struct [[nodiscard]] basic_typed : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
+    export constexpr struct [[nodiscard]] basic_typed : pimpl_idiom<basic_typed> {
+        using pimpl_idiom::pimpl_idiom;
 
         static constexpr std::uint16_t invalid_trigger_id = std::numeric_limits<std::uint16_t>::max();
 
       private:
-        std::string_view pattern;                         // pattern string
-        std::uint16_t    trigger_id = invalid_trigger_id; // pattern id in the search engine
-        xkb::basic_state keyboard_state;                  // the state of the modifier keys and what not
-        aho_state        aho_search_state{};              // the state of where we are in search engine
+        std::string_view pattern;        // pattern string
+        xkb::basic_state keyboard_state; // the state of the modifier keys and what not
+
+        /// Register the pattern into the search engine
+        context_action on_start(basic_search_engine& engine) noexcept;
+
+        /// Process and search
+        [[nodiscard]] bool on_search(event_type const& event, basic_search_engine const& engine) noexcept;
 
       public:
         explicit consteval basic_typed(std::string_view const inp_pattern) noexcept : pattern{inp_pattern} {}
@@ -199,34 +185,15 @@ namespace fs8 {
         }
 
         /// Register the pattern into the search engine
-        context_action operator()(Context auto& ctx, start_tag) noexcept try {
+        context_action operator()(Context auto& ctx, start_tag) noexcept {
             keyboard_state.initialize(xkb::get_default_keymap());
-            trigger_id = ctx.mod(search_engine).emplace_pattern(pattern);
-            return context_action::next;
-        } catch (...) {
-            // Keep the mod disabled instead of terminating the whole pipeline.
-            trigger_id = invalid_trigger_id;
-            return context_action::idle;
+            return on_start(ctx.mod(search_engine));
         }
 
         template <Context CtxT>
         [[nodiscard]] bool operator()(CtxT& ctx) noexcept {
             static_assert(has_mod<basic_search_engine, CtxT>, "You need to have 'search_engine' in your pipeline.");
-
-            bool result = ctx.mod(search_engine).search(ctx.event(), trigger_id, keyboard_state, aho_search_state);
-
-            log(
-              "TYPED: Search result: {}, event type: {}, code: {}, value: {},  pattern: '{}', trigger_id: "
-              "{}, search state: {}",
-              result,
-              ctx.event().type_name(),
-              ctx.event().code_name(),
-              ctx.event().value(),
-              pattern,
-              trigger_id,
-              aho_search_state.index());
-
-            return result;
+            return on_search(ctx.event(), ctx.mod(search_engine));
         }
     } typed;
 

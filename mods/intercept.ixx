@@ -53,7 +53,7 @@ export namespace fs8 {
         [[nodiscard]] std::span<device_query const> queries() noexcept;
 
         /// Forward queries/devices to input_manager; ensure it started.
-        template <ContextWith<basic_io_manager, basic_input_manager> ContextT>
+        template <Context ContextT>
         context_action operator()(ContextT ctx, start_tag) noexcept {
             return do_start(ctx.mod(input_manager), ctx.mod(io_manager));
         }
@@ -62,7 +62,7 @@ export namespace fs8 {
         context_action operator()(io_fd const& fd) noexcept;
 
         /// next_event provider: reconcile watches, pop one event, else ignore_event.
-        template <ContextWith<basic_io_manager, basic_input_manager> ContextT>
+        template <Context ContextT>
         context_action operator()(ContextT ctx, next_event_tag) noexcept {
             using enum context_action;
             if (auto const ev = do_pop(ctx.mod(input_manager), ctx.mod(io_manager)); ev.has_value()) [[unlikely]] {

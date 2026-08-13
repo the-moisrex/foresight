@@ -40,7 +40,17 @@ export namespace fs8 {
             }
             T* new_ptr = allocator_traits::allocate(alloc, 1);
             try {
-                allocator_traits::construct(alloc, new_ptr, *p);
+                if consteval {
+                    allocator_traits::construct(alloc, new_ptr, *p);
+                } else {
+                    // Runtime deep-copy of an impl whose copy is
+                    // consteval-only (e.g. mods holding `evdev`) cannot be
+                    // done here; such copies only happen during constant
+                    // evaluation (`if consteval` above). The outer
+                    // `consteval_copyable` copy aborts at runtime, so this
+                    // branch is unreachable for those types.
+                    std::abort();
+                }
                 return new_ptr;
             } catch (...) {
                 allocator_traits::deallocate(alloc, new_ptr, 1);

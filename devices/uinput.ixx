@@ -15,6 +15,7 @@ import fs8.devices.capabilities;
 import fs8.devices.queries;
 import fs8.devices.udev;
 import fs8.mods.input_manager;
+import fs8.pimpl;
 import fs8.traits;
 
 export namespace fs8 {
@@ -67,8 +68,8 @@ export namespace fs8 {
      * the file descriptor. Otherwise, uinput_fd must be opened by the caller and opened with the appropriate
      * permissions.
      */
-    constexpr struct [[nodiscard]] basic_uinput : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
+    constexpr struct [[nodiscard]] basic_uinput : pimpl_idiom<basic_uinput> {
+        using pimpl_idiom::pimpl_idiom;
 
         using ev_type    = event_type::type_type;
         using code_type  = event_type::code_type;
@@ -253,15 +254,6 @@ export namespace fs8 {
         }
 
         context_action operator()(event_type const& event) noexcept;
-
-      private:
-        libevdev_uinput* dev      = nullptr;
-        int              err_code = 0;
-
-        /// An fd to /dev/uinput opened by finalize_device() so it could set the
-        /// origin chain (phys) before the kernel registered the device.
-        /// libevdev never closes a caller-provided fd; we own it.
-        int owned_fd = -1;
 
         friend bool finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view) noexcept;
     } uinput;

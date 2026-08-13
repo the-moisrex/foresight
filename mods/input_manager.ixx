@@ -73,7 +73,7 @@ export namespace fs8 {
         /// Start monitoring; also used by `intercept` to trigger enumeration.
         context_action start(basic_io_manager& io) noexcept;
 
-        template <ContextWith<basic_io_manager> ContextT>
+        template <Context ContextT>
         context_action operator()(ContextT& ctx, start_tag) noexcept {
             return start(ctx.mod(io_manager));
         }

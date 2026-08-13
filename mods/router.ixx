@@ -2,6 +2,8 @@
 
 module;
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <libevdev/libevdev.h>
 #include <linux/uinput.h>
 #include <ranges>
@@ -13,6 +15,7 @@ import fs8.devices.uinput;
 import fs8.event;
 import fs8.log;
 import fs8.utils;
+import fs8.nullable_indirect;
 import fs8.mods.input_manager;
 import fs8.traits;
 
@@ -49,6 +52,17 @@ namespace fs8 {
     constexpr decltype(auto) visit_at(std::tuple<Ts...>& tup, std::size_t idx, F&& fun) noexcept {
         return visit_impl<sizeof...(Ts)>::visit(tup, idx, std::forward<F>(fun));
     }
+
+    // The routing table lives in the implementation unit: the hashes array is
+    // ~16KiB and must not be copied inside every `basic_router` object. These
+    // non-template helpers operate on the opaque `router_state` and are defined
+    // in `mods/router.cxx`.
+    namespace detail {
+        struct router_state;
+
+        void router_set_caps(nullable_indirect<router_state>& state, device_query const* queries_begin, std::size_t queries_count) noexcept;
+        std::int32_t router_lookup(router_state& state, std::uint32_t hashed_value, bool is_syn_event) noexcept;
+    } // namespace detail
 } // namespace fs8
 
 export namespace fs8 {
@@ -112,19 +126,13 @@ export namespace fs8 {
             return static_cast<std::uint16_t>(event.type << shift) | static_cast<std::uint16_t>(event.code);
         }
 
-        // returns 16127 or 0x3EFF
-        static constexpr std::uint16_t max_hash = hash({.type = EV_MAX, .code = KEY_MAX});
-
-
-        // the size is ~15KiB
-        // todo: use pimpl and move this into implementation
-        std::array<std::int8_t, max_hash> hashes{};
-
         // outputs
         std::array<device_query, sizeof...(Routes)> queries{};
         std::tuple<Routes...>                       routes;
 
-        std::uint8_t last_index = 0;
+        // the routing state (hashes + last picked index). The ~16KiB hashes
+        // table lives in the implementation unit, allocated lazily at start.
+        nullable_indirect<detail::router_state> state{};
 
       public:
         template <typename... C>
@@ -135,21 +143,7 @@ export namespace fs8 {
         }
 
         constexpr void set_caps() noexcept {
-            hashes.fill(-1);
-
-            // Declaring which hash belongs to which uinput device
-            std::int8_t input_pick = 0;
-            for (device_query const& cur_query : queries) {
-                for (auto const [type, codes, action] : cur_query.caps) {
-                    for (auto const code : codes) {
-                        auto const index = hash({.type = type, .code = code});
-                        if (action == caps_action::append /* && hashes.at(index) == -1 */) {
-                            hashes.at(index) = input_pick;
-                        }
-                    }
-                }
-                ++input_pick;
-            }
+            detail::router_set_caps(state, queries.data(), queries.size());
         }
 
         void operator()(auto&&, Tag auto) = delete;
@@ -249,18 +243,20 @@ export namespace fs8 {
         template <Context CtxT>
         context_action operator()(CtxT& ctx, start_tag) noexcept {
             set_caps();
-            auto cur_query = queries.begin();
-            template for (auto& route : routes) {
-                bool init_valid = false;
+            bool        is_init = true;
+            std::size_t index   = 0;
+            auto const  run_one = [&]<typename Route>(Route& route) {
+                device_query const& cur_query  = queries[index];
+                bool                init_valid = false;
 
-                if constexpr (requires { route(ctx, query, start); }) {
-                    init_valid = invoke_bool(route, ctx, *cur_query, start);
-                } else if constexpr (requires { route(query, start); }) {
-                    init_valid = invoke_bool(route, *cur_query, start);
+                if constexpr (requires { route(ctx, cur_query, start); }) {
+                    init_valid = invoke_bool(route, ctx, cur_query, start);
+                } else if constexpr (requires { route(cur_query, start); }) {
+                    init_valid = invoke_bool(route, cur_query, start);
                 } else if constexpr (requires(dev_caps_view caps_view) { route(ctx, caps_view, start); }) {
-                    init_valid = invoke_bool(route, ctx, cur_query->caps, start);
+                    init_valid = invoke_bool(route, ctx, cur_query.caps, start);
                 } else if constexpr (requires(dev_caps_view caps_view) { route(caps_view, start); }) {
-                    init_valid = invoke_bool(route, cur_query->caps, start);
+                    init_valid = invoke_bool(route, cur_query.caps, start);
                 } else if constexpr (requires { route(ctx, start); }) {
                     init_valid = invoke_bool(route, ctx, start);
                 } else if constexpr (requires { route.init(); }) {
@@ -270,11 +266,17 @@ export namespace fs8 {
                     init_valid = true;
                 }
 
-                if (!init_valid) [[unlikely]] {
-                    log("Router failed to start at least one of the routes.");
-                    return context_action::idle;
-                }
-                ++cur_query;
+                ++index;
+                is_init = is_init && init_valid;
+            };
+            std::apply(
+              [&](auto&... all_routes) {
+                  (run_one(all_routes), ...);
+              },
+              routes);
+            if (!is_init) [[unlikely]] {
+                log("Router failed to start at least one of the routes.");
+                return context_action::idle;
             }
             return context_action::next;
         }
@@ -282,13 +284,16 @@ export namespace fs8 {
         context_action operator()(Context auto& ctx) noexcept {
             auto const& event        = ctx.event();
             auto const  hashed_value = hash(static_cast<event_code>(event));
-            last_index               = is_syn(event) ? last_index : static_cast<std::uint8_t>(hashes.at(hashed_value));
-            if (last_index < 0) [[unlikely]] {
-                log("Ignored ({}|{}): {} {} {}", last_index, hashed_value, event.type_name(), event.code_name(), event.value());
+            if (state.get() == nullptr) [[unlikely]] {
+                return context_action::next;
+            }
+            auto const index = detail::router_lookup(*state, hashed_value, is_syn(event));
+            if (index < 0) [[unlikely]] {
+                log("Ignored ({}|{}): {} {} {}", index, hashed_value, event.type_name(), event.code_name(), event.value());
                 return context_action::ignore_event;
             }
-            // log("Index: {} {}", last_index, event.code_name());
-            return visit_at(routes, last_index, [&](auto& route) {
+            // log("Index: {} {}", index, event.code_name());
+            return visit_at(routes, static_cast<std::size_t>(index), [&](auto& route) {
                 return invoke_mod(route, ctx);
             });
         }

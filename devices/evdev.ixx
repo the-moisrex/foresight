@@ -60,11 +60,30 @@ namespace fs8 {
 
         explicit evdev(libevdev* ptr, evdev_status const inp_status) noexcept : dev{ptr}, status{inp_status} {}
 
-        consteval evdev()                      = default;
-        consteval evdev(evdev const&) noexcept = default;
+        constexpr evdev() noexcept = default;
+
+        // Copying must only happen at compile time (evdev owns a libevdev
+        // handle; a runtime copy would double-free). The runtime branch aborts
+        // instead of being `consteval`, so pimpl clones (which type-check a
+        // runtime copy path) can still be instantiated.
+        constexpr evdev(evdev const& other) noexcept : dev{other.dev}, status{other.status} {
+            if !consteval {
+                std::abort();
+            }
+        }
+
         evdev(evdev&& inp) noexcept;
-        evdev&           operator=(evdev&& other) noexcept;
-        consteval evdev& operator=(evdev const&) noexcept = default;
+        evdev& operator=(evdev&& other) noexcept;
+
+        constexpr evdev& operator=(evdev const& other) noexcept {
+            if !consteval {
+                std::abort();
+            }
+            dev    = other.dev;
+            status = other.status;
+            return *this;
+        }
+
         ~evdev() noexcept;
 
         static constexpr evdev invalid(evdev_status const inp_status = evdev_status::unknown) noexcept {

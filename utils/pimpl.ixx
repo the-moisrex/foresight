@@ -41,4 +41,34 @@ export namespace fs8 {
         nullable_indirect<impl> pimpl{};
     };
 
+    /**
+     * A runtime-friendly variant of `pimpl_idiom` for classes that don't need
+     * the consteval-only-copyable restriction (non-mod classes such as runners
+     * and services). It can be default-constructed, copied, and moved at
+     * runtime; copying deep-clones the impl through `nullable_indirect`.
+     * Derived classes are free to delete copying (e.g. for resources like
+     * pipes), and should define `template<>
+     * struct fs8::plain_pimpl_idiom<Derived>::impl` in the implementation TU.
+     */
+    template <typename>
+    struct [[nodiscard]] plain_pimpl_idiom {
+        constexpr plain_pimpl_idiom() noexcept                                    = default;
+        constexpr plain_pimpl_idiom(plain_pimpl_idiom const&) noexcept            = default;
+        constexpr plain_pimpl_idiom(plain_pimpl_idiom&&) noexcept                 = default;
+        constexpr plain_pimpl_idiom& operator=(plain_pimpl_idiom const&) noexcept = default;
+        constexpr plain_pimpl_idiom& operator=(plain_pimpl_idiom&&) noexcept      = default;
+        constexpr ~plain_pimpl_idiom() noexcept                                   = default;
+
+      protected:
+        struct [[nodiscard]] impl;
+
+        template <typename... Args>
+        constexpr void init_impl(Args&&... args) {
+            assert(pimpl.get() == nullptr);
+            pimpl = nullable_indirect<impl>::make(std::forward<Args>(args)...);
+        }
+
+        nullable_indirect<impl> pimpl{};
+    };
+
 } // namespace fs8

@@ -5,30 +5,48 @@ module;
 #include <cstdio>
 #include <linux/input.h>
 #include <ranges>
+#include <string>
 #include <thread>
+#include <vector>
 module fs8.keyboard;
 import fs8.translate;
 import fs8.log;
+import fs8.pimpl;
 
 using fs8::keyboard_runner;
+
+template <>
+struct fs8::plain_pimpl_idiom<keyboard_runner>::impl {
+    std::vector<input_event> events;
+    input_event              event{};
+    std::string              str;
+};
 
 keyboard_runner::keyboard_runner() {
     setbuf(stdin, nullptr);
     setbuf(stdout, nullptr);
 }
 
+keyboard_runner::~keyboard_runner() noexcept = default;
+
 void keyboard_runner::to_string() {
-    str.reserve(events.size());
-    for (auto const &[_, _, code, _] : events) {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+    pimpl->str.reserve(pimpl->events.size());
+    for (auto const &[_, _, code, _] : pimpl->events) {
         char const cur = fs8::to_char(static_cast<std::uint8_t>(code));
-        str.push_back(cur);
+        pimpl->str.push_back(cur);
     }
 }
 
 void keyboard_runner::replace(std::string_view const replace_it, std::string_view const replace_with) {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
     backspace(replace_it.size());
     put(replace_with);
-    events.clear();
+    pimpl->events.clear();
 }
 
 void keyboard_runner::backspace(std::size_t count) {
@@ -77,10 +95,13 @@ void keyboard_runner::buffer(input_event &ev) {
         }
         default: return;
     }
-    if (events.size() > 500) {
-        events.clear();
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
     }
-    events.push_back(ev);
+    if (pimpl->events.size() > 500) {
+        pimpl->events.clear();
+    }
+    pimpl->events.push_back(ev);
 }
 
 // true: try again
@@ -99,14 +120,17 @@ namespace {
 
 int keyboard_runner::loop() noexcept {
     try {
-        while (std::fread(&event, sizeof(event), 1, stdin) == 1) {
-            if (event.type == EV_KEY) {
-                buffer(event);
+        if (pimpl.get() == nullptr) [[unlikely]] {
+            init_impl();
+        }
+        while (std::fread(&pimpl->event, sizeof(pimpl->event), 1, stdin) == 1) {
+            if (pimpl->event.type == EV_KEY) {
+                buffer(pimpl->event);
                 // check();
             }
 
-            if (auto const out_res = std::fwrite(&event, sizeof(event), 1, stdout); out_res == 0) {
-                log("Can't send {}.", event.code);
+            if (auto const out_res = std::fwrite(&pimpl->event, sizeof(pimpl->event), 1, stdout); out_res == 0) {
+                log("Can't send {}.", pimpl->event.code);
             }
         }
     } catch (std::exception const &ex) {

@@ -211,11 +211,11 @@ export namespace fs8 {
     constexpr basic_ignore_adjacent_repeats ignore_adjacent_syns{syn()};
 
     constexpr basic_ignore_fast_repeats ignore_fast_left_clicks{
-      {.type = EV_KEY, .code = BTN_LEFT}
+      {.type = EV_KEY, .code = BTN_LEFT},
     };
 
     constexpr basic_ignore_fast_repeats ignore_fast_right_clicks{
-      {.type = EV_KEY, .code = BTN_RIGHT}
+      {.type = EV_KEY, .code = BTN_RIGHT},
     };
 
     // todo: ignore_types(EV_ABS)

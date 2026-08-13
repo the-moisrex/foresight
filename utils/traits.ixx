@@ -8,9 +8,12 @@ export module fs8.traits;
 export namespace fs8 {
 
     struct [[nodiscard]] consteval_copyable {
-        // Still consteval so the type can only be default-constructed
-        // in a constant-expression context.
-        consteval consteval_copyable() noexcept = default;
+        // A user-provided body (not `= default`) so the definition is emitted
+        // into the BMI and usable through inherited ctors by importing modules;
+        // clang 22 leaves an unused defaulted ctor out of the pcm, making it
+        // appear undefined when a constexpr global (e.g. `and_op<>`/`router`)
+        // default-initializes it via `using base::base`.
+        constexpr consteval_copyable() noexcept {}
 
         // Compile-time copy OK, runtime copy rejected.
         // unfortunately, marking copy-ctor consteval doesn't prevent compilers from copying it at runtime.

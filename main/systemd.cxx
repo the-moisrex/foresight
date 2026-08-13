@@ -5,16 +5,35 @@ module;
 #include <print>
 #include <stdexcept>
 #include <string>
+#include <string_view>
+#include <vector>
 module fs8.systemd;
+import fs8.pimpl;
 
 using fs8::systemd_service;
 
+template <>
+struct fs8::plain_pimpl_idiom<systemd_service>::impl {
+    std::vector<std::string> args; // owning copy; `execStart` used to store a dangling span
+    std::string              description;
+};
+
+systemd_service::systemd_service() noexcept = default;
+
+systemd_service::~systemd_service() noexcept = default;
+
 void systemd_service::execStart(std::span<std::string_view const> const args) {
-    args_ = args;
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+    pimpl->args.assign(args.begin(), args.end());
 }
 
 void systemd_service::description(std::string_view const desc) {
-    description_ = desc;
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+    pimpl->description = desc;
 }
 
 namespace {
@@ -62,7 +81,7 @@ void systemd_service::install() const {
         throw std::runtime_error("Systemd not supported on this system");
     }
 
-    if (args_.empty()) {
+    if (pimpl.get() == nullptr || pimpl->args.empty()) {
         throw std::runtime_error("No executable specified");
     }
 
@@ -77,14 +96,19 @@ void systemd_service::install() const {
     std::filesystem::create_directories(user_systemd_dir);
 
     // Generate service name from executable
-    std::filesystem::path       exec_path(args_[0]);
+    std::filesystem::path       exec_path(pimpl->args[0]);
     std::string                 service_name = exec_path.filename().string() + ".service";
     std::filesystem::path       service_file = user_systemd_dir / service_name;
-    std::filesystem::path const exec_file{args_[0]};
+    std::filesystem::path const exec_file{pimpl->args[0]};
     if (!exists(exec_file)) {
         throw std::runtime_error("Executable not found");
     }
-    auto const cmd_str = escape_command(args_);
+    std::vector<std::string_view> args_view;
+    args_view.reserve(pimpl->args.size());
+    for (auto const& arg : pimpl->args) {
+        args_view.emplace_back(arg);
+    }
+    auto const cmd_str = escape_command(args_view);
 
     std::println("Name: {}\nService File: {}\nExec: {}", service_name, service_file.string(), cmd_str);
 
@@ -97,7 +121,7 @@ void systemd_service::install() const {
     out
       << "[Unit]\n"
       << "Description="
-      << description_
+      << pimpl->description
       << "\n\n"
       << "[Service]\n"
       // << "ExecStart=/bin/bash -c '"
@@ -118,12 +142,12 @@ void systemd_service::install() const {
 }
 
 void systemd_service::enable(bool const start_now) const {
-    if (args_.empty()) {
+    if (pimpl.get() == nullptr || pimpl->args.empty()) {
         throw std::runtime_error("No executable specified");
     }
 
     // Generate service name from executable
-    std::filesystem::path exec_path(args_[0]);
+    std::filesystem::path exec_path(pimpl->args[0]);
     std::string           service_name = exec_path.filename().string() + ".service";
 
     // Enable service

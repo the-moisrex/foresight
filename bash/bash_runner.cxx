@@ -16,8 +16,18 @@ module;
 #include <sys/wait.h>
 #include <unistd.h>
 module fs8.bash;
+import fs8.pimpl;
 
 using fs8::bash_runner;
+
+template <>
+struct fs8::plain_pimpl_idiom<bash_runner>::impl {
+    std::array<int, 2> to_child{};
+    std::array<int, 2> from_child{};
+    pid_t              pid{};
+};
+
+bash_runner::bash_runner() = default;
 
 namespace {
     constexpr std::size_t      buffer_size = 4096U;
@@ -42,20 +52,23 @@ namespace {
 } // namespace
 
 std::string bash_runner::exec(std::string_view const command) {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
     std::string const cmd = std::format(
       "{};\n"          // the command itself
       "echo '{}'$?\n", // send the marker
       command,
       marker);
 
-    if (write(to_child[1], cmd.data(), cmd.size()) != static_cast<ssize_t>(cmd.size())) [[unlikely]] {
+    if (write(pimpl->to_child[1], cmd.data(), cmd.size()) != static_cast<ssize_t>(cmd.size())) [[unlikely]] {
         throw std::runtime_error("Failed to write to bash process");
     }
 
     std::string                   output;
     std::array<char, buffer_size> buf{};
     ssize_t                       n = 0;
-    while ((n = read(from_child[0], buf.data(), buf.size())) > 0) {
+    while ((n = read(pimpl->from_child[0], buf.data(), buf.size())) > 0) {
         output.append(buf.data(), static_cast<std::size_t>(n));
         auto const found = output.find(marker);
         if (found != std::string::npos) {
@@ -87,23 +100,26 @@ std::string bash_runner::exec(std::string_view const command) {
 }
 
 void bash_runner::start() {
-    if (pipe2(to_child.data(), O_CLOEXEC) == -1 || pipe2(from_child.data(), O_CLOEXEC) == -1) [[unlikely]] {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+    if (pipe2(pimpl->to_child.data(), O_CLOEXEC) == -1 || pipe2(pimpl->from_child.data(), O_CLOEXEC) == -1) [[unlikely]] {
         throw std::runtime_error("Failed to create pipes");
     }
 
-    pid = fork();
-    if (pid == -1) [[unlikely]] {
+    pimpl->pid = fork();
+    if (pimpl->pid == -1) [[unlikely]] {
         throw std::runtime_error("Failed to fork");
     }
 
-    if (pid == 0) { // Child process
-        close(to_child[1]);
-        close(from_child[0]);
-        if (dup2(to_child[0], STDIN_FILENO) == -1 || dup2(from_child[1], STDOUT_FILENO) == -1) {
+    if (pimpl->pid == 0) { // Child process
+        close(pimpl->to_child[1]);
+        close(pimpl->from_child[0]);
+        if (dup2(pimpl->to_child[0], STDIN_FILENO) == -1 || dup2(pimpl->from_child[1], STDOUT_FILENO) == -1) {
             _exit(1);
         }
-        close(to_child[0]);
-        close(from_child[1]);
+        close(pimpl->to_child[0]);
+        close(pimpl->from_child[1]);
 
         // Redirect stderr to stdout
         dup2(STDOUT_FILENO, STDERR_FILENO);
@@ -113,14 +129,17 @@ void bash_runner::start() {
     }
 
     // Parent process
-    close(to_child[0]);
-    close(from_child[1]);
+    close(pimpl->to_child[0]);
+    close(pimpl->from_child[1]);
 }
 
 bash_runner::~bash_runner() {
-    close(to_child[1]);
-    close(from_child[0]);
-    waitpid(pid, nullptr, 0);
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return;
+    }
+    close(pimpl->to_child[1]);
+    close(pimpl->from_child[0]);
+    waitpid(pimpl->pid, nullptr, 0);
 }
 
 std::string bash_runner::load(std::string_view const file) {

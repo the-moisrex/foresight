@@ -16,10 +16,10 @@ TEST(SmoothTest, LERPTest) {
        {EV_REL,      REL_X, 9},
        {EV_REL,      REL_Y, 9},
        {EV_SYN, SYN_REPORT, 0}
-    }])
+    }]
      | lerp
      | log
      | ([](event_type &event) noexcept {
-        EXPECT_LE(event.value(), 10);
+           EXPECT_LE(event.value(), 10);
        }))();
 }

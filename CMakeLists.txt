@@ -88,6 +88,7 @@ target_sources(${LIB_NAME}
         mods/on.cxx
         mods/quantifier.cxx
         mods/replace.cxx
+        mods/router.cxx
         mods/typed.cxx
         mods/typer.cxx
         utils/hash.cxx

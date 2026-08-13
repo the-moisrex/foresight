@@ -625,7 +625,7 @@ export namespace fs8 {
         enumerator.scan_devices();
 
         std::uint8_t index = 0;
-        template for (auto const& cur_query : {queries...}) {
+        for (auto const& cur_query : {queries...}) {
             for (auto device : filter_devices(enumerator, cur_query)) {
                 co_yield udev_device_pick{.device = std::move(device), .query = cur_query, .query_index = index};
             }

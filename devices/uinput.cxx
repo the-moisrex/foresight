@@ -23,9 +23,21 @@ import fs8.context;
 import fs8.devices.queries;
 import fs8.devices.udev;
 import fs8.mods.input_manager;
+import fs8.pimpl;
 
 using fs8::basic_uinput;
 using fs8::uinput_access_result;
+
+template <>
+struct fs8::pimpl_idiom<basic_uinput>::impl {
+    libevdev_uinput* dev      = nullptr;
+    int              err_code = 0;
+
+    /// An fd to /dev/uinput opened by finalize_device() so it could set the
+    /// origin chain (phys) before the kernel registered the device.
+    /// libevdev never closes a caller-provided fd; we own it.
+    int owned_fd = -1;
+};
 
 static constexpr std::string_view uinput_path = "/dev/uinput";
 
@@ -93,10 +105,11 @@ basic_uinput::basic_uinput(evdev const& evdev_dev, int const file_descriptor) no
   : basic_uinput(evdev_dev.device_ptr(), file_descriptor) {}
 
 basic_uinput::basic_uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept {
+    init_impl();
     auto const file_descriptor = ::open(file.c_str(), O_RDWR | O_NONBLOCK);
     if (file_descriptor < 0) [[unlikely]] {
-        err_code = errno;
-        dev      = nullptr;
+        pimpl->err_code = errno;
+        pimpl->dev      = nullptr;
         return;
     }
     set_device(evdev_dev, file_descriptor);
@@ -107,29 +120,38 @@ basic_uinput::basic_uinput(libevdev const* evdev_dev, int const file_descriptor)
 }
 
 void basic_uinput::close() noexcept {
-    if (dev != nullptr) {
-        libevdev_uinput_destroy(dev);
-        dev = nullptr;
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return;
     }
-    if (owned_fd >= 0) {
-        ::close(owned_fd);
-        owned_fd = -1;
+    if (pimpl->dev != nullptr) {
+        libevdev_uinput_destroy(pimpl->dev);
+        pimpl->dev = nullptr;
+    }
+    if (pimpl->owned_fd >= 0) {
+        ::close(pimpl->owned_fd);
+        pimpl->owned_fd = -1;
     }
 }
 
 std::error_code basic_uinput::error() const noexcept {
-    return std::error_code{err_code, std::system_category()};
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return {};
+    }
+    return std::error_code{pimpl->err_code, std::system_category()};
 }
 
 bool basic_uinput::is_ok() const noexcept {
-    return dev != nullptr && err_code >= 0;
+    return pimpl.get() != nullptr && pimpl->dev != nullptr && pimpl->err_code >= 0;
 }
 
 void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descriptor) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
     close();
-    err_code = 0;
+    pimpl->err_code = 0;
     if (evdev_dev == nullptr) [[unlikely]] {
-        err_code = static_cast<int>(std::errc::invalid_argument);
+        pimpl->err_code = static_cast<int>(std::errc::invalid_argument);
         log("Input device in null.");
         return;
     }
@@ -138,11 +160,11 @@ void basic_uinput::set_device(libevdev const* evdev_dev, int const file_descript
     // will open @c /dev/uinput in read/write mode and manage the file descriptor.
     // Otherwise, uinput_fd must be opened by the caller and opened with the
     // appropriate permissions.
-    if (auto const ret = libevdev_uinput_create_from_device(evdev_dev, file_descriptor, &dev); ret < 0) [[unlikely]] {
-        err_code = -ret;
+    if (auto const ret = libevdev_uinput_create_from_device(evdev_dev, file_descriptor, &pimpl->dev); ret < 0) [[unlikely]] {
+        pimpl->err_code = -ret;
         log("Failed to create virtual device (uinput) from device ({}): {}", ret, this->error().message());
         log("File descriptor: {} (-2 == LIBEVDEV_UINPUT_OPEN_MANAGED)", file_descriptor);
-        if (static_cast<std::errc>(err_code) == std::errc::no_such_file_or_directory) {
+        if (static_cast<std::errc>(pimpl->err_code) == std::errc::no_such_file_or_directory) {
             log("Maybe it'll be fixed by `modprobe uinput`.");
         }
         close();
@@ -403,10 +425,9 @@ namespace {
                 }
                 void const* const data = type == EV_ABS ? &default_abs_info : nullptr;
                 if (libevdev_enable_event_code(dev_ptr, type, code, data) < 0) [[unlikely]] {
-                    fs8::log(
-                      "  Failed to enable {} {} on the virtual-device template.",
-                      libevdev_event_type_get_name(type),
-                      libevdev_event_code_get_name(type, code));
+                    fs8::log("  Failed to enable {} {} on the virtual-device template.",
+                             libevdev_event_type_get_name(type),
+                             libevdev_event_code_get_name(type, code));
                     return false;
                 }
                 fs8::log("  Enabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
@@ -464,9 +485,9 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
         if (!self.is_ok()) [[unlikely]] {
             log("  Device initialization failed: {}", clone.device_name());
             log("  Error: {}", self.error().message());
-            return false;                // guard closes the fd
+            return false;                       // guard closes the fd
         }
-        self.owned_fd = guard.release(); // close() releases it when the device is destroyed
+        self.pimpl->owned_fd = guard.release(); // close() releases it when the device is destroyed
     } else {
         auto* const template_ptr = libevdev_new();
         if (template_ptr == nullptr) [[unlikely]] {
@@ -493,14 +514,17 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
 }
 
 void basic_uinput::set_device(int fd, std::string_view const name) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
     close();
-    err_code = 0;
+    pimpl->err_code = 0;
 
     bool const close_fd_on_error = fd == LIBEVDEV_UINPUT_OPEN_MANAGED;
 
     my_libevdev_uinput* mdev = alloc_uinput_device(name.data());
     if (mdev == nullptr) {
-        err_code = ENOMEM;
+        pimpl->err_code = ENOMEM;
         log("  allocation failure: {}", this->error().message());
         return;
     }
@@ -508,14 +532,14 @@ void basic_uinput::set_device(int fd, std::string_view const name) noexcept {
     if (fd == LIBEVDEV_UINPUT_OPEN_MANAGED) {
         fd = ::open("/dev/uinput", O_RDWR | O_CLOEXEC);
         if (fd < 0) [[unlikely]] {
-            err_code = errno;
+            pimpl->err_code = errno;
             log("  opening /dev/uinput failure: {}", this->error().message());
             return;
         }
         mdev->fd_is_managed = 1;
     } else if (fd < 0) [[unlikely]] {
-        errno    = EBADF;
-        err_code = errno;
+        errno           = EBADF;
+        pimpl->err_code = errno;
         log("  Invalid fd {}; error: ", fd, this->error().message());
         return;
     }
@@ -526,7 +550,7 @@ void basic_uinput::set_device(int fd, std::string_view const name) noexcept {
     }
 
     if (uinput_SETUP(fd, mdev) != 0) [[unlikely]] {
-        err_code = errno;
+        pimpl->err_code = errno;
         libevdev_uinput_destroy(reinterpret_cast<libevdev_uinput*>(mdev));
         if (fd != -1 && close_fd_on_error) {
             ::close(fd);
@@ -545,7 +569,7 @@ void basic_uinput::set_device(int fd, std::string_view const name) noexcept {
     mdev->ctime[0] = time(nullptr);
 
     if (::ioctl(fd, UI_DEV_CREATE, nullptr) == -1) [[unlikely]] {
-        err_code = errno;
+        pimpl->err_code = errno;
         libevdev_uinput_destroy(reinterpret_cast<libevdev_uinput*>(mdev));
         if (fd != -1 && close_fd_on_error) {
             ::close(fd);
@@ -558,8 +582,8 @@ void basic_uinput::set_device(int fd, std::string_view const name) noexcept {
     mdev->fd       = fd;
 
     if (fetch_syspath_and_devnode(mdev) == -1) [[unlikely]] {
-        errno    = ENODEV;
-        err_code = errno;
+        errno           = ENODEV;
+        pimpl->err_code = errno;
         libevdev_uinput_destroy(reinterpret_cast<libevdev_uinput*>(mdev));
         if (fd != -1 && close_fd_on_error) {
             ::close(fd);
@@ -568,39 +592,46 @@ void basic_uinput::set_device(int fd, std::string_view const name) noexcept {
         return;
     }
 
-    this->dev = reinterpret_cast<libevdev_uinput*>(mdev);
+    this->pimpl->dev = reinterpret_cast<libevdev_uinput*>(mdev);
     log("Init Empty Virtual Device: {}", this->devnode());
 }
 
 int basic_uinput::native_handle() const noexcept {
-    if (!is_ok()) [[unlikely]] {
+    if (pimpl.get() == nullptr || !is_ok()) [[unlikely]] {
         return -1;
     }
-    return libevdev_uinput_get_fd(dev);
+    return libevdev_uinput_get_fd(pimpl->dev);
 }
 
 std::string_view basic_uinput::syspath() const noexcept {
-    if (!is_ok()) [[unlikely]] {
+    if (pimpl.get() == nullptr || !is_ok()) [[unlikely]] {
         return invalid_syspath;
     }
-    return libevdev_uinput_get_syspath(dev);
+    return libevdev_uinput_get_syspath(pimpl->dev);
 }
 
 std::string_view basic_uinput::devnode() const noexcept {
-    if (!is_ok()) [[unlikely]] {
+    if (pimpl.get() == nullptr || !is_ok()) [[unlikely]] {
         return invalid_devnode;
     }
-    return libevdev_uinput_get_devnode(dev);
+    return libevdev_uinput_get_devnode(pimpl->dev);
 }
 
 void basic_uinput::enable_event_type(ev_type const type) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
     if (::ioctl(native_handle(), UI_SET_EVBIT, type) == -1) [[unlikely]] {
-        err_code = errno;
+        pimpl->err_code = errno;
         log("  Failed to enable type {}: {}", libevdev_event_type_get_name(type), error().message());
     }
 }
 
 void basic_uinput::enable_event_code(ev_type const type, code_type const code) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+
     /* uinput can't set EV_REP */
     if (type == EV_REP) [[unlikely]] {
         log("  uinput can't set EV_REP");
@@ -621,14 +652,14 @@ void basic_uinput::enable_event_code(ev_type const type, code_type const code) n
             uinput_bit = UI_SET_SWBIT;
             break;
         [[unlikely]] default:
-            errno    = EINVAL;
-            err_code = errno;
+            errno           = EINVAL;
+            pimpl->err_code = errno;
             log("  Invalid type: {}", type);
             return;
     }
 
     if (::ioctl(native_handle(), uinput_bit, code) == -1) [[unlikely]] {
-        err_code = errno;
+        pimpl->err_code = errno;
         log("  Failed to enable: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
         return;
     }
@@ -644,11 +675,14 @@ void basic_uinput::enable_caps(dev_caps_view const inp_caps) noexcept {
 }
 
 void basic_uinput::set_abs(code_type const code, input_absinfo const& abs_info) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
     uinput_abs_setup abs_setup{};
     abs_setup.code    = code;
     abs_setup.absinfo = abs_info;
     if (::ioctl(native_handle(), UI_ABS_SETUP, &abs_setup) != 0) {
-        err_code = errno;
+        pimpl->err_code = errno;
     }
 }
 
@@ -671,15 +705,21 @@ void basic_uinput::apply_caps(dev_caps_view const inp_caps) noexcept {
 }
 
 bool basic_uinput::emit(ev_type const type, code_type const code, value_type const value) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return false;
+    }
     assert(is_ok());
-    if (auto const ret = libevdev_uinput_write_event(dev, type, code, value); ret < 0) [[unlikely]] {
-        err_code = -ret;
+    if (auto const ret = libevdev_uinput_write_event(pimpl->dev, type, code, value); ret < 0) [[unlikely]] {
+        pimpl->err_code = -ret;
         return false;
     }
     return true;
 }
 
 bool basic_uinput::emit(input_event const& event) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return false;
+    }
     assert(is_ok());
     return emit(event.type, event.code, event.value);
 }

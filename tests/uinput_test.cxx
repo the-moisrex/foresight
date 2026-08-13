@@ -97,7 +97,9 @@ namespace {
             EXPECT_TRUE(opened.has_event_type(type)) << libevdev_event_type_get_name(type);
             for (auto const code : codes) {
                 EXPECT_TRUE(opened.has_event_code(type, code))
-                  << libevdev_event_type_get_name(type) << ' ' << libevdev_event_code_get_name(type, code);
+                  << libevdev_event_type_get_name(type)
+                  << ' '
+                  << libevdev_event_code_get_name(type, code);
                 if (type == EV_ABS) {
                     EXPECT_NE(opened.abs_info(code), nullptr) << libevdev_event_code_get_name(type, code);
                 }

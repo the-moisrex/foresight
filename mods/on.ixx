@@ -111,7 +111,7 @@ namespace fs8 {
                 return next;
             }
             if (is_switched) {
-                if (auto const action = invoke_mods(ctx, funcs, toggle_on); !action) {
+                if (auto const action = invoke_mods(ctx, funcs, toggle_on); !action) [[unlikely]] {
                     return action;
                 }
             }
@@ -452,6 +452,8 @@ namespace fs8 {
     struct [[nodiscard]] and_op : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
+        constexpr and_op() noexcept = default;
+
       private:
         std::tuple<std::remove_cvref_t<Funcs>...> funcs;
 
@@ -491,6 +493,8 @@ namespace fs8 {
         requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
     struct [[nodiscard]] or_op : consteval_copyable {
         using consteval_copyable::consteval_copyable;
+
+        constexpr or_op() noexcept = default;
 
       private:
         std::tuple<std::remove_cvref_t<Funcs>...> funcs{};
