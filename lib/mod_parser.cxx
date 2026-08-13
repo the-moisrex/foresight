@@ -435,6 +435,11 @@ bool fs8::normalize_modifiers(std::u32string &str) noexcept {
 
         auto const event   = to_event(code);
         auto const recoded = unicode_encoded_event(keyboard_state, event);
+        if (event.value == 0) {
+            // Key-up events only track modifier state for the xkb state machine; they must never
+            // become part of the matchable pattern (the runtime `search` skips key-ups too).
+            continue;
+        }
         if (event.value != 1 || is_encoded_event(recoded)) {
             if (code_to_remove == event.code) {
                 code_to_remove = KEY_MAX; // Reset, but don't skip!
