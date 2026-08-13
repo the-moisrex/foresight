@@ -231,15 +231,18 @@ export namespace fs8 {
         }
 
         [[nodiscard]] std::string_view code_name() const noexcept {
-            return libevdev_event_code_get_name(ev.type, ev.code);
+            auto const* name = libevdev_event_code_get_name(ev.type, ev.code);
+            return name != nullptr ? std::string_view{name} : std::string_view{"<unknown>"};
         }
 
         [[nodiscard]] std::string_view type_name() const noexcept {
-            return libevdev_event_type_get_name(ev.type);
+            auto const* name = libevdev_event_type_get_name(ev.type);
+            return name != nullptr ? std::string_view{name} : std::string_view{"<unknown>"};
         }
 
         [[nodiscard]] std::string_view value_name() const noexcept {
-            return libevdev_event_value_get_name(ev.type, ev.code, ev.value);
+            auto const* name = libevdev_event_value_get_name(ev.type, ev.code, ev.value);
+            return name != nullptr ? std::string_view{name} : std::string_view{"<unknown>"};
         }
 
         [[nodiscard]] constexpr bool is(type_type const inp_type) const noexcept {

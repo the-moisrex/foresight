@@ -401,6 +401,22 @@ namespace {
         return edev;
     }
 
+    using ev_type   = fs8::event_type::type_type;
+    using code_type = fs8::event_type::code_type;
+
+    /// libevdev returns nullptr for event types/codes that have no assigned
+    /// name; never feed that to std::println (it crashes on a null C string).
+    /// These fall back to a printable placeholder instead.
+    [[nodiscard]] std::string_view type_name(ev_type const type) noexcept {
+        auto const* name = libevdev_event_type_get_name(type);
+        return name != nullptr ? std::string_view{name} : std::string_view{"<unknown>"};
+    }
+
+    [[nodiscard]] std::string_view code_name(ev_type const type, code_type const code) noexcept {
+        auto const* name = libevdev_event_code_get_name(type, code);
+        return name != nullptr ? std::string_view{name} : std::string_view{"<unknown>"};
+    }
+
     /// Add requested capabilities to a libevdev description before it is
     /// handed to uinput. Capability ioctls are invalid after UI_DEV_CREATE.
     bool append_caps(fs8::evdev& dev, fs8::dev_caps_view const caps_view) noexcept {
@@ -417,7 +433,7 @@ namespace {
                     continue;
                 }
                 if (libevdev_has_event_type(dev_ptr, type) == 0 && libevdev_enable_event_type(dev_ptr, type) < 0) [[unlikely]] {
-                    fs8::log("  Failed to enable type {} on the virtual-device template.", libevdev_event_type_get_name(type));
+                    fs8::log("  Failed to enable type {} on the virtual-device template.", type_name(type));
                     return false;
                 }
                 for (auto const code : codes) {
@@ -427,28 +443,28 @@ namespace {
                     void const* const data = type == EV_ABS ? &default_abs_info : nullptr;
                     if (libevdev_enable_event_code(dev_ptr, type, code, data) < 0) [[unlikely]] {
                         fs8::log("  Failed to enable {} {} on the virtual-device template.",
-                                 libevdev_event_type_get_name(type),
-                                 libevdev_event_code_get_name(type, code));
+                                 type_name(type),
+                                 code_name(type, code));
                         return false;
                     }
-                    fs8::log("  Enabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
+                    fs8::log("  Enabled: {} {}", type_name(type), code_name(type, code));
                 }
             } else if (action == remove_codes) {
                 for (auto const code : codes) {
                     if (libevdev_disable_event_code(dev_ptr, type, code) < 0) [[unlikely]] {
                         fs8::log("  Failed to disable {} {} on the virtual-device template.",
-                                 libevdev_event_type_get_name(type),
-                                 libevdev_event_code_get_name(type, code));
+                                 type_name(type),
+                                 code_name(type, code));
                         return false;
                     }
-                    fs8::log("  Disabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
+                    fs8::log("  Disabled: {} {}", type_name(type), code_name(type, code));
                 }
             } else if (action == remove_type) {
                 if (libevdev_disable_event_type(dev_ptr, type) < 0) [[unlikely]] {
-                    fs8::log("  Failed to disable type {} on the virtual-device template.", libevdev_event_type_get_name(type));
+                    fs8::log("  Failed to disable type {} on the virtual-device template.", type_name(type));
                     return false;
                 }
-                fs8::log("  Disabled type: {}", libevdev_event_type_get_name(type));
+                fs8::log("  Disabled type: {}", type_name(type));
             }
         }
         return true;
@@ -641,7 +657,7 @@ void basic_uinput::enable_event_type(ev_type const type) noexcept {
     }
     if (::ioctl(native_handle(), UI_SET_EVBIT, type) == -1) [[unlikely]] {
         pimpl->err_code = errno;
-        log("  Failed to enable type {}: {}", libevdev_event_type_get_name(type), error().message());
+        log("  Failed to enable type {}: {}", type_name(type), error().message());
     }
 }
 
@@ -678,10 +694,10 @@ void basic_uinput::enable_event_code(ev_type const type, code_type const code) n
 
     if (::ioctl(native_handle(), uinput_bit, code) == -1) [[unlikely]] {
         pimpl->err_code = errno;
-        log("  Failed to enable: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
+        log("  Failed to enable: {} {}", type_name(type), code_name(type, code));
         return;
     }
-    log("  Enabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
+    log("  Enabled: {} {}", type_name(type), code_name(type, code));
 }
 
 void basic_uinput::enable_caps(dev_caps_view const inp_caps) noexcept {
