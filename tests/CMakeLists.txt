@@ -21,7 +21,7 @@ function(setup_test name)
     add_test(
             NAME ${name}
             COMMAND $<TARGET_FILE:${name}>)
-    set_target_properties(${name} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    # set_target_properties(${name} PROPERTIES EXCLUDE_FROM_ALL TRUE)
     target_compile_features(${name} PUBLIC cxx_std_26)
     set_target_properties(${name} PROPERTIES
             CXX_STANDARD 26

@@ -250,8 +250,6 @@ namespace fs8 {
         constexpr auto tablet_abs_axes   = cap(EV_ABS, ABS_PRESSURE, ABS_DISTANCE, ABS_TILT_X, ABS_TILT_Y);
         constexpr auto tablet_abs_common = cap(EV_ABS, ABS_X, ABS_Y, ABS_PRESSURE, ABS_TILT_X, ABS_TILT_Y);
 
-        constexpr auto abs_all = caps_range<EV_ABS, ABS_X, ABS_MAX + 1>();
-
         // Switches
         constexpr auto switches = caps_range<EV_SW, SW_LID, SW_MAX + 1>();
 
@@ -597,7 +595,7 @@ namespace fs8 {
         // -- Composite Device Capabilities --
 
         // A standard 104-key Keyboard
-        constexpr auto keyboard                  = syn + keyboard_leds + keyboard_keys;
+        constexpr auto keyboard = syn + keyboard_leds + keyboard_keys - pointer_btns - pointer_rel_axes - touch_abs_axes;
         constexpr auto consumer_control_keyboard = syn + keyboard_consumer_control_keys + pointer_wheels;
         // todo: add these to consumer controls as well:
         //  Event type 3 (EV_ABS)
@@ -614,7 +612,7 @@ namespace fs8 {
         constexpr auto multimedia_keyboard = keyboard + keys_media;
 
         // A standard 3-button mouse with a scroll wheel
-        constexpr auto pointer = syn + pointer_rel_axes + pointer_btns + pointer_wheels - abs_all - EV_ABS;
+        constexpr auto pointer = syn + pointer_rel_axes + pointer_btns + pointer_wheels - tablet_tool_btns;
 
         // Alias for pointer
         constexpr auto mouse = pointer;

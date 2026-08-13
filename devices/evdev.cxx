@@ -323,6 +323,7 @@ std::uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {
     for (auto const& [type, codes, action] : inp_caps) {
         switch (action) {
             case append:
+                all += static_cast<double>(codes.size());
                 for (code_type const code : codes) {
                     if (has_event_code(type, code)) {
                         ++count;
@@ -342,7 +343,9 @@ std::uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {
                 }
                 break;
         }
-        all += static_cast<double>(codes.size());
+    }
+    if (all == 0) {
+        return 0;
     }
     return static_cast<std::uint8_t>(std::max(0.0, count) / all * 100.0); // NOLINT(*-magic-numbers)
 }

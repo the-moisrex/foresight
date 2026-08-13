@@ -150,7 +150,7 @@ export namespace fs8 {
 
         /// Hard limit on caps support
         /// If any device matched would have less than this number matched capabilities, we remove them.
-        std::uint8_t caps_support_percentage = 80; // NOLINT(*-magic-numbers)
+        std::uint8_t caps_support_percentage = 50; // NOLINT(*-magic-numbers)
 
         /// Multiple Matches are allowed or not?
         /// Default: 1
@@ -207,7 +207,7 @@ export namespace fs8 {
         std::array<query_term, 16> storage{};
         std::uint8_t               count                   = 0;
         dev_caps_view              caps                    = +caps::nothing;
-        std::uint8_t               caps_support_percentage = 80;
+        std::uint8_t               caps_support_percentage = 50;
         std::uint8_t               matches_limit           = 1;
         bool                       grab                    = false;
         bool                       fail_on_no_match        = false;
@@ -309,6 +309,24 @@ export namespace fs8 {
             return res;
         }
     } matches_percentage;
+
+    /// Set a lenient caps-support threshold (default: 40%).
+    /// A convenient preset for when the user does not know what percentage to pick.
+    constexpr struct [[nodiscard]] low_threshold_tag {
+        template <std::size_t N>
+        constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
+            out_query.caps_support_percentage = 40; // NOLINT(*-magic-numbers)
+        }
+    } low_threshold;
+
+    /// Set a strict caps-support threshold (default: 80%).
+    /// A convenient preset for when the user does not know what percentage to pick.
+    constexpr struct [[nodiscard]] high_threshold_tag {
+        template <std::size_t N>
+        constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
+            out_query.caps_support_percentage = 80; // NOLINT(*-magic-numbers)
+        }
+    } high_threshold;
 
     constexpr struct [[nodiscard]] fail_on_no_match_tag {
         template <std::size_t N>

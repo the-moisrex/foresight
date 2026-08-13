@@ -84,13 +84,13 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
             return;
         }
 
-        log("DEBUG add_udev_device: action={} syspath={} sysname={} subsystem={} ID_INPUT={} ID_INPUT_KEYBOARD={}",
-            action,
-            path,
-            name,
-            event_dev.subsystem(),
-            event_dev.property("ID_INPUT"),
-            event_dev.property("ID_INPUT_KEYBOARD"));
+        // log("DEBUG add_udev_device: action={} syspath={} sysname={} subsystem={} ID_INPUT={} ID_INPUT_KEYBOARD={}",
+        //     action,
+        //     path,
+        //     name,
+        //     event_dev.subsystem(),
+        //     event_dev.property("ID_INPUT"),
+        //     event_dev.property("ID_INPUT_KEYBOARD"));
 
         if (action == "remove" || action == "unbind") {
             erase_by_sysname(name);

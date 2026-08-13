@@ -412,25 +412,43 @@ namespace {
 
         static constexpr input_absinfo default_abs_info{};
         for (auto const& [type, codes, action] : caps_view) {
-            if (action != append || codes.empty()) {
-                continue;
-            }
-            if (libevdev_has_event_type(dev_ptr, type) == 0 && libevdev_enable_event_type(dev_ptr, type) < 0) [[unlikely]] {
-                fs8::log("  Failed to enable type {} on the virtual-device template.", libevdev_event_type_get_name(type));
-                return false;
-            }
-            for (auto const code : codes) {
-                if (libevdev_has_event_code(dev_ptr, type, code) != 0) {
+            if (action == append) {
+                if (codes.empty()) {
                     continue;
                 }
-                void const* const data = type == EV_ABS ? &default_abs_info : nullptr;
-                if (libevdev_enable_event_code(dev_ptr, type, code, data) < 0) [[unlikely]] {
-                    fs8::log("  Failed to enable {} {} on the virtual-device template.",
-                             libevdev_event_type_get_name(type),
-                             libevdev_event_code_get_name(type, code));
+                if (libevdev_has_event_type(dev_ptr, type) == 0 && libevdev_enable_event_type(dev_ptr, type) < 0) [[unlikely]] {
+                    fs8::log("  Failed to enable type {} on the virtual-device template.", libevdev_event_type_get_name(type));
                     return false;
                 }
-                fs8::log("  Enabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
+                for (auto const code : codes) {
+                    if (libevdev_has_event_code(dev_ptr, type, code) != 0) {
+                        continue;
+                    }
+                    void const* const data = type == EV_ABS ? &default_abs_info : nullptr;
+                    if (libevdev_enable_event_code(dev_ptr, type, code, data) < 0) [[unlikely]] {
+                        fs8::log("  Failed to enable {} {} on the virtual-device template.",
+                                 libevdev_event_type_get_name(type),
+                                 libevdev_event_code_get_name(type, code));
+                        return false;
+                    }
+                    fs8::log("  Enabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
+                }
+            } else if (action == remove_codes) {
+                for (auto const code : codes) {
+                    if (libevdev_disable_event_code(dev_ptr, type, code) < 0) [[unlikely]] {
+                        fs8::log("  Failed to disable {} {} on the virtual-device template.",
+                                 libevdev_event_type_get_name(type),
+                                 libevdev_event_code_get_name(type, code));
+                        return false;
+                    }
+                    fs8::log("  Disabled: {} {}", libevdev_event_type_get_name(type), libevdev_event_code_get_name(type, code));
+                }
+            } else if (action == remove_type) {
+                if (libevdev_disable_event_type(dev_ptr, type) < 0) [[unlikely]] {
+                    fs8::log("  Failed to disable type {} on the virtual-device template.", libevdev_event_type_get_name(type));
+                    return false;
+                }
+                fs8::log("  Disabled type: {}", libevdev_event_type_get_name(type));
             }
         }
         return true;
