@@ -131,11 +131,11 @@ TEST(CapsMatch, PerfectKeyboardMatchesKeyboardOnly) {
     EXPECT_LT(kb.match_caps(caps::mouse), 50);
 }
 
-TEST(CapsMatch, EmptySpecScoresZeroWithoutDivisionByZero) {
+TEST(CapsMatch, EmptySpecScoresSatisfiedWithoutDivisionByZero) {
     auto dev = synthetic();
     emit_code(dev, EV_KEY, BTN_LEFT);
 
-    EXPECT_EQ(dev.match_caps(+caps::nothing), 0);
+    EXPECT_EQ(dev.match_caps(+caps::nothing), 100);
 }
 
 TEST(CapsMatch, ThresholdPresetsWriteSupportPercentage) {

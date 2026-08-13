@@ -345,7 +345,7 @@ std::uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {
         }
     }
     if (all == 0) {
-        return 0;
+        return 100;
     }
     return static_cast<std::uint8_t>(std::max(0.0, count) / all * 100.0); // NOLINT(*-magic-numbers)
 }

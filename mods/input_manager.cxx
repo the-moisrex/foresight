@@ -162,24 +162,56 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         for (auto& provider : providers) {
             for (device_query const cur_query : provider()) {
                 bool found = false;
-                for (auto event_dev : filter_devices(enumerator, cur_query)) {
-                    auto const name = event_dev.sysname();
-                    if (name.empty() || has_sysname(name)) {
-                        continue;
+                if (!devs.empty()) [[likely]] {
+                    for (auto& existing : devs) {
+                        if (matches(existing, cur_query)) {
+                            found = true;
+                            break;
+                        }
                     }
-                    auto edev = initialize(cur_query, event_dev);
-                    if (!edev.is_ok()) {
-                        log("Device '{}' status: {}", event_dev.syspath(), to_string(edev.get_status()));
-                        continue;
-                    }
-                    devs.emplace_back(std::move(edev));
-                    found = true;
+                }
+                if (!found) {
+                    found = enumerate_one(cur_query, enumerator);
                 }
                 if (cur_query.fail_on_no_match && !found) [[unlikely]] {
                     on_fail_no_match(cur_query);
                 }
             }
         }
+    }
+
+    /// Open devices matching `cur_query` from the enumerated list. Since a
+    /// query only constrains how many devices it wants (not which devices it
+    /// competes for with other queries), failures here do not consume the
+    /// limit: a device rejected at open time simply does not count.
+    [[nodiscard]] bool enumerate_one(device_query const& cur_query, udev_enumerate const& enumerator) {
+        std::size_t remaining = cur_query.matches_limit == 0 ? 1 : cur_query.matches_limit;
+        bool        found     = false;
+        for (auto const& entry : enumerator.list_entries()) {
+            if (remaining == 0) [[unlikely]] {
+                break;
+            }
+            auto event_dev = udev_device{entry};
+            if (!event_dev || event_dev.devnode().empty()) [[unlikely]] {
+                continue;
+            }
+            bool const already_open = has_sysname(event_dev.sysname());
+            if (!matches(event_dev, cur_query)) {
+                continue;
+            }
+            if (already_open) {
+                continue;
+            }
+            auto edev = open_device(cur_query, event_dev);
+            if (!edev.is_ok()) {
+                log("Device '{}' status: {}", event_dev.syspath(), to_string(edev.get_status()));
+                continue;
+            }
+            devs.emplace_back(std::move(edev));
+            found = true;
+            --remaining;
+        }
+        return found;
     }
 };
 

@@ -54,7 +54,7 @@ export namespace fs8 {
 
         /// Forward queries/devices to input_manager; ensure it started.
         template <Context ContextT>
-        context_action operator()(ContextT ctx, start_tag) noexcept {
+        context_action operator()(ContextT& ctx, start_tag) noexcept {
             return do_start(ctx.mod(input_manager), ctx.mod(io_manager));
         }
 
@@ -63,7 +63,7 @@ export namespace fs8 {
 
         /// next_event provider: reconcile watches, pop one event, else ignore_event.
         template <Context ContextT>
-        context_action operator()(ContextT ctx, next_event_tag) noexcept {
+        context_action operator()(ContextT& ctx, next_event_tag) noexcept {
             using enum context_action;
             if (auto const ev = do_pop(ctx.mod(input_manager), ctx.mod(io_manager)); ev.has_value()) [[unlikely]] {
                 ctx.event(*ev);

@@ -192,7 +192,7 @@ bool fs8::matches(evdev const& dev, device_query const& inp_query) noexcept {
     // `matches_full` when that assumption does not hold.
     for (auto const& field : inp_query.fields) {
         if (positive(field.target) == sysname) {
-            if (!is_matched(field, &query_term::value, dev.device_name())) {
+            if (!is_matched(field, &query_term::value, device_sysname(dev))) {
                 return false;
             }
         } else if (positive(field.target) == syspath) {
@@ -417,7 +417,9 @@ std::generator<fs8::udev_device> fs8::filter_devices(udev_enumerate const& enume
         if (limit == 0) {
             break;
         }
-        if (!dev) [[unlikely]] {
+        if (!dev || dev.devnode().empty()) [[unlikely]] {
+            // Deviceless nodes (e.g. `inputX` controllers) can never be opened,
+            // so they must not consume the match limit or count as a match.
             continue;
         }
         if (matches(dev, query)) {
@@ -519,6 +521,13 @@ fs8::device_query fs8::parse_device_query(int const argc, char const* const* arg
 fs8::evdev fs8::initialize(device_query const& inp_query, udev_device const& dev) noexcept {
     using enum evdev_status;
 
+    if (dev.devnode().empty()) [[unlikely]] {
+        // Controller/parent nodes have no /dev node to open; they can never be
+        // an input source, so treat them as "not matched" instead of attempting
+        // an empty-path open (which would only fail with ENOENT).
+        return evdev::invalid(not_matched);
+    }
+
     if (!matches(dev, inp_query)) {
         return evdev::invalid(not_matched);
     }
@@ -528,8 +537,15 @@ fs8::evdev fs8::initialize(device_query const& inp_query, udev_device const& dev
         return edev;
     }
 
+    // Re-verify against the opened device so caps-only queries (e.g. "pen")
+    // don't accept whatever happens to be first in the enumeration.
+    if (!matches(edev, inp_query)) {
+        return evdev::invalid(not_matched);
+    }
+
     // Honour the grab flag from the query.
     if (inp_query.grab) {
+        edev.grab_input(true);
         if (edev.grab() != grab_state::grabbing) [[unlikely]] {
             log("Grabbing failed for device: {}", edev.device_name());
             return edev;
