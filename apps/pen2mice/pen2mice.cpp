@@ -9,7 +9,7 @@ int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
     using namespace std::chrono_literals;
 
-    static constexpr auto args = arguments["pen", "usb keyboard"];
+    static constexpr auto args = arguments;
     static constinit auto pipeline =
       context
       | io_manager

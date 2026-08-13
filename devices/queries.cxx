@@ -3,6 +3,7 @@ module;
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cctype>
 #include <cstdint>
 #include <filesystem>
 #include <format>
@@ -66,12 +67,18 @@ namespace {
             dist[i] = i;
         }
 
+        // Compare case-insensitively: device names are typically Title Case
+        // ("USB USB Keykoard") while queries are written lowercase.
+        auto const eq = [](unsigned char const l, unsigned char const r) noexcept {
+            return std::tolower(l) == std::tolower(r);
+        };
+
         for (std::size_t i = 1; i <= s1.size(); ++i) {
             std::size_t prev = dist[0];
             dist[0]          = i;
             for (std::size_t j = 1; j <= s2.size(); ++j) {
                 std::size_t temp = dist[j];
-                if (s1.at(i - 1) == s2.at(j - 1)) {
+                if (eq(static_cast<unsigned char>(s1.at(i - 1)), static_cast<unsigned char>(s2.at(j - 1)))) {
                     dist[j] = prev;
                 } else {
                     dist[j] = 1 + std::min({dist[j - 1], dist[j], prev});
