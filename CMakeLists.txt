@@ -78,9 +78,9 @@ target_sources(${LIB_NAME}
         main/keyboard.cxx
         main/systemd.cxx
         mods/abs2rel.cxx
-        mods/input_manager.cxx
         mods/emitter.cxx
         mods/ignore.cxx
+        mods/input_manager.cxx
         mods/intercept.cxx
         mods/io_manager.cxx
         mods/keys_status.cxx
@@ -116,10 +116,10 @@ target_sources(${LIB_NAME}
         mods/abs2rel.ixx
         mods/add_scroll.ixx
         mods/context_vars.ixx
-        mods/input_manager.ixx
         mods/emitter.ixx
         mods/ignore.ixx
         mods/inout.ixx
+        mods/input_manager.ixx
         mods/intercept.ixx
         mods/io_manager.ixx
         mods/keys_status.ixx
@@ -137,6 +137,7 @@ target_sources(${LIB_NAME}
         mods/typed.ixx
         mods/typer.ixx
         mods/vars.ixx
+        utils/dynamic_scoping.ixx
         utils/easings.ixx
         utils/hash.ixx
         utils/nullable_indirect.ixx
