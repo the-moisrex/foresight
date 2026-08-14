@@ -9,15 +9,14 @@ int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
     using namespace std::chrono_literals;
 
-    static constexpr auto args = arguments;
     static constinit auto pipeline =
       context
       | io_manager
-      | intercept[tablet | required, keyboard | required]
       | input_manager
+      | intercept[tablet | required | grab, keyboard | required | grab]
       | scheduled_emitter
       | led_status
-      | keys_status                                // Save key presses
+      | keys_status // Save key presses
       | on[op | pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
            context
              | abs2rel                             // Convert Drawing Tablet absolute moves into mouse moves
@@ -55,10 +54,10 @@ int main(int const argc, char const* const* argv) try {
       | once[pressed[KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC], exit_pipeline] // Restart/Quit
       | on[pressed[BTN_LEFT, KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
       | add_scroll[op | pressed[BTN_MIDDLE] | pressed[KEY_CAPSLOCK], emit + up(BTN_MIDDLE)]
-      | once[longtime_released[pressed[KEY_CAPSLOCK], 200ms], emit + up(KEY_CAPSLOCK) + press(KEY_CAPSLOCK)]
+      | once[longtime_released[pressed[KEY_CAPSLOCK], 200ms], led_toggle]
       | router[caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput];
 
-    pipeline.mod(intercept).add(args(argc, argv) | grab | required);
+    pipeline.mod(intercept).add(arguments(argc, argv) | grab | required);
     pipeline();
 
     return 0;

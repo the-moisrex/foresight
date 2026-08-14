@@ -114,7 +114,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 if (added) [[unlikely]] {
                     break;
                 }
-                log("DEBUG matching {}", to_string(cur_query));
+                // log("DEBUG matching {}", to_string(cur_query));
                 if (!matches(event_dev, cur_query)) {
                     continue;
                 }

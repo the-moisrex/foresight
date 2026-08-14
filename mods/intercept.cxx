@@ -7,7 +7,6 @@ module;
 #include <optional>
 #include <span>
 #include <sys/poll.h>
-#include <type_traits>
 #include <utility>
 #include <vector>
 module fs8.mods.intercept;
@@ -60,7 +59,7 @@ std::span<device_query const> basic_interceptor::queries() noexcept {
     return {query_cache.data(), queries_count};
 }
 
-fs8::context_action basic_interceptor::do_start(basic_input_manager& im, basic_io_manager& io) noexcept try {
+context_action basic_interceptor::do_start(basic_input_manager& im, basic_io_manager& io) noexcept try {
     using enum context_action;
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
@@ -68,7 +67,7 @@ fs8::context_action basic_interceptor::do_start(basic_input_manager& im, basic_i
 
     pimpl->im = &im;
 
-    log("DEBUG do_start: queries_count={}", queries_count);
+    // log("DEBUG do_start: queries_count={}", queries_count);
 
     // Queries stay owned here; register as a provider so `input_manager` can
     // pull them again (e.g. on `requery`) instead of copying them over.
@@ -84,7 +83,7 @@ fs8::context_action basic_interceptor::do_start(basic_input_manager& im, basic_i
     return context_action::exit;
 }
 
-fs8::context_action basic_interceptor::operator()(io_fd const& fd) noexcept try {
+context_action basic_interceptor::operator()(io_fd const& fd) noexcept try {
     using enum context_action;
     if (pimpl.get() == nullptr || pimpl->im == nullptr) [[unlikely]] {
         return next;

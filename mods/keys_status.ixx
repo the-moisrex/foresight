@@ -3,12 +3,16 @@
 module;
 #include <array>
 #include <cassert>
+#include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
 #include <span>
 export module fs8.mods.keys_status;
 import fs8.event;
 import fs8.context;
 import fs8.traits;
+import fs8.devices.evdev;
+import fs8.mods.input_manager;
+import fs8.log;
 
 export namespace fs8 {
 
@@ -125,6 +129,67 @@ export namespace fs8 {
             return ((key_codes < LED_MAX && leds.at(key_codes) == 0) && ...);
         }
 
+        /// Seed the LED state from the hardware device (e.g. the keyboard's
+        /// current CapsLock LED) so the mode indicator is correct at startup.
+        /// Must run after the devices are open (i.e. after `input_manager`).
+        template <ContextWith<basic_input_manager> CtxT>
+        context_action operator()(CtxT& ctx, start_tag) noexcept {
+            return seed(ctx);
+        }
+
+        /// Find the hardware keyboard (the device with LED_CAPSL) and copy the
+        /// current LED values into our local LED state.
+        template <ContextWith<basic_input_manager> CtxT>
+        context_action seed(CtxT& ctx) noexcept {
+            using enum context_action;
+            for (evdev const& dev : ctx.mod(input_manager).devices()) {
+                if (!dev.has_event_code(EV_LED, LED_CAPSL)) {
+                    continue;
+                }
+                int  value = 0;
+                bool found = false;
+                for (code_type led = 0; led < LED_MAX; ++led) {
+                    if (libevdev_fetch_event_value(dev.device_ptr(), EV_LED, led, &value) == 0) {
+                        this->leds.at(led) = static_cast<event_type::value_type>(value);
+                        found              = true;
+                    }
+                }
+                if (found) [[likely]] {
+                    break;
+                }
+            }
+            return next;
+        }
+
+        /// Flip the CapsLock mode: toggle the tracked LED state and mirror it
+        /// back to the physical keyboard so the mode indicator is real.
+        template <ContextWith<basic_input_manager> CtxT>
+        context_action toggle_capslock(CtxT& ctx) noexcept {
+            using enum context_action;
+            log("LED toggle fired by {} tracked={}", ctx.event().code_name(), this->leds.at(LED_CAPSL) == 0 ? "off" : "on");
+            for (evdev const& dev : ctx.mod(input_manager).devices()) {
+                if (!dev.has_event_code(EV_LED, LED_CAPSL)) {
+                    continue;
+                }
+                auto const next_state    = this->is_off(LED_CAPSL) ? 1 : 0;
+                this->leds.at(LED_CAPSL) = static_cast<event_type::value_type>(next_state);
+                log("LED toggle: fd={} tracked={} -> write {}", dev.native_handle(), next_state == 1 ? "off" : "on", next_state);
+                std::ignore = dev.send_event(EV_LED, LED_CAPSL, next_state);
+                std::ignore = dev.send_event(EV_SYN, SYN_REPORT, 0);
+                break;
+            }
+            return next;
+        }
+
         void operator()(event_type const& event) noexcept;
     } led_status;
+
+    /// Flip the CapsLock mode by toggling the (physical) CapsLock LED.
+    constexpr struct [[nodiscard]] basic_led_toggle : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        void operator()(Context auto& ctx) const noexcept {
+            std::ignore = ctx.mod(led_status).toggle_capslock(ctx);
+        }
+    } led_toggle;
 } // namespace fs8

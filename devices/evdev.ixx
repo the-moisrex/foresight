@@ -199,6 +199,14 @@ namespace fs8 {
          */
         [[nodiscard]] std::optional<input_event> next() noexcept;
 
+        /// Write a single input_event back into the device (e.g. an EV_LED to
+        /// reflect a mode toggle on the hardware device). Returns false on
+        /// failure (including devices that don't accept writes).
+        [[nodiscard]] bool send_event(input_event const& event) const noexcept;
+
+        /// Write a single input_event constructed from (type, code, value).
+        [[nodiscard]] bool send_event(event_type::type_type type, event_type::code_type code, event_type::value_type value) const noexcept;
+
       private:
         libevdev*    dev    = nullptr;
         evdev_status status = evdev_status::unknown;

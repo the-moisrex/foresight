@@ -13,6 +13,7 @@ import fs8.context;
 import fs8.mods.io_manager;
 import fs8.mods.input_manager;
 import fs8.pimpl;
+import fs8.log;
 
 export namespace fs8 {
 
@@ -67,6 +68,8 @@ export namespace fs8 {
             using enum context_action;
             if (auto const ev = do_pop(ctx.mod(input_manager), ctx.mod(io_manager)); ev.has_value()) [[unlikely]] {
                 ctx.event(*ev);
+                auto event = ctx.event();
+                log("intercept: {} {} {}", event.type_name(), event.code_name(), event.value());
                 return next;
             }
             return ignore_event;

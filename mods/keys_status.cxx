@@ -72,5 +72,6 @@ void basic_led_status::operator()(event_type const& event) noexcept {
         // Just in case
         return;
     }
+    fs8::log("LED event: code={} value={}", event.code(), event.value());
     this->leds.at(event.code()) = event.value();
 }

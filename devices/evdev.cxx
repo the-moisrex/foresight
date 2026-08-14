@@ -436,6 +436,25 @@ std::optional<input_event> evdev::next() noexcept {
     return std::nullopt;
 }
 
+bool evdev::send_event(input_event const& event) const noexcept {
+    if (dev == nullptr) [[unlikely]] {
+        return false;
+    }
+    int const fd = libevdev_get_fd(dev);
+    if (fd < 0) [[unlikely]] {
+        return false;
+    }
+    return ::write(fd, &event, sizeof(event)) == static_cast<ssize_t>(sizeof(event));
+}
+
+bool evdev::send_event(event_type::type_type const type, event_type::code_type const code, event_type::value_type const value) const noexcept {
+    input_event event{};
+    event.type  = type;
+    event.code  = code;
+    event.value = value;
+    return send_event(event);
+}
+
 /// Check if a freshly-opened device can be grabbed without disrupting a grab
 /// this process already holds. Always leaves the device ungrabbed afterwards.
 bool fs8::test_grab(evdev& dev) noexcept {
