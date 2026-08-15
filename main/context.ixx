@@ -3,6 +3,7 @@
 module;
 #include <concepts>
 #include <cstdint>
+#include <functional>
 #include <string_view>
 #include <tuple>
 #include <type_traits>
@@ -13,6 +14,7 @@ export import :vars;
 import fs8.event;
 import fs8.log;
 import fs8.traits;
+import dynamic_scoping;
 
 namespace fs8 {
     // Base case: index 0, type is the first type T
@@ -624,6 +626,9 @@ export namespace fs8 {
         template <typename T>
         using mod_type = mod_of<T, Funcs...>;
 
+        template <typename Func>
+        static constexpr bool is_mod = (std::same_as<mod_type<Func>, Funcs> || ...);
+
       private:
         ctx_type *ctx;
 
@@ -672,13 +677,13 @@ export namespace fs8 {
         }
 
         template <typename Func, typename Self>
-            requires((std::same_as<mod_type<Func>, Funcs> || ...))
+            requires is_mod<Func>
         [[nodiscard]] constexpr decltype(auto) mod(this Self &&self) noexcept {
             return std::forward_like<Self>(self.ctx->template mod<Func>());
         }
 
         template <typename Func, typename Self>
-            requires((std::same_as<mod_type<Func>, Funcs> || ...))
+            requires is_mod<Func>
         [[nodiscard]] constexpr decltype(auto) mod(this Self &&self, [[maybe_unused]] Func const &) noexcept {
             return std::forward_like<Self>(self.ctx->template mod<Func>());
         }
@@ -698,7 +703,7 @@ export namespace fs8 {
         // Re-Forking
         template <typename Mod>
         constexpr auto fork_view() const noexcept {
-            static_assert((std::same_as<Mod, Funcs> || ...), "Index out of range.");
+            static_assert(is_mod<Mod>, "Index out of range.");
             return basic_context_view<index_at<Mod, Funcs...>, Funcs...>{*ctx};
         }
     };
