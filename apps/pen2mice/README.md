@@ -15,11 +15,13 @@ A utility that converts pen tablet input into mouse-like actions, enabling drawi
 
 ```bash
 ./pen2mice [pen_device] [usb_keyboard_device]
+./pen2mice -h | --help
 ```
 
 ### Device Arguments
 - `pen`: Specifies the drawing tablet/pen device
 - `usb keyboard`: Specifies the USB keyboard device to use
+- `-h | --help`: Print help
 
 ### Controls
 

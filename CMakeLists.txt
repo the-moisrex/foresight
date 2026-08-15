@@ -106,6 +106,7 @@ target_sources(${LIB_NAME}
         lib/mod_parser.ixx
         lib/xkb.ixx
         main/context.ixx
+        main/cli.ixx
         main/event.ixx
         main/keyboard.ixx
         main/log.ixx

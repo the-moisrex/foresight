@@ -2,13 +2,32 @@
 
 import fs8.mods;
 import fs8.log;
-import fs8.utils;
+import fs8.cli;
 import fs8.devices.queries;
+
+static constexpr auto args =
+  fs8::arguments["USB Keyboard"]
+    .positional("keyboard_device")
+    .help(R"TEXT(
+Usage: auto-typer [keyboard_device]
+
+Types a string when certain typed patterns are detected on the keyboard.
+
+Arguments:
+    -h | --help           Print help.
+
+Positionals:
+    keyboard_device       The USB keyboard device query.
+)TEXT");
 
 int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
 
-    static constexpr auto args = arguments["USB Keyboard Copied"];
+    auto const parsed = args(argc, argv);
+    if (parsed.help()) {
+        parsed.print_help();
+        return 0;
+    }
 
     static constinit auto pipeline =
       context
@@ -20,7 +39,7 @@ int main(int const argc, char const* const* argv) try {
       | ignore_adjacent_syns
       | uinput;
 
-    pipeline.mod(intercept).add(args(argc, argv) | grab | required);
+    pipeline.mod(intercept).add(parsed | grab | required);
     pipeline();
 
     return 0;

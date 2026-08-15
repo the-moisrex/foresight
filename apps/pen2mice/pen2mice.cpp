@@ -2,12 +2,38 @@
 #include <linux/input-event-codes.h>
 import fs8.mods;
 import fs8.log;
-import fs8.utils;
+import fs8.cli;
 import fs8.devices.queries;
+
+static constexpr auto args =
+  fs8::arguments
+    .positional("pen_device", "usb_keyboard_device")
+    .help(R"TEXT(
+Usage: pen2mice [pen_device] [usb_keyboard_device]
+
+Converts a drawing tablet's absolute input into mouse movements and clicks
+with extended features like gestures, express mode, and scroll enhancement.
+
+Arguments:
+    -h | --help               Print help.
+
+Positionals:
+    pen_device                The drawing tablet/pen device query.
+    usb_keyboard_device       The USB keyboard device query.
+
+Device queries are device names, paths (e.g. /dev/input/event1), or udev
+terms (e.g. "name=event0", "keyboard").
+)TEXT");
 
 int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
     using namespace std::chrono_literals;
+
+    auto const parsed = args(argc, argv);
+    if (parsed.help()) {
+        parsed.print_help();
+        return 0;
+    }
 
     static constinit auto pipeline =
       context
@@ -57,7 +83,7 @@ int main(int const argc, char const* const* argv) try {
       | once[longtime_released[pressed[KEY_CAPSLOCK], 200ms], led_toggle]
       | router[caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput];
 
-    pipeline.mod(intercept).add(arguments(argc, argv) | grab | required);
+    pipeline.mod(intercept).add(parsed | grab | required);
     pipeline();
 
     return 0;
