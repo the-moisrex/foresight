@@ -24,24 +24,6 @@ using fs8::user_event;
 namespace {
     constexpr std::size_t max_simultaneous_key_presses = 32;
 
-    /// Is this key code a modifier key (ctrl/shift/alt/meta/caps/num/scroll)?
-    [[nodiscard]] constexpr bool is_modifier_key(std::uint16_t const code) noexcept {
-        switch (code) {
-            case KEY_LEFTCTRL:
-            case KEY_RIGHTCTRL:
-            case KEY_LEFTSHIFT:
-            case KEY_RIGHTSHIFT:
-            case KEY_LEFTALT:
-            case KEY_RIGHTALT:
-            case KEY_LEFTMETA:
-            case KEY_RIGHTMETA:
-            case KEY_CAPSLOCK:
-            case KEY_NUMLOCK:
-            case KEY_SCROLLLOCK: return true;
-            default: return false;
-        }
-    }
-
     [[nodiscard]] constexpr bool is_up_mode(fs8::modifier_mode const mode) noexcept {
         using enum fs8::modifier_mode;
         return mode == keyup || mode == ordered_keyup;
@@ -162,6 +144,23 @@ namespace {
         return (fs8::event_encoded_code32_t & code) == fs8::event_encoded_code32_t;
     }
 } // namespace
+
+bool fs8::is_modifier_key(std::uint16_t const code) noexcept {
+    switch (code) {
+        case KEY_LEFTCTRL:
+        case KEY_RIGHTCTRL:
+        case KEY_LEFTSHIFT:
+        case KEY_RIGHTSHIFT:
+        case KEY_LEFTALT:
+        case KEY_RIGHTALT:
+        case KEY_LEFTMETA:
+        case KEY_RIGHTMETA:
+        case KEY_CAPSLOCK:
+        case KEY_NUMLOCK:
+        case KEY_SCROLLLOCK: return true;
+        default: return false;
+    }
+}
 
 fs8::code32_t fs8::unicode_encoded_event(xkb::basic_state const &state, key_event const event) noexcept {
     auto const code_point = xkb::event2unicode(state, event);
@@ -357,8 +356,8 @@ namespace {
             // canonical sort: modifiers first, then by code
             // so `<ctrl-shift-x>` == `<shift-ctrl-x>`
             std::ranges::sort(keys, [](auto const a, auto const b) noexcept {
-                if (is_modifier_key(a) != is_modifier_key(b)) {
-                    return is_modifier_key(a);
+                if (fs8::is_modifier_key(a) != fs8::is_modifier_key(b)) {
+                    return fs8::is_modifier_key(a);
                 }
                 return a < b;
             });

@@ -78,6 +78,7 @@ target_sources(${LIB_NAME}
         main/keyboard.cxx
         main/systemd.cxx
         mods/abs2rel.cxx
+        mods/autocomplete.cxx
         mods/emitter.cxx
         mods/ignore.cxx
         mods/input_manager.cxx
@@ -115,6 +116,7 @@ target_sources(${LIB_NAME}
         main/translate.ixx
         main/utils.ixx
         mods/abs2rel.ixx
+        mods/autocomplete.ixx
         mods/add_scroll.ixx
         mods/context_vars.ixx
         mods/emitter.ixx

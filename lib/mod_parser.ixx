@@ -4,6 +4,7 @@ module;
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <linux/input-event-codes.h>
 #include <string_view>
 export module fs8.lib.mod_parser;
 import fs8.event;
@@ -16,6 +17,9 @@ namespace fs8 {
 
     export constexpr auto     invalid_code_point     = static_cast<char32_t>(0x10'FFFFU);
     export constexpr code32_t event_encoded_code32_t = 0b1U << 30U;
+
+    /// Is this key code a modifier key (ctrl/shift/alt/meta/caps/num/scroll)?
+    export [[nodiscard]] bool is_modifier_key(std::uint16_t const code) noexcept;
 
     using code32_callback   = std::function_ref<void(code32_t const &)>;
     using key_code_callback = std::function_ref<void(key_event const &)>;

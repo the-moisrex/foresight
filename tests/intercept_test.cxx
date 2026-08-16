@@ -155,8 +155,9 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
 
     static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | collector{};
 
-    auto& io = pipeline.mod<basic_io_manager>();
-    auto& im = pipeline.mod<basic_input_manager>();
+    auto& io  = pipeline.mod<basic_io_manager>();
+    auto& im  = pipeline.mod<basic_input_manager>();
+    auto& col = pipeline.mod<collector>();
 
     EXPECT_EQ(pipeline(start), context_action::next);
 
@@ -172,7 +173,10 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
         GTEST_SKIP() << "The uinput keyboard was not enumerated.";
     }
 
-    int const first_fd = im.devices().front().native_handle();
+    // The machine may already have real keyboards matching `[keyboard]`, so the
+    // uinput keyboard is only the *newest* device; track it by count delta.
+    std::size_t const known = std::ranges::distance(im.devices());
+    int const first_fd     = std::ranges::next(im.devices().begin(), static_cast<std::ptrdiff_t>(known - 1))->native_handle();
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
     EXPECT_TRUE(io.is_watched(first_fd));
 
@@ -185,16 +189,25 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
     }
 
     EXPECT_EQ(io(load_event), context_action::next);
-    if (std::ranges::distance(im.devices()) < 2) {
+    if (std::ranges::distance(im.devices()) < known + 1) {
         uin.close();
         uin2.close();
         GTEST_SKIP() << "The second uinput keyboard was not enumerated.";
     }
 
-    int const second_fd = std::ranges::next(im.devices().begin())->native_handle();
+    int const second_fd = std::ranges::next(im.devices().begin(), static_cast<std::ptrdiff_t>(known))->native_handle();
 
-    // A udev-only wakeup must not fabricate an input event.
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+    // A udev-only wakeup must not fabricate an *input* event. The hotplugged
+    // devices' initial state reports (LED/sync) are real events and may be
+    // delivered, so drain them; the guarantee is that nothing delivered here is
+    // an EV_KEY fabrication.
+    col.events.clear();
+    int drained = 0;
+    while (invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event) == context_action::next) {
+        ASSERT_LT(++drained, 100) << "the interceptor kept fabricating events";
+        ASSERT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
+        ASSERT_NE(col.events.back().type(), EV_KEY);
+    }
 
     // ... but the hotplugged device must now be watched.
     EXPECT_TRUE(io.is_watched(second_fd));
