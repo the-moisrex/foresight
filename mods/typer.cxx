@@ -43,10 +43,14 @@ namespace {
     }
 } // namespace
 
-void fs8::emit(std::u32string_view const str, user_event_callback callback) {
+void fs8::emit(std::u32string_view const str, user_event_callback const callback) {
     emit_impl(str, callback);
 }
 
-void fs8::emit(std::string_view const str, user_event_callback callback) {
+void fs8::emit(std::u8string_view const str, user_event_callback const callback) {
+    emit_impl(str, callback);
+}
+
+void fs8::emit(std::string_view const str, user_event_callback const callback) {
     emit_impl(str, callback);
 }

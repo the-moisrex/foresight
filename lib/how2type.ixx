@@ -20,7 +20,7 @@ export namespace fs8::xkb {
     using handle_keysym_callback = std::function_ref<void(key_position const&)>;
 
     /**
-     * XKB How-To-Type (without composed sequences)
+     * XKB How-To-Type
      * Convert strings to events
      */
     namespace how2type {
@@ -41,6 +41,7 @@ export namespace fs8::xkb {
          * Call the callback with the series of events that will type that string.
          */
         void emit(keymap const& map, std::u32string_view str, user_event_callback callback);
+        void emit(keymap const& map, std::u8string_view str, user_event_callback callback);
         void emit(keymap const& map, std::string_view str, user_event_callback callback);
 
         enum struct output_syntax : std::uint8_t {

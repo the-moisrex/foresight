@@ -3,13 +3,16 @@
 module;
 #include <algorithm>
 #include <chrono>
+#include <cstdlib>
 #include <format>
 #include <linux/input.h>
 #include <memory>
 #include <print>
 #include <ranges>
 #include <vector>
+#include <xkbcommon/xkbcommon-compose.h>
 #include <xkbcommon/xkbcommon.h>
+#include <xkbcommon/xkbcommon-keysyms.h>
 module fs8.lib.xkb.how2type;
 import fs8.log;
 import fs8.event;
@@ -32,8 +35,8 @@ namespace {
      * Lazily builds the map once for the given keymap. No dynamic allocation,
      * no global state mutation, and safe across threads (per C++11 guarantees).
      */
-    std::array<modifier_map_entry, 5U> const &get_modmap(xkb_keymap *keymap) {
-        static std::array<modifier_map_entry, 5U> map{};
+    std::array<modifier_map_entry, 6U> const &get_modmap(xkb_keymap *keymap) {
+        static std::array<modifier_map_entry, 6U> map{};
         static bool                               initialized = false;
 
         if (!initialized) {
@@ -56,6 +59,11 @@ namespace {
             map[4].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_CAPS);
             map[4].keycode = KEY_CAPSLOCK;
             map[4].mask    = map[4].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[4].index) : 0;
+
+            // Mod5 = ISO_Level3_Shift, typically the right Alt (AltGr) key
+            map[5].index   = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_MOD5);
+            map[5].keycode = KEY_RIGHTALT;
+            map[5].mask    = map[5].index != XKB_MOD_INVALID ? xkb_keymap_mod_get_mask2(keymap, map[5].index) : 0;
 
             initialized = true;
         }
@@ -183,36 +191,29 @@ void fs8::xkb::how2type::on_keysym(keymap const &map, xkb_keysym_t const target_
     });
 }
 
-void fs8::xkb::how2type::emit(keymap const &map, char32_t const ucs32, user_event_callback callback) {
-    // Convert Unicode -> keysym (uses libxkbcommon helper)
-    xkb_keysym_t const ks = xkb_utf32_to_keysym(static_cast<uint32_t>(ucs32));
-    if (ks == XKB_KEY_NoSymbol) {
-        return;
-    }
-
-    // Helper: naive xkb->evdev mapping using the historical +8 X11 offset
-    auto keycode_to_evdev = [](xkb_keycode_t const xkb_k) -> int {
+namespace {
+    /// Naive xkb->evdev mapping using the historical +8 X11 offset
+    [[nodiscard]] constexpr int keycode_to_evdev(xkb_keycode_t const xkb_k) noexcept {
         // Historically for X11-compatible maps: xkb_keycode == evdev + 8
         if (xkb_k <= 8) {
             return -1;
         }
         return static_cast<int>(xkb_k) - 8;
-    };
+    }
 
-    std::array<xkb_mod_mask_t, MAX_TYPE_MAP_ENTRIES> masks{};
-    std::size_t                                      num_masks = 0;
-    on_keysym(map, ks, [&](key_position const &pos) {
+    /// Emit a press/release (with SYN_REPORTs and any required modifiers) for a physical key position.
+    void emit_key_at(fs8::xkb::keymap const &map, fs8::xkb::key_position const &pos, fs8::user_event_callback callback) {
         int const evcode = keycode_to_evdev(pos.keycode);
         if (evcode < 0) {
             // can't map this key; abort
-            log("Warning: can't map xkb keycode {} to evdev code", static_cast<unsigned>(pos.keycode));
+            fs8::log("Warning: can't map xkb keycode {} to evdev code", static_cast<unsigned>(pos.keycode));
             return;
         }
 
         bool const requires_mods = pos.mask != 0;
 
         // Prepare a press event
-        user_event const ev_press{
+        fs8::user_event const ev_press{
           .type  = EV_KEY,
           .code  = static_cast<std::uint16_t>(evcode),
           .value = 1 // press
@@ -220,32 +221,26 @@ void fs8::xkb::how2type::emit(keymap const &map, char32_t const ucs32, user_even
         // time can be zeroed (caller can set real timestamps if desired)
 
         // Prepare a release event
-        user_event const ev_release{
+        fs8::user_event const ev_release{
           .type  = EV_KEY,
           .code  = static_cast<std::uint16_t>(evcode),
           .value = 0 // release
         };
 
         // SYN_REPORT
-        constexpr user_event ev_syn{.type = EV_SYN, .code = SYN_REPORT, .value = 0};
+        constexpr fs8::user_event ev_syn{.type = EV_SYN, .code = SYN_REPORT, .value = 0};
+
+        std::array<xkb_mod_mask_t, MAX_TYPE_MAP_ENTRIES> masks{};
+        std::size_t                                      num_masks = 0;
 
         if (requires_mods) {
             // todo: can we cache these results if this function is heavy?
             num_masks = xkb_keymap_key_get_mods_for_level(map.get(), pos.keycode, pos.layout, pos.level, masks.data(), masks.size());
 
-            if (num_masks > 0) {
-                if (invoke_mod_events(map.get(),
-                                      masks.at(0),
-                                      true,
-                                      [&](user_event const &event) {
-                                          callback(event);
-                                      }))
-                {
-                    callback(ev_syn);
-                }
+            if (num_masks > 0 && invoke_mod_events(map.get(), masks.at(0), true, [&](fs8::user_event const &event) { callback(event); })) {
+                callback(ev_syn);
             }
         }
-
 
         callback(ev_press);
         callback(ev_syn);
@@ -253,26 +248,178 @@ void fs8::xkb::how2type::emit(keymap const &map, char32_t const ucs32, user_even
         callback(ev_syn);
 
         // release the evs
-        if (requires_mods) {
-            if (num_masks > 0) {
-                if (invoke_mod_events(map.get(),
-                                      masks.at(0),
-                                      false,
-                                      [&](user_event const &event) {
-                                          callback(event);
-                                      }))
-                {
-                    callback(ev_syn);
+        if (requires_mods && num_masks > 0 && invoke_mod_events(map.get(), masks.at(0), false, [&](fs8::user_event const &event) { callback(event); })) {
+            callback(ev_syn);
+        }
+    }
+
+    /// Emit a single key that produces `keysym` on this keymap (returns false if not typable).
+    bool emit_keysym(fs8::xkb::keymap const &map, xkb_keysym_t const keysym, fs8::user_event_callback callback) {
+        bool emitted = false;
+        fs8::xkb::how2type::on_keysym(map, keysym, [&](fs8::xkb::key_position const &pos) {
+            if (emitted) {
+                return;
+            }
+            emitted = true;
+            emit_key_at(map, pos, callback);
+        });
+        return emitted;
+    }
+
+    /// Compose table for the current locale (function-local static: built once, thread-safe per C++11).
+    xkb_compose_table *compose_table() noexcept {
+        static xkb_compose_table *const table = [] {
+            // libxkbcommon's NULL-locale path (which relies on the process locale) can misbehave,
+            // so resolve the locale ourselves and fall back to the default English compose table.
+            auto locale_for_compose = []() -> std::string {
+                for (char const *name : {"LC_ALL", "LC_CTYPE", "LANG"}) {
+                    if (char const *value = std::getenv(name); value != nullptr && *value != '\0') {
+                        std::string const locale{value};
+                        // C/POSIX locales have no dedicated compose file; use the default English table
+                        if (locale != "C" && locale != "POSIX" && locale != "C.UTF-8" && locale != "POSIX.UTF-8") {
+                            return locale;
+                        }
+                        break;
+                    }
+                }
+                return "en_US.UTF-8";
+            };
+
+            xkb_context *const ctx = fs8::xkb::get_default_context().get();
+            xkb_compose_table *result =
+              xkb_compose_table_new_from_locale(ctx, locale_for_compose().c_str(), XKB_COMPOSE_COMPILE_NO_FLAGS);
+            if (result == nullptr) [[unlikely]] {
+                result = xkb_compose_table_new_from_locale(ctx, "en_US.UTF-8", XKB_COMPOSE_COMPILE_NO_FLAGS);
+            }
+            if (result == nullptr) [[unlikely]] {
+                fs8::log("Warning: failed to load a compose table; composed characters can't be typed");
+            }
+            return result;
+        }();
+        return table;
+    }
+
+    /// All distinct keysyms physically present on this keymap (any key/layout/level).
+    std::vector<xkb_keysym_t> collect_typable_keysyms(xkb_keymap *keymap) {
+        std::vector<xkb_keysym_t> syms;
+        for (xkb_keycode_t keycode = xkb_keymap_min_keycode(keymap); keycode <= xkb_keymap_max_keycode(keymap); ++keycode) {
+            xkb_layout_index_t const num_layouts = xkb_keymap_num_layouts_for_key(keymap, keycode);
+            for (xkb_layout_index_t layout = 0; layout < num_layouts; ++layout) {
+                xkb_level_index_t const num_levels = xkb_keymap_num_levels_for_key(keymap, keycode, layout);
+                for (xkb_level_index_t level = 0; level < num_levels; ++level) {
+                    xkb_keysym_t const *keysyms  = nullptr;
+                    int const           num_syms = xkb_keymap_key_get_syms_by_level(keymap, keycode, layout, level, &keysyms);
+                    for (int i = 0; i < num_syms; ++i) {
+                        if (keysyms[i] != XKB_KEY_NoSymbol) {
+                            syms.push_back(keysyms[i]);
+                        }
+                    }
                 }
             }
         }
-    });
+        std::sort(syms.begin(), syms.end());
+        syms.erase(std::unique(syms.begin(), syms.end()), syms.end());
+        return syms;
+    }
+
+    constexpr int MAX_COMPOSE_DEPTH = 3;
+
+    /// Search the compose table for a sequence producing `target`, using only keysyms that are
+    /// physically typable on this keymap. Fills `path` with the sequence when found.
+    bool find_composed(xkb_compose_state *state, xkb_keysym_t const target, std::vector<xkb_keysym_t> const &candidates,
+                       std::vector<xkb_keysym_t> &path, int const depth, int &feed_budget) {
+        for (xkb_keysym_t const candidate : candidates) {
+            if (--feed_budget < 0) [[unlikely]] {
+                return false;
+            }
+
+            xkb_compose_state_reset(state);
+            for (xkb_keysym_t const key : path) {
+                xkb_compose_state_feed(state, key);
+            }
+            if (xkb_compose_state_feed(state, candidate) != XKB_COMPOSE_FEED_ACCEPTED) {
+                continue;
+            }
+
+            auto const status = xkb_compose_state_get_status(state);
+            if (status == XKB_COMPOSE_COMPOSED) {
+                if (xkb_compose_state_get_one_sym(state) == target) {
+                    path.push_back(candidate);
+                    return true;
+                }
+                continue;
+            }
+            if (status != XKB_COMPOSE_COMPOSING || depth == MAX_COMPOSE_DEPTH) {
+                continue;
+            }
+
+            path.push_back(candidate);
+            if (find_composed(state, target, candidates, path, depth + 1, feed_budget)) {
+                return true;
+            }
+            path.pop_back();
+        }
+        return false;
+    }
+
+    /// Try to type `target` using a composed sequence (dead key + base key, or Compose/Multi_key).
+    bool emit_composed(fs8::xkb::keymap const &map, xkb_keysym_t const target, fs8::user_event_callback callback) {
+        xkb_compose_table *table = compose_table();
+        if (table == nullptr) [[unlikely]] {
+            return false;
+        }
+        xkb_compose_state *state = xkb_compose_state_new(table, XKB_COMPOSE_STATE_NO_FLAGS);
+        if (state == nullptr) [[unlikely]] {
+            return false;
+        }
+
+        std::vector<xkb_keysym_t>       path;
+        std::vector<xkb_keysym_t> const candidates = collect_typable_keysyms(map.get());
+        int                             feed_budget = 100'000;
+        bool const                      found       = find_composed(state, target, candidates, path, 1, feed_budget);
+        xkb_compose_state_unref(state);
+        if (!found) {
+            return false;
+        }
+        for (xkb_keysym_t const key : path) {
+            if (!emit_keysym(map, key, callback)) {
+                return false;
+            }
+        }
+        return true;
+    }
+} // namespace
+
+void fs8::xkb::how2type::emit(keymap const &map, char32_t const ucs32, user_event_callback callback) {
+    // Convert Unicode -> keysym (uses libxkbcommon helper)
+    xkb_keysym_t const ks = xkb_utf32_to_keysym(static_cast<uint32_t>(ucs32));
+    if (ks == XKB_KEY_NoSymbol) {
+        return;
+    }
+
+    // 1. Direct single-key typing
+    if (emit_keysym(map, ks, callback)) {
+        return;
+    }
+
+    // 2. Composed sequences (dead key + base key, or Compose/Multi_key)
+    if (emit_composed(map, ks, callback)) {
+        return;
+    }
+
+    // 3. Give up (e.g. an emoji or a character with no keysym/sequence on this keymap)
+    log("Warning: no way to type U+{:04X} on this keymap", static_cast<uint32_t>(ucs32));
 }
 
 void fs8::xkb::how2type::emit(keymap const &map, std::u32string_view const str, user_event_callback callback) {
     for (char32_t const ucs32 : str) {
         emit(map, ucs32, callback);
     }
+}
+
+void fs8::xkb::how2type::emit(keymap const &map, std::u8string_view const str, user_event_callback callback) {
+    std::string_view const as_bytes{reinterpret_cast<char const *>(str.data()), str.size()};
+    emit(map, as_bytes, callback);
 }
 
 void fs8::xkb::how2type::emit(keymap const &map, std::string_view str, user_event_callback callback) {
@@ -285,19 +432,20 @@ void fs8::xkb::how2type::emit(keymap const &map, std::string_view str, user_even
 void fs8::xkb::how2type::print(keymap const &map, std::string_view const str, output_syntax const syntax) {
     using enum output_syntax;
 
-    auto const pattern = encoded_modifiers(str);
+    auto const on_event = [syntax](user_event const &usr_event) {
+        event_type event{usr_event};
+        event.reset_time();
 
-    switch (syntax) {
-        case evtest: {
-            emit(map, pattern, [](user_event const &usr_event) {
-                event_type event{usr_event};
-                event.reset_time();
+        auto const time = std::chrono::duration<double>(event.micro_time()).count();
+        if (is_syn(event)) {
+            if (syntax == evtest) {
+                std::println("Event: time {:.6f}, -------------- SYN_REPORT ------------", time);
+            }
+            return;
+        }
 
-                auto const time = std::chrono::duration<double>(event.micro_time()).count();
-                if (is_syn(event)) {
-                    std::println("Event: time {:.6f}, -------------- SYN_REPORT ------------", time);
-                    return;
-                }
+        switch (syntax) {
+            case evtest: {
                 std::println(
                   "Event: time {:.6f}, type {} ({}), code {} ({}), value {}",
                   time,
@@ -306,14 +454,11 @@ void fs8::xkb::how2type::print(keymap const &map, std::string_view const str, ou
                   event.code(),
                   event.code_name(),
                   event.value());
-            });
-            break;
-        }
-        case cpp_code: {
-            emit(map, pattern, [](user_event const &usr_event) {
-                event_type const event{usr_event};
-                auto const       type_name_view = event.type_name();
-                std::string      type_name{type_name_view.data(), type_name_view.size()};
+                break;
+            }
+            case cpp_code: {
+                auto const  type_name_view = event.type_name();
+                std::string type_name{type_name_view.data(), type_name_view.size()};
                 if (type_name.empty()) {
                     type_name = std::format("{}", event.type());
                 }
@@ -324,11 +469,29 @@ void fs8::xkb::how2type::print(keymap const &map, std::string_view const str, ou
                     code_name = std::format("{}", event.code());
                 }
                 std::println("{{.type = {}, .code = {}, .value = {}}},", type_name, code_name, event.value());
-            });
+                break;
+            }
+            default: log("Invalid syntax provided."); break;
+        }
+    };
+
+    // Walk the string, emitting plain text and modifier tags (e.g. "<ctrl-r>") the same way the
+    // typer module does at runtime, so the output matches what real emission produces.
+    std::size_t index = 0;
+    for (;;) {
+        std::size_t lhsptr = 0;
+        std::size_t rhsptr = 0;
+        if (!find_modifier_tag(str, index, lhsptr, rhsptr)) {
             break;
         }
-        default: log("Invalid syntax provided."); break;
+        emit(map, str.substr(index, lhsptr - index), on_event);
+        auto const tag = str.substr(lhsptr, rhsptr - lhsptr);
+        if (!parse_modifier(tag, on_event)) {
+            emit(map, tag, on_event);
+        }
+        index = rhsptr;
     }
+    emit(map, str.substr(index), on_event);
 }
 
 void fs8::xkb::how2type::print(std::string_view const str, output_syntax const syntax) {

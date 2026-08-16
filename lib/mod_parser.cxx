@@ -441,27 +441,39 @@ namespace {
     }
 } // namespace
 
-bool fs8::parse_modifier(std::u32string_view const mod_str, key_code_callback callback) {
+bool fs8::parse_modifier(std::u32string_view const mod_str, key_code_callback const callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 
-bool fs8::parse_modifier(std::u32string_view const mod_str, code32_callback callback) {
+bool fs8::parse_modifier(std::u32string_view const mod_str, code32_callback const callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 
-bool fs8::parse_modifier(std::u32string_view const mod_str, user_event_callback callback) {
+bool fs8::parse_modifier(std::u32string_view const mod_str, user_event_callback const callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 
-bool fs8::parse_modifier(std::string_view const mod_str, key_code_callback callback) {
+bool fs8::parse_modifier(std::string_view const mod_str, key_code_callback const callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 
-bool fs8::parse_modifier(std::string_view const mod_str, code32_callback callback) {
+bool fs8::parse_modifier(std::string_view const mod_str, code32_callback const callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 
-bool fs8::parse_modifier(std::string_view const mod_str, user_event_callback callback) {
+bool fs8::parse_modifier(std::string_view const mod_str, user_event_callback const callback) {
+    return parse_modifier_impl(mod_str, callback);
+}
+
+bool fs8::parse_modifier(std::u8string_view const mod_str, key_code_callback const callback) {
+    return parse_modifier_impl(mod_str, callback);
+}
+
+bool fs8::parse_modifier(std::u8string_view const mod_str, code32_callback const callback) {
+    return parse_modifier_impl(mod_str, callback);
+}
+
+bool fs8::parse_modifier(std::u8string_view const mod_str, user_event_callback const callback) {
     return parse_modifier_impl(mod_str, callback);
 }
 

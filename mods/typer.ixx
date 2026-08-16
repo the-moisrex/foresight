@@ -24,6 +24,7 @@ namespace fs8 {
 
     /// Emit the events in the string
     void emit(std::u32string_view str, user_event_callback);
+    void emit(std::u8string_view str, user_event_callback);
     void emit(std::string_view str, user_event_callback);
 
     /**
@@ -55,13 +56,34 @@ namespace fs8 {
         }
 
         template <typename T>
-            requires(!std::is_array_v<std::remove_cvref_t<T>> && !Tag<T>) // no strings
+            requires(!std::is_array_v<std::remove_cvref_t<T>> && !Tag<T>) // no strings, no tags
         consteval auto operator[](T&& getter) const noexcept {
+            return basic_type_string<std::remove_cvref_t<T>>{std::forward<T>(getter)};
+        }
+
+        consteval auto operator()(std::u32string_view const str) const noexcept {
+            return basic_type_string<std::u32string_view>{str};
+        }
+
+        consteval auto operator()(std::u8string_view const str) const noexcept {
+            return basic_type_string<std::u8string_view>{str};
+        }
+
+        consteval auto operator()(std::string_view const str) const noexcept {
+            return basic_type_string<std::string_view>{str};
+        }
+
+        template <typename T>
+            requires(!std::is_array_v<std::remove_cvref_t<T>> && !Tag<std::remove_cvref_t<T>> && !Context<std::remove_cvref_t<T>>) // no strings, no tags, no pipeline contexts
+        consteval auto operator()(T&& getter) const noexcept {
             return basic_type_string<std::remove_cvref_t<T>>{std::forward<T>(getter)};
         }
 
         void operator()(Context auto& ctx) noexcept try {
             auto const str = to_string(event_getter);
+            // NOTE: fork_emit re-sends each synthesized event through the mods that come AFTER this one
+            // (never back into `typed`/`search_engine`, which sit earlier in the pipeline), so an emitted
+            // string can't re-trigger the pattern that produced it as long as emitters stay downstream of matchers.
             emit(str, [&](user_event const& event) noexcept {
                 std::ignore = ctx.fork_emit(event_type{event});
             });

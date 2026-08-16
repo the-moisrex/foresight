@@ -32,19 +32,21 @@ int main(int const argc, char const* const* argv) try {
     static constinit auto pipeline =
       context
       | io_manager
-      | intercept[keyboard | required]
+      | intercept[keyboard | required | matches_limit(10)]
       | input_manager
       | search_engine
-      | on[typed["@test"], type_string["nice"]]
+      | on[typed["@test"], type_string("nice")]
       | ignore_adjacent_syns
       | uinput;
 
-    pipeline.mod(intercept).add(parsed | grab | required);
+    pipeline.mod(intercept).add(parsed | required);
     pipeline();
 
     return 0;
 } catch (std::runtime_error const& err) {
     fs8::log("Runtime Error: {}", err.what());
+    throw;
 } catch (...) {
     fs8::log("Unknown Error.");
+    throw;
 }

@@ -176,9 +176,9 @@ export namespace fs8 {
 
     template <typename T>
     concept Tag = requires {
-        T::is_tag;
-        requires T::is_tag;
-    } && std::is_trivially_copy_constructible_v<T>;
+        std::remove_cvref_t<T>::is_tag;
+        requires std::remove_cvref_t<T>::is_tag;
+    } && std::is_trivially_copy_constructible_v<std::remove_cvref_t<T>>;
 
     template <typename ModT, typename... Args>
     constexpr context_action invoke_mod_inorder(ModT &mod, context_action const default_action, Args &&...args) noexcept {

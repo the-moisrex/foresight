@@ -110,6 +110,9 @@ namespace fs8 {
     export [[nodiscard]] bool parse_modifier(std::string_view mod_str, key_code_callback callback);
     export [[nodiscard]] bool parse_modifier(std::string_view mod_str, code32_callback callback);
     export [[nodiscard]] bool parse_modifier(std::string_view mod_str, user_event_callback callback);
+    export [[nodiscard]] bool parse_modifier(std::u8string_view mod_str, key_code_callback callback);
+    export [[nodiscard]] bool parse_modifier(std::u8string_view mod_str, code32_callback callback);
+    export [[nodiscard]] bool parse_modifier(std::u8string_view mod_str, user_event_callback callback);
 
     [[nodiscard]] std::u32string parse_modifier(std::string_view mod_str);
     [[nodiscard]] std::u32string parse_modifier(std::u32string_view mod_str);
