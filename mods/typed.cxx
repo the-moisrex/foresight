@@ -14,7 +14,6 @@ module;
 #include <vector>
 module fs8.mods.typed;
 import fs8.lib.xkb.how2type;
-import fs8.log;
 import fs8.event;
 import fs8.lib.mod_parser;
 import fs8.pimpl;
@@ -51,7 +50,9 @@ struct fs8::pimpl_idiom<basic_search_engine>::impl {
     /// Trigger ID is the index that points to this patterns
     /// todo: use inplace_vector<std::u32string, MAX_PATTERNS>
     std::vector<std::u32string> patterns;
-    std::vector<node_type>      trie;
+    /// The modifier mode of each pattern (parallel to `patterns`)
+    std::vector<modifier_mode> pattern_modes;
+    std::vector<node_type>     trie;
 };
 
 template <>
@@ -184,12 +185,14 @@ std::uint16_t basic_search_engine::emplace_pattern(std::string_view const patter
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
     }
+    auto const    mode      = modifier_mode_of(pattern);
     auto          e_pattern = encoded_modifiers(pattern);
     auto const    it        = std::ranges::find(pimpl->patterns, e_pattern);
     std::uint16_t index     = 0;
     if (it == pimpl->patterns.end()) {
         // insert it if we didn't find it
         pimpl->patterns.emplace_back(std::move(e_pattern));
+        pimpl->pattern_modes.push_back(mode);
         index = static_cast<std::uint16_t>(pimpl->patterns.size() - 1);
 
         // Rebuild machine (can be optimized to incremental insertion if needed)
@@ -266,10 +269,17 @@ bool basic_search_engine::search(
         return false;
     }
     auto const code = unicode_encoded_event(keyboard_state, static_cast<key_event>(event));
-    log("Code: {:x} {} {} {}", static_cast<std::uint32_t>(code), event.type_name(), event.code_name(), event.value());
-    if (event.value() != 1) {
-        return false; // skip processing key-ups, but we do need to process key-ups for modifier states
+
+    if (trigger_id >= pimpl->pattern_modes.size()) [[unlikely]] {
+        return false;
     }
+    auto const mode       = pimpl->pattern_modes[trigger_id];
+    bool const is_up_mode = mode == modifier_mode::keyup || mode == modifier_mode::ordered_keyup;
+    // keydown patterns only track presses, keyup patterns only track releases:
+    if (is_up_mode ? event.value() != 0 : event.value() != 1) {
+        return false;
+    }
+
     state = process(code, state);
     return matches(state.index(), trigger_id);
 }
@@ -290,20 +300,7 @@ bool basic_typed::on_search(event_type const &event, basic_search_engine const &
     if (pimpl.get() == nullptr) [[unlikely]] {
         return false;
     }
-    bool const result = engine.search(event, pimpl->trigger_id, keyboard_state, pimpl->aho_search_state);
-
-    fs8::log(
-      "TYPED: Search result: {}, event type: {}, code: {}, value: {},  pattern: '{}', trigger_id: "
-      "{}, search state: {}",
-      result,
-      event.type_name(),
-      event.code_name(),
-      event.value(),
-      pattern,
-      pimpl->trigger_id,
-      pimpl->aho_search_state.index());
-
-    return result;
+    return engine.search(event, pimpl->trigger_id, keyboard_state, pimpl->aho_search_state);
 }
 
 // NOLINTEND(*-pro-bounds-constant-array-index)

@@ -14,31 +14,32 @@ namespace {
         // first initialize the how2type object
         auto const &map = fs8::xkb::get_default_keymap();
 
-        constexpr auto delim_start = static_cast<CharT>('<');
-        constexpr auto delim_end   = static_cast<CharT>('>');
-
+        std::size_t index = 0;
         for (;;) {
-            // 1. find the first modifier:
-            auto const lhsptr = fs8::find_delim(str, delim_start);
-            if (lhsptr == std::u32string_view::npos) {
+            // 1. find the next modifier tag (`<...>`, `[...]`, `<<...>>`, `[[...]]`):
+            std::size_t lhsptr = 0;
+            std::size_t rhsptr = 0;
+            if (!fs8::find_modifier_tag(str, index, lhsptr, rhsptr)) {
                 break;
             }
-            auto const rhsptr = fs8::find_delim(str, delim_end, lhsptr);
-            auto const lhs    = str.substr(0, lhsptr);
-            auto const rhs    = str.substr(lhsptr, rhsptr - lhsptr);
+            auto const lhs = str.substr(index, lhsptr - index);
+            auto const rhs = str.substr(lhsptr, rhsptr - lhsptr);
 
-            // 2. emit the strings before the <...> mod
+            // 2. emit the strings before the tag
             fs8::xkb::how2type::emit(map, lhs, callback);
 
-            // 3. parse the modifier string if any:
+            // 3. parse the modifier tag if any (press the keys down then release them):
             if (!fs8::parse_modifier(rhs, callback)) [[unlikely]] {
-                // send the <...> string as is:
+                // send the tag as is:
                 fs8::xkb::how2type::emit(map, rhs, callback);
             }
 
             // 4. remove the already processed string:
-            str.remove_prefix(rhsptr);
+            index = rhsptr;
         }
+
+        // 5. emit whatever is left:
+        fs8::xkb::how2type::emit(map, str.substr(index), callback);
     }
 } // namespace
 

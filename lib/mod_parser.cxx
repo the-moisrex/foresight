@@ -24,14 +24,33 @@ using fs8::user_event;
 namespace {
     constexpr std::size_t max_simultaneous_key_presses = 32;
 
-    enum struct [[nodiscard]] modifier_mode : std::uint8_t {
-        unknown         = 0,
-        keydown         = 2,
-        keyup           = 3,
-        ordered_keydown = 5,
-        ordered_keyup   = 6,
-    };
+    /// Is this key code a modifier key (ctrl/shift/alt/meta/caps/num/scroll)?
+    [[nodiscard]] constexpr bool is_modifier_key(std::uint16_t const code) noexcept {
+        switch (code) {
+            case KEY_LEFTCTRL:
+            case KEY_RIGHTCTRL:
+            case KEY_LEFTSHIFT:
+            case KEY_RIGHTSHIFT:
+            case KEY_LEFTALT:
+            case KEY_RIGHTALT:
+            case KEY_LEFTMETA:
+            case KEY_RIGHTMETA:
+            case KEY_CAPSLOCK:
+            case KEY_NUMLOCK:
+            case KEY_SCROLLLOCK: return true;
+            default: return false;
+        }
+    }
 
+    [[nodiscard]] constexpr bool is_up_mode(fs8::modifier_mode const mode) noexcept {
+        using enum fs8::modifier_mode;
+        return mode == keyup || mode == ordered_keyup;
+    }
+
+    [[nodiscard]] constexpr bool is_ordered_mode(fs8::modifier_mode const mode) noexcept {
+        using enum fs8::modifier_mode;
+        return mode == ordered_keydown || mode == ordered_keyup;
+    }
 
     /**
      * Array mapping the leading byte to the length of a UTF-8 sequence.
@@ -280,60 +299,103 @@ std::size_t fs8::find_delim(std::u32string_view const str, std::u32string_view c
 
 namespace {
 
+    /// Collect the key codes from a modifier tag's content (brackets already stripped).
     template <typename CharT>
-    bool parse_modifier_impl(std::basic_string_view<CharT> mod_str, fs8::key_code_callback callback) {
-        static constexpr std::array<CharT, 3>          delims{'-', '+', ' '};
+    bool parse_modifier_codes(std::basic_string_view<CharT>                                     content,
+                              std::inplace_vector<std::uint16_t, max_simultaneous_key_presses> &keys) {
+        static constexpr std::array<CharT, 3>          delims{static_cast<CharT>('-'), static_cast<CharT>('+'), static_cast<CharT>(' ')};
         static constexpr std::basic_string_view<CharT> delims_str{delims.data(), delims.size()};
-        mod_str.remove_prefix(1);
-        mod_str.remove_suffix(1);
-        bool const     is_release   = mod_str.starts_with(U'/');
-        auto           dash_start   = mod_str.find_first_of(delims_str);
-        bool const     is_monotonic = !is_release && dash_start == std::u32string_view::npos;
-        fs8::key_event event;
 
-        if (is_monotonic) {
-            // handling <shift> or <ctrl> types
-            event = {.code = get_modifier_code(mod_str), .value = 1};
-        } else if (is_release) {
-            // handling </shift> or </ctrl>
-            mod_str.remove_prefix(1);
-            event = {.code = get_modifier_code(mod_str), .value = 0};
-        } else {
-            // handling <C-r> type of mods
-            std::inplace_vector<std::uint16_t, max_simultaneous_key_presses> keys;
-            while (keys.size() != max_simultaneous_key_presses) {
-                auto const sub_mod = mod_str.substr(0, dash_start);
-                if (sub_mod.empty()) {
-                    break;
-                }
-                auto const ev = fs8::key_event{.code = get_modifier_code(sub_mod), .value = 1};
-                if (is_invalid(ev)) [[unlikely]] {
-                    break;
-                }
-                keys.push_back(ev.code);
-                callback(ev); // keydown
-                if (dash_start == std::u32string_view::npos) {
-                    break;
-                }
-                mod_str.remove_prefix(dash_start + 1);
-                dash_start = mod_str.find_first_of(delims_str);
-            }
-
-            // release the keys in reverse order:
-            for (std::uint32_t cindex = static_cast<std::uint32_t>(keys.size()); cindex > 0; --cindex) {
-                // keyup:
-                callback({
-                  .code  = keys[cindex - 1],
-                  .value = 0,
-                });
-            }
-            return !keys.empty() && keys.front() != 0;
+        if (content.starts_with(static_cast<CharT>('/'))) {
+            // </x> release syntax
+            content.remove_prefix(1);
+            auto const code = get_modifier_code(content);
+            keys.push_back(code);
+            return !is_invalid(fs8::key_event{.code = code});
         }
 
-        event.value = 1;
-        callback(event);
-        event.value = 0;
-        callback(event);
+        auto dash_start = content.find_first_of(delims_str);
+        if (dash_start == std::u32string_view::npos) {
+            auto const code = get_modifier_code(content);
+            keys.push_back(code);
+            return !is_invalid(fs8::key_event{.code = code});
+        }
+        while (keys.size() != max_simultaneous_key_presses) {
+            auto const sub_mod = content.substr(0, dash_start);
+            if (sub_mod.empty()) {
+                break;
+            }
+            auto const code = get_modifier_code(sub_mod);
+            if (is_invalid(fs8::key_event{.code = code})) [[unlikely]] {
+                return false;
+            }
+            keys.push_back(code);
+            if (dash_start == std::u32string_view::npos) {
+                break;
+            }
+            content.remove_prefix(dash_start + 1);
+            dash_start = content.find_first_of(delims_str);
+        }
+        return !keys.empty();
+    }
+
+    /// Mode-aware parsing: emits only the key-downs (keydown modes) or only the key-ups (keyup modes).
+    template <typename CharT>
+    bool parse_modifier_impl(std::basic_string_view<CharT> mod_str, fs8::modifier_mode const mode, fs8::key_code_callback callback) {
+        if (fs8::modifier_mode_of(mod_str) != mode || mode == fs8::modifier_mode::unknown) [[unlikely]] {
+            return false;
+        }
+        mod_str.remove_prefix(is_ordered_mode(mode) ? 2 : 1);
+        mod_str.remove_suffix(is_ordered_mode(mode) ? 2 : 1);
+
+        std::inplace_vector<std::uint16_t, max_simultaneous_key_presses> keys;
+        if (!parse_modifier_codes(mod_str, keys)) [[unlikely]] {
+            return false;
+        }
+
+        if (!is_ordered_mode(mode)) {
+            // canonical sort: modifiers first, then by code
+            // so `<ctrl-shift-x>` == `<shift-ctrl-x>`
+            std::ranges::sort(keys, [](auto const a, auto const b) noexcept {
+                if (is_modifier_key(a) != is_modifier_key(b)) {
+                    return is_modifier_key(a);
+                }
+                return a < b;
+            });
+        }
+
+        if (is_up_mode(mode)) {
+            // releases happen in the reverse of the press order
+            std::ranges::reverse(keys);
+        }
+
+        for (auto const code : keys) {
+            callback(fs8::key_event{.code = code, .value = is_up_mode(mode) ? 0 : 1});
+        }
+        return true;
+    }
+
+    /// Mode-less parsing: press the keys down (in the given order) then release them (in reverse order).
+    template <typename CharT>
+    bool parse_modifier_impl(std::basic_string_view<CharT> mod_str, fs8::key_code_callback callback) {
+        auto const mode = fs8::modifier_mode_of(mod_str);
+        if (mode == fs8::modifier_mode::unknown) [[unlikely]] {
+            return false;
+        }
+        mod_str.remove_prefix(is_ordered_mode(mode) ? 2 : 1);
+        mod_str.remove_suffix(is_ordered_mode(mode) ? 2 : 1);
+
+        std::inplace_vector<std::uint16_t, max_simultaneous_key_presses> keys;
+        if (!parse_modifier_codes(mod_str, keys)) [[unlikely]] {
+            return false;
+        }
+
+        for (auto const code : keys) {
+            callback(fs8::key_event{.code = code, .value = 1});
+        }
+        for (auto cindex = static_cast<std::uint32_t>(keys.size()); cindex > 0; --cindex) {
+            callback(fs8::key_event{.code = keys[cindex - 1], .value = 0});
+        }
         return true;
     }
 
@@ -361,6 +423,18 @@ namespace {
             result += to_code(key);
         };
         if (!parse_modifier_impl(mod_str, on_key)) [[unlikely]] {
+            result.clear();
+        }
+        return result;
+    }
+
+    template <typename CharT>
+    std::u32string parse_modifier_impl(std::basic_string_view<CharT> const mod_str, fs8::modifier_mode const mode) {
+        std::u32string result;
+        auto           on_key = [&](fs8::key_event const &key) {
+            result += to_code(key);
+        };
+        if (!parse_modifier_impl(mod_str, mode, on_key)) [[unlikely]] {
             result.clear();
         }
         return result;
@@ -402,21 +476,17 @@ std::u32string fs8::parse_modifier(std::u32string_view const mod_str) {
 void fs8::on_modifier_tags(std::u32string_view const str, std::function_ref<void(std::u32string_view)> callback) noexcept {
     std::size_t index = 0;
     for (;;) {
-        // find the first modifier:
-        auto const lhsptr = find_delim(str, U"<[", index);
-        if (lhsptr == std::u32string_view::npos) {
+        std::size_t lhsptr = 0;
+        std::size_t rhsptr = 0;
+        if (!find_modifier_tag(str, index, lhsptr, rhsptr)) {
             break;
         }
-        auto const rhsptr = find_delim(str, U">]", lhsptr);
-        auto const code   = str.substr(0, rhsptr);
-
-        callback(code);
-
+        callback(str.substr(lhsptr, rhsptr - lhsptr));
         index = rhsptr;
     }
 }
 
-bool fs8::normalize_modifiers(std::u32string &str) noexcept {
+bool fs8::normalize_modifiers(std::u32string &str, modifier_mode const mode) noexcept {
     xkb::basic_state keyboard_state;
     keyboard_state.initialize(xkb::get_default_keymap());
 
@@ -435,11 +505,14 @@ bool fs8::normalize_modifiers(std::u32string &str) noexcept {
 
         auto const event   = to_event(code);
         auto const recoded = unicode_encoded_event(keyboard_state, event);
-        if (event.value == 0) {
-            // Key-up events only track modifier state for the xkb state machine; they must never
-            // become part of the matchable pattern (the runtime `search` skips key-ups too).
+
+        // Key events that don't match this mode's value are dropped:
+        // keydown patterns only track presses, keyup patterns only track releases.
+        bool const is_release = event.value == 0;
+        if (is_release != is_up_mode(mode)) {
             continue;
         }
+
         if (event.value != 1 || is_encoded_event(recoded)) {
             if (code_to_remove == event.code) {
                 code_to_remove = KEY_MAX; // Reset, but don't skip!
@@ -465,34 +538,22 @@ bool fs8::normalize_modifiers(std::u32string &str) noexcept {
 
 void fs8::replace_modifier_strings(std::u32string &str) noexcept {
     using enum modifier_mode;
+
     std::size_t index = 0;
     for (;;) {
-        // find the first modifier:
-        auto const lhsptr = find_delim(str, U"<[", index);
-        if (lhsptr == std::u32string_view::npos) {
+        std::size_t lhsptr = 0;
+        std::size_t rhsptr = 0;
+        if (!find_modifier_tag(std::u32string_view{str}, index, lhsptr, rhsptr)) {
             break;
         }
-        modifier_mode mode;
-        switch (str.at(lhsptr)) {
-            case U'<': mode = keydown; break;
-            case U'[': mode = keyup; break;
-            default: mode = unknown; break;
+        auto const mode = modifier_mode_of(std::u32string_view{str}.substr(lhsptr, rhsptr - lhsptr));
+        if (mode == unknown) [[unlikely]] {
+            index = rhsptr;
+            continue;
         }
-        auto const rhsptr = find_delim(str, U">]", lhsptr);
-        auto const code   = str.substr(lhsptr, rhsptr - lhsptr + 1);
-        if (str.at(rhsptr) != str.at(lhsptr)) {
-            mode = unknown;
-        }
-
-        // todo: handle modes
-        auto encoded = parse_modifier(code);
-        for (char32_t const cur_code : encoded) {
-            log("Encoded: {:x}", static_cast<std::uint32_t>(cur_code));
-        }
-        normalize_modifiers(encoded);
-        for (char32_t const cur_code : encoded) {
-            log("Normalized: {:x}", static_cast<std::uint32_t>(cur_code));
-        }
+        auto const code    = std::u32string_view{str}.substr(lhsptr, rhsptr - lhsptr);
+        auto       encoded = parse_modifier_impl(code, mode);
+        normalize_modifiers(encoded, mode);
         str.replace(lhsptr, code.size(), encoded);
 
         index = lhsptr + encoded.size();
