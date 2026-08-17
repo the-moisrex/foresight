@@ -39,6 +39,7 @@ I understand these are far-fetched goals, but we can't get there if we don't try
 | \> Ignore adjacent repeats  | Ignore duplicated events (mostly happen by mistake)                      | ✅      |
 | \> On Held Down             | Fire actions while a key is held down (ignoring its auto-repeats)        | ✅      |
 | \> Ignore repeats of keys   | Ignore the auto-repeat events (value 2) of specific keys                 | ✅      |
+| \> Gate keys while held     | Let a decider swallow a held key/chord or emit it normally (`held[key, decider]`) | ✅      |
 | \> ABS to REL               | Convert absolute events (drawing tablets) to relative events (mouse)     | ✅      |
 | \> Add Scrollbar            | Convert mouse movements into scroll wheel (conditionally)                | ✅      |
 | \> Replace events           | Convert events into other events.                                        | ✅      |

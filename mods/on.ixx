@@ -282,6 +282,8 @@ namespace fs8 {
         }
     };
 
+    export template <typename CondT> struct [[nodiscard]] basic_held_gate;
+
     /// True while every tracked key is down, except on the tracked keys' own auto-repeat
     /// events (EV_KEY with value 2). Works without keys_status in the pipeline.
     export struct [[nodiscard]] basic_held : consteval_copyable {
@@ -319,6 +321,31 @@ namespace fs8 {
             return basic_held{std::array<code_type, sizeof...(T)>{static_cast<code_type>(inp_codes)...}};
         }
 
+        /// Gate form: a decider decides whether the tracked key(s) are emitted or ignored.
+        template <typename CondT>
+            requires(!std::convertible_to<CondT, code_type> && !Tag<CondT> && !Context<CondT>)
+        consteval auto operator[](std::string_view const inp_pattern, CondT const& inp_cond) const noexcept {
+            return basic_held_gate<std::remove_cvref_t<CondT>>{inp_pattern, inp_cond};
+        }
+
+        /// Gate form (code form): last argument is the decider, the rest are key codes.
+        template <typename... Args>
+            requires(sizeof...(Args) >= 2
+                     && std::convertible_to<std::tuple_element_t<0, std::tuple<Args...>>, code_type>
+                     && !std::convertible_to<std::tuple_element_t<sizeof...(Args) - 1, std::tuple<Args...>>, code_type>)
+        consteval auto operator[](Args&&... args) const noexcept {
+            constexpr std::size_t N = sizeof...(Args);
+            auto const&           cond = std::get<N - 1>(std::tuple<Args&...>{args...});
+            using CondT                 = std::remove_cvref_t<decltype(cond)>;
+            return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+                static_assert((std::convertible_to<std::tuple_element_t<I, std::tuple<Args...>>, code_type> && ...),
+                              "All but the last argument must be key codes.");
+                return basic_held_gate<CondT>{
+                  std::array<code_type, N - 1>{static_cast<code_type>(std::get<I>(std::tuple<Args&...>{args...}))...},
+                  cond};
+            }(std::make_index_sequence<N - 1>{});
+        }
+
         /// Resolve the pattern string into key codes when the pipeline starts.
         context_action operator()(start_tag) noexcept;
 
@@ -326,6 +353,143 @@ namespace fs8 {
     };
 
     export constexpr basic_held held;
+
+    /**
+     * Gate the tracked key(s): while they're held, every event is passed to a decider.
+     * If the decider says "ignore", the buffered key events are dropped (the keys are
+     * consumed and never emitted). Otherwise they stay buffered until the keys are
+     * fully released, at which point they're emitted normally (repeats are always
+     * suppressed). Usable directly in a pipeline: `held["<f1>", decider]`.
+     */
+    export template <typename CondT>
+    struct [[nodiscard]] basic_held_gate : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        static constexpr std::size_t max_codes  = 32;
+        static constexpr std::size_t max_buffer = 64;
+
+      private:
+        std::string_view                  pattern;
+        std::array<code_type, max_codes>  codes{};
+        std::size_t                       count = 0;
+
+        std::array<event_type, max_buffer> buffer{};
+        std::size_t                        buffer_size = 0;
+
+        std::size_t down_count = 0;
+        bool        pending    = false;
+        bool        consumed   = false;
+
+        [[no_unique_address]] CondT cond{};
+
+      public:
+        explicit consteval basic_held_gate(std::string_view const inp_pattern, CondT const& inp_cond) noexcept
+          : pattern{inp_pattern},
+            cond{inp_cond} {}
+
+        template <std::size_t N>
+            requires(N <= max_codes)
+        explicit consteval basic_held_gate(std::array<code_type, N> const& inp_codes, CondT const& inp_cond) noexcept
+          : cond{inp_cond} {
+            for (std::size_t i = 0; i < N; ++i) {
+                codes[i] = inp_codes[i];
+            }
+            count = N;
+        }
+
+        /// Resolve the pattern string into key codes when the pipeline starts.
+        context_action operator()(Context auto& ctx, start_tag) noexcept {
+            if (!pattern.empty()) {
+                count = fs8::parse_key_tags(pattern, codes);
+            }
+            return context_action::next;
+        }
+
+        context_action operator()(Context auto& ctx) noexcept {
+            using enum context_action;
+            auto const& event  = ctx.event();
+            bool const  is_gate = event.type() == EV_KEY && is_tracked(event.code());
+
+            if (pending) {
+                if (invoke_cond(cond, ctx)) {
+                    // decider said "ignore": drop everything buffered so far
+                    pending      = false;
+                    consumed     = true;
+                    buffer_size  = 0;
+                    if (is_gate) {
+                        update_down_count(event);
+                        if (down_count == 0) {
+                            consumed = false;
+                        }
+                        return ignore_event;
+                    }
+                    return next;
+                }
+                if (is_gate) {
+                    if (event.value() == 2) {
+                        return ignore_event; // suppress repeats
+                    }
+                    if (buffer_size < max_buffer) {
+                        buffer[buffer_size++] = event;
+                    }
+                    update_down_count(event);
+                    if (down_count == 0) {
+                        // fully released without being ignored: emit the chord normally
+                        pending = false;
+                        flush(ctx);
+                        return ignore_event; // the release is already in the buffer
+                    }
+                    return ignore_event;
+                }
+                return next;
+            }
+
+            if (consumed) {
+                if (is_gate) {
+                    update_down_count(event);
+                    if (down_count == 0) {
+                        consumed = false;
+                    }
+                    return ignore_event;
+                }
+                return next;
+            }
+
+            if (is_gate && event.value() == 1) {
+                buffer_size = 0;
+                buffer[buffer_size++] = event;
+                down_count = 1;
+                pending    = true;
+                return ignore_event;
+            }
+            return next;
+        }
+
+      private:
+        [[nodiscard]] bool is_tracked(code_type const code) const noexcept {
+            for (std::size_t i = 0; i < count; ++i) {
+                if (codes[i] == code) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        void update_down_count(event_type const& event) noexcept {
+            if (event.value() == 1) {
+                ++down_count;
+            } else if (event.value() == 0 && down_count != 0) {
+                --down_count;
+            }
+        }
+
+        void flush(Context auto& ctx) noexcept {
+            for (std::size_t i = 0; i < buffer_size; ++i) {
+                std::ignore = ctx.fork_emit(buffer[i]);
+            }
+            buffer_size = 0;
+        }
+    };
 
     export template <typename Func>
     struct [[nodiscard]] op_not {
