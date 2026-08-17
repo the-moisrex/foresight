@@ -442,9 +442,7 @@ namespace {
                     }
                     void const* const data = type == EV_ABS ? &default_abs_info : nullptr;
                     if (libevdev_enable_event_code(dev_ptr, type, code, data) < 0) [[unlikely]] {
-                        fs8::log("  Failed to enable {} {} on the virtual-device template.",
-                                 type_name(type),
-                                 code_name(type, code));
+                        fs8::log("  Failed to enable {} {} on the virtual-device template.", type_name(type), code_name(type, code));
                         return false;
                     }
                     fs8::log("  Enabled: {} {}", type_name(type), code_name(type, code));
@@ -452,9 +450,7 @@ namespace {
             } else if (action == remove_codes) {
                 for (auto const code : codes) {
                     if (libevdev_disable_event_code(dev_ptr, type, code) < 0) [[unlikely]] {
-                        fs8::log("  Failed to disable {} {} on the virtual-device template.",
-                                 type_name(type),
-                                 code_name(type, code));
+                        fs8::log("  Failed to disable {} {} on the virtual-device template.", type_name(type), code_name(type, code));
                         return false;
                     }
                     fs8::log("  Disabled: {} {}", type_name(type), code_name(type, code));
@@ -777,8 +773,8 @@ bool basic_uinput::init(dev_caps_view const caps_view) noexcept {
 bool basic_uinput::set_device_from(dev_caps_view const caps_view) noexcept {
     // Constrain the search to the input subsystem (caps alone don't say where
     // to look), then pick the best matching device via the query system.
-    std::array<fs8::query_term, 1> fields = {fs8::subsystem("input")};
-    fs8::device_query const        inp_query{.fields = std::span<fs8::query_term const>{fields}, .caps = caps_view};
+    std::array<query_term, 1> fields = {subsystem("input")};
+    device_query const        inp_query{.fields = std::span<query_term const>{fields}, .caps = caps_view};
     return set_device_from(inp_query);
 }
 
@@ -812,7 +808,7 @@ bool basic_uinput::operator()(device_query const& inp_query, start_tag) noexcept
 
 fs8::context_action basic_uinput::operator()(event_type const& event) noexcept {
     using enum context_action;
-    log("{}: {} {} {}", devnode(), event.type_name(), event.code_name(), event.value());
+    log("{}: {} {} {} [{}]", devnode(), event.type_name(), event.code_name(), event.value(), to_string(event.origin()));
     if (!emit(event)) [[unlikely]] {
         return ignore_event;
     }

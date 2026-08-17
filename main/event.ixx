@@ -85,8 +85,10 @@ export namespace fs8 {
 
     [[nodiscard]] constexpr key_event unhashed(std::uint32_t const hash) noexcept {
         static constexpr std::uint32_t shift = std::countr_zero(std::bit_ceil<std::uint32_t>(KEY_MAX));
-        return key_event{.code  = static_cast<std::uint16_t>(hash >> shift),
-                         .value = static_cast<std::uint16_t>(hash & ((1u << shift) - 1u))};
+        return key_event{
+          .code  = static_cast<std::uint16_t>(hash >> shift),
+          .value = static_cast<std::uint16_t>(hash & ((1u << shift) - 1u)),
+        };
     }
 
     [[nodiscard]] consteval event_code key_code(event_code::code_type code) noexcept {
@@ -102,6 +104,23 @@ export namespace fs8 {
         return hashed(event_code{.type = type, .code = code});
     }
 
+    /// Where an event came from. `self` means this process's pipeline produced
+    /// it (synthesized by an emitter, or read back from a uinput device that
+    /// this process created); `chained` means it was read from a foresight
+    /// virtual device created by another process (phys starts with
+    /// "foresight:"). The value never crosses a process boundary: only the raw
+    /// `input_event` is serialized through stdin/stdout, so a redirect process
+    /// reports everything as `stdin`.
+    enum struct [[nodiscard]] event_origin : std::uint8_t {
+        none = 0,
+        device,  // read from a kernel input device by intercept
+        stdin,   // read from stdin (redirect mode)
+        self,    // synthesized by this pipeline, or read from our own uinput device
+        chained, // read from another process's foresight virtual device
+    };
+
+    [[nodiscard]] std::string_view to_string(event_origin origin) noexcept;
+
     struct [[nodiscard]] event_type {
         using type_type  = decltype(input_event::type);
         using code_type  = decltype(input_event::code);
@@ -114,7 +133,8 @@ export namespace fs8 {
 
         constexpr explicit event_type(user_event const& inp_ev) noexcept : event_type{inp_ev.type, inp_ev.code, inp_ev.value} {}
 
-        constexpr event_type(type_type const inp_type, code_type const inp_code, value_type const inp_val) noexcept {
+        constexpr event_type(type_type const inp_type, code_type const inp_code, value_type const inp_val) noexcept
+          : from{event_origin::self} {
             reset_time();
             ev.type  = inp_type;
             ev.code  = inp_code;
@@ -135,6 +155,7 @@ export namespace fs8 {
         constexpr event_type& operator=(event_code const& inp_code) noexcept {
             ev.type = inp_code.type;
             ev.code = inp_code.code;
+            from    = event_origin::self;
             return *this;
         }
 
@@ -142,6 +163,7 @@ export namespace fs8 {
             ev.type  = inp_code.type;
             ev.code  = inp_code.code;
             ev.value = inp_code.value;
+            from     = event_origin::self;
             return *this;
         }
 
@@ -325,12 +347,21 @@ export namespace fs8 {
             return *this;
         }
 
+        [[nodiscard]] constexpr event_origin origin() const noexcept {
+            return from;
+        }
+
+        constexpr void origin(event_origin const inp_origin) noexcept {
+            from = inp_origin;
+        }
+
         [[nodiscard]] constexpr std::uint32_t hash() const noexcept {
             return hashed(static_cast<event_code>(*this));
         }
 
       private:
-        input_event ev{};
+        input_event  ev{};
+        event_origin from = event_origin::none;
     };
 
     [[nodiscard]] consteval event_type syn() noexcept {

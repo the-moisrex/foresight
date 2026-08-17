@@ -1,0 +1,365 @@
+// Created by moisrex on 8/17/26.
+
+#include "./common/tests_common_pch.hpp"
+
+#include <chrono>
+#include <fcntl.h>
+#include <libevdev/libevdev.h>
+#include <linux/input.h>
+#include <poll.h>
+#include <thread>
+#include <unistd.h>
+
+import fs8.mods;
+import fs8.devices.udev;
+import fs8.devices.queries;
+import fs8.devices.evdev;
+import fs8.devices.uinput;
+
+using namespace fs8;
+
+namespace {
+
+    /// External sink for `record[captured_events]`.
+    std::vector<fs8::event_type> captured_events; // NOLINT(*-global-variables)
+
+    // NOLINTBEGIN(*-global-variables)
+    bool saw_self  = false;
+    bool saw_dev   = false;
+    bool saw_stdin = false;
+
+    // NOLINTEND(*-global-variables)
+
+    [[nodiscard]] bool input_available() noexcept {
+        if (verify_access_to_uinput() != uinput_access_result::available) {
+            return false;
+        }
+        udev_queue queue(udev::instance().native());
+        return queue.is_active();
+    }
+
+    /// Wait until `node` can be opened or `timeout_ms` elapses.
+    [[nodiscard]] bool wait_for_openable(std::string_view const node, int timeout_ms) noexcept {
+        while (timeout_ms > 0) {
+            int const fd = ::open(node.data(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+            if (fd >= 0) {
+                ::close(fd);
+                return true;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(std::min(50, timeout_ms)));
+            timeout_ms -= 50;
+        }
+        return false;
+    }
+
+    /// Inject a KEY_A down + SYN into the given device node.
+    void inject_key_down(std::string_view const devnode) {
+        int const fd = ::open(devnode.data(), O_WRONLY | O_NONBLOCK);
+        ASSERT_GE(fd, 0);
+        input_event ev{};
+        ev.type  = EV_KEY;
+        ev.code  = KEY_A;
+        ev.value = 1;
+        ASSERT_EQ(::write(fd, &ev, sizeof(ev)), static_cast<ssize_t>(sizeof(ev)));
+        ev.type  = EV_SYN;
+        ev.code  = SYN_REPORT;
+        ev.value = 0;
+        ASSERT_EQ(::write(fd, &ev, sizeof(ev)), static_cast<ssize_t>(sizeof(ev)));
+        ::close(fd);
+    }
+
+} // namespace
+
+TEST(OriginTest, EmitterEventsAreSelf) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {.type = EV_KEY,      .code = KEY_A, .value = 1},
+        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+    }]
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    ASSERT_EQ(col.size(), 2U);
+    EXPECT_EQ(col.at(0).origin(), event_origin::self);
+    EXPECT_EQ(col.at(1).origin(), event_origin::self);
+}
+
+TEST(OriginTest, EmitForksAreSelf) {
+    auto  pipeline = context | emit_all[{syn_user_event}] | emit[down(KEY_B)] | record;
+    auto& col      = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // The provider's SYN plus the emitted key down + SYN.
+    ASSERT_EQ(col.size(), 3U);
+    EXPECT_EQ(col.at(0).origin(), event_origin::self);
+    EXPECT_EQ(col.at(1).origin(), event_origin::self);
+    EXPECT_EQ(col.at(2).origin(), event_origin::self);
+}
+
+TEST(OriginTest, ForkEmitPreservesOrigin) {
+    auto pipeline =
+      context
+      | emit_all[{syn_user_event}]
+      | run{[](auto& ctx) noexcept -> void {
+            event_type ev{EV_KEY, KEY_C, 1};
+            ev.origin(event_origin::device); // pretend it came from a device
+            std::ignore = ctx.fork_emit(ev);
+        }}
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // The forked event runs first (record captures it inside the fork), then
+    // the provider's SYN reaches record. The forked event must keep its origin.
+    ASSERT_EQ(col.size(), 2U);
+    EXPECT_EQ(col.at(0).code(), KEY_C);
+    EXPECT_EQ(col.at(0).origin(), event_origin::device);
+    EXPECT_EQ(col.at(1).type(), EV_SYN);
+    EXPECT_EQ(col.at(1).origin(), event_origin::self);
+}
+
+TEST(OriginTest, IgnoreOriginDropsSelf) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {.type = EV_KEY,      .code = KEY_A, .value = 1},
+        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+    }]
+      | ignore_origin[event_origin::self]
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    EXPECT_TRUE(col.empty());
+}
+
+TEST(OriginTest, IgnoreOriginKeepsOthers) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {.type = EV_KEY,      .code = KEY_A, .value = 1},
+        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+    }]
+      | ignore_origin[event_origin::stdin]
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    ASSERT_EQ(col.size(), 2U);
+    EXPECT_EQ(col.at(0).origin(), event_origin::self);
+}
+
+TEST(OriginTest, Conditions) {
+    saw_self  = false;
+    saw_dev   = false;
+    saw_stdin = false;
+    auto pipeline =
+      context
+      | emit_all[{
+        {.type = EV_KEY,      .code = KEY_A, .value = 1},
+        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+    }]
+      | run{[](auto& ctx) noexcept {
+            saw_self  = saw_self || self_emitted(ctx.event());
+            saw_dev   = saw_dev || from_device(ctx.event());
+            saw_stdin = saw_stdin || from_stdin(ctx.event());
+        }}
+      | record;
+
+    pipeline();
+
+    EXPECT_TRUE(saw_self);
+    EXPECT_FALSE(saw_dev);
+    EXPECT_FALSE(saw_stdin);
+}
+
+TEST(OriginTest, FromInputMarksStdin) {
+    int fds[2];
+    ASSERT_EQ(::pipe(fds), 0);
+    int const saved_stdin = ::dup(STDIN_FILENO);
+    ASSERT_GE(saved_stdin, 0);
+    ASSERT_EQ(::dup2(fds[0], STDIN_FILENO), STDIN_FILENO);
+
+    input_event ev{};
+    ev.type  = EV_KEY;
+    ev.code  = KEY_A;
+    ev.value = 1;
+    ASSERT_EQ(::write(fds[1], &ev, sizeof(ev)), static_cast<ssize_t>(sizeof(ev)));
+    ev.type  = EV_SYN;
+    ev.code  = SYN_REPORT;
+    ev.value = 0;
+    ASSERT_EQ(::write(fds[1], &ev, sizeof(ev)), static_cast<ssize_t>(sizeof(ev)));
+    ::close(fds[1]);
+
+    captured_events.clear();
+    auto pipeline = context | from_input | record[captured_events];
+    pipeline();
+
+    ASSERT_EQ(::dup2(saved_stdin, STDIN_FILENO), STDIN_FILENO);
+    ::close(saved_stdin);
+    ::close(fds[0]);
+
+    ASSERT_EQ(captured_events.size(), 2U);
+    EXPECT_EQ(captured_events.at(0).origin(), event_origin::stdin);
+    EXPECT_EQ(captured_events.at(1).origin(), event_origin::stdin);
+}
+
+TEST(OriginTest, InterceptMarksDeviceOrigin) {
+    if (!input_available()) {
+        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
+    }
+
+    // Build a uinput keyboard from an empty template whose phys is NOT the
+    // foresight chain marker, simulating a plain (real) keyboard.
+    libevdev* template_ptr = libevdev_new();
+    ASSERT_NE(template_ptr, nullptr);
+    libevdev_enable_event_type(template_ptr, EV_SYN);
+    libevdev_enable_event_type(template_ptr, EV_KEY);
+    for (event_type::code_type code = KEY_A; code <= KEY_C; ++code) {
+        libevdev_enable_event_code(template_ptr, EV_KEY, code, nullptr);
+    }
+    libevdev_set_name(template_ptr, "plain test keyboard");
+    libevdev_set_phys(template_ptr, "test:plain-keyboard");
+
+    evdev        template_dev{template_ptr, evdev_status::success};
+    basic_uinput uin;
+    if (!finalize_device(uin, template_dev, {})) {
+        GTEST_SKIP() << "Cannot create a plain virtual keyboard.";
+    }
+    if (!wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Plain virtual keyboard did not become openable.";
+    }
+
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | record;
+
+    auto& io  = pipeline.mod<basic_io_manager>();
+    auto& im  = pipeline.mod<basic_input_manager>();
+    auto& col = pipeline.mod<basic_record>();
+
+    EXPECT_EQ(pipeline(start), context_action::next);
+
+    // Bypass udev: add the virtual keyboard's node directly.
+    fs8::evdev opened = fs8::evdev{uin.devnode()};
+    ASSERT_TRUE(opened.is_ok());
+    ASSERT_FALSE(opened.physical_location().starts_with("foresight:"));
+    im.add(std::move(opened));
+
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+
+    inject_key_down(uin.devnode());
+    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
+    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
+
+    ASSERT_FALSE(col.empty());
+    EXPECT_EQ(col.front().type(), EV_KEY);
+    EXPECT_EQ(col.front().code(), KEY_A);
+    EXPECT_EQ(col.front().origin(), event_origin::device);
+
+    uin.close();
+}
+
+TEST(OriginTest, OwnedDeviceMarksSelf) {
+    if (!input_available()) {
+        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
+    }
+
+    basic_uinput uin;
+    if (!uin(caps::keyboard, start)) {
+        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
+    }
+    if (!wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Virtual keyboard did not become openable.";
+    }
+
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | record;
+
+    auto& io  = pipeline.mod<basic_io_manager>();
+    auto& im  = pipeline.mod<basic_input_manager>();
+    auto& col = pipeline.mod<basic_record>();
+
+    EXPECT_EQ(pipeline(start), context_action::next);
+
+    // This process "owns" the device -> events read from it are self-emitted.
+    im.own_device(uin.devnode());
+
+    fs8::evdev opened = fs8::evdev{uin.devnode()};
+    ASSERT_TRUE(opened.is_ok());
+    im.add(std::move(opened));
+
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+
+    inject_key_down(uin.devnode());
+    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
+    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
+
+    ASSERT_FALSE(col.empty());
+    EXPECT_EQ(col.front().code(), KEY_A);
+    EXPECT_EQ(col.front().origin(), event_origin::self);
+
+    uin.close();
+}
+
+TEST(OriginTest, ChainedDeviceMarksChained) {
+    if (!input_available()) {
+        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
+    }
+
+    // Build a virtual keyboard from an empty template whose phys is stamped
+    // with the foresight origin-chain marker, as another foresight app would.
+    libevdev* template_ptr = libevdev_new();
+    ASSERT_NE(template_ptr, nullptr);
+    libevdev_enable_event_type(template_ptr, EV_SYN);
+    libevdev_enable_event_type(template_ptr, EV_KEY);
+    for (event_type::code_type code = KEY_A; code <= KEY_C; ++code) {
+        libevdev_enable_event_code(template_ptr, EV_KEY, code, nullptr);
+    }
+    libevdev_set_name(template_ptr, "foresight chained keyboard");
+    libevdev_set_phys(template_ptr, "foresight:chain");
+
+    evdev        template_dev{template_ptr, evdev_status::success};
+    basic_uinput uin;
+    if (!finalize_device(uin, template_dev, {})) {
+        GTEST_SKIP() << "Cannot create a chained virtual keyboard.";
+    }
+    if (!wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Chained virtual keyboard did not become openable.";
+    }
+
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | record;
+
+    auto& io  = pipeline.mod<basic_io_manager>();
+    auto& im  = pipeline.mod<basic_input_manager>();
+    auto& col = pipeline.mod<basic_record>();
+
+    EXPECT_EQ(pipeline(start), context_action::next);
+
+    fs8::evdev opened = fs8::evdev{uin.devnode()};
+    ASSERT_TRUE(opened.is_ok());
+    ASSERT_TRUE(opened.physical_location().starts_with("foresight:"));
+    im.add(std::move(opened));
+
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+
+    inject_key_down(uin.devnode());
+    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
+    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
+
+    ASSERT_FALSE(col.empty());
+    EXPECT_EQ(col.front().code(), KEY_A);
+    EXPECT_EQ(col.front().origin(), event_origin::chained);
+
+    uin.close();
+}

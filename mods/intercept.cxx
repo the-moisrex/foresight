@@ -96,8 +96,15 @@ context_action basic_interceptor::operator()(io_fd const& fd) noexcept try {
             log("Device '{}' error/disconnected.", dev.device_name());
             return next;
         }
+        // Events read back from a uinput device this process created are
+        // self-emitted; events from another process's foresight virtual
+        // device (phys = "foresight:...") are chained; everything else came
+        // from a real device.
+        auto const origin =
+          pimpl->im->is_owned(dev) ? event_origin::self
+                                   : (dev.physical_location().starts_with("foresight:") ? event_origin::chained : event_origin::device);
         while (auto const ev = dev.next()) {
-            pimpl->pending.emplace_back(*ev);
+            pimpl->pending.emplace_back(*ev).origin(origin);
         }
         break;
     }

@@ -48,8 +48,9 @@ template <>
 struct fs8::pimpl_idiom<basic_input_manager>::impl {
     bool                               started = false;
     udev_monitor                       monitor;
-    std::list<evdev>                   devs; // stable handles; todo: switch to std::hive once available
+    std::list<evdev>                   devs;           // stable handles; todo: switch to std::hive once available
     std::vector<query_provider_handle> providers;
+    std::vector<std::string>           owned_sysnames; // uinput devices created by this process
 
     /// Devices are identified by their udev sysname (derived from the fd),
     /// which is the last component of their syspath; only nodes with a devnode
@@ -236,6 +237,42 @@ void basic_input_manager::add_query_provider(query_provider_handle provider) {
         return; // already registered; keep a single handle per provider
     }
     pimpl->providers.push_back(std::move(provider));
+}
+
+void basic_input_manager::own_device(std::string_view const devnode) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+    if (devnode.empty()) [[unlikely]] {
+        return;
+    }
+    // The sysname is the last path component of the devnode ("event9" for
+    // "/dev/input/event9"), which is how `device_sysname` identifies devices.
+    auto const pos     = devnode.find_last_of('/');
+    auto const sysname = pos == std::string_view::npos ? devnode : devnode.substr(pos + 1);
+    if (sysname.empty()) [[unlikely]] {
+        return;
+    }
+    if (is_owned_sysname(sysname)) [[unlikely]] {
+        return; // already recorded
+    }
+    pimpl->owned_sysnames.emplace_back(sysname);
+}
+
+bool basic_input_manager::is_owned(evdev const& dev) const noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return false;
+    }
+    return is_owned_sysname(device_sysname(dev));
+}
+
+bool basic_input_manager::is_owned_sysname(std::string_view const sysname) const noexcept {
+    if (pimpl.get() == nullptr || sysname.empty()) [[unlikely]] {
+        return false;
+    }
+    return std::ranges::any_of(pimpl->owned_sysnames, [&](std::string const& cur) noexcept {
+        return cur == sysname;
+    });
 }
 
 void basic_input_manager::requery() {

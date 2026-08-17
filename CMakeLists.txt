@@ -75,18 +75,21 @@ target_sources(${LIB_NAME}
         lib/mod_parser.cxx
         lib/xkb.cxx
         main/context.cxx
+        main/event.cxx
         main/keyboard.cxx
         main/systemd.cxx
         mods/abs2rel.cxx
         mods/autocomplete.cxx
         mods/emitter.cxx
         mods/ignore.cxx
+        mods/inout.cxx
         mods/input_manager.cxx
         mods/intercept.cxx
         mods/io_manager.cxx
         mods/keys_status.cxx
         mods/momentum.cxx
         mods/on.cxx
+        mods/origin.cxx
         mods/quantifier.cxx
         mods/record.cxx
         mods/replace.cxx
@@ -107,8 +110,8 @@ target_sources(${LIB_NAME}
         lib/how2type.ixx
         lib/mod_parser.ixx
         lib/xkb.ixx
-        main/context.ixx
         main/cli.ixx
+        main/context.ixx
         main/event.ixx
         main/keyboard.ixx
         main/log.ixx
@@ -117,8 +120,8 @@ target_sources(${LIB_NAME}
         main/translate.ixx
         main/utils.ixx
         mods/abs2rel.ixx
-        mods/autocomplete.ixx
         mods/add_scroll.ixx
+        mods/autocomplete.ixx
         mods/context_vars.ixx
         mods/emitter.ixx
         mods/ignore.ixx
@@ -133,6 +136,7 @@ target_sources(${LIB_NAME}
         mods/momentum.ixx
         mods/mouse_status.ixx
         mods/on.ixx
+        mods/origin.ixx
         mods/quantifier.ixx
         mods/record.ixx
         mods/replace.ixx

@@ -25,7 +25,7 @@ export namespace fs8 {
     constexpr std::string_view empty_uinput_name = "Empty-Device";
 
 
-    enum struct [[nodiscard]] uinput_access_result {
+    enum struct [[nodiscard]] uinput_access_result : std::uint8_t {
         available,
 
         device_not_found,       // /dev/uinput does not exist
@@ -210,9 +210,17 @@ export namespace fs8 {
                 if (!fs8::matches(cur_dev, inp_query) || !fs8::is_usable(cur_dev)) {
                     continue;
                 }
-                return fs8::finalize_device(*this, cur_dev, inp_query.caps);
+                auto const ok = fs8::finalize_device(*this, cur_dev, inp_query.caps);
+                if (ok) {
+                    ctx.mod(fs8::input_manager).own_device(devnode());
+                }
+                return ok;
             }
-            return set_device_from(inp_query);
+            if (set_device_from(inp_query)) {
+                ctx.mod(fs8::input_manager).own_device(devnode());
+                return true;
+            }
+            return false;
         }
 
         /// Find the device if possible on start
@@ -250,7 +258,11 @@ export namespace fs8 {
                 log("Uinput init error: {}", to_string(res));
                 return idle;
             }
-            return operator()(ctx.mod(input_manager).devices(), start) ? next : idle;
+            if (operator()(ctx.mod(input_manager).devices(), start)) {
+                ctx.mod(input_manager).own_device(devnode());
+                return next;
+            }
+            return idle;
         }
 
         context_action operator()(event_type const& event) noexcept;

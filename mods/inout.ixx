@@ -3,9 +3,7 @@
 module;
 #include <ctime>
 #include <linux/uinput.h>
-#include <oneapi/tbb/profiling.h>
 #include <unistd.h>
-#include <utility>
 export module fs8.mods.inout;
 import fs8.context;
 import fs8.event;
@@ -31,34 +29,19 @@ export namespace fs8 {
         }
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool emit(event_type const& event) const noexcept {
-            return write(file_descriptor, &event.native(), sizeof(input_event)) == sizeof(input_event);
-        }
+        bool emit(event_type const& event) const noexcept;
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool emit(input_event const& event) const noexcept {
-            return write(file_descriptor, &event, sizeof(input_event)) == sizeof(input_event);
-        }
+        bool emit(input_event const& event) const noexcept;
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool emit(ev_type const type, code_type const code, value_type const value) const noexcept {
-            input_event event{};
-            gettimeofday(&event.time, nullptr);
-            event.type  = type;
-            event.code  = code;
-            event.value = value;
-            return write(file_descriptor, &event, sizeof(input_event)) == sizeof(input_event);
-        }
+        bool emit(ev_type type, code_type code, value_type value) const noexcept;
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool emit_syn() const noexcept {
-            return emit(EV_SYN, SYN_REPORT, 0);
-        }
+        bool emit_syn() const noexcept;
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool operator()(Context auto& ctx) const noexcept {
-            return write(file_descriptor, &ctx.event().native(), sizeof(input_event)) == sizeof(input_event);
-        }
+        bool operator()(event_type& event) const noexcept;
     } output;
 
     static_assert(OutputModifier<basic_output>, "Must be a output modifier.");
@@ -72,16 +55,6 @@ export namespace fs8 {
       public:
         constexpr explicit basic_from_input(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
 
-        context_action operator()(Context auto& ctx, load_event_tag) const noexcept {
-            using enum context_action;
-            auto const res = read(file_descriptor, &ctx.event().native(), sizeof(input_event));
-            if (res == 0) [[unlikely]] {
-                return exit;
-            }
-            if (res != sizeof(input_event)) [[unlikely]] {
-                return ignore_event;
-            }
-            return next;
-        }
+        context_action operator()(event_type& event, load_event_tag) const noexcept;
     } from_input;
 } // namespace fs8

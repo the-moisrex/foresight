@@ -65,6 +65,19 @@ export namespace fs8 {
         /// continues to match the fresh set.
         void requery();
 
+        /// Record a device node (e.g. "/dev/input/event9") of a uinput device
+        /// that this process created. Events read back from such a device are
+        /// reported with `event_origin::self` by the interceptor. Devices are
+        /// only ever *tagged*; they are still enumerated and watched like any
+        /// other device.
+        void own_device(std::string_view devnode) noexcept;
+
+        /// Whether `dev` is a uinput device created by this process.
+        [[nodiscard]] bool is_owned(evdev const& dev) const noexcept;
+
+        /// Whether the sysname (e.g. "event9") belongs to one of our devices.
+        [[nodiscard]] bool is_owned_sysname(std::string_view sysname) const noexcept;
+
         /// A range view over the owned devices (stable handles: the storage is a
         /// `std::list`, so adds/removes never invalidate existing devices).
         [[nodiscard]] std::ranges::subrange<std::list<evdev>::const_iterator> devices() const noexcept;
