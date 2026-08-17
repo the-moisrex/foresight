@@ -282,7 +282,8 @@ namespace fs8 {
         }
     };
 
-    export template <typename CondT> struct [[nodiscard]] basic_held_gate;
+    export template <typename CondT>
+    struct [[nodiscard]] basic_held_gate;
 
     /// True while every tracked key is down, except on the tracked keys' own auto-repeat
     /// events (EV_KEY with value 2). Works without keys_status in the pipeline.
@@ -330,13 +331,14 @@ namespace fs8 {
 
         /// Gate form (code form): last argument is the decider, the rest are key codes.
         template <typename... Args>
-            requires(sizeof...(Args) >= 2
+            requires(sizeof...(Args)
+                     >= 2
                      && std::convertible_to<std::tuple_element_t<0, std::tuple<Args...>>, code_type>
                      && !std::convertible_to<std::tuple_element_t<sizeof...(Args) - 1, std::tuple<Args...>>, code_type>)
         consteval auto operator[](Args&&... args) const noexcept {
-            constexpr std::size_t N = sizeof...(Args);
+            constexpr std::size_t N    = sizeof...(Args);
             auto const&           cond = std::get<N - 1>(std::tuple<Args&...>{args...});
-            using CondT                 = std::remove_cvref_t<decltype(cond)>;
+            using CondT                = std::remove_cvref_t<decltype(cond)>;
             return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
                 static_assert((std::convertible_to<std::tuple_element_t<I, std::tuple<Args...>>, code_type> && ...),
                               "All but the last argument must be key codes.");
@@ -369,9 +371,9 @@ namespace fs8 {
         static constexpr std::size_t max_buffer = 64;
 
       private:
-        std::string_view                  pattern;
-        std::array<code_type, max_codes>  codes{};
-        std::size_t                       count = 0;
+        std::string_view                 pattern;
+        std::array<code_type, max_codes> codes{};
+        std::size_t                      count = 0;
 
         std::array<event_type, max_buffer> buffer{};
         std::size_t                        buffer_size = 0;
@@ -389,8 +391,7 @@ namespace fs8 {
 
         template <std::size_t N>
             requires(N <= max_codes)
-        explicit consteval basic_held_gate(std::array<code_type, N> const& inp_codes, CondT const& inp_cond) noexcept
-          : cond{inp_cond} {
+        explicit consteval basic_held_gate(std::array<code_type, N> const& inp_codes, CondT const& inp_cond) noexcept : cond{inp_cond} {
             for (std::size_t i = 0; i < N; ++i) {
                 codes[i] = inp_codes[i];
             }
@@ -398,7 +399,7 @@ namespace fs8 {
         }
 
         /// Resolve the pattern string into key codes when the pipeline starts.
-        context_action operator()(Context auto& ctx, start_tag) noexcept {
+        context_action operator()(start_tag) noexcept {
             if (!pattern.empty()) {
                 count = fs8::parse_key_tags(pattern, codes);
             }
@@ -407,15 +408,15 @@ namespace fs8 {
 
         context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
-            auto const& event  = ctx.event();
+            auto const& event   = ctx.event();
             bool const  is_gate = event.type() == EV_KEY && is_tracked(event.code());
 
             if (pending) {
                 if (invoke_cond(cond, ctx)) {
                     // decider said "ignore": drop everything buffered so far
-                    pending      = false;
-                    consumed     = true;
-                    buffer_size  = 0;
+                    pending     = false;
+                    consumed    = true;
+                    buffer_size = 0;
                     if (is_gate) {
                         update_down_count(event);
                         if (down_count == 0) {
@@ -456,10 +457,10 @@ namespace fs8 {
             }
 
             if (is_gate && event.value() == 1) {
-                buffer_size = 0;
+                buffer_size           = 0;
                 buffer[buffer_size++] = event;
-                down_count = 1;
-                pending    = true;
+                down_count            = 1;
+                pending               = true;
                 return ignore_event;
             }
             return next;

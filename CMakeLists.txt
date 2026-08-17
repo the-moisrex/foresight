@@ -88,6 +88,7 @@ target_sources(${LIB_NAME}
         mods/momentum.cxx
         mods/on.cxx
         mods/quantifier.cxx
+        mods/record.cxx
         mods/replace.cxx
         mods/router.cxx
         mods/typed.cxx
@@ -133,6 +134,7 @@ target_sources(${LIB_NAME}
         mods/mouse_status.ixx
         mods/on.ixx
         mods/quantifier.ixx
+        mods/record.ixx
         mods/replace.ixx
         mods/router.ixx
         mods/smooth.ixx

@@ -29,5 +29,6 @@ export import fs8.mods.momentum;
 export import fs8.mods.typed;
 export import fs8.mods.typer;
 export import fs8.mods.autocomplete;
+export import fs8.mods.record;
 export import fs8.mods.io_manager;
 export import fs8.mods.input_manager;

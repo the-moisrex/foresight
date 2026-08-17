@@ -7,14 +7,16 @@ import fs8.lib.xkb.how2type;
 import fs8.mods;
 
 namespace {
-    /// Collect emitted events for assertions.
-    struct recorder {
+    /// Emit through `how2type::emit` and return the produced events.
+    template <typename... Args>
+    [[nodiscard]] std::vector<fs8::user_event> emit_recorder(fs8::xkb::keymap const &map, Args &&...args) {
         std::vector<fs8::user_event> events;
-
-        void operator()(fs8::user_event const &event) noexcept {
+        fs8::run                     rec{[&events](fs8::user_event const &event) noexcept {
             events.push_back(event);
-        }
-    };
+        }};
+        fs8::xkb::how2type::emit(map, std::forward<Args>(args)..., rec);
+        return events;
+    }
 
     /// Pull the (type, code, value) triples, skipping SYN_REPORTs.
     [[nodiscard]] std::vector<std::array<int, 3>> key_events(std::vector<fs8::user_event> const &events) {
@@ -44,11 +46,9 @@ namespace {
 
 TEST(TyperTest, EmitPlainTextStringView) {
     fs8::xkb::keymap const &map = fs8::xkb::get_default_keymap();
-    recorder                rec;
 
-    fs8::xkb::how2type::emit(map, std::string_view{"ab"}, rec);
-
-    auto const keys = key_events(rec.events);
+    auto const events = emit_recorder(map, std::string_view{"ab"});
+    auto const keys   = key_events(events);
     EXPECT_EQ(keys,
               (std::vector<std::array<int, 3>>{
                 {EV_KEY, KEY_A, 1},
@@ -57,19 +57,17 @@ TEST(TyperTest, EmitPlainTextStringView) {
                 {EV_KEY, KEY_B, 0},
     }));
     // every key event is followed by a SYN_REPORT
-    EXPECT_EQ(rec.events.size(), 8U);
-    for (std::size_t i = 1; i < rec.events.size(); i += 2) {
-        EXPECT_TRUE(rec.events.at(i).type == EV_SYN && rec.events.at(i).code == SYN_REPORT);
+    EXPECT_EQ(events.size(), 8U);
+    for (std::size_t i = 1; i < events.size(); i += 2) {
+        EXPECT_TRUE(events.at(i).type == EV_SYN && events.at(i).code == SYN_REPORT);
     }
 }
 
 TEST(TyperTest, EmitPlainTextU8StringView) {
     fs8::xkb::keymap const &map = fs8::xkb::get_default_keymap();
-    recorder                rec;
 
-    fs8::xkb::how2type::emit(map, std::u8string_view{u8"hi"}, rec);
-
-    auto const keys = key_events(rec.events);
+    auto const events = emit_recorder(map, std::u8string_view{u8"hi"});
+    auto const keys   = key_events(events);
     EXPECT_EQ(keys,
               (std::vector<std::array<int, 3>>{
                 {EV_KEY, KEY_H, 1},
@@ -81,12 +79,10 @@ TEST(TyperTest, EmitPlainTextU8StringView) {
 
 TEST(TyperTest, EmitUppercaseRequiresShift) {
     fs8::xkb::keymap const &map = fs8::xkb::get_default_keymap();
-    recorder                rec;
 
-    fs8::xkb::how2type::emit(map, U'A', rec);
-
+    auto const events = emit_recorder(map, U'A');
+    auto const keys   = key_events(events);
     // 'A' needs LeftShift held: shift-down, A-down, A-up, shift-up (with SYN_REPORTs between)
-    auto const keys = key_events(rec.events);
     EXPECT_EQ(keys,
               (std::vector<std::array<int, 3>>{
                 {EV_KEY, KEY_LEFTSHIFT, 1},
@@ -100,11 +96,9 @@ TEST(TyperTest, EmitComposedCharacter) {
     // us-intl has no direct key for 'ÿ' (U+00FF), so it's typed via a composed sequence:
     // dead_diaeresis (Shift + apostrophe) followed by 'y'.
     fs8::xkb::keymap const map{fs8::xkb::get_default_context(), nullptr, nullptr, "us", "intl"};
-    recorder               rec;
 
-    fs8::xkb::how2type::emit(map, U'ÿ', rec);
-
-    auto const keys = key_events(rec.events);
+    auto const events = emit_recorder(map, U'ÿ');
+    auto const keys   = key_events(events);
     EXPECT_EQ(
       keys,
       (std::vector<std::array<int, 3>>{
@@ -120,11 +114,9 @@ TEST(TyperTest, EmitComposedCharacter) {
 TEST(TyperTest, EmitAltGrCharacter) {
     // us-intl types 'é' (U+00E9) directly with AltGr (Mod5) + E
     fs8::xkb::keymap const map{fs8::xkb::get_default_context(), nullptr, nullptr, "us", "intl"};
-    recorder               rec;
 
-    fs8::xkb::how2type::emit(map, U'é', rec);
-
-    auto const keys = key_events(rec.events);
+    auto const events = emit_recorder(map, U'é');
+    auto const keys   = key_events(events);
     EXPECT_EQ(keys,
               (std::vector<std::array<int, 3>>{
                 {EV_KEY, KEY_RIGHTALT, 1},
@@ -137,11 +129,10 @@ TEST(TyperTest, EmitAltGrCharacter) {
 TEST(TyperTest, EmitUnsupportedCharIsNoop) {
     // plain US layout has no way to produce U+00E9 without dead keys / Multi_key
     fs8::xkb::keymap const &map = fs8::xkb::get_default_keymap();
-    recorder                rec;
 
-    fs8::xkb::how2type::emit(map, U'é', rec);
+    auto const events = emit_recorder(map, U'é');
 
-    EXPECT_TRUE(rec.events.empty());
+    EXPECT_TRUE(events.empty());
 }
 
 TEST(TyperTest, TypeStringPipelineEmitsText) {
@@ -153,9 +144,7 @@ TEST(TyperTest, TypeStringPipelineEmitsText) {
        {.type = EV_KEY, .code = KEY_0, .value = 1},
     }]
      | type_string["hi"]
-     | on[always_enable, [](auto &ctx) noexcept {
-           captured_events.push_back(ctx.event());
-       }])();
+     | record[captured_events])();
 
     auto const keys = key_events(to_user_events(captured_events));
     EXPECT_EQ(
@@ -179,9 +168,7 @@ TEST(TyperTest, TypeStringPipelineEmitsModifierTag) {
        {.type = EV_KEY, .code = KEY_0, .value = 1},
     }]
      | type_string["<ctrl-r>"]
-     | on[always_enable, [](auto &ctx) noexcept {
-           captured_events.push_back(ctx.event());
-       }])();
+     | record[captured_events])();
 
     auto const keys = key_events(to_user_events(captured_events));
     EXPECT_EQ(keys,
@@ -203,9 +190,7 @@ TEST(TyperTest, TypeStringPipelineEmitsMixedTextAndTags) {
        {.type = EV_KEY, .code = KEY_0, .value = 1},
     }]
      | type_string["go <ctrl-s>"]
-     | on[always_enable, [](auto &ctx) noexcept {
-           captured_events.push_back(ctx.event());
-       }])();
+     | record[captured_events])();
 
     auto const keys = key_events(to_user_events(captured_events));
     EXPECT_EQ(
@@ -234,9 +219,7 @@ TEST(TyperTest, TypeStringPipelineEmitsU8Text) {
        {.type = EV_KEY, .code = KEY_0, .value = 1},
     }]
      | type_string[u8"ok"]
-     | on[always_enable, [](auto &ctx) noexcept {
-           captured_events.push_back(ctx.event());
-       }])();
+     | record[captured_events])();
 
     auto const keys = key_events(to_user_events(captured_events));
     EXPECT_EQ(keys,

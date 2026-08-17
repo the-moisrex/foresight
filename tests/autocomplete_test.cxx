@@ -47,9 +47,7 @@ TEST(AutocompleteTest, TriggerSwallowsTriggerKey) {
        {.type = EV_KEY,       .code = KEY_TAB, .value = 1},
     }]
      | autocomplete["test@<tab>gmail.com"]
-     | on[always_enable, [](auto &ctx) noexcept {
-           captured_events.push_back(ctx.event());
-       }])();
+     | record[captured_events])();
 
     auto const keys = key_events(to_user_events(captured_events));
     EXPECT_EQ(
@@ -99,9 +97,7 @@ TEST(AutocompleteTest, TriggerPassesTriggerKeyThrough) {
        {.type = EV_KEY,       .code = KEY_TAB, .value = 1},
     }]
      | autocomplete["test@<tab>gmail.com"][pass_trigger]
-     | on[always_enable, [](auto &ctx) noexcept {
-           captured_events.push_back(ctx.event());
-       }])();
+     | record[captured_events])();
 
     auto const keys = key_events(to_user_events(captured_events));
     EXPECT_EQ(
@@ -154,9 +150,7 @@ TEST(AutocompleteTest, AutoModeCompletesOnPrefix) {
        {.type = EV_KEY,         .code = KEY_2, .value = 1},
     }]
      | autocomplete["example@<tab>email.com"][auto_mode]
-     | on[always_enable, [](auto &ctx) noexcept {
-           captured_events.push_back(ctx.event());
-       }])();
+     | record[captured_events])();
 
     auto const keys = key_events(to_user_events(captured_events));
     EXPECT_EQ(
@@ -208,9 +202,7 @@ TEST(AutocompleteTest, NoTriggerTagIsANoop) {
        {.type = EV_KEY, .code = KEY_O, .value = 1},
     }]
      | autocomplete["hello"]
-     | on[always_enable, [](auto &ctx) noexcept {
-           captured_events.push_back(ctx.event());
-       }])();
+     | record[captured_events])();
 
     auto const keys = key_events(to_user_events(captured_events));
     EXPECT_EQ(keys,

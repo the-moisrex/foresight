@@ -20,18 +20,6 @@ using namespace fs8;
 
 namespace {
 
-    /// Pass-through mod that records whatever event the pipeline produces.
-    struct collector {
-        std::vector<event_type> events;
-
-        context_action operator()(Context auto& ctx) noexcept {
-            events.push_back(ctx.event());
-            return context_action::next;
-        }
-    };
-
-    static_assert(Modifier<collector>);
-
     /// Poll `fd` until it becomes readable or `timeout_ms` elapses.
     [[nodiscard]] bool wait_for_event(int const fd, int timeout_ms) noexcept {
         pollfd pfd{.fd = fd, .events = POLLIN, .revents = 0};
@@ -94,11 +82,11 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
         GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
     }
 
-    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | collector{};
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | record;
 
     auto& io  = pipeline.mod<basic_io_manager>();
     auto& im  = pipeline.mod<basic_input_manager>();
-    auto& col = pipeline.mod<collector>();
+    auto& col = pipeline.mod<basic_record>();
 
     EXPECT_EQ(pipeline(start), context_action::next);
 
@@ -140,10 +128,10 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
 
-    ASSERT_FALSE(col.events.empty());
-    EXPECT_EQ(col.events.front().type(), EV_KEY);
-    EXPECT_EQ(col.events.front().code(), KEY_A);
-    EXPECT_EQ(col.events.front().value(), 1);
+    ASSERT_FALSE(col.empty());
+    EXPECT_EQ(col.front().type(), EV_KEY);
+    EXPECT_EQ(col.front().code(), KEY_A);
+    EXPECT_EQ(col.front().value(), 1);
 
     uin.close();
 }
@@ -153,11 +141,11 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
         GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
     }
 
-    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | collector{};
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | record;
 
     auto& io  = pipeline.mod<basic_io_manager>();
     auto& im  = pipeline.mod<basic_input_manager>();
-    auto& col = pipeline.mod<collector>();
+    auto& col = pipeline.mod<basic_record>();
 
     EXPECT_EQ(pipeline(start), context_action::next);
 
@@ -201,12 +189,12 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
     // devices' initial state reports (LED/sync) are real events and may be
     // delivered, so drain them; the guarantee is that nothing delivered here is
     // an EV_KEY fabrication.
-    col.events.clear();
+    col.clear();
     int drained = 0;
     while (invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event) == context_action::next) {
         ASSERT_LT(++drained, 100) << "the interceptor kept fabricating events";
         ASSERT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
-        ASSERT_NE(col.events.back().type(), EV_KEY);
+        ASSERT_NE(col.back().type(), EV_KEY);
     }
 
     // ... but the hotplugged device must now be watched.

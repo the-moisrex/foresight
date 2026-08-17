@@ -8,11 +8,6 @@ import fs8.mods;
 namespace {
     /// Events captured by the `on` mods under test.
     std::vector<fs8::event_type> captured_events; // NOLINT(*-global-variables)
-
-    /// Record the current event into `captured_events`.
-    auto record = [](auto& ctx) noexcept {
-        captured_events.push_back(ctx.event());
-    };
 } // namespace
 
 TEST(HeldTest, StringForm) {
@@ -25,7 +20,7 @@ TEST(HeldTest, StringForm) {
        {.type = EV_KEY, .code = KEY_F1, .value = 2},
        {.type = EV_KEY, .code = KEY_F1, .value = 0},
     }]
-     | on[held["<f1>"], record])();
+     | on[held["<f1>"], record[captured_events]])();
 
     // Only the initial press fires; the auto-repeat (value 2) and release are suppressed.
     ASSERT_EQ(captured_events.size(), 1U);
@@ -45,7 +40,7 @@ TEST(HeldTest, MultiStringForm) {
        {.type = EV_KEY, .code = KEY_LEFTALT, .value = 2},
        {.type = EV_KEY,      .code = KEY_F1, .value = 0},
     }]
-     | on[held["[F1][Alt]"], record])();
+     | on[held["[F1][Alt]"], record[captured_events]])();
 
     // Fires only once both [F1][Alt] are down; the Alt repeat is suppressed.
     ASSERT_EQ(captured_events.size(), 1U);
@@ -64,7 +59,7 @@ TEST(HeldTest, CodeForm) {
        {.type = EV_KEY, .code = KEY_F1, .value = 2},
        {.type = EV_KEY, .code = KEY_F1, .value = 0},
     }]
-     | on[held[KEY_F1, KEY_F2], record])();
+     | on[held[KEY_F1, KEY_F2], record[captured_events]])();
 
     // Fires only when both keys are held; repeats of either are suppressed.
     ASSERT_EQ(captured_events.size(), 1U);
@@ -83,7 +78,7 @@ TEST(HeldTest, RelatedEventWhileHeld) {
        {.type = EV_KEY, .code = KEY_F1, .value = 2},
        {.type = EV_KEY, .code = KEY_F1, .value = 0},
     }]
-     | on[held["<f1>"], record])();
+     | on[held["<f1>"], record[captured_events]])();
 
     // Unrelated events keep the condition active; only F1's own repeats are suppressed.
     ASSERT_EQ(captured_events.size(), 2U);
@@ -104,7 +99,7 @@ TEST(HeldTest, PressedStillFiresOnRepeats) {
        {.type = EV_KEY, .code = KEY_F1, .value = 0},
     }]
      | keys_status
-     | on[pressed[KEY_F1], record])();
+     | on[pressed[KEY_F1], record[captured_events]])();
 
     // Contrast with held: `pressed` treats the auto-repeat as "still pressed".
     ASSERT_EQ(captured_events.size(), 2U);
@@ -139,16 +134,18 @@ TEST(HeldTest, ParseKeyTags) {
 TEST(HeldTest, GateTapEmitsNormally) {
     using namespace fs8;
     captured_events.clear();
-    auto const never = [](auto&) noexcept { return false; };
+    auto const never = [](auto&) noexcept {
+        return false;
+    };
 
     (context
      | emit_all[{
-        {.type = EV_KEY, .code = KEY_F1, .value = 1},
-        {.type = EV_KEY, .code = KEY_F1, .value = 2},
-        {.type = EV_KEY, .code = KEY_F1, .value = 0},
-     }]
+       {.type = EV_KEY, .code = KEY_F1, .value = 1},
+       {.type = EV_KEY, .code = KEY_F1, .value = 2},
+       {.type = EV_KEY, .code = KEY_F1, .value = 0},
+    }]
      | held["<f1>", never]
-     | on[always_enable, record])();
+     | on[always_enable, record[captured_events]])();
 
     // Emitted normally on release; the repeat is suppressed.
     ASSERT_EQ(captured_events.size(), 2U);
@@ -161,18 +158,20 @@ TEST(HeldTest, GateTapEmitsNormally) {
 TEST(HeldTest, GateAlwaysConsumes) {
     using namespace fs8;
     captured_events.clear();
-    auto const always = [](auto&) noexcept { return true; };
+    auto const always = [](auto&) noexcept {
+        return true;
+    };
 
     (context
      | emit_all[{
-        {.type = EV_KEY, .code = KEY_F1, .value = 1},
-        {.type = EV_KEY, .code = KEY_F1, .value = 2},
-        {.type = EV_KEY, .code = KEY_F1, .value = 0},
-        {.type = EV_KEY, .code = KEY_G, .value = 1},
-        {.type = EV_KEY, .code = KEY_G, .value = 0},
-     }]
+       {.type = EV_KEY, .code = KEY_F1, .value = 1},
+       {.type = EV_KEY, .code = KEY_F1, .value = 2},
+       {.type = EV_KEY, .code = KEY_F1, .value = 0},
+       {.type = EV_KEY,  .code = KEY_G, .value = 1},
+       {.type = EV_KEY,  .code = KEY_G, .value = 0},
+    }]
      | held["<f1>", always]
-     | on[always_enable, record])();
+     | on[always_enable, record[captured_events]])();
 
     // F1 is fully swallowed; other keys pass through.
     ASSERT_EQ(captured_events.size(), 2U);
@@ -188,14 +187,14 @@ TEST(HeldTest, GateComboIgnores) {
 
     (context
      | emit_all[{
-        {.type = EV_KEY, .code = KEY_F1, .value = 1},
-        {.type = EV_KEY, .code = KEY_G, .value = 1},
-        {.type = EV_KEY, .code = KEY_G, .value = 0},
-        {.type = EV_KEY, .code = KEY_F1, .value = 0},
-     }]
+       {.type = EV_KEY, .code = KEY_F1, .value = 1},
+       {.type = EV_KEY,  .code = KEY_G, .value = 1},
+       {.type = EV_KEY,  .code = KEY_G, .value = 0},
+       {.type = EV_KEY, .code = KEY_F1, .value = 0},
+    }]
      | keys_status
      | held["<f1>", pressed[KEY_G]]
-     | on[always_enable, record])();
+     | on[always_enable, record[captured_events]])();
 
     // Holding F1 and pressing G consumes F1; only G is emitted.
     ASSERT_EQ(captured_events.size(), 2U);
@@ -211,14 +210,14 @@ TEST(HeldTest, GateOrderIndependent) {
 
     (context
      | emit_all[{
-        {.type = EV_KEY, .code = KEY_G, .value = 1},
-        {.type = EV_KEY, .code = KEY_F1, .value = 1},
-        {.type = EV_KEY, .code = KEY_F1, .value = 0},
-        {.type = EV_KEY, .code = KEY_G, .value = 0},
-     }]
+       {.type = EV_KEY,  .code = KEY_G, .value = 1},
+       {.type = EV_KEY, .code = KEY_F1, .value = 1},
+       {.type = EV_KEY, .code = KEY_F1, .value = 0},
+       {.type = EV_KEY,  .code = KEY_G, .value = 0},
+    }]
      | keys_status
      | held["<f1>", pressed[KEY_G]]
-     | on[always_enable, record])();
+     | on[always_enable, record[captured_events]])();
 
     // G held before F1: the decision fires when F1 is released, still consuming it.
     ASSERT_EQ(captured_events.size(), 2U);
@@ -231,16 +230,18 @@ TEST(HeldTest, GateOrderIndependent) {
 TEST(HeldTest, GateFlushDeferredToRelease) {
     using namespace fs8;
     captured_events.clear();
-    auto const never = [](auto&) noexcept { return false; };
+    auto const never = [](auto&) noexcept {
+        return false;
+    };
 
     (context
      | emit_all[{
-        {.type = EV_KEY, .code = KEY_F1, .value = 1},
-        {.type = EV_REL, .code = REL_X, .value = 5},
-        {.type = EV_KEY, .code = KEY_F1, .value = 0},
-     }]
+       {.type = EV_KEY, .code = KEY_F1, .value = 1},
+       {.type = EV_REL,  .code = REL_X, .value = 5},
+       {.type = EV_KEY, .code = KEY_F1, .value = 0},
+    }]
      | held["<f1>", never]
-     | on[always_enable, record])();
+     | on[always_enable, record[captured_events]])();
 
     // The mouse move passes immediately; F1 is deferred until release.
     ASSERT_EQ(captured_events.size(), 3U);
@@ -255,17 +256,19 @@ TEST(HeldTest, GateFlushDeferredToRelease) {
 TEST(HeldTest, GateChordEmitsNormally) {
     using namespace fs8;
     captured_events.clear();
-    auto const never = [](auto&) noexcept { return false; };
+    auto const never = [](auto&) noexcept {
+        return false;
+    };
 
     (context
      | emit_all[{
-        {.type = EV_KEY, .code = KEY_F1, .value = 1},
-        {.type = EV_KEY, .code = KEY_LEFTALT, .value = 1},
-        {.type = EV_KEY, .code = KEY_F1, .value = 0},
-        {.type = EV_KEY, .code = KEY_LEFTALT, .value = 0},
-     }]
+       {.type = EV_KEY,      .code = KEY_F1, .value = 1},
+       {.type = EV_KEY, .code = KEY_LEFTALT, .value = 1},
+       {.type = EV_KEY,      .code = KEY_F1, .value = 0},
+       {.type = EV_KEY, .code = KEY_LEFTALT, .value = 0},
+    }]
      | held["[F1][Alt]", never]
-     | on[always_enable, record])();
+     | on[always_enable, record[captured_events]])();
 
     // The whole chord is replayed in order once fully released.
     ASSERT_EQ(captured_events.size(), 4U);
@@ -285,16 +288,16 @@ TEST(HeldTest, GateChordConsumesOnCombo) {
 
     (context
      | emit_all[{
-        {.type = EV_KEY, .code = KEY_F1, .value = 1},
-        {.type = EV_KEY, .code = KEY_LEFTALT, .value = 1},
-        {.type = EV_KEY, .code = KEY_G, .value = 1},
-        {.type = EV_KEY, .code = KEY_G, .value = 0},
-        {.type = EV_KEY, .code = KEY_F1, .value = 0},
-        {.type = EV_KEY, .code = KEY_LEFTALT, .value = 0},
-     }]
+       {.type = EV_KEY,      .code = KEY_F1, .value = 1},
+       {.type = EV_KEY, .code = KEY_LEFTALT, .value = 1},
+       {.type = EV_KEY,       .code = KEY_G, .value = 1},
+       {.type = EV_KEY,       .code = KEY_G, .value = 0},
+       {.type = EV_KEY,      .code = KEY_F1, .value = 0},
+       {.type = EV_KEY, .code = KEY_LEFTALT, .value = 0},
+    }]
      | keys_status
      | held["[F1][Alt]", pressed[KEY_G]]
-     | on[always_enable, record])();
+     | on[always_enable, record[captured_events]])();
 
     // The chord is dropped entirely; only G passes through.
     ASSERT_EQ(captured_events.size(), 2U);
@@ -310,19 +313,20 @@ TEST(HeldTest, GateDeciderEmitsAction) {
 
     (context
      | emit_all[{
-        {.type = EV_KEY, .code = KEY_F1, .value = 1},
-        {.type = EV_KEY, .code = KEY_G, .value = 1},
-        {.type = EV_KEY, .code = KEY_G, .value = 0},
-        {.type = EV_KEY, .code = KEY_F1, .value = 0},
-     }]
-     | held["<f1>", [](auto& ctx) noexcept {
-           if (ctx.event().is(EV_KEY, KEY_G, 1)) {
-               std::ignore = ctx.fork_emit(fs8::user_event{.type = EV_KEY, .code = KEY_H, .value = 1});
-               return true;
-           }
-           return false;
-       }]
-     | on[always_enable, record])();
+       {.type = EV_KEY, .code = KEY_F1, .value = 1},
+       {.type = EV_KEY,  .code = KEY_G, .value = 1},
+       {.type = EV_KEY,  .code = KEY_G, .value = 0},
+       {.type = EV_KEY, .code = KEY_F1, .value = 0},
+    }]
+     | held["<f1>",
+            [](auto& ctx) noexcept {
+                if (ctx.event().is(EV_KEY, KEY_G, 1)) {
+                    std::ignore = ctx.fork_emit(fs8::user_event{.type = EV_KEY, .code = KEY_H, .value = 1});
+                    return true;
+                }
+                return false;
+            }]
+     | on[always_enable, record[captured_events]])();
 
     // The decider itself fires the action (KEY_H) and swallows F1.
     ASSERT_EQ(captured_events.size(), 3U);

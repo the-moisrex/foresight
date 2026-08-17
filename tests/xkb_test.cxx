@@ -7,6 +7,7 @@
 import fs8.lib.xkb;
 import fs8.lib.xkb.how2type;
 import fs8.event;
+import fs8.mods.lambda;
 
 using fs8::user_event;
 using fs8::xkb::get_default_keymap;
@@ -15,9 +16,10 @@ namespace {
     template <typename... Args>
     std::vector<user_event> to_vector(Args&&... args) {
         std::vector<user_event> vec;
-        fs8::xkb::how2type::emit(std::forward<Args>(args)..., [&vec](user_event const& event) {
+        fs8::run                rec{[&vec](user_event const& event) noexcept {
             return vec.emplace_back(event);
-        });
+        }};
+        fs8::xkb::how2type::emit(std::forward<Args>(args)..., rec);
         return vec;
     }
 } // namespace
@@ -53,14 +55,15 @@ TEST(XKB, EmitPersianMultiLayout) {
     }
 
     // Persian letters are plain base-level presses; no modifier keys are needed.
-    EXPECT_EQ(keys,
-              (std::vector<std::array<int, 3>>{
-                {EV_KEY, KEY_J, 1},
-                {EV_KEY, KEY_J, 0},
-                {EV_KEY, KEY_S, 1},
-                {EV_KEY, KEY_S, 0},
-                {EV_KEY, KEY_J, 1},
-                {EV_KEY, KEY_J, 0},
+    EXPECT_EQ(
+      keys,
+      (std::vector<std::array<int, 3>>{
+        {EV_KEY, KEY_J, 1},
+        {EV_KEY, KEY_J, 0},
+        {EV_KEY, KEY_S, 1},
+        {EV_KEY, KEY_S, 0},
+        {EV_KEY, KEY_J, 1},
+        {EV_KEY, KEY_J, 0},
     }));
 }
 

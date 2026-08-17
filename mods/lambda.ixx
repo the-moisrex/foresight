@@ -8,18 +8,27 @@ export module fs8.mods.lambda;
 export namespace fs8 {
 
     /**
-     * Usage:
+     * Wrap one or more functions so they can be used as mods and/or callbacks.
+     *
+     * Usage as a mod (a function run on each event):
      * run([] (this auto& self, Context auto& ctx) {
      *   // do anything you want
      * })
+     *
+     * Usage as a runtime callback (e.g. how2type::emit), capturing state by
+     * reference:
+     * std::vector<user_event> events;
+     * run rec{[&events](user_event const& event) noexcept {
+     *   events.push_back(event);
+     * }};
      */
     template <typename... Bases>
     struct [[nodiscard]] run : Bases... {
-        static_assert((std::copyable<Bases> && ...), "The bases must be copyable");
+        static_assert((std::copy_constructible<Bases> && ...), "The bases must be copy constructible");
 
-        consteval explicit(false) run(Bases... bases) : Bases(std::move(bases))... {}
+        constexpr explicit(false) run(Bases... bases) : Bases(std::move(bases))... {}
 
-        consteval run()
+        constexpr run()
             requires(std::default_initializable<Bases> && ...)
         = default;
 
