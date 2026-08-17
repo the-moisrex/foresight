@@ -9,6 +9,7 @@ module;
 #include <memory>
 #include <print>
 #include <ranges>
+#include <string>
 #include <vector>
 #include <xkbcommon/xkbcommon-compose.h>
 #include <xkbcommon/xkbcommon.h>
@@ -388,6 +389,79 @@ namespace {
         }
         return true;
     }
+
+    /// Encode a code point as UTF-8 (empty string for invalid or control characters).
+    std::string utf8_from_ucs32(char32_t const ucs32) {
+        if (ucs32 < 0x20 || ucs32 > 0x10'FFFF) {
+            return {};
+        }
+        if (ucs32 <= 0x7F) {
+            return {static_cast<char>(ucs32)};
+        }
+        std::string out;
+        if (ucs32 <= 0x7FF) {
+            out += static_cast<char>(0xC0 | (ucs32 >> 6));
+            out += static_cast<char>(0x80 | (ucs32 & 0x3F));
+        } else if (ucs32 <= 0xFFFF) {
+            out += static_cast<char>(0xE0 | (ucs32 >> 12));
+            out += static_cast<char>(0x80 | ((ucs32 >> 6) & 0x3F));
+            out += static_cast<char>(0x80 | (ucs32 & 0x3F));
+        } else {
+            out += static_cast<char>(0xF0 | (ucs32 >> 18));
+            out += static_cast<char>(0x80 | ((ucs32 >> 12) & 0x3F));
+            out += static_cast<char>(0x80 | ((ucs32 >> 6) & 0x3F));
+            out += static_cast<char>(0x80 | (ucs32 & 0x3F));
+        }
+        return out;
+    }
+
+    /// Comma-separated list of the layout names compiled into this keymap.
+    std::string layout_names(xkb_keymap *keymap) {
+        auto const count = xkb_keymap_num_layouts(keymap);
+        if (count == 0) {
+            return "<none>";
+        }
+        std::string out;
+        for (xkb_layout_index_t i = 0; i < count; ++i) {
+            if (i > 0) {
+                out += ", ";
+            }
+            char const *const name = xkb_keymap_layout_get_name(keymap, i);
+            out += name != nullptr ? name : "?";
+        }
+        return out;
+    }
+
+    /// Characters that can't be produced by any keyboard layout and need an IME.
+    [[nodiscard]] bool needs_ime(char32_t const ucs32) noexcept {
+        return (ucs32 >= 0x3400 && ucs32 <= 0x4DBF)   // CJK Ext. A
+            || (ucs32 >= 0x4E00 && ucs32 <= 0x9FFF)   // CJK Unified Ideographs
+            || (ucs32 >= 0x20000 && ucs32 <= 0x2A6DF) // CJK Ext. B
+            || (ucs32 >= 0x3040 && ucs32 <= 0x30FF)   // Hiragana / Katakana
+            || (ucs32 >= 0xAC00 && ucs32 <= 0xD7AF);  // Hangul syllables
+    }
+
+    /// Explain why a character can't be typed and how to make it typable.
+    void warn_untypable(fs8::xkb::keymap const &map, char32_t const ucs32) {
+        std::string const glyph   = utf8_from_ucs32(ucs32);
+        std::string const layouts = layout_names(map.get());
+
+        fs8::log("Warning: no way to type '{}' (U+{:04X}) with the current keyboard layouts: {}",
+            glyph.empty() ? "?" : glyph,
+            static_cast<uint32_t>(ucs32),
+            layouts);
+
+        if (needs_ime(ucs32)) {
+            fs8::log("  Hint: CJK (Chinese/Japanese/Korean) characters aren't on any keyboard layout;");
+            fs8::log("  Hint: type them with an input method (IME) such as ibus or fcitx5,");
+            fs8::log("  Hint: then switch to it while typing (e.g. with the configured hotkey).");
+            return;
+        }
+
+        fs8::log("  Hint: this character isn't present on the configured layouts. To make it typable,");
+        fs8::log("  Hint: add a layout that contains it (e.g. `localectl set-x11-keymap us,ir`),");
+        fs8::log("  Hint: set XKB_DEFAULT_LAYOUT=us,ir, or edit /etc/default/keyboard, then re-run.");
+    }
 } // namespace
 
 void fs8::xkb::how2type::emit(keymap const &map, char32_t const ucs32, user_event_callback callback) {
@@ -407,8 +481,8 @@ void fs8::xkb::how2type::emit(keymap const &map, char32_t const ucs32, user_even
         return;
     }
 
-    // 3. Give up (e.g. an emoji or a character with no keysym/sequence on this keymap)
-    log("Warning: no way to type U+{:04X} on this keymap", static_cast<uint32_t>(ucs32));
+    // 3. Give up (e.g. a CJK character, an emoji, or a character with no keysym/sequence on this keymap)
+    warn_untypable(map, ucs32);
 }
 
 void fs8::xkb::how2type::emit(keymap const &map, std::u32string_view const str, user_event_callback callback) {

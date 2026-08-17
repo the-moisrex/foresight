@@ -3,7 +3,10 @@
 module;
 #include <array>
 #include <cassert>
+#include <cstdlib>
+#include <fstream>
 #include <memory>
+#include <string>
 #include <string_view>
 #include <xkbcommon/xkbcommon.h>
 module fs8.lib.xkb;
@@ -20,6 +23,111 @@ namespace {
         if (!cond) {
             throw fs8::xkb::xkb_error(std::string(msg));
         }
+    }
+
+    /// Resolved system XKB configuration; empty fields mean "use xkbcommon defaults".
+    struct system_keyboard {
+        std::string rules;
+        std::string model;
+        std::string layout;
+        std::string variant;
+        std::string options;
+    };
+
+    /// Trim ASCII whitespace from both ends of a string.
+    [[nodiscard]] std::string_view trim(std::string_view str) noexcept {
+        while (!str.empty() && (str.front() == ' ' || str.front() == '\t' || str.front() == '\r' || str.front() == '\n')) {
+            str.remove_prefix(1);
+        }
+        while (!str.empty() && (str.back() == ' ' || str.back() == '\t' || str.back() == '\r' || str.back() == '\n')) {
+            str.remove_suffix(1);
+        }
+        return str;
+    }
+
+    /// Strip surrounding double quotes if present.
+    [[nodiscard]] std::string_view unquote(std::string_view const str) noexcept {
+        if (str.size() >= 2 && str.front() == '"' && str.back() == '"') {
+            return str.substr(1, str.size() - 2);
+        }
+        return str;
+    }
+
+    /// Read a line-based "KEY=value" config file, calling `on_value` for each matched line.
+    /// Blank lines and comments (lines starting with '#') are ignored.
+    template <typename Fn>
+    void read_config_file(char const* path, Fn&& on_value) {
+        std::ifstream file{path};
+        if (!file) {
+            return;
+        }
+        std::string line;
+        while (std::getline(file, line)) {
+            std::string_view const sv = trim(line);
+            if (sv.empty() || sv.front() == '#') {
+                continue;
+            }
+            auto const eq = sv.find('=');
+            if (eq == std::string_view::npos) {
+                continue;
+            }
+            auto const key   = trim(sv.substr(0, eq));
+            auto const value = unquote(trim(sv.substr(eq + 1)));
+            if (!value.empty()) {
+                on_value(key, value);
+            }
+        }
+    }
+
+    /// Determine the system's configured XKB names from env vars and config files,
+    /// in priority order: environment, /etc/default/keyboard, /etc/vconsole.conf.
+    system_keyboard detect_system_keyboard() {
+        system_keyboard out;
+
+        // Priority 1: explicit environment overrides (same convention as xkbcommon).
+        if (char const* const v = std::getenv("XKB_DEFAULT_RULES"); v != nullptr && *v != '\0') {
+            out.rules = v;
+        }
+        if (char const* const v = std::getenv("XKB_DEFAULT_MODEL"); v != nullptr && *v != '\0') {
+            out.model = v;
+        }
+        if (char const* const v = std::getenv("XKB_DEFAULT_LAYOUT"); v != nullptr && *v != '\0') {
+            out.layout = v;
+        }
+        if (char const* const v = std::getenv("XKB_DEFAULT_VARIANT"); v != nullptr && *v != '\0') {
+            out.variant = v;
+        }
+        if (char const* const v = std::getenv("XKB_DEFAULT_OPTIONS"); v != nullptr && *v != '\0') {
+            out.options = v;
+        }
+
+        // Priority 2: /etc/default/keyboard (written by systemd-localed). Only fills
+        // fields that the environment left unset.
+        read_config_file("/etc/default/keyboard", [&](std::string_view const key, std::string_view const value) {
+            if (key == "XKBLAYOUT" && out.layout.empty()) {
+                out.layout = value;
+            } else if (key == "XKBVARIANT" && out.variant.empty()) {
+                out.variant = value;
+            } else if (key == "XKBMODEL" && out.model.empty()) {
+                out.model = value;
+            } else if (key == "XKBOPTIONS" && out.options.empty()) {
+                out.options = value;
+            }
+        });
+
+        // Priority 3: /etc/vconsole.conf. Only consulted when /etc/default/keyboard
+        // didn't provide a layout.
+        if (out.layout.empty()) {
+            read_config_file("/etc/vconsole.conf", [&](std::string_view const key, std::string_view const value) {
+                if (key == "XKBLAYOUT" && out.layout.empty()) {
+                    out.layout = value;
+                } else if (key == "XKBVARIANT" && out.variant.empty()) {
+                    out.variant = value;
+                }
+            });
+        }
+
+        return out;
     }
 
 } // namespace
@@ -106,7 +214,18 @@ std::string keymap::as_string() const {
 }
 
 keymap& fs8::xkb::get_default_keymap() {
-    static keymap map{get_default_context()};
+    // Use the user's real keyboard layout(s) from the environment and system config
+    // (e.g. /etc/default/keyboard) instead of always falling back to plain "us",
+    // so characters from any configured layout are typable.
+    static system_keyboard const sys = detect_system_keyboard();
+    static keymap map{
+      get_default_context(),
+      sys.rules.empty() ? nullptr : sys.rules.c_str(),
+      sys.model.empty() ? nullptr : sys.model.c_str(),
+      sys.layout.empty() ? nullptr : sys.layout.c_str(),
+      sys.variant.empty() ? nullptr : sys.variant.c_str(),
+      sys.options.empty() ? nullptr : sys.options.c_str(),
+    };
     return map;
 }
 
