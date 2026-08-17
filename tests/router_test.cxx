@@ -72,6 +72,16 @@ namespace {
       | router[caps::keyboard >> (context | query_consumer{&keyboard_query_record}),
                caps::mouse >> (context | query_consumer{&mouse_query_record})];
 
+    int single_route_counter = 0;
+
+    using single_router_t = basic_router<basic_context<counting_mod>>;
+
+    static constinit auto single_route_pipeline = context | router[caps::keyboard >> (context | counting_mod{&single_route_counter})];
+
+    /// A single-route router with a real uinput output: must build (compile-time
+    /// only) even though it can't be started without /dev/uinput access.
+    static constinit auto single_uinput_pipeline = context | router[caps::keyboard >> uinput];
+
 } // namespace
 
 TEST(Router, PipelineRouteStartPassThrough) {
@@ -111,4 +121,23 @@ TEST(Router, PipelineRouteQueryForwarding) {
     EXPECT_EQ(keyboard_query_record.received_query.caps, view(caps::keyboard));
     EXPECT_TRUE(mouse_query_record.called);
     EXPECT_EQ(mouse_query_record.received_query.caps, view(caps::mouse));
+}
+
+TEST(Router, SingleRouteStartAndDispatch) {
+    single_route_counter = 0;
+
+    EXPECT_EQ(single_route_pipeline(start), context_action::next);
+
+    // The single route is started with the query dropped (counting_mod can't take it).
+    EXPECT_EQ(single_route_counter, 1);
+
+    // KEY_A is in the keyboard caps, so it is dispatched to the single route.
+    single_route_pipeline.event(event_type{EV_KEY, KEY_A, 1});
+    EXPECT_EQ(single_route_pipeline.mod<single_router_t>()(single_route_pipeline), context_action::next);
+    EXPECT_EQ(single_route_counter, 2);
+
+    // A mouse button is outside the keyboard caps, so it is dropped by the router.
+    single_route_pipeline.event(event_type{EV_KEY, BTN_LEFT, 1});
+    EXPECT_EQ(single_route_pipeline.mod<single_router_t>()(single_route_pipeline), context_action::ignore_event);
+    EXPECT_EQ(single_route_counter, 2);
 }
