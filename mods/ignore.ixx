@@ -143,6 +143,46 @@ export namespace fs8 {
 
     constexpr basic_ignore_keys<0> ignore_keys;
 
+    /// Ignore the auto-repeat events (EV_KEY with value 2) of the given keys,
+    /// while letting their press/release events pass through.
+    template <std::size_t N>
+    struct [[nodiscard]] basic_ignore_repeats_of : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+      private:
+        std::array<event_type::code_type, N> codes{};
+
+      public:
+        constexpr explicit basic_ignore_repeats_of(std::array<event_type::code_type, N> const inp_codes) noexcept : codes{inp_codes} {}
+
+        template <std::size_t NN>
+        consteval basic_ignore_repeats_of operator[](std::array<event_type::code_type, NN> const inp_codes) const noexcept {
+            return basic_ignore_repeats_of<NN>{inp_codes};
+        }
+
+        template <typename... T>
+            requires((std::convertible_to<T, event_type::code_type> && ...))
+        consteval auto operator[](T... inp_codes) const noexcept {
+            return basic_ignore_repeats_of<sizeof...(T)>{
+              std::array<event_type::code_type, sizeof...(T)>{static_cast<event_type::code_type>(inp_codes)...}};
+        }
+
+        context_action operator()(event_type const& event) const noexcept {
+            using enum context_action;
+            if (event.type() != EV_KEY || event.value() != 2) {
+                return next;
+            }
+            for (event_type::code_type const code : codes) {
+                if (event.code() == code) {
+                    return ignore_event;
+                }
+            }
+            return next;
+        }
+    };
+
+    constexpr basic_ignore_repeats_of<0> ignore_repeats_of;
+
     constexpr struct [[nodiscard]] basic_ignore_caps : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 

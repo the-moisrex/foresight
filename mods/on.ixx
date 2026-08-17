@@ -1,16 +1,19 @@
 // Created by moisrex on 6/18/25.
 
 module;
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <functional>
 #include <linux/input-event-codes.h>
+#include <string_view>
 #include <tuple>
 #include <utility>
 export module fs8.mods.on;
 
 export import fs8.utils;
+import fs8.lib.mod_parser;
 import fs8.mods.keys_status;
 import fs8.context;
 import fs8.traits;
@@ -278,6 +281,51 @@ namespace fs8 {
             return event.is(EV_KEY, code, 0);
         }
     };
+
+    /// True while every tracked key is down, except on the tracked keys' own auto-repeat
+    /// events (EV_KEY with value 2). Works without keys_status in the pipeline.
+    export struct [[nodiscard]] basic_held : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        static constexpr std::size_t max_codes = 32;
+
+      private:
+        std::string_view                  pattern;
+        std::array<code_type, max_codes>  codes{};
+        std::array<value_type, max_codes> states{};
+        std::size_t                       count = 0;
+
+      public:
+        /// String form: e.g. "<f1>", "[F1][Alt]", "<alt-f1>" (parsed when the pipeline starts).
+        explicit consteval basic_held(std::string_view const inp_pattern) noexcept : pattern{inp_pattern} {}
+
+        /// Code form: a fixed set of key codes.
+        template <std::size_t N>
+            requires(N <= max_codes)
+        explicit consteval basic_held(std::array<code_type, N> const& inp_codes) noexcept {
+            for (std::size_t i = 0; i < N; ++i) {
+                codes[i] = inp_codes[i];
+            }
+            count = N;
+        }
+
+        consteval basic_held operator[](std::string_view const inp_pattern) const noexcept {
+            return basic_held{inp_pattern};
+        }
+
+        template <typename... T>
+            requires((std::convertible_to<T, code_type> && ...))
+        consteval basic_held operator[](T... inp_codes) const noexcept {
+            return basic_held{std::array<code_type, sizeof...(T)>{static_cast<code_type>(inp_codes)...}};
+        }
+
+        /// Resolve the pattern string into key codes when the pipeline starts.
+        context_action operator()(start_tag) noexcept;
+
+        [[nodiscard]] bool operator()(event_type const& event) noexcept;
+    };
+
+    export constexpr basic_held held;
 
     export template <typename Func>
     struct [[nodiscard]] op_not {

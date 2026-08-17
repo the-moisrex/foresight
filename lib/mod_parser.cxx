@@ -484,6 +484,47 @@ std::u32string fs8::parse_modifier(std::u32string_view const mod_str) {
     return parse_modifier_impl(mod_str);
 }
 
+std::size_t fs8::parse_key_tags(std::string_view const str, std::span<event_type::code_type> out) noexcept {
+    std::size_t count     = 0;
+    std::size_t index     = 0;
+    bool        found_any = false;
+
+    auto push_codes = [&](std::basic_string_view<char> const content) noexcept {
+        std::inplace_vector<std::uint16_t, max_simultaneous_key_presses> keys;
+        if (!parse_modifier_codes(content, keys)) [[unlikely]] {
+            return;
+        }
+        for (auto const code : keys) {
+            if (count < out.size()) {
+                out[count++] = static_cast<event_type::code_type>(code);
+            }
+        }
+    };
+
+    for (;;) {
+        std::size_t begin = 0;
+        std::size_t end   = 0;
+        if (!find_modifier_tag(str, index, begin, end)) [[likely]] {
+            break;
+        }
+        found_any       = true;
+        auto const tag  = str.substr(begin, end - begin);
+        auto const mode = modifier_mode_of(tag);
+        if (mode != modifier_mode::unknown) [[likely]] {
+            bool const ordered = is_ordered_mode(mode);
+            push_codes(tag.substr(ordered ? 2 : 1, tag.size() - (ordered ? 4 : 2)));
+        }
+        index = end;
+    }
+
+    if (!found_any) {
+        // no tags at all: treat the whole string as a single key name or delimited set
+        push_codes(str);
+    }
+
+    return count;
+}
+
 void fs8::on_modifier_tags(std::u32string_view const str, std::function_ref<void(std::u32string_view)> callback) noexcept {
     std::size_t index = 0;
     for (;;) {

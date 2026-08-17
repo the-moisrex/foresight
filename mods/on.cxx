@@ -88,3 +88,36 @@ bool fs8::basic_multi_click::operator()(event_type const& event) noexcept {
     }
     return res;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+fs8::context_action fs8::basic_held::operator()(start_tag) noexcept {
+    if (!pattern.empty()) {
+        count = fs8::parse_key_tags(pattern, codes);
+    }
+    return context_action::next;
+}
+
+bool fs8::basic_held::operator()(event_type const& event) noexcept {
+    bool is_repeat_of_held = false;
+    for (std::size_t i = 0; i < count; ++i) {
+        if (event.type() == EV_KEY && event.code() == codes[i]) {
+            states[i] = event.value();
+            if (event.value() == 2) [[unlikely]] {
+                is_repeat_of_held = true;
+            }
+        }
+    }
+    if (is_repeat_of_held) {
+        return false;
+    }
+    if (count == 0) {
+        return false;
+    }
+    for (std::size_t i = 0; i < count; ++i) {
+        if (states[i] == 0) {
+            return false;
+        }
+    }
+    return true;
+}

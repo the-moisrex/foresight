@@ -175,8 +175,8 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
 
     // The machine may already have real keyboards matching `[keyboard]`, so the
     // uinput keyboard is only the *newest* device; track it by count delta.
-    std::size_t const known = std::ranges::distance(im.devices());
-    int const first_fd     = std::ranges::next(im.devices().begin(), static_cast<std::ptrdiff_t>(known - 1))->native_handle();
+    std::size_t const known    = std::ranges::distance(im.devices());
+    int const         first_fd = std::ranges::next(im.devices().begin(), static_cast<std::ptrdiff_t>(known - 1))->native_handle();
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
     EXPECT_TRUE(io.is_watched(first_fd));
 
@@ -189,7 +189,7 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
     }
 
     EXPECT_EQ(io(load_event), context_action::next);
-    if (std::ranges::distance(im.devices()) < known + 1) {
+    if (std::ranges::distance(im.devices()) < static_cast<std::ptrdiff_t>(known + 1)) {
         uin.close();
         uin2.close();
         GTEST_SKIP() << "The second uinput keyboard was not enumerated.";

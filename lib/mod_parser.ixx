@@ -5,6 +5,7 @@ module;
 #include <cstdint>
 #include <functional>
 #include <linux/input-event-codes.h>
+#include <span>
 #include <string_view>
 export module fs8.lib.mod_parser;
 import fs8.event;
@@ -99,6 +100,11 @@ namespace fs8 {
 
     /// Parse UTF-8 or U+XXXX code points
     export [[nodiscard]] char32_t parse_char_or_codepoint(std::string_view &src) noexcept;
+
+    /// Parse one or more key tags (e.g. "<f1>", "[F1][Alt]", "<alt-f1>") or a bare key
+    /// name/set (e.g. "f1", "ctrl-r"), writing the resolved key codes into `out`.
+    /// Returns the number of codes written.
+    export [[nodiscard]] std::size_t parse_key_tags(std::string_view str, std::span<event_type::code_type> out) noexcept;
 
     /// Find the specified delimiter, but also checks if it's escaped or not.
     export std::size_t find_delim(std::string_view str, char delim, std::size_t pos = 0) noexcept;
