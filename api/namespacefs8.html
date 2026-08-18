@@ -392,6 +392,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1owned__query.html">owned_query</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__evtest__event.html">parsed_evtest_event</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One parsed line of evtest-format output.  <a href="structfs8_1_1parsed__evtest__event.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom.html">pimpl_idiom</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1plain__pimpl__idiom.html">plain_pimpl_idiom</a></td></tr>
@@ -892,6 +895,8 @@ requires (std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#adcd5f
 <tr class="separator:a18f7254fa63e6bdec71453bfeb061372"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adee1a80366c18034df5097aa668dd38c" id="r_adee1a80366c18034df5097aa668dd38c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#adee1a80366c18034df5097aa668dd38c">fs8::finalize_device</a> (<a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a> &amp;<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a>, <a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;best, <a class="el" href="namespacefs8.html#a6765bed97fe4ab722b67e29633e8f7e3">dev_caps_view</a> caps_view) noexcept</td></tr>
 <tr class="separator:adee1a80366c18034df5097aa668dd38c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc243b8d2bfaae3fc1b762f5a53aeecb" id="r_adc243b8d2bfaae3fc1b762f5a53aeecb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#adc243b8d2bfaae3fc1b762f5a53aeecb">fs8::parse_evtest_line</a> (std::string_view line, <a class="el" href="structfs8_1_1parsed__evtest__event.html">parsed_evtest_event</a> &amp;<a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a>) noexcept</td></tr>
+<tr class="separator:adc243b8d2bfaae3fc1b762f5a53aeecb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6d14c4ce234f2becac2325d0d429d4a" id="r_af6d14c4ce234f2becac2325d0d429d4a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af6d14c4ce234f2becac2325d0d429d4a">fs8::is_modifier_key</a> (std::uint16_t const <a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a>) noexcept</td></tr>
 <tr class="memdesc:af6d14c4ce234f2becac2325d0d429d4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is this key code a modifier key (ctrl/shift/alt/meta/caps/num/scroll)?  <br /></td></tr>
 <tr class="separator:af6d14c4ce234f2becac2325d0d429d4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7866,6 +7871,45 @@ requires (!<a class="el" href="namespacefs8.html#aadc64fc1f9d5543954acb8c8ee2cfc
 </div><div class="memdoc">
 
 <p>Parse argc and argv into a dynamic device_query. </p>
+
+</div>
+</div>
+<a id="adc243b8d2bfaae3fc1b762f5a53aeecb" name="adc243b8d2bfaae3fc1b762f5a53aeecb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc243b8d2bfaae3fc1b762f5a53aeecb">&#9670;&#160;</a></span>parse_evtest_line()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fs8::parse_evtest_line </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>line</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1parsed__evtest__event.html">parsed_evtest_event</a> &amp;&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Parse a single line of evtest (or <code>foresight how-to-type --evtest</code>) output into a <code><a class="el" href="structfs8_1_1parsed__evtest__event.html" title="One parsed line of evtest-format output.">parsed_evtest_event</a></code>.</p>
+<p>Handles lines like: Event: time 1634220472.123456, type 1 (EV_KEY), code 29 (KEY_LEFTCTRL), value 1</p>
+<p>Returns false for lines that are not event lines: SYN_REPORT separators, evtest's header/preamble lines, empty lines, and malformed input. The timestamp is optional; when missing it defaults to 0. </p>
 
 </div>
 </div>

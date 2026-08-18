@@ -150,6 +150,7 @@ var annotated_dup =
       [ "op_not", "structfs8_1_1op__not.html", "structfs8_1_1op__not" ],
       [ "or_op", "structfs8_1_1or__op.html", "structfs8_1_1or__op" ],
       [ "owned_query", "structfs8_1_1owned__query.html", "structfs8_1_1owned__query" ],
+      [ "parsed_evtest_event", "structfs8_1_1parsed__evtest__event.html", "structfs8_1_1parsed__evtest__event" ],
       [ "pimpl_idiom", "structfs8_1_1pimpl__idiom.html", "structfs8_1_1pimpl__idiom" ],
       [ "plain_pimpl_idiom", "structfs8_1_1plain__pimpl__idiom.html", "structfs8_1_1plain__pimpl__idiom" ],
       [ "query_provider_handle", "structfs8_1_1query__provider__handle.html", "structfs8_1_1query__provider__handle" ],

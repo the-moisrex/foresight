@@ -574,6 +574,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#matching-key-combos-in-evtest-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matching key combos in evtest output
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -868,6 +879,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#matching-key-combos-in-evtest-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matching key combos in evtest output
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -906,6 +928,11 @@ with the Foresight library.</p>
                          Only use this if you know what you're doing!
 
     redirect [files...]  Redirect stdin to the specified files.
+
+    matches [pattern...] Match key combos in an evtest-format stream read from
+                         stdin, printing 'Matched &lt;pattern&gt;' when one is
+                         detected.
+       --echo-events     Also echo the triggering event line.
 
     new [name] [template]
                          Create a new app from a template (interchangeable).
@@ -955,6 +982,19 @@ foresight<span class="w"> </span>intercept<span class="w"> </span>-g<span class=
 <div class="highlight"><pre><span></span><code>foresight<span class="w"> </span>new<span class="w"> </span>my-app
 foresight<span class="w"> </span>new<span class="w"> </span>--list-templates<span class="w">   </span><span class="c1"># see the available templates</span>
 </code></pre></div>
+<h2 id="matching-key-combos-in-evtest-output">Matching key combos in evtest output</h2>
+<p><code>foresight matches</code> reads an evtest-format event stream from stdin and reports
+when a key combo (or plain text) occurs in it. This is handy for checking a
+recorded evtest log for a shortcut, or for verifying what <code>how-to-type</code> emits:</p>
+<div class="highlight"><pre><span></span><code>evtest<span class="w"> </span>/dev/input/event3<span class="w"> </span><span class="p">|</span><span class="w"> </span>foresight<span class="w"> </span>matches<span class="w"> </span><span class="s2">"&lt;ctrl+shift+left&gt;"</span>
+cat<span class="w"> </span>evtest-results.txt<span class="w">    </span><span class="p">|</span><span class="w"> </span>foresight<span class="w"> </span>matches<span class="w"> </span><span class="s2">"&lt;ctrl+Shift+Left&gt;"</span>
+foresight<span class="w"> </span>how-to-type<span class="w"> </span>--evtest<span class="w"> </span><span class="s2">"[ctrl+shift+left]"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>foresight<span class="w"> </span>matches<span class="w"> </span><span class="s2">"[ctrl+shift+left]"</span>
+</code></pre></div>
+<p>Patterns use the same syntax as the <code>typed</code> mod: <code>&lt;...&gt;</code> for a key press,
+<code>[...]</code> for a key release, <code>&lt;&lt;...&gt;&gt;</code>/<code>[[...]]</code> for ordered variants, or plain
+text like <code>"test"</code>. Each occurrence prints <code>Matched &lt;pattern&gt; at &lt;time&gt;</code>
+(<code>--echo-events</code> additionally echoes the triggering event line). The exit code
+is 0 when anything matched and 1 otherwise.</p>
 
 
 

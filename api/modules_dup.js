@@ -9,6 +9,7 @@ var modules_dup =
     [ "fs8.devices.udev", "module_fs8_8devices_8udev.html", "module_fs8_8devices_8udev" ],
     [ "fs8.devices.uinput", "module_fs8_8devices_8uinput.html", "module_fs8_8devices_8uinput" ],
     [ "fs8.lib.xkb.event2unicode", "module_fs8_8lib_8xkb_8event2unicode.html", "module_fs8_8lib_8xkb_8event2unicode" ],
+    [ "fs8.lib.evtest", "module_fs8_8lib_8evtest.html", "module_fs8_8lib_8evtest" ],
     [ "fs8.lib.xkb.how2type", "module_fs8_8lib_8xkb_8how2type.html", "module_fs8_8lib_8xkb_8how2type" ],
     [ "fs8.lib.mod_parser", "module_fs8_8lib_8mod__parser.html", "module_fs8_8lib_8mod__parser" ],
     [ "fs8.lib.xkb", "module_fs8_8lib_8xkb.html", "module_fs8_8lib_8xkb" ],

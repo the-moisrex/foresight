@@ -166,6 +166,7 @@ var hierarchy =
     [ "fs8::nullable_indirect< fs8::plain_pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::op_not< Func >", "structfs8_1_1op__not.html", null ],
     [ "fs8::owned_query", "structfs8_1_1owned__query.html", null ],
+    [ "fs8::parsed_evtest_event", "structfs8_1_1parsed__evtest__event.html", null ],
     [ "fs8::plain_pimpl_idiom< typename >", "structfs8_1_1plain__pimpl__idiom.html", null ],
     [ "fs8::plain_pimpl_idiom< bash_runner >", "structfs8_1_1plain__pimpl__idiom.html", [
       [ "fs8::bash_runner", "structfs8_1_1bash__runner.html", null ]
