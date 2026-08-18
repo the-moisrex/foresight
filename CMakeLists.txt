@@ -71,6 +71,7 @@ target_sources(${LIB_NAME}
         devices/udev.cxx
         devices/uinput.cxx
         lib/event2unicode.cxx
+        lib/evtest.cxx
         lib/how2type.cxx
         lib/mod_parser.cxx
         lib/xkb.cxx
@@ -108,6 +109,7 @@ target_sources(${LIB_NAME}
         devices/udev.ixx
         devices/uinput.ixx
         lib/event2unicode.ixx
+        lib/evtest.ixx
         lib/how2type.ixx
         lib/mod_parser.ixx
         lib/xkb.ixx

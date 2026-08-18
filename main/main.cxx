@@ -1,25 +1,31 @@
 #include <algorithm>
 #include <coroutine>
 #include <csignal>
+#include <cstdint>
 #include <exception>
 #include <format>
 #include <functional>
+#include <iostream>
 #include <print>
 #include <ranges>
 #include <span>
+#include <string>
 #include <string_view>
 #include <vector>
 import fs8;
 import fs8.mods.intercept;
 import fs8.mods.io_manager;
 import fs8.mods.input_manager;
+import fs8.mods.typed;
 import fs8.devices.evdev;
 import fs8.devices.queries;
 import fs8.devices.uinput;
 import fs8.context;
 import fs8.mods.stopper;
 import fs8.mods.inout;
+import fs8.lib.evtest;
 import fs8.lib.xkb.how2type;
+import fs8.lib.xkb;
 import fs8.devices.uinput;
 import fs8.utils;
 import fs8.systemd;
@@ -38,10 +44,17 @@ namespace {
             list_devices,
             how_to_type,
             new_app,
+            matches,
         } action = action_type::none;
 
         /// intercept/redirect query
         std::vector<fs8::owned_query> queries;
+
+        /// matches patterns
+        std::vector<std::string_view> patterns;
+
+        /// Echo the triggering events for `matches`
+        bool echo_events = false;
 
         /// All args
         std::span<char const* const> args;
@@ -76,6 +89,10 @@ namespace {
     how-to-type [--evtest] [str]  How to type the specified input?
     new       [name] [template]   Create a new app from a template.
                                   Use 'foresight new --list-templates' to see them.
+    matches   [pattern...]        Match key combos in an evtest-format stream
+                                  read from stdin, printing 'Matched <pattern>'
+                                  when one is detected.
+       --echo-events              Also echo the triggering event line.
 
     help                 Print help.
 
@@ -119,6 +136,10 @@ namespace {
               fwrite(&event, sizeof(event), 1, stdout);
           }
       }
+
+    $ foresight how-to-type --evtest "[Ctrl+Shift+Left]" \
+      | foresight matches "[ctrl+shift+left]"
+      Matched [ctrl+shift+left] at 0.000000
 
 )TEXT");
     }
@@ -228,6 +249,8 @@ Options:
         } else if (action_str == "new") {
             set_action(opts, new_app);
             return opts;
+        } else if (action_str == "matches") {
+            set_action(opts, matches);
         }
 
         bool grab = false;
@@ -235,10 +258,15 @@ Options:
             std::string_view const opt{argv[index]};
 
             if (opt == "--help" || opt == "-h") {
-                set_action(opts, help);
+                opts.action = help;
+                continue;
             }
             if (opt == "--grab" || opt == "-g") {
                 grab = true;
+                continue;
+            }
+            if (opt == "--echo-events") {
+                opts.echo_events = true;
                 continue;
             }
 
@@ -247,6 +275,11 @@ Options:
                 case redirect: {
                     opts.queries.emplace_back(opt);
                     opts.queries.back().grab = grab;
+                    break;
+                }
+
+                case matches: {
+                    opts.patterns.emplace_back(opt);
                     break;
                 }
 
@@ -267,6 +300,11 @@ Options:
                     throw invalid_argument("Only pass one query for redirect.");
                 }
                 break;
+            case matches:
+                if (opts.patterns.empty()) {
+                    throw invalid_argument("Please provide a pattern as an argument.");
+                }
+                break;
             default: break;
         }
 
@@ -276,10 +314,10 @@ Options:
     int create_new_app(std::span<char const* const> const args) {
         using enum options::action_type;
 
-        bool               list_templates = false;
-        bool               help_requested = false;
-        std::string_view   tpl;
-        std::string_view   name;
+        bool             list_templates = false;
+        bool             help_requested = false;
+        std::string_view tpl;
+        std::string_view name;
 
         for (auto const arg : args | std::views::drop(2)) { // remove "foresight new"
             std::string_view const cur{arg};
@@ -362,6 +400,47 @@ Options:
         for (auto const& func : actions) {
             func(sig);
         }
+    }
+
+    int run_matches(std::span<std::string_view const> const patterns, bool const echo_events) {
+        using std::println;
+
+        // Reuse the same search engine the `typed` mod uses, so patterns behave
+        // identically to library pipelines: `<...>`/`[...]`/`<<...>>`/`[[...]]`
+        // and plain text.
+        fs8::basic_search_engine    engine;
+        std::vector<std::uint16_t>  trigger_ids;
+        std::vector<fs8::aho_state> states;
+        trigger_ids.reserve(patterns.size());
+        states.reserve(patterns.size());
+        for (auto const& pattern : patterns) {
+            trigger_ids.emplace_back(engine.emplace_pattern(pattern));
+            states.emplace_back(fs8::aho_state{0u});
+        }
+
+        fs8::xkb::basic_state keyboard_state;
+        keyboard_state.initialize(fs8::xkb::get_default_keymap());
+
+        bool        matched_any = false;
+        std::string line;
+        while (std::getline(std::cin, line)) {
+            fs8::parsed_evtest_event parsed;
+            if (!fs8::parse_evtest_line(line, parsed)) {
+                continue;
+            }
+            fs8::event_type const event{parsed.event};
+            for (std::size_t index = 0; index < trigger_ids.size(); ++index) {
+                if (engine.search(event, trigger_ids[index], keyboard_state, states[index])) {
+                    if (echo_events) {
+                        println("{}", line);
+                    }
+                    println("Matched {} at {:.6f}", patterns[index], parsed.time);
+                    matched_any = true;
+                }
+            }
+        }
+
+        return matched_any ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
     int run_action(options const& opts) {
@@ -451,6 +530,9 @@ Options:
             }
             case new_app: {
                 return create_new_app(opts.args);
+            }
+            case matches: {
+                return run_matches(opts.patterns, opts.echo_events);
             }
             default: {
                 fs8::keyboard_runner kbd;

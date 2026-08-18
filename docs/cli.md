@@ -21,6 +21,11 @@ Usage: foresight [options] [action]
 
     redirect [files...]  Redirect stdin to the specified files.
 
+    matches [pattern...] Match key combos in an evtest-format stream read from
+                         stdin, printing 'Matched <pattern>' when one is
+                         detected.
+       --echo-events     Also echo the triggering event line.
+
     new [name] [template]
                          Create a new app from a template (interchangeable).
                          Run 'foresight new --list-templates' to see the
@@ -80,3 +85,21 @@ int main(void) {
 foresight new my-app
 foresight new --list-templates   # see the available templates
 ```
+
+## Matching key combos in evtest output
+
+`foresight matches` reads an evtest-format event stream from stdin and reports
+when a key combo (or plain text) occurs in it. This is handy for checking a
+recorded evtest log for a shortcut, or for verifying what `how-to-type` emits:
+
+```bash
+evtest /dev/input/event3 | foresight matches "<ctrl+shift+left>"
+cat evtest-results.txt    | foresight matches "<ctrl+Shift+Left>"
+foresight how-to-type --evtest "[ctrl+shift+left]" | foresight matches "[ctrl+shift+left]"
+```
+
+Patterns use the same syntax as the `typed` mod: `<...>` for a key press,
+`[...]` for a key release, `<<...>>`/`[[...]]` for ordered variants, or plain
+text like `"test"`. Each occurrence prints `Matched <pattern> at <time>`
+(`--echo-events` additionally echoes the triggering event line). The exit code
+is 0 when anything matched and 1 otherwise.
