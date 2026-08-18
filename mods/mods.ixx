@@ -32,4 +32,4 @@ export import fs8.mods.autocomplete;
 export import fs8.mods.record;
 export import fs8.mods.io_manager;
 export import fs8.mods.input_manager;
-export import fs8.mods.origin;
+export import fs8.mods.device;

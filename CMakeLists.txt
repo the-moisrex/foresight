@@ -89,7 +89,7 @@ target_sources(${LIB_NAME}
         mods/keys_status.cxx
         mods/momentum.cxx
         mods/on.cxx
-        mods/origin.cxx
+        mods/device.cxx
         mods/quantifier.cxx
         mods/record.cxx
         mods/replace.cxx
@@ -136,7 +136,7 @@ target_sources(${LIB_NAME}
         mods/momentum.ixx
         mods/mouse_status.ixx
         mods/on.ixx
-        mods/origin.ixx
+        mods/device.ixx
         mods/quantifier.ixx
         mods/record.ixx
         mods/replace.ixx

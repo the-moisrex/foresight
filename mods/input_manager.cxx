@@ -275,6 +275,68 @@ bool basic_input_manager::is_owned_sysname(std::string_view const sysname) const
     });
 }
 
+fs8::device_id basic_input_manager::device_id_of(evdev const& dev) const noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return device_id::none;
+    }
+    auto const sysname = device_sysname(dev);
+    if (sysname.empty()) [[unlikely]] {
+        return device_id::none;
+    }
+    return hashed_device(sysname);
+}
+
+fs8::evdev const* basic_input_manager::device_of(device_id const id) const noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return nullptr;
+    }
+    using enum device_id;
+    if (id == none || id == stdin || id == self) [[unlikely]] {
+        return nullptr;
+    }
+    for (evdev const& dev : pimpl->devs) {
+        if (device_id_of(dev) == id) {
+            return &dev;
+        }
+    }
+    return nullptr;
+}
+
+fs8::evdev* basic_input_manager::device_of(device_id const id) noexcept {
+    return const_cast<evdev*>(std::as_const(*this).device_of(id));
+}
+
+int basic_input_manager::fd_of(device_id const id) const noexcept {
+    auto const* const dev = device_of(id);
+    return dev != nullptr ? dev->native_handle() : -1;
+}
+
+std::string basic_input_manager::sysname_of(device_id const id) const noexcept {
+    auto const* const dev = device_of(id);
+    return dev != nullptr ? device_sysname(*dev) : std::string{};
+}
+
+std::string_view basic_input_manager::name_of(device_id const id) const noexcept {
+    auto const* const dev = device_of(id);
+    return dev != nullptr ? dev->device_name() : std::string_view{};
+}
+
+bool basic_input_manager::is_owned(device_id const id) const noexcept {
+    auto const* const dev = device_of(id);
+    if (dev == nullptr) [[unlikely]] {
+        return false;
+    }
+    return is_owned(*dev);
+}
+
+bool basic_input_manager::is_chained(device_id const id) const noexcept {
+    auto const* const dev = device_of(id);
+    if (dev == nullptr) [[unlikely]] {
+        return false;
+    }
+    return dev->physical_location().starts_with("foresight:");
+}
+
 void basic_input_manager::requery() {
     if (pimpl.get() == nullptr || !pimpl->started) [[unlikely]] {
         return;

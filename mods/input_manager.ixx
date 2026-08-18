@@ -6,6 +6,7 @@ module;
 #include <memory>
 #include <ranges>
 #include <span>
+#include <string>
 export module fs8.mods.input_manager;
 import fs8.context;
 import fs8.devices.evdev;
@@ -66,10 +67,10 @@ export namespace fs8 {
         void requery();
 
         /// Record a device node (e.g. "/dev/input/event9") of a uinput device
-        /// that this process created. Events read back from such a device are
-        /// reported with `event_origin::self` by the interceptor. Devices are
-        /// only ever *tagged*; they are still enumerated and watched like any
-        /// other device.
+        /// that this process created. Devices are only ever *tagged*; they are
+        /// still enumerated and watched like any other device, and events read
+        /// back from them carry their normal device id. `is_owned` answers
+        /// whether a device id belongs to one of ours.
         void own_device(std::string_view devnode) noexcept;
 
         /// Whether `dev` is a uinput device created by this process.
@@ -77,6 +78,31 @@ export namespace fs8 {
 
         /// Whether the sysname (e.g. "event9") belongs to one of our devices.
         [[nodiscard]] bool is_owned_sysname(std::string_view sysname) const noexcept;
+
+        /// The opaque id of a device (a hash of its sysname), or `none` if the
+        /// device has no usable sysname.
+        [[nodiscard]] device_id device_id_of(evdev const& dev) const noexcept;
+
+        /// Resolve a device id back to the live device, or nullptr if it is a
+        /// special id (`stdin`/`self`/`none`) or the device has been removed.
+        [[nodiscard]] evdev*       device_of(device_id id) noexcept;
+        [[nodiscard]] evdev const* device_of(device_id id) const noexcept;
+
+        /// The open file descriptor of the device, or -1 if unknown.
+        [[nodiscard]] int fd_of(device_id id) const noexcept;
+
+        /// The sysname of the device (e.g. "event9"), or empty if unknown.
+        [[nodiscard]] std::string sysname_of(device_id id) const noexcept;
+
+        /// The device name, or empty if unknown.
+        [[nodiscard]] std::string_view name_of(device_id id) const noexcept;
+
+        /// Whether `id` belongs to a uinput device this process created.
+        [[nodiscard]] bool is_owned(device_id id) const noexcept;
+
+        /// Whether `id` belongs to another process's foresight virtual device
+        /// (its phys starts with "foresight:").
+        [[nodiscard]] bool is_chained(device_id id) const noexcept;
 
         /// A range view over the owned devices (stable handles: the storage is a
         /// `std::list`, so adds/removes never invalidate existing devices).

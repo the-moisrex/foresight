@@ -9,6 +9,7 @@ module;
 #include <libevdev/libevdev.h>
 #include <linux/uinput.h>
 export module fs8.event;
+import fs8.hash;
 
 // don't import log here.
 
@@ -104,22 +105,28 @@ export namespace fs8 {
         return hashed(event_code{.type = type, .code = code});
     }
 
-    /// Where an event came from. `self` means this process's pipeline produced
-    /// it (synthesized by an emitter, or read back from a uinput device that
-    /// this process created); `chained` means it was read from a foresight
-    /// virtual device created by another process (phys starts with
-    /// "foresight:"). The value never crosses a process boundary: only the raw
-    /// `input_event` is serialized through stdin/stdout, so a redirect process
-    /// reports everything as `stdin`.
-    enum struct [[nodiscard]] event_origin : std::uint8_t {
-        none = 0,
-        device,  // read from a kernel input device by intercept
-        stdin,   // read from stdin (redirect mode)
-        self,    // synthesized by this pipeline, or read from our own uinput device
-        chained, // read from another process's foresight virtual device
+    /// Where an event came from. `none` means it was read straight from a
+    /// kernel `input_event` without classification; `stdin` is redirect mode;
+    /// `self` is an event synthesized by this pipeline (an emitter or a fork).
+    /// Every other value is a hash of the source device's sysname (e.g.
+    /// "event9"); the device can be resolved and classified (real device / our
+    /// own uinput device / another process's foresight virtual device) through
+    /// `input_manager`. The value never crosses a process boundary: only the
+    /// raw `input_event` is serialized through stdin/stdout.
+    enum struct [[nodiscard]] device_id : std::uint32_t {
+        none  = 0, // unset / raw input_event
+        stdin = 1, // read from stdin (redirect mode)
+        self  = 2, // synthesized by this pipeline
+        // values >= 3: ci_hash(sysname) of the source device
     };
 
-    [[nodiscard]] std::string_view to_string(event_origin origin) noexcept;
+    /// Derive the device id for a device whose sysname is `sysname` (e.g.
+    /// "event9"). Use with `device_is`, `only_device`, `ignore_device`, ...
+    [[nodiscard]] constexpr device_id hashed_device(std::string_view const sysname) noexcept {
+        return static_cast<device_id>(ci_hash(sysname));
+    }
+
+    [[nodiscard]] std::string_view to_string(device_id id) noexcept;
 
     struct [[nodiscard]] event_type {
         using type_type  = decltype(input_event::type);
@@ -134,7 +141,7 @@ export namespace fs8 {
         constexpr explicit event_type(user_event const& inp_ev) noexcept : event_type{inp_ev.type, inp_ev.code, inp_ev.value} {}
 
         constexpr event_type(type_type const inp_type, code_type const inp_code, value_type const inp_val) noexcept
-          : from{event_origin::self} {
+          : from{device_id::self} {
             reset_time();
             ev.type  = inp_type;
             ev.code  = inp_code;
@@ -155,7 +162,7 @@ export namespace fs8 {
         constexpr event_type& operator=(event_code const& inp_code) noexcept {
             ev.type = inp_code.type;
             ev.code = inp_code.code;
-            from    = event_origin::self;
+            from    = device_id::self;
             return *this;
         }
 
@@ -163,7 +170,7 @@ export namespace fs8 {
             ev.type  = inp_code.type;
             ev.code  = inp_code.code;
             ev.value = inp_code.value;
-            from     = event_origin::self;
+            from     = device_id::self;
             return *this;
         }
 
@@ -347,12 +354,12 @@ export namespace fs8 {
             return *this;
         }
 
-        [[nodiscard]] constexpr event_origin origin() const noexcept {
+        [[nodiscard]] constexpr device_id source() const noexcept {
             return from;
         }
 
-        constexpr void origin(event_origin const inp_origin) noexcept {
-            from = inp_origin;
+        constexpr void source(device_id const inp_source) noexcept {
+            from = inp_source;
         }
 
         [[nodiscard]] constexpr std::uint32_t hash() const noexcept {
@@ -360,8 +367,8 @@ export namespace fs8 {
         }
 
       private:
-        input_event  ev{};
-        event_origin from = event_origin::none;
+        input_event ev{};
+        device_id   from = device_id::none;
     };
 
     [[nodiscard]] consteval event_type syn() noexcept {

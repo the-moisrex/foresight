@@ -24,9 +24,11 @@ namespace {
     std::vector<fs8::event_type> captured_events; // NOLINT(*-global-variables)
 
     // NOLINTBEGIN(*-global-variables)
-    bool saw_self  = false;
-    bool saw_dev   = false;
-    bool saw_stdin = false;
+    bool saw_self      = false;
+    bool saw_dev       = false;
+    bool saw_stdin     = false;
+    bool saw_chained   = false;
+    bool saw_device_is = false;
 
     // NOLINTEND(*-global-variables)
 
@@ -70,7 +72,7 @@ namespace {
 
 } // namespace
 
-TEST(OriginTest, EmitterEventsAreSelf) {
+TEST(DeviceTest, EmitterEventsAreSelf) {
     auto pipeline =
       context
       | emit_all[{
@@ -83,11 +85,11 @@ TEST(OriginTest, EmitterEventsAreSelf) {
     pipeline();
 
     ASSERT_EQ(col.size(), 2U);
-    EXPECT_EQ(col.at(0).origin(), event_origin::self);
-    EXPECT_EQ(col.at(1).origin(), event_origin::self);
+    EXPECT_EQ(col.at(0).source(), device_id::self);
+    EXPECT_EQ(col.at(1).source(), device_id::self);
 }
 
-TEST(OriginTest, EmitForksAreSelf) {
+TEST(DeviceTest, EmitForksAreSelf) {
     auto  pipeline = context | emit_all[{syn_user_event}] | emit[down(KEY_B)] | record;
     auto& col      = pipeline.mod<basic_record>();
 
@@ -95,18 +97,18 @@ TEST(OriginTest, EmitForksAreSelf) {
 
     // The provider's SYN plus the emitted key down + SYN.
     ASSERT_EQ(col.size(), 3U);
-    EXPECT_EQ(col.at(0).origin(), event_origin::self);
-    EXPECT_EQ(col.at(1).origin(), event_origin::self);
-    EXPECT_EQ(col.at(2).origin(), event_origin::self);
+    EXPECT_EQ(col.at(0).source(), device_id::self);
+    EXPECT_EQ(col.at(1).source(), device_id::self);
+    EXPECT_EQ(col.at(2).source(), device_id::self);
 }
 
-TEST(OriginTest, ForkEmitPreservesOrigin) {
+TEST(DeviceTest, ForkEmitPreservesSource) {
     auto pipeline =
       context
       | emit_all[{syn_user_event}]
       | run{[](auto& ctx) noexcept -> void {
             event_type ev{EV_KEY, KEY_C, 1};
-            ev.origin(event_origin::device); // pretend it came from a device
+            ev.source(hashed_device("event42")); // pretend it came from a device
             std::ignore = ctx.fork_emit(ev);
         }}
       | record;
@@ -115,22 +117,22 @@ TEST(OriginTest, ForkEmitPreservesOrigin) {
     pipeline();
 
     // The forked event runs first (record captures it inside the fork), then
-    // the provider's SYN reaches record. The forked event must keep its origin.
+    // the provider's SYN reaches record. The forked event must keep its source.
     ASSERT_EQ(col.size(), 2U);
     EXPECT_EQ(col.at(0).code(), KEY_C);
-    EXPECT_EQ(col.at(0).origin(), event_origin::device);
+    EXPECT_EQ(col.at(0).source(), hashed_device("event42"));
     EXPECT_EQ(col.at(1).type(), EV_SYN);
-    EXPECT_EQ(col.at(1).origin(), event_origin::self);
+    EXPECT_EQ(col.at(1).source(), device_id::self);
 }
 
-TEST(OriginTest, IgnoreOriginDropsSelf) {
+TEST(DeviceTest, IgnoreOriginDropsSelf) {
     auto pipeline =
       context
       | emit_all[{
         {.type = EV_KEY,      .code = KEY_A, .value = 1},
         {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     }]
-      | ignore_origin[event_origin::self]
+      | ignore_origin[device_id::self]
       | record;
     auto& col = pipeline.mod<basic_record>();
 
@@ -139,24 +141,24 @@ TEST(OriginTest, IgnoreOriginDropsSelf) {
     EXPECT_TRUE(col.empty());
 }
 
-TEST(OriginTest, IgnoreOriginKeepsOthers) {
+TEST(DeviceTest, IgnoreOriginKeepsOthers) {
     auto pipeline =
       context
       | emit_all[{
         {.type = EV_KEY,      .code = KEY_A, .value = 1},
         {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     }]
-      | ignore_origin[event_origin::stdin]
+      | ignore_origin[device_id::stdin]
       | record;
     auto& col = pipeline.mod<basic_record>();
 
     pipeline();
 
     ASSERT_EQ(col.size(), 2U);
-    EXPECT_EQ(col.at(0).origin(), event_origin::self);
+    EXPECT_EQ(col.at(0).source(), device_id::self);
 }
 
-TEST(OriginTest, Conditions) {
+TEST(DeviceTest, Conditions) {
     saw_self  = false;
     saw_dev   = false;
     saw_stdin = false;
@@ -180,7 +182,43 @@ TEST(OriginTest, Conditions) {
     EXPECT_FALSE(saw_stdin);
 }
 
-TEST(OriginTest, FromInputMarksStdin) {
+TEST(DeviceTest, DeviceIsPredicate) {
+    saw_device_is = false;
+    auto pipeline =
+      context
+      | emit_all[{syn_user_event}]
+      | run{[](auto& ctx) noexcept {
+            saw_device_is = saw_device_is || device_is(device_id::self)(ctx.event());
+        }}
+      | record;
+
+    pipeline();
+
+    EXPECT_TRUE(saw_device_is);
+}
+
+TEST(DeviceTest, OnlyDeviceAndIgnoreDevice) {
+    // only_device[device_id::self] lets synthesized events through.
+    auto  keep = context | emit_all[{syn_user_event}] | only_device[device_id::self] | record;
+    auto& col  = keep.mod<basic_record>();
+    keep();
+    ASSERT_EQ(col.size(), 1U);
+    EXPECT_EQ(col.front().source(), device_id::self);
+
+    // only_device for a different device drops them.
+    auto  drop = context | emit_all[{syn_user_event}] | only_device[hashed_device("event123")] | record;
+    auto& cold = drop.mod<basic_record>();
+    drop();
+    EXPECT_TRUE(cold.empty());
+
+    // ignore_device[device_id::self] drops them.
+    auto  drop2 = context | emit_all[{syn_user_event}] | ignore_device[device_id::self] | record;
+    auto& cold2 = drop2.mod<basic_record>();
+    drop2();
+    EXPECT_TRUE(cold2.empty());
+}
+
+TEST(DeviceTest, FromInputMarksStdin) {
     int fds[2];
     ASSERT_EQ(::pipe(fds), 0);
     int const saved_stdin = ::dup(STDIN_FILENO);
@@ -207,11 +245,11 @@ TEST(OriginTest, FromInputMarksStdin) {
     ::close(fds[0]);
 
     ASSERT_EQ(captured_events.size(), 2U);
-    EXPECT_EQ(captured_events.at(0).origin(), event_origin::stdin);
-    EXPECT_EQ(captured_events.at(1).origin(), event_origin::stdin);
+    EXPECT_EQ(captured_events.at(0).source(), device_id::stdin);
+    EXPECT_EQ(captured_events.at(1).source(), device_id::stdin);
 }
 
-TEST(OriginTest, InterceptMarksDeviceOrigin) {
+TEST(DeviceTest, InterceptMarksDeviceSource) {
     if (!input_available()) {
         GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
     }
@@ -250,6 +288,7 @@ TEST(OriginTest, InterceptMarksDeviceOrigin) {
     fs8::evdev opened = fs8::evdev{uin.devnode()};
     ASSERT_TRUE(opened.is_ok());
     ASSERT_FALSE(opened.physical_location().starts_with("foresight:"));
+    int const expected_fd = opened.native_handle();
     im.add(std::move(opened));
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
@@ -260,14 +299,22 @@ TEST(OriginTest, InterceptMarksDeviceOrigin) {
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
 
     ASSERT_FALSE(col.empty());
+    auto const source = col.front().source();
     EXPECT_EQ(col.front().type(), EV_KEY);
     EXPECT_EQ(col.front().code(), KEY_A);
-    EXPECT_EQ(col.front().origin(), event_origin::device);
+    // A plain device is neither stdin/self nor owned/chained.
+    EXPECT_NE(source, device_id::none);
+    EXPECT_NE(source, device_id::stdin);
+    EXPECT_NE(source, device_id::self);
+    EXPECT_NE(im.device_of(source), nullptr);
+    EXPECT_EQ(im.fd_of(source), expected_fd);
+    EXPECT_FALSE(im.is_owned(source));
+    EXPECT_FALSE(im.is_chained(source));
 
     uin.close();
 }
 
-TEST(OriginTest, OwnedDeviceMarksSelf) {
+TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
     if (!input_available()) {
         GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
     }
@@ -289,11 +336,13 @@ TEST(OriginTest, OwnedDeviceMarksSelf) {
 
     EXPECT_EQ(pipeline(start), context_action::next);
 
-    // This process "owns" the device -> events read from it are self-emitted.
+    // This process "owns" the device; events read back from it carry its real
+    // device id, and `is_owned` reports it as ours.
     im.own_device(uin.devnode());
 
     fs8::evdev opened = fs8::evdev{uin.devnode()};
     ASSERT_TRUE(opened.is_ok());
+    int const expected_fd = opened.native_handle();
     im.add(std::move(opened));
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
@@ -304,19 +353,22 @@ TEST(OriginTest, OwnedDeviceMarksSelf) {
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
 
     ASSERT_FALSE(col.empty());
+    auto const source = col.front().source();
     EXPECT_EQ(col.front().code(), KEY_A);
-    EXPECT_EQ(col.front().origin(), event_origin::self);
+    EXPECT_NE(source, device_id::self); // it's the device id, not the synthesized marker
+    EXPECT_EQ(im.fd_of(source), expected_fd);
+    EXPECT_TRUE(im.is_owned(source));
 
     uin.close();
 }
 
-TEST(OriginTest, ChainedDeviceMarksChained) {
+TEST(DeviceTest, ChainedDeviceIsChained) {
     if (!input_available()) {
         GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
     }
 
     // Build a virtual keyboard from an empty template whose phys is stamped
-    // with the foresight origin-chain marker, as another foresight app would.
+    // with the foresight chain marker, as another foresight app would.
     libevdev* template_ptr = libevdev_new();
     ASSERT_NE(template_ptr, nullptr);
     libevdev_enable_event_type(template_ptr, EV_SYN);
@@ -337,7 +389,15 @@ TEST(OriginTest, ChainedDeviceMarksChained) {
         GTEST_SKIP() << "Chained virtual keyboard did not become openable.";
     }
 
-    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | record;
+    static constinit auto pipeline =
+      context
+      | io_manager
+      | intercept[keyboard]
+      | input_manager
+      | run{[](auto& ctx) noexcept {
+            saw_chained = saw_chained || from_chained(ctx);
+        }}
+      | record;
 
     auto& io  = pipeline.mod<basic_io_manager>();
     auto& im  = pipeline.mod<basic_input_manager>();
@@ -358,8 +418,55 @@ TEST(OriginTest, ChainedDeviceMarksChained) {
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
 
     ASSERT_FALSE(col.empty());
+    auto const source = col.front().source();
     EXPECT_EQ(col.front().code(), KEY_A);
-    EXPECT_EQ(col.front().origin(), event_origin::chained);
+    EXPECT_NE(source, device_id::none);
+    EXPECT_NE(im.device_of(source), nullptr);
+    EXPECT_FALSE(im.is_owned(source));
+    EXPECT_TRUE(im.is_chained(source));
+    EXPECT_TRUE(saw_chained);
+
+    uin.close();
+}
+
+TEST(DeviceTest, IgnoreSelfDropsOwnedDeviceEvents) {
+    if (!input_available()) {
+        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
+    }
+
+    basic_uinput uin;
+    if (!uin(caps::keyboard, start)) {
+        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
+    }
+    if (!wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Virtual keyboard did not become openable.";
+    }
+
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | ignore_self | record;
+
+    auto& io  = pipeline.mod<basic_io_manager>();
+    auto& im  = pipeline.mod<basic_input_manager>();
+    auto& col = pipeline.mod<basic_record>();
+
+    EXPECT_EQ(pipeline(start), context_action::next);
+
+    im.own_device(uin.devnode());
+
+    fs8::evdev opened = fs8::evdev{uin.devnode()};
+    ASSERT_TRUE(opened.is_ok());
+    im.add(std::move(opened));
+
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+
+    inject_key_down(uin.devnode());
+    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
+    // `ignore_self` drops the last event (it came back from our own device).
+    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::ignore_event);
+
+    // All events came back from our own device, so `ignore_self` dropped them.
+    EXPECT_TRUE(col.empty());
 
     uin.close();
 }
