@@ -86,6 +86,11 @@ Usage: foresight [options] [action]
 
     redirect [files...]  Redirect stdin to the specified files.
 
+    new [name] [template]
+                         Create a new app from a template (interchangeable).
+                         Run 'foresight new --list-templates' to see the
+                         available templates.
+
     help                 Print help.
 
   Example Usages:

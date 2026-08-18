@@ -77,6 +77,7 @@ target_sources(${LIB_NAME}
         main/context.cxx
         main/event.cxx
         main/keyboard.cxx
+        main/new.cxx
         main/systemd.cxx
         mods/abs2rel.cxx
         mods/autocomplete.cxx
@@ -116,6 +117,7 @@ target_sources(${LIB_NAME}
         main/keyboard.ixx
         main/log.ixx
         main/main.ixx
+        main/new.ixx
         main/systemd.ixx
         main/translate.ixx
         main/utils.ixx

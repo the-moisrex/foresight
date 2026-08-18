@@ -23,6 +23,7 @@ import fs8.lib.xkb.how2type;
 import fs8.devices.uinput;
 import fs8.utils;
 import fs8.systemd;
+import fs8.scaffold;
 
 namespace {
 
@@ -36,6 +37,7 @@ namespace {
             systemd,
             list_devices,
             how_to_type,
+            new_app,
         } action = action_type::none;
 
         /// intercept/redirect query
@@ -72,6 +74,8 @@ namespace {
     systemd  exec-file [args...]  Install exec-file as a user service to systemd.
     list-devices                  List input devices
     how-to-type [--evtest] [str]  How to type the specified input?
+    new       [name] [template]   Create a new app from a template.
+                                  Use 'foresight new --list-templates' to see them.
 
     help                 Print help.
 
@@ -115,6 +119,26 @@ namespace {
               fwrite(&event, sizeof(event), 1, stdout);
           }
       }
+
+)TEXT");
+    }
+
+    void print_new_help() {
+        std::println("{}", R"TEXT(Usage: foresight new [name] [template]
+       foresight new --list-templates
+
+Creates a new Foresight app from a template, in the current directory or at
+the given path (whose filename becomes the app name).
+
+Positionals (interchangeable):
+    name                  The app name/path; e.g. "my-app" or "subdir/my-app".
+    template              The template to use; e.g. "basic", "x2y", "auto-typer".
+                          Omitted, defaults to "basic". An argument matching a
+                          known template is treated as the template.
+
+Options:
+    -h | --help           Print this help.
+    --list-templates      List the available templates.
 
 )TEXT");
     }
@@ -201,6 +225,9 @@ namespace {
         } else if (action_str == "how-to-type" || action_str == "how2type") {
             set_action(opts, how_to_type);
             return opts;
+        } else if (action_str == "new") {
+            set_action(opts, new_app);
+            return opts;
         }
 
         bool grab = false;
@@ -244,6 +271,68 @@ namespace {
         }
 
         return opts;
+    }
+
+    int create_new_app(std::span<char const* const> const args) {
+        using enum options::action_type;
+
+        bool               list_templates = false;
+        bool               help_requested = false;
+        std::string_view   tpl;
+        std::string_view   name;
+
+        for (auto const arg : args | std::views::drop(2)) { // remove "foresight new"
+            std::string_view const cur{arg};
+            if (cur == "--list-templates") {
+                list_templates = true;
+                continue;
+            }
+            if (cur == "--help" || cur == "-h") {
+                help_requested = true;
+                continue;
+            }
+            if (fs8::is_valid_template(cur)) {
+                if (!tpl.empty()) {
+                    throw std::invalid_argument(
+                      std::format("'{}' and '{}' are both templates; pass one template and one app name.", tpl, cur));
+                }
+                tpl = cur;
+                continue;
+            }
+            if (!name.empty()) {
+                throw std::invalid_argument(std::format("Unknown argument '{}'.", cur));
+            }
+            name = cur;
+        }
+
+        if (list_templates) {
+            std::println("Available templates:");
+            for (auto const& tpl : fs8::available_templates()) {
+                std::println("  {:<12} {}", tpl.name, tpl.description);
+            }
+            return EXIT_SUCCESS;
+        }
+        if (help_requested) {
+            print_new_help();
+            return EXIT_SUCCESS;
+        }
+        if (name.empty()) {
+            if (tpl.empty()) {
+                throw std::invalid_argument("Please provide a name for the app.");
+            }
+            name = tpl; // e.g. `foresight new x2y` -> an app named after the template
+        }
+        if (tpl.empty()) {
+            tpl = "basic";
+        }
+
+        fs8::create_app(name, tpl);
+
+        std::println();
+        std::println("Next steps:");
+        std::println("  - Drop '{}' into Foresight's apps/ directory, or", name);
+        std::println("    cmake -G Ninja -DFORESIGHT_SOURCE_DIR=/path/to/foresight -B {}/build", name);
+        return EXIT_SUCCESS;
     }
 
     inline namespace signals {
@@ -360,6 +449,9 @@ namespace {
                 }
                 return EXIT_SUCCESS;
             }
+            case new_app: {
+                return create_new_app(opts.args);
+            }
             default: {
                 fs8::keyboard_runner kbd;
                 return kbd.loop();
@@ -379,12 +471,17 @@ int main(int const argc, char const* const* argv) try {
     return run_action(opts);
 } catch (std::invalid_argument const& err) {
     std::println(stderr, "{}", err.what());
+    return EXIT_FAILURE;
 } catch (std::system_error const& err) {
     std::println(stderr, "System Error ({} {}): {}", err.code().value(), err.code().message(), err.what());
+    return EXIT_FAILURE;
 } catch (std::domain_error const& err) {
     std::println(stderr, "Domain Error: {}", err.what());
+    return EXIT_FAILURE;
 } catch (std::exception const& err) {
     std::println(stderr, "Fatal exception: {}", err.what());
+    return EXIT_FAILURE;
 } catch (...) {
     std::println(stderr, "Fatal unknown exception.");
+    return EXIT_FAILURE;
 }

@@ -1,4 +1,4 @@
-set(current_dir "${CMAKE_SOURCE_DIR}/cmake/packages/")
+set(current_dir "${CMAKE_CURRENT_LIST_DIR}/")
 
 list(APPEND CMAKE_MODULE_PATH "${current_dir}")
 

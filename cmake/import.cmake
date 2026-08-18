@@ -16,4 +16,4 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(CPM)
 
 # import all packages
-include(${CMAKE_SOURCE_DIR}/cmake/packages/all.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/packages/all.cmake)
