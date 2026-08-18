@@ -55,6 +55,12 @@ namespace {
         return queue.is_active();
     }
 
+    /// The last path component of a device node (e.g. "event9").
+    [[nodiscard]] std::string sysname_of(std::string_view const devnode) {
+        auto const pos = devnode.find_last_of('/');
+        return std::string{pos == std::string_view::npos ? devnode : devnode.substr(pos + 1)};
+    }
+
     /// Create a uinput keyboard and wait until udev delivers the add event.
     /// Returns false (and closes `uin`) if the environment cannot support it.
     [[nodiscard]] bool create_uinput_keyboard(basic_uinput& uin, udev_monitor& probe) noexcept {
@@ -106,6 +112,22 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
     // A next_event with nothing pending sets up the watches and yields nothing.
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
     EXPECT_TRUE(io.is_watched(im.devices().front().native_handle()));
+
+    // Grab the uinput keyboard so the injected events never reach the display
+    // server (otherwise the test types a real 'a' into whatever app has focus).
+    bool grabbed = false;
+    for (auto& dev : im.devices()) {
+        if (device_sysname(dev) != sysname_of(uin.devnode())) {
+            continue;
+        }
+        dev.grab_input(true);
+        grabbed = dev.get_status() != fs8::evdev_status::grab_failure;
+        break;
+    }
+    if (!grabbed) {
+        uin.close();
+        GTEST_SKIP() << "Cannot grab the virtual keyboard before injecting events.";
+    }
 
     // Inject a key press into the device node.
     int const fd = ::open(uin.devnode().data(), O_WRONLY | O_NONBLOCK);

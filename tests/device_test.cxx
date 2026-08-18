@@ -288,6 +288,13 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
     fs8::evdev opened = fs8::evdev{uin.devnode()};
     ASSERT_TRUE(opened.is_ok());
     ASSERT_FALSE(opened.physical_location().starts_with("foresight:"));
+    // Grab the virtual keyboard so the injected events reach only this process;
+    // otherwise the test types a real 'a' into whatever app has focus.
+    opened.grab_input(true);
+    if (opened.get_status() == fs8::evdev_status::grab_failure) {
+        uin.close();
+        GTEST_SKIP() << "Cannot grab the virtual keyboard (a grab may be held by the display server).";
+    }
     int const expected_fd = opened.native_handle();
     im.add(std::move(opened));
 
@@ -342,6 +349,13 @@ TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
 
     fs8::evdev opened = fs8::evdev{uin.devnode()};
     ASSERT_TRUE(opened.is_ok());
+    // Grab the virtual keyboard so the injected events reach only this process;
+    // otherwise the test types a real 'a' into whatever app has focus.
+    opened.grab_input(true);
+    if (opened.get_status() == fs8::evdev_status::grab_failure) {
+        uin.close();
+        GTEST_SKIP() << "Cannot grab the virtual keyboard (a grab may be held by the display server).";
+    }
     int const expected_fd = opened.native_handle();
     im.add(std::move(opened));
 
@@ -408,6 +422,13 @@ TEST(DeviceTest, ChainedDeviceIsChained) {
     fs8::evdev opened = fs8::evdev{uin.devnode()};
     ASSERT_TRUE(opened.is_ok());
     ASSERT_TRUE(opened.physical_location().starts_with("foresight:"));
+    // Grab the virtual keyboard so the injected events reach only this process;
+    // otherwise the test types a real 'a' into whatever app has focus.
+    opened.grab_input(true);
+    if (opened.get_status() == fs8::evdev_status::grab_failure) {
+        uin.close();
+        GTEST_SKIP() << "Cannot grab the virtual keyboard (a grab may be held by the display server).";
+    }
     im.add(std::move(opened));
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
@@ -455,6 +476,13 @@ TEST(DeviceTest, IgnoreSelfDropsOwnedDeviceEvents) {
 
     fs8::evdev opened = fs8::evdev{uin.devnode()};
     ASSERT_TRUE(opened.is_ok());
+    // Grab the virtual keyboard so the injected events reach only this process;
+    // otherwise the test types a real 'a' into whatever app has focus.
+    opened.grab_input(true);
+    if (opened.get_status() == fs8::evdev_status::grab_failure) {
+        uin.close();
+        GTEST_SKIP() << "Cannot grab the virtual keyboard (a grab may be held by the display server).";
+    }
     im.add(std::move(opened));
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
