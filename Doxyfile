@@ -1,0 +1,30 @@
+# Doxygen configuration for Foresight.
+#
+# Generates the C++ API reference from the C++ modules (.ixx files).
+# The HTML output is written to $(FS8_DOC_OUTPUT)/html, so the same file
+# works from CMake and from CI:
+#   - CMake:  cmake --build <build> --target docs
+#   - Manual: FS8_DOC_OUTPUT=build/docs/doxygen doxygen Doxyfile
+# Run doxygen from the repository root so that the relative INPUT paths work.
+
+PROJECT_NAME           = Foresight
+PROJECT_BRIEF          = "A smart input manager (library + CLI)."
+OUTPUT_DIRECTORY       = $(FS8_DOC_OUTPUT)
+
+INPUT                  = bash devices lib main mods utils
+RECURSIVE              = YES
+FILE_PATTERNS          = *.ixx *.cxx
+
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+GENERATE_XML           = NO
+GENERATE_TREEVIEW      = YES
+SEARCHENGINE           = YES
+
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_ANON_NSPACES   = NO
+
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = NO

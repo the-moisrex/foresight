@@ -1,0 +1,50 @@
+site_name: Foresight
+site_description: Smart input manager — a library and CLI that intercepts your input, helps you type less, and adds foresight.
+site_url: https://the-moisrex.github.io/foresight/
+repo_url: https://github.com/the-moisrex/foresight
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+
+extra_css: []
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - CLI: cli.md
+  - Writing your own app: writing-apps.md
+  - Example apps: apps.md
+  - Mods overview: mods.md
+  - Protocols:
+      - Input Protocol: "Input Protocol.md"
+      - Multi-Touch Protocol: "Multi-Touch Protocol.md"
+  - API Reference: api-reference.md

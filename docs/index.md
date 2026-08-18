@@ -1,15 +1,15 @@
 # Foresight (Input Manager)
 
-![Foresight Icon](./assets/icon.svg)
+![Foresight Icon](assets/icon.svg)
 
-Smart Input, which intercepts your keystrokes and will help you type less, faster, and adds foresight.
+Smart input, which intercepts your keystrokes and will help you type less, faster, and adds foresight.
 
-Even though we're trying to start from making the keyboard smarter, but the goal of the project is to help
-the computer know what the user wants and just help them do it and also give the user a situational awareness
-of the system they're using.
+Even though we're trying to start from making the keyboard smarter, the goal of the project is to help
+the computer know what the user wants and just help them do it and also give the user a situational
+awareness of the system they're using.
 
-**Currently, only Linux is supported**; the project is still **a work in progress**.
-
+!!! warning
+    **Currently, only Linux is supported**; the project is still **a work in progress**.
 
 ## Goals
 
@@ -23,7 +23,7 @@ of the system they're using.
 - Do all of these things while considering "Privacy"
 - To be used as a library as well
 
-I understand these are far-fetched goals, but we can't get there if we don't try.
+These are far-fetched goals, but we can't get there if we don't try.
 
 ## Features
 
@@ -66,16 +66,10 @@ I understand these are far-fetched goals, but we can't get there if we don't try
 | Habits                      | Machine-Learning based event-habit calculator                            | ❌      |
 | \> Anomaly Notifier         | Machine-Learning based anomaly notifier based on habits                  | ❌      |
 
-## Documentation
-
-- **Guides site**: [the-moisrex.github.io/foresight](https://the-moisrex.github.io/foresight/) — getting started, CLI usage, and how to write your own apps.
-- **API reference**: [the-moisrex.github.io/foresight/api](https://the-moisrex.github.io/foresight/api/) — generated from the source with Doxygen.
-- **Sources**: the guides live in [`docs/`](./docs/); the API reference is generated from the `///` comments in the `.ixx` modules.
-
 ## Help & Usage
 
-Examples like pen2mice will convert Drawing Tablet events into Mouse Events plus some other features like adding scroll wheel to it.
-Foresight is designed in a way so ***it can be used as a library***.
+Examples like `pen2mice` will convert Drawing Tablet events into Mouse Events plus some other features
+like adding scroll wheel to it. Foresight is designed in a way so ***it can be used as a library***.
 
 But this foresight binary itself can be used like this:
 

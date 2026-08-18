@@ -202,3 +202,20 @@ if (IS_DEBUG)
     add_subdirectory(tests)
 endif ()
 add_subdirectory(apps)
+
+
+#############################################################
+########## --------------- Docs Target ----------- ##########
+#############################################################
+
+find_package(Doxygen)
+if (Doxygen_FOUND)
+    add_custom_target(docs
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/docs/doxygen"
+            COMMAND ${CMAKE_COMMAND} -E env
+            "FS8_DOC_OUTPUT=${CMAKE_CURRENT_BINARY_DIR}/docs/doxygen"
+            ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            COMMENT "Generating the Foresight API reference with Doxygen."
+            VERBATIM)
+endif ()
