@@ -1,0 +1,22 @@
+var device_8ixx =
+[
+    [ "fs8::basic_from_device", "structfs8_1_1basic__from__device.html", "structfs8_1_1basic__from__device" ],
+    [ "fs8::basic_from_stdin", "structfs8_1_1basic__from__stdin.html", "structfs8_1_1basic__from__stdin" ],
+    [ "fs8::basic_self_emitted", "structfs8_1_1basic__self__emitted.html", "structfs8_1_1basic__self__emitted" ],
+    [ "fs8::basic_from_chained", "structfs8_1_1basic__from__chained.html", "structfs8_1_1basic__from__chained" ],
+    [ "fs8::basic_device_is", "structfs8_1_1basic__device__is.html", "structfs8_1_1basic__device__is" ],
+    [ "fs8::basic_device_id_of", "structfs8_1_1basic__device__id__of.html", "structfs8_1_1basic__device__id__of" ],
+    [ "fs8::basic_ignore_origin< N >", "structfs8_1_1basic__ignore__origin.html", "structfs8_1_1basic__ignore__origin" ],
+    [ "fs8::basic_ignore_self", "structfs8_1_1basic__ignore__self.html", "structfs8_1_1basic__ignore__self" ],
+    [ "fs8::basic_ignore_device< N >", "structfs8_1_1basic__ignore__device.html", "structfs8_1_1basic__ignore__device" ],
+    [ "fs8::basic_only_device< N >", "structfs8_1_1basic__only__device.html", "structfs8_1_1basic__only__device" ],
+    [ "device_is", "device_8ixx.html#a6a2f34f1be8a3d783cf73eba05d200ed", null ],
+    [ "from_chained", "device_8ixx.html#a5b9076bc6086a3d2bcb853dc66273d2a", null ],
+    [ "from_device", "device_8ixx.html#a60ce220b375cdeb91af651d5163c4b7a", null ],
+    [ "from_stdin", "device_8ixx.html#aa8b48a82fe91e0cf236d5873c3805ba9", null ],
+    [ "ignore_device", "device_8ixx.html#af66aa52fcbdec488fca6c05a646b45ab", null ],
+    [ "ignore_origin", "device_8ixx.html#aa577c14c7299d8747803e7d5855446aa", null ],
+    [ "ignore_self", "device_8ixx.html#af7cb70070027706e0112f2202fb54e16", null ],
+    [ "only_device", "device_8ixx.html#aa30db77ac7bbc01a538772e9ac066915", null ],
+    [ "self_emitted", "device_8ixx.html#ada4b656fde3bb8762072ed8de7c75405", null ]
+];

@@ -1,0 +1,234 @@
+var hierarchy =
+[
+    [ "fs8::aho_state", "structfs8_1_1aho__state.html", null ],
+    [ "fs8::allow_multiple_matches_tag", "structfs8_1_1allow__multiple__matches__tag.html", null ],
+    [ "fs8::app_template", "structfs8_1_1app__template.html", null ],
+    [ "std::array", null, [
+      [ "fs8::user_events< N >", "structfs8_1_1user__events.html", null ]
+    ] ],
+    [ "fs8::basic_always_disable", "structfs8_1_1basic__always__disable.html", null ],
+    [ "fs8::basic_always_enable", "structfs8_1_1basic__always__enable.html", null ],
+    [ "fs8::basic_arguments< DefaultsN, MaxPositionals, MaxFlags, MaxNames >", "structfs8_1_1basic__arguments.html", null ],
+    [ "fs8::basic_auto_mode_tag", "structfs8_1_1basic__auto__mode__tag.html", null ],
+    [ "fs8::basic_context_view< Index, Funcs >", "structfs8_1_1basic__context__view.html", null ],
+    [ "fs8::basic_device_id_of", "structfs8_1_1basic__device__id__of.html", null ],
+    [ "fs8::basic_device_is", "structfs8_1_1basic__device__is.html", null ],
+    [ "fs8::basic_device_query< N >", "structfs8_1_1basic__device__query.html", null ],
+    [ "fs8::basic_exit_pipeline", "structfs8_1_1basic__exit__pipeline.html", null ],
+    [ "fs8::basic_flag", "structfs8_1_1basic__flag.html", null ],
+    [ "fs8::basic_from_chained", "structfs8_1_1basic__from__chained.html", null ],
+    [ "fs8::basic_from_device", "structfs8_1_1basic__from__device.html", null ],
+    [ "fs8::basic_from_stdin", "structfs8_1_1basic__from__stdin.html", null ],
+    [ "fs8::basic_ignore_abs", "structfs8_1_1basic__ignore__abs.html", null ],
+    [ "fs8::basic_ignore_event", "structfs8_1_1basic__ignore__event.html", null ],
+    [ "fs8::basic_ignore_mouse_moves", "structfs8_1_1basic__ignore__mouse__moves.html", null ],
+    [ "fs8::basic_ignore_self", "structfs8_1_1basic__ignore__self.html", null ],
+    [ "fs8::basic_ignore_tablet", "structfs8_1_1basic__ignore__tablet.html", null ],
+    [ "fs8::basic_log", "structfs8_1_1basic__log.html", null ],
+    [ "fs8::basic_mod_updater< ModT >", "structfs8_1_1basic__mod__updater.html", null ],
+    [ "fs8::basic_noop", "structfs8_1_1basic__noop.html", null ],
+    [ "fs8::basic_parsed_args< MaxPositionals, MaxFlags, MaxNames >", "structfs8_1_1basic__parsed__args.html", null ],
+    [ "fs8::basic_pass_trigger_tag", "structfs8_1_1basic__pass__trigger__tag.html", null ],
+    [ "fs8::basic_pen2touch", "structfs8_1_1basic__pen2touch.html", null ],
+    [ "fs8::basic_self_emitted", "structfs8_1_1basic__self__emitted.html", null ],
+    [ "fs8::xkb::basic_state", "structfs8_1_1xkb_1_1basic__state.html", null ],
+    [ "fs8::consteval_copyable", "structfs8_1_1consteval__copyable.html", [
+      [ "fs8::basic_code_adaptor< basic_pressed, N >", "structfs8_1_1basic__code__adaptor.html", [
+        [ "fs8::basic_pressed< N >", "structfs8_1_1basic__pressed.html", null ]
+      ] ],
+      [ "fs8::basic_code_adaptor< basic_pressed_any, N >", "structfs8_1_1basic__code__adaptor.html", [
+        [ "fs8::basic_pressed_any< N >", "structfs8_1_1basic__pressed__any.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< basic_autocomplete >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_autocomplete", "structfs8_1_1basic__autocomplete.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< basic_input_manager >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_input_manager", "structfs8_1_1basic__input__manager.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< basic_interceptor >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_interceptor", "structfs8_1_1basic__interceptor.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< basic_io_manager >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_io_manager", "structfs8_1_1basic__io__manager.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< basic_record >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_record", "structfs8_1_1basic__record.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< basic_search_engine >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_search_engine", "structfs8_1_1basic__search__engine.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< basic_typed >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_typed", "structfs8_1_1basic__typed.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< basic_uinput >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_uinput", "structfs8_1_1basic__uinput.html", null ]
+      ] ],
+      [ "fs8::and_op< Funcs >", "structfs8_1_1and__op.html", null ],
+      [ "fs8::basic_abs2rel", "structfs8_1_1basic__abs2rel.html", null ],
+      [ "fs8::basic_add_scroll< CondT, Func >", "structfs8_1_1basic__add__scroll.html", null ],
+      [ "fs8::basic_code_adaptor< A, N >", "structfs8_1_1basic__code__adaptor.html", null ],
+      [ "fs8::basic_context< Funcs >", "structfs8_1_1basic__context.html", null ],
+      [ "fs8::basic_emit< N >", "structfs8_1_1basic__emit.html", null ],
+      [ "fs8::basic_emit_all< N >", "structfs8_1_1basic__emit__all.html", null ],
+      [ "fs8::basic_from_input", "structfs8_1_1basic__from__input.html", null ],
+      [ "fs8::basic_held", "structfs8_1_1basic__held.html", null ],
+      [ "fs8::basic_held_gate< CondT >", "structfs8_1_1basic__held__gate.html", null ],
+      [ "fs8::basic_ignore_adjacent_repeats", "structfs8_1_1basic__ignore__adjacent__repeats.html", null ],
+      [ "fs8::basic_ignore_big_jumps", "structfs8_1_1basic__ignore__big__jumps.html", null ],
+      [ "fs8::basic_ignore_caps", "structfs8_1_1basic__ignore__caps.html", null ],
+      [ "fs8::basic_ignore_device< N >", "structfs8_1_1basic__ignore__device.html", null ],
+      [ "fs8::basic_ignore_fast_repeats", "structfs8_1_1basic__ignore__fast__repeats.html", null ],
+      [ "fs8::basic_ignore_init_moves", "structfs8_1_1basic__ignore__init__moves.html", null ],
+      [ "fs8::basic_ignore_keys< N >", "structfs8_1_1basic__ignore__keys.html", null ],
+      [ "fs8::basic_ignore_origin< N >", "structfs8_1_1basic__ignore__origin.html", null ],
+      [ "fs8::basic_ignore_repeats_of< N >", "structfs8_1_1basic__ignore__repeats__of.html", null ],
+      [ "fs8::basic_ignore_start_moves", "structfs8_1_1basic__ignore__start__moves.html", null ],
+      [ "fs8::basic_kalman_filter", "structfs8_1_1basic__kalman__filter.html", null ],
+      [ "fs8::basic_keys_status", "structfs8_1_1basic__keys__status.html", null ],
+      [ "fs8::basic_led_off", "structfs8_1_1basic__led__off.html", null ],
+      [ "fs8::basic_led_on", "structfs8_1_1basic__led__on.html", null ],
+      [ "fs8::basic_led_status", "structfs8_1_1basic__led__status.html", null ],
+      [ "fs8::basic_led_toggle", "structfs8_1_1basic__led__toggle.html", null ],
+      [ "fs8::basic_lerp", "structfs8_1_1basic__lerp.html", null ],
+      [ "fs8::basic_limit_mouse_travel< CondT >", "structfs8_1_1basic__limit__mouse__travel.html", null ],
+      [ "fs8::basic_longtime_released< FuncT >", "structfs8_1_1basic__longtime__released.html", null ],
+      [ "fs8::basic_low_pass_filter", "structfs8_1_1basic__low__pass__filter.html", null ],
+      [ "fs8::basic_mice_quantifier", "structfs8_1_1basic__mice__quantifier.html", null ],
+      [ "fs8::basic_modes< CondT, Mods >", "structfs8_1_1basic__modes.html", null ],
+      [ "fs8::basic_mouse_history< N >", "structfs8_1_1basic__mouse__history.html", null ],
+      [ "fs8::basic_multi_click", "structfs8_1_1basic__multi__click.html", null ],
+      [ "fs8::basic_on< CondT, Funcs >", "structfs8_1_1basic__on.html", null ],
+      [ "fs8::basic_once< CondT, Funcs >", "structfs8_1_1basic__once.html", null ],
+      [ "fs8::basic_only_device< N >", "structfs8_1_1basic__only__device.html", null ],
+      [ "fs8::basic_output", "structfs8_1_1basic__output.html", null ],
+      [ "fs8::basic_pen2mice", "structfs8_1_1basic__pen2mice.html", null ],
+      [ "fs8::basic_pressure2mouse_clicks", "structfs8_1_1basic__pressure2mouse__clicks.html", null ],
+      [ "fs8::basic_put< EventType >", "structfs8_1_1basic__put.html", null ],
+      [ "fs8::basic_quantifier", "structfs8_1_1basic__quantifier.html", null ],
+      [ "fs8::basic_replace< N, EventType >", "structfs8_1_1basic__replace.html", null ],
+      [ "fs8::basic_replace_code", "structfs8_1_1basic__replace__code.html", null ],
+      [ "fs8::basic_router< Routes >", "structfs8_1_1basic__router.html", null ],
+      [ "fs8::basic_schedule_emit< N >", "structfs8_1_1basic__schedule__emit.html", null ],
+      [ "fs8::basic_scheduled_emitter", "structfs8_1_1basic__scheduled__emitter.html", null ],
+      [ "fs8::basic_stopper", "structfs8_1_1basic__stopper.html", null ],
+      [ "fs8::basic_swipe", "structfs8_1_1basic__swipe.html", null ],
+      [ "fs8::basic_swipe_detector", "structfs8_1_1basic__swipe__detector.html", null ],
+      [ "fs8::basic_switch_mode", "structfs8_1_1basic__switch__mode.html", null ],
+      [ "fs8::basic_type_string< StrGetter >", "structfs8_1_1basic__type__string.html", null ],
+      [ "fs8::matches_limit", "structfs8_1_1matches__limit.html", null ],
+      [ "fs8::matches_percentage", "structfs8_1_1matches__percentage.html", null ],
+      [ "fs8::or_op< Funcs >", "structfs8_1_1or__op.html", null ],
+      [ "fs8::pimpl_idiom< typename >", "structfs8_1_1pimpl__idiom.html", null ],
+      [ "fs8::var_type< T >", "structfs8_1_1var__type.html", null ]
+    ] ],
+    [ "fs8::construct_it_from< T >", "structfs8_1_1construct__it__from.html", null ],
+    [ "fs8::xkb::context", "structfs8_1_1xkb_1_1context.html", null ],
+    [ "fs8::dev_cap< N >", "structfs8_1_1dev__cap.html", null ],
+    [ "fs8::dev_cap_view", "structfs8_1_1dev__cap__view.html", null ],
+    [ "fs8::dynamic_scope< T >", "structfs8_1_1dynamic__scope.html", null ],
+    [ "fs8::evdev", "structfs8_1_1evdev.html", null ],
+    [ "fs8::event_code", "structfs8_1_1event__code.html", null ],
+    [ "fs8::event_type", "structfs8_1_1event__type.html", null ],
+    [ "fs8::fail_on_no_match_tag", "structfs8_1_1fail__on__no__match__tag.html", null ],
+    [ "fs8::get_variables_tag", "structfs8_1_1get__variables__tag.html", null ],
+    [ "fs8::global_binding< T, ID >", "structfs8_1_1global__binding.html", null ],
+    [ "fs8::grab_tag", "structfs8_1_1grab__tag.html", null ],
+    [ "fs8::xkb::handle_modifiers_type", "structfs8_1_1xkb_1_1handle__modifiers__type.html", null ],
+    [ "fs8::high_threshold_tag", "structfs8_1_1high__threshold__tag.html", null ],
+    [ "fs8::pimpl_idiom< typename >::impl", "structfs8_1_1pimpl__idiom_1_1impl.html", null ],
+    [ "fs8::plain_pimpl_idiom< typename >::impl", "structfs8_1_1plain__pimpl__idiom_1_1impl.html", null ],
+    [ "fs8::index_at_impl< Index, F, T1, Ts >", "structfs8_1_1index__at__impl.html", null ],
+    [ "fs8::index_at_impl< Index, F, F, Ts... >", "structfs8_1_1index__at__impl_3_01Index_00_01F_00_01F_00_01Ts_8_8_8_01_4.html", null ],
+    [ "fs8::io_fd", "structfs8_1_1io__fd.html", null ],
+    [ "fs8::is_range_adaptor_closure< T >", "structfs8_1_1is__range__adaptor__closure.html", null ],
+    [ "fs8::udev_list_entry::iterator", "structfs8_1_1udev__list__entry_1_1iterator.html", null ],
+    [ "fs8::key_event", "structfs8_1_1key__event.html", null ],
+    [ "fs8::xkb::key_position", "structfs8_1_1xkb_1_1key__position.html", null ],
+    [ "fs8::keydown", "structfs8_1_1keydown.html", null ],
+    [ "fs8::xkb::keymap", "structfs8_1_1xkb_1_1keymap.html", null ],
+    [ "fs8::keynames_type", "structfs8_1_1keynames__type.html", null ],
+    [ "fs8::keyup", "structfs8_1_1keyup.html", null ],
+    [ "fs8::load_event_tag", "structfs8_1_1load__event__tag.html", null ],
+    [ "fs8::low_threshold_tag", "structfs8_1_1low__threshold__tag.html", null ],
+    [ "fs8::mod_of_t< ModConcept,... >", "structfs8_1_1mod__of__t.html", null ],
+    [ "fs8::mod_of_t< ModConcept, Funcs... >", "structfs8_1_1mod__of__t.html", [
+      [ "fs8::mod_of_t< ModConcept, Func, Funcs... >", "structfs8_1_1mod__of__t_3_01ModConcept_00_01Func_00_01Funcs_8_8_8_01_4.html", null ]
+    ] ],
+    [ "fs8::mod_of_t< TT< T... >, TT< U... >, Funcs... >", "structfs8_1_1mod__of__t_3_01TT_3_01T_8_8_8_01_4_00_01TT_3_01U_8_8_8_01_4_00_01Funcs_8_8_8_01_4.html", null ],
+    [ "fs8::momentum_calculator", "structfs8_1_1momentum__calculator.html", null ],
+    [ "my_libevdev_uinput", "structmy__libevdev__uinput.html", null ],
+    [ "fs8::next_event_tag", "structfs8_1_1next__event__tag.html", null ],
+    [ "fs8::no_init_tag", "structfs8_1_1no__init__tag.html", null ],
+    [ "fs8::pimpl_idiom< typename >::impl::node_type", "structfs8_1_1pimpl__idiom_1_1impl_1_1node__type.html", null ],
+    [ "fs8::nullable_indirect< T, Allocator >", "structfs8_1_1nullable__indirect.html", null ],
+    [ "fs8::nullable_indirect< fs8::detail::router_state >", "structfs8_1_1nullable__indirect.html", null ],
+    [ "fs8::nullable_indirect< fs8::pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
+    [ "fs8::nullable_indirect< fs8::plain_pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
+    [ "fs8::op_not< Func >", "structfs8_1_1op__not.html", null ],
+    [ "fs8::owned_query", "structfs8_1_1owned__query.html", null ],
+    [ "fs8::plain_pimpl_idiom< typename >", "structfs8_1_1plain__pimpl__idiom.html", null ],
+    [ "fs8::plain_pimpl_idiom< bash_runner >", "structfs8_1_1plain__pimpl__idiom.html", [
+      [ "fs8::bash_runner", "structfs8_1_1bash__runner.html", null ]
+    ] ],
+    [ "fs8::plain_pimpl_idiom< keyboard_runner >", "structfs8_1_1plain__pimpl__idiom.html", [
+      [ "fs8::keyboard_runner", "structfs8_1_1keyboard__runner.html", null ]
+    ] ],
+    [ "fs8::plain_pimpl_idiom< systemd_service >", "structfs8_1_1plain__pimpl__idiom.html", [
+      [ "fs8::systemd_service", "structfs8_1_1systemd__service.html", null ]
+    ] ],
+    [ "fs8::basic_mouse_history< N >::position", "structfs8_1_1basic__mouse__history_1_1position.html", null ],
+    [ "details::prepend< TupleT, T >", "structdetails_1_1prepend.html", null ],
+    [ "details::prepend< TupleT< L... >, F >", "structdetails_1_1prepend_3_01TupleT_3_01L_8_8_8_01_4_00_01F_01_4.html", null ],
+    [ "fs8::query_provider_handle", "structfs8_1_1query__provider__handle.html", null ],
+    [ "fs8::query_term", "structfs8_1_1query__term.html", null ],
+    [ "std::ranges::range_adaptor_closure", null, [
+      [ "fs8::basic_find_devices", "structfs8_1_1basic__find__devices.html", null ],
+      [ "fs8::basic_only_ok", "structfs8_1_1basic__only__ok.html", null ],
+      [ "fs8::basic_to_evdev", "structfs8_1_1basic__to__evdev.html", null ],
+      [ "fs8::basic_to_queries", "structfs8_1_1basic__to__queries.html", null ]
+    ] ],
+    [ "fs8::route< T >", "structfs8_1_1route.html", null ],
+    [ "fs8::detail::router_state", "structfs8_1_1detail_1_1router__state.html", null ],
+    [ "std::runtime_error", null, [
+      [ "fs8::xkb::xkb_error", "structfs8_1_1xkb_1_1xkb__error.html", null ]
+    ] ],
+    [ "fs8::start_tag", "structfs8_1_1start__tag.html", null ],
+    [ "fs8::template_file", "structfs8_1_1template__file.html", null ],
+    [ "fs8::thread_binding< T, ID >", "structfs8_1_1thread__binding.html", null ],
+    [ "fs8::toggle_off_tag", "structfs8_1_1toggle__off__tag.html", null ],
+    [ "fs8::toggle_on_tag", "structfs8_1_1toggle__on__tag.html", null ],
+    [ "fs8::type_at_impl< I, T, Ts >", "structfs8_1_1type__at__impl.html", null ],
+    [ "fs8::type_at_impl< 0, T, Ts... >", "structfs8_1_1type__at__impl_3_010_00_01T_00_01Ts_8_8_8_01_4.html", null ],
+    [ "fs8::udev", "structfs8_1_1udev.html", null ],
+    [ "fs8::udev_device", "structfs8_1_1udev__device.html", null ],
+    [ "fs8::udev_device_pick", "structfs8_1_1udev__device__pick.html", null ],
+    [ "fs8::udev_enumerate", "structfs8_1_1udev__enumerate.html", null ],
+    [ "fs8::udev_hwdb", "structfs8_1_1udev__hwdb.html", null ],
+    [ "fs8::udev_list_entry", "structfs8_1_1udev__list__entry.html", null ],
+    [ "fs8::udev_monitor", "structfs8_1_1udev__monitor.html", null ],
+    [ "fs8::udev_queue", "structfs8_1_1udev__queue.html", null ],
+    [ "details::unique_types< TupleT >", "structdetails_1_1unique__types.html", null ],
+    [ "details::unique_types< TupleT< First, U... > >", "structdetails_1_1unique__types_3_01TupleT_3_01First_00_01U_8_8_8_01_4_01_4.html", null ],
+    [ "details::unique_types< TupleT<> >", "structdetails_1_1unique__types_3_01TupleT_3_4_01_4.html", null ],
+    [ "fs8::user_event", "structfs8_1_1user__event.html", null ],
+    [ "fs8::value_or_view< T, N >", "structfs8_1_1value__or__view.html", null ],
+    [ "fs8::value_or_view< T, std::dynamic_extent >", "structfs8_1_1value__or__view_3_01T_00_01std_1_1dynamic__extent_01_4.html", null ],
+    [ "fs8::variable_pointer", "structfs8_1_1variable__pointer.html", null ],
+    [ "fs8::variable_size< ModsT >", "structfs8_1_1variable__size.html", null ],
+    [ "fs8::variable_size< ModT >", "structfs8_1_1variable__size_3_01ModT_01_4.html", null ],
+    [ "fs8::variable_size<>", "structfs8_1_1variable__size_3_4.html", null ],
+    [ "fs8::variable_types< typename, typename,... >", "structfs8_1_1variable__types.html", null ],
+    [ "fs8::variable_types< Templ, T, ModsT... >", "structfs8_1_1variable__types.html", [
+      [ "fs8::variable_types< Templ, T, ModT, ModsT... >", "structfs8_1_1variable__types_3_01Templ_00_01T_00_01ModT_00_01ModsT_8_8_8_01_4.html", null ]
+    ] ],
+    [ "fs8::variable_types< Templ, Templ< T... > >", "structfs8_1_1variable__types_3_01Templ_00_01Templ_3_01T_8_8_8_01_4_01_4.html", null ],
+    [ "fs8::variable_types< Templ, Templ< T..., std::remove_cvref_t< ModT >::value_type >, ModsT... >", "structfs8_1_1variable__types.html", [
+      [ "fs8::variable_types< Templ, Templ< T... >, ModT, ModsT... >", "structfs8_1_1variable__types_3_01Templ_00_01Templ_3_01T_8_8_8_01_4_00_01ModT_00_01ModsT_8_8_8_01_4.html", null ]
+    ] ],
+    [ "fs8::velocity_tracker", "structfs8_1_1velocity__tracker.html", null ],
+    [ "fs8::visit_impl< I >", "structfs8_1_1visit__impl.html", null ],
+    [ "fs8::visit_impl< 0 >", "structfs8_1_1visit__impl_3_010_01_4.html", null ],
+    [ "fs8::Bases", null, [
+      [ "fs8::run< Bases >", "structfs8_1_1run.html", null ]
+    ] ]
+];

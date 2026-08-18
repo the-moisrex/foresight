@@ -1,0 +1,28 @@
+var module_fs8_8mods_8router =
+[
+    [ "route", "structfs8_1_1route.html", "structfs8_1_1route" ],
+    [ "basic_router", "structfs8_1_1basic__router.html", "structfs8_1_1basic__router" ],
+    [ "fs8::route::route_type", "module_fs8_8mods_8router.html#af1f79c25b77e40080bd74dd919ec7872", null ],
+    [ "fs8::basic_router::ev_type", "module_fs8_8mods_8router.html#ae9ecc7ce2e555db1d803b3ee223013fe", null ],
+    [ "fs8::basic_router::code_type", "module_fs8_8mods_8router.html#a78ab4250eb60577690b49b3ffa72d27c", null ],
+    [ "fs8::basic_router::value_type", "module_fs8_8mods_8router.html#aa73def10eb2148c0648a3b0e60ea00ba", null ],
+    [ "fs8::route", "module_fs8_8mods_8router.html#ac50cc3ca471463b44e288ea9dba52ede", null ],
+    [ "fs8::operator>>", "module_fs8_8mods_8router.html#a597b7356e630c63bf8074fe459678647", null ],
+    [ "fs8::operator>>", "module_fs8_8mods_8router.html#a3dc9be993f336a848c03b50e5e260954", null ],
+    [ "fs8::invoke_bool", "module_fs8_8mods_8router.html#a2b0d5d34118174ade6fd22e17975ee2f", null ],
+    [ "fs8::basic_router::basic_router", "module_fs8_8mods_8router.html#a25c72898ce25ed8e3f5cc356fc9c89a8", null ],
+    [ "fs8::basic_router::set_caps", "module_fs8_8mods_8router.html#a81d7712ecc4ba7900bf669945378c770", null ],
+    [ "fs8::basic_router::operator()", "module_fs8_8mods_8router.html#a5b4a6b21c577481be7b5d173dcbff4f9", null ],
+    [ "fs8::basic_router::operator()", "module_fs8_8mods_8router.html#a3fa174da99c0466ffcef557043d823af", null ],
+    [ "fs8::basic_router::operator[]", "module_fs8_8mods_8router.html#a5a776ed0f10a0f9d95476f19a5cc2c18", null ],
+    [ "fs8::basic_router::emit", "module_fs8_8mods_8router.html#ad69c9bc86f382823550a6a48edda34f4", null ],
+    [ "fs8::basic_router::emit", "module_fs8_8mods_8router.html#a04a2c7f8abe78a04fa2cc85e3ecc84bb", null ],
+    [ "fs8::basic_router::emit", "module_fs8_8mods_8router.html#ac333eb8e3158464905efd2eaf3174048", null ],
+    [ "fs8::basic_router::emit_syn", "module_fs8_8mods_8router.html#a262e0d9c907e6d9956a1763427db315b", null ],
+    [ "fs8::basic_router::operator()", "module_fs8_8mods_8router.html#a6746c7708275bf471e84d78be6c2eca2", null ],
+    [ "fs8::basic_router::operator()", "module_fs8_8mods_8router.html#a657a4758071a82c8ab5d25a2bd6f2d25", null ],
+    [ "fs8::is_ok", "module_fs8_8mods_8router.html#ae8da3c7a962ea8e4674c5e7618c679a4", null ],
+    [ "fs8::route::query", "module_fs8_8mods_8router.html#af9f8c6dbdc31d78fe22650a2e8c3b360", null ],
+    [ "fs8::route::pipeline", "module_fs8_8mods_8router.html#abe7f9e6861c806d138c2e585338fec47", null ],
+    [ "fs8::router", "module_fs8_8mods_8router.html#a3330e413e0f418b95820c4d07833beb3", null ]
+];

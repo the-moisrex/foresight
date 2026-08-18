@@ -1,0 +1,34 @@
+var event_8ixx =
+[
+    [ "fs8::user_event", "structfs8_1_1user__event.html", "structfs8_1_1user__event" ],
+    [ "fs8::user_events< N >", "structfs8_1_1user__events.html", null ],
+    [ "fs8::event_code", "structfs8_1_1event__code.html", "structfs8_1_1event__code" ],
+    [ "fs8::key_event", "structfs8_1_1key__event.html", "structfs8_1_1key__event" ],
+    [ "fs8::event_type", "structfs8_1_1event__type.html", "structfs8_1_1event__type" ],
+    [ "event_codes", "event_8ixx.html#ad8debaff15d95dcde828629ae48bd04a", null ],
+    [ "user_event_callback", "event_8ixx.html#a36f9afa22818cbdb40e74b37064a3cc0", null ],
+    [ "user_events_iterator", "event_8ixx.html#ac40afdfe02441d7e68726b7840378ed7", null ],
+    [ "device_id", "event_8ixx.html#ae866c9f657ce20c4be67ff6c37074ea0", [
+      [ "none", "event_8ixx.html#ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8", null ],
+      [ "stdin", "event_8ixx.html#ae866c9f657ce20c4be67ff6c37074ea0a3c6c257ed29622500badf6cc7741375c", null ],
+      [ "self", "event_8ixx.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63", null ]
+    ] ],
+    [ "hashed", "event_8ixx.html#acef00bf97bc1f9ccf3675d1a36edf2f3", null ],
+    [ "hashed", "event_8ixx.html#af9a57064d23f117022d7d4580c1b9ee4", null ],
+    [ "hashed", "event_8ixx.html#ad5c0c1f60ca36b6331e0b76a71028073", null ],
+    [ "hashed_device", "event_8ixx.html#a136b3e03f26c6f1e08c82936d634aebd", null ],
+    [ "is_invalid", "event_8ixx.html#ae722fd1e3ee0e8c2f85d947b48ba18c7", null ],
+    [ "is_invalid", "event_8ixx.html#a821846ec9588a6613cba5e2070b49da8", null ],
+    [ "is_mouse_event", "event_8ixx.html#a2a626fbce15918f461d6d70f429f0095", null ],
+    [ "is_mouse_movement", "event_8ixx.html#a23bdc0e0cf884a92b1a95580caebe6bd", null ],
+    [ "is_syn", "event_8ixx.html#a2ef80f285619af3478b43d49a9234d88", null ],
+    [ "is_syn", "event_8ixx.html#aea211e19ffdede51989600ba22d0879e", null ],
+    [ "key_code", "event_8ixx.html#a0676c7465e0159bd42ba32f63c95a20d", null ],
+    [ "key_codes", "event_8ixx.html#a49eacdffe91d7730081c2f51016943be", null ],
+    [ "operator==", "event_8ixx.html#a5f19402142417d98c5b54c87111661c6", null ],
+    [ "syn", "event_8ixx.html#a266fcad2b4c49218e11e63b7fe183613", null ],
+    [ "to_string", "event_8ixx.html#afa55c6d36c03969005e4dc314083527a", null ],
+    [ "unhashed", "event_8ixx.html#a8bc80526fa5037abe2c29db10f661fed", null ],
+    [ "invalid_user_event", "event_8ixx.html#a876ea8752da38c4c015857f01ee24e5b", null ],
+    [ "syn_user_event", "event_8ixx.html#a6d35b5bb608db37a858ce51e52952a52", null ]
+];

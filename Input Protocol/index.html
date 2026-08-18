@@ -1,0 +1,1591 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Smart input manager — a library and CLI that intercepts your input, helps you type less, and adds foresight.">
+      
+      
+      
+        <link rel="canonical" href="https://the-moisrex.github.io/foresight/Input%20Protocol/">
+      
+      
+        <link rel="prev" href="../mods/">
+      
+      
+        <link rel="next" href="../Multi-Touch%20Protocol/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Input Protocol - Foresight</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#input-protocol-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Foresight" class="md-header__button md-logo" aria-label="Foresight" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Foresight
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Input Protocol
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/the-moisrex/foresight" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../cli/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  CLI
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../writing-apps/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Writing your own app
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../apps/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Example apps
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../mods/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Mods overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Protocols
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api-reference/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Foresight" class="md-nav__button md-logo" aria-label="Foresight" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Foresight
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/the-moisrex/foresight" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing-apps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing your own app
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example apps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mods overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocols
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Protocols
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input Protocol
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#event-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#event-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Codes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Event Codes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ev_syn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_SYN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_KEY
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_rel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_REL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_abs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_ABS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_sw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_SW
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_msc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_MSC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_led" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_LED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_rep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_REP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_snd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_SND
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_ff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_FF
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_pwr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_PWR
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Properties
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#guidelines-for-devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guidelines for Devices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Guidelines for Devices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mice
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#touchscreens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Touchscreens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trackpads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trackpads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tablets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tablets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Multi-Touch%20Protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Touch Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#event-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#event-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Codes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Event Codes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ev_syn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_SYN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_KEY
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_rel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_REL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_abs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_ABS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_sw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_SW
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_msc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_MSC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_led" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_LED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_rep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_REP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_snd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_SND
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_ff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_FF
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ev_pwr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EV_PWR
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Properties
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#guidelines-for-devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guidelines for Devices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Guidelines for Devices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mice
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#touchscreens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Touchscreens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trackpads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trackpads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tablets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tablets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="input-protocol-documentation">Input Protocol Documentation</h1>
+<p>from <a href="https://www.kernel.org/doc/Documentation/input/event-codes.txt">Linux Event Codes Docs</a></p>
+<h2 id="overview">Overview</h2>
+<p>The <strong>Input Protocol</strong> is a <strong>stateful protocol</strong> used by the Linux input subsystem to communicate input device values
+to userspace. It defines a set of <strong>event types</strong> and <strong>codes</strong> to represent hardware events, such as key presses, mouse
+movements, or touch interactions. Each hardware event generates multiple <strong>input events</strong>, each containing a <strong>type</strong>, *
+<em>code</em><em>, and </em><em>value</em>* representing a single data change.</p>
+<p><strong>Key Features</strong>:</p>
+<ul>
+<li><strong>Stateful</strong>: Events are emitted only when values change. The Linux input subsystem maintains the state, so drivers do
+  not need to track it.</li>
+<li><strong>Event Separation</strong>: The <strong>EV_SYN</strong> event type groups input events into packets representing changes at the same
+  moment.</li>
+<li><strong>State Access</strong>: Userspace can query the current state using <strong>EVIOCG</strong>* ioctls (<code>linux/input.h</code>) or via sysfs at
+  <code>class/input/event*/device/capabilities/</code> and <code>class/input/event*/device/properties</code>.</li>
+</ul>
+<h2 id="event-types">Event Types</h2>
+<p>Event types group related codes under a logical input construct. Each type has specific codes for generating events.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Event Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>EV_SYN</strong></td>
+<td>Separates events into packets (e.g., for multitouch or time-based separation).</td>
+</tr>
+<tr>
+<td><strong>EV_KEY</strong></td>
+<td>Represents state changes for keyboards, buttons, or key-like devices.</td>
+</tr>
+<tr>
+<td><strong>EV_REL</strong></td>
+<td>Reports relative axis changes (e.g., mouse movement).</td>
+</tr>
+<tr>
+<td><strong>EV_ABS</strong></td>
+<td>Reports absolute axis changes (e.g., touchscreen coordinates).</td>
+</tr>
+<tr>
+<td><strong>EV_MSC</strong></td>
+<td>Handles miscellaneous input/output data not fitting other types.</td>
+</tr>
+<tr>
+<td><strong>EV_SW</strong></td>
+<td>Represents binary state switches (e.g., laptop lid status).</td>
+</tr>
+<tr>
+<td><strong>EV_LED</strong></td>
+<td>Controls LEDs on devices (on/off states).</td>
+</tr>
+<tr>
+<td><strong>EV_SND</strong></td>
+<td>Sends sound commands to simple sound output devices.</td>
+</tr>
+<tr>
+<td><strong>EV_REP</strong></td>
+<td>Manages autorepeating for devices.</td>
+</tr>
+<tr>
+<td><strong>EV_FF</strong></td>
+<td>Sends force feedback commands to devices.</td>
+</tr>
+<tr>
+<td><strong>EV_PWR</strong></td>
+<td>Used for power button/switch input (usage TBD).</td>
+</tr>
+<tr>
+<td><strong>EV_FF_STATUS</strong></td>
+<td>Reports force feedback device status.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="event-codes">Event Codes</h2>
+<p>Event codes define the specific type of event within each event type.</p>
+<h3 id="ev_syn">EV_SYN</h3>
+<ul>
+<li><strong>Purpose</strong>: Marks and separates event packets.</li>
+<li><strong>Codes</strong>:<ul>
+<li><strong>SYN_REPORT</strong>: Synchronizes events into packets (e.g., mouse movement sets <code>REL_X</code>, <code>REL_Y</code>, followed by
+  <code>SYN_REPORT</code>).</li>
+<li><strong>SYN_CONFIG</strong>: TBD.</li>
+<li><strong>SYN_MT_REPORT</strong>: Separates multitouch events (see <code>multi-touch-protocol.txt</code>).</li>
+<li><strong>SYN_DROPPED</strong>: Indicates a buffer overrun in the evdev client’s event queue. Clients should ignore events until
+  the next <code>SYN_REPORT</code> and query the device state using <strong>EVIOCG</strong>* ioctls.</li>
+</ul>
+</li>
+</ul>
+<h3 id="ev_key">EV_KEY</h3>
+<ul>
+<li><strong>Format</strong>: <code>KEY_&lt;name&gt;</code> (e.g., <code>KEY_A</code> for the 'A' key) or <code>BTN_&lt;name&gt;</code> (e.g., <code>BTN_LEFT</code> for a mouse button).</li>
+<li><strong>Values</strong>:<ul>
+<li><code>1</code>: Key pressed.</li>
+<li><code>0</code>: Key released.</li>
+<li><code>2</code>: Key repeated (if supported by hardware).</li>
+</ul>
+</li>
+<li><strong>Special Codes</strong>:<ul>
+<li><strong>BTN_TOOL_<name></strong> (e.g., <code>BTN_TOOL_FINGER</code>, <code>BTN_TOOL_PEN</code>): Indicates the tool used (finger, pen, etc.) on
+  trackpads, tablets, or touchscreens. Set to <code>1</code> when the tool is active, <code>0</code> when not.</li>
+<li><strong>BTN_TOUCH</strong>: Indicates meaningful physical contact (e.g., touch on a touchscreen). May be conditioned by
+  implementation-specific thresholds (e.g., pressure). Can combine with <code>BTN_TOOL_&lt;name&gt;</code> (e.g., <code>BTN_TOOL_PEN=1</code>,
+  <code>BTN_TOUCH=0</code> for a hovering pen).</li>
+<li><strong>BTN_TOOL_FINGER</strong>, <strong>BTN_TOOL_DOUBLETAP</strong>, <strong>BTN_TOOL_TRIPLETAP</strong>, <strong>BTN_TOOL_QUADTAP</strong>: Denote 1, 2, 3, or 4
+  finger interactions on trackpads/touchscreens. Only one should be <code>1</code> per synchronization frame. Use
+  <code>input_mt_report_finger_count()</code> for multitouch drivers (see <code>multi-touch-protocol.txt</code>).</li>
+</ul>
+</li>
+</ul>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li><code>BTN_TOUCH</code> must be the first code in a synchronization frame for legacy <code>mousedev</code> emulation.</li>
+<li>Historically, devices with <code>BTN_TOOL_FINGER</code> and <code>BTN_TOUCH</code> were treated as touchpads, while those without
+  <code>BTN_TOOL_FINGER</code> were touchscreens. For compatibility, follow this convention, but future devices should use *
+  <em>EVIOCGPROP</em>* to convey device type.</li>
+</ul>
+<h3 id="ev_rel">EV_REL</h3>
+<ul>
+<li><strong>Purpose</strong>: Reports relative changes (e.g., mouse movement).</li>
+<li><strong>Special Codes</strong>:<ul>
+<li><strong>REL_WHEEL</strong>, <strong>REL_HWHEEL</strong>: Vertical and horizontal scroll wheel events.</li>
+</ul>
+</li>
+</ul>
+<h3 id="ev_abs">EV_ABS</h3>
+<ul>
+<li><strong>Purpose</strong>: Reports absolute changes (e.g., touchscreen coordinates).</li>
+<li><strong>Special Codes</strong>:<ul>
+<li><strong>ABS_DISTANCE</strong>: Distance of a tool from the surface (emitted when <code>BTN_TOUCH=0</code>, i.e., hovering). Use <code>ABS_Z</code>
+  for devices free in 3D space. <code>BTN_TOOL_&lt;name&gt;</code> must reflect tool proximity (<code>1</code> when in range, <code>0</code> when not).</li>
+<li><strong>ABS_MT_<name></strong>: Multitouch events (see <code>multi-touch-protocol.txt</code>).</li>
+</ul>
+</li>
+</ul>
+<h3 id="ev_sw">EV_SW</h3>
+<ul>
+<li><strong>Purpose</strong>: Reports binary switch states (e.g., <code>SW_LID</code> for laptop lid status).</li>
+<li><strong>Requirement</strong>: Drivers must report the current switch state on device binding or resume to ensure synchronization
+  with userspace. Duplicate states after resume are filtered by the input subsystem.</li>
+</ul>
+<h3 id="ev_msc">EV_MSC</h3>
+<ul>
+<li><strong>Purpose</strong>: Handles miscellaneous input/output events.</li>
+<li><strong>Special Code</strong>:<ul>
+<li><strong>MSC_TIMESTAMP</strong>: Reports microseconds since the last reset (uint32, may wrap). Time differences are reliable
+  over hours, but resets to zero may occur. Drivers must not report this if unsupported by hardware.</li>
+</ul>
+</li>
+</ul>
+<h3 id="ev_led">EV_LED</h3>
+<ul>
+<li><strong>Purpose</strong>: Sets and queries LED states on devices.</li>
+</ul>
+<h3 id="ev_rep">EV_REP</h3>
+<ul>
+<li><strong>Purpose</strong>: Configures autorepeating behavior.</li>
+</ul>
+<h3 id="ev_snd">EV_SND</h3>
+<ul>
+<li><strong>Purpose</strong>: Sends sound commands to simple sound output devices.</li>
+</ul>
+<h3 id="ev_ff">EV_FF</h3>
+<ul>
+<li><strong>Purpose</strong>: Sends force feedback commands to devices.</li>
+</ul>
+<h3 id="ev_pwr">EV_PWR</h3>
+<ul>
+<li><strong>Purpose</strong>: Handles power button/switch input (usage TBD).</li>
+</ul>
+<h2 id="device-properties">Device Properties</h2>
+<p>Device properties provide additional context for userspace to configure devices beyond event types.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Property</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>INPUT_PROP_DIRECT</strong></td>
+<td>Coordinates map directly to screen coordinates (e.g., touchscreens, tablets). Non-direct devices (e.g., touchpads, mice) require transformations.</td>
+</tr>
+<tr>
+<td><strong>INPUT_PROP_POINTER</strong></td>
+<td>Device requires an on-screen pointer (e.g., touchpads, mice). Non-pointer devices (e.g., touchscreens) do not.</td>
+</tr>
+<tr>
+<td><strong>INPUT_PROP_BUTTONPAD</strong></td>
+<td>Touchpads with buttons beneath the surface (e.g., clickpads). Historically encoded in the <code>bcm5974</code> driver’s version field as “integrated button.”</td>
+</tr>
+<tr>
+<td><strong>INPUT_PROP_SEMI_MT</strong></td>
+<td>Touchpads detecting multiple contacts without individual positions (e.g., bounding box or recent touches). If unset, the device is a true multitouch device.</td>
+</tr>
+<tr>
+<td><strong>INPUT_PROP_TOPBUTTONPAD</strong></td>
+<td>Laptops with tracksticks and touchpad-based buttons (e.g., Lenovo *40 series). Userspace emulates buttons; the kernel treats these as standard buttonpads.</td>
+</tr>
+<tr>
+<td><strong>INPUT_PROP_ACCELEROMETER</strong></td>
+<td>Device axes (<code>ABS_X</code>, <code>ABS_Y</code>, <code>ABS_Z</code>) represent accelerometer data. Regular and accelerometer axes must not mix on the same event node.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: If neither <code>INPUT_PROP_DIRECT</code> nor <code>INPUT_PROP_POINTER</code> is set, the device type is deduced from event types.</p>
+<h2 id="guidelines-for-devices">Guidelines for Devices</h2>
+<h3 id="mice">Mice</h3>
+<ul>
+<li><strong>Events</strong>: <code>REL_X</code>, <code>REL_Y</code> for movement; <code>BTN_LEFT</code> for primary button; <code>BTN_MIDDLE</code>, <code>BTN_RIGHT</code>, <code>BTN_4</code>, etc.,
+  for additional buttons; <code>REL_WHEEL</code>, <code>REL_HWHEEL</code> for scroll wheels.</li>
+</ul>
+<h3 id="touchscreens">Touchscreens</h3>
+<ul>
+<li><strong>Events</strong>: <code>ABS_X</code>, <code>ABS_Y</code> for touch location; <code>BTN_TOUCH</code> for active touch. Avoid <code>BTN_MOUSE</code>, <code>BTN_LEFT</code>, etc.,
+  for touch events.</li>
+<li><strong>Property</strong>: Set <code>INPUT_PROP_DIRECT</code>.</li>
+<li><strong>Tool Events</strong>: Use <code>BTN_TOOL_&lt;name&gt;</code> where applicable.</li>
+</ul>
+<h3 id="trackpads">Trackpads</h3>
+<ul>
+<li><strong>Legacy</strong>: Report <code>REL_X</code>, <code>REL_Y</code> like mice if only relative data is available.</li>
+<li><strong>Modern</strong>: Report <code>ABS_X</code>, <code>ABS_Y</code> for touch location; <code>BTN_TOUCH</code> for active touch; <code>BTN_TOOL_&lt;name&gt;</code> for
+  multi-finger counts.</li>
+<li><strong>Property</strong>: Set <code>INPUT_PROP_POINTER</code>.</li>
+</ul>
+<h3 id="tablets">Tablets</h3>
+<ul>
+<li><strong>Events</strong>: <code>BTN_TOOL_&lt;name&gt;</code> for active tools; <code>ABS_X</code>, <code>ABS_Y</code> for tool location; <code>BTN_TOUCH</code> for contact;
+  <code>BTN_STYLUS</code>, <code>BTN_STYLUS2</code> for tool buttons; <code>BTN_0</code>, <code>BTN_1</code>, etc., for generic tablet buttons.</li>
+<li><strong>Properties</strong>: Set <code>INPUT_PROP_DIRECT</code> and <code>INPUT_PROP_POINTER</code>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
