@@ -94,6 +94,7 @@ $(document).ready(function(){initNavTree('module_fs8_8mods_8smooth.html',''); in
 <a href="#classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a> &#124;
 <a href="#files">Files</a>  </div>
   <div class="headertitle"><div class="title">fs8.mods.smooth Module Reference</div></div>
 </div><!--header-->
@@ -104,6 +105,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__lerp.html">fs8::basic_lerp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__low__pass__filter.html">fs8::basic_low_pass_filter</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__low__pass__filter_1_1smoothed.html">fs8::basic_low_pass_filter::smoothed</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__kalman__filter.html">fs8::basic_kalman_filter</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -119,25 +122,51 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a26ddb5987765d15372811449a1059757" id="r_a26ddb5987765d15372811449a1059757"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__lerp.html#a26ddb5987765d15372811449a1059757">operator()</a> (Context auto &amp;ctx) noexcept</td></tr>
-<tr class="separator:a26ddb5987765d15372811449a1059757"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab954bfb612cf78e35c0610a02b9a52de" id="r_ab954bfb612cf78e35c0610a02b9a52de"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__lerp.html#ab954bfb612cf78e35c0610a02b9a52de">basic_lerp</a> (std::size_t const inp_max_steps, float(*const inp_easing)(float)) noexcept</td></tr>
+<tr class="separator:ab954bfb612cf78e35c0610a02b9a52de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9600ad0f7e9cc34a6cd3599fdbbfcb90" id="r_a9600ad0f7e9cc34a6cd3599fdbbfcb90"><td class="memItemLeft" align="right" valign="top">consteval basic_lerp&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__lerp.html#a9600ad0f7e9cc34a6cd3599fdbbfcb90">operator[]</a> (std::size_t const inp_max_steps) const noexcept</td></tr>
+<tr class="separator:a9600ad0f7e9cc34a6cd3599fdbbfcb90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a965aa6275c2df2d2bcbba00b9d268a6f" id="r_a965aa6275c2df2d2bcbba00b9d268a6f"><td class="memItemLeft" align="right" valign="top">consteval basic_lerp&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__lerp.html#a965aa6275c2df2d2bcbba00b9d268a6f">operator[]</a> (std::size_t const inp_max_steps, float(*const inp_easing)(float)) const noexcept</td></tr>
+<tr class="separator:a965aa6275c2df2d2bcbba00b9d268a6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1fb4b1bc9d047e666e17a4b9d6b7f0e5" id="r_a1fb4b1bc9d047e666e17a4b9d6b7f0e5"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
+<tr class="memitem:a1fb4b1bc9d047e666e17a4b9d6b7f0e5"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__lerp.html#a1fb4b1bc9d047e666e17a4b9d6b7f0e5">operator()</a> (CtxT &amp;ctx) noexcept</td></tr>
+<tr class="separator:a1fb4b1bc9d047e666e17a4b9d6b7f0e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d2a9620e05df70b58b99481fce06698" id="r_a1d2a9620e05df70b58b99481fce06698"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__low__pass__filter.html#a1d2a9620e05df70b58b99481fce06698">basic_low_pass_filter</a> (float const inp_alpha) noexcept</td></tr>
 <tr class="separator:a1d2a9620e05df70b58b99481fce06698"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af695479d6ca820efaf99ba03e5d4f722" id="r_af695479d6ca820efaf99ba03e5d4f722"><td class="memItemLeft" align="right" valign="top">consteval basic_low_pass_filter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__low__pass__filter.html#af695479d6ca820efaf99ba03e5d4f722">operator[]</a> (float const inp_alpha) const noexcept</td></tr>
 <tr class="separator:af695479d6ca820efaf99ba03e5d4f722"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d54aef78a529522481aaacdc1e71619" id="r_a1d54aef78a529522481aaacdc1e71619"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__low__pass__filter.html#a1d54aef78a529522481aaacdc1e71619">operator()</a> (Context auto &amp;ctx) noexcept</td></tr>
-<tr class="separator:a1d54aef78a529522481aaacdc1e71619"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afea6c75f1d7b42d4bf14584a06eab24e" id="r_afea6c75f1d7b42d4bf14584a06eab24e"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__kalman__filter.html#afea6c75f1d7b42d4bf14584a06eab24e">basic_kalman_filter</a> (float const process_noise, float const measurement_noise=0.5f) noexcept</td></tr>
-<tr class="separator:afea6c75f1d7b42d4bf14584a06eab24e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45407a558c52d9a3f256232db8f0bbd4" id="r_a45407a558c52d9a3f256232db8f0bbd4"><td class="memItemLeft" align="right" valign="top">consteval basic_kalman_filter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__kalman__filter.html#a45407a558c52d9a3f256232db8f0bbd4">operator[]</a> (float const process_noise, float const measurement_noise=0.5f) const noexcept</td></tr>
-<tr class="separator:a45407a558c52d9a3f256232db8f0bbd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac76b600e575f26bcdd6809da9af648d7" id="r_ac76b600e575f26bcdd6809da9af648d7"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__kalman__filter.html#ac76b600e575f26bcdd6809da9af648d7">operator()</a> (Context auto &amp;ctx) noexcept</td></tr>
-<tr class="separator:ac76b600e575f26bcdd6809da9af648d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3089aae16dd6e8deed82badcc007eb5" id="r_aa3089aae16dd6e8deed82badcc007eb5"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
+<tr class="memitem:aa3089aae16dd6e8deed82badcc007eb5"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__low__pass__filter.html#aa3089aae16dd6e8deed82badcc007eb5">operator()</a> (CtxT &amp;ctx) noexcept</td></tr>
+<tr class="separator:aa3089aae16dd6e8deed82badcc007eb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90940e53a04fc7032fee3b1892eab4fa" id="r_a90940e53a04fc7032fee3b1892eab4fa"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__kalman__filter.html#a90940e53a04fc7032fee3b1892eab4fa">basic_kalman_filter</a> (float const inp_q, float const inp_r=0.5f) noexcept</td></tr>
+<tr class="separator:a90940e53a04fc7032fee3b1892eab4fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a21eff985cbf4b16aa36dbed7aa18de" id="r_a4a21eff985cbf4b16aa36dbed7aa18de"><td class="memItemLeft" align="right" valign="top">consteval basic_kalman_filter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__kalman__filter.html#a4a21eff985cbf4b16aa36dbed7aa18de">operator[]</a> (float const inp_q, float const inp_r=0.5f) const noexcept</td></tr>
+<tr class="separator:a4a21eff985cbf4b16aa36dbed7aa18de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c62c539f1b71a4623585e8394cb7655" id="r_a8c62c539f1b71a4623585e8394cb7655"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
+<tr class="memitem:a8c62c539f1b71a4623585e8394cb7655"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__kalman__filter.html#a8c62c539f1b71a4623585e8394cb7655">operator()</a> (CtxT &amp;ctx) noexcept</td></tr>
+<tr class="separator:a8c62c539f1b71a4623585e8394cb7655"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a8415a8c33b272f569b9cd40262a9f7aa" id="r_a8415a8c33b272f569b9cd40262a9f7aa"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__low__pass__filter_1_1smoothed.html#a8415a8c33b272f569b9cd40262a9f7aa">emit</a> = false</td></tr>
+<tr class="separator:a8415a8c33b272f569b9cd40262a9f7aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d0bd8902277a938fe00f1b08fef5b02" id="r_a1d0bd8902277a938fe00f1b08fef5b02"><td class="memItemLeft" align="right" valign="top">value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__low__pass__filter_1_1smoothed.html#a1d0bd8902277a938fe00f1b08fef5b02">x</a> = 0</td></tr>
+<tr class="separator:a1d0bd8902277a938fe00f1b08fef5b02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a56c88c9a3bef156a68a3415bd0a7aa" id="r_a4a56c88c9a3bef156a68a3415bd0a7aa"><td class="memItemLeft" align="right" valign="top">value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__low__pass__filter_1_1smoothed.html#a4a56c88c9a3bef156a68a3415bd0a7aa">y</a> = 0</td></tr>
+<tr class="separator:a4a56c88c9a3bef156a68a3415bd0a7aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07fbf3609ae73e4300ea8ba7fd3b66c6" id="r_a07fbf3609ae73e4300ea8ba7fd3b66c6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__kalman__filter_1_1smoothed.html#a07fbf3609ae73e4300ea8ba7fd3b66c6">emit</a> = false</td></tr>
+<tr class="separator:a07fbf3609ae73e4300ea8ba7fd3b66c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abedee66ac494d7853c33592a291e9927" id="r_abedee66ac494d7853c33592a291e9927"><td class="memItemLeft" align="right" valign="top">value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__kalman__filter_1_1smoothed.html#abedee66ac494d7853c33592a291e9927">x</a> = 0</td></tr>
+<tr class="separator:abedee66ac494d7853c33592a291e9927"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6417b9a755df99ece05026a2fb2249ec" id="r_a6417b9a755df99ece05026a2fb2249ec"><td class="memItemLeft" align="right" valign="top">value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__kalman__filter_1_1smoothed.html#a6417b9a755df99ece05026a2fb2249ec">y</a> = 0</td></tr>
+<tr class="separator:a6417b9a755df99ece05026a2fb2249ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>
 Files</h2></td></tr>
 <tr class="memitem:smooth_8ixx" id="r_smooth_8ixx"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom">mods/<a class="el" href="smooth_8ixx.html">smooth.ixx</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:smooth_8cxx" id="r_smooth_8cxx"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom">mods/<a class="el" href="smooth_8cxx.html">smooth.cxx</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->

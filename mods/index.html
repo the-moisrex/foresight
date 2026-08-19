@@ -1002,7 +1002,7 @@ mod is for and when you'd reach for it.</p>
 </tr>
 <tr>
 <td><code>smooth</code></td>
-<td>Smooth mouse movement / ease the output.</td>
+<td>Smooth mouse movement / ease the output: <code>lerp[max_steps, easing]</code>, <code>low_pass_filter[alpha]</code>, <code>kalman_filter[q, r]</code>. Requires <code>mouse_history</code> placed before it in the pipeline.</td>
 </tr>
 <tr>
 <td><code>momentum</code></td>
@@ -1010,7 +1010,7 @@ mod is for and when you'd reach for it.</p>
 </tr>
 <tr>
 <td><code>ignore</code></td>
-<td>Family of "ignore" filters: big jumps, starting moves, fast repeats, adjacent repeats, and full event ignoring.</td>
+<td>Family of "ignore" filters: big jumps, starting moves, fast repeats, adjacent repeats, fast double clicks, and full event ignoring.</td>
 </tr>
 <tr>
 <td><code>typed</code></td>

@@ -94,14 +94,14 @@ $(document).ready(function(){initNavTree('conceptfs8_1_1constexpr__constructible
 </div><!--header-->
 <div class="contents">
 <h2 class="groupheader">Concept definition</h2>
-<div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> <a class="code hl_function" href="namespacefs8.html#a60bae359abb2a65c97674f784edc4002">T</a>, <span class="keyword">typename</span>... <a class="code hl_function" href="namespacefs8.html#a60bae359abb2a65c97674f784edc4002">Args</a>&gt;</div>
+<div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> <a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a>, <span class="keyword">typename</span>... <a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Args</a>&gt;</div>
 <div class="line"><span class="keyword">concept </span><a class="code hl_concept" href="conceptfs8_1_1constexpr__constructible.html">fs8::constexpr_constructible</a> =  <span class="keyword">requires</span> {</div>
-<div class="line">        []&lt;<a class="code hl_function" href="namespacefs8.html#a60bae359abb2a65c97674f784edc4002">T</a> = {</div>
-<div class="line">            <a class="code hl_function" href="namespacefs8.html#a60bae359abb2a65c97674f784edc4002">Args</a>{}...</div>
+<div class="line">        []&lt;<a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> = {</div>
+<div class="line">            <a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Args</a>{}...</div>
 <div class="line">        }&gt;{}();</div>
 <div class="line">    }</div>
 <div class="ttc" id="aconceptfs8_1_1constexpr__constructible_html"><div class="ttname"><a href="conceptfs8_1_1constexpr__constructible.html">fs8::constexpr_constructible</a></div><div class="ttdef"><b>Definition</b> utils.ixx:14</div></div>
-<div class="ttc" id="anamespacefs8_html_a60bae359abb2a65c97674f784edc4002"><div class="ttname"><a href="namespacefs8.html#a60bae359abb2a65c97674f784edc4002">fs8::blowup_if</a></div><div class="ttdeci">consteval bool blowup_if(bool const res=true) noexcept</div><div class="ttdef"><b>Definition</b> context.ixx:54</div></div>
+<div class="ttc" id="anamespacefs8_html_a8efac394a54c3cd92d4ebd11d1c8627b"><div class="ttname"><a href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">fs8::easeInOutQuad</a></div><div class="ttdeci">constexpr T easeInOutQuad(T t) noexcept</div><div class="ttdoc">Quadratic in-out: slow at start and end, fast in the middle.</div><div class="ttdef"><b>Definition</b> easings.ixx:58</div></div>
 </div><!-- fragment --><a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Check if type T has a constexpr constructor and thus can be used in constexpr contexts, in other words, the type T can be constructed in compile-time. </p>
 </div></div><!-- contents -->

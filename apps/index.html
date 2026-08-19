@@ -629,6 +629,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#debounce-mouse-clicks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        debounce-mouse-clicks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#flat-accelerate" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -924,6 +935,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#debounce-mouse-clicks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        debounce-mouse-clicks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#flat-accelerate" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1017,6 +1039,11 @@ as a mouse with extended capabilities:</p>
 </ul>
 <h2 id="auto-typer">auto-typer</h2>
 <p>Watches a keyboard for typed patterns and auto-completes them into longer strings.</p>
+<h2 id="debounce-mouse-clicks">debounce-mouse-clicks</h2>
+<p>Fixes a faulty mouse that occasionally double clicks: a press (and its matching
+release) that lands within the debounce window of the previous press of the same
+button is dropped, while real clicks pass through untouched. The window defaults
+to 30ms and is adjustable via <code>-t | --time</code> (e.g. <code>debounce-mouse-clicks --time 50ms</code>).</p>
 <h2 id="flat-accelerate">flat-accelerate</h2>
 <p>Accelerates the mouse through a <code>foresight intercept | flat-accelerate | foresight redirect</code>
 pipeline.</p>

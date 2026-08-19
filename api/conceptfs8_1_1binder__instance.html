@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('conceptfs8_1_1binder__instance.html','
 <div class="contents">
 <h2 class="groupheader">Concept definition</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><span class="keyword">concept </span><a class="code hl_concept" href="conceptfs8_1_1binder__instance.html">fs8::binder_instance</a> =  <span class="keyword">requires</span>(<a class="code hl_function" href="namespacefs8.html#a60bae359abb2a65c97674f784edc4002">T</a> obj) {</div>
+<div class="line"><span class="keyword">concept </span><a class="code hl_concept" href="conceptfs8_1_1binder__instance.html">fs8::binder_instance</a> =  <span class="keyword">requires</span>(<a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> obj) {</div>
 <div class="line">        <span class="keyword">typename</span> T::binding;</div>
 <div class="line">        <span class="keyword">typename</span> T::type;</div>
 <div class="line">        <span class="keyword">typename</span> T::pointer;</div>
@@ -108,7 +108,7 @@ $(document).ready(function(){initNavTree('conceptfs8_1_1binder__instance.html','
 <div class="line">        };</div>
 <div class="line">    }</div>
 <div class="ttc" id="aconceptfs8_1_1binder__instance_html"><div class="ttname"><a href="conceptfs8_1_1binder__instance.html">fs8::binder_instance</a></div><div class="ttdef"><b>Definition</b> dynamic_scoping.ixx:26</div></div>
-<div class="ttc" id="anamespacefs8_html_a60bae359abb2a65c97674f784edc4002"><div class="ttname"><a href="namespacefs8.html#a60bae359abb2a65c97674f784edc4002">fs8::blowup_if</a></div><div class="ttdeci">consteval bool blowup_if(bool const res=true) noexcept</div><div class="ttdef"><b>Definition</b> context.ixx:54</div></div>
+<div class="ttc" id="anamespacefs8_html_a8efac394a54c3cd92d4ebd11d1c8627b"><div class="ttname"><a href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">fs8::easeInOutQuad</a></div><div class="ttdeci">constexpr T easeInOutQuad(T t) noexcept</div><div class="ttdoc">Quadratic in-out: slow at start and end, fast in the middle.</div><div class="ttdef"><b>Definition</b> easings.ixx:58</div></div>
 </div><!-- fragment --><a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A binder provides the storage and swap mechanism for an ambient context pointer.</p>
 <p>Dynamic Scopes (or Locally Bound Globals) act as implicit parameters. They allow a caller to temporarily override a global or thread-local instance of T, which nested functions can then access without modifying their signatures.</p>

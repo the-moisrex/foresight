@@ -54,6 +54,7 @@ var annotated_dup =
       [ "basic_ignore_caps", "structfs8_1_1basic__ignore__caps.html", "structfs8_1_1basic__ignore__caps" ],
       [ "basic_ignore_device", "structfs8_1_1basic__ignore__device.html", "structfs8_1_1basic__ignore__device" ],
       [ "basic_ignore_event", "structfs8_1_1basic__ignore__event.html", "structfs8_1_1basic__ignore__event" ],
+      [ "basic_ignore_fast_double_clicks", "structfs8_1_1basic__ignore__fast__double__clicks.html", "structfs8_1_1basic__ignore__fast__double__clicks" ],
       [ "basic_ignore_fast_repeats", "structfs8_1_1basic__ignore__fast__repeats.html", "structfs8_1_1basic__ignore__fast__repeats" ],
       [ "basic_ignore_init_moves", "structfs8_1_1basic__ignore__init__moves.html", "structfs8_1_1basic__ignore__init__moves" ],
       [ "basic_ignore_keys", "structfs8_1_1basic__ignore__keys.html", "structfs8_1_1basic__ignore__keys" ],

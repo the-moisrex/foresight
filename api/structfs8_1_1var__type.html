@@ -111,56 +111,56 @@ Collaboration diagram for fs8::var_type&lt; T &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a59344f7f25d83f33e2851c6cb963a499" id="r_a59344f7f25d83f33e2851c6cb963a499"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a59344f7f25d83f33e2851c6cb963a499">value_type</a> = T</td></tr>
+<tr class="memitem:a59344f7f25d83f33e2851c6cb963a499" id="r_a59344f7f25d83f33e2851c6cb963a499"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">using</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a59344f7f25d83f33e2851c6cb963a499">value_type</a> = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a></td></tr>
 <tr class="separator:a59344f7f25d83f33e2851c6cb963a499"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a113ff6bd4e4b3963838880ef01622916" id="r_a113ff6bd4e4b3963838880ef01622916"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a113ff6bd4e4b3963838880ef01622916">storage_type</a> = std::conditional_t&lt; <a class="el" href="structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a">is_constructible_at_compile_time</a>, <a class="el" href="structfs8_1_1var__type.html#a59344f7f25d83f33e2851c6cb963a499">value_type</a>, std::optional&lt; T &gt; &gt;</td></tr>
+<tr class="memitem:a113ff6bd4e4b3963838880ef01622916" id="r_a113ff6bd4e4b3963838880ef01622916"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">using</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a113ff6bd4e4b3963838880ef01622916">storage_type</a> = std::conditional_t&lt; <a class="el" href="structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a">is_constructible_at_compile_time</a>, <a class="el" href="structfs8_1_1var__type.html#a59344f7f25d83f33e2851c6cb963a499">value_type</a>, std::optional&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; &gt;</td></tr>
 <tr class="separator:a113ff6bd4e4b3963838880ef01622916"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a72668544b9713191c6805c85c4c75bd4" id="r_a72668544b9713191c6805c85c4c75bd4"><td class="memTemplParams" colspan="2">template&lt;typename Arg &gt; <br />
-requires (std::convertible_to&lt;Arg, T&gt;)</td></tr>
-<tr class="memitem:a72668544b9713191c6805c85c4c75bd4"><td class="memTemplItemLeft" align="right" valign="top">consteval&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a72668544b9713191c6805c85c4c75bd4">var_type</a> (std::string_view const inp_name, Arg &amp;&amp;initial_value) noexcept</td></tr>
+<tr class="memitem:a72668544b9713191c6805c85c4c75bd4" id="r_a72668544b9713191c6805c85c4c75bd4"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Arg</a> &gt; <br />
+requires (std::convertible_to&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Arg</a>, <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a>&gt;)</td></tr>
+<tr class="memitem:a72668544b9713191c6805c85c4c75bd4"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">consteval</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a72668544b9713191c6805c85c4c75bd4">var_type</a> (std::string_view <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">inp_name</a>, <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Arg</a> &amp;&amp;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">initial_value</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a72668544b9713191c6805c85c4c75bd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2ed6fba569d67f13031f1df132b472c" id="r_ac2ed6fba569d67f13031f1df132b472c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#ac2ed6fba569d67f13031f1df132b472c">explicit</a> (false) const eval <a class="el" href="structfs8_1_1var__type.html">var_type</a>(std</td></tr>
+<tr class="memitem:ac2ed6fba569d67f13031f1df132b472c" id="r_ac2ed6fba569d67f13031f1df132b472c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#ac2ed6fba569d67f13031f1df132b472c">explicit</a> (<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">false</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">eval</a> <a class="el" href="structfs8_1_1var__type.html">var_type</a>(std</td></tr>
 <tr class="separator:ac2ed6fba569d67f13031f1df132b472c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a114a6e769ecdec7c3b7a4c1c36949838" id="r_a114a6e769ecdec7c3b7a4c1c36949838"><td class="memItemLeft" align="right" valign="top">consteval std::array&lt; std::string_view, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a114a6e769ecdec7c3b7a4c1c36949838">operator[]</a> (<a class="el" href="structfs8_1_1get__variables__tag.html">get_variables_tag</a>) const noexcept</td></tr>
+<tr class="memitem:a114a6e769ecdec7c3b7a4c1c36949838" id="r_a114a6e769ecdec7c3b7a4c1c36949838"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">consteval</a> std::array&lt; std::string_view, 1 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a114a6e769ecdec7c3b7a4c1c36949838">operator[]</a> (<a class="el" href="structfs8_1_1get__variables__tag.html">get_variables_tag</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="memdesc:a114a6e769ecdec7c3b7a4c1c36949838"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get variable names.  <br /></td></tr>
 <tr class="separator:a114a6e769ecdec7c3b7a4c1c36949838"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fe552efb16da0d1cf0a17012e58685c" id="r_a7fe552efb16da0d1cf0a17012e58685c"><td class="memItemLeft" align="right" valign="top">constexpr T const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a7fe552efb16da0d1cf0a17012e58685c">value</a> () const noexcept</td></tr>
+<tr class="memitem:a7fe552efb16da0d1cf0a17012e58685c" id="r_a7fe552efb16da0d1cf0a17012e58685c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a7fe552efb16da0d1cf0a17012e58685c">value</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a7fe552efb16da0d1cf0a17012e58685c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3691a595890e5db93cbefeb20d5408c1" id="r_a3691a595890e5db93cbefeb20d5408c1"><td class="memItemLeft" align="right" valign="top">constexpr T &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a3691a595890e5db93cbefeb20d5408c1">value</a> () noexcept</td></tr>
+<tr class="memitem:a3691a595890e5db93cbefeb20d5408c1" id="r_a3691a595890e5db93cbefeb20d5408c1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a3691a595890e5db93cbefeb20d5408c1">value</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a3691a595890e5db93cbefeb20d5408c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac26bc520f92b63477c0532ee58bcdea8" id="r_ac26bc520f92b63477c0532ee58bcdea8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#ac26bc520f92b63477c0532ee58bcdea8">operator()</a> (<a class="el" href="structfs8_1_1start__tag.html">start_tag</a>) noexcept</td></tr>
+<tr class="memitem:ac26bc520f92b63477c0532ee58bcdea8" id="r_ac26bc520f92b63477c0532ee58bcdea8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#ac26bc520f92b63477c0532ee58bcdea8">operator()</a> (<a class="el" href="structfs8_1_1start__tag.html">start_tag</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="memdesc:ac26bc520f92b63477c0532ee58bcdea8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default construct if it's wrapped in std::optional.  <br /></td></tr>
 <tr class="separator:ac26bc520f92b63477c0532ee58bcdea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
+<tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:aab9e941457bd45b9d6772f6ff421cec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;) noexcept</td></tr>
+<tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a23df80b9a3d5bfbc33501da95d583e26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a07b6aecf93085d1e8fc982b21f53ed11" id="r_a07b6aecf93085d1e8fc982b21f53ed11"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a07b6aecf93085d1e8fc982b21f53ed11">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&amp;) noexcept=default</td></tr>
+<tr class="memitem:a07b6aecf93085d1e8fc982b21f53ed11" id="r_a07b6aecf93085d1e8fc982b21f53ed11"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a07b6aecf93085d1e8fc982b21f53ed11">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&amp;) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a>=<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">default</a></td></tr>
 <tr class="separator:a07b6aecf93085d1e8fc982b21f53ed11"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structfs8_1_1consteval__copyable"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structfs8_1_1consteval__copyable')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structfs8_1_1consteval__copyable.html">fs8::consteval_copyable</a></td></tr>
-<tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6 inherit pub_methods_structfs8_1_1consteval__copyable" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
+<tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6 inherit pub_methods_structfs8_1_1consteval__copyable" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:aab9e941457bd45b9d6772f6ff421cec6 inherit pub_methods_structfs8_1_1consteval__copyable"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26 inherit pub_methods_structfs8_1_1consteval__copyable" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;) noexcept</td></tr>
+<tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26 inherit pub_methods_structfs8_1_1consteval__copyable" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a23df80b9a3d5bfbc33501da95d583e26 inherit pub_methods_structfs8_1_1consteval__copyable"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a07b6aecf93085d1e8fc982b21f53ed11 inherit pub_methods_structfs8_1_1consteval__copyable" id="r_a07b6aecf93085d1e8fc982b21f53ed11"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#a07b6aecf93085d1e8fc982b21f53ed11">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&amp;) noexcept=default</td></tr>
+<tr class="memitem:a07b6aecf93085d1e8fc982b21f53ed11 inherit pub_methods_structfs8_1_1consteval__copyable" id="r_a07b6aecf93085d1e8fc982b21f53ed11"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#a07b6aecf93085d1e8fc982b21f53ed11">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&amp;) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a>=<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">default</a></td></tr>
 <tr class="separator:a07b6aecf93085d1e8fc982b21f53ed11 inherit pub_methods_structfs8_1_1consteval__copyable"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c8e1fc506c264a4e8d9bcea90780e99 inherit pub_methods_structfs8_1_1consteval__copyable" id="r_a7c8e1fc506c264a4e8d9bcea90780e99"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#a7c8e1fc506c264a4e8d9bcea90780e99">operator=</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&amp;) noexcept=default</td></tr>
+<tr class="memitem:a7c8e1fc506c264a4e8d9bcea90780e99 inherit pub_methods_structfs8_1_1consteval__copyable" id="r_a7c8e1fc506c264a4e8d9bcea90780e99"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#a7c8e1fc506c264a4e8d9bcea90780e99">operator=</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&amp;) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a>=<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">default</a></td></tr>
 <tr class="separator:a7c8e1fc506c264a4e8d9bcea90780e99 inherit pub_methods_structfs8_1_1consteval__copyable"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac89f87d61a969aa0d0f9e2b0cf5d0f7f inherit pub_methods_structfs8_1_1consteval__copyable" id="r_ac89f87d61a969aa0d0f9e2b0cf5d0f7f"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#ac89f87d61a969aa0d0f9e2b0cf5d0f7f">operator=</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;) noexcept</td></tr>
+<tr class="memitem:ac89f87d61a969aa0d0f9e2b0cf5d0f7f inherit pub_methods_structfs8_1_1consteval__copyable" id="r_ac89f87d61a969aa0d0f9e2b0cf5d0f7f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#ac89f87d61a969aa0d0f9e2b0cf5d0f7f">operator=</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:ac89f87d61a969aa0d0f9e2b0cf5d0f7f inherit pub_methods_structfs8_1_1consteval__copyable"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2386bd2adcb8954302b8616d81d4456f inherit pub_methods_structfs8_1_1consteval__copyable" id="r_a2386bd2adcb8954302b8616d81d4456f"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#a2386bd2adcb8954302b8616d81d4456f">~consteval_copyable</a> () noexcept=default</td></tr>
+<tr class="memitem:a2386bd2adcb8954302b8616d81d4456f inherit pub_methods_structfs8_1_1consteval__copyable" id="r_a2386bd2adcb8954302b8616d81d4456f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#a2386bd2adcb8954302b8616d81d4456f">~consteval_copyable</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a>=<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">default</a></td></tr>
 <tr class="separator:a2386bd2adcb8954302b8616d81d4456f inherit pub_methods_structfs8_1_1consteval__copyable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:a04ebedf1071fae6fd967718e6c3b411a" id="r_a04ebedf1071fae6fd967718e6c3b411a"><td class="memItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a">is_constructible_at_compile_time</a> = constexpr_constructible&lt;T&gt;</td></tr>
+<tr class="memitem:a04ebedf1071fae6fd967718e6c3b411a" id="r_a04ebedf1071fae6fd967718e6c3b411a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">static</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a">is_constructible_at_compile_time</a> = constexpr_constructible&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a>&gt;</td></tr>
 <tr class="separator:a04ebedf1071fae6fd967718e6c3b411a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><div class="compoundTemplParams">template&lt;typename T&gt;<br />
+<div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a>&gt;<br />
 struct fs8::var_type&lt; T &gt;</div><p>Variable support This struct only holds one single variable </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a113ff6bd4e4b3963838880ef01622916" name="a113ff6bd4e4b3963838880ef01622916"></a>
@@ -169,13 +169,13 @@ struct fs8::var_type&lt; T &gt;</div><p>Variable support This struct only holds 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; T &gt;::storage_type =  std::conditional_t&lt;<a class="el" href="structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a">is_constructible_at_compile_time</a>, <a class="el" href="structfs8_1_1var__type.html#a59344f7f25d83f33e2851c6cb963a499">value_type</a>, std::optional&lt;T&gt; &gt;</td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">using</a> <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt;::storage_type =  std::conditional_t&lt;<a class="el" href="structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a">is_constructible_at_compile_time</a>, <a class="el" href="structfs8_1_1var__type.html#a59344f7f25d83f33e2851c6cb963a499">value_type</a>, std::optional&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a>&gt; &gt;</td>
         </tr>
       </table>
   </td>
@@ -193,13 +193,13 @@ template&lt;typename T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; T &gt;::value_type =  T</td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">using</a> <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt;::value_type =  <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a></td>
         </tr>
       </table>
   </td>
@@ -218,24 +218,24 @@ template&lt;typename T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <div class="memtemplate">
-template&lt;typename Arg &gt; <br />
-requires (std::convertible_to&lt;Arg, T&gt;)</div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Arg</a> &gt; <br />
+requires (std::convertible_to&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Arg</a>, <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a>&gt;)</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">consteval <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; T &gt;::var_type </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">consteval</a> <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt;::var_type </td>
           <td>(</td>
-          <td class="paramtype">std::string_view const&#160;</td>
+          <td class="paramtype">std::string_view <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a>&#160;</td>
           <td class="paramname"><em>inp_name</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Arg &amp;&amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Arg</a> &amp;&amp;&#160;</td>
           <td class="paramname"><em>initial_value</em>&#160;</td>
         </tr>
         <tr>
@@ -260,13 +260,13 @@ requires (std::convertible_to&lt;Arg, T&gt;)</div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr fs8::consteval_copyable::consteval_copyable </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> fs8::consteval_copyable::consteval_copyable </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -287,13 +287,13 @@ template&lt;typename T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr fs8::consteval_copyable::consteval_copyable </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> fs8::consteval_copyable::consteval_copyable </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&amp;&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -315,15 +315,15 @@ template&lt;typename T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr fs8::consteval_copyable::consteval_copyable </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> fs8::consteval_copyable::consteval_copyable </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
@@ -343,15 +343,15 @@ template&lt;typename T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; T &gt;::explicit </td>
+          <td class="memname"><a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt;::explicit </td>
           <td>(</td>
-          <td class="paramtype">false&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">false</a>&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
         </tr>
@@ -371,13 +371,13 @@ template&lt;typename T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; T &gt;::operator() </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a> <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">::operator</a>() </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structfs8_1_1start__tag.html">start_tag</a>&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -401,13 +401,13 @@ template&lt;typename T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">consteval std::array&lt; std::string_view, 1 &gt; <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; T &gt;::operator[] </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">consteval</a> std::array&lt; std::string_view, 1 &gt; <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">::operator</a>[] </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structfs8_1_1get__variables__tag.html">get_variables_tag</a>&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -431,13 +431,13 @@ template&lt;typename T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr T const  &amp; <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; T &gt;::value </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a>  &amp; <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt;::value </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -458,13 +458,13 @@ template&lt;typename T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr T &amp; <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; T &gt;::value </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &amp; <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt;::value </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -486,13 +486,13 @@ template&lt;typename T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T &gt; </div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr bool <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; T &gt;::is_constructible_at_compile_time = constexpr_constructible&lt;T&gt;</td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> <a class="el" href="structfs8_1_1var__type.html">fs8::var_type</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> &gt;::is_constructible_at_compile_time = constexpr_constructible&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a>&gt;</td>
         </tr>
       </table>
   </td>

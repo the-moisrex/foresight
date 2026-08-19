@@ -51,6 +51,15 @@ var hierarchy =
       [ "fs8::pimpl_idiom< basic_io_manager >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_io_manager", "structfs8_1_1basic__io__manager.html", null ]
       ] ],
+      [ "fs8::pimpl_idiom< basic_kalman_filter >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_kalman_filter", "structfs8_1_1basic__kalman__filter.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< basic_lerp >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_lerp", "structfs8_1_1basic__lerp.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< basic_low_pass_filter >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_low_pass_filter", "structfs8_1_1basic__low__pass__filter.html", null ]
+      ] ],
       [ "fs8::pimpl_idiom< basic_record >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_record", "structfs8_1_1basic__record.html", null ]
       ] ],
@@ -80,22 +89,20 @@ var hierarchy =
       [ "fs8::basic_ignore_big_jumps", "structfs8_1_1basic__ignore__big__jumps.html", null ],
       [ "fs8::basic_ignore_caps", "structfs8_1_1basic__ignore__caps.html", null ],
       [ "fs8::basic_ignore_device< N >", "structfs8_1_1basic__ignore__device.html", null ],
+      [ "fs8::basic_ignore_fast_double_clicks< N >", "structfs8_1_1basic__ignore__fast__double__clicks.html", null ],
       [ "fs8::basic_ignore_fast_repeats", "structfs8_1_1basic__ignore__fast__repeats.html", null ],
       [ "fs8::basic_ignore_init_moves", "structfs8_1_1basic__ignore__init__moves.html", null ],
       [ "fs8::basic_ignore_keys< N >", "structfs8_1_1basic__ignore__keys.html", null ],
       [ "fs8::basic_ignore_origin< N >", "structfs8_1_1basic__ignore__origin.html", null ],
       [ "fs8::basic_ignore_repeats_of< N >", "structfs8_1_1basic__ignore__repeats__of.html", null ],
       [ "fs8::basic_ignore_start_moves", "structfs8_1_1basic__ignore__start__moves.html", null ],
-      [ "fs8::basic_kalman_filter", "structfs8_1_1basic__kalman__filter.html", null ],
       [ "fs8::basic_keys_status", "structfs8_1_1basic__keys__status.html", null ],
       [ "fs8::basic_led_off", "structfs8_1_1basic__led__off.html", null ],
       [ "fs8::basic_led_on", "structfs8_1_1basic__led__on.html", null ],
       [ "fs8::basic_led_status", "structfs8_1_1basic__led__status.html", null ],
       [ "fs8::basic_led_toggle", "structfs8_1_1basic__led__toggle.html", null ],
-      [ "fs8::basic_lerp", "structfs8_1_1basic__lerp.html", null ],
       [ "fs8::basic_limit_mouse_travel< CondT >", "structfs8_1_1basic__limit__mouse__travel.html", null ],
       [ "fs8::basic_longtime_released< FuncT >", "structfs8_1_1basic__longtime__released.html", null ],
-      [ "fs8::basic_low_pass_filter", "structfs8_1_1basic__low__pass__filter.html", null ],
       [ "fs8::basic_mice_quantifier", "structfs8_1_1basic__mice__quantifier.html", null ],
       [ "fs8::basic_modes< CondT, Mods >", "structfs8_1_1basic__modes.html", null ],
       [ "fs8::basic_mouse_history< N >", "structfs8_1_1basic__mouse__history.html", null ],
@@ -196,6 +203,8 @@ var hierarchy =
     [ "std::runtime_error", null, [
       [ "fs8::xkb::xkb_error", "structfs8_1_1xkb_1_1xkb__error.html", null ]
     ] ],
+    [ "fs8::basic_kalman_filter::smoothed", "structfs8_1_1basic__kalman__filter_1_1smoothed.html", null ],
+    [ "fs8::basic_low_pass_filter::smoothed", "structfs8_1_1basic__low__pass__filter_1_1smoothed.html", null ],
     [ "fs8::start_tag", "structfs8_1_1start__tag.html", null ],
     [ "fs8::template_file", "structfs8_1_1template__file.html", null ],
     [ "fs8::thread_binding< T, ID >", "structfs8_1_1thread__binding.html", null ],

@@ -38,6 +38,7 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "replace.ixx", "replace_8ixx.html", "replace_8ixx" ],
     [ "router.cxx", "router_8cxx.html", "router_8cxx" ],
     [ "router.ixx", "router_8ixx.html", "router_8ixx" ],
+    [ "smooth.cxx", "smooth_8cxx.html", "smooth_8cxx" ],
     [ "smooth.ixx", "smooth_8ixx.html", "smooth_8ixx" ],
     [ "stopper.ixx", "stopper_8ixx.html", "stopper_8ixx" ],
     [ "timed_typed.cxx", "timed__typed_8cxx.html", "timed__typed_8cxx" ],
