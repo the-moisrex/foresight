@@ -95,6 +95,7 @@ target_sources(${LIB_NAME}
         mods/quantifier.cxx
         mods/record.cxx
         mods/replace.cxx
+        mods/smooth.cxx
         mods/router.cxx
         mods/typed.cxx
         mods/timed_typed.cxx

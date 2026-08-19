@@ -30,7 +30,7 @@ mod is for and when you'd reach for it.
 | `abs2rel` | Convert absolute events (drawing tablets) into relative events (mouse). |
 | `pen2mice` | Translate a pen tablet's buttons/tools into mouse clicks. |
 | `add_scroll` | Convert mouse movement into scroll wheel events (conditionally). |
-| `smooth` | Smooth mouse movement / ease the output. |
+| `smooth` | Smooth mouse movement / ease the output: `lerp[max_steps, easing]`, `low_pass_filter[alpha]`, `kalman_filter[q, r]`. Requires `mouse_history` placed before it in the pipeline. |
 | `momentum` | Keep mouse momentum going after you stop moving. |
 | `ignore` | Family of "ignore" filters: big jumps, starting moves, fast repeats, adjacent repeats, fast double clicks, and full event ignoring. |
 | `typed` | Track what the user is typing/editing. |

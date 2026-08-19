@@ -1,76 +1,100 @@
-
 module;
-#include <algorithm> // For std::min
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <linux/input-event-codes.h>
 export module fs8.mods.smooth;
 import fs8.mods.mouse_status;
 import fs8.event;
 import fs8.context;
 import fs8.easings;
-import fs8.log;
-import fs8.traits;
+import fs8.pimpl;
 
 export namespace fs8 {
 
     /**
-     * Linear Interpolation
-     *   lerp(start, end, t) = start × (1 − t) + end × t
+     * Linear Interpolation.
+     *
+     * Breaks a frame's mouse movement `(dx, dy)` into several smaller steps so
+     * the cursor glides instead of jumping in one event. The total emitted
+     * movement equals the input frame exactly (drift-free), and every step
+     * emits `REL_X`, `REL_Y` and `SYN` together.
+     *
+     * The number of steps is derived from the frame's magnitude
+     * (`max(|dx|, |dy|)`) and capped at `max_steps`. The `easing` function
+     * shapes the curve (default `easeOutQuad`).
+     *
+     * @par Example
+     * @code
+     *   ... | mouse_history | lerp | output
+     *   ... | mouse_history | lerp[8] | output
+     *   ... | mouse_history | lerp[8, fs8::easeInOutQuad<float>] | output
+     * @endcode
+     *
+     * Requires `mouse_history` placed before this mod in the pipeline.
      */
-    constexpr struct [[nodiscard]] basic_lerp : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
+    constexpr struct [[nodiscard]] basic_lerp : pimpl_idiom<basic_lerp> {
+        using pimpl_idiom::pimpl_idiom;
 
         using value_type = event_type::value_type;
 
       private:
-        std::array<value_type, 2> cur_vals = {0, 0};
-        bool                      cached   = false;
+        std::size_t max_steps  = 16;
+        float (*easing)(float) = easeOutQuad<float>;
 
-        constexpr value_type next_step(value_type const step, value_type const total_steps, std::size_t const axis = REL_X) const noexcept {
-            static_assert(REL_X == 0x0 && REL_Y == 0x1, "We need REL_X and REL_Y events' values to be 0 and 1.");
-
-            float const t_normalized  = static_cast<float>(step) / (static_cast<float>(total_steps) - 1);
-            float       interpolated  = t_normalized; // easeInQuad(t_normalized);
-            interpolated             *= static_cast<float>(cur_vals[axis]);
-            return static_cast<value_type>(interpolated);
-        }
+        void mark_movement() noexcept;
+        bool take_frame() noexcept;
 
       public:
-        context_action operator()(Context auto& ctx) noexcept {
+        constexpr explicit basic_lerp(std::size_t const inp_max_steps, float (*const inp_easing)(float)) noexcept
+          : max_steps{std::max<std::size_t>(1, inp_max_steps)},
+            easing{inp_easing} {}
+
+        consteval basic_lerp operator[](std::size_t const inp_max_steps) const noexcept {
+            return basic_lerp{inp_max_steps, easeOutQuad<float>};
+        }
+
+        consteval basic_lerp operator[](std::size_t const inp_max_steps, float (*const inp_easing)(float)) const noexcept {
+            return basic_lerp{inp_max_steps, inp_easing};
+        }
+
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx) noexcept {
             using enum context_action;
+            static_assert(has_mod<basic_mouse_history<>, CtxT>, "smooth needs mouse_history in the pipeline, placed before it.");
 
             auto& event = ctx.event();
             if (is_mouse_movement(event)) {
-                cur_vals[event.code()] = event.value();
-                cached                 = true;
+                mark_movement();
                 return ignore_event;
             }
-            if (!is_syn(event) || !cached) {
+            if (!is_syn(event) || !take_frame()) {
                 return next;
             }
-            cached = false;
 
-            auto const total_steps = std::max(std::abs(cur_vals[REL_X]), std::abs(cur_vals[REL_Y]));
-            if (total_steps <= 2) {
+            auto const cur = ctx.mod(mouse_history).cur();
+            auto const mag = std::max(std::abs(cur.x), std::abs(cur.y));
+            if (mag == 0) {
                 return next;
             }
-            value_type all_x = 0;
-            value_type all_y = 0;
-            for (value_type step = 1; step < total_steps; ++step) {
-                auto const cur_x  = next_step(step, total_steps, REL_X);
-                auto const cur_y  = next_step(step, total_steps, REL_Y);
-                auto const rel_x  = cur_x - all_x;
-                auto const rel_y  = cur_y - all_y;
-                all_x            += rel_x;
-                all_y            += rel_y;
-                if (cur_x == 0 && cur_y == 0) {
-                    log("{}/{} {} {} ({}, {})", step, total_steps, cur_x, cur_y, all_x, all_y);
+            std::int32_t const steps = std::min<std::int32_t>(mag, static_cast<std::int32_t>(max_steps));
+
+            value_type prev_x = 0;
+            value_type prev_y = 0;
+            for (std::int32_t step = 1; step <= steps; ++step) {
+                auto const t     = easing(static_cast<float>(step) / static_cast<float>(steps));
+                auto const cur_x = static_cast<value_type>(std::round(t * static_cast<float>(cur.x)));
+                auto const cur_y = static_cast<value_type>(std::round(t * static_cast<float>(cur.y)));
+                auto const rel_x = cur_x - prev_x;
+                auto const rel_y = cur_y - prev_y;
+                prev_x           = cur_x;
+                prev_y           = cur_y;
+                if (rel_x == 0 && rel_y == 0) {
                     continue;
                 }
-                log("{}/{} {} {} ({}, {}) ||||", step, total_steps, cur_x, cur_y, all_x, all_y);
-                std::ignore = ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_X, .value = rel_x});
-                std::ignore = ctx.fork_emit(event | user_event{.type = EV_REL, .code = REL_Y, .value = rel_y});
+                std::ignore = ctx.fork_emit(EV_REL, REL_X, rel_x);
+                std::ignore = ctx.fork_emit(EV_REL, REL_Y, rel_y);
                 std::ignore = ctx.fork_emit(syn());
             }
 
@@ -79,142 +103,150 @@ export namespace fs8 {
     } lerp;
 
     /**
-     * Low-pass filtering is a common technique used to smooth out the variations in sensor data, including
-     * mouse movements. The idea is to allow only low-frequency signals to pass through while attenuating the
-     * high-frequency signals (rapid changes in mouse position).
+     * Low-pass filter for mouse movement.
      *
-     * Notes on the Code:
-     *   1. Smoothing Factor (alpha): You can experiment with different values for alpha. A smaller value will
-     *      result in more smoothing (more storage of past values), whereas a larger value will make the
-     *      output closer to the raw input.
-     *   2. State Management: The variables prev_x and prev_y are used to keep track of the smoothed values
-     *      from the last event. In a real-world implementation, you might want to ensure thread-safety if
-     *      this function is called from multiple threads.
-     *   3. Event Emission: Adjust the event emission as necessary to match the expected event types in your
-     *      OS or input handling code.
+     * Smooths each frame's movement `(dx, dy)` with an exponential moving
+     * average:
      *
-     * You could also look into more advanced filtering algorithms such as Kalman filters.
+     *     smoothed = α × newInput + (1 − α) × previousSmoothed
      *
-     * smoothed = α × newInput + (1 − α) × previousSmoothed
+     * A smaller `α` smooths more (keeps more history), a larger `α` tracks the
+     * raw input closer. `α` is clamped to `(0, 1]`. The first movement frame
+     * passes through at full strength, and frames with no movement emit
+     * nothing (no residual drift).
+     *
+     * @par Example
+     * @code
+     *   ... | mouse_history | low_pass_filter | output
+     *   ... | mouse_history | low_pass_filter[0.4f] | output
+     * @endcode
+     *
+     * Requires `mouse_history` placed before this mod in the pipeline.
      */
-    constexpr struct [[nodiscard]] basic_low_pass_filter : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
+    constexpr struct [[nodiscard]] basic_low_pass_filter : pimpl_idiom<basic_low_pass_filter> {
+        using pimpl_idiom::pimpl_idiom;
 
         using value_type = event_type::value_type;
 
-      private:
-        float prev_x = 0.f;
-        float prev_y = 0.f;
+        struct [[nodiscard]] smoothed {
+            bool       emit = false;
+            value_type x    = 0;
+            value_type y    = 0;
+        };
 
-        float alpha = 0.9f; // Adjust as needed (0 < alpha < 1)
+      private:
+        float alpha = 0.9f;
+
+        void     mark_movement() noexcept;
+        smoothed filter_frame(value_type cur_x, value_type cur_y) noexcept;
 
       public:
-        constexpr explicit basic_low_pass_filter(float const inp_alpha) noexcept : alpha{inp_alpha} {}
+        constexpr explicit basic_low_pass_filter(float const inp_alpha) noexcept : alpha{std::clamp(inp_alpha, 0.f, 1.f)} {}
 
         consteval basic_low_pass_filter operator[](float const inp_alpha) const noexcept {
             return basic_low_pass_filter{inp_alpha};
         }
 
-        context_action operator()(Context auto& ctx) noexcept {
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx) noexcept {
             using enum context_action;
+            static_assert(has_mod<basic_mouse_history<>, CtxT>, "smooth needs mouse_history in the pipeline, placed before it.");
 
-            auto&       event = ctx.event();
-            auto const& mhist = ctx.mod(mouse_history);
-            auto const  cur   = mhist.cur();
-
+            auto& event = ctx.event();
             if (is_mouse_movement(event)) {
+                mark_movement();
                 return ignore_event;
             }
             if (!is_syn(event)) {
                 return next;
             }
 
-            // Apply the low-pass filter
-            float const smoothed_x = (alpha * static_cast<float>(cur.x)) + ((1.f - alpha) * prev_x);
-            float const smoothed_y = (alpha * static_cast<float>(cur.y)) + ((1.f - alpha) * prev_y);
+            auto const cur = ctx.mod(mouse_history).cur();
+            auto const out = filter_frame(cur.x, cur.y);
+            if (!out.emit) {
+                return next;
+            }
 
-            // Update previous values
-            prev_x = smoothed_x;
-            prev_y = smoothed_y;
-
-            // Emit the smoothed values
-            std::ignore = ctx.fork_emit(EV_REL, REL_X, static_cast<value_type>(std::round(smoothed_x)));
-            std::ignore = ctx.fork_emit(EV_REL, REL_Y, static_cast<value_type>(std::round(smoothed_y)));
-
-            // Send Syn
+            std::ignore = ctx.fork_emit(EV_REL, REL_X, out.x);
+            std::ignore = ctx.fork_emit(EV_REL, REL_Y, out.y);
             event.reset_time();
             return next;
         }
     } low_pass_filter;
 
     /**
-     * Kalman Filter
+     * Kalman filter for mouse movement.
+     *
+     * Tracks a smoothed estimate of each frame's movement `(dx, dy)` with a
+     * one-dimensional Kalman filter per axis:
+     *
+     *     Predict: P = P + Q
+     *     Gain:    K = P / (P + R)
+     *     Update:  estimate = estimate + K × (measurement − estimate)
+     *              P = P × (1 − K)
+     *
+     * `Q` is the process noise (how much the movement is expected to change),
+     * `R` is the measurement noise (how noisy the input is). Both are clamped
+     * to be positive. The first movement frame passes through at full strength
+     * and frames with no movement emit nothing (no residual drift).
+     *
+     * @par Example
+     * @code
+     *   ... | mouse_history | kalman_filter | output
+     *   ... | mouse_history | kalman_filter[0.05f, 0.8f] | output
+     * @endcode
+     *
+     * Requires `mouse_history` placed before this mod in the pipeline.
      */
-    constexpr struct [[nodiscard]] basic_kalman_filter : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
+    constexpr struct [[nodiscard]] basic_kalman_filter : pimpl_idiom<basic_kalman_filter> {
+        using pimpl_idiom::pimpl_idiom;
 
         using value_type = event_type::value_type;
 
+        struct [[nodiscard]] smoothed {
+            bool       emit = false;
+            value_type x    = 0;
+            value_type y    = 0;
+        };
+
       private:
-        float prev_x = 0.f;
-        float prev_y = 0.f;
+        float q = 0.1f;
+        float r = 0.5f;
 
-        float q = 0.1f;  // Process noise covariance
-        float r = 0.5f;  // Measurement noise covariance
-
-        float k_x = 0.f; // Kalman gain for x
-        float k_y = 0.f; // Kalman gain for y
+        void     mark_movement() noexcept;
+        smoothed filter_frame(value_type cur_x, value_type cur_y) noexcept;
 
       public:
-        constexpr explicit basic_kalman_filter(float const process_noise, float const measurement_noise = 0.5f) noexcept
-          : q(process_noise),
-            r(measurement_noise) {}
+        constexpr explicit basic_kalman_filter(float const inp_q, float const inp_r = 0.5f) noexcept
+          : q{std::max(inp_q, 1e-6f)},
+            r{std::max(inp_r, 1e-6f)} {}
 
-        consteval basic_kalman_filter operator[](float const process_noise, float const measurement_noise = 0.5f) const noexcept {
-            return basic_kalman_filter{process_noise, measurement_noise};
+        consteval basic_kalman_filter operator[](float const inp_q, float const inp_r = 0.5f) const noexcept {
+            return basic_kalman_filter{inp_q, inp_r};
         }
 
-        context_action operator()(Context auto& ctx) noexcept {
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx) noexcept {
             using enum context_action;
+            static_assert(has_mod<basic_mouse_history<>, CtxT>, "smooth needs mouse_history in the pipeline, placed before it.");
 
-            auto&       event = ctx.event();
-            auto const& mhist = ctx.mod(mouse_history);
-            auto const  cur   = mhist.cur();
-
+            auto& event = ctx.event();
             if (is_mouse_movement(event)) {
+                mark_movement();
                 return ignore_event;
             }
             if (!is_syn(event)) {
                 return next;
             }
 
-            // Predict step
-            float const predicted_x = prev_x; // The predicted position
-            float const predicted_y = prev_y; // The predicted position
+            auto const cur = ctx.mod(mouse_history).cur();
+            auto const out = filter_frame(cur.x, cur.y);
+            if (!out.emit) {
+                return next;
+            }
 
-            // Update uncertainty
-            float const uncertainty_x = k_x + q;
-            float const uncertainty_y = k_y + q;
-
-            // Kalman Gain
-            k_x = uncertainty_x / (uncertainty_x + r);
-            k_y = uncertainty_y / (uncertainty_y + r);
-
-            // Update step with new measurement
-            float const smoothed_x = predicted_x + (k_x * (static_cast<float>(cur.x) - predicted_x));
-            float const smoothed_y = predicted_y + (k_y * (static_cast<float>(cur.y) - predicted_y));
-
-            // Update previous values
-            prev_x = smoothed_x;
-            prev_y = smoothed_y;
-
-            // Emit the smoothed values
-            auto const x_val = static_cast<value_type>(std::round(smoothed_x));
-            auto const y_val = static_cast<value_type>(std::round(smoothed_y));
-            std::ignore      = ctx.fork_emit(EV_REL, REL_X, x_val);
-            std::ignore      = ctx.fork_emit(EV_REL, REL_Y, y_val);
-
-            // Send Syn
+            std::ignore = ctx.fork_emit(EV_REL, REL_X, out.x);
+            std::ignore = ctx.fork_emit(EV_REL, REL_Y, out.y);
             event.reset_time();
             return next;
         }
