@@ -1,6 +1,6 @@
-set(name debounce-mouse-clicks)
+set(name debounce)
 add_executable(${name})
-target_sources(${name} PRIVATE debounce-mouse-clicks.cpp)
+target_sources(${name} PRIVATE debounce.cpp)
 set_target_properties(${name} PROPERTIES OUTPUT_NAME ${name})
 set_target_properties(${name} PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(${name} PROPERTIES COMPILER_LANGUAGE CXX)

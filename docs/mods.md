@@ -32,7 +32,8 @@ mod is for and when you'd reach for it.
 | `add_scroll` | Convert mouse movement into scroll wheel events (conditionally). |
 | `smooth` | Smooth mouse movement / ease the output: `lerp[max_steps, easing]`, `low_pass_filter[alpha]`, `kalman_filter[q, r]`. Requires `mouse_history` placed before it in the pipeline. |
 | `momentum` | Keep mouse momentum going after you stop moving. |
-| `ignore` | Family of "ignore" filters: big jumps, starting moves, fast repeats, adjacent repeats, fast double clicks, and full event ignoring. |
+| `ignore` | Family of "ignore" filters: big jumps, starting moves, fast repeats, adjacent repeats, and full event ignoring. |
+| `debounce` | Drop events that arrive too soon after a previous event of the same code (faulty mouse double-clicks, bouncing keys, noisy axes/scroll). `click` mode (default) swallows a fast second press *and its release*; `event` mode swallows any event within the window. Works on any `event_code`, e.g. `debounce[BTN_LEFT, BTN_RIGHT]`, `debounce[{.type = EV_ABS, .code = ABS_X}].event()`. |
 | `typed` | Track what the user is typing/editing. |
 | `timed_typed` | Like `typed`, but only matches if the pattern is typed within a time window (`timed_typed["test", 2s]`); pauses longer than the window discard the partial match. |
 | `typer` | Type text (how2type) into the current application. |

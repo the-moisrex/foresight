@@ -121,6 +121,7 @@ Tags are constexpr sentinels passed as the last argument:
 | `smooth` (`lerp`, `low_pass_filter`, `kalman_filter`) | Smooth mouse movement. | `mouse_history` |
 | `momentum` | Keep motion going after the input stops (`velocity_tracker`, `momentum_calculator`). | — |
 | `ignore_*` | Filters: `ignore_big_jumps`, `ignore_init_moves`, `ignore_start_moves`, `ignore_mouse_moves`, `ignore_fast_repeats`, `ignore_adjacent_repeats`, `ignore_repeats_of`, `ignore_keys`, `ignore_abs`, `ignore_tablet`, `ignore_caps`, plus `ignore_event` and `exit_pipeline`. | — |
+| `debounce` | Drop events arriving within a window of the same code. `click` mode swallows a fast second press + its release (mouse double-clicks, bouncing keys); `event` mode swallows any repeat. Any `event_code`: `debounce[BTN_LEFT]`, `debounce[{.type = EV_ABS, .code = ABS_X}].event()`. | — |
 | `typed`, `timed_typed` | Match what the user typed (`timed_typed` adds a time window). | `search_engine` |
 | `type_string` (`typer`) | Type text into the app via xkb how2type. | — |
 | `autocomplete` | Watch typed patterns and complete them (`PREFIX<TAG>COMPLETION`). | — |

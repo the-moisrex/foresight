@@ -24,12 +24,15 @@ as a mouse with extended capabilities:
 
 Watches a keyboard for typed patterns and auto-completes them into longer strings.
 
-## debounce-mouse-clicks
+## debounce
 
-Fixes a faulty mouse that occasionally double clicks: a press (and its matching
-release) that lands within the debounce window of the previous press of the same
-button is dropped, while real clicks pass through untouched. The window defaults
-to 30ms and is adjustable via `-t | --time` (e.g. `debounce-mouse-clicks --time 50ms`).
+Debounces events on the general `debounce` mod: events that arrive within the
+debounce window of a previous event of the same code are dropped. By default it
+fixes a faulty mouse that occasionally double clicks (a press and its matching
+release that land within the window are dropped), but `--mode` and `--codes` make
+it debounce any event — bouncing keyboard keys, noisy tablet axes, double-firing
+scroll wheels. The window defaults to 30ms and is adjustable via `-t | --time`
+(e.g. `debounce --time 50ms`).
 
 ## flat-accelerate
 

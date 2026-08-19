@@ -52,10 +52,10 @@ namespace {
     };
 } // namespace
 
-TEST(IgnoreFastDoubleClicksTest, SpuriousDoubleClickIsSquashed) {
+TEST(DebounceTest, SpuriousDoubleClickIsSquashed) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
 
-    auto pipeline = context | timed_sequence{spurious_left_click} | ignore_fast_double_clicks[{.type = EV_KEY, .code = BTN_LEFT}] | record;
+    auto pipeline = context | timed_sequence{spurious_left_click} | debounce[{.type = EV_KEY, .code = BTN_LEFT}] | record;
 
     pipeline();
 
@@ -67,7 +67,7 @@ TEST(IgnoreFastDoubleClicksTest, SpuriousDoubleClickIsSquashed) {
     EXPECT_EQ(col[1].value(), 0);
 }
 
-TEST(IgnoreFastDoubleClicksTest, RealDoubleClickPasses) {
+TEST(DebounceTest, RealDoubleClickPasses) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
 
     auto pipeline =
@@ -91,7 +91,7 @@ TEST(IgnoreFastDoubleClicksTest, RealDoubleClickPasses) {
     EXPECT_EQ(col[3].value(), 0);
 }
 
-TEST(IgnoreFastDoubleClicksTest, UntouchedButtonsPassThrough) {
+TEST(DebounceTest, UntouchedButtonsPassThrough) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
 
     auto pipeline =
@@ -119,7 +119,7 @@ TEST(IgnoreFastDoubleClicksTest, UntouchedButtonsPassThrough) {
     EXPECT_EQ(col[3].value(), 0);
 }
 
-TEST(IgnoreFastDoubleClicksTest, AllThreeButtonsAreDebounced) {
+TEST(DebounceTest, AllThreeButtonsAreDebounced) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
 
     auto pipeline =
@@ -138,7 +138,7 @@ TEST(IgnoreFastDoubleClicksTest, AllThreeButtonsAreDebounced) {
           timed_ev(EV_KEY, BTN_MIDDLE, 1, 29ms),
           timed_ev(EV_KEY, BTN_MIDDLE, 0, 32ms),
         }}
-      | ignore_fast_double_clicks[BTN_LEFT, BTN_RIGHT, BTN_MIDDLE]
+      | debounce[BTN_LEFT, BTN_RIGHT, BTN_MIDDLE]
       | record;
 
     pipeline();
@@ -150,9 +150,9 @@ TEST(IgnoreFastDoubleClicksTest, AllThreeButtonsAreDebounced) {
     }
 }
 
-TEST(IgnoreFastDoubleClicksTest, RuntimeThreshold) {
+TEST(DebounceTest, RuntimeThreshold) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
-    using msec_type = basic_ignore_fast_double_clicks<3>::msec_type;
+    using msec_type = basic_debounce<1>::msec_type;
 
     // A 10ms window squashes a click whose presses are 5ms apart...
     auto pipeline =
@@ -163,10 +163,10 @@ TEST(IgnoreFastDoubleClicksTest, RuntimeThreshold) {
           timed_ev(EV_KEY, BTN_LEFT, 1, 5ms),
           timed_ev(EV_KEY, BTN_LEFT, 0, 8ms),
         }}
-      | ignore_fast_double_clicks[BTN_LEFT]
+      | debounce[BTN_LEFT]
       | record;
 
-    pipeline.mod(ignore_fast_double_clicks[BTN_LEFT]).set_time_threshold(msec_type{10ms});
+    pipeline.mod(debounce[BTN_LEFT]).set_time_threshold(msec_type{10ms});
     pipeline();
 
     EXPECT_EQ(pipeline.mod<basic_record>().size(), 2U);
@@ -180,11 +180,155 @@ TEST(IgnoreFastDoubleClicksTest, RuntimeThreshold) {
           timed_ev(EV_KEY, BTN_LEFT, 1, 5ms),
           timed_ev(EV_KEY, BTN_LEFT, 0, 8ms),
         }}
-      | ignore_fast_double_clicks[BTN_LEFT]
+      | debounce[BTN_LEFT]
       | record;
 
-    pipeline2.mod(ignore_fast_double_clicks[BTN_LEFT]).set_time_threshold(msec_type{1ms});
+    pipeline2.mod(debounce[BTN_LEFT]).set_time_threshold(msec_type{1ms});
     pipeline2();
 
     EXPECT_EQ(pipeline2.mod<basic_record>().size(), 4U);
+}
+
+TEST(DebounceTest, EventModeDropsFastRepeats) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    // In `event` mode any event of the code landing within the window is dropped;
+    // only changes that settle for longer than the window pass through.
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+          timed_ev(EV_ABS, ABS_X, 50, 0us),
+          timed_ev(EV_ABS, ABS_X, 55, 2ms),
+          timed_ev(EV_ABS, ABS_X, 60, 5ms),
+          timed_ev(EV_ABS, ABS_X, 70, 35ms),
+          timed_ev(EV_ABS, ABS_X, 80, 37ms),
+        }}
+      | debounce[{.type = EV_ABS, .code = ABS_X}].event()
+      | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 2U);
+    EXPECT_EQ(col[0].value(), 50);
+    EXPECT_EQ(col[1].value(), 70);
+}
+
+TEST(DebounceTest, ClickModeDegradesForNonKeyCodes) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    // A scroll wheel that double-fires: `click` mode has no press/release pair for
+    // a non-key code, so it behaves like `event` mode and swallows the repeats.
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+          timed_ev(EV_REL, REL_WHEEL, 1, 0us),
+          timed_ev(EV_REL, REL_WHEEL, 1, 2ms),
+          timed_ev(EV_REL, REL_WHEEL, 1, 5ms),
+          timed_ev(EV_REL, REL_WHEEL, 1, 40ms),
+        }}
+      | debounce[{.type = EV_REL, .code = REL_WHEEL}]
+      | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 2U);
+    EXPECT_EQ(col[0].value(), 1);
+    EXPECT_EQ(col[1].value(), 1);
+}
+
+TEST(DebounceTest, MixedCodesVariadic) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    // A key code (inferred EV_KEY) and an ABS code can be mixed in one debounce;
+    // each code keeps its own window state.
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+          timed_ev(EV_KEY, BTN_LEFT, 1, 0us),
+          timed_ev(EV_KEY, BTN_LEFT, 0, 2ms),
+          timed_ev(EV_KEY, BTN_LEFT, 1, 5ms),
+          timed_ev(EV_KEY, BTN_LEFT, 0, 8ms),
+          timed_ev(EV_ABS, ABS_X, 50, 12ms),
+          timed_ev(EV_ABS, ABS_X, 55, 14ms),
+          timed_ev(EV_ABS, ABS_X, 70, 50ms),
+        }}
+      | debounce[BTN_LEFT, event_code{.type = EV_ABS, .code = ABS_X}]
+      | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 4U);
+    EXPECT_EQ(col[0].code(), BTN_LEFT);
+    EXPECT_EQ(col[0].value(), 1);
+    EXPECT_EQ(col[1].code(), BTN_LEFT);
+    EXPECT_EQ(col[1].value(), 0);
+    EXPECT_EQ(col[2].code(), ABS_X);
+    EXPECT_EQ(col[2].value(), 50);
+    EXPECT_EQ(col[3].code(), ABS_X);
+    EXPECT_EQ(col[3].value(), 70);
+}
+
+TEST(DebounceTest, RuntimeCodesAndMode) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+    using debounce_t = basic_debounce<4>;
+
+    // A default-constructed debounce can be pointed at codes and a mode at runtime.
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+          timed_ev(EV_KEY, BTN_LEFT, 1, 0us),
+          timed_ev(EV_KEY, BTN_LEFT, 0, 2ms),
+          timed_ev(EV_KEY, BTN_LEFT, 1, 5ms),
+          timed_ev(EV_KEY, BTN_LEFT, 0, 8ms),
+        }}
+      | debounce_t{}
+      | record;
+
+    std::array const codes{
+      event_code{.type = EV_KEY, .code = BTN_LEFT}
+    };
+    pipeline.mod(debounce_t{}).set_codes(codes);
+    pipeline.mod(debounce_t{}).set_mode(debounce_mode::click);
+    pipeline();
+
+    // click mode: the spurious press and its release are swallowed.
+    EXPECT_EQ(pipeline.mod<basic_record>().size(), 2U);
+
+    // ...while `event` mode swallows everything after the first event.
+    auto pipeline2 =
+      context
+      | timed_sequence{std::array{
+          timed_ev(EV_KEY, BTN_LEFT, 1, 0us),
+          timed_ev(EV_KEY, BTN_LEFT, 0, 2ms),
+          timed_ev(EV_KEY, BTN_LEFT, 1, 5ms),
+          timed_ev(EV_KEY, BTN_LEFT, 0, 8ms),
+        }}
+      | debounce_t{}
+      | record;
+
+    pipeline2.mod(debounce_t{}).set_codes(codes);
+    pipeline2.mod(debounce_t{}).set_mode(debounce_mode::event);
+    pipeline2();
+
+    EXPECT_EQ(pipeline2.mod<basic_record>().size(), 1U);
+}
+
+TEST(DebounceTest, LegacyAliasStillDebounces) {
+    using namespace fs8; // NOLINT(*-build-using-namespace}
+
+    static_assert(basic_ignore_fast_double_clicks<1>::default_time_threshold == basic_debounce<1>::default_time_threshold);
+
+    auto pipeline = context | timed_sequence{spurious_left_click} | ignore_fast_double_clicks[BTN_LEFT] | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 2U);
+    EXPECT_EQ(col[0].code(), BTN_LEFT);
+    EXPECT_EQ(col[0].value(), 1);
+    EXPECT_EQ(col[1].code(), BTN_LEFT);
+    EXPECT_EQ(col[1].value(), 0);
 }

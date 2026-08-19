@@ -23,6 +23,7 @@ export import fs8.mods.smooth;
 export import fs8.mods.on;
 export import fs8.mods.emitter;
 export import fs8.mods.abs2rel;
+export import fs8.mods.debounce;
 export import fs8.mods.ignore;
 export import fs8.mods.replace;
 export import fs8.mods.momentum;

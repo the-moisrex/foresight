@@ -129,6 +129,7 @@ target_sources(${LIB_NAME}
         mods/add_scroll.ixx
         mods/autocomplete.ixx
         mods/context_vars.ixx
+        mods/debounce.ixx
         mods/emitter.ixx
         mods/ignore.ixx
         mods/inout.ixx
