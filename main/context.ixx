@@ -152,34 +152,47 @@ export namespace fs8 {
         return is_exiting(action);
     }
 
+    /// Runtime tag identifiers for dispatching tags through the type-erased interface.
+    enum struct [[nodiscard]] dynamic_tag : std::uint8_t {
+        none,
+        start,
+        no_init,
+        load_event,
+        next_event,
+        toggle_on,
+        toggle_off,
+    };
+
+    /// A tag; carries its runtime `dynamic_tag` id so type-erased contexts can dispatch on it.
+    template <dynamic_tag ID>
+    struct [[nodiscard]] basic_tag {
+        static constexpr bool        is_tag = true;
+        static constexpr dynamic_tag id     = ID;
+    };
+
+    using no_init_tag    = basic_tag<dynamic_tag::no_init>;
+    using start_tag      = basic_tag<dynamic_tag::start>;
+    using toggle_on_tag  = basic_tag<dynamic_tag::toggle_on>;
+    using toggle_off_tag = basic_tag<dynamic_tag::toggle_off>;
+    using next_event_tag = basic_tag<dynamic_tag::next_event>;
+    using load_event_tag = basic_tag<dynamic_tag::load_event>;
+
     /// Run the context mods, don't run the initialization and other setup actions of the mods.
-    constexpr struct [[nodiscard]] no_init_tag {
-        static constexpr bool is_tag = true;
-    } no_init;
+    constexpr no_init_tag no_init{};
 
     /// Initialization and the setup parts of the mods will happen in actions using this tag.
-    constexpr struct [[nodiscard]] start_tag {
-        static constexpr bool is_tag = true;
-    } start;
+    constexpr start_tag start{};
 
-    constexpr struct [[nodiscard]] toggle_on_tag {
-        static constexpr bool is_tag = true;
-    } toggle_on;
+    constexpr toggle_on_tag toggle_on{};
 
-    constexpr struct [[nodiscard]] toggle_off_tag {
-        static constexpr bool is_tag = true;
-    } toggle_off;
+    constexpr toggle_off_tag toggle_off{};
 
     /// This will let the mods set an event to the context, and send them through the whole pipeline.
-    constexpr struct [[nodiscard]] next_event_tag {
-        static constexpr bool is_tag = true;
-    } next_event;
+    constexpr next_event_tag next_event{};
 
     /// This will wait for an event to be loaded, so this is blocking, and shall be called after the
     /// set_events are done.
-    constexpr struct [[nodiscard]] load_event_tag {
-        static constexpr bool is_tag = true;
-    } load_event;
+    constexpr load_event_tag load_event{};
 
     template <typename ModT, typename CtxT, typename... Args>
     concept invokable_mod =
@@ -735,36 +748,11 @@ export namespace fs8 {
         return ctx.event().value();
     }
 
-    /// Runtime tag identifiers for dispatching tags through the type-erased interface.
-    enum struct [[nodiscard]] dynamic_tag : std::uint8_t {
-        none,
-        start,
-        no_init,
-        load_event,
-        next_event,
-        toggle_on,
-        toggle_off,
-    };
-
+    /// Translate a compile-time tag into its runtime `dynamic_tag` id.
     template <typename TagT>
         requires Tag<TagT>
     [[nodiscard]] constexpr dynamic_tag to_dynamic_tag(TagT) noexcept {
-        if constexpr (std::same_as<std::remove_cvref_t<TagT>, start_tag>) {
-            return dynamic_tag::start;
-        } else if constexpr (std::same_as<std::remove_cvref_t<TagT>, no_init_tag>) {
-            return dynamic_tag::no_init;
-        } else if constexpr (std::same_as<std::remove_cvref_t<TagT>, load_event_tag>) {
-            return dynamic_tag::load_event;
-        } else if constexpr (std::same_as<std::remove_cvref_t<TagT>, next_event_tag>) {
-            return dynamic_tag::next_event;
-        } else if constexpr (std::same_as<std::remove_cvref_t<TagT>, toggle_on_tag>) {
-            return dynamic_tag::toggle_on;
-        } else if constexpr (std::same_as<std::remove_cvref_t<TagT>, toggle_off_tag>) {
-            return dynamic_tag::toggle_off;
-        } else {
-            static_assert(std::same_as<std::remove_cvref_t<TagT>, start_tag>, "Unsupported tag for the dynamic context.");
-            return dynamic_tag::none;
-        }
+        return std::remove_cvref_t<TagT>::id;
     }
 
     /// Run the mod at a runtime `Index` (compile-time dispatch) with the given tag.
