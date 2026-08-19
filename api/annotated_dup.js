@@ -109,6 +109,7 @@ var annotated_dup =
       [ "basic_swipe", "structfs8_1_1basic__swipe.html", "structfs8_1_1basic__swipe" ],
       [ "basic_swipe_detector", "structfs8_1_1basic__swipe__detector.html", "structfs8_1_1basic__swipe__detector" ],
       [ "basic_switch_mode", "structfs8_1_1basic__switch__mode.html", "structfs8_1_1basic__switch__mode" ],
+      [ "basic_timed_typed", "structfs8_1_1basic__timed__typed.html", "structfs8_1_1basic__timed__typed" ],
       [ "basic_to_evdev", "structfs8_1_1basic__to__evdev.html", "structfs8_1_1basic__to__evdev" ],
       [ "basic_to_queries", "structfs8_1_1basic__to__queries.html", "structfs8_1_1basic__to__queries" ],
       [ "basic_type_string", "structfs8_1_1basic__type__string.html", "structfs8_1_1basic__type__string" ],

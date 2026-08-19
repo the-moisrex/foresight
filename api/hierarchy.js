@@ -57,6 +57,9 @@ var hierarchy =
       [ "fs8::pimpl_idiom< basic_search_engine >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_search_engine", "structfs8_1_1basic__search__engine.html", null ]
       ] ],
+      [ "fs8::pimpl_idiom< basic_timed_typed >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_timed_typed", "structfs8_1_1basic__timed__typed.html", null ]
+      ] ],
       [ "fs8::pimpl_idiom< basic_typed >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_typed", "structfs8_1_1basic__typed.html", null ]
       ] ],

@@ -9,5 +9,6 @@ var structfs8_1_1basic__search__engine =
     [ "operator()", "structfs8_1_1basic__search__engine.html#a12d7f47d0c84baf663bb16961d2bee78", null ],
     [ "process", "structfs8_1_1basic__search__engine.html#a8e13c9ce1b00fbce951324ba29af9b04", null ],
     [ "search", "structfs8_1_1basic__search__engine.html#a137631b8180cdf47c1a4f1b623e0037b", null ],
+    [ "timed_search", "structfs8_1_1basic__search__engine.html#a4b35452b8b14ba0299efbcfb59eb50bf", null ],
     [ "MAX_PATTERNS", "structfs8_1_1basic__search__engine.html#a4d64585b3c8dc9796fecb7f808657484", null ]
 ];

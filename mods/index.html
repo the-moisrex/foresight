@@ -1017,6 +1017,10 @@ mod is for and when you'd reach for it.</p>
 <td>Track what the user is typing/editing.</td>
 </tr>
 <tr>
+<td><code>timed_typed</code></td>
+<td>Like <code>typed</code>, but only matches if the pattern is typed within a time window (<code>timed_typed["test", 2s]</code>); pauses longer than the window discard the partial match.</td>
+</tr>
+<tr>
 <td><code>typer</code></td>
 <td>Type text (how2type) into the current application.</td>
 </tr>

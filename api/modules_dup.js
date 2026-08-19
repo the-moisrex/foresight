@@ -46,6 +46,7 @@ var modules_dup =
     [ "fs8.mods.router", "module_fs8_8mods_8router.html", "module_fs8_8mods_8router" ],
     [ "fs8.mods.smooth", "module_fs8_8mods_8smooth.html", "module_fs8_8mods_8smooth" ],
     [ "fs8.mods.stopper", "module_fs8_8mods_8stopper.html", "module_fs8_8mods_8stopper" ],
+    [ "fs8.mods.timed_typed", "module_fs8_8mods_8timed__typed.html", "module_fs8_8mods_8timed__typed" ],
     [ "fs8.mods.typed", "module_fs8_8mods_8typed.html", "module_fs8_8mods_8typed" ],
     [ "fs8.mods.typer", "module_fs8_8mods_8typer.html", "module_fs8_8mods_8typer" ],
     [ "fs8.mods.vars", "module_fs8_8mods_8vars.html", "module_fs8_8mods_8vars" ],

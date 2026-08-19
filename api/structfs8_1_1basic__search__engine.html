@@ -135,6 +135,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a137631b8180cdf47c1a4f1b623e0037b" id="r_a137631b8180cdf47c1a4f1b623e0037b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__search__engine.html#a137631b8180cdf47c1a4f1b623e0037b">search</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;event, std::uint16_t trigger_id, <a class="el" href="structfs8_1_1xkb_1_1basic__state.html">xkb::basic_state</a> const &amp;keyboard_state, <a class="el" href="structfs8_1_1aho__state.html">aho_state</a> &amp;state) const noexcept</td></tr>
 <tr class="memdesc:a137631b8180cdf47c1a4f1b623e0037b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process and match.  <br /></td></tr>
 <tr class="separator:a137631b8180cdf47c1a4f1b623e0037b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b35452b8b14ba0299efbcfb59eb50bf" id="r_a4b35452b8b14ba0299efbcfb59eb50bf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__search__engine.html#a4b35452b8b14ba0299efbcfb59eb50bf">timed_search</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;event, std::uint16_t trigger_id, <a class="el" href="structfs8_1_1xkb_1_1basic__state.html">xkb::basic_state</a> const &amp;keyboard_state, <a class="el" href="structfs8_1_1aho__state.html">aho_state</a> &amp;state, std::chrono::microseconds max_gap, std::chrono::microseconds &amp;last_time) const noexcept</td></tr>
+<tr class="separator:a4b35452b8b14ba0299efbcfb59eb50bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structfs8_1_1pimpl__idiom"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structfs8_1_1pimpl__idiom')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom&lt; basic_search_engine &gt;</a></td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6 inherit pub_methods_structfs8_1_1pimpl__idiom" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
 <tr class="separator:aab9e941457bd45b9d6772f6ff421cec6 inherit pub_methods_structfs8_1_1pimpl__idiom"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -429,6 +431,67 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Process and match. </p>
+
+</div>
+</div>
+<a id="a4b35452b8b14ba0299efbcfb59eb50bf" name="a4b35452b8b14ba0299efbcfb59eb50bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b35452b8b14ba0299efbcfb59eb50bf">&#9670;&#160;</a></span>timed_search()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool basic_search_engine::timed_search </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;&#160;</td>
+          <td class="paramname"><em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::uint16_t&#160;</td>
+          <td class="paramname"><em>trigger_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1xkb_1_1basic__state.html">xkb::basic_state</a> const &amp;&#160;</td>
+          <td class="paramname"><em>keyboard_state</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1aho__state.html">aho_state</a> &amp;&#160;</td>
+          <td class="paramname"><em>state</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::chrono::microseconds&#160;</td>
+          <td class="paramname"><em>max_gap</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::chrono::microseconds &amp;&#160;</td>
+          <td class="paramname"><em>last_time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Process and match, but only within a time window. If more than <code>max_gap</code> passes between two relevant key events, the in-progress partial match is dropped (so a pattern whose characters are typed too slowly will never match). <code>last_time</code> holds the time of the last relevant key event; pass the same variable across calls and keep it zero-initialized initially. </p>
 
 </div>
 </div>

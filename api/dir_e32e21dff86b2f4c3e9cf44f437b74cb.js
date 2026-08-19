@@ -40,6 +40,8 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "router.ixx", "router_8ixx.html", "router_8ixx" ],
     [ "smooth.ixx", "smooth_8ixx.html", "smooth_8ixx" ],
     [ "stopper.ixx", "stopper_8ixx.html", "stopper_8ixx" ],
+    [ "timed_typed.cxx", "timed__typed_8cxx.html", "timed__typed_8cxx" ],
+    [ "timed_typed.ixx", "timed__typed_8ixx.html", "timed__typed_8ixx" ],
     [ "typed.cxx", "typed_8cxx.html", "typed_8cxx" ],
     [ "typed.ixx", "typed_8ixx.html", "typed_8ixx" ],
     [ "typer.cxx", "typer_8cxx.html", null ],

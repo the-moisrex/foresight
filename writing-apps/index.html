@@ -1065,8 +1065,8 @@ actions whenever the condition is true (and toggles on/off when it switches):</p
 <ul>
 <li><strong>Conditions</strong> are callables returning <code>bool</code>. Built-ins include <code>pressed</code>,
   <code>pressed_any</code>, <code>keydown</code>, <code>keyup</code>, <code>held</code>, <code>led_on</code>, <code>led_off</code>, <code>multi_click</code>,
-  <code>swipe_left/right/up/down</code>, <code>longtime_released</code>, <code>limit_mouse_travel</code>, and the
-  combinators <code>op</code> (<code>and</code>/<code>or</code> via <code>&amp;</code>/<code>|</code>).</li>
+  <code>swipe_left/right/up/down</code>, <code>longtime_released</code>, <code>limit_mouse_travel</code>,
+  <code>timed_typed</code>, and the combinators <code>op</code> (<code>and</code>/<code>or</code> via <code>&amp;</code>/<code>|</code>).</li>
 <li><strong>Actions</strong> are callables too — mods, emitters, or lambdas. <code>on</code> composes with
   <code>operator|</code> and <code>[]</code>, e.g. <code>on[cond, context | mod_a | mod_b]</code>.</li>
 <li><code>once[...]</code> is like <code>on</code> but only fires when the condition <em>switches on</em>.</li>
