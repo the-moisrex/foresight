@@ -7,6 +7,9 @@ var structfs8_1_1any__dynamic__context =
     [ "event", "structfs8_1_1any__dynamic__context.html#a70b9e6736df42a38d95ca253ff7d7752", null ],
     [ "event", "structfs8_1_1any__dynamic__context.html#ab26129e39593fdf26ff78e4ffe7c1779", null ],
     [ "event", "structfs8_1_1any__dynamic__context.html#a287f0cae040cc099f23ed96a6260b3f2", null ],
+    [ "invoke_mod", "structfs8_1_1any__dynamic__context.html#af015887c397cf605cf1f2ec97a0d7ed9", null ],
     [ "operator=", "structfs8_1_1any__dynamic__context.html#a93a5017b9b42ad39a1e4830c061eda68", null ],
-    [ "operator=", "structfs8_1_1any__dynamic__context.html#a347774731e936a67b36582ddce2fda9a", null ]
+    [ "operator=", "structfs8_1_1any__dynamic__context.html#a347774731e936a67b36582ddce2fda9a", null ],
+    [ "reemit", "structfs8_1_1any__dynamic__context.html#a69932ede74588aeb1b36ce439e764648", null ],
+    [ "reemit", "structfs8_1_1any__dynamic__context.html#a94727aad4a4c8b764c9ade1c3974b094", null ]
 ];

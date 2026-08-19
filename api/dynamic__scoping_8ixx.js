@@ -8,5 +8,7 @@ var dynamic__scoping_8ixx =
     [ "fs8::dynamically_scoped", "conceptfs8_1_1dynamically__scoped.html", null ],
     [ "fs8::polymorphic_scoped", "conceptfs8_1_1polymorphic__scoped.html", null ],
     [ "dynamic_scope", "dynamic__scoping_8ixx.html#a9ae47fc5134c8d9ac88d56d536003128", null ],
-    [ "dynamic_scope", "dynamic__scoping_8ixx.html#adc07eb43b311d60f4a592e442d97381f", null ]
+    [ "dynamic_scope", "dynamic__scoping_8ixx.html#adc07eb43b311d60f4a592e442d97381f", null ],
+    [ "dynamic_scope", "dynamic__scoping_8ixx.html#a28531e9ad59a44f8ab92f27a6fd3f91b", null ],
+    [ "dynamic_scope", "dynamic__scoping_8ixx.html#a70675417e5319e16008c0ec49b1307e9", null ]
 ];

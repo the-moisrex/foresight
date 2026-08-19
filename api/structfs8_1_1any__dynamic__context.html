@@ -125,6 +125,15 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ab26129e39593fdf26ff78e4ffe7c1779"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a287f0cae040cc099f23ed96a6260b3f2" id="r_a287f0cae040cc099f23ed96a6260b3f2"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context.html#a287f0cae040cc099f23ed96a6260b3f2">event</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;) noexcept=0</td></tr>
 <tr class="separator:a287f0cae040cc099f23ed96a6260b3f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af015887c397cf605cf1f2ec97a0d7ed9" id="r_af015887c397cf605cf1f2ec97a0d7ed9"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context.html#af015887c397cf605cf1f2ec97a0d7ed9">invoke_mod</a> (std::size_t index, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> default_action, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept=0</td></tr>
+<tr class="memdesc:af015887c397cf605cf1f2ec97a0d7ed9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invoke the mod at <code>index</code> with the given default action and optional tag.  <br /></td></tr>
+<tr class="separator:af015887c397cf605cf1f2ec97a0d7ed9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69932ede74588aeb1b36ce439e764648" id="r_a69932ede74588aeb1b36ce439e764648"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context.html#a69932ede74588aeb1b36ce439e764648">reemit</a> (std::size_t from_index) noexcept=0</td></tr>
+<tr class="memdesc:a69932ede74588aeb1b36ce439e764648"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-emit the current event through the mods starting at <code>from_index</code>.  <br /></td></tr>
+<tr class="separator:a69932ede74588aeb1b36ce439e764648"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94727aad4a4c8b764c9ade1c3974b094" id="r_a94727aad4a4c8b764c9ade1c3974b094"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context.html#a94727aad4a4c8b764c9ade1c3974b094">reemit</a> (std::size_t from_index, <a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;inp_event) noexcept=0</td></tr>
+<tr class="memdesc:a94727aad4a4c8b764c9ade1c3974b094"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-emit <code>inp_event</code> through the mods starting at <code>from_index</code>.  <br /></td></tr>
+<tr class="separator:a94727aad4a4c8b764c9ade1c3974b094"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Dynamic Context Interface. </p>
@@ -314,6 +323,52 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="af015887c397cf605cf1f2ec97a0d7ed9" name="af015887c397cf605cf1f2ec97a0d7ed9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af015887c397cf605cf1f2ec97a0d7ed9">&#9670;&#160;</a></span>invoke_mod()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::any_dynamic_context::invoke_mod </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td>
+          <td class="paramname"><em>default_action</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a>&#160;</td>
+          <td class="paramname"><em>tag</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">pure virtual</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Invoke the mod at <code>index</code> with the given default action and optional tag. </p>
+
+<p>Implemented in <a class="el" href="structfs8_1_1any__dynamic__context__model.html#a1c0f118e38f0b16d746b7f5fe04f50f4">fs8::any_dynamic_context_model&lt; CtxT &gt;</a>.</p>
+
+</div>
+</div>
 <a id="a93a5017b9b42ad39a1e4830c061eda68" name="a93a5017b9b42ad39a1e4830c061eda68"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a93a5017b9b42ad39a1e4830c061eda68">&#9670;&#160;</a></span>operator=() <span class="overload">[1/2]</span></h2>
 
@@ -363,6 +418,76 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a69932ede74588aeb1b36ce439e764648" name="a69932ede74588aeb1b36ce439e764648"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69932ede74588aeb1b36ce439e764648">&#9670;&#160;</a></span>reemit() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::any_dynamic_context::reemit </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>from_index</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">pure virtual</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Re-emit the current event through the mods starting at <code>from_index</code>. </p>
+
+<p>Implemented in <a class="el" href="structfs8_1_1any__dynamic__context__model.html#a187f18325de31f348a0b121820bf2ff0">fs8::any_dynamic_context_model&lt; CtxT &gt;</a>.</p>
+
+</div>
+</div>
+<a id="a94727aad4a4c8b764c9ade1c3974b094" name="a94727aad4a4c8b764c9ade1c3974b094"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94727aad4a4c8b764c9ade1c3974b094">&#9670;&#160;</a></span>reemit() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::any_dynamic_context::reemit </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>from_index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;&#160;</td>
+          <td class="paramname"><em>inp_event</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">pure virtual</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Re-emit <code>inp_event</code> through the mods starting at <code>from_index</code>. </p>
+
+<p>Implemented in <a class="el" href="structfs8_1_1any__dynamic__context__model.html#aa7fbe12b5f3482483db3cc32f18dee43">fs8::any_dynamic_context_model&lt; CtxT &gt;</a>.</p>
 
 </div>
 </div>

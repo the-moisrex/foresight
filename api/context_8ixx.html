@@ -165,6 +165,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context__model.html">fs8::any_dynamic_context_model&lt; CtxT &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implementation of the a dynamic context.  <a href="structfs8_1_1any__dynamic__context__model.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__dynamic__context__view.html">fs8::basic_dynamic_context_view&lt; NIndex &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__dynamic__context.html">fs8::basic_dynamic_context</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -207,6 +209,19 @@ Enumerations</h2></td></tr>
 , <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b">fs8::exit</a>
  }</td></tr>
 <tr class="separator:ac5160ee6707deaad4917cbf8bd1e99bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac98cdd53c93b8f950475ef4a02b87135" id="r_ac98cdd53c93b8f950475ef4a02b87135"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">fs8::dynamic_tag</a> : std::uint8_t { <br />
+&#160;&#160;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a334c4a4c42fdb79d7ebc3e73b517e6f8">fs8::none</a>
+, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135aea2b2676c28c0db26d39331a336c6b92">fs8::start</a>
+, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a912d24f9f704f948ac27ede3dd271fbe">fs8::no_init</a>
+, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a56e0519d8a4c2a7dc40744400f7d85cb">fs8::load_event</a>
+, <br />
+&#160;&#160;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a0e86c3193b7f4403f122471fe17674d8">fs8::next_event</a>
+, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a217d9a463e8371e8542d2bf45502d087">fs8::toggle_on</a>
+, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a07c3d5edb39467335c7e5ac5e3f68c69">fs8::toggle_off</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:ac98cdd53c93b8f950475ef4a02b87135"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runtime tag identifiers for dispatching tags through the type-erased interface.  <a href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">More...</a><br /></td></tr>
+<tr class="separator:ac98cdd53c93b8f950475ef4a02b87135"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -270,6 +285,18 @@ Functions</h2></td></tr>
 <tr class="separator:a77f733d4cfe0e6560ac2768e838fc6ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a174bdbde5061f4bbd7985525c50e7748" id="r_a174bdbde5061f4bbd7985525c50e7748"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1event__type.html#a2e849054fba3388fcde2f566a6bcbdb9">event_type::value_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">fs8::value</a> (Context auto const &amp;ctx) noexcept</td></tr>
 <tr class="separator:a174bdbde5061f4bbd7985525c50e7748"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a239922b66df2aa4bc0c3d5f1833fc21f" id="r_a239922b66df2aa4bc0c3d5f1833fc21f"><td class="memTemplParams" colspan="2">template&lt;typename TagT &gt; <br />
+requires Tag&lt;TagT&gt;</td></tr>
+<tr class="memitem:a239922b66df2aa4bc0c3d5f1833fc21f"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a239922b66df2aa4bc0c3d5f1833fc21f">fs8::to_dynamic_tag</a> (TagT) noexcept</td></tr>
+<tr class="separator:a239922b66df2aa4bc0c3d5f1833fc21f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a126ca1fc3cdcbfd969089d3f621d595f" id="r_a126ca1fc3cdcbfd969089d3f621d595f"><td class="memTemplParams" colspan="2">template&lt;std::size_t Index, Context CtxT&gt; </td></tr>
+<tr class="memitem:a126ca1fc3cdcbfd969089d3f621d595f"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a126ca1fc3cdcbfd969089d3f621d595f">fs8::invoke_dynamic_tagged_mod</a> (CtxT &amp;ctx, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> const <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action) noexcept</td></tr>
+<tr class="memdesc:a126ca1fc3cdcbfd969089d3f621d595f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the mod at a runtime <code>Index</code> (compile-time dispatch) with the given tag.  <br /></td></tr>
+<tr class="separator:a126ca1fc3cdcbfd969089d3f621d595f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b3a9f78b559eec75776da3367ff62a5" id="r_a5b3a9f78b559eec75776da3367ff62a5"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Funcs&gt; </td></tr>
+<tr class="memitem:a5b3a9f78b559eec75776da3367ff62a5"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5b3a9f78b559eec75776da3367ff62a5">fs8::invoke_mods_from</a> (CtxT &amp;ctx, std::tuple&lt; Funcs... &gt; &amp;funcs, std::size_t const start_index, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action=<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdad0cab90d8d20d57e2f2b9be52f7dd25d">context_action::next</a>) noexcept</td></tr>
+<tr class="memdesc:a5b3a9f78b559eec75776da3367ff62a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the mods starting at a runtime <code>start_index</code>, stopping early on a non-<code>next</code> action.  <br /></td></tr>
+<tr class="separator:a5b3a9f78b559eec75776da3367ff62a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>

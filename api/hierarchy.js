@@ -17,6 +17,7 @@ var hierarchy =
     [ "fs8::basic_device_id_of", "structfs8_1_1basic__device__id__of.html", null ],
     [ "fs8::basic_device_is", "structfs8_1_1basic__device__is.html", null ],
     [ "fs8::basic_device_query< N >", "structfs8_1_1basic__device__query.html", null ],
+    [ "fs8::basic_dynamic_context_view< NIndex >", "structfs8_1_1basic__dynamic__context__view.html", null ],
     [ "fs8::basic_exit_pipeline", "structfs8_1_1basic__exit__pipeline.html", null ],
     [ "fs8::basic_flag", "structfs8_1_1basic__flag.html", null ],
     [ "fs8::basic_from_chained", "structfs8_1_1basic__from__chained.html", null ],

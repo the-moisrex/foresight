@@ -164,6 +164,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__dynamic__context.html">basic_dynamic_context</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__dynamic__context__view.html">basic_dynamic_context_view</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__emit.html">basic_emit</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__emit__all.html">basic_emit_all</a></td></tr>
@@ -657,6 +659,19 @@ Enumerations</h2></td></tr>
 , <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b">exit</a>
  }</td></tr>
 <tr class="separator:ac5160ee6707deaad4917cbf8bd1e99bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac98cdd53c93b8f950475ef4a02b87135" id="r_ac98cdd53c93b8f950475ef4a02b87135"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">fs8::dynamic_tag</a> : std::uint8_t { <br />
+&#160;&#160;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a334c4a4c42fdb79d7ebc3e73b517e6f8">none</a>
+, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135aea2b2676c28c0db26d39331a336c6b92">start</a>
+, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a912d24f9f704f948ac27ede3dd271fbe">no_init</a>
+, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a56e0519d8a4c2a7dc40744400f7d85cb">load_event</a>
+, <br />
+&#160;&#160;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a0e86c3193b7f4403f122471fe17674d8">next_event</a>
+, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a217d9a463e8371e8542d2bf45502d087">toggle_on</a>
+, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a07c3d5edb39467335c7e5ac5e3f68c69">toggle_off</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:ac98cdd53c93b8f950475ef4a02b87135"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runtime tag identifiers for dispatching tags through the type-erased interface.  <a href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">More...</a><br /></td></tr>
+<tr class="separator:ac98cdd53c93b8f950475ef4a02b87135"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae866c9f657ce20c4be67ff6c37074ea0" id="r_ae866c9f657ce20c4be67ff6c37074ea0"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">fs8::device_id</a> : std::uint32_t { <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8">none</a> = 0
 , <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a3c6c257ed29622500badf6cc7741375c">stdin</a> = 1
 , <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a> = 2
@@ -1048,6 +1063,18 @@ requires (std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#adcd5f
 <tr class="separator:a77f733d4cfe0e6560ac2768e838fc6ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a174bdbde5061f4bbd7985525c50e7748" id="r_a174bdbde5061f4bbd7985525c50e7748"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1event__type.html#a2e849054fba3388fcde2f566a6bcbdb9">event_type::value_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">fs8::value</a> (Context auto const &amp;ctx) noexcept</td></tr>
 <tr class="separator:a174bdbde5061f4bbd7985525c50e7748"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a239922b66df2aa4bc0c3d5f1833fc21f" id="r_a239922b66df2aa4bc0c3d5f1833fc21f"><td class="memTemplParams" colspan="2">template&lt;typename TagT &gt; <br />
+requires Tag&lt;TagT&gt;</td></tr>
+<tr class="memitem:a239922b66df2aa4bc0c3d5f1833fc21f"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a239922b66df2aa4bc0c3d5f1833fc21f">fs8::to_dynamic_tag</a> (TagT) noexcept</td></tr>
+<tr class="separator:a239922b66df2aa4bc0c3d5f1833fc21f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a126ca1fc3cdcbfd969089d3f621d595f" id="r_a126ca1fc3cdcbfd969089d3f621d595f"><td class="memTemplParams" colspan="2">template&lt;std::size_t Index, Context CtxT&gt; </td></tr>
+<tr class="memitem:a126ca1fc3cdcbfd969089d3f621d595f"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a126ca1fc3cdcbfd969089d3f621d595f">fs8::invoke_dynamic_tagged_mod</a> (CtxT &amp;ctx, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> const <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action) noexcept</td></tr>
+<tr class="memdesc:a126ca1fc3cdcbfd969089d3f621d595f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the mod at a runtime <code>Index</code> (compile-time dispatch) with the given tag.  <br /></td></tr>
+<tr class="separator:a126ca1fc3cdcbfd969089d3f621d595f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b3a9f78b559eec75776da3367ff62a5" id="r_a5b3a9f78b559eec75776da3367ff62a5"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Funcs&gt; </td></tr>
+<tr class="memitem:a5b3a9f78b559eec75776da3367ff62a5"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5b3a9f78b559eec75776da3367ff62a5">fs8::invoke_mods_from</a> (CtxT &amp;ctx, std::tuple&lt; Funcs... &gt; &amp;funcs, std::size_t const start_index, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action=<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdad0cab90d8d20d57e2f2b9be52f7dd25d">context_action::next</a>) noexcept</td></tr>
+<tr class="memdesc:a5b3a9f78b559eec75776da3367ff62a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the mods starting at a runtime <code>start_index</code>, stopping early on a non-<code>next</code> action.  <br /></td></tr>
+<tr class="separator:a5b3a9f78b559eec75776da3367ff62a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f19402142417d98c5b54c87111661c6" id="r_a5f19402142417d98c5b54c87111661c6"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5f19402142417d98c5b54c87111661c6">fs8::operator==</a> (<a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;lhs, <a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;rhs) noexcept</td></tr>
 <tr class="separator:a5f19402142417d98c5b54c87111661c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a821846ec9588a6613cba5e2070b49da8" id="r_a821846ec9588a6613cba5e2070b49da8"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a821846ec9588a6613cba5e2070b49da8">fs8::is_invalid</a> (<a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
@@ -1178,6 +1205,12 @@ requires (std::invocable&lt;Func&gt;)</td></tr>
 <tr class="memitem:a330690f922a4d095db81f9d4ecd0943b" id="r_a330690f922a4d095db81f9d4ecd0943b"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a330690f922a4d095db81f9d4ecd0943b"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a330690f922a4d095db81f9d4ecd0943b">fs8::var_type</a> (std::string_view, T &amp;&amp;) -&gt; <a class="el" href="structfs8_1_1var__type.html">var_type</a>&lt; T &gt;</td></tr>
 <tr class="separator:a330690f922a4d095db81f9d4ecd0943b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28531e9ad59a44f8ab92f27a6fd3f91b" id="r_a28531e9ad59a44f8ab92f27a6fd3f91b"><td class="memTemplParams" colspan="2">template&lt;polymorphic_scoped T, typename ConcreteT &gt; </td></tr>
+<tr class="memitem:a28531e9ad59a44f8ab92f27a6fd3f91b"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a28531e9ad59a44f8ab92f27a6fd3f91b">fs8::dynamic_scope</a> (T const &amp;, ConcreteT &amp;) -&gt; <a class="el" href="structfs8_1_1dynamic__scope.html">dynamic_scope</a>&lt; std::remove_cvref_t&lt; T &gt;, std::remove_cvref_t&lt; ConcreteT &gt; &gt;</td></tr>
+<tr class="separator:a28531e9ad59a44f8ab92f27a6fd3f91b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70675417e5319e16008c0ec49b1307e9" id="r_a70675417e5319e16008c0ec49b1307e9"><td class="memTemplParams" colspan="2">template&lt;polymorphic_scoped T, typename ConcreteT &gt; </td></tr>
+<tr class="memitem:a70675417e5319e16008c0ec49b1307e9"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a70675417e5319e16008c0ec49b1307e9">fs8::dynamic_scope</a> (T const &amp;, ConcreteT *) -&gt; <a class="el" href="structfs8_1_1dynamic__scope.html">dynamic_scope</a>&lt; std::remove_cvref_t&lt; T &gt;, std::remove_cvref_t&lt; ConcreteT &gt; &gt;</td></tr>
+<tr class="separator:a70675417e5319e16008c0ec49b1307e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc07eb43b311d60f4a592e442d97381f" id="r_adc07eb43b311d60f4a592e442d97381f"><td class="memTemplParams" colspan="2">template&lt;typename T , typename... Args&gt; </td></tr>
 <tr class="memitem:adc07eb43b311d60f4a592e442d97381f"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#adc07eb43b311d60f4a592e442d97381f">fs8::dynamic_scope</a> (T *, Args &amp;&amp;...) -&gt; <a class="el" href="structfs8_1_1dynamic__scope.html">dynamic_scope</a>&lt; std::remove_const_t&lt; T &gt; &gt;</td></tr>
 <tr class="separator:adc07eb43b311d60f4a592e442d97381f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2131,6 +2164,39 @@ template&lt;template&lt; typename... &gt; typename Templ, typename... ModsT&gt; 
 
 </div>
 </div>
+<a id="ac98cdd53c93b8f950475ef4a02b87135" name="ac98cdd53c93b8f950475ef4a02b87135"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac98cdd53c93b8f950475ef4a02b87135">&#9670;&#160;</a></span>dynamic_tag</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum struct <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">fs8::dynamic_tag</a> : std::uint8_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Runtime tag identifiers for dispatching tags through the type-erased interface. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a334c4a4c42fdb79d7ebc3e73b517e6f8" name="ac98cdd53c93b8f950475ef4a02b87135a334c4a4c42fdb79d7ebc3e73b517e6f8"></a>none&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135aea2b2676c28c0db26d39331a336c6b92" name="ac98cdd53c93b8f950475ef4a02b87135aea2b2676c28c0db26d39331a336c6b92"></a>start&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a912d24f9f704f948ac27ede3dd271fbe" name="ac98cdd53c93b8f950475ef4a02b87135a912d24f9f704f948ac27ede3dd271fbe"></a>no_init&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a56e0519d8a4c2a7dc40744400f7d85cb" name="ac98cdd53c93b8f950475ef4a02b87135a56e0519d8a4c2a7dc40744400f7d85cb"></a>load_event&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a0e86c3193b7f4403f122471fe17674d8" name="ac98cdd53c93b8f950475ef4a02b87135a0e86c3193b7f4403f122471fe17674d8"></a>next_event&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a217d9a463e8371e8542d2bf45502d087" name="ac98cdd53c93b8f950475ef4a02b87135a217d9a463e8371e8542d2bf45502d087"></a>toggle_on&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a07c3d5edb39467335c7e5ac5e3f68c69" name="ac98cdd53c93b8f950475ef4a02b87135a07c3d5edb39467335c7e5ac5e3f68c69"></a>toggle_off&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
 <a id="a1cd6248f16c943ae782320ce417f2338" name="a1cd6248f16c943ae782320ce417f2338"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1cd6248f16c943ae782320ce417f2338">&#9670;&#160;</a></span>evdev_status</h2>
 
@@ -2801,7 +2867,7 @@ template&lt;std::size_t N&gt; </div>
 </div>
 </div>
 <a id="a9ae47fc5134c8d9ac88d56d536003128" name="a9ae47fc5134c8d9ac88d56d536003128"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9ae47fc5134c8d9ac88d56d536003128">&#9670;&#160;</a></span>dynamic_scope() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ae47fc5134c8d9ac88d56d536003128">&#9670;&#160;</a></span>dynamic_scope() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2839,7 +2905,7 @@ template&lt;typename T , typename... Args&gt; </div>
 </div>
 </div>
 <a id="adc07eb43b311d60f4a592e442d97381f" name="adc07eb43b311d60f4a592e442d97381f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adc07eb43b311d60f4a592e442d97381f">&#9670;&#160;</a></span>dynamic_scope() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#adc07eb43b311d60f4a592e442d97381f">&#9670;&#160;</a></span>dynamic_scope() <span class="overload">[2/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2865,6 +2931,83 @@ template&lt;typename T , typename... Args&gt; </div>
           <td></td>
           <td>)</td>
           <td></td><td> -&gt;  <a class="el" href="structfs8_1_1dynamic__scope.html">dynamic_scope</a>&lt; std::remove_const_t&lt; T &gt; &gt;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a28531e9ad59a44f8ab92f27a6fd3f91b" name="a28531e9ad59a44f8ab92f27a6fd3f91b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28531e9ad59a44f8ab92f27a6fd3f91b">&#9670;&#160;</a></span>dynamic_scope() <span class="overload">[3/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;polymorphic_scoped T, typename ConcreteT &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structfs8_1_1dynamic__scope.html">fs8::dynamic_scope</a> </td>
+          <td>(</td>
+          <td class="paramtype">T const &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConcreteT &amp;&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> -&gt;  <a class="el" href="structfs8_1_1dynamic__scope.html">dynamic_scope</a>&lt; std::remove_cvref_t&lt; T &gt;, std::remove_cvref_t&lt; ConcreteT &gt; &gt;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Deduction guide for the polymorphic form: keeps the concrete type so the partial specialization can build its model around it. </p>
+
+</div>
+</div>
+<a id="a70675417e5319e16008c0ec49b1307e9" name="a70675417e5319e16008c0ec49b1307e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70675417e5319e16008c0ec49b1307e9">&#9670;&#160;</a></span>dynamic_scope() <span class="overload">[4/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;polymorphic_scoped T, typename ConcreteT &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structfs8_1_1dynamic__scope.html">fs8::dynamic_scope</a> </td>
+          <td>(</td>
+          <td class="paramtype">T const &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ConcreteT *&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> -&gt;  <a class="el" href="structfs8_1_1dynamic__scope.html">dynamic_scope</a>&lt; std::remove_cvref_t&lt; T &gt;, std::remove_cvref_t&lt; ConcreteT &gt; &gt;</td>
         </tr>
       </table>
   </td>
@@ -4759,6 +4902,52 @@ template&lt;typename CondT , typename... Args&gt; </div>
 
 </div>
 </div>
+<a id="a126ca1fc3cdcbfd969089d3f621d595f" name="a126ca1fc3cdcbfd969089d3f621d595f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a126ca1fc3cdcbfd969089d3f621d595f">&#9670;&#160;</a></span>invoke_dynamic_tagged_mod()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;std::size_t Index, Context CtxT&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_dynamic_tagged_mod </td>
+          <td>(</td>
+          <td class="paramtype">CtxT &amp;&#160;</td>
+          <td class="paramname"><em>ctx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> const&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const&#160;</td>
+          <td class="paramname"><em>default_action</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Run the mod at a runtime <code>Index</code> (compile-time dispatch) with the given tag. </p>
+
+</div>
+</div>
 <a id="ad84b48d74655fa65e248d28f43fcf041" name="ad84b48d74655fa65e248d28f43fcf041"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad84b48d74655fa65e248d28f43fcf041">&#9670;&#160;</a></span>invoke_first_mod_of()</h2>
 
@@ -5068,6 +5257,58 @@ template&lt;Context CtxT, typename... Mods, typename... Args&gt; </div>
 </div><div class="memdoc">
 
 <p>Run the functions and give them the specified context and arguments (optionally) </p>
+
+</div>
+</div>
+<a id="a5b3a9f78b559eec75776da3367ff62a5" name="a5b3a9f78b559eec75776da3367ff62a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b3a9f78b559eec75776da3367ff62a5">&#9670;&#160;</a></span>invoke_mods_from()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Context CtxT, typename... Funcs&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mods_from </td>
+          <td>(</td>
+          <td class="paramtype">CtxT &amp;&#160;</td>
+          <td class="paramname"><em>ctx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::tuple&lt; Funcs... &gt; &amp;&#160;</td>
+          <td class="paramname"><em>funcs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t const&#160;</td>
+          <td class="paramname"><em>start_index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const&#160;</td>
+          <td class="paramname"><em>default_action</em> = <code><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdad0cab90d8d20d57e2f2b9be52f7dd25d">context_action::next</a></code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Run the mods starting at a runtime <code>start_index</code>, stopping early on a non-<code>next</code> action. </p>
 
 </div>
 </div>
@@ -9045,6 +9286,35 @@ template&lt;std::size_t N&gt; </div>
           <td>(</td>
           <td class="paramtype">std::uint8_t const&#160;</td>
           <td class="paramname"><em>inp_char</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a239922b66df2aa4bc0c3d5f1833fc21f" name="a239922b66df2aa4bc0c3d5f1833fc21f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a239922b66df2aa4bc0c3d5f1833fc21f">&#9670;&#160;</a></span>to_dynamic_tag()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename TagT &gt; <br />
+requires Tag&lt;TagT&gt;</div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> fs8::to_dynamic_tag </td>
+          <td>(</td>
+          <td class="paramtype">TagT&#160;</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>

@@ -198,16 +198,16 @@ requires (std::convertible_to&lt;<a class="el" href="namespacefs8.html#a8efac394
 <tr class="memitem:ae9088568d5f4d62c0e7c992bdff28a1b" id="r_ae9088568d5f4d62c0e7c992bdff28a1b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__uinput.html#ae9088568d5f4d62c0e7c992bdff28a1b">operator()</a> (<a class="el" href="namespacefs8.html#adcd5f715cab1b6f86ae4d96f54e9c049">device_query</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">inp_query</a>, <a class="el" href="structfs8_1_1start__tag.html">start_tag</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="memdesc:ae9088568d5f4d62c0e7c992bdff28a1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the device based on the query on start.  <br /></td></tr>
 <tr class="separator:ae9088568d5f4d62c0e7c992bdff28a1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe16b3ec9f09c94f2cbd5ee0cda3ab5a" id="r_abe16b3ec9f09c94f2cbd5ee0cda3ab5a"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> CtxT &gt; <br />
-requires <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">requires</a>(CtxT&amp; ctx) { ctx.mod(<a class="el" href="namespacefs8.html#a804062ceba9799980345ac46a758f297">fs8::input_manager</a>).devices(); }</td></tr>
-<tr class="memitem:abe16b3ec9f09c94f2cbd5ee0cda3ab5a"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__uinput.html#abe16b3ec9f09c94f2cbd5ee0cda3ab5a">operator()</a> (CtxT &amp;ctx, <a class="el" href="namespacefs8.html#adcd5f715cab1b6f86ae4d96f54e9c049">device_query</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">inp_query</a>, <a class="el" href="structfs8_1_1start__tag.html">start_tag</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
+<tr class="memitem:abe16b3ec9f09c94f2cbd5ee0cda3ab5a" id="r_abe16b3ec9f09c94f2cbd5ee0cda3ab5a"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">CtxT</a> &gt; <br />
+requires <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">requires</a>(<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">CtxT</a>&amp; ctx) { ctx.mod(<a class="el" href="namespacefs8.html#a804062ceba9799980345ac46a758f297">fs8::input_manager</a>).devices(); }</td></tr>
+<tr class="memitem:abe16b3ec9f09c94f2cbd5ee0cda3ab5a"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__uinput.html#abe16b3ec9f09c94f2cbd5ee0cda3ab5a">operator()</a> (<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">CtxT</a> &amp;ctx, <a class="el" href="namespacefs8.html#adcd5f715cab1b6f86ae4d96f54e9c049">device_query</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">inp_query</a>, <a class="el" href="structfs8_1_1start__tag.html">start_tag</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:abe16b3ec9f09c94f2cbd5ee0cda3ab5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51e478480bf178fc9cbd32e3a1909fe4" id="r_a51e478480bf178fc9cbd32e3a1909fe4"><td class="memTemplParams" colspan="2">template&lt;std::ranges::range R&gt; <br />
 requires std::convertible_to&lt;std::ranges::range_value_t&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">R</a>&gt;, <a class="el" href="structfs8_1_1evdev.html">evdev</a>&gt;</td></tr>
 <tr class="memitem:a51e478480bf178fc9cbd32e3a1909fe4"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__uinput.html#a51e478480bf178fc9cbd32e3a1909fe4">operator()</a> (<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">R</a> &amp;&amp;devs, <a class="el" href="structfs8_1_1start__tag.html">start_tag</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a51e478480bf178fc9cbd32e3a1909fe4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b1ee380eb68a24869300068d2e2e92b" id="r_a7b1ee380eb68a24869300068d2e2e92b"><td class="memTemplParams" colspan="2">template&lt;ContextWith&lt; <a class="el" href="structfs8_1_1basic__input__manager.html">basic_input_manager</a> &gt; CtxT&gt; </td></tr>
-<tr class="memitem:a7b1ee380eb68a24869300068d2e2e92b"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__uinput.html#a7b1ee380eb68a24869300068d2e2e92b">operator()</a> (CtxT &amp;ctx, <a class="el" href="structfs8_1_1start__tag.html">start_tag</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
+<tr class="memitem:a7b1ee380eb68a24869300068d2e2e92b"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__uinput.html#a7b1ee380eb68a24869300068d2e2e92b">operator()</a> (<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">CtxT</a> &amp;ctx, <a class="el" href="structfs8_1_1start__tag.html">start_tag</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a7b1ee380eb68a24869300068d2e2e92b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af003208980de89f0f1d848b76d91ba76" id="r_af003208980de89f0f1d848b76d91ba76"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__uinput.html#af003208980de89f0f1d848b76d91ba76">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:af003208980de89f0f1d848b76d91ba76"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1072,8 +1072,8 @@ requires (std::convertible_to&lt;<a class="el" href="namespacefs8.html#a8efac394
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> CtxT &gt; <br />
-requires <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">requires</a>(CtxT&amp; ctx) { ctx.mod(<a class="el" href="namespacefs8.html#a804062ceba9799980345ac46a758f297">fs8::input_manager</a>).devices(); }</div>
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">CtxT</a> &gt; <br />
+requires <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">requires</a>(<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">CtxT</a>&amp; ctx) { ctx.mod(<a class="el" href="namespacefs8.html#a804062ceba9799980345ac46a758f297">fs8::input_manager</a>).devices(); }</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1081,7 +1081,7 @@ requires <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b
         <tr>
           <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> fs8::basic_uinput::operator() </td>
           <td>(</td>
-          <td class="paramtype">CtxT &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">CtxT</a> &amp;&#160;</td>
           <td class="paramname"><em>ctx</em>, </td>
         </tr>
         <tr>
@@ -1126,7 +1126,7 @@ template&lt;ContextWith&lt; <a class="el" href="structfs8_1_1basic__input__manag
         <tr>
           <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::basic_uinput::operator() </td>
           <td>(</td>
-          <td class="paramtype">CtxT &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">CtxT</a> &amp;&#160;</td>
           <td class="paramname"><em>ctx</em>, </td>
         </tr>
         <tr>

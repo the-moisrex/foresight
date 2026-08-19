@@ -41,6 +41,7 @@ var annotated_dup =
       [ "basic_device_is", "structfs8_1_1basic__device__is.html", "structfs8_1_1basic__device__is" ],
       [ "basic_device_query", "structfs8_1_1basic__device__query.html", "structfs8_1_1basic__device__query" ],
       [ "basic_dynamic_context", "structfs8_1_1basic__dynamic__context.html", "structfs8_1_1basic__dynamic__context" ],
+      [ "basic_dynamic_context_view", "structfs8_1_1basic__dynamic__context__view.html", "structfs8_1_1basic__dynamic__context__view" ],
       [ "basic_emit", "structfs8_1_1basic__emit.html", "structfs8_1_1basic__emit" ],
       [ "basic_emit_all", "structfs8_1_1basic__emit__all.html", "structfs8_1_1basic__emit__all" ],
       [ "basic_exit_pipeline", "structfs8_1_1basic__exit__pipeline.html", "structfs8_1_1basic__exit__pipeline" ],
