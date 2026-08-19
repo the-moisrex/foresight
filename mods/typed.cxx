@@ -2,6 +2,7 @@
 
 module;
 #include <cassert>
+#include <chrono>
 #include <climits>
 #include <cstdint>
 #include <cstring>
@@ -281,6 +282,39 @@ bool basic_search_engine::search(
     }
 
     state = process(code, state);
+    return matches(state.index(), trigger_id);
+}
+
+bool basic_search_engine::timed_search(
+  event_type const               &event,
+  std::uint16_t const             trigger_id,
+  xkb::basic_state const         &keyboard_state,
+  aho_state                      &state,
+  std::chrono::microseconds const max_gap,
+  std::chrono::microseconds      &last_time) const noexcept {
+    if (event.type() != EV_KEY) {
+        return false;
+    }
+    auto const code = unicode_encoded_event(keyboard_state, static_cast<key_event>(event));
+
+    if (trigger_id >= pimpl->pattern_modes.size()) [[unlikely]] {
+        return false;
+    }
+    auto const mode       = pimpl->pattern_modes[trigger_id];
+    bool const is_up_mode = mode == modifier_mode::keyup || mode == modifier_mode::ordered_keyup;
+    // keydown patterns only track presses, keyup patterns only track releases:
+    if (is_up_mode ? event.value() != 0 : event.value() != 1) {
+        return false;
+    }
+
+    auto const now = event.micro_time();
+    // If the user paused too long between two characters of a pattern, forget
+    // the partial match we were building up.
+    if (state.index() != 0 && now - last_time > max_gap) {
+        state = aho_state{};
+    }
+    state     = process(code, state);
+    last_time = now;
     return matches(state.index(), trigger_id);
 }
 

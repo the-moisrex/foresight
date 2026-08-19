@@ -2,6 +2,7 @@
 
 module;
 #include <cassert>
+#include <chrono>
 #include <climits>
 #include <cstdint>
 #include <functional>
@@ -154,6 +155,19 @@ namespace fs8 {
         /// Process and match
         [[nodiscard]] bool
         search(event_type const& event, std::uint16_t trigger_id, xkb::basic_state const& keyboard_state, aho_state& state) const noexcept;
+
+        /// Process and match, but only within a time window.
+        /// If more than `max_gap` passes between two relevant key events, the in-progress
+        /// partial match is dropped (so a pattern whose characters are typed too slowly
+        /// will never match). `last_time` holds the time of the last relevant key event;
+        /// pass the same variable across calls and keep it zero-initialized initially.
+        [[nodiscard]] bool timed_search(
+          event_type const&          event,
+          std::uint16_t              trigger_id,
+          xkb::basic_state const&    keyboard_state,
+          aho_state&                 state,
+          std::chrono::microseconds  max_gap,
+          std::chrono::microseconds& last_time) const noexcept;
     };
 
     export constexpr basic_search_engine search_engine;
@@ -167,8 +181,8 @@ namespace fs8 {
         static constexpr std::uint16_t invalid_trigger_id = std::numeric_limits<std::uint16_t>::max();
 
       private:
-        std::string_view pattern;        // pattern string
-        xkb::basic_state keyboard_state; // the state of the modifier keys and what not
+        std::string_view pattern;          // pattern string
+        xkb::basic_state keyboard_state{}; // the state of the modifier keys and what not
 
         /// Register the pattern into the search engine
         context_action on_start(basic_search_engine& engine) noexcept;

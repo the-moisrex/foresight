@@ -84,8 +84,8 @@ auto pipeline = context
 
 - **Conditions** are callables returning `bool`. Built-ins include `pressed`,
   `pressed_any`, `keydown`, `keyup`, `held`, `led_on`, `led_off`, `multi_click`,
-  `swipe_left/right/up/down`, `longtime_released`, `limit_mouse_travel`, and the
-  combinators `op` (`and`/`or` via `&`/`|`).
+  `swipe_left/right/up/down`, `longtime_released`, `limit_mouse_travel`,
+  `timed_typed`, and the combinators `op` (`and`/`or` via `&`/`|`).
 - **Actions** are callables too — mods, emitters, or lambdas. `on` composes with
   `operator|` and `[]`, e.g. `on[cond, context | mod_a | mod_b]`.
 - `once[...]` is like `on` but only fires when the condition *switches on*.

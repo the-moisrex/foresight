@@ -27,6 +27,7 @@ export import fs8.mods.ignore;
 export import fs8.mods.replace;
 export import fs8.mods.momentum;
 export import fs8.mods.typed;
+export import fs8.mods.timed_typed;
 export import fs8.mods.typer;
 export import fs8.mods.autocomplete;
 export import fs8.mods.record;

@@ -97,6 +97,7 @@ target_sources(${LIB_NAME}
         mods/replace.cxx
         mods/router.cxx
         mods/typed.cxx
+        mods/timed_typed.cxx
         mods/typer.cxx
         utils/hash.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
@@ -148,6 +149,7 @@ target_sources(${LIB_NAME}
         mods/smooth.ixx
         mods/stopper.ixx
         mods/typed.ixx
+        mods/timed_typed.ixx
         mods/typer.ixx
         mods/vars.ixx
         utils/dynamic_scoping.ixx
