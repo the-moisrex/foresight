@@ -345,8 +345,8 @@ Options:
 
         if (list_templates) {
             std::println("Available templates:");
-            for (auto const& tpl : fs8::available_templates()) {
-                std::println("  {:<12} {}", tpl.name, tpl.description);
+            for (auto const& templ : fs8::available_templates()) {
+                std::println("  {:<12} {}", templ.name, templ.description);
             }
             return EXIT_SUCCESS;
         }

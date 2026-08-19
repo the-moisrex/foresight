@@ -216,7 +216,13 @@ export namespace fs8 {
               res_type                     res;
               [[maybe_unused]] std::size_t cur_i = 0;
 
-              std::ignore = ((cur_i++ == index && (res = funcs.value(), false)), ...);
+              ((
+                [&] constexpr noexcept {
+                    if (cur_i++ == index) {
+                        res = funcs.value();
+                    }
+                }(),
+                ...));
               return res;
           },
           tup);

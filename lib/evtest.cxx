@@ -16,8 +16,8 @@ namespace {
     constexpr std::string_view event_prefix = "Event: time ";
 
     [[nodiscard]] std::string_view trim(std::string_view const str) noexcept {
-        auto first = 0;
-        auto last  = static_cast<std::ptrdiff_t>(str.size());
+        auto first = std::string_view::size_type{0};
+        auto last  = str.size();
         while (first < last && (str.at(first) == ' ' || str.at(first) == '\t')) {
             ++first;
         }
@@ -26,7 +26,7 @@ namespace {
         {
             --last;
         }
-        return str.substr(first, static_cast<std::size_t>(last - first));
+        return str.substr(first, last - first);
     }
 
     /// Expect the next comma-separated field to start with `label`, then parse
