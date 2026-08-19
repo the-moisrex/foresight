@@ -5,5 +5,5 @@ digraph "Graphical Class Hierarchy"
   edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
   node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
   rankdir="LR";
-  Node0 [id="Node000000",label="fs8::owned_query",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1owned__query.html",tooltip=" "];
+  Node0 [id="Node000000",label="fs8::no_init_tag",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1no__init__tag.html",tooltip="Run the context mods, don't run the initialization and other setup actions of the mods."];
 }

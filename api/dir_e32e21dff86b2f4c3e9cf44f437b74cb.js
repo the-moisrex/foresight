@@ -6,6 +6,7 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "autocomplete.cxx", "autocomplete_8cxx.html", "autocomplete_8cxx" ],
     [ "autocomplete.ixx", "autocomplete_8ixx.html", "autocomplete_8ixx" ],
     [ "context_vars.ixx", "context__vars_8ixx.html", "context__vars_8ixx" ],
+    [ "debounce.ixx", "debounce_8ixx.html", "debounce_8ixx" ],
     [ "device.cxx", "device_8cxx.html", null ],
     [ "device.ixx", "device_8ixx.html", "device_8ixx" ],
     [ "emitter.cxx", "emitter_8cxx.html", null ],

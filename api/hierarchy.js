@@ -2,6 +2,9 @@ var hierarchy =
 [
     [ "fs8::aho_state", "structfs8_1_1aho__state.html", null ],
     [ "fs8::allow_multiple_matches_tag", "structfs8_1_1allow__multiple__matches__tag.html", null ],
+    [ "fs8::any_dynamic_context", "structfs8_1_1any__dynamic__context.html", [
+      [ "fs8::any_dynamic_context_model< CtxT >", "structfs8_1_1any__dynamic__context__model.html", null ]
+    ] ],
     [ "fs8::app_template", "structfs8_1_1app__template.html", null ],
     [ "std::array", null, [
       [ "fs8::user_events< N >", "structfs8_1_1user__events.html", null ]
@@ -80,6 +83,7 @@ var hierarchy =
       [ "fs8::basic_add_scroll< CondT, Func >", "structfs8_1_1basic__add__scroll.html", null ],
       [ "fs8::basic_code_adaptor< A, N >", "structfs8_1_1basic__code__adaptor.html", null ],
       [ "fs8::basic_context< Funcs >", "structfs8_1_1basic__context.html", null ],
+      [ "fs8::basic_debounce< N >", "structfs8_1_1basic__debounce.html", null ],
       [ "fs8::basic_emit< N >", "structfs8_1_1basic__emit.html", null ],
       [ "fs8::basic_emit_all< N >", "structfs8_1_1basic__emit__all.html", null ],
       [ "fs8::basic_from_input", "structfs8_1_1basic__from__input.html", null ],
@@ -89,7 +93,6 @@ var hierarchy =
       [ "fs8::basic_ignore_big_jumps", "structfs8_1_1basic__ignore__big__jumps.html", null ],
       [ "fs8::basic_ignore_caps", "structfs8_1_1basic__ignore__caps.html", null ],
       [ "fs8::basic_ignore_device< N >", "structfs8_1_1basic__ignore__device.html", null ],
-      [ "fs8::basic_ignore_fast_double_clicks< N >", "structfs8_1_1basic__ignore__fast__double__clicks.html", null ],
       [ "fs8::basic_ignore_fast_repeats", "structfs8_1_1basic__ignore__fast__repeats.html", null ],
       [ "fs8::basic_ignore_init_moves", "structfs8_1_1basic__ignore__init__moves.html", null ],
       [ "fs8::basic_ignore_keys< N >", "structfs8_1_1basic__ignore__keys.html", null ],
@@ -133,15 +136,22 @@ var hierarchy =
     ] ],
     [ "fs8::construct_it_from< T >", "structfs8_1_1construct__it__from.html", null ],
     [ "fs8::xkb::context", "structfs8_1_1xkb_1_1context.html", null ],
+    [ "fs8::context_with_impl< T >", "structfs8_1_1context__with__impl.html", null ],
+    [ "fs8::context_with_impl< CtxT, Mods... >", "structfs8_1_1context__with__impl_3_01CtxT_00_01Mods_8_8_8_01_4.html", null ],
+    [ "fs8::context_with_impl<>", "structfs8_1_1context__with__impl_3_4.html", null ],
     [ "fs8::dev_cap< N >", "structfs8_1_1dev__cap.html", null ],
     [ "fs8::dev_cap_view", "structfs8_1_1dev__cap__view.html", null ],
-    [ "fs8::dynamic_scope< T >", "structfs8_1_1dynamic__scope.html", null ],
+    [ "fs8::dynamic_scope< T, typename >", "structfs8_1_1dynamic__scope.html", null ],
+    [ "fs8::dynamic_scope< T, ConcreteT >", "structfs8_1_1dynamic__scope_3_01T_00_01ConcreteT_01_4.html", null ],
     [ "fs8::evdev", "structfs8_1_1evdev.html", null ],
     [ "fs8::event_code", "structfs8_1_1event__code.html", null ],
     [ "fs8::event_type", "structfs8_1_1event__type.html", null ],
     [ "fs8::fail_on_no_match_tag", "structfs8_1_1fail__on__no__match__tag.html", null ],
     [ "fs8::get_variables_tag", "structfs8_1_1get__variables__tag.html", null ],
     [ "fs8::global_binding< T, ID >", "structfs8_1_1global__binding.html", null ],
+    [ "fs8::global_binding< any_dynamic_context >", "structfs8_1_1global__binding.html", [
+      [ "fs8::basic_dynamic_context", "structfs8_1_1basic__dynamic__context.html", null ]
+    ] ],
     [ "fs8::grab_tag", "structfs8_1_1grab__tag.html", null ],
     [ "fs8::xkb::handle_modifiers_type", "structfs8_1_1xkb_1_1handle__modifiers__type.html", null ],
     [ "fs8::high_threshold_tag", "structfs8_1_1high__threshold__tag.html", null ],

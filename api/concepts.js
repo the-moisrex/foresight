@@ -16,6 +16,7 @@ var concepts =
       [ "io_handler", "conceptfs8_1_1io__handler.html", null ],
       [ "binder_instance", "conceptfs8_1_1binder__instance.html", null ],
       [ "dynamically_scoped", "conceptfs8_1_1dynamically__scoped.html", null ],
+      [ "polymorphic_scoped", "conceptfs8_1_1polymorphic__scoped.html", null ],
       [ "floating_point", "conceptfs8_1_1floating__point.html", null ]
     ] ]
 ];

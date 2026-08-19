@@ -5,5 +5,5 @@ digraph "Graphical Class Hierarchy"
   edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
   node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
   rankdir="LR";
-  Node0 [id="Node000000",label="fs8::basic_mod_updater\l\< ModT \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__mod__updater.html",tooltip=" "];
+  Node0 [id="Node000000",label="fs8::basic_low_pass\l_filter::smoothed",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__low__pass__filter_1_1smoothed.html",tooltip=" "];
 }

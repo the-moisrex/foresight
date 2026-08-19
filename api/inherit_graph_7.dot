@@ -5,5 +5,7 @@ digraph "Graphical Class Hierarchy"
   edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
   node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
   rankdir="LR";
-  Node0 [id="Node000000",label="fs8::app_template",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1app__template.html",tooltip="A named app template: a set of files scaffolded by foresight new."];
+  Node0 [id="Node000000",label="fs8::any_dynamic_context",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1any__dynamic__context.html",tooltip="Dynamic Context Interface."];
+  Node0 -> Node1 [id="edge1_Node000000_Node000001",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node1 [id="Node000001",label="fs8::any_dynamic_context\l_model\< CtxT \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1any__dynamic__context__model.html",tooltip="Implementation of the a dynamic context."];
 }

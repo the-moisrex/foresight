@@ -26,6 +26,7 @@ var modules_dup =
     [ "fs8.mods.abs2rel", "module_fs8_8mods_8abs2rel.html", "module_fs8_8mods_8abs2rel" ],
     [ "fs8.mods.add_scroll", "module_fs8_8mods_8add__scroll.html", "module_fs8_8mods_8add__scroll" ],
     [ "fs8.mods.autocomplete", "module_fs8_8mods_8autocomplete.html", "module_fs8_8mods_8autocomplete" ],
+    [ "fs8.mods.debounce", "module_fs8_8mods_8debounce.html", "module_fs8_8mods_8debounce" ],
     [ "fs8.mods.device", "module_fs8_8mods_8device.html", "module_fs8_8mods_8device" ],
     [ "fs8.mods.emitter", "module_fs8_8mods_8emitter.html", "module_fs8_8mods_8emitter" ],
     [ "fs8.mods.ignore", "module_fs8_8mods_8ignore.html", "module_fs8_8mods_8ignore" ],
