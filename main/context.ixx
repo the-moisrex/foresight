@@ -113,9 +113,22 @@ export namespace fs8 {
     using mod_of = mod_of_t<ModConcept, Funcs...>::type;
 
     /// Contexts that have these specific mods
-    /// Context is the last item
+    /// Context is the first item (the compiler prepends the deduced context type)
     template <typename... T>
-    concept ContextWith = (has_mod<T...[sizeof...(T) - 1], T> || ...);
+    struct context_with_impl;
+
+    template <>
+    struct context_with_impl<> {
+        static constexpr bool value = false;
+    };
+
+    template <typename CtxT, typename... Mods>
+    struct context_with_impl<CtxT, Mods...> {
+        static constexpr bool value = (has_mod<Mods, CtxT> || ...);
+    };
+
+    template <typename... T>
+    concept ContextWith = context_with_impl<T...>::value;
 
 
     /**
@@ -721,5 +734,69 @@ export namespace fs8 {
     [[nodiscard]] constexpr event_type::value_type value(Context auto const &ctx) noexcept {
         return ctx.event().value();
     }
+
+    /// Dynamic Context Interface
+    struct [[nodiscard]] any_dynamic_context {
+        any_dynamic_context() noexcept                                  = default;
+        any_dynamic_context(any_dynamic_context const &)                = default;
+        any_dynamic_context(any_dynamic_context &&) noexcept            = default;
+        any_dynamic_context &operator=(any_dynamic_context const &)     = default;
+        any_dynamic_context &operator=(any_dynamic_context &&) noexcept = default;
+        virtual ~any_dynamic_context() noexcept                         = default;
+
+        [[nodiscard]] virtual event_type const &event() const noexcept             = 0;
+        [[nodiscard]] virtual event_type       &event() noexcept                   = 0;
+        virtual void                            event(event_type const &) noexcept = 0;
+    };
+
+    /// Implementation of the a dynamic context
+    template <Context CtxT>
+    struct [[nodiscard]] any_dynamic_context_model final : any_dynamic_context {
+      private:
+        CtxT *ctx;
+
+      public:
+        explicit any_dynamic_context_model(CtxT *inp_ctx) noexcept : ctx{inp_ctx} {}
+
+        explicit any_dynamic_context_model(CtxT &inp_ctx) noexcept : ctx{std::addressof(inp_ctx)} {}
+
+        any_dynamic_context_model(any_dynamic_context_model &&) noexcept            = default;
+        any_dynamic_context_model &operator=(any_dynamic_context_model &&) noexcept = default;
+        any_dynamic_context_model(any_dynamic_context_model const &)                = delete;
+        any_dynamic_context_model &operator=(any_dynamic_context_model const &)     = delete;
+        ~any_dynamic_context_model() noexcept override                              = default;
+
+        [[nodiscard]] event_type const &event() const noexcept override {
+            return ctx->event();
+        }
+
+        [[nodiscard]] event_type &event() noexcept override {
+            return ctx->event();
+        }
+
+        void event(event_type const &inp_event) noexcept override {
+            ctx->event(inp_event);
+        }
+    };
+
+    constexpr struct [[nodiscard]] basic_dynamic_context : global_binding<any_dynamic_context> {
+        template <typename ConcreteT>
+        using model_type = any_dynamic_context_model<ConcreteT>;
+
+        static constexpr global_binding self{};
+
+        [[nodiscard]] event_type const &event() const noexcept {
+            return self->event();
+        }
+
+        [[nodiscard]] event_type &event() noexcept {
+            return self->event();
+        }
+
+        void event(event_type const &inp_event) noexcept {
+            self->event(inp_event);
+        }
+    } dynamic_context;
+
 
 } // namespace fs8

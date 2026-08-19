@@ -47,6 +47,12 @@ export namespace fs8 {
         requires std::is_base_of_v<typename T::binding, T>;
     };
 
+    template <typename T>
+    concept polymorphic_scoped = dynamically_scoped<T> && requires {
+        // contains overrides/implementations of the interface:
+        typename T::template model_type<void>;
+    };
+
     /**
      * Global Binding: Manages a single, non-thread-local active pointer for type T.
      *
@@ -187,7 +193,7 @@ export namespace fs8 {
      * MUST be strictly scoped on the stack. Interleaving lifetimes or passing these across
      * asynchronous boundaries without careful LIFO guarantees will corrupt the binding state.
      */
-    template <dynamically_scoped T>
+    template <dynamically_scoped T, typename = void>
     struct [[nodiscard]] dynamic_scope {
         using binding = T::binding;
         using pointer = binding::pointer;
@@ -212,6 +218,43 @@ export namespace fs8 {
 
       private:
         pointer prev = nullptr;
+    };
+
+    /**
+     * Polymorphic version of dynamic scope.
+     * If T is polymorphic, then we scope must scope its model; a model will take a pointer to ConcreteT type instead of us, and we will
+     * hold the model instead.
+     *
+     * The model is a gateway to calling multiple types that implement the same concept but they're not related.
+     * The interface is the things that the model must support.
+     */
+    template <polymorphic_scoped T, typename ConcreteT>
+        requires std::constructible_from<typename T::template model_type<ConcreteT>, ConcreteT*>
+    struct [[nodiscard]] dynamic_scope<T, ConcreteT> {
+        using binding    = T::binding;
+        using pointer    = binding::pointer;
+        using model_type = T::template model_type<ConcreteT>;
+
+        explicit dynamic_scope(ConcreteT* concrete_ptr) : model{concrete_ptr}, prev{binding::exchange(&model)} {}
+
+        explicit dynamic_scope(ConcreteT& concrete_ptr) noexcept : dynamic_scope{std::addressof(concrete_ptr)} {}
+
+        dynamic_scope(T const&, ConcreteT& concrete_ptr) noexcept : dynamic_scope{std::addressof(concrete_ptr)} {}
+
+        dynamic_scope(T const&, ConcreteT* concrete_ptr) noexcept : dynamic_scope{concrete_ptr} {}
+
+        dynamic_scope(dynamic_scope const& obj)                = delete;
+        dynamic_scope(dynamic_scope&& obj) noexcept            = default;
+        dynamic_scope& operator=(dynamic_scope const& obj)     = delete;
+        dynamic_scope& operator=(dynamic_scope&& obj) noexcept = default;
+
+        constexpr ~dynamic_scope() noexcept {
+            binding::exchange(prev);
+        }
+
+      private:
+        [[no_unique_address]] model_type model;
+        pointer                          prev = nullptr;
     };
 
     template <typename T, typename... Args>
