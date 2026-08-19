@@ -1,4 +1,5 @@
 add_subdirectory(auto-typer)
+add_subdirectory(debounce-mouse-clicks)
 add_subdirectory(flat-accelerate)
 add_subdirectory(ignore-big-jumps)
 add_subdirectory(long-press)

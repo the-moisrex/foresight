@@ -24,6 +24,13 @@ as a mouse with extended capabilities:
 
 Watches a keyboard for typed patterns and auto-completes them into longer strings.
 
+## debounce-mouse-clicks
+
+Fixes a faulty mouse that occasionally double clicks: a press (and its matching
+release) that lands within the debounce window of the previous press of the same
+button is dropped, while real clicks pass through untouched. The window defaults
+to 30ms and is adjustable via `-t | --time` (e.g. `debounce-mouse-clicks --time 50ms`).
+
 ## flat-accelerate
 
 Accelerates the mouse through a `foresight intercept | flat-accelerate | foresight redirect`

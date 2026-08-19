@@ -1,8 +1,11 @@
 // Created by moisrex on 6/25/25.
 
 module;
+#include <array>
 #include <chrono>
+#include <cstddef>
 #include <linux/input-event-codes.h>
+#include <utility>
 export module fs8.mods.ignore;
 import fs8.context;
 import fs8.devices.capabilities;
@@ -103,6 +106,109 @@ export namespace fs8 {
 
         context_action operator()(event_type const& event) noexcept;
     } ignore_fast_repeats;
+
+    /**
+     * Ignore fast double clicks (e.g. a faulty mouse that double clicks).
+     *
+     * A press that lands within `time_threshold` of the previous press of the
+     * same code is dropped, along with its matching release, so the button
+     * state stays consistent. Real clicks (spaced further apart) pass through.
+     */
+    template <std::size_t N>
+    struct [[nodiscard]] basic_ignore_fast_double_clicks : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+        using msec_type = std::chrono::microseconds;
+
+        static constexpr msec_type default_time_threshold = std::chrono::milliseconds(30);
+
+      private:
+        std::array<event_code, N> codes{};
+        std::array<msec_type, N>  last_press{};
+        std::array<bool, N>       swallow_release{};
+        std::array<bool, N>       has_pressed{};
+        msec_type                 time_threshold{default_time_threshold};
+
+      public:
+        constexpr explicit basic_ignore_fast_double_clicks(std::array<event_code, N> const inp_codes,
+                                                           msec_type const inp_time_threshold = default_time_threshold) noexcept
+          : codes{inp_codes},
+            time_threshold{inp_time_threshold} {}
+
+        constexpr explicit basic_ignore_fast_double_clicks(event_code const inp_code,
+                                                           msec_type const  inp_time_threshold = default_time_threshold) noexcept
+          : codes{
+              event_code{.type = inp_code.type, .code = inp_code.code}
+        },
+            time_threshold{inp_time_threshold} {}
+
+        consteval basic_ignore_fast_double_clicks<1> operator[](
+          event_code const inp_code,
+          msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
+            return basic_ignore_fast_double_clicks<1>{inp_code, inp_time_threshold};
+        }
+
+        template <typename... T>
+            requires((std::convertible_to<T, event_type::code_type> && ...))
+        consteval auto operator[](T... inp_codes) const noexcept {
+            return basic_ignore_fast_double_clicks<sizeof...(T)>{
+              std::array<event_code, sizeof...(T)>{event_code{.type = EV_KEY, .code = static_cast<event_type::code_type>(inp_codes)}...}};
+        }
+
+        /// Change the double-click time window at runtime (e.g. from app args).
+        void set_time_threshold(msec_type const inp_time_threshold) noexcept {
+            time_threshold = inp_time_threshold;
+        }
+
+        context_action operator()(event_type const& event) noexcept {
+            using enum context_action;
+
+            std::size_t found = N;
+            for (std::size_t i = 0; i < N; ++i) {
+                if (event.is_of(codes[i])) {
+                    found = i;
+                    break;
+                }
+            }
+            if (found == N) {
+                return next;
+            }
+
+            switch (event.value()) {
+                case 0: // release
+                    if (std::exchange(swallow_release[found], false)) [[unlikely]] {
+                        return ignore_event;
+                    }
+                    break;
+                case 1: { // press
+                    auto const now = event.micro_time();
+                    if (has_pressed[found] && now - last_press[found] < time_threshold) [[unlikely]] {
+                        swallow_release[found] = true;
+                        return ignore_event;
+                    }
+                    has_pressed[found] = true;
+                    last_press[found]  = now;
+                    break;
+                }
+                default: break; // repeats (value 2) and other values pass through
+            }
+
+            return next;
+        }
+    };
+
+    constexpr basic_ignore_fast_double_clicks<0> ignore_fast_double_clicks;
+
+    constexpr basic_ignore_fast_double_clicks<1> ignore_fast_left_double_clicks{
+      {.type = EV_KEY, .code = BTN_LEFT},
+    };
+
+    constexpr basic_ignore_fast_double_clicks<1> ignore_fast_right_double_clicks{
+      {.type = EV_KEY, .code = BTN_RIGHT},
+    };
+
+    constexpr basic_ignore_fast_double_clicks<1> ignore_fast_middle_double_clicks{
+      {.type = EV_KEY, .code = BTN_MIDDLE},
+    };
 
     template <std::size_t N>
     struct [[nodiscard]] basic_ignore_keys : consteval_copyable {

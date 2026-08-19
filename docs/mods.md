@@ -32,7 +32,7 @@ mod is for and when you'd reach for it.
 | `add_scroll` | Convert mouse movement into scroll wheel events (conditionally). |
 | `smooth` | Smooth mouse movement / ease the output. |
 | `momentum` | Keep mouse momentum going after you stop moving. |
-| `ignore` | Family of "ignore" filters: big jumps, starting moves, fast repeats, adjacent repeats, and full event ignoring. |
+| `ignore` | Family of "ignore" filters: big jumps, starting moves, fast repeats, adjacent repeats, fast double clicks, and full event ignoring. |
 | `typed` | Track what the user is typing/editing. |
 | `timed_typed` | Like `typed`, but only matches if the pattern is typed within a time window (`timed_typed["test", 2s]`); pauses longer than the window discard the partial match. |
 | `typer` | Type text (how2type) into the current application. |
