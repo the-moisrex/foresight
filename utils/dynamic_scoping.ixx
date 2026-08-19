@@ -207,10 +207,10 @@ export namespace fs8 {
 
         explicit constexpr dynamic_scope(T const&, type& ref) noexcept : dynamic_scope{ref} {}
 
-        dynamic_scope(dynamic_scope const& obj)                = delete;
-        dynamic_scope(dynamic_scope&& obj) noexcept            = default;
-        dynamic_scope& operator=(dynamic_scope const& obj)     = delete;
-        dynamic_scope& operator=(dynamic_scope&& obj) noexcept = default;
+        dynamic_scope(dynamic_scope const&)                = delete;
+        dynamic_scope(dynamic_scope&&) noexcept            = delete;
+        dynamic_scope& operator=(dynamic_scope const&)     = delete;
+        dynamic_scope& operator=(dynamic_scope&&) noexcept = delete;
 
         constexpr ~dynamic_scope() noexcept {
             binding::exchange(prev);
@@ -244,9 +244,9 @@ export namespace fs8 {
         dynamic_scope(T const&, ConcreteT* concrete_ptr) noexcept : dynamic_scope{concrete_ptr} {}
 
         dynamic_scope(dynamic_scope const& obj)                = delete;
-        dynamic_scope(dynamic_scope&& obj) noexcept            = default;
+        dynamic_scope(dynamic_scope&& obj) noexcept            = delete;
         dynamic_scope& operator=(dynamic_scope const& obj)     = delete;
-        dynamic_scope& operator=(dynamic_scope&& obj) noexcept = default;
+        dynamic_scope& operator=(dynamic_scope&& obj) noexcept = delete;
 
         constexpr ~dynamic_scope() noexcept {
             binding::exchange(prev);
@@ -256,6 +256,14 @@ export namespace fs8 {
         [[no_unique_address]] model_type model;
         pointer                          prev = nullptr;
     };
+
+    /// Deduction guide for the polymorphic form: keeps the concrete type so the
+    /// partial specialization can build its model around it.
+    template <polymorphic_scoped T, typename ConcreteT>
+    dynamic_scope(T const&, ConcreteT&) -> dynamic_scope<std::remove_cvref_t<T>, std::remove_cvref_t<ConcreteT>>;
+
+    template <polymorphic_scoped T, typename ConcreteT>
+    dynamic_scope(T const&, ConcreteT*) -> dynamic_scope<std::remove_cvref_t<T>, std::remove_cvref_t<ConcreteT>>;
 
     template <typename T, typename... Args>
     dynamic_scope(T*, Args&&...) -> dynamic_scope<std::remove_const_t<T>>;

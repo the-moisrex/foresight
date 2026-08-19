@@ -735,6 +735,68 @@ export namespace fs8 {
         return ctx.event().value();
     }
 
+    /// Runtime tag identifiers for dispatching tags through the type-erased interface.
+    enum struct [[nodiscard]] dynamic_tag : std::uint8_t {
+        none,
+        start,
+        no_init,
+        load_event,
+        next_event,
+        toggle_on,
+        toggle_off,
+    };
+
+    template <typename TagT>
+        requires Tag<TagT>
+    [[nodiscard]] constexpr dynamic_tag to_dynamic_tag(TagT) noexcept {
+        if constexpr (std::same_as<std::remove_cvref_t<TagT>, start_tag>) {
+            return dynamic_tag::start;
+        } else if constexpr (std::same_as<std::remove_cvref_t<TagT>, no_init_tag>) {
+            return dynamic_tag::no_init;
+        } else if constexpr (std::same_as<std::remove_cvref_t<TagT>, load_event_tag>) {
+            return dynamic_tag::load_event;
+        } else if constexpr (std::same_as<std::remove_cvref_t<TagT>, next_event_tag>) {
+            return dynamic_tag::next_event;
+        } else if constexpr (std::same_as<std::remove_cvref_t<TagT>, toggle_on_tag>) {
+            return dynamic_tag::toggle_on;
+        } else if constexpr (std::same_as<std::remove_cvref_t<TagT>, toggle_off_tag>) {
+            return dynamic_tag::toggle_off;
+        } else {
+            static_assert(std::same_as<std::remove_cvref_t<TagT>, start_tag>, "Unsupported tag for the dynamic context.");
+            return dynamic_tag::none;
+        }
+    }
+
+    /// Run the mod at a runtime `Index` (compile-time dispatch) with the given tag.
+    template <std::size_t Index, Context CtxT>
+    constexpr context_action invoke_dynamic_tagged_mod(CtxT &ctx, dynamic_tag const tag, context_action const default_action) noexcept {
+        switch (tag) {
+            case dynamic_tag::start: return fork_mod<Index>(ctx, ctx.get_mods(), default_action, start);
+            case dynamic_tag::no_init: return fork_mod<Index>(ctx, ctx.get_mods(), default_action);
+            case dynamic_tag::load_event: return fork_mod<Index>(ctx, ctx.get_mods(), default_action, load_event);
+            case dynamic_tag::next_event: return fork_mod<Index>(ctx, ctx.get_mods(), default_action, next_event);
+            case dynamic_tag::toggle_on: return fork_mod<Index>(ctx, ctx.get_mods(), default_action, toggle_on);
+            case dynamic_tag::toggle_off: return fork_mod<Index>(ctx, ctx.get_mods(), default_action, toggle_off);
+            default: return fork_mod<Index>(ctx, ctx.get_mods(), default_action);
+        }
+    }
+
+    /// Run the mods starting at a runtime `start_index`, stopping early on a non-`next` action.
+    template <Context CtxT, typename... Funcs>
+    constexpr context_action invoke_mods_from(
+      CtxT                 &ctx,
+      std::tuple<Funcs...> &funcs,
+      std::size_t const     start_index,
+      context_action const  default_action = context_action::next) noexcept {
+        using enum context_action;
+        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+            context_action action = default_action;
+            std::ignore =
+              ((((I >= start_index) ? (action = fork_mod<I>(ctx, funcs, default_action), true) : true) && (action == next)) && ...);
+            return action;
+        }(std::make_index_sequence<sizeof...(Funcs)>{});
+    }
+
     /// Dynamic Context Interface
     struct [[nodiscard]] any_dynamic_context {
         any_dynamic_context() noexcept                                  = default;
@@ -747,18 +809,31 @@ export namespace fs8 {
         [[nodiscard]] virtual event_type const &event() const noexcept             = 0;
         [[nodiscard]] virtual event_type       &event() noexcept                   = 0;
         virtual void                            event(event_type const &) noexcept = 0;
+
+        /// Invoke the mod at `index` with the given default action and optional tag.
+        virtual context_action invoke_mod(std::size_t index, context_action default_action, dynamic_tag tag) noexcept = 0;
+
+        /// Re-emit the current event through the mods starting at `from_index`.
+        virtual context_action reemit(std::size_t from_index) noexcept = 0;
+
+        /// Re-emit `inp_event` through the mods starting at `from_index`.
+        virtual context_action reemit(std::size_t from_index, event_type const &inp_event) noexcept = 0;
     };
 
     /// Implementation of the a dynamic context
-    template <Context CtxT>
+    template <typename CtxT>
     struct [[nodiscard]] any_dynamic_context_model final : any_dynamic_context {
       private:
         CtxT *ctx;
 
       public:
-        explicit any_dynamic_context_model(CtxT *inp_ctx) noexcept : ctx{inp_ctx} {}
+        explicit any_dynamic_context_model(CtxT *inp_ctx) noexcept
+            requires Context<CtxT>
+          : ctx{inp_ctx} {}
 
-        explicit any_dynamic_context_model(CtxT &inp_ctx) noexcept : ctx{std::addressof(inp_ctx)} {}
+        explicit any_dynamic_context_model(CtxT &inp_ctx) noexcept
+            requires Context<CtxT>
+          : ctx{std::addressof(inp_ctx)} {}
 
         any_dynamic_context_model(any_dynamic_context_model &&) noexcept            = default;
         any_dynamic_context_model &operator=(any_dynamic_context_model &&) noexcept = default;
@@ -777,6 +852,78 @@ export namespace fs8 {
         void event(event_type const &inp_event) noexcept override {
             ctx->event(inp_event);
         }
+
+        context_action invoke_mod(std::size_t const index, context_action const default_action, dynamic_tag const tag) noexcept override {
+            return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+                context_action action = default_action;
+                std::ignore = (((I == index) ? (action = invoke_dynamic_tagged_mod<I>(*ctx, tag, default_action), true) : false) || ...);
+                return action;
+            }(std::make_index_sequence<std::tuple_size_v<typename CtxT::mods_type>>{});
+        }
+
+        context_action reemit(std::size_t const from_index) noexcept override {
+            return invoke_mods_from(*ctx, ctx->get_mods(), from_index);
+        }
+
+        context_action reemit(std::size_t const from_index, event_type const &inp_event) noexcept override {
+            auto const cur_ev = std::exchange(ctx->event(), inp_event);
+            auto const res    = invoke_mods_from(*ctx, ctx->get_mods(), from_index);
+            ctx->event(cur_ev);
+            return res;
+        }
+    };
+
+    /// Type-erased analog of `basic_context_view`: a handle to the mod at a
+    /// compile-time index of the currently bound dynamic context.
+    template <std::size_t NIndex>
+    struct [[nodiscard]] basic_dynamic_context_view {
+      private:
+        any_dynamic_context *ctx;
+
+      public:
+        explicit constexpr basic_dynamic_context_view(any_dynamic_context *inp_ctx) noexcept : ctx{inp_ctx} {}
+
+        [[nodiscard]] event_type const &event() const noexcept {
+            return ctx->event();
+        }
+
+        [[nodiscard]] event_type &event() noexcept {
+            return ctx->event();
+        }
+
+        void event(event_type const &inp_event) noexcept {
+            ctx->event(inp_event);
+        }
+
+        context_action fork_emit() noexcept {
+            return ctx->reemit(NIndex);
+        }
+
+        context_action fork_emit(event_type const &inp_event) noexcept {
+            return ctx->reemit(NIndex, inp_event);
+        }
+
+        context_action fork_emit(user_event const &inp_ev) noexcept {
+            return fork_emit(event_type{inp_ev});
+        }
+
+        context_action fork_emit(event_type::type_type const  inp_type,
+                                 event_type::code_type const  inp_code,
+                                 event_type::value_type const inp_val) noexcept {
+            return fork_emit(event_type{inp_type, inp_code, inp_val});
+        }
+
+        /// Invoke the mod at NIndex directly (no tag).
+        context_action operator()() noexcept {
+            return ctx->invoke_mod(NIndex, context_action::next, dynamic_tag::none);
+        }
+
+        /// Invoke the mod at NIndex with the given tag.
+        template <typename TagT>
+            requires Tag<TagT>
+        context_action operator()(TagT tag) noexcept {
+            return ctx->invoke_mod(NIndex, context_action::next, to_dynamic_tag(tag));
+        }
     };
 
     constexpr struct [[nodiscard]] basic_dynamic_context : global_binding<any_dynamic_context> {
@@ -784,6 +931,12 @@ export namespace fs8 {
         using model_type = any_dynamic_context_model<ConcreteT>;
 
         static constexpr global_binding self{};
+
+        /// Access the mod at a compile-time index of the currently bound context.
+        template <std::size_t NIndex>
+        [[nodiscard]] constexpr auto mod() const noexcept {
+            return basic_dynamic_context_view<NIndex>{self.ptr()};
+        }
 
         [[nodiscard]] event_type const &event() const noexcept {
             return self->event();
@@ -793,7 +946,7 @@ export namespace fs8 {
             return self->event();
         }
 
-        void event(event_type const &inp_event) noexcept {
+        void event(event_type const &inp_event) const noexcept {
             self->event(inp_event);
         }
     } dynamic_context;
