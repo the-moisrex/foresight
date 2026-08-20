@@ -4,6 +4,8 @@ var module_fs8_8mods_8keys__status =
     [ "basic_mod_updater", "structfs8_1_1basic__mod__updater.html", "structfs8_1_1basic__mod__updater" ],
     [ "basic_led_status", "structfs8_1_1basic__led__status.html", "structfs8_1_1basic__led__status" ],
     [ "basic_led_toggle", "structfs8_1_1basic__led__toggle.html", "structfs8_1_1basic__led__toggle" ],
+    [ "basic_capslock_off", "structfs8_1_1basic__capslock__off.html", "structfs8_1_1basic__capslock__off" ],
+    [ "basic_capslock_on", "structfs8_1_1basic__capslock__on.html", "structfs8_1_1basic__capslock__on" ],
     [ "fs8::basic_keys_status::code_type", "module_fs8_8mods_8keys__status.html#ac9548dec65c87f28058c26d4887634bb", null ],
     [ "fs8::basic_keys_status::value_type", "module_fs8_8mods_8keys__status.html#a723d469c7f332ef413a436d07f2717ad", null ],
     [ "fs8::basic_led_status::code_type", "module_fs8_8mods_8keys__status.html#a4ca82c5637fe5a2504a92b766b832233", null ],
@@ -29,7 +31,10 @@ var module_fs8_8mods_8keys__status =
     [ "fs8::basic_led_status::operator()", "module_fs8_8mods_8keys__status.html#ab49da110251253735f84347c7e8c7362", null ],
     [ "fs8::basic_led_status::seed", "module_fs8_8mods_8keys__status.html#a64349e7eea81eddd2dfb6f34a0d1a56a", null ],
     [ "fs8::basic_led_status::toggle_capslock", "module_fs8_8mods_8keys__status.html#aaee4ca13ca8264e5c06d8dcca485ca68", null ],
+    [ "fs8::basic_led_status::set_capslock", "module_fs8_8mods_8keys__status.html#a0fbd4a773363e8cfcca93a3424dad9d9", null ],
     [ "fs8::basic_led_status::operator()", "module_fs8_8mods_8keys__status.html#a43ee62c9868a9a054a30a5e87df6147e", null ],
     [ "fs8::basic_led_toggle::operator()", "module_fs8_8mods_8keys__status.html#a0a926a162fb418dd019626fbfe46c455", null ],
+    [ "fs8::basic_capslock_off::operator()", "module_fs8_8mods_8keys__status.html#a95ac03c9091d5717960609bea00a5a53", null ],
+    [ "fs8::basic_capslock_on::operator()", "module_fs8_8mods_8keys__status.html#a345b8bf8933c3e97cfec569dcbafc483", null ],
     [ "fs8::update_mod", "module_fs8_8mods_8keys__status.html#a002c97d73bca52d16d3a96c603d7f8a5", null ]
 ];

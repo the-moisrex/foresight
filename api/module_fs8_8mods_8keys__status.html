@@ -111,6 +111,10 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__led__toggle.html">fs8::basic_led_toggle</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flip the CapsLock mode by toggling the (physical) CapsLock LED.  <a href="structfs8_1_1basic__led__toggle.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capslock__off.html">fs8::basic_capslock_off</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capslock__on.html">fs8::basic_capslock_on</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -173,16 +177,23 @@ requires (!Context&lt;std::remove_cvref_t&lt;InpModT&gt;&gt; &amp;&amp; !Tag&lt;
 <tr class="memitem:ab49da110251253735f84347c7e8c7362" id="r_ab49da110251253735f84347c7e8c7362"><td class="memTemplParams" colspan="2">template&lt;ContextWith&lt; basic_input_manager &gt; CtxT&gt; </td></tr>
 <tr class="memitem:ab49da110251253735f84347c7e8c7362"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__led__status.html#ab49da110251253735f84347c7e8c7362">operator()</a> (CtxT &amp;ctx, start_tag) noexcept</td></tr>
 <tr class="separator:ab49da110251253735f84347c7e8c7362"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64349e7eea81eddd2dfb6f34a0d1a56a" id="r_a64349e7eea81eddd2dfb6f34a0d1a56a"><td class="memTemplParams" colspan="2">template&lt;ContextWith&lt; basic_input_manager &gt; CtxT&gt; </td></tr>
+<tr class="memitem:a64349e7eea81eddd2dfb6f34a0d1a56a" id="r_a64349e7eea81eddd2dfb6f34a0d1a56a"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
 <tr class="memitem:a64349e7eea81eddd2dfb6f34a0d1a56a"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__led__status.html#a64349e7eea81eddd2dfb6f34a0d1a56a">seed</a> (CtxT &amp;ctx) noexcept</td></tr>
 <tr class="separator:a64349e7eea81eddd2dfb6f34a0d1a56a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaee4ca13ca8264e5c06d8dcca485ca68" id="r_aaee4ca13ca8264e5c06d8dcca485ca68"><td class="memTemplParams" colspan="2">template&lt;ContextWith&lt; basic_input_manager &gt; CtxT&gt; </td></tr>
+<tr class="memitem:aaee4ca13ca8264e5c06d8dcca485ca68" id="r_aaee4ca13ca8264e5c06d8dcca485ca68"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
 <tr class="memitem:aaee4ca13ca8264e5c06d8dcca485ca68"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__led__status.html#aaee4ca13ca8264e5c06d8dcca485ca68">toggle_capslock</a> (CtxT &amp;ctx) noexcept</td></tr>
 <tr class="separator:aaee4ca13ca8264e5c06d8dcca485ca68"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fbd4a773363e8cfcca93a3424dad9d9" id="r_a0fbd4a773363e8cfcca93a3424dad9d9"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
+<tr class="memitem:a0fbd4a773363e8cfcca93a3424dad9d9"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__led__status.html#a0fbd4a773363e8cfcca93a3424dad9d9">set_capslock</a> (CtxT &amp;ctx, bool const on) noexcept</td></tr>
+<tr class="separator:a0fbd4a773363e8cfcca93a3424dad9d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a43ee62c9868a9a054a30a5e87df6147e" id="r_a43ee62c9868a9a054a30a5e87df6147e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__led__status.html#a43ee62c9868a9a054a30a5e87df6147e">operator()</a> (event_type const &amp;event) noexcept</td></tr>
 <tr class="separator:a43ee62c9868a9a054a30a5e87df6147e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0a926a162fb418dd019626fbfe46c455" id="r_a0a926a162fb418dd019626fbfe46c455"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__led__toggle.html#a0a926a162fb418dd019626fbfe46c455">operator()</a> (Context auto &amp;ctx) const noexcept</td></tr>
 <tr class="separator:a0a926a162fb418dd019626fbfe46c455"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95ac03c9091d5717960609bea00a5a53" id="r_a95ac03c9091d5717960609bea00a5a53"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capslock__off.html#a95ac03c9091d5717960609bea00a5a53">operator()</a> (Context auto &amp;ctx) const noexcept</td></tr>
+<tr class="separator:a95ac03c9091d5717960609bea00a5a53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a345b8bf8933c3e97cfec569dcbafc483" id="r_a345b8bf8933c3e97cfec569dcbafc483"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capslock__on.html#a345b8bf8933c3e97cfec569dcbafc483">operator()</a> (Context auto &amp;ctx) const noexcept</td></tr>
+<tr class="separator:a345b8bf8933c3e97cfec569dcbafc483"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>

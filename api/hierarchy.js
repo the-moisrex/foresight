@@ -83,6 +83,8 @@ var hierarchy =
       [ "fs8::and_op< Funcs >", "structfs8_1_1and__op.html", null ],
       [ "fs8::basic_abs2rel", "structfs8_1_1basic__abs2rel.html", null ],
       [ "fs8::basic_add_scroll< CondT, Func >", "structfs8_1_1basic__add__scroll.html", null ],
+      [ "fs8::basic_capslock_off", "structfs8_1_1basic__capslock__off.html", null ],
+      [ "fs8::basic_capslock_on", "structfs8_1_1basic__capslock__on.html", null ],
       [ "fs8::basic_code_adaptor< A, N >", "structfs8_1_1basic__code__adaptor.html", null ],
       [ "fs8::basic_context< Funcs >", "structfs8_1_1basic__context.html", null ],
       [ "fs8::basic_debounce< N >", "structfs8_1_1basic__debounce.html", null ],
