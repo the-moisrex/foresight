@@ -34,6 +34,7 @@ var searchData=
   ['nullable_5findirect_3c_20fs8_3a_3adetail_3a_3arouter_5fstate_20_3e_31',['nullable_indirect&lt; fs8::detail::router_state &gt;',['../structfs8_1_1nullable__indirect.html',1,'fs8']]],
   ['nullable_5findirect_3c_20fs8_3a_3apimpl_5fidiom_3a_3aimpl_20_3e_32',['nullable_indirect&lt; fs8::pimpl_idiom::impl &gt;',['../structfs8_1_1nullable__indirect.html',1,'fs8']]],
   ['nullable_5findirect_3c_20fs8_3a_3aplain_5fpimpl_5fidiom_3a_3aimpl_20_3e_33',['nullable_indirect&lt; fs8::plain_pimpl_idiom::impl &gt;',['../structfs8_1_1nullable__indirect.html',1,'fs8']]],
-  ['numpad_34',['numpad',['../namespacefs8_1_1caps.html#a8939b73171b13f88359865d6e1e78933',1,'fs8::caps']]],
-  ['nval_35',['nval',['../namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983caa5e0fb6ca915cf212b6528e5ae1786f2',1,'fs8']]]
+  ['numlock_5foff_34',['numlock_off',['../namespacefs8.html#a5e13145a867352fd13a3ca42f1f21653',1,'fs8']]],
+  ['numpad_35',['numpad',['../namespacefs8_1_1caps.html#a8939b73171b13f88359865d6e1e78933',1,'fs8::caps']]],
+  ['nval_36',['nval',['../namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983caa5e0fb6ca915cf212b6528e5ae1786f2',1,'fs8']]]
 ];

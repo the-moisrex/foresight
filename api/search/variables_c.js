@@ -5,7 +5,7 @@ var searchData=
   ['matches_5flimit_2',['matches_limit',['../structfs8_1_1basic__device__query.html#ae2b4d1d5c170fb6f7c37f2f338385607',1,'fs8::basic_device_query::matches_limit'],['../structfs8_1_1owned__query.html#af81ef6198a47e0c67da7445ef3a583a8',1,'fs8::owned_query::matches_limit'],['../namespacefs8.html#a2cc4d1b04a5240205d88194cc3b9cadd',1,'fs8::matches_limit']]],
   ['matches_5fpercentage_3',['matches_percentage',['../namespacefs8.html#a027be9691e2c5bc35c32331572496172',1,'fs8']]],
   ['max_5fbuffer_4',['max_buffer',['../structfs8_1_1basic__held__gate.html#ae48645e628e5d5ccb2960cefa9451b9d',1,'fs8::basic_held_gate']]],
-  ['max_5fcodes_5',['max_codes',['../structfs8_1_1basic__held.html#af375a2f19a95f8cef05f1ac7ac041c8e',1,'fs8::basic_held::max_codes'],['../structfs8_1_1basic__held__gate.html#a61837874adb1fa45905712ea1a72ba66',1,'fs8::basic_held_gate::max_codes']]],
+  ['max_5fcodes_5',['max_codes',['../structfs8_1_1basic__held.html#af375a2f19a95f8cef05f1ac7ac041c8e',1,'fs8::basic_held::max_codes'],['../structfs8_1_1basic__held__gate.html#a61837874adb1fa45905712ea1a72ba66',1,'fs8::basic_held_gate::max_codes'],['../structfs8_1_1basic__on__held.html#aa18c79ae4cfdf2884b0e3198e20a2e6b',1,'fs8::basic_on_held::max_codes']]],
   ['max_5fpatterns_6',['MAX_PATTERNS',['../structfs8_1_1basic__search__engine.html#a4d64585b3c8dc9796fecb7f808657484',1,'fs8::basic_search_engine']]],
   ['max_5ftype_5fmap_5fentries_7',['MAX_TYPE_MAP_ENTRIES',['../how2type_8cxx.html#a9b55382ea7880c0d74001abfd73e9aec',1,'how2type.cxx']]],
   ['mice_5fquantifier_8',['mice_quantifier',['../namespacefs8.html#a5564752db7d809613b5f3ccf3748c260',1,'fs8']]],
@@ -15,9 +15,10 @@ var searchData=
   ['monitor_12',['monitor',['../structfs8_1_1pimpl__idiom_1_1impl.html#af27cc3933f761007156006f1d27e149e',1,'fs8::pimpl_idiom::impl']]],
   ['mouse_13',['mouse',['../namespacefs8_1_1caps.html#af5c9ce55528db0fae8f4122eec307f7a',1,'fs8::caps::mouse'],['../namespacefs8_1_1attr.html#a0b9a4631134f1a964b6f8327172454cc',1,'fs8::attr::mouse'],['../namespacefs8.html#a7211268ea02a8608b761bbd90a58da5a',1,'fs8::mouse']]],
   ['mouse_5fhistory_14',['mouse_history',['../namespacefs8.html#aaa8e58604e1cb96172ab1e4abc48f95a',1,'fs8']]],
-  ['mt_5fabs_5faxes_15',['mt_abs_axes',['../namespacefs8_1_1caps.html#af911c32326d5aa5eb9c20aeccd49a97c',1,'fs8::caps']]],
-  ['multi_5fclick_16',['multi_click',['../namespacefs8.html#a1c2c3281f7c944442c501f4968507bdd',1,'fs8']]],
-  ['multimedia_5fkeyboard_17',['multimedia_keyboard',['../namespacefs8_1_1caps.html#a47c027729a0dd33e28596f79dcaeb18c',1,'fs8::caps']]],
-  ['multitouch_5fscreen_18',['multitouch_screen',['../namespacefs8_1_1caps.html#a72ad5ca14a12d247fed073d365a09f0e',1,'fs8::caps']]],
-  ['multitouch_5ftouchpad_19',['multitouch_touchpad',['../namespacefs8_1_1caps.html#a25544862c6a804841966304c4ae58b31',1,'fs8::caps']]]
+  ['mouse_5fto_5fscroll_15',['mouse_to_scroll',['../namespacefs8.html#afb26a239748eb1c62481a801edcec14b',1,'fs8']]],
+  ['mt_5fabs_5faxes_16',['mt_abs_axes',['../namespacefs8_1_1caps.html#af911c32326d5aa5eb9c20aeccd49a97c',1,'fs8::caps']]],
+  ['multi_5fclick_17',['multi_click',['../namespacefs8.html#a1c2c3281f7c944442c501f4968507bdd',1,'fs8']]],
+  ['multimedia_5fkeyboard_18',['multimedia_keyboard',['../namespacefs8_1_1caps.html#a47c027729a0dd33e28596f79dcaeb18c',1,'fs8::caps']]],
+  ['multitouch_5fscreen_19',['multitouch_screen',['../namespacefs8_1_1caps.html#a72ad5ca14a12d247fed073d365a09f0e',1,'fs8::caps']]],
+  ['multitouch_5ftouchpad_20',['multitouch_touchpad',['../namespacefs8_1_1caps.html#a25544862c6a804841966304c4ae58b31',1,'fs8::caps']]]
 ];

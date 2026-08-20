@@ -12,5 +12,7 @@ var structfs8_1_1basic__led__status =
     [ "operator()", "structfs8_1_1basic__led__status.html#a43ee62c9868a9a054a30a5e87df6147e", null ],
     [ "seed", "structfs8_1_1basic__led__status.html#a64349e7eea81eddd2dfb6f34a0d1a56a", null ],
     [ "set_capslock", "structfs8_1_1basic__led__status.html#a0fbd4a773363e8cfcca93a3424dad9d9", null ],
-    [ "toggle_capslock", "structfs8_1_1basic__led__status.html#aaee4ca13ca8264e5c06d8dcca485ca68", null ]
+    [ "set_led", "structfs8_1_1basic__led__status.html#a1aacc854fea58df0e827524c5462e60a", null ],
+    [ "toggle_capslock", "structfs8_1_1basic__led__status.html#aaee4ca13ca8264e5c06d8dcca485ca68", null ],
+    [ "toggle_led", "structfs8_1_1basic__led__status.html#a6a19bd16228f877c278f599cf6fe51dc", null ]
 ];

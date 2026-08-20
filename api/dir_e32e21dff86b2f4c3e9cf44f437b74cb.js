@@ -2,7 +2,6 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
 [
     [ "abs2rel.cxx", "abs2rel_8cxx.html", "abs2rel_8cxx" ],
     [ "abs2rel.ixx", "abs2rel_8ixx.html", "abs2rel_8ixx" ],
-    [ "add_scroll.ixx", "add__scroll_8ixx.html", "add__scroll_8ixx" ],
     [ "autocomplete.cxx", "autocomplete_8cxx.html", "autocomplete_8cxx" ],
     [ "autocomplete.ixx", "autocomplete_8ixx.html", "autocomplete_8ixx" ],
     [ "context_vars.ixx", "context__vars_8ixx.html", "context__vars_8ixx" ],
@@ -29,6 +28,7 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "momentum.cxx", "momentum_8cxx.html", null ],
     [ "momentum.ixx", "momentum_8ixx.html", "momentum_8ixx" ],
     [ "mouse_status.ixx", "mouse__status_8ixx.html", "mouse__status_8ixx" ],
+    [ "mouse_to_scroll.ixx", "mouse__to__scroll_8ixx.html", "mouse__to__scroll_8ixx" ],
     [ "on.cxx", "on_8cxx.html", null ],
     [ "on.ixx", "on_8ixx.html", "on_8ixx" ],
     [ "quantifier.cxx", "quantifier_8cxx.html", null ],

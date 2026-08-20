@@ -997,8 +997,8 @@ mod is for and when you'd reach for it.</p>
 <td>Translate a pen tablet's buttons/tools into mouse clicks.</td>
 </tr>
 <tr>
-<td><code>add_scroll</code></td>
-<td>Convert mouse movement into scroll wheel events (conditionally).</td>
+<td><code>mouse_to_scroll</code></td>
+<td>Convert mouse movement into scroll-wheel events. Pure transformer with no condition of its own — gate it with <code>hold_mod</code>, e.g. <code>hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]</code>. Requires <code>mice_quantifier</code>.</td>
 </tr>
 <tr>
 <td><code>smooth</code></td>
@@ -1058,6 +1058,10 @@ mod is for and when you'd reach for it.</p>
 <tr>
 <td><code>held</code></td>
 <td>True while a key/chord is held; <code>held[key, decider]</code> gates the held keys (swallow or emit).</td>
+</tr>
+<tr>
+<td><code>hold_mod</code></td>
+<td>Run a mod while given modifier keys are held, e.g. <code>hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]</code>. Buffers each key's initial press: a quick tap is re-emitted as a real press+release (caps toggle / click), while a hold past <code>.hold(dur)</code> (default 200ms) — or a key that was actually used — swallows the release.</td>
 </tr>
 <tr>
 <td><code>pressed</code> / <code>pressed_any</code></td>
