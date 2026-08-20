@@ -16,13 +16,13 @@ module;
 #include <sys/stat.h>
 #include <system_error>
 #include <unistd.h>
-module fs8.devices.uinput;
+module fs8.mods;
 import fs8.event;
 import fs8.log;
 import fs8.context;
 import fs8.devices.queries;
 import fs8.devices.udev;
-import fs8.mods.input_manager;
+import :input_manager;
 import fs8.pimpl;
 
 using fs8::basic_uinput;

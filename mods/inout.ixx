@@ -4,7 +4,7 @@ module;
 #include <ctime>
 #include <linux/uinput.h>
 #include <unistd.h>
-export module fs8.mods.inout;
+export module fs8.mods:inout;
 import fs8.context;
 import fs8.event;
 import fs8.traits;

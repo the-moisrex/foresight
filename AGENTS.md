@@ -12,11 +12,11 @@ All library code lives behind C++26 modules; the directory layout mirrors the
 |-------------|-------------------------------------------------------------------------|
 | `apps/`     | Example apps (`pen2mice`, `x2y`, ...). Each links `foresight::foresight`; register new ones via `add_subdirectory` in `apps/CMakeLists.txt`. |
 | `bash/`     | `fs8.bash` — `bash_runner` (embedded bash interpreter).                 |
-| `devices/`  | `fs8.devices.*` — `evdev`, `uinput`, `udev`, `queries`, `capabilities`, `key_codes`, and the generated `inputs-event-codes` (`fs8.devices.event_codes`). |
+| `devices/`  | `fs8.devices.*` — `evdev`, `udev`, `queries`, `capabilities`, `key_codes`, and the generated `inputs-event-codes` (`fs8.devices.event_codes`). `uinput.ixx`/`uinput.cxx` are the `fs8.mods:uinput` partition (they live here but belong to the `fs8.mods` module). |
 | `io/`       | liburing header-only wrapper (via CPM). **Not a module.**               |
 | `lib/`      | `fs8.lib.*` — `mod_parser` (key/modifier-tag parsing), `xkb`, `xkb.how2type`, `xkb.event2unicode`, `evtest`. |
 | `main/`     | The `fs8` umbrella (`keyboard`, `translate`, `log`), plus `fs8.context`, `fs8.event`, `fs8.cli`, `fs8.utils` (re-exports `fs8.cli`), `fs8.log`, `fs8.systemd`, `fs8.scaffold`. The `foresight` CLI entry is `main/main.cxx`. |
-| `mods/`     | The `fs8.mods.*` pipeline mods, the `fs8.mods` umbrella, and the `fs8.context:vars` partition. |
+| `mods/`     | The `fs8.mods` umbrella and its partitions `fs8.mods:<name>` (one per pipeline mod), plus the `fs8.context:vars` partition. |
 | `tests/`    | GoogleTest suites (built in Debug only).                                |
 | `tools/`    | Codegen: `update.sh` + `gen-keys.awk` (regenerate `inputs-event-codes`). |
 | `utils/`    | `fs8.pimpl`, `fs8.traits`, `fs8.hash`, `fs8.strings`, `fs8.nullable_indirect`, `fs8.easings`, `dynamic_scoping`. |
@@ -171,7 +171,7 @@ state mod fails to build.
 ## C++26 modules (the big gotcha)
 
 All library code is C++26 modules: interfaces are `.ixx`, paired with `.cxx`
-implementation units. Module names use the `fs8.*` namespace (`fs8.mods.*`,
+implementation units. Module names use the `fs8.*` namespace (`fs8.mods`,
 `fs8.devices.*`, `fs8.context`, ...).
 
 Umbrella / re-export modules:
@@ -182,8 +182,9 @@ Umbrella / re-export modules:
 - Apps `import fs8.mods` (and often `fs8.cli`, `fs8.log`, `fs8.devices.*`).
 
 Partitions: `mods/context_vars.ixx` is a **module partition** of `fs8.context`
-(`fs8.context:vars`) even though it lives in `mods/`. `io/liburing.ixx` is not
-a module — it only includes liburing's headers.
+(`fs8.context:vars`) even though it lives in `mods/`. The pipeline mods and
+`devices/uinput.ixx` are all partitions of `fs8.mods` (`fs8.mods:<name>`).
+`io/liburing.ixx` is not a module — it only includes liburing's headers.
 
 **Adding a module requires registering the files in the root `CMakeLists.txt`
 in two places**, or the build silently omits them:

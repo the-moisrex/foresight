@@ -9,7 +9,7 @@
 #include <span>
 #include <thread>
 
-import fs8.devices.uinput;
+import fs8.mods;
 import fs8.devices.queries;
 
 TEST(Uinput, CheckAvailablity) {

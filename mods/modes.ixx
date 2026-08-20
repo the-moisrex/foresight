@@ -3,7 +3,7 @@ module;
 #include <cassert>
 #include <cstdint>
 #include <tuple>
-export module fs8.mods.modes;
+export module fs8.mods:modes;
 import fs8.utils;
 import fs8.context;
 import fs8.traits;

@@ -7,11 +7,11 @@ module;
 #include <ranges>
 #include <span>
 #include <string>
-export module fs8.mods.input_manager;
+export module fs8.mods:input_manager;
 import fs8.context;
 import fs8.devices.evdev;
 import fs8.devices.queries;
-import fs8.mods.io_manager;
+import :io_manager;
 import fs8.pimpl;
 
 export namespace fs8 {

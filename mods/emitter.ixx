@@ -5,7 +5,7 @@ module;
 #include <array>
 #include <linux/input-event-codes.h>
 #include <span>
-export module fs8.mods.emitter;
+export module fs8.mods:emitter;
 import fs8.event;
 import fs8.context;
 import fs8.traits;

@@ -12,11 +12,11 @@ module;
 #include <thread>
 #include <utility>
 #include <vector>
-module fs8.mods.input_manager;
+module fs8.mods;
 import fs8.devices.evdev;
 import fs8.devices.udev;
 import fs8.devices.queries;
-import fs8.mods.io_manager;
+import :io_manager;
 import fs8.context;
 import fs8.log;
 

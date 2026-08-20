@@ -5,7 +5,7 @@ module;
 #include <cassert>
 #include <optional>
 #include <string_view>
-export module fs8.mods.vars;
+export module fs8.mods:vars;
 import fs8.context;
 import fs8.utils;
 import fs8.traits;

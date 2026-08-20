@@ -4,11 +4,11 @@ module;
 #include <array>
 #include <concepts>
 #include <utility>
-export module fs8.mods.device;
+export module fs8.mods:device;
 import fs8.context;
 import fs8.event;
 import fs8.traits;
-import fs8.mods.input_manager;
+import :input_manager;
 
 export namespace fs8 {
 

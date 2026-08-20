@@ -6,7 +6,7 @@ import fs8.event;
 import fs8.lib.evtest;
 import fs8.lib.xkb;
 import fs8.lib.xkb.how2type;
-import fs8.mods.typed;
+import fs8.mods;
 
 using fs8::aho_state;
 using fs8::basic_search_engine;

@@ -9,7 +9,7 @@ The complete C++ API reference is generated from the source with
 
 The reference is organized by:
 
-- **Modules** — the `fs8.*` C++ module pages (e.g. `fs8.mods.on`, `fs8.event`, `fs8.context`).
+- **Modules** — the `fs8.*` C++ module pages (e.g. `fs8.mods`, `fs8.event`, `fs8.context`).
 - **Classes** — `basic_context`, `event_type`, the `basic_*` mods, and more.
 - **Files** — the `.ixx` module sources.
 

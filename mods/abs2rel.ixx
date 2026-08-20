@@ -2,13 +2,13 @@ module;
 #include <cassert>
 #include <linux/input-event-codes.h>
 #include <utility>
-export module fs8.mods.abs2rel;
+export module fs8.mods:abs2rel;
 import fs8.context;
 import fs8.devices.evdev;
-import fs8.mods.input_manager;
+import :input_manager;
 import fs8.devices.capabilities;
-import fs8.mods.ignore;
-import fs8.mods.keys_status;
+import :ignore;
+import :keys_status;
 import fs8.traits;
 
 export namespace fs8 {

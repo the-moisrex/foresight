@@ -2,7 +2,7 @@ module;
 #include <chrono>
 #include <cmath>
 #include <optional>
-export module fs8.mods.momentum;
+export module fs8.mods:momentum;
 import fs8.context;
 
 namespace fs8 {

@@ -3,7 +3,7 @@
 module;
 #include <linux/uinput.h>
 #include <unistd.h>
-module fs8.mods.inout;
+module fs8.mods;
 import fs8.event;
 import fs8.context;
 

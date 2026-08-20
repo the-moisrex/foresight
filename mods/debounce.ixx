@@ -8,7 +8,7 @@ module;
 #include <linux/input-event-codes.h>
 #include <span>
 #include <utility>
-export module fs8.mods.debounce;
+export module fs8.mods:debounce;
 import fs8.context;
 import fs8.traits;
 

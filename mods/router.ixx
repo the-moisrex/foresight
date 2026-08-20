@@ -8,15 +8,15 @@ module;
 #include <linux/uinput.h>
 #include <ranges>
 #include <type_traits>
-export module fs8.mods.router;
+export module fs8.mods:router;
 import fs8.devices.queries;
 import fs8.context;
-import fs8.devices.uinput;
+import :uinput;
 import fs8.event;
 import fs8.log;
 import fs8.utils;
 import fs8.nullable_indirect;
-import fs8.mods.input_manager;
+import :input_manager;
 import fs8.traits;
 
 namespace fs8 {

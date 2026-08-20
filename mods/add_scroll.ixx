@@ -4,11 +4,11 @@ module;
 #include <cassert>
 #include <linux/uinput.h>
 #include <span>
-export module fs8.mods.add_scroll;
+export module fs8.mods:add_scroll;
 import fs8.context;
-import fs8.mods.keys_status;
-import fs8.mods.quantifier;
-import fs8.mods.inout;
+import :keys_status;
+import :quantifier;
+import :inout;
 import fs8.event;
 import fs8.utils;
 import fs8.traits;

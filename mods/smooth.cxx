@@ -1,6 +1,6 @@
 module;
 #include <cmath>
-module fs8.mods.smooth;
+module fs8.mods;
 import fs8.pimpl;
 
 using fs8::basic_kalman_filter;

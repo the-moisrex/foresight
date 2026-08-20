@@ -3,7 +3,7 @@
 module;
 #include <functional>
 #include <string_view>
-module fs8.mods.typer;
+module fs8.mods;
 import fs8.lib.mod_parser;
 import fs8.lib.xkb;
 
@@ -43,14 +43,14 @@ namespace {
     }
 } // namespace
 
-void fs8::emit(std::u32string_view const str, user_event_callback const callback) {
+void fs8::emit_str(std::u32string_view const str, user_event_callback const callback) {
     emit_impl(str, callback);
 }
 
-void fs8::emit(std::u8string_view const str, user_event_callback const callback) {
+void fs8::emit_str(std::u8string_view const str, user_event_callback const callback) {
     emit_impl(str, callback);
 }
 
-void fs8::emit(std::string_view const str, user_event_callback const callback) {
+void fs8::emit_str(std::string_view const str, user_event_callback const callback) {
     emit_impl(str, callback);
 }

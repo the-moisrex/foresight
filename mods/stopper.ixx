@@ -1,6 +1,6 @@
 // Created by moisrex on 6/11/25.
 
-export module fs8.mods.stopper;
+export module fs8.mods:stopper;
 import fs8.context;
 import fs8.traits;
 

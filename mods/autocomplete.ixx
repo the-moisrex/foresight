@@ -3,12 +3,12 @@
 module;
 #include <functional>
 #include <string_view>
-export module fs8.mods.autocomplete;
+export module fs8.mods:autocomplete;
 import fs8.context;
 import fs8.event;
 import fs8.lib.xkb;
 import fs8.lib.mod_parser;
-import fs8.mods.typer;
+import :typer;
 import fs8.pimpl;
 
 namespace fs8 {
@@ -50,7 +50,7 @@ namespace fs8 {
         context_action on_start() noexcept;
 
         /// Handle a single event; `emit` is called with the completion text when it fires.
-        context_action on_event(event_type const& event, std::function_ref<void(std::string_view)> emit) noexcept;
+        context_action on_event(event_type const& event, std::function_ref<void(std::string_view)> inp_emit) noexcept;
 
       public:
         explicit consteval basic_autocomplete(std::string_view const inp_pattern) noexcept : pattern{inp_pattern} {}

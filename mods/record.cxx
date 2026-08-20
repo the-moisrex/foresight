@@ -7,7 +7,7 @@ module;
 #include <stdexcept>
 #include <utility>
 #include <vector>
-module fs8.mods.record;
+module fs8.mods;
 import fs8.event;
 import fs8.context;
 import fs8.pimpl;

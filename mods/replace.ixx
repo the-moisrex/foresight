@@ -2,7 +2,7 @@ module;
 #include <array>
 #include <cstdint>
 #include <linux/input-event-codes.h>
-export module fs8.mods.replace;
+export module fs8.mods:replace;
 import fs8.event;
 import fs8.context;
 import fs8.traits;

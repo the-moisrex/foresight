@@ -6,11 +6,11 @@ module;
 #include <cstddef>
 #include <linux/input-event-codes.h>
 #include <utility>
-export module fs8.mods.ignore;
+export module fs8.mods:ignore;
 import fs8.context;
 import fs8.devices.capabilities;
 import fs8.traits;
-import fs8.mods.debounce;
+import :debounce;
 
 export namespace fs8 {
 
@@ -108,7 +108,7 @@ export namespace fs8 {
         context_action operator()(event_type const& event) noexcept;
     } ignore_fast_repeats;
 
-    /// Deprecated aliases of the general `fs8.mods.debounce` mod.
+    /// Deprecated aliases of the general `fs8.mods:debounce` mod.
     ///
     /// `basic_ignore_fast_double_clicks` used to be a mouse-click-only debouncer;
     /// it is now a thin alias of `basic_debounce` in `click` mode. Prefer the

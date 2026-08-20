@@ -7,7 +7,7 @@ module;
 #include <cstdint>
 #include <functional>
 #include <string_view>
-export module fs8.mods.typed;
+export module fs8.mods:typed;
 import fs8.context;
 import fs8.lib.xkb;
 import fs8.lib.mod_parser;

@@ -6,7 +6,7 @@ module;
 #include <linux/input-event-codes.h>
 #include <string>
 #include <string_view>
-module fs8.mods.autocomplete;
+module fs8.mods;
 import fs8.lib.mod_parser;
 import fs8.log;
 
@@ -103,7 +103,7 @@ fs8::context_action fs8::basic_autocomplete::on_start() noexcept try {
 }
 
 fs8::context_action fs8::basic_autocomplete::on_event(event_type const&                               event,
-                                                      std::function_ref<void(std::string_view)> const emit) noexcept {
+                                                      std::function_ref<void(std::string_view)> const inp_emit) noexcept {
     using enum context_action;
     if (event.type() != EV_KEY) {
         return next;
@@ -130,7 +130,7 @@ fs8::context_action fs8::basic_autocomplete::on_event(event_type const&         
     // trigger mode: complete when the trigger key is pressed after the prefix
     if (!auto_mode && key.code == pimpl->trigger_code) {
         if (pimpl->prefix.empty() || pimpl->buffer.ends_with(pimpl->prefix)) {
-            emit(pimpl->completion);
+            inp_emit(pimpl->completion);
             pimpl->buffer  = pimpl->prefix;
             pimpl->buffer += to_u32(pimpl->completion);
             return pass_trigger ? next : ignore_event;
@@ -151,7 +151,7 @@ fs8::context_action fs8::basic_autocomplete::on_event(event_type const&         
 
     // auto mode: complete as soon as the prefix is fully typed
     if (auto_mode && !pimpl->prefix.empty() && pimpl->buffer.ends_with(pimpl->prefix)) {
-        emit(pimpl->completion);
+        inp_emit(pimpl->completion);
         pimpl->buffer  = pimpl->prefix;
         pimpl->buffer += to_u32(pimpl->completion);
     }

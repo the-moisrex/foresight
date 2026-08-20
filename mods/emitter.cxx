@@ -1,7 +1,7 @@
 // Created by moisrex on 6/29/25.
 
 module;
-module fs8.mods.emitter;
+module fs8.mods;
 
 using fs8::basic_replace_code;
 using fs8::event_type;

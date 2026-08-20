@@ -7,7 +7,7 @@
 import fs8.lib.xkb;
 import fs8.lib.xkb.how2type;
 import fs8.event;
-import fs8.mods.lambda;
+import fs8.mods;
 
 using fs8::user_event;
 using fs8::xkb::get_default_keymap;

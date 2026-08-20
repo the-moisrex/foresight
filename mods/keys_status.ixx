@@ -6,12 +6,12 @@ module;
 #include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
 #include <span>
-export module fs8.mods.keys_status;
+export module fs8.mods:keys_status;
 import fs8.event;
 import fs8.context;
 import fs8.traits;
 import fs8.devices.evdev;
-import fs8.mods.input_manager;
+import :input_manager;
 import fs8.log;
 
 export namespace fs8 {
@@ -214,18 +214,6 @@ export namespace fs8 {
             }
         }
     } capslock_off;
-
-    /// Turn on the CapsLock mode when the CapsLock key is held (e.g. it is
-    /// being used as a scroll modifier); otherwise leave it alone.
-    constexpr struct [[nodiscard]] basic_capslock_on : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
-
-        void operator()(Context auto& ctx) const noexcept {
-            if (!ctx.mod(keys_status).is_pressed(KEY_CAPSLOCK)) {
-                std::ignore = ctx.mod(led_status).set_capslock(ctx, true);
-            }
-        }
-    } capslock_on;
 
 
 } // namespace fs8

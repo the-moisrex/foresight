@@ -10,11 +10,11 @@ module;
 #include <string_view>
 #include <tuple>
 #include <utility>
-export module fs8.mods.on;
+export module fs8.mods:on;
 
 export import fs8.utils;
 import fs8.lib.mod_parser;
-import fs8.mods.keys_status;
+import :keys_status;
 import fs8.context;
 import fs8.traits;
 

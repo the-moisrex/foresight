@@ -5,7 +5,7 @@ module;
 #include <sys/poll.h>
 #include <type_traits>
 #include <utility>
-export module fs8.mods.io_manager;
+export module fs8.mods:io_manager;
 import fs8.context;
 import fs8.pimpl;
 

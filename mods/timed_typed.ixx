@@ -5,11 +5,11 @@ module;
 #include <cstdint>
 #include <limits>
 #include <string_view>
-export module fs8.mods.timed_typed;
+export module fs8.mods:timed_typed;
 import fs8.context;
 import fs8.lib.xkb;
 import fs8.pimpl;
-import fs8.mods.typed;
+import :typed;
 
 namespace fs8 {
 

@@ -1,7 +1,7 @@
 // Created by moisrex on 6/9/25.
 
 module;
-export module fs8.mods.quantifier;
+export module fs8.mods:quantifier;
 import fs8.event;
 import fs8.context;
 import fs8.traits;

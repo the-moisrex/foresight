@@ -6,7 +6,7 @@ module;
 #include <limits>
 #include <linux/input-event-codes.h>
 #include <type_traits>
-export module fs8.mods.mouse_status;
+export module fs8.mods:mouse_status;
 import fs8.event;
 import fs8.context;
 import fs8.traits;

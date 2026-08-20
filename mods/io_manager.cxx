@@ -9,7 +9,7 @@ module;
 #include <sys/poll.h>
 #include <utility>
 #include <vector>
-module fs8.mods.io_manager;
+module fs8.mods;
 import fs8.log;
 
 using fs8::basic_io_manager;

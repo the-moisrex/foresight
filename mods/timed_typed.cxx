@@ -3,9 +3,9 @@
 module;
 #include <chrono>
 #include <cstdint>
-module fs8.mods.timed_typed;
+module fs8.mods;
 import fs8.event;
-import fs8.mods.typed;
+import :typed;
 import fs8.pimpl;
 
 using fs8::basic_timed_typed;

@@ -15,7 +15,6 @@ import fs8.mods;
 import fs8.devices.udev;
 import fs8.devices.queries;
 import fs8.devices.evdev;
-import fs8.devices.uinput;
 
 using namespace fs8;
 

@@ -5,7 +5,7 @@ module;
 #include <cmath>
 #include <cstdint>
 #include <linux/input-event-codes.h>
-module fs8.mods.abs2rel;
+module fs8.mods;
 import fs8.log;
 
 using fs8::basic_abs2rel;

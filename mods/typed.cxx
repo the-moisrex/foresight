@@ -13,7 +13,7 @@ module;
 #include <string>
 #include <utility>
 #include <vector>
-module fs8.mods.typed;
+module fs8.mods;
 import fs8.lib.xkb.how2type;
 import fs8.event;
 import fs8.lib.mod_parser;

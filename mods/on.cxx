@@ -5,7 +5,7 @@ module;
 #include <linux/input-event-codes.h>
 #include <tuple>
 #include <utility>
-module fs8.mods.on;
+module fs8.mods;
 
 using fs8::basic_swipe_detector;
 

@@ -6,7 +6,7 @@ module;
 #include <ranges>
 #include <string_view>
 #include <system_error>
-export module fs8.devices.uinput;
+export module fs8.mods:uinput;
 export import fs8.devices.evdev;
 export import fs8.event;
 import fs8.log;
@@ -14,7 +14,7 @@ import fs8.context;
 import fs8.devices.capabilities;
 import fs8.devices.queries;
 import fs8.devices.udev;
-import fs8.mods.input_manager;
+import :input_manager;
 import fs8.pimpl;
 import fs8.traits;
 

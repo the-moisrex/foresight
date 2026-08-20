@@ -3,7 +3,7 @@
 module;
 #include <string_view>
 #include <vector>
-export module fs8.mods.typer;
+export module fs8.mods:typer;
 import fs8.context;
 import fs8.event;
 import fs8.lib.xkb.how2type;
@@ -23,9 +23,9 @@ namespace fs8 {
     }
 
     /// Emit the events in the string
-    void emit(std::u32string_view str, user_event_callback);
-    void emit(std::u8string_view str, user_event_callback);
-    void emit(std::string_view str, user_event_callback);
+    export void emit_str(std::u32string_view str, user_event_callback);
+    export void emit_str(std::u8string_view str, user_event_callback);
+    export void emit_str(std::string_view str, user_event_callback);
 
     /**
      * This struct will help you emit events corresponding to a string
@@ -84,7 +84,7 @@ namespace fs8 {
             // NOTE: fork_emit re-sends each synthesized event through the mods that come AFTER this one
             // (never back into `typed`/`search_engine`, which sit earlier in the pipeline), so an emitted
             // string can't re-trigger the pattern that produced it as long as emitters stay downstream of matchers.
-            emit(str, [&](user_event const& event) noexcept {
+            emit_str(str, [&](user_event const& event) noexcept {
                 std::ignore = ctx.fork_emit(event_type{event});
             });
         } catch (...) {

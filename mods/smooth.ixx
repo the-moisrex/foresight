@@ -4,8 +4,8 @@ module;
 #include <cstdint>
 #include <cstdlib>
 #include <linux/input-event-codes.h>
-export module fs8.mods.smooth;
-import fs8.mods.mouse_status;
+export module fs8.mods:smooth;
+import :mouse_status;
 import fs8.event;
 import fs8.context;
 import fs8.easings;

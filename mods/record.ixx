@@ -7,7 +7,7 @@ module;
 #include <ranges>
 #include <span>
 #include <vector>
-export module fs8.mods.record;
+export module fs8.mods:record;
 import fs8.event;
 import fs8.context;
 import fs8.pimpl;

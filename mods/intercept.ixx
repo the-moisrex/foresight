@@ -6,12 +6,12 @@ module;
 #include <optional>
 #include <ranges>
 #include <span>
-export module fs8.mods.intercept;
+export module fs8.mods:intercept;
 import fs8.devices.evdev;
 import fs8.devices.queries;
 import fs8.context;
-import fs8.mods.io_manager;
-import fs8.mods.input_manager;
+import :io_manager;
+import :input_manager;
 import fs8.pimpl;
 
 export namespace fs8 {
