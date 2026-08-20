@@ -493,7 +493,7 @@ namespace fs8 {
     };
 
     /// While any of the given keys is held, run the passed mod on every event
-    /// (e.g. `hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]` to turn mouse
+    /// (e.g. `on_held[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]` to turn mouse
     /// movement into scroll while a scroll modifier key is held).
     ///
     /// The modifier keys themselves are swallowed: the initial press is buffered
@@ -501,8 +501,10 @@ namespace fs8 {
     /// OS still sees a caps-lock toggle / middle click); on a hold past
     /// `hold_threshold` or when the gated mod consumed an event, the key is
     /// treated as a modifier and its release is swallowed too. If the desktop
-    /// turned the toggle-mode on (e.g. it saw the physical caps-lock press we
-    /// swallowed), a synthetic press+release is emitted to turn it back off.
+    /// flipped the toggle-mode when it saw the physical press we swallowed, a
+    /// synthetic press+release is emitted to restore the mode to what it was
+    /// before the press (so a caps-hold that scrolled doesn't leave you in a
+    /// different mode).
     ///
     /// Place it after `keys_status`/`update_mod` so other `pressed[]` conditions
     /// still observe the physical presses.
@@ -521,6 +523,7 @@ namespace fs8 {
         std::array<bool, N>          held{};
         std::array<bool, N>          used{};
         std::array<bool, N>          led_on{};
+        std::array<bool, N>          led_before{};
         std::array<duration_type, N> press_time{};
         duration_type                hold_threshold = std::chrono::milliseconds(200);
         [[no_unique_address]] ModT   mod{};
@@ -600,6 +603,10 @@ namespace fs8 {
                             held[i]       = true;
                             used[i]       = false;
                             press_time[i] = event.micro_time();
+                            // The mode state before the desktop reacts to the
+                            // press we're about to swallow (its EV_LED toggle
+                            // arrives after this event).
+                            led_before[i] = led_on[i];
                         }
                         return ignore_event;
                     }
@@ -610,10 +617,10 @@ namespace fs8 {
                         held[i] = false;
                         if (used[i] || event.micro_time() - press_time[i] >= hold_threshold) {
                             // used as a modifier: swallow the release too, and if
-                            // the desktop turned the toggle-mode on (it saw the
-                            // physical press we swallowed), turn it back off.
-                            if (auto const led = led_code_for(codes[i]); led != static_cast<code_type>(-1) && led_on[i]) {
-                                led_on[i]   = false;
+                            // the desktop flipped the toggle-mode (it saw the
+                            // physical press we swallowed), restore the mode.
+                            if (auto const led = led_code_for(codes[i]); led != static_cast<code_type>(-1) && led_on[i] != led_before[i]) {
+                                led_on[i]   = led_before[i];
                                 std::ignore = ctx.fork_emit(EV_KEY, codes[i], 1);
                                 std::ignore = ctx.fork_emit(EV_KEY, codes[i], 0);
                                 std::ignore = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);

@@ -137,8 +137,43 @@ TEST(HoldModTest, ToggleModeTurnedBackOffAfterModifierUse) {
      | record[tap_out])();
 
     // The press/release are swallowed, but because the desktop turned caps on,
-    // hold_mod emits a synthetic press+release to toggle it back off. The
-    // physical events never reach the output.
+    // on_held emits a synthetic press+release to restore it to off (mouse mode).
+    // The physical events never reach the output.
+    EXPECT_EQ(std::ranges::count_if(tap_out,
+                                    [](fs8::event_type const& e) {
+                                        return e.type() == EV_KEY && e.code() == KEY_CAPSLOCK;
+                                    }),
+              2U);
+    EXPECT_EQ(std::ranges::count_if(tap_out,
+                                    [](fs8::event_type const& e) {
+                                        return e.type() == EV_KEY && e.code() == KEY_CAPSLOCK && e.value() == 1;
+                                    }),
+              1U);
+    EXPECT_EQ(std::ranges::count_if(tap_out,
+                                    [](fs8::event_type const& e) {
+                                        return e.type() == EV_KEY && e.code() == KEY_CAPSLOCK && e.value() == 0;
+                                    }),
+              1U);
+}
+
+TEST(HoldModTest, PenModeRestoredAfterModifierUse) {
+    using namespace fs8;
+    tap_out.clear();
+
+    (context
+     | emit_all[{
+       {.type = EV_LED,    .code = LED_CAPSL, .value = 1}, // pen mode: caps is on
+       {.type = EV_KEY, .code = KEY_CAPSLOCK, .value = 1},
+       {.type = EV_LED,    .code = LED_CAPSL, .value = 0}, // the desktop toggled caps off
+       {.type = EV_REL,        .code = REL_X, .value = 5},
+       {.type = EV_KEY, .code = KEY_CAPSLOCK, .value = 0},
+    }]
+     | mice_quantifier
+     | on_held[KEY_CAPSLOCK, mouse_to_scroll]
+     | record[tap_out])();
+
+    // Caps was on (pen mode) before the press; the desktop flipped it off, so
+    // on release a synthetic press+release restores it to on (pen mode).
     EXPECT_EQ(std::ranges::count_if(tap_out,
                                     [](fs8::event_type const& e) {
                                         return e.type() == EV_KEY && e.code() == KEY_CAPSLOCK;
