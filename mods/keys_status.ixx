@@ -139,7 +139,7 @@ export namespace fs8 {
 
         /// Find the hardware keyboard (the device with LED_CAPSL) and copy the
         /// current LED values into our local LED state.
-        template <ContextWith<basic_input_manager> CtxT>
+        template <Context CtxT>
         context_action seed(CtxT& ctx) noexcept {
             using enum context_action;
             for (evdev const& dev : ctx.mod(input_manager).devices()) {
@@ -161,22 +161,32 @@ export namespace fs8 {
             return next;
         }
 
-        /// Flip the CapsLock mode: toggle the tracked LED state and mirror it
-        /// back to the physical keyboard so the mode indicator is real.
-        template <ContextWith<basic_input_manager> CtxT>
+        /// Flip the CapsLock mode: emit a KEY_CAPSLOCK press/release through the
+        /// pipeline so the desktop handles the mode change, and mirror it in the
+        /// tracked state.
+        template <Context CtxT>
         context_action toggle_capslock(CtxT& ctx) noexcept {
             using enum context_action;
-            log("LED toggle fired by {} tracked={}", ctx.event().code_name(), this->leds.at(LED_CAPSL) == 0 ? "off" : "on");
-            for (evdev const& dev : ctx.mod(input_manager).devices()) {
-                if (!dev.has_event_code(EV_LED, LED_CAPSL)) {
-                    continue;
-                }
-                auto const next_state    = this->is_off(LED_CAPSL) ? 1 : 0;
-                this->leds.at(LED_CAPSL) = static_cast<event_type::value_type>(next_state);
-                log("LED toggle: fd={} tracked={} -> write {}", dev.native_handle(), next_state == 1 ? "off" : "on", next_state);
-                std::ignore = dev.send_event(EV_LED, LED_CAPSL, next_state);
-                std::ignore = dev.send_event(EV_SYN, SYN_REPORT, 0);
-                break;
+            // log("LED toggle fired by {} tracked={}", ctx.event().code_name(), this->leds.at(LED_CAPSL) == 0 ? "off" : "on");
+            this->leds.at(LED_CAPSL) = static_cast<event_type::value_type>(this->is_off(LED_CAPSL) ? 1 : 0);
+            std::ignore              = ctx.fork_emit(EV_KEY, KEY_CAPSLOCK, 1);
+            std::ignore              = ctx.fork_emit(EV_KEY, KEY_CAPSLOCK, 0);
+            std::ignore              = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);
+            return next;
+        }
+
+        /// Set the CapsLock mode: when the requested state differs from the
+        /// current one, emit a KEY_CAPSLOCK press/release through the pipeline so
+        /// the desktop toggles the mode; mirror it in the tracked state.
+        template <Context CtxT>
+        context_action set_capslock(CtxT& ctx, bool const on) noexcept {
+            using enum context_action;
+            auto const value = static_cast<event_type::value_type>(on ? 1 : 0);
+            if (this->leds.at(LED_CAPSL) != value) {
+                this->leds.at(LED_CAPSL) = value;
+                std::ignore              = ctx.fork_emit(EV_KEY, KEY_CAPSLOCK, 1);
+                std::ignore              = ctx.fork_emit(EV_KEY, KEY_CAPSLOCK, 0);
+                std::ignore              = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);
             }
             return next;
         }
@@ -192,4 +202,15 @@ export namespace fs8 {
             std::ignore = ctx.mod(led_status).toggle_capslock(ctx);
         }
     } led_toggle;
+
+    /// Turn off the CapsLock mode on the physical keyboard.
+    constexpr struct [[nodiscard]] basic_capslock_off : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        void operator()(Context auto& ctx) const noexcept {
+            std::ignore = ctx.mod(led_status).set_capslock(ctx, false);
+        }
+    } capslock_off;
+
+
 } // namespace fs8

@@ -65,13 +65,16 @@ bool basic_led_status::is_off(std::span<code_type const> const key_codes) const 
 }
 
 void basic_led_status::operator()(event_type const& event) noexcept {
-    if (event.type() != EV_LED) {
-        return;
+    if (event.type() == EV_LED) {
+        if (event.code() >= LED_MAX) [[unlikely]] {
+            // Just in case
+            return;
+        }
+        // fs8::log("LED event: code={} value={}", event.code(), event.value());
+        this->leds.at(event.code()) = event.value();
+    } else if (event.type() == EV_KEY && event.code() == KEY_CAPSLOCK && event.value() == 1) {
+        // A real CapsLock press toggles the mode; mirror it so the tracked
+        // state stays in sync with the desktop.
+        this->leds.at(LED_CAPSL) = static_cast<event_type::value_type>(this->leds.at(LED_CAPSL) == 0 ? 1 : 0);
     }
-    if (event.code() >= LED_MAX) [[unlikely]] {
-        // Just in case
-        return;
-    }
-    fs8::log("LED event: code={} value={}", event.code(), event.value());
-    this->leds.at(event.code()) = event.value();
 }

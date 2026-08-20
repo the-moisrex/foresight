@@ -5,10 +5,7 @@ import fs8.log;
 import fs8.cli;
 import fs8.devices.queries;
 
-static constexpr auto args =
-  fs8::arguments
-    .positional("pen_device", "usb_keyboard_device")
-    .help(R"TEXT(
+static constexpr auto args = fs8::arguments.positional("pen_device", "usb_keyboard_device").help(R"TEXT(
 Usage: pen2mice [pen_device] [usb_keyboard_device]
 
 Converts a drawing tablet's absolute input into mouse movements and clicks
@@ -42,7 +39,7 @@ int main(int const argc, char const* const* argv) try {
       | intercept[tablet | required | grab, keyboard | required | grab]
       | scheduled_emitter
       | led_status
-      | keys_status // Save key presses
+      | keys_status                                // Save key presses
       | on[op | pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
            context
              | abs2rel                             // Convert Drawing Tablet absolute moves into mouse moves
@@ -79,8 +76,14 @@ int main(int const argc, char const* const* argv) try {
       | update_mod[keys_status]
       | once[pressed[KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC], exit_pipeline] // Restart/Quit
       | on[pressed[BTN_LEFT, KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
-      | add_scroll[op | pressed[BTN_MIDDLE] | pressed[KEY_CAPSLOCK], emit + up(BTN_MIDDLE)]
-      | once[longtime_released[pressed[KEY_CAPSLOCK], 200ms], led_toggle]
+      | add_scroll[op | pressed[BTN_MIDDLE] | pressed[KEY_CAPSLOCK], run([](Context auto& ctx) noexcept {
+                       if (ctx.mod(keys_status).is_pressed(KEY_CAPSLOCK)) {
+                           capslock_off(ctx);
+                       }
+                       std::ignore = ctx.fork_emit(EV_KEY, BTN_MIDDLE, 0);
+                       std::ignore = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);
+                   })]
+      | once[op & longtime_released[pressed[KEY_CAPSLOCK], 200ms] & led_on[LED_CAPSL], led_toggle]
       | router[caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput];
 
     pipeline.mod(intercept).add(parsed | grab | required);
