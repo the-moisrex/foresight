@@ -29,7 +29,7 @@ mod is for and when you'd reach for it.
 | `replace` | Replace one key (or chord) with another sequence, e.g. `replace[KEY_D, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_RIGHT]`. |
 | `abs2rel` | Convert absolute events (drawing tablets) into relative events (mouse). |
 | `pen2mice` | Translate a pen tablet's buttons/tools into mouse clicks. |
-| `add_scroll` | Convert mouse movement into scroll wheel events (conditionally). |
+| `mouse_to_scroll` | Convert mouse movement into scroll-wheel events. Pure transformer with no condition of its own — gate it with `hold_mod`, e.g. `hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]`. Requires `mice_quantifier`. |
 | `smooth` | Smooth mouse movement / ease the output: `lerp[max_steps, easing]`, `low_pass_filter[alpha]`, `kalman_filter[q, r]`. Requires `mouse_history` placed before it in the pipeline. |
 | `momentum` | Keep mouse momentum going after you stop moving. |
 | `ignore` | Family of "ignore" filters: big jumps, starting moves, fast repeats, adjacent repeats, and full event ignoring. |
@@ -47,6 +47,7 @@ mod is for and when you'd reach for it.
 | `on` | Run actions while a condition is true (`on[cond, ...actions]`); toggles on/off. |
 | `once` | Like `on`, but only fires when the condition *switches on*. |
 | `held` | True while a key/chord is held; `held[key, decider]` gates the held keys (swallow or emit). |
+| `hold_mod` | Run a mod while given modifier keys are held, e.g. `hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]`. Buffers each key's initial press: a quick tap is re-emitted as a real press+release (caps toggle / click), while a hold past `.hold(dur)` (default 200ms) — or a key that was actually used — swallows the release. |
 | `pressed` / `pressed_any` | True when specific key(s) are currently down. |
 | `keydown` / `keyup` | Match a key press / release event. |
 | `multi_click` | Double/triple click detection (`double_click`, `triple_click`). |

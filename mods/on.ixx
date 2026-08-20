@@ -492,6 +492,167 @@ namespace fs8 {
         }
     };
 
+    /// While any of the given keys is held, run the passed mod on every event
+    /// (e.g. `hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]` to turn mouse
+    /// movement into scroll while a scroll modifier key is held).
+    ///
+    /// The modifier keys themselves are swallowed: the initial press is buffered
+    /// and only released on a quick tap (a real press+release is re-emitted so the
+    /// OS still sees a caps-lock toggle / middle click); on a hold past
+    /// `hold_threshold` or when the gated mod consumed an event, the key is
+    /// treated as a modifier and its release is swallowed too. If the desktop
+    /// turned the toggle-mode on (e.g. it saw the physical caps-lock press we
+    /// swallowed), a synthetic press+release is emitted to turn it back off.
+    ///
+    /// Place it after `keys_status`/`update_mod` so other `pressed[]` conditions
+    /// still observe the physical presses.
+    export template <std::size_t N, typename ModT = basic_noop>
+    struct [[nodiscard]] basic_on_held : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        static constexpr std::size_t max_codes = 32;
+
+        using code_type     = event_type::code_type;
+        using duration_type = std::chrono::microseconds;
+
+      private:
+        std::array<code_type, N>     codes{};
+        std::array<event_type, N>    pending{};
+        std::array<bool, N>          held{};
+        std::array<bool, N>          used{};
+        std::array<bool, N>          led_on{};
+        std::array<duration_type, N> press_time{};
+        duration_type                hold_threshold = std::chrono::milliseconds(200);
+        [[no_unique_address]] ModT   mod{};
+
+        /// The LED that mirrors a toggle-mode key (CapsLock/NumLock/ScrollLock),
+        /// or -1 for keys that don't have an associated mode.
+        static constexpr code_type led_code_for(code_type const code) noexcept {
+            switch (code) {
+                case KEY_CAPSLOCK: return LED_CAPSL;
+                case KEY_NUMLOCK: return LED_NUML;
+                case KEY_SCROLLLOCK: return LED_SCROLLL;
+                default: return static_cast<code_type>(-1);
+            }
+        }
+
+      public:
+        template <std::size_t M>
+            requires(M == N)
+        explicit consteval basic_on_held(std::array<code_type, M> const& inp_codes, ModT const& inp_mod = {}) noexcept
+          : codes{inp_codes},
+            mod{inp_mod} {}
+
+        /// Code form: last argument is the mod, the rest are key codes.
+        template <typename... Args>
+            requires(sizeof...(Args)
+                     >= 2
+                     && std::convertible_to<std::tuple_element_t<0, std::tuple<Args...>>, code_type>
+                     && !std::convertible_to<std::tuple_element_t<sizeof...(Args) - 1, std::tuple<Args...>>, code_type>)
+        consteval auto operator[](Args&&... args) const noexcept {
+            constexpr std::size_t M       = sizeof...(Args);
+            auto const&           the_mod = std::get<M - 1>(std::tuple<Args&...>{args...});
+            using NewModT                 = std::remove_cvref_t<decltype(the_mod)>;
+            return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+                static_assert((std::convertible_to<std::tuple_element_t<I, std::tuple<Args...>>, code_type> && ...),
+                              "All but the last argument must be key codes.");
+                return basic_on_held<M - 1, NewModT>{
+                  std::array<code_type, M - 1>{static_cast<code_type>(std::get<I>(std::tuple<Args&...>{args...}))...},
+                  the_mod};
+            }(std::make_index_sequence<M - 1>{});
+        }
+
+        /// Set how long a key must be held before it counts as a modifier
+        /// (default 200ms). A quicker press is re-emitted as a real tap.
+        template <typename DurT>
+        consteval auto hold(DurT const& dur) const noexcept {
+            basic_on_held result{*this};
+            result.hold_threshold = dur;
+            return result;
+        }
+
+        context_action operator()(Context auto& ctx) noexcept {
+            using enum context_action;
+            auto const& event = ctx.event();
+
+            // Track the desktop's LED state for toggle-mode keys. The desktop
+            // writes EV_LED when it toggles the mode; this is the ground truth
+            // we use to undo an unwanted toggle on release.
+            if (event.type() == EV_LED) {
+                for (std::size_t i = 0; i < N; ++i) {
+                    if (led_code_for(codes[i]) == event.code()) {
+                        led_on[i] = event.value() != 0;
+                    }
+                }
+                return next;
+            }
+
+            // Tracked modifier keys: buffer the initial press, swallow repeats,
+            // and decide tap-vs-hold on release.
+            if (event.type() == EV_KEY) {
+                for (std::size_t i = 0; i < N; ++i) {
+                    if (event.code() != codes[i]) {
+                        continue;
+                    }
+                    if (event.value() == 1) {
+                        if (!held[i]) {
+                            pending[i]    = event;
+                            held[i]       = true;
+                            used[i]       = false;
+                            press_time[i] = event.micro_time();
+                        }
+                        return ignore_event;
+                    }
+                    if (event.value() == 2) {
+                        return ignore_event;
+                    }
+                    if (event.value() == 0 && held[i]) {
+                        held[i] = false;
+                        if (used[i] || event.micro_time() - press_time[i] >= hold_threshold) {
+                            // used as a modifier: swallow the release too, and if
+                            // the desktop turned the toggle-mode on (it saw the
+                            // physical press we swallowed), turn it back off.
+                            if (auto const led = led_code_for(codes[i]); led != static_cast<code_type>(-1) && led_on[i]) {
+                                led_on[i]   = false;
+                                std::ignore = ctx.fork_emit(EV_KEY, codes[i], 1);
+                                std::ignore = ctx.fork_emit(EV_KEY, codes[i], 0);
+                                std::ignore = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);
+                            }
+                            return ignore_event;
+                        }
+                        // quick tap: re-emit the buffered press + this release
+                        // so the OS sees a real press+release (caps toggle / click)
+                        std::ignore = ctx.fork_emit(pending[i]);
+                        std::ignore = ctx.fork_emit(event);
+                        return ignore_event;
+                    }
+                    return next;
+                }
+            }
+
+            bool is_held = false;
+            for (std::size_t i = 0; i < N; ++i) {
+                is_held = is_held || held[i];
+            }
+            if (!is_held) {
+                return next;
+            }
+
+            // While a modifier key is held, run the gated mod on every event.
+            if (auto const action = invoke_mod(mod, ctx); action != next) {
+                for (std::size_t i = 0; i < N; ++i) {
+                    if (held[i]) {
+                        used[i] = true;
+                    }
+                }
+                return action;
+            }
+            return next;
+        }
+    };
+
+    export constexpr basic_on_held<0> on_held;
+
     export template <typename Func>
     struct [[nodiscard]] op_not {
         [[no_unique_address]] Func func;

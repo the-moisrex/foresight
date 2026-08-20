@@ -72,9 +72,5 @@ void basic_led_status::operator()(event_type const& event) noexcept {
         }
         // fs8::log("LED event: code={} value={}", event.code(), event.value());
         this->leds.at(event.code()) = event.value();
-    } else if (event.type() == EV_KEY && event.code() == KEY_CAPSLOCK && event.value() == 1) {
-        // A real CapsLock press toggles the mode; mirror it so the tracked
-        // state stays in sync with the desktop.
-        this->leds.at(LED_CAPSL) = static_cast<event_type::value_type>(this->leds.at(LED_CAPSL) == 0 ? 1 : 0);
     }
 }

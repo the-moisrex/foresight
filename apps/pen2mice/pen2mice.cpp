@@ -76,12 +76,7 @@ int main(int const argc, char const* const* argv) try {
       | update_mod[keys_status]
       | once[pressed[KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC], exit_pipeline] // Restart/Quit
       | on[pressed[BTN_LEFT, KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
-      | add_scroll[op | pressed[BTN_MIDDLE] | pressed[KEY_CAPSLOCK], run([](Context auto& ctx) noexcept {
-                       capslock_off(ctx);
-                       std::ignore = ctx.fork_emit(EV_KEY, BTN_MIDDLE, 0);
-                       std::ignore = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);
-                   })]
-      | once[op & longtime_released[pressed[KEY_CAPSLOCK], 200ms] & led_on[LED_CAPSL], led_toggle]
+      | on_held[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]
       | router[caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput];
 
     pipeline.mod(intercept).add(parsed | grab | required);

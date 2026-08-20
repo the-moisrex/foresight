@@ -9,7 +9,6 @@ export import fs8.event;
 
 // Mods:
 export import :abs2rel;
-export import :add_scroll;
 export import :autocomplete;
 export import :debounce;
 export import :device;
@@ -24,6 +23,7 @@ export import :lambda;
 export import :modes;
 export import :momentum;
 export import :mouse_status;
+export import :mouse_to_scroll;
 export import :on;
 export import :quantifier;
 export import :record;

@@ -126,7 +126,6 @@ target_sources(${LIB_NAME}
         main/translate.ixx
         main/utils.ixx
         mods/abs2rel.ixx
-        mods/add_scroll.ixx
         mods/autocomplete.ixx
         mods/context_vars.ixx
         mods/debounce.ixx
@@ -138,6 +137,7 @@ target_sources(${LIB_NAME}
         mods/io_manager.ixx
         mods/keys_status.ixx
         mods/lambda.ixx
+        mods/mouse_to_scroll.ixx
         mods/modes.ixx
         mods/mods.ixx
         mods/momentum.ixx

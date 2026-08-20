@@ -117,7 +117,7 @@ Tags are constexpr sentinels passed as the last argument:
 |-----|--------------|
 | `replace` / `put` | Rewrite one key/chord into another sequence. |
 | `abs2rel`, `pen2mice`, `pen2touch`, `pressure2mouse_clicks` | Convert drawing-tablet absolute events into relative mouse events / clicks. |
-| `add_scroll` | Convert mouse movement into scroll-wheel events. | `mice_quantifier` |
+| `mouse_to_scroll` | Convert mouse movement into scroll-wheel events. Pure transformer; gate it with `hold_mod`. | `mice_quantifier` |
 | `smooth` (`lerp`, `low_pass_filter`, `kalman_filter`) | Smooth mouse movement. | `mouse_history` |
 | `momentum` | Keep motion going after the input stops (`velocity_tracker`, `momentum_calculator`). | — |
 | `ignore_*` | Filters: `ignore_big_jumps`, `ignore_init_moves`, `ignore_start_moves`, `ignore_mouse_moves`, `ignore_fast_repeats`, `ignore_adjacent_repeats`, `ignore_repeats_of`, `ignore_keys`, `ignore_abs`, `ignore_tablet`, `ignore_caps`, plus `ignore_event` and `exit_pipeline`. | — |
@@ -131,6 +131,7 @@ Tags are constexpr sentinels passed as the last argument:
 |-----|--------------|-------------------|
 | `on`, `once` | Run actions while/once when a condition is true. | — |
 | `held` | True while a key/chord is held; `held[key, decider]` gates it. | — |
+| `hold_mod` | Run a mod while modifier keys are held (`hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]`); quick taps re-emit as a real press+release, holds/swallowed keys don't. | — |
 | `pressed`, `pressed_any` | True when specific keys are down. | `keys_status` |
 | `keydown`, `keyup` | Match a key press / release event. | — |
 | `multi_click` (`double_click`, `triple_click`) | Double/triple click detection. | — |

@@ -162,34 +162,45 @@ export namespace fs8 {
             return next;
         }
 
-        /// Flip the CapsLock mode: emit a KEY_CAPSLOCK press/release through the
-        /// pipeline so the desktop handles the mode change, and mirror it in the
-        /// tracked state.
+        /// Flip a toggle-key mode by emitting the key's press/release through
+        /// the pipeline so the desktop handles the mode change, and mirror it
+        /// in the tracked state.
         template <Context CtxT>
-        context_action toggle_capslock(CtxT& ctx) noexcept {
+        context_action toggle_led(CtxT& ctx, code_type const led_code, code_type const key_code) noexcept {
             using enum context_action;
-            // log("LED toggle fired by {} tracked={}", ctx.event().code_name(), this->leds.at(LED_CAPSL) == 0 ? "off" : "on");
-            this->leds.at(LED_CAPSL) = static_cast<event_type::value_type>(this->is_off(LED_CAPSL) ? 1 : 0);
-            std::ignore              = ctx.fork_emit(EV_KEY, KEY_CAPSLOCK, 1);
-            std::ignore              = ctx.fork_emit(EV_KEY, KEY_CAPSLOCK, 0);
-            std::ignore              = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);
+            this->leds.at(led_code) = this->leds.at(led_code) == 0 ? 1 : 0;
+            std::ignore             = ctx.fork_emit(EV_KEY, key_code, 1);
+            std::ignore             = ctx.fork_emit(EV_KEY, key_code, 0);
+            std::ignore             = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);
             return next;
         }
 
-        /// Set the CapsLock mode: when the requested state differs from the
-        /// current one, emit a KEY_CAPSLOCK press/release through the pipeline so
+        /// Set a toggle-key mode: when the requested state differs from the
+        /// current one, emit the key's press/release through the pipeline so
         /// the desktop toggles the mode; mirror it in the tracked state.
         template <Context CtxT>
-        context_action set_capslock(CtxT& ctx, bool const on) noexcept {
+        context_action set_led(CtxT& ctx, code_type const led_code, code_type const key_code, bool const on) noexcept {
             using enum context_action;
-            auto const value = static_cast<event_type::value_type>(on ? 1 : 0);
-            if (this->leds.at(LED_CAPSL) != value) {
-                this->leds.at(LED_CAPSL) = value;
-                std::ignore              = ctx.fork_emit(EV_KEY, KEY_CAPSLOCK, 1);
-                std::ignore              = ctx.fork_emit(EV_KEY, KEY_CAPSLOCK, 0);
-                std::ignore              = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);
+            auto const value = on ? 1 : 0;
+            if (this->leds.at(led_code) != value) {
+                this->leds.at(led_code) = value;
+                std::ignore             = ctx.fork_emit(EV_KEY, key_code, 1);
+                std::ignore             = ctx.fork_emit(EV_KEY, key_code, 0);
+                std::ignore             = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);
             }
             return next;
+        }
+
+        /// Flip the CapsLock mode by toggling the (physical) CapsLock LED.
+        template <Context CtxT>
+        context_action toggle_capslock(CtxT& ctx) noexcept {
+            return toggle_led(ctx, LED_CAPSL, KEY_CAPSLOCK);
+        }
+
+        /// Set the CapsLock mode.
+        template <Context CtxT>
+        context_action set_capslock(CtxT& ctx, bool const on) noexcept {
+            return set_led(ctx, LED_CAPSL, KEY_CAPSLOCK, on);
         }
 
         void operator()(event_type const& event) noexcept;
@@ -204,17 +215,25 @@ export namespace fs8 {
         }
     } led_toggle;
 
-    /// Turn off the CapsLock mode when the CapsLock key is held (e.g. it is
-    /// being used as a scroll modifier); otherwise leave it alone.
-    constexpr struct [[nodiscard]] basic_capslock_off : consteval_copyable {
+    /// Turn off a toggle-based mode key (CapsLock, NumLock, ScrollLock): when
+    /// the mode is currently on, emit the key's press/release through the
+    /// pipeline so the desktop turns it off.
+    template <event_type::code_type LedCode, event_type::code_type KeyCode>
+    struct [[nodiscard]] basic_toggle_off : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
         void operator()(Context auto& ctx) const noexcept {
-            if (ctx.mod(keys_status).is_pressed(KEY_CAPSLOCK)) {
-                std::ignore = ctx.mod(led_status).set_capslock(ctx, false);
-            }
+            std::ignore = ctx.mod(led_status).set_led(ctx, LedCode, KeyCode, false);
         }
-    } capslock_off;
+    };
 
+    /// Turn the CapsLock mode off.
+    constexpr basic_toggle_off<LED_CAPSL, KEY_CAPSLOCK> capslock_off;
+
+    /// Turn the NumLock mode off.
+    constexpr basic_toggle_off<LED_NUML, KEY_NUMLOCK> numlock_off;
+
+    /// Turn the ScrollLock mode off.
+    constexpr basic_toggle_off<LED_SCROLLL, KEY_SCROLLLOCK> scrolllock_off;
 
 } // namespace fs8
