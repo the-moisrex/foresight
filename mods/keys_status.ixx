@@ -39,33 +39,34 @@ export namespace fs8 {
         template <std::integral... T>
         [[nodiscard]] bool is_pressed(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
-            return ((btns.at(key_codes) != 0) && ...);
+            return ((btns.at(static_cast<std::size_t>(key_codes)) != 0) && ...);
         }
 
         template <std::integral... T>
         [[nodiscard]] bool is_pressed_any(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
-            return ((btns.at(key_codes) != 0) || ...);
+            return ((btns.at(static_cast<std::size_t>(key_codes)) != 0) || ...);
         }
 
         template <std::integral... T>
         [[nodiscard]] code_type first_pressed(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
             code_type pressed = KEY_MAX;
-            std::ignore       = ((btns.at(key_codes) != 0 && (pressed = static_cast<code_type>(key_codes), true)) && ...);
+            std::ignore =
+              ((btns.at(static_cast<std::size_t>(key_codes)) != 0 && (pressed = static_cast<code_type>(key_codes), true)) && ...);
             return pressed;
         }
 
         template <std::integral... T>
         [[nodiscard]] bool is_released(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
-            return ((btns.at(key_codes) == 0) && ...);
+            return ((btns.at(static_cast<std::size_t>(key_codes)) == 0) && ...);
         }
 
         template <std::integral... T>
         [[nodiscard]] bool is_released_any(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
-            return ((btns.at(key_codes) == 0) || ...);
+            return ((btns.at(static_cast<std::size_t>(key_codes)) == 0) || ...);
         }
 
         void release_all(Context auto& ctx) noexcept {
@@ -126,7 +127,7 @@ export namespace fs8 {
 
         template <std::integral... T>
         [[nodiscard]] bool is_off(T const... key_codes) const noexcept {
-            return ((key_codes < LED_MAX && leds.at(key_codes) == 0) && ...);
+            return ((key_codes < LED_MAX && leds.at(static_cast<std::size_t>(key_codes)) == 0) && ...);
         }
 
         /// Seed the LED state from the hardware device (e.g. the keyboard's
