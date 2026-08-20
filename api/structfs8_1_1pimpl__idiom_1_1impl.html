@@ -115,6 +115,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a9c5b5a137b1873e0eae2c378393b1070"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76e24464a31f9b1b1ff4c4987f8a8848" id="r_a76e24464a31f9b1b1ff4c4987f8a8848"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a76e24464a31f9b1b1ff4c4987f8a8848">erase_by_sysname</a> (std::string_view <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a05a903cf46bc0d209f5172a60d221b80">name</a>)</td></tr>
 <tr class="separator:a76e24464a31f9b1b1ff4c4987f8a8848"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c1ba55b594fbf5acfdd8cd709dba960" id="r_a8c1ba55b594fbf5acfdd8cd709dba960"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a8c1ba55b594fbf5acfdd8cd709dba960">is_self_created_sysname</a> (std::string_view <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1a42c0989cb33b3c3eee722eb0eed72706">sysname</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
+<tr class="separator:a8c1ba55b594fbf5acfdd8cd709dba960"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56523b20aceab4b719dd15b5617ada3d" id="r_a56523b20aceab4b719dd15b5617ada3d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a56523b20aceab4b719dd15b5617ada3d">add_udev_device</a> (<a class="el" href="structfs8_1_1udev__device.html">udev_device</a> &amp;&amp;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">event_dev</a>)</td></tr>
 <tr class="separator:a56523b20aceab4b719dd15b5617ada3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a235e6187d6261a4cafffc641971e44be" id="r_a235e6187d6261a4cafffc641971e44be"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a235e6187d6261a4cafffc641971e44be">drain</a> ()</td></tr>
@@ -330,7 +332,7 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Open devices matching <code>cur_query</code> from the enumerated list. Since a query only constrains how many devices it wants (not which devices it competes for with other queries), failures here do not consume the limit: a device rejected at open time simply does not count. </p>
+<p>Open devices matching <code>cur_query</code> from the enumerated list. Queries with capabilities prefer the devices with the highest caps support (like <code><a class="el" href="namespacefs8.html#a8ac5eac8a55267eddf7e4b35b92e90f4">device()</a></code>), so e.g. the <code>keyboard</code> query picks the real keyboard over a tablet's companion keyboard that only reports keyboard caps. Since a query only constrains how many devices it wants (not which devices it competes for with other queries), failures here do not consume the limit: a device rejected at open time simply does not count. </p>
 
 </div>
 </div>
@@ -482,6 +484,35 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
 </table>
 </div><div class="memdoc">
 <p>Devices are identified by their udev sysname (derived from the fd), which is the last component of their syspath; only nodes with a devnode are ever tracked, so the two are equivalent. </p>
+
+</div>
+</div>
+<a id="a8c1ba55b594fbf5acfdd8cd709dba960" name="a8c1ba55b594fbf5acfdd8cd709dba960"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c1ba55b594fbf5acfdd8cd709dba960">&#9670;&#160;</a></span>is_self_created_sysname()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::is_self_created_sysname </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a>&#160;</td>
+          <td class="paramname"><em>sysname</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Whether a sysname belongs to a device this pipeline created itself. Such devices must never be watched/drained, otherwise the pipeline re-reads its own output and loops (see issue #176). </p>
 
 </div>
 </div>

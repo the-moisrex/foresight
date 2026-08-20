@@ -36,6 +36,7 @@ var hierarchy =
     [ "fs8::basic_pen2touch", "structfs8_1_1basic__pen2touch.html", null ],
     [ "fs8::basic_self_emitted", "structfs8_1_1basic__self__emitted.html", null ],
     [ "fs8::xkb::basic_state", "structfs8_1_1xkb_1_1basic__state.html", null ],
+    [ "fs8::basic_tag< ID >", "structfs8_1_1basic__tag.html", null ],
     [ "fs8::consteval_copyable", "structfs8_1_1consteval__copyable.html", [
       [ "fs8::basic_code_adaptor< basic_pressed, N >", "structfs8_1_1basic__code__adaptor.html", [
         [ "fs8::basic_pressed< N >", "structfs8_1_1basic__pressed.html", null ]
@@ -150,9 +151,6 @@ var hierarchy =
     [ "fs8::fail_on_no_match_tag", "structfs8_1_1fail__on__no__match__tag.html", null ],
     [ "fs8::get_variables_tag", "structfs8_1_1get__variables__tag.html", null ],
     [ "fs8::global_binding< T, ID >", "structfs8_1_1global__binding.html", null ],
-    [ "fs8::global_binding< any_dynamic_context >", "structfs8_1_1global__binding.html", [
-      [ "fs8::basic_dynamic_context", "structfs8_1_1basic__dynamic__context.html", null ]
-    ] ],
     [ "fs8::grab_tag", "structfs8_1_1grab__tag.html", null ],
     [ "fs8::xkb::handle_modifiers_type", "structfs8_1_1xkb_1_1handle__modifiers__type.html", null ],
     [ "fs8::high_threshold_tag", "structfs8_1_1high__threshold__tag.html", null ],
@@ -169,7 +167,6 @@ var hierarchy =
     [ "fs8::xkb::keymap", "structfs8_1_1xkb_1_1keymap.html", null ],
     [ "fs8::keynames_type", "structfs8_1_1keynames__type.html", null ],
     [ "fs8::keyup", "structfs8_1_1keyup.html", null ],
-    [ "fs8::load_event_tag", "structfs8_1_1load__event__tag.html", null ],
     [ "fs8::low_threshold_tag", "structfs8_1_1low__threshold__tag.html", null ],
     [ "fs8::mod_of_t< ModConcept,... >", "structfs8_1_1mod__of__t.html", null ],
     [ "fs8::mod_of_t< ModConcept, Funcs... >", "structfs8_1_1mod__of__t.html", [
@@ -178,8 +175,6 @@ var hierarchy =
     [ "fs8::mod_of_t< TT< T... >, TT< U... >, Funcs... >", "structfs8_1_1mod__of__t_3_01TT_3_01T_8_8_8_01_4_00_01TT_3_01U_8_8_8_01_4_00_01Funcs_8_8_8_01_4.html", null ],
     [ "fs8::momentum_calculator", "structfs8_1_1momentum__calculator.html", null ],
     [ "my_libevdev_uinput", "structmy__libevdev__uinput.html", null ],
-    [ "fs8::next_event_tag", "structfs8_1_1next__event__tag.html", null ],
-    [ "fs8::no_init_tag", "structfs8_1_1no__init__tag.html", null ],
     [ "fs8::pimpl_idiom< typename >::impl::node_type", "structfs8_1_1pimpl__idiom_1_1impl_1_1node__type.html", null ],
     [ "fs8::nullable_indirect< T, Allocator >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::detail::router_state >", "structfs8_1_1nullable__indirect.html", null ],
@@ -216,13 +211,14 @@ var hierarchy =
     ] ],
     [ "fs8::basic_kalman_filter::smoothed", "structfs8_1_1basic__kalman__filter_1_1smoothed.html", null ],
     [ "fs8::basic_low_pass_filter::smoothed", "structfs8_1_1basic__low__pass__filter_1_1smoothed.html", null ],
-    [ "fs8::start_tag", "structfs8_1_1start__tag.html", null ],
     [ "fs8::template_file", "structfs8_1_1template__file.html", null ],
     [ "fs8::thread_binding< T, ID >", "structfs8_1_1thread__binding.html", null ],
-    [ "fs8::toggle_off_tag", "structfs8_1_1toggle__off__tag.html", null ],
-    [ "fs8::toggle_on_tag", "structfs8_1_1toggle__on__tag.html", null ],
+    [ "fs8::thread_binding< any_dynamic_context >", "structfs8_1_1thread__binding.html", [
+      [ "fs8::basic_dynamic_context", "structfs8_1_1basic__dynamic__context.html", null ]
+    ] ],
     [ "fs8::type_at_impl< I, T, Ts >", "structfs8_1_1type__at__impl.html", null ],
     [ "fs8::type_at_impl< 0, T, Ts... >", "structfs8_1_1type__at__impl_3_010_00_01T_00_01Ts_8_8_8_01_4.html", null ],
+    [ "fs8::type_id_t< T >", "structfs8_1_1type__id__t.html", null ],
     [ "fs8::udev", "structfs8_1_1udev.html", null ],
     [ "fs8::udev_device", "structfs8_1_1udev__device.html", null ],
     [ "fs8::udev_device_pick", "structfs8_1_1udev__device__pick.html", null ],

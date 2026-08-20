@@ -36,6 +36,7 @@ var structfs8_1_1basic__uinput =
     [ "operator()", "structfs8_1_1basic__uinput.html#a51e478480bf178fc9cbd32e3a1909fe4", null ],
     [ "operator=", "structfs8_1_1basic__uinput.html#a95c9b400435df26d2e9870ea319c1ab2", null ],
     [ "operator=", "structfs8_1_1basic__uinput.html#a099a084af5a77d01adddaf0db1d0c67b", null ],
+    [ "self_devnode", "structfs8_1_1basic__uinput.html#a5a523bd595697c7fa19f7c1a8df7ba4a", null ],
     [ "set_abs", "structfs8_1_1basic__uinput.html#abbb68fef4c1814c457d6faf31cd2ed16", null ],
     [ "set_device", "structfs8_1_1basic__uinput.html#a6f0e01031b9b3d8403795b6840d21c86", null ],
     [ "set_device", "structfs8_1_1basic__uinput.html#a63064f3e056fb665a488b5d0ad0f6aff", null ],
@@ -43,5 +44,6 @@ var structfs8_1_1basic__uinput =
     [ "set_device_from", "structfs8_1_1basic__uinput.html#a0a782570d33e2aa2b8e2e0533da30ef4", null ],
     [ "set_device_from", "structfs8_1_1basic__uinput.html#add530f1de8851d7260ebcc4b0618aeb0", null ],
     [ "syspath", "structfs8_1_1basic__uinput.html#a72511375d2aff79aa127e64551bac870", null ],
-    [ "finalize_device", "structfs8_1_1basic__uinput.html#a9ffc59150a7fe699dcb4a7593895ba96", null ]
+    [ "finalize_device", "structfs8_1_1basic__uinput.html#a9ffc59150a7fe699dcb4a7593895ba96", null ],
+    [ "self_created", "structfs8_1_1basic__uinput.html#a47379d914e5466239ddfc73f7ed2a6a9", null ]
 ];

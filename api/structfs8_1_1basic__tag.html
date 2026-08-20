@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Foresight: fs8::load_event_tag Struct Reference</title>
+<title>Foresight: fs8::basic_tag&lt; ID &gt; Struct Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -64,7 +64,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('structfs8_1_1load__event__tag.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('structfs8_1_1basic__tag.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -92,30 +92,62 @@ $(document).ready(function(){initNavTree('structfs8_1_1load__event__tag.html',''
 <div class="header">
   <div class="summary">
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
-<a href="structfs8_1_1load__event__tag-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">fs8::load_event_tag Struct Reference<span class="mlabels"><span class="mlabel">export</span></span><div class="ingroups">module <a class="el" href="module_fs8_8context.html">fs8.context</a></div></div></div>
+<a href="structfs8_1_1basic__tag-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">fs8::basic_tag&lt; ID &gt; Struct Template Reference<span class="mlabels"><span class="mlabel">export</span></span><div class="ingroups">module <a class="el" href="module_fs8_8context.html">fs8.context</a></div></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>A tag; carries its runtime <code>dynamic_tag</code> id so type-erased contexts can dispatch on it.  
+ <a href="structfs8_1_1basic__tag.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:a6ad1af6135371a596d522c14947bc0b8" id="r_a6ad1af6135371a596d522c14947bc0b8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">static</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1load__event__tag.html#a6ad1af6135371a596d522c14947bc0b8">is_tag</a> = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">true</a></td></tr>
-<tr class="separator:a6ad1af6135371a596d522c14947bc0b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac64f5b47d98b6d7838149609d6aea3e8" id="r_ac64f5b47d98b6d7838149609d6aea3e8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">static</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__tag.html#ac64f5b47d98b6d7838149609d6aea3e8">is_tag</a> = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">true</a></td></tr>
+<tr class="separator:ac64f5b47d98b6d7838149609d6aea3e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64f1a9b6fae7b704b4317bf092f65afc" id="r_a64f1a9b6fae7b704b4317bf092f65afc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">static</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__tag.html#a64f1a9b6fae7b704b4317bf092f65afc">id</a> = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">ID</a></td></tr>
+<tr class="separator:a64f1a9b6fae7b704b4317bf092f65afc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>This will wait for an event to be loaded, so this is blocking, and shall be called after the set_events are done. </p>
+<div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> ID&gt;<br />
+struct fs8::basic_tag&lt; ID &gt;</div><p>A tag; carries its runtime <code>dynamic_tag</code> id so type-erased contexts can dispatch on it. </p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
-<a id="a6ad1af6135371a596d522c14947bc0b8" name="a6ad1af6135371a596d522c14947bc0b8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6ad1af6135371a596d522c14947bc0b8">&#9670;&#160;</a></span>is_tag</h2>
+<a id="a64f1a9b6fae7b704b4317bf092f65afc" name="a64f1a9b6fae7b704b4317bf092f65afc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64f1a9b6fae7b704b4317bf092f65afc">&#9670;&#160;</a></span>id</h2>
 
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> ID&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> fs8::load_event_tag::is_tag = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">true</a></td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> <a class="el" href="structfs8_1_1basic__tag.html">fs8::basic_tag</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">ID</a> &gt;::id = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">ID</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac64f5b47d98b6d7838149609d6aea3e8" name="ac64f5b47d98b6d7838149609d6aea3e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac64f5b47d98b6d7838149609d6aea3e8">&#9670;&#160;</a></span>is_tag</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> ID&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> <a class="el" href="structfs8_1_1basic__tag.html">fs8::basic_tag</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">ID</a> &gt;::is_tag = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">true</a></td>
         </tr>
       </table>
   </td>
@@ -135,7 +167,7 @@ Static Public Attributes</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="namespacefs8.html">fs8</a></li><li class="navelem"><a class="el" href="structfs8_1_1load__event__tag.html">load_event_tag</a></li>
+    <li class="navelem"><a class="el" href="namespacefs8.html">fs8</a></li><li class="navelem"><a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

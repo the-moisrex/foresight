@@ -141,6 +141,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa7fbe12b5f3482483db3cc32f18dee43" id="r_aa7fbe12b5f3482483db3cc32f18dee43"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context__model.html#aa7fbe12b5f3482483db3cc32f18dee43">reemit</a> (std::size_t const from_index, <a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;inp_event) noexcept override</td></tr>
 <tr class="memdesc:aa7fbe12b5f3482483db3cc32f18dee43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-emit <code>inp_event</code> through the mods starting at <code>from_index</code>.  <br /></td></tr>
 <tr class="separator:aa7fbe12b5f3482483db3cc32f18dee43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af37ddf115f15c6b9e9bdfd2fcb48393a" id="r_af37ddf115f15c6b9e9bdfd2fcb48393a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context__model.html#af37ddf115f15c6b9e9bdfd2fcb48393a">for_each_self_devnode</a> (std::function_ref&lt; void(std::string_view)&gt; <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a>) noexcept override</td></tr>
+<tr class="separator:af37ddf115f15c6b9e9bdfd2fcb48393a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23cc4df9bb3e555a257a328aeda6dcd1" id="r_a23cc4df9bb3e555a257a328aeda6dcd1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context__model.html#a23cc4df9bb3e555a257a328aeda6dcd1">for_each_mod_of</a> (void const *token, std::function_ref&lt; void(void *)&gt; <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a>, bool const recursive) noexcept override</td></tr>
+<tr class="separator:a23cc4df9bb3e555a257a328aeda6dcd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structfs8_1_1any__dynamic__context"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structfs8_1_1any__dynamic__context')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structfs8_1_1any__dynamic__context.html">fs8::any_dynamic_context</a></td></tr>
 <tr class="memitem:a902c28c0ff180319f121d19b1db65e8c inherit pub_methods_structfs8_1_1any__dynamic__context" id="r_a902c28c0ff180319f121d19b1db65e8c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context.html#a902c28c0ff180319f121d19b1db65e8c">any_dynamic_context</a> () noexcept=default</td></tr>
 <tr class="separator:a902c28c0ff180319f121d19b1db65e8c inherit pub_methods_structfs8_1_1any__dynamic__context"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -384,6 +388,84 @@ template&lt;typename CtxT &gt; </div>
 </div><div class="memdoc">
 
 <p>Implements <a class="el" href="structfs8_1_1any__dynamic__context.html#a287f0cae040cc099f23ed96a6260b3f2">fs8::any_dynamic_context</a>.</p>
+
+</div>
+</div>
+<a id="a23cc4df9bb3e555a257a328aeda6dcd1" name="a23cc4df9bb3e555a257a328aeda6dcd1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23cc4df9bb3e555a257a328aeda6dcd1">&#9670;&#160;</a></span>for_each_mod_of()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename CtxT &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structfs8_1_1any__dynamic__context__model.html">fs8::any_dynamic_context_model</a>&lt; CtxT &gt;::for_each_mod_of </td>
+          <td>(</td>
+          <td class="paramtype">void const *&#160;</td>
+          <td class="paramname"><em>token</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::function_ref&lt; void(void *)&gt;&#160;</td>
+          <td class="paramname"><em>out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool const&#160;</td>
+          <td class="paramname"><em>recursive</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">export</span><span class="mlabel">virtual</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Invoke <code>out</code> with a pointer to each mod whose type matches <code>token</code> (see <code>type_id</code>); recurses into sub-pipelines when <code>recursive</code>. </p>
+
+<p>Implements <a class="el" href="structfs8_1_1any__dynamic__context.html#ad58fc3cb104833e4fe22b1d5c268428b">fs8::any_dynamic_context</a>.</p>
+
+</div>
+</div>
+<a id="af37ddf115f15c6b9e9bdfd2fcb48393a" name="af37ddf115f15c6b9e9bdfd2fcb48393a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af37ddf115f15c6b9e9bdfd2fcb48393a">&#9670;&#160;</a></span>for_each_self_devnode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename CtxT &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structfs8_1_1any__dynamic__context__model.html">fs8::any_dynamic_context_model</a>&lt; CtxT &gt;::for_each_self_devnode </td>
+          <td>(</td>
+          <td class="paramtype">std::function_ref&lt; void(std::string_view)&gt;&#160;</td>
+          <td class="paramname"><em>out</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">export</span><span class="mlabel">virtual</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Invoke <code>out</code> for the devnode of every mod in the pipeline that self-identifies as a device creator (recursing into sub-pipelines). </p>
+
+<p>Implements <a class="el" href="structfs8_1_1any__dynamic__context.html#a6cbafbd3b5abf9265f43c5c8f464d52c">fs8::any_dynamic_context</a>.</p>
 
 </div>
 </div>

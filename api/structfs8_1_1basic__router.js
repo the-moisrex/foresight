@@ -16,5 +16,6 @@ var structfs8_1_1basic__router =
     [ "operator()", "structfs8_1_1basic__router.html#a6746c7708275bf471e84d78be6c2eca2", null ],
     [ "operator()", "structfs8_1_1basic__router.html#a3fa174da99c0466ffcef557043d823af", null ],
     [ "operator[]", "structfs8_1_1basic__router.html#a5a776ed0f10a0f9d95476f19a5cc2c18", null ],
-    [ "set_caps", "structfs8_1_1basic__router.html#a81d7712ecc4ba7900bf669945378c770", null ]
+    [ "set_caps", "structfs8_1_1basic__router.html#a81d7712ecc4ba7900bf669945378c770", null ],
+    [ "sub_mods", "structfs8_1_1basic__router.html#a6853ef50150bf9c4c566e37d8747219b", null ]
 ];

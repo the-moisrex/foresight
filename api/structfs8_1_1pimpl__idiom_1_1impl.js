@@ -9,6 +9,7 @@ var structfs8_1_1pimpl__idiom_1_1impl =
     [ "filter_frame", "structfs8_1_1pimpl__idiom_1_1impl.html#a94efeb3cd6e2d1aafecefa3053913f94", null ],
     [ "filter_frame", "structfs8_1_1pimpl__idiom_1_1impl.html#ab07e87dc03b70b0d520bb6521f1bba67", null ],
     [ "has_sysname", "structfs8_1_1pimpl__idiom_1_1impl.html#a9c5b5a137b1873e0eae2c378393b1070", null ],
+    [ "is_self_created_sysname", "structfs8_1_1pimpl__idiom_1_1impl.html#a8c1ba55b594fbf5acfdd8cd709dba960", null ],
     [ "mark_movement", "structfs8_1_1pimpl__idiom_1_1impl.html#ac0e39d407a8c17eaaae0efebb4fd5b64", null ],
     [ "mark_movement", "structfs8_1_1pimpl__idiom_1_1impl.html#ac0e39d407a8c17eaaae0efebb4fd5b64", null ],
     [ "mark_movement", "structfs8_1_1pimpl__idiom_1_1impl.html#ac0e39d407a8c17eaaae0efebb4fd5b64", null ],

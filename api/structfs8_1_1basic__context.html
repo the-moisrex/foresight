@@ -167,7 +167,19 @@ requires (std::constructible_from&lt;<a class="el" href="structfs8_1_1event__typ
 <tr class="memitem:a3d74b882fbe46803ca2d1eb64d0c820f" id="r_a3d74b882fbe46803ca2d1eb64d0c820f"><td class="memTemplParams" colspan="2">template&lt;typename Mod &gt; </td></tr>
 <tr class="memitem:a3d74b882fbe46803ca2d1eb64d0c820f"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a3d74b882fbe46803ca2d1eb64d0c820f">fork_view</a> () noexcept</td></tr>
 <tr class="separator:a3d74b882fbe46803ca2d1eb64d0c820f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af4c2f1529c5e9fe18d6fbe8f93553e22" id="r_af4c2f1529c5e9fe18d6fbe8f93553e22"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#af4c2f1529c5e9fe18d6fbe8f93553e22">operator()</a> (<a class="el" href="structfs8_1_1start__tag.html">start_tag</a>) noexcept</td></tr>
+<tr class="memitem:a102acb772077e9ff5c0a81086e441d2f" id="r_a102acb772077e9ff5c0a81086e441d2f"><td class="memTemplParams" colspan="2">template&lt;typename Self &gt; </td></tr>
+<tr class="memitem:a102acb772077e9ff5c0a81086e441d2f"><td class="memTemplItemLeft" align="right" valign="top">constexpr decltype(auto)&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a102acb772077e9ff5c0a81086e441d2f">sub_mods</a> (this Self &amp;&amp;<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a>) noexcept</td></tr>
+<tr class="memdesc:a102acb772077e9ff5c0a81086e441d2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The mods of this context, exposed for recursion into sub-pipelines.  <br /></td></tr>
+<tr class="separator:a102acb772077e9ff5c0a81086e441d2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87eefd936efceaba7de9c44aef35b7b1" id="r_a87eefd936efceaba7de9c44aef35b7b1"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a87eefd936efceaba7de9c44aef35b7b1"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; std::reference_wrapper&lt; std::remove_cvref_t&lt; T &gt; &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a87eefd936efceaba7de9c44aef35b7b1">mods</a> (T const &amp;={}) noexcept</td></tr>
+<tr class="memdesc:a87eefd936efceaba7de9c44aef35b7b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumerate the top-level mods of this context whose type matches <code>T</code>.  <br /></td></tr>
+<tr class="separator:a87eefd936efceaba7de9c44aef35b7b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f68fcafa3aa11f5fa56a7d7c47b2354" id="r_a3f68fcafa3aa11f5fa56a7d7c47b2354"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a3f68fcafa3aa11f5fa56a7d7c47b2354"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; std::reference_wrapper&lt; std::remove_cvref_t&lt; T &gt; &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a3f68fcafa3aa11f5fa56a7d7c47b2354">rmods</a> (T const &amp;={}) noexcept</td></tr>
+<tr class="memdesc:a3f68fcafa3aa11f5fa56a7d7c47b2354"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumerate mods matching <code>T</code>, recursing into routers/sub-pipelines.  <br /></td></tr>
+<tr class="separator:a3f68fcafa3aa11f5fa56a7d7c47b2354"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4c2f1529c5e9fe18d6fbe8f93553e22" id="r_af4c2f1529c5e9fe18d6fbe8f93553e22"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#af4c2f1529c5e9fe18d6fbe8f93553e22">operator()</a> (<a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>) noexcept</td></tr>
 <tr class="separator:af4c2f1529c5e9fe18d6fbe8f93553e22"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acb3532610d67034391673467efa4cff7" id="r_acb3532610d67034391673467efa4cff7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#acb3532610d67034391673467efa4cff7">restart_if</a> (<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const prev_action=<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaec2f993aec2c27fc750119ab17b16cdb">context_action::idle</a>) noexcept</td></tr>
 <tr class="memdesc:acb3532610d67034391673467efa4cff7"><td class="mdescLeft">&#160;</td><td class="mdescRight">returns false if we need to terminate  <br /></td></tr>
@@ -178,12 +190,12 @@ requires (std::constructible_from&lt;<a class="el" href="structfs8_1_1event__typ
 <tr class="separator:acfe8d33f8b17156934f23c3b19a88a3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab7c8f55299dc0a6741f27dc5d2f478e" id="r_aab7c8f55299dc0a6741f27dc5d2f478e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#aab7c8f55299dc0a6741f27dc5d2f478e">operator()</a> (Tag auto)=delete</td></tr>
 <tr class="separator:aab7c8f55299dc0a6741f27dc5d2f478e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad501f950fa2c3d2f1f2ac55d4c0132ec" id="r_ad501f950fa2c3d2f1f2ac55d4c0132ec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#ad501f950fa2c3d2f1f2ac55d4c0132ec">operator()</a> (<a class="el" href="structfs8_1_1no__init__tag.html">no_init_tag</a>) noexcept</td></tr>
+<tr class="memitem:ad501f950fa2c3d2f1f2ac55d4c0132ec" id="r_ad501f950fa2c3d2f1f2ac55d4c0132ec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#ad501f950fa2c3d2f1f2ac55d4c0132ec">operator()</a> (<a class="el" href="namespacefs8.html#aab84137f2702017ad1cbc02ad8d4c99e">no_init_tag</a>) noexcept</td></tr>
 <tr class="separator:ad501f950fa2c3d2f1f2ac55d4c0132ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5faae5255789c712d5481b29390975a2" id="r_a5faae5255789c712d5481b29390975a2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a5faae5255789c712d5481b29390975a2">operator()</a> (Context auto &amp;ctx) noexcept</td></tr>
 <tr class="memdesc:a5faae5255789c712d5481b29390975a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pass-through.  <br /></td></tr>
 <tr class="separator:a5faae5255789c712d5481b29390975a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab7f9d0177715a64b277c47a49395e321" id="r_ab7f9d0177715a64b277c47a49395e321"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#ab7f9d0177715a64b277c47a49395e321">operator()</a> (Context auto &amp;ctx, <a class="el" href="structfs8_1_1start__tag.html">start_tag</a>) noexcept</td></tr>
+<tr class="memitem:ab7f9d0177715a64b277c47a49395e321" id="r_ab7f9d0177715a64b277c47a49395e321"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#ab7f9d0177715a64b277c47a49395e321">operator()</a> (Context auto &amp;ctx, <a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>) noexcept</td></tr>
 <tr class="memdesc:ab7f9d0177715a64b277c47a49395e321"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pass-through a plain start to the mods.  <br /></td></tr>
 <tr class="separator:ab7f9d0177715a64b277c47a49395e321"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ab31e9cd171d2a5d07a0c623b64a732" id="r_a3ab31e9cd171d2a5d07a0c623b64a732"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; <br />
@@ -701,6 +713,38 @@ requires ((std::same_as&lt;<a class="el" href="structfs8_1_1basic__context.html#
 
 </div>
 </div>
+<a id="a87eefd936efceaba7de9c44aef35b7b1" name="a87eefd936efceaba7de9c44aef35b7b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a87eefd936efceaba7de9c44aef35b7b1">&#9670;&#160;</a></span>mods()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Modifier... Funcs&gt; </div>
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::reference_wrapper&lt; std::remove_cvref_t&lt; T &gt; &gt; &gt; <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::mods </td>
+          <td>(</td>
+          <td class="paramtype">T const &amp;&#160;</td>
+          <td class="paramname"> = <code>{}</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Enumerate the top-level mods of this context whose type matches <code>T</code>. </p>
+
+</div>
+</div>
 <a id="a62523c3679347b369412a108cd2096e0" name="a62523c3679347b369412a108cd2096e0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a62523c3679347b369412a108cd2096e0">&#9670;&#160;</a></span>operator()() <span class="overload">[1/8]</span></h2>
 
@@ -858,7 +902,7 @@ template&lt;Modifier... Funcs&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1start__tag.html">start_tag</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>&#160;</td>
           <td class="paramname">&#160;</td>
         </tr>
         <tr>
@@ -892,7 +936,7 @@ template&lt;Modifier... Funcs&gt; </div>
         <tr>
           <td class="memname">void <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::operator() </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1no__init__tag.html">no_init_tag</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#aab84137f2702017ad1cbc02ad8d4c99e">no_init_tag</a>&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
@@ -920,7 +964,7 @@ template&lt;Modifier... Funcs&gt; </div>
         <tr>
           <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::operator() </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1start__tag.html">start_tag</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
@@ -1139,6 +1183,70 @@ template&lt;Modifier... Funcs&gt; </div>
 </div><div class="memdoc">
 
 <p>returns false if we need to terminate </p>
+
+</div>
+</div>
+<a id="a3f68fcafa3aa11f5fa56a7d7c47b2354" name="a3f68fcafa3aa11f5fa56a7d7c47b2354"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f68fcafa3aa11f5fa56a7d7c47b2354">&#9670;&#160;</a></span>rmods()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Modifier... Funcs&gt; </div>
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::reference_wrapper&lt; std::remove_cvref_t&lt; T &gt; &gt; &gt; <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::rmods </td>
+          <td>(</td>
+          <td class="paramtype">T const &amp;&#160;</td>
+          <td class="paramname"> = <code>{}</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Enumerate mods matching <code>T</code>, recursing into routers/sub-pipelines. </p>
+
+</div>
+</div>
+<a id="a102acb772077e9ff5c0a81086e441d2f" name="a102acb772077e9ff5c0a81086e441d2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a102acb772077e9ff5c0a81086e441d2f">&#9670;&#160;</a></span>sub_mods()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Modifier... Funcs&gt; </div>
+<div class="memtemplate">
+template&lt;typename Self &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr decltype(auto) <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::sub_mods </td>
+          <td>(</td>
+          <td class="paramtype">this Self &amp;&amp;&#160;</td>
+          <td class="paramname"><em>self</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The mods of this context, exposed for recursion into sub-pipelines. </p>
 
 </div>
 </div>

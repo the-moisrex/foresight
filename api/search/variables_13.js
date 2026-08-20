@@ -12,8 +12,8 @@ var searchData=
   ['to_5fchild_9',['to_child',['../structfs8_1_1plain__pimpl__idiom_1_1impl.html#abba82bb6d2b77a1a0fde7d50f7e89c4f',1,'fs8::plain_pimpl_idiom::impl']]],
   ['to_5fevdev_10',['to_evdev',['../namespacefs8.html#a10d98ad9d0582ab940aa057c698b9a10',1,'fs8']]],
   ['to_5fqueries_11',['to_queries',['../namespacefs8.html#ac728a44272e2dd205966a1b77dc55de8',1,'fs8']]],
-  ['toggle_5foff_12',['toggle_off',['../namespacefs8.html#a4c9e725b638693fe7f89b03030235423',1,'fs8']]],
-  ['toggle_5fon_13',['toggle_on',['../namespacefs8.html#a713dbe17bf2117bde5ebc5e83fd33f11',1,'fs8']]],
+  ['toggle_5foff_12',['toggle_off',['../namespacefs8.html#a1c8a1a1e9a1f9de597281f2ed6ce590b',1,'fs8']]],
+  ['toggle_5fon_13',['toggle_on',['../namespacefs8.html#a95c7c0cee8577c8e5455dc7433a0b2ee',1,'fs8']]],
   ['touch_5fabs_5faxes_14',['touch_abs_axes',['../namespacefs8_1_1caps.html#a00e964b9ed3eb2a40ee11fc46c050cfa',1,'fs8::caps']]],
   ['touch_5fbtns_15',['touch_btns',['../namespacefs8_1_1caps.html#a005f2b79a429521f7c46d683676f7ef0',1,'fs8::caps']]],
   ['touchpad_16',['touchpad',['../namespacefs8_1_1caps.html#a5883b0685d98e9abea6d4d354423098c',1,'fs8::caps']]],
@@ -23,6 +23,7 @@ var searchData=
   ['trigger_5fid_20',['trigger_id',['../structfs8_1_1pimpl__idiom_1_1impl.html#a66d0e9a1fbe644a98bf1c8dde1e357b9',1,'fs8::pimpl_idiom::impl']]],
   ['triple_5fclick_21',['triple_click',['../namespacefs8.html#a332d0d3025ab0d9c651fcac1b34d75b1',1,'fs8']]],
   ['type_22',['type',['../structfs8_1_1dev__cap__view.html#a76378a31778ab0316a42a762566bf356',1,'fs8::dev_cap_view::type'],['../structfs8_1_1event__code.html#a0f95fa0a9b6565a4298aec20778327e5',1,'fs8::event_code::type'],['../structfs8_1_1user__event.html#a40d050ba5e15a723e09db0a3b0e4afe6',1,'fs8::user_event::type'],['../structfs8_1_1dev__cap.html#a9a12941e5f8a8d0e734db8ad7cd9dcc8',1,'fs8::dev_cap::type']]],
-  ['type_5fstring_23',['type_string',['../namespacefs8.html#a73b41754e6168932eedbba0191dbd35d',1,'fs8']]],
-  ['typed_24',['typed',['../namespacefs8.html#ae9b5cffbef7445fb3f872a368eaa5cc6',1,'fs8']]]
+  ['type_5fid_23',['type_id',['../namespacefs8.html#ad376cac94b7703cbbacd7a324e8e905e',1,'fs8']]],
+  ['type_5fstring_24',['type_string',['../namespacefs8.html#a73b41754e6168932eedbba0191dbd35d',1,'fs8']]],
+  ['typed_25',['typed',['../namespacefs8.html#ae9b5cffbef7445fb3f872a368eaa5cc6',1,'fs8']]]
 ];

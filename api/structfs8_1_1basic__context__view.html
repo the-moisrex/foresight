@@ -159,6 +159,14 @@ requires <a class="el" href="structfs8_1_1basic__context__view.html#a23ba4287ea4
 <tr class="memitem:af2dac430a1519380fc38111a7507545d" id="r_af2dac430a1519380fc38111a7507545d"><td class="memTemplParams" colspan="2">template&lt;std::size_t NIndex = Index, typename Self &gt; </td></tr>
 <tr class="memitem:af2dac430a1519380fc38111a7507545d"><td class="memTemplItemLeft" align="right" valign="top">constexpr decltype(auto)&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context__view.html#af2dac430a1519380fc38111a7507545d">mod</a> (this Self &amp;&amp;<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a>) noexcept</td></tr>
 <tr class="separator:af2dac430a1519380fc38111a7507545d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd73d68dc1d575edab177e3894db4dd5" id="r_afd73d68dc1d575edab177e3894db4dd5"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:afd73d68dc1d575edab177e3894db4dd5"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; std::reference_wrapper&lt; std::remove_cvref_t&lt; T &gt; &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context__view.html#afd73d68dc1d575edab177e3894db4dd5">mods</a> (T const &amp;={}) noexcept</td></tr>
+<tr class="memdesc:afd73d68dc1d575edab177e3894db4dd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumerate the top-level mods of the underlying context whose type matches <code>T</code>.  <br /></td></tr>
+<tr class="separator:afd73d68dc1d575edab177e3894db4dd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6caad8810f8f82692386bbaf84efd3ed" id="r_a6caad8810f8f82692386bbaf84efd3ed"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a6caad8810f8f82692386bbaf84efd3ed"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; std::reference_wrapper&lt; std::remove_cvref_t&lt; T &gt; &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context__view.html#a6caad8810f8f82692386bbaf84efd3ed">rmods</a> (T const &amp;={}) noexcept</td></tr>
+<tr class="memdesc:a6caad8810f8f82692386bbaf84efd3ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumerate mods matching <code>T</code>, recursing into routers/sub-pipelines.  <br /></td></tr>
+<tr class="separator:a6caad8810f8f82692386bbaf84efd3ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a78ca4b5be6ee0188aca7a7908d8ef06d" id="r_a78ca4b5be6ee0188aca7a7908d8ef06d"><td class="memTemplParams" colspan="2">template&lt;std::size_t NIndex&gt; </td></tr>
 <tr class="memitem:a78ca4b5be6ee0188aca7a7908d8ef06d"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context__view.html#a78ca4b5be6ee0188aca7a7908d8ef06d">fork_view</a> () const noexcept</td></tr>
 <tr class="separator:a78ca4b5be6ee0188aca7a7908d8ef06d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -840,6 +848,38 @@ requires <a class="el" href="structfs8_1_1basic__context__view.html#a23ba4287ea4
 
 </div>
 </div>
+<a id="afd73d68dc1d575edab177e3894db4dd5" name="afd73d68dc1d575edab177e3894db4dd5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd73d68dc1d575edab177e3894db4dd5">&#9670;&#160;</a></span>mods()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;std::size_t Index, Modifier... Funcs&gt; </div>
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::reference_wrapper&lt; std::remove_cvref_t&lt; T &gt; &gt; &gt; <a class="el" href="structfs8_1_1basic__context__view.html">fs8::basic_context_view</a>&lt; Index, Funcs &gt;::mods </td>
+          <td>(</td>
+          <td class="paramtype">T const &amp;&#160;</td>
+          <td class="paramname"> = <code>{}</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Enumerate the top-level mods of the underlying context whose type matches <code>T</code>. </p>
+
+</div>
+</div>
 <a id="aea392195f40690b4e6349db25688ccb2" name="aea392195f40690b4e6349db25688ccb2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aea392195f40690b4e6349db25688ccb2">&#9670;&#160;</a></span>operator=() <span class="overload">[1/2]</span></h2>
 
@@ -893,6 +933,38 @@ template&lt;std::size_t Index, Modifier... Funcs&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6caad8810f8f82692386bbaf84efd3ed" name="a6caad8810f8f82692386bbaf84efd3ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6caad8810f8f82692386bbaf84efd3ed">&#9670;&#160;</a></span>rmods()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;std::size_t Index, Modifier... Funcs&gt; </div>
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::reference_wrapper&lt; std::remove_cvref_t&lt; T &gt; &gt; &gt; <a class="el" href="structfs8_1_1basic__context__view.html">fs8::basic_context_view</a>&lt; Index, Funcs &gt;::rmods </td>
+          <td>(</td>
+          <td class="paramtype">T const &amp;&#160;</td>
+          <td class="paramname"> = <code>{}</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Enumerate mods matching <code>T</code>, recursing into routers/sub-pipelines. </p>
 
 </div>
 </div>

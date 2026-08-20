@@ -12,6 +12,7 @@ var module_fs8_8mods_8router =
     [ "fs8::invoke_bool", "module_fs8_8mods_8router.html#a2b0d5d34118174ade6fd22e17975ee2f", null ],
     [ "fs8::basic_router::basic_router", "module_fs8_8mods_8router.html#a25c72898ce25ed8e3f5cc356fc9c89a8", null ],
     [ "fs8::basic_router::set_caps", "module_fs8_8mods_8router.html#a81d7712ecc4ba7900bf669945378c770", null ],
+    [ "fs8::basic_router::sub_mods", "module_fs8_8mods_8router.html#a6853ef50150bf9c4c566e37d8747219b", null ],
     [ "fs8::basic_router::operator()", "module_fs8_8mods_8router.html#a5b4a6b21c577481be7b5d173dcbff4f9", null ],
     [ "fs8::basic_router::operator()", "module_fs8_8mods_8router.html#a3fa174da99c0466ffcef557043d823af", null ],
     [ "fs8::basic_router::operator[]", "module_fs8_8mods_8router.html#a5a776ed0f10a0f9d95476f19a5cc2c18", null ],

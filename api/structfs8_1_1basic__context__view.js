@@ -23,7 +23,9 @@ var structfs8_1_1basic__context__view =
     [ "mod", "structfs8_1_1basic__context__view.html#ac1410f07b20a80a9a888e2756b326f21", null ],
     [ "mod", "structfs8_1_1basic__context__view.html#af2dac430a1519380fc38111a7507545d", null ],
     [ "mod", "structfs8_1_1basic__context__view.html#a0033ed1eed8397675fe814f94fdfe922", null ],
+    [ "mods", "structfs8_1_1basic__context__view.html#afd73d68dc1d575edab177e3894db4dd5", null ],
     [ "operator=", "structfs8_1_1basic__context__view.html#aea392195f40690b4e6349db25688ccb2", null ],
     [ "operator=", "structfs8_1_1basic__context__view.html#a1dacb09cd204c39f3665a78144d6c2ca", null ],
+    [ "rmods", "structfs8_1_1basic__context__view.html#a6caad8810f8f82692386bbaf84efd3ed", null ],
     [ "is_mod", "structfs8_1_1basic__context__view.html#a23ba4287ea4c83841b92fbb442fd6649", null ]
 ];

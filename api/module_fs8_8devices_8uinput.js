@@ -33,6 +33,7 @@ var module_fs8_8devices_8uinput =
     [ "fs8::basic_uinput::native_handle", "module_fs8_8devices_8uinput.html#af4496e6d63ac306358e830f498d3f282", null ],
     [ "fs8::basic_uinput::syspath", "module_fs8_8devices_8uinput.html#a72511375d2aff79aa127e64551bac870", null ],
     [ "fs8::basic_uinput::devnode", "module_fs8_8devices_8uinput.html#aef80b28c202ed704a1d2cf5a74f77665", null ],
+    [ "fs8::basic_uinput::self_devnode", "module_fs8_8devices_8uinput.html#a5a523bd595697c7fa19f7c1a8df7ba4a", null ],
     [ "fs8::basic_uinput::enable_event_type", "module_fs8_8devices_8uinput.html#a40917d10b9a32ed9f2d78d3a07d87491", null ],
     [ "fs8::basic_uinput::enable_event_code", "module_fs8_8devices_8uinput.html#a66920ec244e9f302b406acf950513fee", null ],
     [ "fs8::basic_uinput::enable_caps", "module_fs8_8devices_8uinput.html#a2e6d1d29ca8dc5f816365fe69619cb16", null ],
@@ -56,5 +57,6 @@ var module_fs8_8devices_8uinput =
     [ "fs8::basic_uinput::operator()", "module_fs8_8devices_8uinput.html#af003208980de89f0f1d848b76d91ba76", null ],
     [ "fs8::invalid_syspath", "module_fs8_8devices_8uinput.html#ac2551dda50425db2d7e2589f51c3cd9e", null ],
     [ "fs8::invalid_devnode", "module_fs8_8devices_8uinput.html#a8bc0ca9f98483917bec24cf95755038d", null ],
-    [ "fs8::empty_uinput_name", "module_fs8_8devices_8uinput.html#aeb5f813c0e66b32d745ee408a5f79603", null ]
+    [ "fs8::empty_uinput_name", "module_fs8_8devices_8uinput.html#aeb5f813c0e66b32d745ee408a5f79603", null ],
+    [ "fs8::basic_uinput::self_created", "module_fs8_8devices_8uinput.html#a47379d914e5466239ddfc73f7ed2a6a9", null ]
 ];

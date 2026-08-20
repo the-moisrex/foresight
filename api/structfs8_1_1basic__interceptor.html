@@ -128,14 +128,14 @@ requires (sizeof...(Qs) &gt;= 1 &amp;&amp; (std::convertible_to&lt;Qs, <a class=
 <tr class="memitem:a7dd0cb6d717477912240a397c249a9f6" id="r_a7dd0cb6d717477912240a397c249a9f6"><td class="memItemLeft" align="right" valign="top">std::span&lt; <a class="el" href="namespacefs8.html#adcd5f715cab1b6f86ae4d96f54e9c049">device_query</a> const &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__interceptor.html#a7dd0cb6d717477912240a397c249a9f6">queries</a> () noexcept</td></tr>
 <tr class="separator:a7dd0cb6d717477912240a397c249a9f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd3b16ab5a55f1de91fb59671041129d" id="r_acd3b16ab5a55f1de91fb59671041129d"><td class="memTemplParams" colspan="2">template&lt;Context ContextT&gt; </td></tr>
-<tr class="memitem:acd3b16ab5a55f1de91fb59671041129d"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__interceptor.html#acd3b16ab5a55f1de91fb59671041129d">operator()</a> (ContextT &amp;ctx, <a class="el" href="structfs8_1_1start__tag.html">start_tag</a>) noexcept</td></tr>
+<tr class="memitem:acd3b16ab5a55f1de91fb59671041129d"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__interceptor.html#acd3b16ab5a55f1de91fb59671041129d">operator()</a> (ContextT &amp;ctx, <a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>) noexcept</td></tr>
 <tr class="memdesc:acd3b16ab5a55f1de91fb59671041129d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forward queries/devices to input_manager; ensure it started.  <br /></td></tr>
 <tr class="separator:acd3b16ab5a55f1de91fb59671041129d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae18aba6295cd44292969a30dbfa3fb4b" id="r_ae18aba6295cd44292969a30dbfa3fb4b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__interceptor.html#ae18aba6295cd44292969a30dbfa3fb4b">operator()</a> (<a class="el" href="structfs8_1_1io__fd.html">io_fd</a> const &amp;fd) noexcept</td></tr>
 <tr class="memdesc:ae18aba6295cd44292969a30dbfa3fb4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">io_manager handler: drain a readable device fd into the pending queue.  <br /></td></tr>
 <tr class="separator:ae18aba6295cd44292969a30dbfa3fb4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff28abad0d914b5ac5d259ecdb67bc13" id="r_aff28abad0d914b5ac5d259ecdb67bc13"><td class="memTemplParams" colspan="2">template&lt;Context ContextT&gt; </td></tr>
-<tr class="memitem:aff28abad0d914b5ac5d259ecdb67bc13"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__interceptor.html#aff28abad0d914b5ac5d259ecdb67bc13">operator()</a> (ContextT &amp;ctx, <a class="el" href="structfs8_1_1next__event__tag.html">next_event_tag</a>) noexcept</td></tr>
+<tr class="memitem:aff28abad0d914b5ac5d259ecdb67bc13"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__interceptor.html#aff28abad0d914b5ac5d259ecdb67bc13">operator()</a> (ContextT &amp;ctx, <a class="el" href="namespacefs8.html#acb4f566f578b0d3013871b415c623375">next_event_tag</a>) noexcept</td></tr>
 <tr class="memdesc:aff28abad0d914b5ac5d259ecdb67bc13"><td class="mdescLeft">&#160;</td><td class="mdescRight">next_event provider: reconcile watches, pop one event, else ignore_event.  <br /></td></tr>
 <tr class="separator:aff28abad0d914b5ac5d259ecdb67bc13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structfs8_1_1pimpl__idiom"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structfs8_1_1pimpl__idiom')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom&lt; basic_interceptor &gt;</a></td></tr>
@@ -302,7 +302,7 @@ template&lt;Context ContextT&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1next__event__tag.html">next_event_tag</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#acb4f566f578b0d3013871b415c623375">next_event_tag</a>&#160;</td>
           <td class="paramname">&#160;</td>
         </tr>
         <tr>
@@ -342,7 +342,7 @@ template&lt;Context ContextT&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1start__tag.html">start_tag</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>&#160;</td>
           <td class="paramname">&#160;</td>
         </tr>
         <tr>

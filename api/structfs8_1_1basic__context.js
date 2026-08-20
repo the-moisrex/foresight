@@ -16,6 +16,7 @@ var structfs8_1_1basic__context =
     [ "mod", "structfs8_1_1basic__context.html#aed51e6eec452b94e3f39ca4be4b4073b", null ],
     [ "mod", "structfs8_1_1basic__context.html#a6abb13b86c940509fc9f583e5dd28d06", null ],
     [ "mod", "structfs8_1_1basic__context.html#a55d4e4e6136e94c833167b1b742f9e5b", null ],
+    [ "mods", "structfs8_1_1basic__context.html#a87eefd936efceaba7de9c44aef35b7b1", null ],
     [ "operator()", "structfs8_1_1basic__context.html#a62523c3679347b369412a108cd2096e0", null ],
     [ "operator()", "structfs8_1_1basic__context.html#acfe8d33f8b17156934f23c3b19a88a3a", null ],
     [ "operator()", "structfs8_1_1basic__context.html#a5faae5255789c712d5481b29390975a2", null ],
@@ -29,5 +30,7 @@ var structfs8_1_1basic__context =
     [ "operator|", "structfs8_1_1basic__context.html#a5e1c2ce7bb3eb1a7b41b0739e7adf7be", null ],
     [ "reemit", "structfs8_1_1basic__context.html#aead4980f34aba3e6e2a54f555193915c", null ],
     [ "reemit", "structfs8_1_1basic__context.html#a3d931ed692e0423f26cddbf1666cbd02", null ],
-    [ "restart_if", "structfs8_1_1basic__context.html#acb3532610d67034391673467efa4cff7", null ]
+    [ "restart_if", "structfs8_1_1basic__context.html#acb3532610d67034391673467efa4cff7", null ],
+    [ "rmods", "structfs8_1_1basic__context.html#a3f68fcafa3aa11f5fa56a7d7c47b2354", null ],
+    [ "sub_mods", "structfs8_1_1basic__context.html#a102acb772077e9ff5c0a81086e441d2f", null ]
 ];

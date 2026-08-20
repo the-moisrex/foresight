@@ -92,10 +92,11 @@ var searchData=
   ['basic_5fswipe_89',['basic_swipe',['../structfs8_1_1basic__swipe.html',1,'fs8']]],
   ['basic_5fswipe_5fdetector_90',['basic_swipe_detector',['../structfs8_1_1basic__swipe__detector.html',1,'fs8']]],
   ['basic_5fswitch_5fmode_91',['basic_switch_mode',['../structfs8_1_1basic__switch__mode.html',1,'fs8']]],
-  ['basic_5ftimed_5ftyped_92',['basic_timed_typed',['../structfs8_1_1basic__timed__typed.html',1,'fs8']]],
-  ['basic_5fto_5fevdev_93',['basic_to_evdev',['../structfs8_1_1basic__to__evdev.html',1,'fs8']]],
-  ['basic_5fto_5fqueries_94',['basic_to_queries',['../structfs8_1_1basic__to__queries.html',1,'fs8']]],
-  ['basic_5ftype_5fstring_95',['basic_type_string',['../structfs8_1_1basic__type__string.html',1,'fs8']]],
-  ['basic_5ftyped_96',['basic_typed',['../structfs8_1_1basic__typed.html',1,'fs8']]],
-  ['basic_5fuinput_97',['basic_uinput',['../structfs8_1_1basic__uinput.html',1,'fs8']]]
+  ['basic_5ftag_92',['basic_tag',['../structfs8_1_1basic__tag.html',1,'fs8']]],
+  ['basic_5ftimed_5ftyped_93',['basic_timed_typed',['../structfs8_1_1basic__timed__typed.html',1,'fs8']]],
+  ['basic_5fto_5fevdev_94',['basic_to_evdev',['../structfs8_1_1basic__to__evdev.html',1,'fs8']]],
+  ['basic_5fto_5fqueries_95',['basic_to_queries',['../structfs8_1_1basic__to__queries.html',1,'fs8']]],
+  ['basic_5ftype_5fstring_96',['basic_type_string',['../structfs8_1_1basic__type__string.html',1,'fs8']]],
+  ['basic_5ftyped_97',['basic_typed',['../structfs8_1_1basic__typed.html',1,'fs8']]],
+  ['basic_5fuinput_98',['basic_uinput',['../structfs8_1_1basic__uinput.html',1,'fs8']]]
 ];
