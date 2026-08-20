@@ -75,6 +75,11 @@ export namespace fs8 {
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
+        /// Whether this device was created by the current pipeline (as opposed
+        /// to a foreign/chained process). Only self-created devices are skipped
+        /// by `input_manager` to avoid feedback loops.
+        bool self_created = true;
+
         basic_uinput(evdev const& evdev_dev, std::filesystem::path const& file) noexcept;
         basic_uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept;
         explicit basic_uinput(libevdev const* evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
@@ -157,6 +162,16 @@ export namespace fs8 {
          * @return The device node for this device, in the form of /dev/input/eventN
          */
         [[nodiscard]] std::string_view devnode() const noexcept;
+
+        /// The devnode reported to the `input_manager` so it can skip watching
+        /// this device. Empty when the device is not created yet, or when it is
+        /// explicitly marked as foreign (`self_created == false`).
+        [[nodiscard]] std::string_view self_devnode() const noexcept {
+            if (!is_ok() || !self_created) [[unlikely]] {
+                return {};
+            }
+            return devnode();
+        }
 
         void enable_event_type(ev_type) noexcept;
         void enable_event_code(ev_type, code_type) noexcept;

@@ -40,6 +40,30 @@ TEST(Uinput, SetDeviceFromQueryEmptyFallback) {
     vdev.close();
 }
 
+TEST(Uinput, SelfDevnodeHonorsSelfCreated) {
+    auto const res = fs8::verify_access_to_uinput();
+    if (res != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(res);
+    }
+    fs8::basic_uinput vdev;
+    if (!vdev.init(fs8::keyboard)) {
+        GTEST_SKIP() << "Cannot create a virtual keyboard.";
+    }
+    EXPECT_TRUE(vdev.is_ok());
+
+    // Self-created by default: reports the devnode so input_manager can skip it.
+    EXPECT_EQ(vdev.self_devnode(), vdev.devnode());
+    EXPECT_FALSE(vdev.self_devnode().empty());
+
+    // Marked foreign: input_manager must treat it as a real (chained) device.
+    vdev.self_created = false;
+    EXPECT_TRUE(vdev.self_devnode().empty());
+
+    vdev.self_created = true;
+    EXPECT_EQ(vdev.self_devnode(), vdev.devnode());
+    vdev.close();
+}
+
 TEST(Uinput, SetDeviceFromQueryFailOnNoMatch) {
     std::array<fs8::query_term, 1> fields = {fs8::match_sysname("nonexistent-device-xyz")};
     fs8::device_query              q{.fields = std::span<fs8::query_term const>{fields}, .fail_on_no_match = true};

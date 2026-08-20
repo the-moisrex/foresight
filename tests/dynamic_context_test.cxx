@@ -18,10 +18,26 @@ namespace {
     /// Counts how many times it's run with a `start` tag.
     int start_count = 0; // NOLINT(*-global-variables)
 
+    /// Set to `dynamic_context.bound()` when the probe runs (global because
+    /// pipeline construction is consteval and cannot capture a local's address).
+    bool bound_seen = false; // NOLINT(*-global-variables)
+
     /// A minimal mod that only reacts to `start`.
     struct start_aware_mod {
         constexpr context_action operator()(Context auto&, start_tag) noexcept {
             ++start_count;
+            return context_action::next;
+        }
+
+        constexpr context_action operator()(Context auto&) noexcept {
+            return context_action::next;
+        }
+    };
+
+    /// Records whether the dynamic context was bound when it was invoked.
+    struct bound_probe {
+        constexpr context_action operator()(Context auto&, start_tag) noexcept {
+            bound_seen = dynamic_context.bound();
             return context_action::next;
         }
 
@@ -145,4 +161,63 @@ TEST(DynamicContextTest, NestedScopesSwitchPipeline) {
         EXPECT_EQ(sink1.at(1).code(), KEY_A);
         EXPECT_EQ(sink2.size(), 1U);
     }
+}
+
+TEST(DynamicContextTest, PipelineRunAutoBinds) {
+    bound_seen    = false;
+    auto pipeline = context | bound_probe{};
+
+    EXPECT_EQ(pipeline(start), context_action::next);
+    EXPECT_TRUE(bound_seen) << "Starting a pipeline must bind the dynamic context automatically.";
+
+    // Without a running pipeline the binding must be gone.
+    EXPECT_FALSE(dynamic_context.bound());
+}
+
+TEST(DynamicContextTest, TypedModEnumeration) {
+    sink1.clear();
+    auto pipeline = context | record[sink1];
+
+    // Concrete context: typed getters work without any binding.
+    auto const concrete = pipeline.mods<basic_record>();
+    ASSERT_EQ(concrete.size(), 1U);
+    EXPECT_EQ(std::addressof(concrete.at(0).get()), std::addressof(pipeline.mod<basic_record>()));
+
+    // Type-erased access point: same result through the dynamic context.
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        auto const    dyn = dynamic_context.mods<basic_record>();
+        ASSERT_EQ(dyn.size(), 1U);
+        EXPECT_EQ(std::addressof(dyn.at(0).get()), std::addressof(pipeline.mod<basic_record>()));
+
+        // A type that is not in the pipeline yields an empty range.
+        EXPECT_TRUE(dynamic_context.mods<basic_uinput>().empty());
+    }
+}
+
+TEST(DynamicContextTest, RmodsRecursesThroughRouter) {
+    auto pipeline = context | router[caps::keyboard >> uinput, caps::mouse >> uinput];
+
+    auto const top = pipeline.mods<basic_uinput>();
+    EXPECT_EQ(top.size(), 0U) << "mods<T> must not descend into the router.";
+
+    auto const rec = pipeline.rmods<basic_uinput>();
+    ASSERT_EQ(rec.size(), 2U) << "rmods<T> must recurse through the router's routes.";
+}
+
+TEST(DynamicContextTest, ForEachSelfDevnodeTraversesRouter) {
+    auto pipeline = context | router[caps::keyboard >> uinput];
+
+    std::vector<std::string> nodes;
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        dynamic_context.for_each_self_devnode([&](std::string_view node) {
+            nodes.emplace_back(node);
+        });
+    }
+
+    // Not started, so the uinputs have no device yet; the traversal must still
+    // recurse into the router without crashing.
+    EXPECT_TRUE(nodes.empty());
+    ASSERT_EQ(pipeline.rmods<basic_uinput>().size(), 1U);
 }

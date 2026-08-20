@@ -6,6 +6,7 @@
 #include <array>
 #include <chrono>
 #include <fcntl.h>
+#include <filesystem>
 #include <poll.h>
 #include <span>
 #include <thread>
@@ -265,4 +266,148 @@ TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
     }
     EXPECT_EQ(io(load_event), context_action::next);
     EXPECT_EQ(std::ranges::distance(im.devices()), before) << "Hotplug remove was not registered.";
+}
+
+TEST(InputManager, OwnedDeviceIsNotReaddedByHotplug) {
+    if (verify_access_to_uinput() != uinput_access_result::available) {
+        GTEST_SKIP() << "No /dev/uinput access.";
+    }
+    udev_queue queue(udev::instance().native());
+    if (!queue.is_active()) {
+        GTEST_SKIP() << "udev daemon is not active.";
+    }
+
+    static constinit auto hotplug_pipeline = context | io_manager | input_manager;
+    auto&                 io               = hotplug_pipeline.mod<basic_io_manager>();
+    auto&                 im               = hotplug_pipeline.mod<basic_input_manager>();
+
+    test_query_provider provider(query + attr::input_subsystem + attr::event_sysname);
+    im.add_query_provider(provider_handle(provider));
+    if (hotplug_pipeline(start) != context_action::next) {
+        GTEST_SKIP() << "Cannot start the pipeline.";
+    }
+
+    auto const before = std::ranges::distance(im.devices());
+
+    udev_monitor probe;
+    probe.match_device("input");
+    probe.enable();
+
+    // A device we own: must never be re-enumerated even when udev reports it.
+    basic_uinput owned_uin;
+    if (!owned_uin(caps::keyboard, start)) {
+        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
+    }
+    if (!wait_for_openable(owned_uin.devnode(), 3000)) {
+        owned_uin.close();
+        GTEST_SKIP() << "The owned device node was never openable.";
+    }
+    im.own_device(owned_uin.devnode());
+
+    bool const owned_add = wait_for_event(probe.file_descriptor(), 5000);
+    if (!owned_add) {
+        owned_uin.close();
+        GTEST_SKIP() << "udev did not deliver the owned add event.";
+    }
+    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(std::ranges::distance(im.devices()), before) << "An owned (self-created) device must not be enumerated back in.";
+
+    // A foreign device must still be picked up by hotplug.
+    basic_uinput foreign_uin;
+    if (!foreign_uin(caps::keyboard, start)) {
+        owned_uin.close();
+        GTEST_SKIP() << "Cannot create a foreign virtual uinput keyboard.";
+    }
+    if (!wait_for_openable(foreign_uin.devnode(), 3000)) {
+        owned_uin.close();
+        foreign_uin.close();
+        GTEST_SKIP() << "The foreign device node was never openable.";
+    }
+
+    bool const foreign_add = wait_for_event(probe.file_descriptor(), 5000);
+    if (!foreign_add) {
+        owned_uin.close();
+        foreign_uin.close();
+        GTEST_SKIP() << "udev did not deliver the foreign add event.";
+    }
+    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_GT(std::ranges::distance(im.devices()), before) << "A foreign (unowned) device must still be enumerated by hotplug.";
+
+    owned_uin.close();
+    foreign_uin.close();
+}
+
+TEST(InputManager, CapsQueryPrefersBestMatchingDevice) {
+    if (verify_access_to_uinput() != uinput_access_result::available) {
+        GTEST_SKIP() << "No /dev/uinput access.";
+    }
+    udev_queue queue(udev::instance().native());
+    if (!queue.is_active()) {
+        GTEST_SKIP() << "udev daemon is not active.";
+    }
+
+    // A base keyboard we can clone and rename. The clone names are unique so
+    // the query below can never pick up unrelated devices.
+    basic_uinput base;
+    if (!base(caps::keyboard, start)) {
+        GTEST_SKIP() << "Cannot create a base virtual uinput keyboard.";
+    }
+    if (!wait_for_openable(base.devnode(), 3000)) {
+        base.close();
+        GTEST_SKIP() << "The base device node was never openable.";
+    }
+    evdev base_src{std::filesystem::path{base.devnode()}};
+    ASSERT_TRUE(base_src.is_ok());
+
+    // Two keyboards with identical keys, differing only in keyboard LEDs. The
+    // LED-less clone must lose to the full one under a caps query.
+    auto full_src = clone_device(base_src);
+    full_src.device_name("Foresight Test Full Keyboard");
+    basic_uinput full_kbd;
+    full_kbd.set_device(full_src);
+
+    auto                              partial_src = clone_device(base_src);
+    std::array<dev_cap_view, 1> const no_leds{
+      dev_cap_view{.type = caps::keyboard_leds.type, .codes = caps::keyboard_leds.codes}
+    };
+    partial_src.disable_caps(no_leds);
+    partial_src.device_name("Foresight Test Partial Keyboard");
+    basic_uinput partial_kbd;
+    partial_kbd.set_device(partial_src);
+
+    if (!full_kbd.is_ok() || !partial_kbd.is_ok()) {
+        base.close();
+        GTEST_SKIP() << "Cannot create the virtual keyboards.";
+    }
+    if (!wait_for_openable(full_kbd.devnode(), 3000) || !wait_for_openable(partial_kbd.devnode(), 3000)) {
+        base.close();
+        full_kbd.close();
+        partial_kbd.close();
+        GTEST_SKIP() << "A virtual keyboard node was never openable.";
+    }
+
+    static constinit auto best_match_pipeline = context | io_manager | input_manager;
+    auto&                 im                  = best_match_pipeline.mod<basic_input_manager>();
+
+    test_query_provider provider((query + attr::input_subsystem + attr::event_sysname + attr::name["Foresight Test*"]) | caps::keyboard);
+    im.add_query_provider(provider_handle(provider));
+    if (best_match_pipeline(start) != context_action::next) {
+        base.close();
+        full_kbd.close();
+        partial_kbd.close();
+        GTEST_SKIP() << "Cannot start the pipeline.";
+    }
+
+    // Only one device may be taken, and it must be the one reporting the full
+    // keyboard caps (100% match) rather than the LED-less clone.
+    auto const opened = im.devices();
+    ASSERT_EQ(std::ranges::distance(opened), 1) << "Only the best matching device should be enumerated.";
+    evdev const full_node{std::filesystem::path{full_kbd.devnode()}};
+    ASSERT_TRUE(full_node.is_ok());
+    EXPECT_EQ(fs8::device_sysname(opened.front()), fs8::device_sysname(full_node))
+      << "The device with the highest caps score must be chosen.";
+
+    base.close();
+    full_kbd.close();
+    partial_kbd.close();
 }

@@ -235,7 +235,7 @@ export namespace fs8 {
         using pointer    = binding::pointer;
         using model_type = T::template model_type<ConcreteT>;
 
-        explicit dynamic_scope(ConcreteT* concrete_ptr) : model{concrete_ptr}, prev{binding::exchange(&model)} {}
+        explicit dynamic_scope(ConcreteT* concrete_ptr) noexcept : model{concrete_ptr}, prev{binding::exchange(&model)} {}
 
         explicit dynamic_scope(ConcreteT& concrete_ptr) noexcept : dynamic_scope{std::addressof(concrete_ptr)} {}
 

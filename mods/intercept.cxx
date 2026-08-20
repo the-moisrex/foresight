@@ -73,6 +73,11 @@ context_action basic_interceptor::do_start(basic_input_manager& im, basic_io_man
     // pull them again (e.g. on `requery`) instead of copying them over.
     im.add_query_provider(provider_handle(*this));
 
+    // If `input_manager` started before us, it already enumerated without any
+    // queries registered; re-run the enumeration now that we're a provider
+    // (no-op when it hasn't started yet, so both pipeline orderings work).
+    im.requery();
+
     for (auto& dev : pimpl->manual_devs) {
         im.add(std::move(dev));
     }

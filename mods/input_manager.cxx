@@ -3,6 +3,7 @@
 module;
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <list>
 #include <ranges>
@@ -10,6 +11,7 @@ module;
 #include <string_view>
 #include <thread>
 #include <utility>
+#include <vector>
 module fs8.mods.input_manager;
 import fs8.devices.evdev;
 import fs8.devices.udev;
@@ -73,6 +75,39 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         });
     }
 
+    /// Whether a sysname belongs to a device this pipeline created itself.
+    /// Such devices must never be watched/drained, otherwise the pipeline
+    /// re-reads its own output and loops (see issue #176).
+    [[nodiscard]] bool is_self_created_sysname(std::string_view const sysname) const noexcept {
+        if (sysname.empty()) [[unlikely]] {
+            return false;
+        }
+        // Devices registered via `own_device` (the pipeline's own uinput mods).
+        if (std::ranges::any_of(owned_sysnames,
+                                [&](std::string const& cur) noexcept {
+                                    return cur == sysname;
+                                }))
+        {
+            return true;
+        }
+        // Fall back to the currently-bound dynamic context (if any): ask the
+        // active pipeline's mods (recursing into routers/sub-pipelines) for
+        // their self-created devnodes.
+        if (!fs8::dynamic_context.bound()) {
+            return false;
+        }
+        bool match = false;
+        fs8::dynamic_context.for_each_self_devnode([&](std::string_view const devnode) noexcept {
+            if (match) {
+                return;
+            }
+            auto const pos = devnode.find_last_of('/');
+            auto const cur = pos == std::string_view::npos ? devnode : devnode.substr(pos + 1);
+            match          = cur == sysname;
+        });
+        return match;
+    }
+
     void add_udev_device(udev_device&& event_dev) {
         if (!event_dev) [[unlikely]] {
             return;
@@ -104,6 +139,10 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
 
         if (has_sysname(name)) {
             return; // already tracked; do not duplicate
+        }
+
+        if (is_self_created_sysname(name)) {
+            return; // our own uinput device; never drain it back in
         }
 
         bool added = false;
@@ -181,35 +220,59 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         }
     }
 
-    /// Open devices matching `cur_query` from the enumerated list. Since a
+    /// Open devices matching `cur_query` from the enumerated list. Queries with
+    /// capabilities prefer the devices with the highest caps support (like
+    /// `device()`), so e.g. the `keyboard` query picks the real keyboard over a
+    /// tablet's companion keyboard that only reports keyboard caps. Since a
     /// query only constrains how many devices it wants (not which devices it
     /// competes for with other queries), failures here do not consume the
     /// limit: a device rejected at open time simply does not count.
     [[nodiscard]] bool enumerate_one(device_query const& cur_query, udev_enumerate const& enumerator) {
-        std::size_t remaining = cur_query.matches_limit == 0 ? 1 : cur_query.matches_limit;
-        bool        found     = false;
+        std::size_t const limit = cur_query.matches_limit == 0 ? 1 : cur_query.matches_limit;
+        bool              found = false;
+
+        // Candidates as (caps score, opened device). The score only ranks caps
+        // queries; non-caps queries keep their enumeration order.
+        std::vector<std::pair<std::uint8_t, evdev>> candidates;
+        candidates.reserve(16);
         for (auto const& entry : enumerator.list_entries()) {
-            if (remaining == 0) [[unlikely]] {
-                break;
-            }
             auto event_dev = udev_device{entry};
             if (!event_dev || event_dev.devnode().empty()) [[unlikely]] {
                 continue;
             }
-            bool const already_open = has_sysname(event_dev.sysname());
             if (!matches(event_dev, cur_query)) {
                 continue;
             }
-            if (already_open) {
+            if (has_sysname(event_dev.sysname())) {
                 continue;
+            }
+            if (is_self_created_sysname(event_dev.sysname())) {
+                continue; // our own uinput device; never enumerate it back in
             }
             auto edev = open_device(cur_query, event_dev);
             if (!edev.is_ok()) {
                 log("Device '{}' status: {}", event_dev.syspath(), to_string(edev.get_status()));
                 continue;
             }
-            devs.emplace_back(std::move(edev));
+            std::uint8_t const score = cur_query.caps.empty() ? 0 : edev.match_caps(cur_query.caps);
+            candidates.emplace_back(score, std::move(edev));
             found = true;
+        }
+
+        if (!cur_query.caps.empty()) {
+            // Pick the devices with the highest caps support first; stable so
+            // ties keep their enumeration order.
+            std::stable_sort(candidates.begin(), candidates.end(), [](auto const& lhs, auto const& rhs) noexcept {
+                return lhs.first > rhs.first;
+            });
+        }
+
+        std::size_t remaining = limit;
+        for (auto& [score, edev] : candidates) {
+            if (remaining == 0) [[unlikely]] {
+                break;
+            }
+            devs.emplace_back(std::move(edev));
             --remaining;
         }
         return found;

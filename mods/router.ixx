@@ -146,6 +146,15 @@ export namespace fs8 {
             detail::router_set_caps(state, queries.data(), queries.size());
         }
 
+        /// The pipelines of the routes, exposed for recursion into this router.
+        [[nodiscard]] constexpr auto sub_mods() noexcept {
+            return std::apply(
+              [](auto&... cur_routes) noexcept {
+                  return std::tuple<decltype(cur_routes)&...>{cur_routes...};
+              },
+              routes);
+        }
+
         void operator()(auto&&, Tag auto) = delete;
         void operator()(Tag auto)         = delete;
 
@@ -289,7 +298,6 @@ export namespace fs8 {
             }
             auto const index = detail::router_lookup(*state, hashed_value, is_syn(event));
             if (index < 0) [[unlikely]] {
-                log("Ignored ({}|{}): {} {} {}", index, hashed_value, event.type_name(), event.code_name(), event.value());
                 return context_action::ignore_event;
             }
             // log("Index: {} {}", index, event.code_name());
