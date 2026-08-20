@@ -203,14 +203,29 @@ export namespace fs8 {
         }
     } led_toggle;
 
-    /// Turn off the CapsLock mode on the physical keyboard.
+    /// Turn off the CapsLock mode when the CapsLock key is held (e.g. it is
+    /// being used as a scroll modifier); otherwise leave it alone.
     constexpr struct [[nodiscard]] basic_capslock_off : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
         void operator()(Context auto& ctx) const noexcept {
-            std::ignore = ctx.mod(led_status).set_capslock(ctx, false);
+            if (ctx.mod(keys_status).is_pressed(KEY_CAPSLOCK)) {
+                std::ignore = ctx.mod(led_status).set_capslock(ctx, false);
+            }
         }
     } capslock_off;
+
+    /// Turn on the CapsLock mode when the CapsLock key is held (e.g. it is
+    /// being used as a scroll modifier); otherwise leave it alone.
+    constexpr struct [[nodiscard]] basic_capslock_on : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        void operator()(Context auto& ctx) const noexcept {
+            if (!ctx.mod(keys_status).is_pressed(KEY_CAPSLOCK)) {
+                std::ignore = ctx.mod(led_status).set_capslock(ctx, true);
+            }
+        }
+    } capslock_on;
 
 
 } // namespace fs8
