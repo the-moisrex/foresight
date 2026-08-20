@@ -11,7 +11,7 @@ var emitter_8ixx =
     [ "turn_led_off", "emitter_8ixx.html#a4d85fac3c71d4a5a80f504148398c7eb", null ],
     [ "turn_led_on", "emitter_8ixx.html#a1de67b967b54f40ab6d946781bff63c8", null ],
     [ "up", "emitter_8ixx.html#a5cbe27612afffd4c3186546c0c26659e", null ],
-    [ "emit", "emitter_8ixx.html#a5e93e7cf2d7d14e8a759939ea0872d22", null ],
+    [ "emit", "emitter_8ixx.html#a213fe86ebb36272ce0129f95625c0a70", null ],
     [ "emit_all", "emitter_8ixx.html#a04d3dcc13f40268343e7c15ecc24f097", null ],
     [ "replace_code", "emitter_8ixx.html#afa7cdb6e4eeeba6f1bd7bd224a74da59", null ],
     [ "schedule_emit", "emitter_8ixx.html#a84b3312daa08ec0c4891246caf0a336f", null ],

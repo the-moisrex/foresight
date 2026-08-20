@@ -34,7 +34,6 @@ var annotated_dup =
       [ "basic_auto_mode_tag", "structfs8_1_1basic__auto__mode__tag.html", "structfs8_1_1basic__auto__mode__tag" ],
       [ "basic_autocomplete", "structfs8_1_1basic__autocomplete.html", "structfs8_1_1basic__autocomplete" ],
       [ "basic_capslock_off", "structfs8_1_1basic__capslock__off.html", "structfs8_1_1basic__capslock__off" ],
-      [ "basic_capslock_on", "structfs8_1_1basic__capslock__on.html", "structfs8_1_1basic__capslock__on" ],
       [ "basic_code_adaptor", "structfs8_1_1basic__code__adaptor.html", "structfs8_1_1basic__code__adaptor" ],
       [ "basic_context", "structfs8_1_1basic__context.html", "structfs8_1_1basic__context" ],
       [ "basic_context_view", "structfs8_1_1basic__context__view.html", "structfs8_1_1basic__context__view" ],
