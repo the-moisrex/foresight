@@ -42,7 +42,7 @@ var queries_8ixx =
     [ "has_subsystem", "queries_8ixx.html#a173d14233d06df1098b30be20790d573", null ],
     [ "has_subsystem", "queries_8ixx.html#ab2746154172d04186fabd806316c9cd7", null ],
     [ "initialize", "queries_8ixx.html#a4903c94447069cae35f8d6c0a06a444d", null ],
-    [ "is_matched", "queries_8ixx.html#a72243777c238782a6f3f060d5562c9df", null ],
+    [ "is_matched", "queries_8ixx.html#aa584a3570ab50904ad3672f77e732012", null ],
     [ "is_negated", "queries_8ixx.html#a0ee911e9ef5a3e8f61a03e3857cd75af", null ],
     [ "is_positive_property", "queries_8ixx.html#abf36f2dd3230114fb3e4abf152504ab9", null ],
     [ "is_positive_subsystem", "queries_8ixx.html#a67c02ecfc635c7b137267de1aea21643", null ],

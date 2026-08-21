@@ -4,7 +4,7 @@ var searchData=
   ['_7eany_5fdynamic_5fcontext_1',['~any_dynamic_context',['../structfs8_1_1any__dynamic__context.html#adeca444a9f14c70659f9616542c28a05',1,'fs8::any_dynamic_context']]],
   ['_7eany_5fdynamic_5fcontext_5fmodel_2',['~any_dynamic_context_model',['../structfs8_1_1any__dynamic__context__model.html#ae74e9d708c5c7a428522137bd1f28b9f',1,'fs8::any_dynamic_context_model']]],
   ['_7ebash_5frunner_3',['~bash_runner',['../structfs8_1_1bash__runner.html#ae74b093ceb9814f259688b4ae7f935b9',1,'fs8::bash_runner']]],
-  ['_7ebasic_5fcontext_5fview_4',['~basic_context_view',['../structfs8_1_1basic__context__view.html#a385ee3349ad133831a464503c27434a6',1,'fs8::basic_context_view']]],
+  ['_7ebasic_5fcontext_5fview_4',['~basic_context_view',['../structfs8_1_1basic__context__view.html#a5550971efc56dfd2afb0f8aa0cd12609',1,'fs8::basic_context_view']]],
   ['_7ebasic_5flog_5',['~basic_log',['../structfs8_1_1basic__log.html#ae7a7084c56fedb6ca06fda11cec64cfa',1,'fs8::basic_log']]],
   ['_7ebasic_5fstate_6',['~basic_state',['../structfs8_1_1xkb_1_1basic__state.html#ae1d1a30c5db3f784d295463d6203d615',1,'fs8::xkb::basic_state']]],
   ['_7ebasic_5fuinput_7',['~basic_uinput',['../structfs8_1_1basic__uinput.html#a0c94c145edc74d8c3541cf482e9085b4',1,'fs8::basic_uinput']]],
