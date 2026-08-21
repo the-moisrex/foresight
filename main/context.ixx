@@ -310,6 +310,16 @@ export namespace fs8 {
         return invoke_mod(mod, ctx, load_event);
     }
 
+    template <typename ParentT, Modifier... Funcs>
+    struct [[nodiscard]] basic_context_view;
+
+    template <Context CtxT, typename... Funcs>
+    constexpr context_action invoke_mods_from(
+      CtxT                 &ctx,
+      std::tuple<Funcs...> &funcs,
+      std::size_t           start_index,
+      context_action        default_action = context_action::next) noexcept;
+
     template <Context CtxT, typename... Funcs>
     constexpr context_action invoke_mod_at(CtxT &ctx, std::tuple<Funcs...> &funcs, std::size_t const index) noexcept {
         using enum context_action;
@@ -317,8 +327,9 @@ export namespace fs8 {
             auto action = next;
             std::ignore = (([&]<std::size_t K>() constexpr noexcept {
                                if (K == index) {
-                                   auto current_fork_view = ctx.template fork_view<K>();
-                                   action                 = invoke_mod(get<K>(funcs), current_fork_view);
+                                   // Entries are alternatives: a forked event skips the rest of this tuple.
+                                   basic_context_view<CtxT, Funcs...> view{ctx, funcs, sizeof...(Funcs)};
+                                   action = invoke_mod(get<K>(funcs), view);
                                }
                                return action == next;
                            }).template operator()<I>()
@@ -333,13 +344,13 @@ export namespace fs8 {
         using tuple_type = std::tuple<Funcs...>;
         using mod_type   = std::tuple_element_t<Index, tuple_type>;
         if constexpr (invokable_mod<mod_type, CtxT, Args...>) {
-            auto current_fork_view = ctx.template fork_view<Index>();
-            return invoke_mod(get<Index>(funcs), current_fork_view, default_action, args...);
+            basic_context_view<CtxT, Funcs...> view{ctx, funcs, Index + 1U};
+            return invoke_mod(get<Index>(funcs), view, default_action, args...);
         } else if constexpr (sizeof...(Args) >= 2) {
             // Let invoke_mod's drop fallback try calling this mod with fewer args.
             if constexpr (!Tag<type_at<0, Args...>> && Tag<type_at<sizeof...(Args) - 1, Args...>>) {
-                auto current_fork_view = ctx.template fork_view<Index>();
-                return invoke_mod(get<Index>(funcs), current_fork_view, default_action, args...);
+                basic_context_view<CtxT, Funcs...> view{ctx, funcs, Index + 1U};
+                return invoke_mod(get<Index>(funcs), view, default_action, args...);
             } else {
                 return default_action;
             }
@@ -641,7 +652,7 @@ export namespace fs8 {
         }
     } dynamic_context;
 
-    template <std::size_t Index, Modifier... Funcs>
+    template <typename ParentT, Modifier... Funcs>
     struct [[nodiscard]] basic_context_view;
 
     /**
@@ -732,51 +743,9 @@ export namespace fs8 {
               mods_);
         }
 
-        template <std::size_t Index = 0, Context CtxT = basic_context>
-        constexpr context_action reemit(CtxT &ctx) const noexcept {
-            static_assert(Index <= sizeof...(Funcs) - 1, "Index out of range.");
-            using enum context_action;
-            auto       ctx_view = ctx.template fork_view<Index>();
-            auto const action   = invoke_mod(ctx.template mod<Index>(), ctx_view);
-            if constexpr (Index >= sizeof...(Funcs) - 1) {
-                return action;
-            } else {
-                if (action != next) {
-                    return action;
-                }
-                return ctx.template reemit<Index + 1U>(ctx);
-            }
-        }
-
-        template <std::size_t Index = 0>
-        constexpr context_action reemit() noexcept {
-            return reemit<Index, basic_context>(*this);
-        }
-
-        template <std::size_t Index>
-        context_action fork_emit(event_type const &inp_event) noexcept {
-            auto const cur_ev = std::exchange(ev, inp_event);
-            auto const res    = reemit<Index>();
-            ev                = cur_ev;
-            return res;
-        }
-
-        template <std::size_t Index, typename... Args>
-            requires(std::constructible_from<event_type, Args...> && sizeof...(Args) >= 2)
-        context_action fork_emit(Args &&...args) noexcept {
-            return fork_emit<Index>(event_type{std::forward<Args>(args)...});
-        }
-
-        template <std::size_t Index>
-        constexpr auto fork_view() noexcept {
-            static_assert(Index <= sizeof...(Funcs) - 1, "Index out of range.");
-            return basic_context_view<Index + 1U, Funcs...>{*this};
-        }
-
-        template <typename Mod>
-        constexpr auto fork_view() noexcept {
-            static_assert((std::same_as<Mod, Funcs> || ...), "Index out of range.");
-            return basic_context_view<index_at<Mod, Funcs...>, Funcs...>{*this};
+        /// Terminal continuation for the parent chain: the pipeline ends here.
+        context_action fork_emit() noexcept {
+            return context_action::next;
         }
 
         /// The mods of this context, exposed for recursion into sub-pipelines.
@@ -856,7 +825,7 @@ export namespace fs8 {
             // introspect the active pipeline.
             dynamic_scope scope{dynamic_context, *this};
             using enum context_action;
-            using ctx_view = basic_context_view<0, Funcs...>;
+            using ctx_view = basic_context_view<basic_context<std::remove_cvref_t<Funcs>...>, std::remove_cvref_t<Funcs>...>;
             static_assert(((invokable_mod<Funcs, ctx_view>
                             || invokable_mod<Funcs, ctx_view, load_event_tag>
                             || invokable_mod<Funcs, ctx_view, next_event_tag>)
@@ -950,27 +919,28 @@ export namespace fs8 {
     };
 
     /**
-     * It's essentially a lightweight version of the context above.
+     * A lightweight view over a (sub-)tuple of mods, chained to its enclosing
+     * continuation. `fork_emit` re-runs the remaining mods of this tuple and
+     * then continues through the parent chain up to the root context. All
+     * event/state accessors delegate up the parent chain to the root.
      */
-    template <std::size_t Index, Modifier... Funcs>
+    template <typename ParentT, Modifier... SubFuncs>
     struct [[nodiscard]] basic_context_view {
-        using ctx_type   = basic_context<Funcs...>;
         using type_type  = event_type::type_type;
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
-        using mods_type  = ctx_type::mods_type;
-
-        template <typename T>
-        using mod_type = mod_of<T, Funcs...>;
-
-        template <typename Func>
-        static constexpr bool is_mod = (std::same_as<mod_type<Func>, Funcs> || ...);
+        using mods_type  = std::tuple<std::remove_cvref_t<SubFuncs>...>;
 
       private:
-        ctx_type *ctx;
+        ParentT    &parent;
+        mods_type  &subs;
+        std::size_t index;
 
       public:
-        explicit constexpr basic_context_view(ctx_type &inp_ctx) noexcept : ctx(&inp_ctx) {}
+        constexpr basic_context_view(ParentT &inp_parent, mods_type &inp_subs, std::size_t const inp_index) noexcept
+          : parent{inp_parent},
+            subs{inp_subs},
+            index{inp_index} {}
 
         constexpr basic_context_view(basic_context_view const &)                = default;
         constexpr basic_context_view(basic_context_view &&) noexcept            = default;
@@ -979,16 +949,25 @@ export namespace fs8 {
         constexpr ~basic_context_view() noexcept                                = default;
 
         template <typename Self>
-        [[nodiscard]] constexpr auto &&context(this Self &&self) noexcept {
-            return std::forward_like<Self>(*self.ctx);
+        [[nodiscard]] constexpr decltype(auto) context(this Self &&self) noexcept {
+            if constexpr (requires { self.parent.context(); }) {
+                return std::forward_like<Self>(self.parent.context());
+            } else {
+                return std::forward_like<Self>(self.parent);
+            }
         }
 
         context_action fork_emit() noexcept {
-            return ctx->template reemit<Index>();
+            auto const res = invoke_mods_from(parent, subs, index);
+            return res == context_action::next ? parent.fork_emit() : res;
         }
 
-        context_action fork_emit(event_type const &event) noexcept {
-            return ctx->template fork_emit<Index>(event);
+        context_action fork_emit(event_type const &inp_event) noexcept {
+            auto const cur = event();
+            event(inp_event);
+            auto const res = fork_emit();
+            event(cur);
+            return res;
         }
 
         context_action fork_emit(user_event const &inp_ev) noexcept {
@@ -1001,75 +980,45 @@ export namespace fs8 {
 
         template <typename Self>
         [[nodiscard]] constexpr auto &&event(this Self &&self) noexcept {
-            return std::forward_like<Self>(self.ctx->event());
+            return std::forward_like<Self>(self.parent.event());
         }
 
         constexpr void event(event_type const &inp_event) noexcept {
-            ctx->event(inp_event);
+            parent.event(inp_event);
         }
 
         template <typename Self>
         [[nodiscard]] constexpr auto &&get_mods(this Self &&self) noexcept {
-            return std::forward_like<Self>(self.ctx->get_mods());
+            return std::forward_like<Self>(self.parent.get_mods());
         }
 
         template <typename Func, typename Self>
-            requires is_mod<Func>
+            requires requires(ParentT &p) { p.template mod<Func>(); }
         [[nodiscard]] constexpr decltype(auto) mod(this Self &&self) noexcept {
-            return std::forward_like<Self>(self.ctx->template mod<Func>());
+            return std::forward_like<Self>(self.parent.template mod<Func>());
         }
 
         template <typename Func, typename Self>
-            requires is_mod<Func>
+            requires requires(ParentT &p) { p.template mod<Func>(); }
         [[nodiscard]] constexpr decltype(auto) mod(this Self &&self, [[maybe_unused]] Func const &) noexcept {
-            return std::forward_like<Self>(self.ctx->template mod<Func>());
+            return std::forward_like<Self>(self.parent.template mod<Func>());
         }
 
-        template <std::size_t NIndex = Index, typename Self>
+        template <std::size_t NIndex, typename Self>
         [[nodiscard]] constexpr decltype(auto) mod(this Self &&self) noexcept {
-            return std::forward_like<Self>(self.ctx->template mod<NIndex>());
+            return std::forward_like<Self>(self.parent.template mod<NIndex>());
         }
 
         /// Enumerate the top-level mods of the underlying context whose type matches `T`.
         template <typename T>
         [[nodiscard]] std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> mods(T const & = {}) noexcept {
-            std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> out;
-            collect_mods_of(
-              *ctx,
-              &type_id<std::remove_cvref_t<T>>,
-              [&](void *ptr) noexcept {
-                  out.emplace_back(*static_cast<std::remove_cvref_t<T> *>(ptr));
-              },
-              false);
-            return out;
+            return context().template mods<T>();
         }
 
         /// Enumerate mods matching `T`, recursing into routers/sub-pipelines.
         template <typename T>
         [[nodiscard]] std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> rmods(T const & = {}) noexcept {
-            std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> out;
-            collect_mods_of(
-              *ctx,
-              &type_id<std::remove_cvref_t<T>>,
-              [&](void *ptr) noexcept {
-                  out.emplace_back(*static_cast<std::remove_cvref_t<T> *>(ptr));
-              },
-              true);
-            return out;
-        }
-
-        // Re-Forking
-        template <std::size_t NIndex>
-        constexpr auto fork_view() const noexcept {
-            static_assert(NIndex <= sizeof...(Funcs) - 1, "Index out of range.");
-            return basic_context_view<NIndex + 1U, Funcs...>{*ctx};
-        }
-
-        // Re-Forking
-        template <typename Mod>
-        constexpr auto fork_view() const noexcept {
-            static_assert(is_mod<Mod>, "Index out of range.");
-            return basic_context_view<index_at<Mod, Funcs...>, Funcs...>{*ctx};
+            return context().template rmods<T>();
         }
     };
 
@@ -1110,11 +1059,8 @@ export namespace fs8 {
 
     /// Run the mods starting at a runtime `start_index`, stopping early on a non-`next` action.
     template <Context CtxT, typename... Funcs>
-    constexpr context_action invoke_mods_from(
-      CtxT                 &ctx,
-      std::tuple<Funcs...> &funcs,
-      std::size_t const     start_index,
-      context_action const  default_action = context_action::next) noexcept {
+    constexpr context_action
+    invoke_mods_from(CtxT &ctx, std::tuple<Funcs...> &funcs, std::size_t const start_index, context_action const default_action) noexcept {
         using enum context_action;
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
             context_action action = default_action;

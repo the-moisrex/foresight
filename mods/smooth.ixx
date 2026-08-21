@@ -135,7 +135,7 @@ export namespace fs8 {
         };
 
       private:
-        float alpha = 0.9f;
+        float alpha = 0.95f;
 
         void     mark_movement() noexcept;
         smoothed filter_frame(value_type cur_x, value_type cur_y) noexcept;

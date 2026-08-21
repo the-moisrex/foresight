@@ -2,12 +2,16 @@
 
 #include <cstdint>
 #include <linux/input-event-codes.h>
+#include <ranges>
 #include <span>
 import fs8.mods;
 
 using namespace fs8;
 
 namespace {
+
+    std::vector<fs8::event_type> subpipeline_out; // NOLINT(*-global-variables)
+    std::vector<fs8::event_type> on_block_out;    // NOLINT(*-global-variables)
 
     /// Group a recorded stream into frames, one per SYN_REPORT.
     std::vector<std::vector<user_event>> group_frames(std::span<event_type const> const events) {
@@ -251,4 +255,71 @@ TEST(SmoothTest, KalmanNoResidualDrift) {
     ASSERT_EQ(frames[1].size(), 2U);
     EXPECT_EQ(frames[1][0].code, KEY_A);
     EXPECT_EQ(frames[1][1].type, EV_SYN);
+}
+
+// Regression: a fork-emitting mod (kalman_filter) placed inside a sub-pipeline
+// must fork into the rest of the SUB-pipeline (mouse_to_scroll), not re-enter
+// the enclosing on_held block. Previously the sub-pipeline index was misread as
+// a full-pipeline index, so the smoothed events were swallowed and never
+// converted to scroll.
+TEST(SmoothTest, KalmanInSubPipelineForksToMouseToScroll) {
+    using namespace fs8;
+    subpipeline_out.clear();
+
+    (context
+     | emit_all[{
+       {.type = EV_KEY,      .code = KEY_A,  .value = 1},
+       {.type = EV_REL,      .code = REL_X, .value = 10},
+       {.type = EV_REL,      .code = REL_Y, .value = 10},
+       {.type = EV_SYN, .code = SYN_REPORT,  .value = 0},
+       {.type = EV_KEY,      .code = KEY_A,  .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT,  .value = 0},
+    }]
+     | mice_quantifier
+     | mouse_history
+     | on_held[KEY_A, context | kalman_filter[0.1f, 0.5f] | mouse_to_scroll]
+     | record[subpipeline_out])();
+
+    // The smoothed movement reached mouse_to_scroll and was re-emitted as
+    // scroll. No raw REL_X/REL_Y and no modifier key leak past the block.
+    EXPECT_FALSE(subpipeline_out.empty());
+    EXPECT_TRUE(std::ranges::any_of(subpipeline_out, [](fs8::event_type const& e) {
+        return e.code() == REL_WHEEL_HI_RES || e.code() == REL_HWHEEL_HI_RES;
+    }));
+    EXPECT_TRUE(std::ranges::none_of(subpipeline_out, [](fs8::event_type const& e) {
+        return e.type() == EV_REL && (e.code() == REL_X || e.code() == REL_Y);
+    }));
+    EXPECT_TRUE(std::ranges::none_of(subpipeline_out, [](fs8::event_type const& e) {
+        return e.type() == EV_KEY;
+    }));
+}
+
+// Regression: fork_emit from inside an `on` block must continue through the
+// mods AFTER the block in the full pipeline, without re-entering the block.
+// The empty `run` before the block keeps the block away from index 0.
+TEST(SmoothTest, ForkFromOnBlockContinuesToFullTail) {
+    using namespace fs8;
+    on_block_out.clear();
+
+    (context
+     | emit_all[{
+       {.type = EV_KEY,      .code = KEY_A, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+    }]
+     | run{[](auto&) noexcept {
+           return context_action::next;
+       }}
+     | on[always_enable, context | run{[](auto& ctx) noexcept {
+                             std::ignore = ctx.fork_emit(EV_KEY, KEY_B, 1);
+                             std::ignore = ctx.fork_emit(EV_KEY, KEY_B, 0);
+                             return context_action::next;
+                         }}]
+     | record[on_block_out])();
+
+    EXPECT_TRUE(std::ranges::any_of(on_block_out, [](fs8::event_type const& e) {
+        return e.is(EV_KEY, KEY_B, 1);
+    }));
+    EXPECT_TRUE(std::ranges::any_of(on_block_out, [](fs8::event_type const& e) {
+        return e.is(EV_KEY, KEY_B, 0);
+    }));
 }

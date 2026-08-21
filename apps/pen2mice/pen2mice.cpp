@@ -26,12 +26,6 @@ int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
     using namespace std::chrono_literals;
 
-    auto const parsed = args(argc, argv);
-    if (parsed.help()) {
-        parsed.print_help();
-        return 0;
-    }
-
     static constinit auto pipeline =
       context
       | io_manager
@@ -47,6 +41,7 @@ int main(int const argc, char const* const* argv) try {
              | ignore_tablet
              | ignore_big_jumps
              | ignore_fast_left_clicks]            // Ignore fast left clicks
+      | mouse_history
       | mice_quantifier                            // Quantify the mouse movements
       | swipe_detector                             // Detects swipes
       | on[pressed[BTN_RIGHT], ignore_start_moves] // fix right-click jumps
@@ -76,9 +71,15 @@ int main(int const argc, char const* const* argv) try {
       | update_mod[keys_status]
       | once[pressed[KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC], exit_pipeline] // Restart/Quit
       | on[pressed[BTN_LEFT, KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
-      | on_held[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]
+      | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | kalman_filter | mouse_to_scroll]
+      | low_pass_filter
       | router[caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput];
 
+    auto const parsed = args(argc, argv);
+    if (parsed.help()) {
+        parsed.print_help();
+        return 0;
+    }
     pipeline.mod(intercept).add(parsed | grab | required);
     pipeline();
 
