@@ -145,8 +145,8 @@ Public Member Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Scale pen (absolute) movement events by a factor.</p>
-<p>Multiplies every <code>ABS_X</code> / <code>ABS_Y</code> value by the given <code>factor</code> with sub-pixel epsilon accumulation to prevent drift. Place this <em>before</em> <code>abs2rel</code> so the scaled absolute positions are converted to relative deltas downstream.</p>
-<p>Epsilon is reset on tool-change events (<code>BTN_TOOL_*</code>) so a new stroke starts fresh.</p>
+<p>Computes deltas between consecutive <code>ABS_X</code> / <code>ABS_Y</code> values, scales them by <code>factor</code>, and writes back <code>previous + scaled_delta</code>. Place this <em>before</em> <code>abs2rel</code> so the scaled deltas are converted to relative movements downstream.</p>
+<p>State is reset on tool-change events (<code>BTN_TOOL_*</code>) so a new stroke starts fresh.</p>
 <dl class="section user"><dt>Example</dt><dd><div class="fragment"><div class="line">| <a class="code hl_variable" href="namespacefs8.html#a1d05cad303518ae5309d4600be564573">scale_pen</a>[0.5f]   <span class="comment">// halve pen movements</span></div>
 <div class="line">| <a class="code hl_variable" href="namespacefs8.html#a2b6bbcf4ede7e0321ee5e0faa0fb082b">abs2rel</a></div>
 <div class="line">| <a class="code hl_variable" href="namespacefs8.html#a1e8cd8c6cf2b8ba36f04c4874c84cac6">pen2mice</a></div>
