@@ -124,6 +124,8 @@ var hierarchy =
       [ "fs8::basic_replace< N, EventType >", "structfs8_1_1basic__replace.html", null ],
       [ "fs8::basic_replace_code", "structfs8_1_1basic__replace__code.html", null ],
       [ "fs8::basic_router< Routes >", "structfs8_1_1basic__router.html", null ],
+      [ "fs8::basic_scale_move", "structfs8_1_1basic__scale__move.html", null ],
+      [ "fs8::basic_scale_pen", "structfs8_1_1basic__scale__pen.html", null ],
       [ "fs8::basic_schedule_emit< N >", "structfs8_1_1basic__schedule__emit.html", null ],
       [ "fs8::basic_scheduled_emitter", "structfs8_1_1basic__scheduled__emitter.html", null ],
       [ "fs8::basic_singleton< Solution >", "structfs8_1_1basic__singleton.html", null ],

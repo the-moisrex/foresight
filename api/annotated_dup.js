@@ -107,6 +107,8 @@ var annotated_dup =
       [ "basic_replace", "structfs8_1_1basic__replace.html", "structfs8_1_1basic__replace" ],
       [ "basic_replace_code", "structfs8_1_1basic__replace__code.html", "structfs8_1_1basic__replace__code" ],
       [ "basic_router", "structfs8_1_1basic__router.html", "structfs8_1_1basic__router" ],
+      [ "basic_scale_move", "structfs8_1_1basic__scale__move.html", "structfs8_1_1basic__scale__move" ],
+      [ "basic_scale_pen", "structfs8_1_1basic__scale__pen.html", "structfs8_1_1basic__scale__pen" ],
       [ "basic_schedule_emit", "structfs8_1_1basic__schedule__emit.html", "structfs8_1_1basic__schedule__emit" ],
       [ "basic_scheduled_emitter", "structfs8_1_1basic__scheduled__emitter.html", "structfs8_1_1basic__scheduled__emitter" ],
       [ "basic_search_engine", "structfs8_1_1basic__search__engine.html", "structfs8_1_1basic__search__engine" ],

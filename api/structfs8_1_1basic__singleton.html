@@ -113,9 +113,6 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a0b1db1187f4cd23cb45da710a78ed805"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a90fbafc35e8bd1e9c99b86c7597a64c4" id="r_a90fbafc35e8bd1e9c99b86c7597a64c4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">consteval</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__singleton.html#a90fbafc35e8bd1e9c99b86c7597a64c4">basic_singleton</a> (<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Solution</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">inp</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a90fbafc35e8bd1e9c99b86c7597a64c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae72a97ad5d11c86f5829e9020133676e" id="r_ae72a97ad5d11c86f5829e9020133676e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">consteval</a> <a class="el" href="structfs8_1_1basic__singleton.html">basic_singleton</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__singleton.html#ae72a97ad5d11c86f5829e9020133676e">dir</a> (std::string_view <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">d</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
-<tr class="memdesc:ae72a97ad5d11c86f5829e9020133676e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the lock-directory at compile time.  <br /></td></tr>
-<tr class="separator:ae72a97ad5d11c86f5829e9020133676e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2289729eae7c2e1369c3f314f18bff08" id="r_a2289729eae7c2e1369c3f314f18bff08"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">consteval</a> std::array&lt; std::string_view, 0 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__singleton.html#a2289729eae7c2e1369c3f314f18bff08">operator[]</a> (<a class="el" href="structfs8_1_1get__variables__tag.html">get_variables_tag</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="memdesc:a2289729eae7c2e1369c3f314f18bff08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variable introspection: report no pipeline variables.  <br /></td></tr>
 <tr class="separator:a2289729eae7c2e1369c3f314f18bff08"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -155,8 +152,8 @@ requires (!std::same_as&lt;std::remove_cvref_t&lt;<a class="el" href="namespacef
 <div class="textblock"><div class="compoundTemplParams">template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Solution</a> = exe_hash_solution&gt;<br />
 struct fs8::basic_singleton&lt; Solution &gt;</div><p>Prevent multiple instances of the same pipeline from running concurrently.</p>
 <p>On <code>start</code> the mod acquires an exclusive <code>flock(2)</code> on a lock file whose path is derived from a hash of the <em>solution</em>. If another process already holds the lock, the pipeline exits immediately.</p>
-<p>Usage: singleton // hash /proc/self/exe basename singleton["pen2mice"] // hash a user-provided string singleton[pipeline_hash] // hash all mod types in the pipeline singleton[intercept_hash] // hash intercept's device queries singleton[my_solution] // custom callable (uint64_t(auto&amp;)) singleton["pen2mice"].dir("/tmp/locks")// custom lock directory</p>
-<p>The lock directory defaults to <code>/run/lock/foresight</code> and is created automatically if it does not exist. </p>
+<p>Two lock locations are tried: the system-wide <code>/run/lock/foresight</code> and the user-wide <code>$XDG_RUNTIME_DIR/foresight</code>. Both are attempted so that a root process and a user process prevent each other from running duplicates. If both locks succeed, the user-wide one is released immediately in favour of the system-wide one.</p>
+<p>Usage: singleton // hash /proc/self/exe basename singleton["pen2mice"] // hash a user-provided string singleton[pipeline_hash] // hash all mod types in the pipeline singleton[intercept_hash] // hash intercept's device queries singleton[my_solution] // custom callable (uint64_t(auto&amp;)) </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a0b1db1187f4cd23cb45da710a78ed805" name="a0b1db1187f4cd23cb45da710a78ed805"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0b1db1187f4cd23cb45da710a78ed805">&#9670;&#160;</a></span>basic_singleton() <span class="overload">[1/2]</span></h2>
@@ -294,36 +291,6 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
   </tr>
 </table>
 </div><div class="memdoc">
-
-</div>
-</div>
-<a id="ae72a97ad5d11c86f5829e9020133676e" name="ae72a97ad5d11c86f5829e9020133676e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae72a97ad5d11c86f5829e9020133676e">&#9670;&#160;</a></span>dir()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Solution</a>  = exe_hash_solution&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">consteval</a> <a class="el" href="structfs8_1_1basic__singleton.html">basic_singleton</a> <a class="el" href="structfs8_1_1basic__singleton.html">fs8::basic_singleton</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Solution</a> &gt;::dir </td>
-          <td>(</td>
-          <td class="paramtype">std::string_view&#160;</td>
-          <td class="paramname"><em>d</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Set the lock-directory at compile time. </p>
 
 </div>
 </div>
