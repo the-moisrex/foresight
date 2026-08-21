@@ -44,7 +44,7 @@ var searchData=
   ['consume_5fy_41',['consume_y',['../structfs8_1_1basic__mice__quantifier.html#aa6010ef8669f5a3f39eb7c14ca43f159',1,'fs8::basic_mice_quantifier']]],
   ['consumer_5fcontrol_5fkeyboard_42',['consumer_control_keyboard',['../namespacefs8_1_1caps.html#a9602e8732ec3735e40a7b3b692f9b3ec',1,'fs8::caps']]],
   ['content_43',['content',['../structfs8_1_1template__file.html#a5c27d212e10e94caab028dd2f2586fd5',1,'fs8::template_file']]],
-  ['context_44',['context',['../namespacefs8.html#a1f84efa1ecc04f2041d05aab1244b770',1,'fs8::context'],['../structfs8_1_1xkb_1_1context.html',1,'fs8::xkb::context'],['../structfs8_1_1xkb_1_1context.html#af786e1920b17b5cf98d3f81645e87f80',1,'fs8::xkb::context::context(xkb_context_flags flags=XKB_CONTEXT_NO_FLAGS)'],['../structfs8_1_1xkb_1_1context.html#a840a1052d21f85adf25862b421cef85a',1,'fs8::xkb::context::context(context const &amp;)=delete'],['../structfs8_1_1basic__context__view.html#ab1c1d940660c11649cb77aedbe4de83d',1,'fs8::basic_context_view::context()'],['../structfs8_1_1xkb_1_1context.html#aa7d9c473fecad902219bdd41ae1922b4',1,'fs8::xkb::context::context()']]],
+  ['context_44',['context',['../namespacefs8.html#a1f84efa1ecc04f2041d05aab1244b770',1,'fs8::context'],['../structfs8_1_1xkb_1_1context.html',1,'fs8::xkb::context'],['../structfs8_1_1xkb_1_1context.html#af786e1920b17b5cf98d3f81645e87f80',1,'fs8::xkb::context::context(xkb_context_flags flags=XKB_CONTEXT_NO_FLAGS)'],['../structfs8_1_1xkb_1_1context.html#a840a1052d21f85adf25862b421cef85a',1,'fs8::xkb::context::context(context const &amp;)=delete'],['../structfs8_1_1xkb_1_1context.html#aa7d9c473fecad902219bdd41ae1922b4',1,'fs8::xkb::context::context(context &amp;&amp;) noexcept=default'],['../structfs8_1_1basic__context__view.html#ab1c1d940660c11649cb77aedbe4de83d',1,'fs8::basic_context_view::context()']]],
   ['context_2ecxx_45',['context.cxx',['../context_8cxx.html',1,'']]],
   ['context_2eixx_46',['context.ixx',['../context_8ixx.html',1,'']]],
   ['context_5faction_47',['context_action',['../namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd',1,'fs8']]],
@@ -59,5 +59,7 @@ var searchData=
   ['create_5fapp_56',['create_app',['../namespacefs8.html#a831704bcebdaf4c4dfc6c7ce20dc325e',1,'fs8']]],
   ['ctime_57',['ctime',['../structmy__libevdev__uinput.html#a020da650a21282b3da68e1824dd32577',1,'my_libevdev_uinput']]],
   ['cur_58',['cur',['../structfs8_1_1basic__mouse__history.html#a2349d4618706393248e114740f51273b',1,'fs8::basic_mouse_history::cur() noexcept'],['../structfs8_1_1basic__mouse__history.html#ad912765a6a741d196aa7a77cbb4e312a',1,'fs8::basic_mouse_history::cur() const noexcept']]],
-  ['curve_5fmagnitude_59',['curve_magnitude',['../structfs8_1_1momentum__calculator.html#a4a034362d3e2aacd8bb236e278c7da0e',1,'fs8::momentum_calculator']]]
+  ['cur_5fx_59',['cur_x',['../structfs8_1_1pimpl__idiom_1_1impl.html#a164a7895959e273c0546de581bf87f7d',1,'fs8::pimpl_idiom::impl']]],
+  ['cur_5fy_60',['cur_y',['../structfs8_1_1pimpl__idiom_1_1impl.html#a1774fb94bae1d9602865f039706df863',1,'fs8::pimpl_idiom::impl']]],
+  ['curve_5fmagnitude_61',['curve_magnitude',['../structfs8_1_1momentum__calculator.html#a4a034362d3e2aacd8bb236e278c7da0e',1,'fs8::momentum_calculator']]]
 ];
