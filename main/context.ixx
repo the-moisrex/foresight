@@ -993,15 +993,23 @@ export namespace fs8 {
         }
 
         template <typename Func, typename Self>
-            requires requires(ParentT &p) { p.template mod<Func>(); }
+            requires((std::same_as<mod_of<Func, SubFuncs...>, SubFuncs> || ...) || requires(ParentT &p) { p.template mod<Func>(); })
         [[nodiscard]] constexpr decltype(auto) mod(this Self &&self) noexcept {
-            return std::forward_like<Self>(self.parent.template mod<Func>());
+            if constexpr ((std::same_as<mod_of<Func, SubFuncs...>, SubFuncs> || ...)) {
+                return std::forward_like<Self>(get<index_at<mod_of<Func, SubFuncs...>, SubFuncs...>>(self.subs));
+            } else {
+                return std::forward_like<Self>(self.parent.template mod<Func>());
+            }
         }
 
         template <typename Func, typename Self>
-            requires requires(ParentT &p) { p.template mod<Func>(); }
+            requires((std::same_as<mod_of<Func, SubFuncs...>, SubFuncs> || ...) || requires(ParentT &p) { p.template mod<Func>(); })
         [[nodiscard]] constexpr decltype(auto) mod(this Self &&self, [[maybe_unused]] Func const &) noexcept {
-            return std::forward_like<Self>(self.parent.template mod<Func>());
+            if constexpr ((std::same_as<mod_of<Func, SubFuncs...>, SubFuncs> || ...)) {
+                return std::forward_like<Self>(get<index_at<mod_of<Func, SubFuncs...>, SubFuncs...>>(self.subs));
+            } else {
+                return std::forward_like<Self>(self.parent.template mod<Func>());
+            }
         }
 
         template <std::size_t NIndex, typename Self>

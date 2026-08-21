@@ -26,6 +26,23 @@ int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
     using namespace std::chrono_literals;
 
+    static constexpr auto keyboard_pipeline =
+      context
+      | modes[multi_click[KEY_RIGHTCTRL],
+              // Normal Mode:
+              context, // empty context as the default
+
+              // Express Mode:
+              context
+                | replace[KEY_D, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_RIGHT]
+                | replace[KEY_A, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_LEFT]
+                | replace[KEY_W, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_UP]
+                | replace[KEY_S, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_DOWN]
+                | replace[KEY_E, KEY_LEFTMETA, KEY_TAB]
+                | on[pressed[KEY_ESC], switch_mode[0]]
+                | ignore_caps[caps::keyboard_alphabets]]
+      | uinput;
+
     static constinit auto pipeline =
       context
       | io_manager
@@ -54,26 +71,13 @@ int main(int const argc, char const* const* argv) try {
              | on[swipe_up, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)]]
              | on[swipe_down, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)]]
              | ignore_mouse_moves]
-      | modes[multi_click[KEY_RIGHTCTRL],
-              // Normal Mode:
-              context, // empty context as the default
-
-              // Express Mode:
-              context
-                | replace[KEY_D, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_RIGHT]
-                | replace[KEY_A, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_LEFT]
-                | replace[KEY_W, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_UP]
-                | replace[KEY_S, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_DOWN]
-                | replace[KEY_E, KEY_LEFTMETA, KEY_TAB]
-                | on[pressed[KEY_ESC], switch_mode[0]]
-                | ignore_caps[caps::keyboard_alphabets]]
       | ignore_adjacent_syns
       | update_mod[keys_status]
       | once[pressed[KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC], exit_pipeline] // Restart/Quit
       | on[pressed[BTN_LEFT, KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
       | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | kalman_filter | mouse_to_scroll]
       | low_pass_filter
-      | router[mouse >> uinput, keyboard >> uinput, tablet >> uinput];
+      | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];
 
     auto const parsed = args(argc, argv);
     if (parsed.help()) {
