@@ -142,14 +142,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8998595f9d4eece2f7aa1a7060fd1d19" id="r_a8998595f9d4eece2f7aa1a7060fd1d19"><td class="memTemplParams" colspan="2">template&lt;typename Self &gt; </td></tr>
 <tr class="memitem:a8998595f9d4eece2f7aa1a7060fd1d19"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto &amp;&amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context__view.html#a8998595f9d4eece2f7aa1a7060fd1d19">get_mods</a> (this Self &amp;&amp;<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a>) noexcept</td></tr>
 <tr class="separator:a8998595f9d4eece2f7aa1a7060fd1d19"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a921cb95d6a51f2fccb31657ec159dd2c" id="r_a921cb95d6a51f2fccb31657ec159dd2c"><td class="memTemplParams" colspan="2">template&lt;typename Func , typename Self &gt; <br />
-requires requires(ParentT &amp;p) { p.template mod&lt;Func&gt;(); }</td></tr>
-<tr class="memitem:a921cb95d6a51f2fccb31657ec159dd2c"><td class="memTemplItemLeft" align="right" valign="top">constexpr decltype(auto)&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context__view.html#a921cb95d6a51f2fccb31657ec159dd2c">mod</a> (this Self &amp;&amp;<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a>) noexcept</td></tr>
-<tr class="separator:a921cb95d6a51f2fccb31657ec159dd2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1ccc91033e5846dbb94dd930b15532a" id="r_ad1ccc91033e5846dbb94dd930b15532a"><td class="memTemplParams" colspan="2">template&lt;typename Func , typename Self &gt; <br />
-requires requires(ParentT &amp;p) { p.template mod&lt;Func&gt;(); }</td></tr>
-<tr class="memitem:ad1ccc91033e5846dbb94dd930b15532a"><td class="memTemplItemLeft" align="right" valign="top">constexpr decltype(auto)&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context__view.html#ad1ccc91033e5846dbb94dd930b15532a">mod</a> (this Self &amp;&amp;<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a>, Func const &amp;) noexcept</td></tr>
-<tr class="separator:ad1ccc91033e5846dbb94dd930b15532a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3093b0ee4a29afb00f68d521a05f36c0" id="r_a3093b0ee4a29afb00f68d521a05f36c0"><td class="memTemplParams" colspan="2">template&lt;typename Func , typename Self &gt; <br />
+requires ((std::same_as&lt;<a class="el" href="namespacefs8.html#a6fa3325ef98e63b115b46887f8ec56a3">mod_of</a>&lt;Func, SubFuncs...&gt;, SubFuncs&gt; || ...) || requires(ParentT &amp;p) { p.template mod&lt;Func&gt;(); })</td></tr>
+<tr class="memitem:a3093b0ee4a29afb00f68d521a05f36c0"><td class="memTemplItemLeft" align="right" valign="top">constexpr decltype(auto)&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context__view.html#a3093b0ee4a29afb00f68d521a05f36c0">mod</a> (this Self &amp;&amp;<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a>) noexcept</td></tr>
+<tr class="separator:a3093b0ee4a29afb00f68d521a05f36c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac950c9d21696753471a0e069e4996f21" id="r_ac950c9d21696753471a0e069e4996f21"><td class="memTemplParams" colspan="2">template&lt;typename Func , typename Self &gt; <br />
+requires ((std::same_as&lt;<a class="el" href="namespacefs8.html#a6fa3325ef98e63b115b46887f8ec56a3">mod_of</a>&lt;Func, SubFuncs...&gt;, SubFuncs&gt; || ...) || requires(ParentT &amp;p) { p.template mod&lt;Func&gt;(); })</td></tr>
+<tr class="memitem:ac950c9d21696753471a0e069e4996f21"><td class="memTemplItemLeft" align="right" valign="top">constexpr decltype(auto)&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context__view.html#ac950c9d21696753471a0e069e4996f21">mod</a> (this Self &amp;&amp;<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a>, Func const &amp;) noexcept</td></tr>
+<tr class="separator:ac950c9d21696753471a0e069e4996f21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb07dfc154a57d187dda662f89d4483a" id="r_adb07dfc154a57d187dda662f89d4483a"><td class="memTemplParams" colspan="2">template&lt;std::size_t NIndex, typename Self &gt; </td></tr>
 <tr class="memitem:adb07dfc154a57d187dda662f89d4483a"><td class="memTemplItemLeft" align="right" valign="top">constexpr decltype(auto)&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context__view.html#adb07dfc154a57d187dda662f89d4483a">mod</a> (this Self &amp;&amp;<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a>) noexcept</td></tr>
 <tr class="separator:adb07dfc154a57d187dda662f89d4483a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -636,8 +636,8 @@ template&lt;typename Self &gt; </div>
 
 </div>
 </div>
-<a id="a921cb95d6a51f2fccb31657ec159dd2c" name="a921cb95d6a51f2fccb31657ec159dd2c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a921cb95d6a51f2fccb31657ec159dd2c">&#9670;&#160;</a></span>mod() <span class="overload">[1/3]</span></h2>
+<a id="a3093b0ee4a29afb00f68d521a05f36c0" name="a3093b0ee4a29afb00f68d521a05f36c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3093b0ee4a29afb00f68d521a05f36c0">&#9670;&#160;</a></span>mod() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -645,7 +645,7 @@ template&lt;typename Self &gt; </div>
 template&lt;typename ParentT , Modifier... SubFuncs&gt; </div>
 <div class="memtemplate">
 template&lt;typename Func , typename Self &gt; <br />
-requires requires(ParentT &amp;p) { p.template mod&lt;Func&gt;(); }</div>
+requires ((std::same_as&lt;<a class="el" href="namespacefs8.html#a6fa3325ef98e63b115b46887f8ec56a3">mod_of</a>&lt;Func, SubFuncs...&gt;, SubFuncs&gt; || ...) || requires(ParentT &amp;p) { p.template mod&lt;Func&gt;(); })</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -697,8 +697,8 @@ template&lt;std::size_t NIndex, typename Self &gt; </div>
 
 </div>
 </div>
-<a id="ad1ccc91033e5846dbb94dd930b15532a" name="ad1ccc91033e5846dbb94dd930b15532a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad1ccc91033e5846dbb94dd930b15532a">&#9670;&#160;</a></span>mod() <span class="overload">[3/3]</span></h2>
+<a id="ac950c9d21696753471a0e069e4996f21" name="ac950c9d21696753471a0e069e4996f21"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac950c9d21696753471a0e069e4996f21">&#9670;&#160;</a></span>mod() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -706,7 +706,7 @@ template&lt;std::size_t NIndex, typename Self &gt; </div>
 template&lt;typename ParentT , Modifier... SubFuncs&gt; </div>
 <div class="memtemplate">
 template&lt;typename Func , typename Self &gt; <br />
-requires requires(ParentT &amp;p) { p.template mod&lt;Func&gt;(); }</div>
+requires ((std::same_as&lt;<a class="el" href="namespacefs8.html#a6fa3325ef98e63b115b46887f8ec56a3">mod_of</a>&lt;Func, SubFuncs...&gt;, SubFuncs&gt; || ...) || requires(ParentT &amp;p) { p.template mod&lt;Func&gt;(); })</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
