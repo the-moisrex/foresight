@@ -37,7 +37,7 @@ var queries_8ixx =
     [ "device", "queries_8ixx.html#a8ac5eac8a55267eddf7e4b35b92e90f4", null ],
     [ "device", "queries_8ixx.html#a10f19220072eeaae5f7295d681ef8bbb", null ],
     [ "filter_devices", "queries_8ixx.html#a96d774a2c5537eb63a30b0efc8c23c4b", null ],
-    [ "filter_devices", "queries_8ixx.html#ac615ed43192cb3bbae84e508384286fa", null ],
+    [ "filter_devices", "queries_8ixx.html#a3c3307ea21f5b386ebb264b50f98d9dc", null ],
     [ "has_property", "queries_8ixx.html#af422625f2b94aad8580d643cbf404dbf", null ],
     [ "has_subsystem", "queries_8ixx.html#a173d14233d06df1098b30be20790d573", null ],
     [ "has_subsystem", "queries_8ixx.html#ab2746154172d04186fabd806316c9cd7", null ],
