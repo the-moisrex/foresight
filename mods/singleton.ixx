@@ -105,37 +105,31 @@ namespace fs8 {
      * whose path is derived from a hash of the *solution*.  If another
      * process already holds the lock, the pipeline exits immediately.
      *
+     * Two lock locations are tried: the system-wide `/run/lock/foresight`
+     * and the user-wide `$XDG_RUNTIME_DIR/foresight`.  Both are attempted
+     * so that a root process and a user process prevent each other from
+     * running duplicates.  If both locks succeed, the user-wide one is
+     * released immediately in favour of the system-wide one.
+     *
      * Usage:
      *   singleton                              // hash /proc/self/exe basename
      *   singleton["pen2mice"]                  // hash a user-provided string
      *   singleton[pipeline_hash]               // hash all mod types in the pipeline
      *   singleton[intercept_hash]              // hash intercept's device queries
      *   singleton[my_solution]                 // custom callable (uint64_t(auto&))
-     *   singleton["pen2mice"].dir("/tmp/locks")// custom lock directory
-     *
-     * The lock directory defaults to `/run/lock/foresight` and is created
-     * automatically if it does not exist.
      */
     export template <typename Solution = exe_hash_solution>
     struct [[nodiscard]] basic_singleton : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
-        Solution         solution;
-        std::string_view lock_dir = "/run/lock/foresight";
-        int              lock_fd  = -1;
+        Solution solution;
+        int      lock_fd = -1;
 
       public:
         constexpr basic_singleton() noexcept = default;
 
         consteval explicit basic_singleton(Solution inp) noexcept : solution{inp} {}
-
-        /// Set the lock-directory at compile time.
-        consteval basic_singleton dir(std::string_view d) const noexcept {
-            auto copy     = *this;
-            copy.lock_dir = d;
-            return copy;
-        }
 
         /// Variable introspection: report no pipeline variables.
         [[nodiscard]] consteval std::array<std::string_view, 0> operator[](get_variables_tag) const noexcept {

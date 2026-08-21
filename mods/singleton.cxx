@@ -6,6 +6,7 @@ module;
 #include <charconv>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
 #include <filesystem>
@@ -37,8 +38,8 @@ std::uint64_t exe_hash_solution::operator()(auto &) const noexcept {
         }
     } catch (...) {
         // fallback: hash a fixed string so the pipeline can still run
-        for (auto c : std::string_view{"foresight"}) {
-            hash ^= static_cast<std::uint64_t>(static_cast<unsigned char>(c));
+        for (auto const cur_ch : std::string_view{"foresight"}) {
+            hash ^= static_cast<std::uint64_t>(static_cast<unsigned char>(cur_ch));
             hash *= SINGLETON_HASH_PRIME;
         }
     }
@@ -48,6 +49,29 @@ std::uint64_t exe_hash_solution::operator()(auto &) const noexcept {
 // ---------------------------------------------------------------------------
 // basic_singleton::try_acquire_lock
 // ---------------------------------------------------------------------------
+
+namespace {
+    /// Try to open and flock a lock file under `dir`.  Returns the fd on
+    /// success, -1 on any failure (directory creation, open, or lock).
+    int try_lock(std::string_view const dir, std::string_view const hex_name) noexcept {
+        std::filesystem::path lock_path;
+        try {
+            lock_path = std::filesystem::path{std::string{dir}} / (std::string{hex_name} + ".lock");
+            std::filesystem::create_directories(lock_path.parent_path());
+        } catch (...) {
+            return -1;
+        }
+        int const fd = ::open(lock_path.c_str(), O_RDWR | O_CREAT, 0600);
+        if (fd < 0) {
+            return -1;
+        }
+        if (::flock(fd, LOCK_EX | LOCK_NB) != 0) {
+            ::close(fd);
+            return -1;
+        }
+        return fd;
+    }
+} // anonymous namespace
 
 template <typename Solution>
 context_action basic_singleton<Solution>::try_acquire_lock(std::uint64_t const hash) noexcept try {
@@ -60,45 +84,47 @@ context_action basic_singleton<Solution>::try_acquire_lock(std::uint64_t const h
     }
     std::string_view const hex_view{hex.data(), static_cast<std::size_t>(ptr - hex.data())};
 
-    // Build the lock-file path: <dir>/<hex>.lock
-    std::filesystem::path lock_path;
-    try {
-        lock_path = std::filesystem::path{std::string{lock_dir}} / (std::string{hex_view} + ".lock");
-        std::filesystem::create_directories(lock_path.parent_path());
-    } catch (...) {
-        log("singleton: failed to create lock directory '{}'.", lock_dir);
-        return context_action::exit;
-    }
+    // 1. Try the system-wide lock.
+    constexpr std::string_view sys_dir = "/run/lock/foresight";
 
-    // Open (or create) the lock file.
-    int const fd = ::open(lock_path.c_str(), O_RDWR | O_CREAT, 0600);
-    if (fd < 0) {
-        log("singleton: failed to open lock file '{}': {}.", lock_path.string(), std::strerror(errno));
-        return context_action::exit;
-    }
+    int const sys_fd = try_lock(sys_dir, hex_view);
 
-    // Try a non-blocking exclusive lock.
-    if (::flock(fd, LOCK_EX | LOCK_NB) != 0) {
-        if (errno == EWOULDBLOCK) {
-            log("singleton: another instance is already running (lock '{}').", lock_path.string());
-        } else {
-            log("singleton: failed to acquire lock '{}': {}.", lock_path.string(), std::strerror(errno));
+    // 2. Try the user-wide lock ($XDG_RUNTIME_DIR/foresight).
+    int usr_fd = -1;
+    if (auto const *runtime = std::getenv("XDG_RUNTIME_DIR")) {
+        auto const user_dir = std::string_view{runtime};
+        usr_fd              = try_lock(user_dir, hex_view);
+        // If both succeeded, drop the user-wide one — system-wide is preferred.
+        if (sys_fd >= 0 && usr_fd >= 0) {
+            ::close(usr_fd);
+            usr_fd = -1;
         }
-        ::close(fd);
+    }
+
+    // 3. Pick whichever lock we got.
+    if (sys_fd < 0 && usr_fd < 0) {
+        log("singleton: another instance is already running or lock directories are inaccessible.");
         return context_action::exit;
     }
 
-    lock_fd = fd;
-    log("singleton: acquired lock '{}'.", lock_path.string());
+    if (sys_fd >= 0) {
+        lock_fd = sys_fd;
+        log("singleton: acquired system-wide lock.");
+    } else {
+        lock_fd = usr_fd;
+        log("singleton: acquired user-wide lock.");
+    }
     return context_action::next;
 } catch (...) {
-    log("Error thrown");
+    log("Error while trying to grab a lock.");
     return context_action::exit;
 }
 
 // Explicit instantiations for every strategy the user might reach through the
 // global constexpr singletons or via operator[].
-template struct basic_singleton<fs8::exe_hash_solution>;
-template struct basic_singleton<fs8::named_solution>;
-template struct basic_singleton<fs8::pipeline_hash_solution>;
-template struct basic_singleton<fs8::intercept_hash_solution>;
+namespace fs8 {
+    template struct basic_singleton<exe_hash_solution>;
+    template struct basic_singleton<named_solution>;
+    template struct basic_singleton<pipeline_hash_solution>;
+    template struct basic_singleton<intercept_hash_solution>;
+} // namespace fs8

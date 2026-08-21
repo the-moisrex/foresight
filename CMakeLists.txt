@@ -82,6 +82,7 @@ target_sources(${LIB_NAME}
         main/systemd.cxx
         mods/abs2rel.cxx
         mods/autocomplete.cxx
+        mods/device.cxx
         mods/emitter.cxx
         mods/ignore.cxx
         mods/inout.cxx
@@ -91,15 +92,15 @@ target_sources(${LIB_NAME}
         mods/keys_status.cxx
         mods/momentum.cxx
         mods/on.cxx
-        mods/device.cxx
         mods/quantifier.cxx
         mods/record.cxx
         mods/replace.cxx
+        mods/router.cxx
+        mods/scale.cxx
         mods/singleton.cxx
         mods/smooth.cxx
-        mods/router.cxx
-        mods/typed.cxx
         mods/timed_typed.cxx
+        mods/typed.cxx
         mods/typer.cxx
         utils/hash.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
@@ -130,6 +131,7 @@ target_sources(${LIB_NAME}
         mods/autocomplete.ixx
         mods/context_vars.ixx
         mods/debounce.ixx
+        mods/device.ixx
         mods/emitter.ixx
         mods/ignore.ixx
         mods/inout.ixx
@@ -138,22 +140,22 @@ target_sources(${LIB_NAME}
         mods/io_manager.ixx
         mods/keys_status.ixx
         mods/lambda.ixx
-        mods/mouse_to_scroll.ixx
         mods/modes.ixx
         mods/mods.ixx
         mods/momentum.ixx
         mods/mouse_status.ixx
+        mods/mouse_to_scroll.ixx
         mods/on.ixx
-        mods/device.ixx
         mods/quantifier.ixx
         mods/record.ixx
         mods/replace.ixx
         mods/router.ixx
+        mods/scale.ixx
         mods/singleton.ixx
         mods/smooth.ixx
         mods/stopper.ixx
-        mods/typed.ixx
         mods/timed_typed.ixx
+        mods/typed.ixx
         mods/typer.ixx
         mods/vars.ixx
         utils/dynamic_scoping.ixx
