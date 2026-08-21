@@ -95,6 +95,7 @@ target_sources(${LIB_NAME}
         mods/quantifier.cxx
         mods/record.cxx
         mods/replace.cxx
+        mods/singleton.cxx
         mods/smooth.cxx
         mods/router.cxx
         mods/typed.cxx
@@ -148,6 +149,7 @@ target_sources(${LIB_NAME}
         mods/record.ixx
         mods/replace.ixx
         mods/router.ixx
+        mods/singleton.ixx
         mods/smooth.ixx
         mods/stopper.ixx
         mods/typed.ixx

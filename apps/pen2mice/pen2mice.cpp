@@ -45,6 +45,7 @@ int main(int const argc, char const* const* argv) try {
 
     static constinit auto pipeline =
       context
+      | pipeline_singleton
       | io_manager
       | input_manager
       | intercept[tablet | required | grab, keyboard | required | grab]

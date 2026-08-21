@@ -29,6 +29,7 @@ export import :quantifier;
 export import :record;
 export import :replace;
 export import :router;
+export import :singleton;
 export import :smooth;
 export import :stopper;
 export import :timed_typed;
