@@ -40,14 +40,19 @@ namespace {
         return total;
     }
 
-    /// Assert that a frame is exactly one (REL_X, REL_Y, SYN) triple.
+    /// Assert that a frame contains REL_X, REL_Y and ends with SYN.
+    /// The frame may also contain zeroed-out pass-through events before the
+    /// smoothed fork-emit events (e.g. REL_X(0), REL_Y(0), REL_X(smoothed),
+    /// REL_Y(smoothed), SYN).
     void expect_movement_frame(std::vector<user_event> const& frame) {
-        ASSERT_EQ(frame.size(), 3U);
-        EXPECT_EQ(frame[0].type, EV_REL);
-        EXPECT_EQ(frame[0].code, REL_X);
-        EXPECT_EQ(frame[1].type, EV_REL);
-        EXPECT_EQ(frame[1].code, REL_Y);
-        EXPECT_EQ(frame[2].type, EV_SYN);
+        ASSERT_GE(frame.size(), 3U);
+        EXPECT_TRUE(std::ranges::any_of(frame, [](user_event const& e) {
+            return e.type == EV_REL && e.code == REL_X;
+        }));
+        EXPECT_TRUE(std::ranges::any_of(frame, [](user_event const& e) {
+            return e.type == EV_REL && e.code == REL_Y;
+        }));
+        EXPECT_EQ(frame.back().type, EV_SYN);
     }
 
 } // namespace
@@ -68,7 +73,6 @@ TEST(SmoothTest, LowPassPassesConstantInput) {
         {EV_REL,      REL_Y, 10},
         {EV_SYN, SYN_REPORT,  0},
     }]
-      | mouse_history
       | low_pass_filter[0.5f]
       | record;
     auto& col = pipeline.mod<basic_record>();
@@ -100,7 +104,6 @@ TEST(SmoothTest, LowPassClampsAlpha) {
         {EV_REL,      REL_X, 7},
         {EV_SYN, SYN_REPORT, 0},
     }]
-      | mouse_history
       | low_pass_filter[2.0f]
       | record;
     auto& col = pipeline.mod<basic_record>();
@@ -125,7 +128,6 @@ TEST(SmoothTest, LowPassNoResidualDrift) {
         {EV_KEY,      KEY_A,  1},
         {EV_SYN, SYN_REPORT,  0},
     }]
-      | mouse_history
       | low_pass_filter[0.5f]
       | record;
     auto& col = pipeline.mod<basic_record>();
@@ -151,7 +153,6 @@ TEST(SmoothTest, LowPassPassesWheelEvents) {
         {EV_REL,  REL_WHEEL, 1},
         {EV_SYN, SYN_REPORT, 0},
     }]
-      | mouse_history
       | low_pass_filter[0.5f]
       | record;
     auto& col = pipeline.mod<basic_record>();
@@ -179,7 +180,6 @@ TEST(SmoothTest, KalmanPassesConstantInput) {
         {EV_REL,      REL_Y, 10},
         {EV_SYN, SYN_REPORT,  0},
     }]
-      | mouse_history
       | kalman_filter[0.1f, 0.5f]
       | record;
     auto& col = pipeline.mod<basic_record>();
@@ -211,7 +211,6 @@ TEST(SmoothTest, KalmanApproachesStepInput) {
         {EV_REL,      REL_X, 100},
         {EV_SYN, SYN_REPORT,   0},
     }]
-      | mouse_history
       | kalman_filter[0.1f, 0.5f]
       | record;
     auto& col = pipeline.mod<basic_record>();
@@ -241,7 +240,6 @@ TEST(SmoothTest, KalmanNoResidualDrift) {
         {EV_KEY,      KEY_A,  1},
         {EV_SYN, SYN_REPORT,  0},
     }]
-      | mouse_history
       | kalman_filter[0.1f, 0.5f]
       | record;
     auto& col = pipeline.mod<basic_record>();
@@ -276,7 +274,6 @@ TEST(SmoothTest, KalmanInSubPipelineForksToMouseToScroll) {
        {.type = EV_SYN, .code = SYN_REPORT,  .value = 0},
     }]
      | mice_quantifier
-     | mouse_history
      | on_held[KEY_A, context | kalman_filter[0.1f, 0.5f] | mouse_to_scroll]
      | record[subpipeline_out])();
 

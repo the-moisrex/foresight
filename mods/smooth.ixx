@@ -5,7 +5,6 @@ module;
 #include <cstdlib>
 #include <linux/input-event-codes.h>
 export module fs8.mods:smooth;
-import :mouse_status;
 import fs8.event;
 import fs8.context;
 import fs8.easings;
@@ -43,8 +42,10 @@ export namespace fs8 {
         std::size_t max_steps  = 16;
         float (*easing)(float) = easeOutQuad<float>;
 
-        void mark_movement() noexcept;
-        bool take_frame() noexcept;
+        void                              accumulate(std::uint16_t code, value_type value) noexcept;
+        bool                              take_frame() noexcept;
+        std::pair<value_type, value_type> position() const noexcept;
+        void                              reset() noexcept;
 
       public:
         constexpr explicit basic_lerp(std::size_t const inp_max_steps, float (*const inp_easing)(float)) noexcept
@@ -62,20 +63,21 @@ export namespace fs8 {
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
             using enum context_action;
-            static_assert(has_mod<basic_mouse_history<>, CtxT>, "smooth needs mouse_history in the pipeline, placed before it.");
 
             auto& event = ctx.event();
             if (is_mouse_movement(event)) {
-                mark_movement();
-                return ignore_event;
+                accumulate(event.code(), event.value());
+                event.value(0);
+                return next;
             }
             if (!is_syn(event) || !take_frame()) {
                 return next;
             }
 
-            auto const cur = ctx.mod(mouse_history).cur();
-            auto const mag = std::max(std::abs(cur.x), std::abs(cur.y));
+            auto const [cur_x, cur_y] = position();
+            auto const mag            = std::max(std::abs(cur_x), std::abs(cur_y));
             if (mag == 0) {
+                reset();
                 return next;
             }
             std::int32_t const steps = std::min<std::int32_t>(mag, static_cast<std::int32_t>(max_steps));
@@ -84,12 +86,12 @@ export namespace fs8 {
             value_type prev_y = 0;
             for (std::int32_t step = 1; step <= steps; ++step) {
                 auto const t     = easing(static_cast<float>(step) / static_cast<float>(steps));
-                auto const cur_x = static_cast<value_type>(std::round(t * static_cast<float>(cur.x)));
-                auto const cur_y = static_cast<value_type>(std::round(t * static_cast<float>(cur.y)));
-                auto const rel_x = cur_x - prev_x;
-                auto const rel_y = cur_y - prev_y;
-                prev_x           = cur_x;
-                prev_y           = cur_y;
+                auto const out_x = static_cast<value_type>(std::round(t * static_cast<float>(cur_x)));
+                auto const out_y = static_cast<value_type>(std::round(t * static_cast<float>(cur_y)));
+                auto const rel_x = out_x - prev_x;
+                auto const rel_y = out_y - prev_y;
+                prev_x           = out_x;
+                prev_y           = out_y;
                 if (rel_x == 0 && rel_y == 0) {
                     continue;
                 }
@@ -98,7 +100,8 @@ export namespace fs8 {
                 std::ignore = ctx.fork_emit(syn());
             }
 
-            return ignore_event;
+            reset();
+            return next;
         }
     } lerp;
 
@@ -137,8 +140,10 @@ export namespace fs8 {
       private:
         float alpha = 0.95f;
 
-        void     mark_movement() noexcept;
-        smoothed filter_frame(value_type cur_x, value_type cur_y) noexcept;
+        void                                            accumulate(std::uint16_t code, value_type value) noexcept;
+        smoothed                                        filter_frame(value_type cur_x, value_type cur_y) noexcept;
+        [[nodiscard]] std::pair<value_type, value_type> position() const noexcept;
+        void                                            reset() noexcept;
 
       public:
         constexpr explicit basic_low_pass_filter(float const inp_alpha) noexcept : alpha{std::clamp(inp_alpha, 0.f, 1.f)} {}
@@ -150,19 +155,20 @@ export namespace fs8 {
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
             using enum context_action;
-            static_assert(has_mod<basic_mouse_history<>, CtxT>, "smooth needs mouse_history in the pipeline, placed before it.");
 
             auto& event = ctx.event();
             if (is_mouse_movement(event)) {
-                mark_movement();
-                return ignore_event;
+                accumulate(event.code(), event.value());
+                event.value(0);
+                return next;
             }
             if (!is_syn(event)) {
                 return next;
             }
 
-            auto const cur = ctx.mod(mouse_history).cur();
-            auto const out = filter_frame(cur.x, cur.y);
+            auto const [cur_x, cur_y] = position();
+            auto const out            = filter_frame(cur_x, cur_y);
+            reset();
             if (!out.emit) {
                 return next;
             }
@@ -213,8 +219,10 @@ export namespace fs8 {
         float q = 0.1f;
         float r = 0.5f;
 
-        void     mark_movement() noexcept;
-        smoothed filter_frame(value_type cur_x, value_type cur_y) noexcept;
+        void                                            accumulate(std::uint16_t code, value_type value) noexcept;
+        smoothed                                        filter_frame(value_type cur_x, value_type cur_y) noexcept;
+        [[nodiscard]] std::pair<value_type, value_type> position() const noexcept;
+        void                                            reset() noexcept;
 
       public:
         constexpr explicit basic_kalman_filter(float const inp_q, float const inp_r = 0.5f) noexcept
@@ -228,19 +236,20 @@ export namespace fs8 {
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
             using enum context_action;
-            static_assert(has_mod<basic_mouse_history<>, CtxT>, "smooth needs mouse_history in the pipeline, placed before it.");
 
             auto& event = ctx.event();
             if (is_mouse_movement(event)) {
-                mark_movement();
-                return ignore_event;
+                accumulate(event.code(), event.value());
+                event.value(0);
+                return next;
             }
             if (!is_syn(event)) {
                 return next;
             }
 
-            auto const cur = ctx.mod(mouse_history).cur();
-            auto const out = filter_frame(cur.x, cur.y);
+            auto const [cur_x, cur_y] = position();
+            auto const out            = filter_frame(cur_x, cur_y);
+            reset();
             if (!out.emit) {
                 return next;
             }
