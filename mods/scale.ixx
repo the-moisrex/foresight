@@ -12,12 +12,12 @@ export namespace fs8 {
 
     /// Scale pen (absolute) movement events by a factor.
     ///
-    /// Multiplies every `ABS_X` / `ABS_Y` value by the given `factor` with
-    /// sub-pixel epsilon accumulation to prevent drift.  Place this *before*
-    /// `abs2rel` so the scaled absolute positions are converted to relative
-    /// deltas downstream.
+    /// Computes deltas between consecutive `ABS_X` / `ABS_Y` values, scales
+    /// them by `factor`, and writes back `previous + scaled_delta`.  Place
+    /// this *before* `abs2rel` so the scaled deltas are converted to relative
+    /// movements downstream.
     ///
-    /// Epsilon is reset on tool-change events (`BTN_TOOL_*`) so a new stroke
+    /// State is reset on tool-change events (`BTN_TOOL_*`) so a new stroke
     /// starts fresh.
     ///
     /// @par Example
@@ -32,9 +32,15 @@ export namespace fs8 {
         using value_type = event_type::value_type;
 
       private:
-        float factor_    = 1.0f;
-        float x_epsilon_ = 0.0f;
-        float y_epsilon_ = 0.0f;
+        float       factor_          = 1.0f;
+        float       x_epsilon_       = 0.0f;
+        float       y_epsilon_       = 0.0f;
+        value_type  x_last_          = 0;
+        value_type  y_last_          = 0;
+        value_type  x_out_           = 0;
+        value_type  y_out_           = 0;
+        bool        x_initialized_   = false;
+        bool        y_initialized_   = false;
 
       public:
         constexpr explicit basic_scale_pen(float const factor) noexcept : factor_{factor} {}

@@ -76,7 +76,7 @@ int main(int const argc, char const* const* argv) try {
       | update_mod[keys_status]
       | once[pressed[KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC], exit_pipeline] // Restart/Quit
       | on[pressed[BTN_LEFT, KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
-      | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | kalman_filter | mouse_to_scroll]
+      | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | kalman_filter[0.3f] | mouse_to_scroll]
       | on[held[KEY_LEFTSHIFT], context | scale_move[0.5f] | scale_pen[0.5f]]
       | low_pass_filter
       | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];
