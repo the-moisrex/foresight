@@ -73,7 +73,7 @@ int main(int const argc, char const* const* argv) try {
       | on[pressed[BTN_LEFT, KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
       | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | kalman_filter | mouse_to_scroll]
       | low_pass_filter
-      | router[caps::mouse >> uinput, caps::keyboard >> uinput, caps::tablet >> uinput];
+      | router[mouse >> uinput, keyboard >> uinput, tablet >> uinput];
 
     auto const parsed = args(argc, argv);
     if (parsed.help()) {

@@ -132,7 +132,7 @@ export namespace fs8 {
         return *this != invalid_field;
     }
 
-    [[nodiscard]] bool is_matched(query_term const& field, std::string_view query_term::* key_val, std::string_view const val) noexcept;
+    [[nodiscard]] bool is_matched(query_term const& field, std::string_view query_term::* key_val, std::string_view val) noexcept;
 
     /**
      * A Query object that describes what kinda device the user is looking for so we can find it again and don't just go

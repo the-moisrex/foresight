@@ -261,6 +261,9 @@ fs8::evdev fs8::device(device_query const& inp_query) noexcept {
         log("Failed init udev_enumerate");
         return {};
     }
+    if (!has_subsystem(inp_query)) {
+        enumerator.match_subsystem("input");
+    }
     match(enumerator, inp_query);
     enumerator.scan_devices();
 
