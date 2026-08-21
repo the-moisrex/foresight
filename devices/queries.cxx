@@ -419,8 +419,8 @@ bool fs8::has_property(device_query const& inp_query, std::string_view const key
     return std::ranges::contains(properties(inp_query), key, &query_term::key);
 }
 
-std::generator<fs8::udev_device> fs8::filter_devices(udev_enumerate const& enumerate, device_query const& query) noexcept {
-    std::uint8_t limit = query.matches_limit;
+std::generator<fs8::udev_device> fs8::filter_devices(udev_enumerate const& enumerate, device_query const& inp_query) noexcept {
+    std::uint8_t limit = inp_query.matches_limit;
 
     for (auto const& entry : enumerate.list_entries()) {
         auto dev = udev_device{entry};
@@ -432,7 +432,7 @@ std::generator<fs8::udev_device> fs8::filter_devices(udev_enumerate const& enume
             // so they must not consume the match limit or count as a match.
             continue;
         }
-        if (matches(dev, query)) {
+        if (matches(dev, inp_query)) {
             co_yield std::move(dev);
             --limit;
         }

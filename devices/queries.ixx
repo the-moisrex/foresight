@@ -632,7 +632,7 @@ export namespace fs8 {
         return {.key = key, .value = value, .target = query_target::match_sysattr};
     }
 
-    [[nodiscard]] std::generator<udev_device> filter_devices(udev_enumerate const& enumerate, device_query const& query) noexcept;
+    [[nodiscard]] std::generator<udev_device> filter_devices(udev_enumerate const& enumerate, device_query const& inp_query) noexcept;
 
     template <typename... T>
         requires(std::convertible_to<T, device_query> && ...)
