@@ -5,5 +5,5 @@ digraph "Graphical Class Hierarchy"
   edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
   node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
   rankdir="LR";
-  Node0 [id="Node000000",label="fs8::value_or_view\l\< T, std::dynamic_extent \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1value__or__view_3_01T_00_01std_1_1dynamic__extent_01_4.html",tooltip=" "];
+  Node0 [id="Node000000",label="fs8::udev_monitor",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1udev__monitor.html",tooltip="Monitors udev for device state changes and events."];
 }
