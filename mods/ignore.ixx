@@ -83,6 +83,10 @@ export namespace fs8 {
         context_action operator()(event_type const& event) noexcept;
     } ignore_mouse_moves;
 
+    constexpr struct [[nodiscard]] basic_ignore_zero_mouse_moves {
+        context_action operator()(event_type const& event) const noexcept;
+    } ignore_zero_mouse_moves;
+
     constexpr struct [[nodiscard]] basic_ignore_fast_repeats : consteval_copyable {
         using consteval_copyable::consteval_copyable;
         using msec_type = std::chrono::microseconds;

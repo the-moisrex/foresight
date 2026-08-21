@@ -79,6 +79,7 @@ int main(int const argc, char const* const* argv) try {
       | update_mod[keys_status]
       | low_pass_filter
       | ignore_adjacent_syns
+      | ignore_zero_mouse_moves
       | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];
 
     auto const parsed = args(argc, argv);
