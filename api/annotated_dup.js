@@ -67,6 +67,7 @@ var annotated_dup =
       [ "basic_ignore_self", "structfs8_1_1basic__ignore__self.html", "structfs8_1_1basic__ignore__self" ],
       [ "basic_ignore_start_moves", "structfs8_1_1basic__ignore__start__moves.html", "structfs8_1_1basic__ignore__start__moves" ],
       [ "basic_ignore_tablet", "structfs8_1_1basic__ignore__tablet.html", "structfs8_1_1basic__ignore__tablet" ],
+      [ "basic_ignore_zero_mouse_moves", "structfs8_1_1basic__ignore__zero__mouse__moves.html", "structfs8_1_1basic__ignore__zero__mouse__moves" ],
       [ "basic_input_manager", "structfs8_1_1basic__input__manager.html", "structfs8_1_1basic__input__manager" ],
       [ "basic_interceptor", "structfs8_1_1basic__interceptor.html", "structfs8_1_1basic__interceptor" ],
       [ "basic_io_manager", "structfs8_1_1basic__io__manager.html", "structfs8_1_1basic__io__manager" ],

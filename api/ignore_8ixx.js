@@ -5,6 +5,7 @@ var ignore_8ixx =
     [ "fs8::basic_ignore_big_jumps", "structfs8_1_1basic__ignore__big__jumps.html", "structfs8_1_1basic__ignore__big__jumps" ],
     [ "fs8::basic_ignore_init_moves", "structfs8_1_1basic__ignore__init__moves.html", "structfs8_1_1basic__ignore__init__moves" ],
     [ "fs8::basic_ignore_mouse_moves", "structfs8_1_1basic__ignore__mouse__moves.html", "structfs8_1_1basic__ignore__mouse__moves" ],
+    [ "fs8::basic_ignore_zero_mouse_moves", "structfs8_1_1basic__ignore__zero__mouse__moves.html", "structfs8_1_1basic__ignore__zero__mouse__moves" ],
     [ "fs8::basic_ignore_fast_repeats", "structfs8_1_1basic__ignore__fast__repeats.html", "structfs8_1_1basic__ignore__fast__repeats" ],
     [ "fs8::basic_ignore_keys< N >", "structfs8_1_1basic__ignore__keys.html", "structfs8_1_1basic__ignore__keys" ],
     [ "fs8::basic_ignore_repeats_of< N >", "structfs8_1_1basic__ignore__repeats__of.html", "structfs8_1_1basic__ignore__repeats__of" ],
@@ -33,5 +34,6 @@ var ignore_8ixx =
     [ "ignore_mouse_moves", "ignore_8ixx.html#a0ccfdf602ed7176499a4dd32aa29c28e", null ],
     [ "ignore_repeats_of", "ignore_8ixx.html#a09b44b41686509e182e41ca44c1ab011", null ],
     [ "ignore_start_moves", "ignore_8ixx.html#ad6e02008290ef7b4d0a44fa8c4ba5265", null ],
-    [ "ignore_tablet", "ignore_8ixx.html#a9bc699fcd5637b604e556598cf1e8e73", null ]
+    [ "ignore_tablet", "ignore_8ixx.html#a9bc699fcd5637b604e556598cf1e8e73", null ],
+    [ "ignore_zero_mouse_moves", "ignore_8ixx.html#abf1a945bdaa9b158d92becea2968cc0b", null ]
 ];
