@@ -10,6 +10,7 @@ export module fs8.mods:ignore;
 import fs8.context;
 import fs8.devices.capabilities;
 import fs8.traits;
+import fs8.log;
 import :debounce;
 
 export namespace fs8 {
@@ -272,6 +273,7 @@ export namespace fs8 {
 
     constexpr struct [[nodiscard]] basic_exit_pipeline {
         constexpr context_action operator()(event_type const&) const noexcept {
+            log("Exit requested.");
             return context_action::exit;
         }
     } exit_pipeline;

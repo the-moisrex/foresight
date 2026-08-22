@@ -447,7 +447,9 @@ bool evdev::send_event(input_event const& event) const noexcept {
     return ::write(fd, &event, sizeof(event)) == static_cast<ssize_t>(sizeof(event));
 }
 
-bool evdev::send_event(event_type::type_type const type, event_type::code_type const code, event_type::value_type const value) const noexcept {
+bool evdev::send_event(event_type::type_type const  type,
+                       event_type::code_type const  code,
+                       event_type::value_type const value) const noexcept {
     input_event event{};
     event.type  = type;
     event.code  = code;
@@ -535,7 +537,7 @@ evdev fs8::clone_device(evdev const& src) noexcept try {
             libevdev_free(copy);
             return {};
         }
-        unsigned const code_max = [&] {
+        auto const code_max = static_cast<unsigned>([&] {
             switch (type) {
                 case EV_KEY: return KEY_MAX;
                 case EV_REL: return REL_MAX;
@@ -546,7 +548,7 @@ evdev fs8::clone_device(evdev const& src) noexcept try {
                 case EV_SND: return SND_MAX;
                 default: return FF_MAX;
             }
-        }();
+        }());
         for (unsigned code = 0; code <= code_max; ++code) {
             if (!libevdev_has_event_code(raw, type, code)) {
                 continue;
