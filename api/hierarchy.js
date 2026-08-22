@@ -29,6 +29,7 @@ var hierarchy =
     [ "fs8::basic_ignore_event", "structfs8_1_1basic__ignore__event.html", null ],
     [ "fs8::basic_ignore_mouse_clicks", "structfs8_1_1basic__ignore__mouse__clicks.html", null ],
     [ "fs8::basic_ignore_mouse_moves", "structfs8_1_1basic__ignore__mouse__moves.html", null ],
+    [ "fs8::basic_ignore_msc_scan", "structfs8_1_1basic__ignore__msc__scan.html", null ],
     [ "fs8::basic_ignore_self", "structfs8_1_1basic__ignore__self.html", null ],
     [ "fs8::basic_ignore_tablet", "structfs8_1_1basic__ignore__tablet.html", null ],
     [ "fs8::basic_ignore_zero_mouse_moves", "structfs8_1_1basic__ignore__zero__mouse__moves.html", null ],
@@ -117,6 +118,7 @@ var hierarchy =
       [ "fs8::basic_ignore_origin< N >", "structfs8_1_1basic__ignore__origin.html", null ],
       [ "fs8::basic_ignore_repeats_of< N >", "structfs8_1_1basic__ignore__repeats__of.html", null ],
       [ "fs8::basic_ignore_start_moves", "structfs8_1_1basic__ignore__start__moves.html", null ],
+      [ "fs8::basic_key", "structfs8_1_1basic__key.html", null ],
       [ "fs8::basic_keydown", "structfs8_1_1basic__keydown.html", null ],
       [ "fs8::basic_keys_status", "structfs8_1_1basic__keys__status.html", null ],
       [ "fs8::basic_keyup", "structfs8_1_1basic__keyup.html", null ],
@@ -206,6 +208,50 @@ var hierarchy =
     [ "fs8::nullable_indirect< fs8::pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::plain_pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::op_not< Func >", "structfs8_1_1op__not.html", null ],
+    [ "fs8::operator_adaptor< T >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_code_adaptor< basic_pressed, N >", "structfs8_1_1basic__code__adaptor.html", null ],
+      [ "fs8::basic_code_adaptor< basic_pressed_any, N >", "structfs8_1_1basic__code__adaptor.html", null ],
+      [ "fs8::basic_limit_mouse_travel< CondT >", "structfs8_1_1basic__limit__mouse__travel.html", null ],
+      [ "fs8::basic_on_held< N, ModT >", "structfs8_1_1basic__on__held.html", null ]
+    ] ],
+    [ "fs8::operator_adaptor< basic_code_adaptor< A, N > >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_code_adaptor< A, N >", "structfs8_1_1basic__code__adaptor.html", null ]
+    ] ],
+    [ "fs8::operator_adaptor< basic_code_adaptor< basic_pressed, N > >", "structfs8_1_1operator__adaptor.html", null ],
+    [ "fs8::operator_adaptor< basic_code_adaptor< basic_pressed_any, N > >", "structfs8_1_1operator__adaptor.html", null ],
+    [ "fs8::operator_adaptor< basic_held >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_held", "structfs8_1_1basic__held.html", null ]
+    ] ],
+    [ "fs8::operator_adaptor< basic_held_gate< CondT > >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_held_gate< CondT >", "structfs8_1_1basic__held__gate.html", null ]
+    ] ],
+    [ "fs8::operator_adaptor< basic_keydown >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_keydown", "structfs8_1_1basic__keydown.html", null ]
+    ] ],
+    [ "fs8::operator_adaptor< basic_keyup >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_key", "structfs8_1_1basic__key.html", null ],
+      [ "fs8::basic_keyup", "structfs8_1_1basic__keyup.html", null ]
+    ] ],
+    [ "fs8::operator_adaptor< basic_led_off >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_led_off", "structfs8_1_1basic__led__off.html", null ]
+    ] ],
+    [ "fs8::operator_adaptor< basic_led_on >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_led_on", "structfs8_1_1basic__led__on.html", null ]
+    ] ],
+    [ "fs8::operator_adaptor< basic_limit_mouse_travel< basic_noop > >", "structfs8_1_1operator__adaptor.html", null ],
+    [ "fs8::operator_adaptor< basic_longtime_released< FuncT > >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_longtime_released< FuncT >", "structfs8_1_1basic__longtime__released.html", null ]
+    ] ],
+    [ "fs8::operator_adaptor< basic_multi_click >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_multi_click", "structfs8_1_1basic__multi__click.html", null ]
+    ] ],
+    [ "fs8::operator_adaptor< basic_on_held< N, basic_noop > >", "structfs8_1_1operator__adaptor.html", null ],
+    [ "fs8::operator_adaptor< basic_swipe >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_swipe", "structfs8_1_1basic__swipe.html", null ]
+    ] ],
+    [ "fs8::operator_adaptor< basic_swipe_detector >", "structfs8_1_1operator__adaptor.html", [
+      [ "fs8::basic_swipe_detector", "structfs8_1_1basic__swipe__detector.html", null ]
+    ] ],
     [ "fs8::owned_query", "structfs8_1_1owned__query.html", null ],
     [ "fs8::parsed_evtest_event", "structfs8_1_1parsed__evtest__event.html", null ],
     [ "fs8::pipeline_hash_solution", "structfs8_1_1pipeline__hash__solution.html", null ],

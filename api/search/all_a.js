@@ -1,7 +1,7 @@
 var searchData=
 [
   ['kalman_5ffilter_0',['kalman_filter',['../namespacefs8.html#af49a41415ab39c577a31b462a8e74f61',1,'fs8']]],
-  ['key_1',['key',['../structfs8_1_1query__term.html#ab282b234c6505f2f418ad0d7502f8ecd',1,'fs8::query_term']]],
+  ['key_1',['key',['../structfs8_1_1query__term.html#ab282b234c6505f2f418ad0d7502f8ecd',1,'fs8::query_term::key'],['../namespacefs8.html#a7360bdf7c0054ee4648141e1c3b3c8a2',1,'fs8::key']]],
   ['key_5fcode_2',['key_code',['../namespacefs8.html#a0676c7465e0159bd42ba32f63c95a20d',1,'fs8']]],
   ['key_5fcode_5fcallback_3',['key_code_callback',['../namespacefs8.html#a4f896d452109db5086b393939daf972d',1,'fs8']]],
   ['key_5fcode_5fof_4',['key_code_of',['../namespacefs8.html#af848054874ae987ce7a93293d3b273a2',1,'fs8']]],
@@ -28,7 +28,7 @@ var searchData=
   ['keyboard_5frunner_25',['keyboard_runner',['../structfs8_1_1keyboard__runner.html#a041c53958f50a68716e692dd12eadb31',1,'fs8::keyboard_runner::keyboard_runner()'],['../structfs8_1_1keyboard__runner.html#a4ffe5d86db7d3d478187b6f6f8350da7',1,'fs8::keyboard_runner::keyboard_runner(keyboard_runner const &amp;)=delete'],['../structfs8_1_1keyboard__runner.html#a2e19ba4eed5efe7287b1a72a266db13d',1,'fs8::keyboard_runner::keyboard_runner(keyboard_runner &amp;&amp;)=delete'],['../structfs8_1_1keyboard__runner.html',1,'fs8::keyboard_runner']]],
   ['keycode_26',['keycode',['../structfs8_1_1xkb_1_1key__position.html#a02b5ad02665462b4fadf9c782e1d2445',1,'fs8::xkb::key_position']]],
   ['keydown_27',['keydown',['../namespacefs8.html#a9265db51dbff113a89196d26753b09e3',1,'fs8::keydown'],['../namespacefs8.html#af7dfa15b882d4dffb3470325ce668064a2959b6433abb3a4138a42ddda695c171',1,'fs8::keydown']]],
-  ['keymap_28',['keymap',['../structfs8_1_1xkb_1_1keymap.html#a1395f577d29aa579906b37029af5efcc',1,'fs8::xkb::keymap::keymap()'],['../structfs8_1_1xkb_1_1keymap.html',1,'fs8::xkb::keymap'],['../structfs8_1_1xkb_1_1keymap.html#a17c7e58fa7ad939e92a22cb9ed87d073',1,'fs8::xkb::keymap::keymap(keymap &amp;&amp;) noexcept=default'],['../structfs8_1_1xkb_1_1keymap.html#abbaa7564a5d68af2a23ba202f31ca6ec',1,'fs8::xkb::keymap::keymap(keymap const &amp;)=delete'],['../structfs8_1_1xkb_1_1keymap.html#abc9c7b71220da49874b21ab9a3077a56',1,'fs8::xkb::keymap::keymap(xkb_keymap *km)']]],
+  ['keymap_28',['keymap',['../structfs8_1_1xkb_1_1keymap.html#abc9c7b71220da49874b21ab9a3077a56',1,'fs8::xkb::keymap::keymap()'],['../structfs8_1_1xkb_1_1keymap.html',1,'fs8::xkb::keymap'],['../structfs8_1_1xkb_1_1keymap.html#a17c7e58fa7ad939e92a22cb9ed87d073',1,'fs8::xkb::keymap::keymap(keymap &amp;&amp;) noexcept=default'],['../structfs8_1_1xkb_1_1keymap.html#abbaa7564a5d68af2a23ba202f31ca6ec',1,'fs8::xkb::keymap::keymap(keymap const &amp;)=delete'],['../structfs8_1_1xkb_1_1keymap.html#a1395f577d29aa579906b37029af5efcc',1,'fs8::xkb::keymap::keymap(context const &amp;inp_ctx, char const *rules=nullptr, char const *model=nullptr, char const *layout=nullptr, char const *variant=nullptr, char const *options=nullptr)']]],
   ['keynames_29',['keynames',['../namespacefs8.html#a31ba11602e19e705ab53f7956cc2f56f',1,'fs8']]],
   ['keynames_5ftype_30',['keynames_type',['../structfs8_1_1keynames__type.html',1,'fs8']]],
   ['keypress_31',['keypress',['../namespacefs8.html#a6b2643f61473367e30ef45c32909a133',1,'fs8']]],
