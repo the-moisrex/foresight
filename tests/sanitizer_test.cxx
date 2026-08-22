@@ -116,3 +116,45 @@ TEST(SanitizerTest, DisabledChecksPassEventsThrough) {
     auto const& col = pipeline.mod<basic_record>();
     EXPECT_EQ(col.size(), 3U);
 }
+
+TEST(SanitizerTest, DiagnosticsModeReportsButKeepsBadEvents) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 0us),
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 1ms),
+                      timed_ev(EV_KEY, KEY_A, 1, 2ms),
+                    }}
+                  | event_diagnostics
+                  | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 3U);
+    EXPECT_EQ(col[0].type(), EV_SYN);
+    EXPECT_EQ(col[1].type(), EV_SYN);
+    EXPECT_EQ(col[2].code(), KEY_A);
+}
+
+TEST(SanitizerTest, DiagnosticsShorthandAcceptsCallback) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    struct callback {
+        constexpr void operator()(event_type const&, sanitizer_issue) noexcept {}
+    };
+
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 0us),
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 1ms),
+                    }}
+                  | event_diagnostics[callback{}]
+                  | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 2U);
+}

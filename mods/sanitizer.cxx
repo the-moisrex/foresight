@@ -55,6 +55,20 @@ namespace fs8 {
         }
     };
 
+    std::string_view to_string(sanitizer_issue const issue) noexcept {
+        using enum sanitizer_issue;
+        switch (issue) {
+            case none: return {"event is clean"};
+            case adjacent_syn: return {"duplicate SYN_REPORT (no data since last syn)"};
+            case orphan_release: return {"key release without a prior press"};
+            case late_syn: return {"SYN_REPORT arrived after a long gap with no data"};
+            case out_of_resolution: return {"pen ABS value outside device bounds"};
+            case big_jump: return {"mouse movement exceeding threshold"};
+            default: break;
+        }
+        return {"<unknown>"};
+    }
+
     void event_sanitizer_state::ensure_initialized() noexcept {
         if (pimpl.get() == nullptr) {
             init_impl();
@@ -145,6 +159,10 @@ namespace fs8 {
         }
 
         pimpl->was_syn = false;
+    }
+
+    void basic_log_diagnostics::operator()(event_type const& event, sanitizer_issue const issue) const noexcept {
+        log("{} - {} {} {}", to_string(issue), event.type_name(), event.code_name(), event.value());
     }
 
 } // namespace fs8

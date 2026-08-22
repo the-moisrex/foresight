@@ -79,9 +79,9 @@ int main(int const argc, char const* const* argv) try {
       | on[held[KEY_LEFTSHIFT], context | scale_move[0.5f] | scale_pen[0.5f]]
       | update_mod[keys_status]
       | low_pass_filter
-      | ignore_adjacent_syns
       | ignore_zero_mouse_moves
-      | on[pressed[KEY_CAPSLOCK], log]
+      | ignore_adjacent_syns
+      | event_diagnostics
       | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];
 
     auto const parsed = args(argc, argv);

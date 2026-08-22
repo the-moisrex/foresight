@@ -14,6 +14,7 @@ import fs8.pimpl;
 import fs8.traits;
 import fs8.utils;
 import :input_manager;
+import fs8.log;
 
 export namespace fs8 {
 
@@ -26,6 +27,8 @@ export namespace fs8 {
         out_of_resolution, ///< pen ABS value outside device bounds
         big_jump,          ///< mouse movement exceeding threshold
     };
+
+    [[nodiscard]] std::string_view to_string(sanitizer_issue issue) noexcept;
 
     struct [[nodiscard]] event_sanitizer_state : pimpl_idiom<event_sanitizer_state> {
         using pimpl_idiom::pimpl_idiom;
@@ -68,11 +71,16 @@ export namespace fs8 {
      *
      * Usage:
      *   event_sanitizer                           // filter bad events, no callback
-     *   event_sanitizer[log["sanitized"]]         // log problematic events
+     *   event_sanitizer[log["sanitized"]]         // log and filter problematic events
+     *   event_sanitizer.diagnostics()[log["bad"]] // log problematic events, keep them
+     *   event_diagnostics[log["bad"]]             // diagnostics-only shorthand
      *   event_sanitizer[my_callback, .threshold(100)]
      */
     template <typename Callback = basic_noop>
     struct [[nodiscard]] basic_event_sanitizer : consteval_copyable {
+        template <typename>
+        friend struct basic_event_sanitizer;
+
         using consteval_copyable::consteval_copyable;
 
         using value_type = event_type::value_type;
@@ -81,7 +89,8 @@ export namespace fs8 {
       private:
         event_sanitizer_state          state{};
         event_sanitizer_state::config  cfg{};
-        bool                           log_events_good = false;
+        bool                           log_events_good  = false;
+        bool                           diagnostics_only = false;
         [[no_unique_address]] Callback cb;
 
         /// Dispatch the callback based on its arity.
@@ -103,6 +112,18 @@ export namespace fs8 {
 
         explicit consteval basic_event_sanitizer(Callback inp_cb) noexcept : cb{std::move(inp_cb)} {}
 
+      private:
+        consteval basic_event_sanitizer(
+          Callback                      inp_cb,
+          event_sanitizer_state::config inp_cfg,
+          bool                          inp_log_events_good,
+          bool                          inp_diagnostics_only) noexcept
+          : cfg{inp_cfg},
+            log_events_good{inp_log_events_good},
+            diagnostics_only{inp_diagnostics_only},
+            cb{std::move(inp_cb)} {}
+
+      public:
         // --- Config builders ---
 
         consteval basic_event_sanitizer threshold(value_type const t) const noexcept {
@@ -127,6 +148,18 @@ export namespace fs8 {
             auto copy            = *this;
             copy.log_events_good = true;
             return copy;
+        }
+
+        /// Report sanitizer issues without filtering or rewriting events.
+        consteval basic_event_sanitizer diagnostics(bool const v = true) const noexcept {
+            auto copy             = *this;
+            copy.diagnostics_only = v;
+            return copy;
+        }
+
+        /// Re-enable sanitizing after diagnostics-only mode was selected.
+        consteval basic_event_sanitizer sanitize() const noexcept {
+            return diagnostics(false);
         }
 
         consteval basic_event_sanitizer adjacent_syns(bool const v = true) const noexcept {
@@ -163,10 +196,13 @@ export namespace fs8 {
 
         template <typename C>
             requires(!std::same_as<std::remove_cvref_t<C>, get_variables_tag>)
-        consteval basic_event_sanitizer operator[](C&& inp_cb) const noexcept {
-            auto copy = *this;
-            copy.cb   = std::forward<C>(inp_cb);
-            return copy;
+        consteval auto operator[](C&& inp_cb) const noexcept {
+            return basic_event_sanitizer<std::remove_cvref_t<C>>{
+              std::forward<C>(inp_cb),
+              cfg,
+              log_events_good,
+              diagnostics_only,
+            };
         }
 
         // --- Start: seed pen resolution from input_manager ---
@@ -192,10 +228,18 @@ export namespace fs8 {
             auto const issue = state.check(event, cfg);
             invoke_callback(event, issue);
             state.update(event);
+            if (diagnostics_only) {
+                return context_action::next;
+            }
             return issue == sanitizer_issue::none ? context_action::next : context_action::ignore_event;
         }
     };
 
+    constexpr struct [[nodiscard]] basic_log_diagnostics : basic_log {
+        void operator()(event_type const& event, sanitizer_issue issue) const noexcept;
+    } log_diagnostics;
+
     constexpr basic_event_sanitizer<> event_sanitizer;
+    constexpr auto                    event_diagnostics = event_sanitizer.diagnostics()[log_diagnostics];
 
 } // namespace fs8
