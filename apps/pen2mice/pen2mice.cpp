@@ -51,21 +51,21 @@ int main(int const argc, char const* const* argv) try {
       | intercept[tablet | required | grab, keyboard | required | grab]
       | scheduled_emitter
       | led_status
-      | keys_status                                // Save key presses
-      | on[op | pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
+      | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
            context
              | abs2rel                             // Convert Drawing Tablet absolute moves into mouse moves
              | pen2mice                            // Convert the buttons
              | ignore_tablet
              | ignore_big_jumps
              | ignore_fast_left_clicks]            // Ignore fast left clicks
+      | keys_status                                // Save key presses
       | mouse_history
       | mice_quantifier                            // Quantify the mouse movements
       | swipe_detector                             // Detects swipes
       | on[pressed[BTN_RIGHT], ignore_start_moves] // fix right-click jumps
-      | once[op & pressed[BTN_MIDDLE] & triple_click, emit[press(KEY_LEFTMETA, KEY_TAB)]]
-      | once[op & limit_mouse_travel[pressed[KEY_CAPSLOCK], 50] & keyup(BTN_LEFT), schedule_emit + press(BTN_RIGHT)]
-      | on[op & (op | pressed[BTN_MIDDLE] | pressed[KEY_CAPSLOCK]) & pressed[BTN_LEFT],
+      | once[pressed[BTN_MIDDLE] & triple_click, emit[press(KEY_LEFTMETA, KEY_TAB)]]
+      | once[limit_mouse_travel[pressed[KEY_CAPSLOCK], 50] & keyup[BTN_LEFT], schedule_emit + press(BTN_RIGHT)]
+      | on[pressed_any[BTN_MIDDLE, KEY_CAPSLOCK] & pressed[BTN_LEFT],
            context
              | on[swipe_right, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT)]]
              | on[swipe_left, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)]]
@@ -74,12 +74,13 @@ int main(int const argc, char const* const* argv) try {
              | ignore_mouse_moves
              | ignore_mouse_clicks]
       | once[pressed[KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC], exit_pipeline] // Restart/Quit
-      | on[pressed[BTN_LEFT, KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
+      | on[pressed[KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
       | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | kalman_filter[0.3f] | mouse_to_scroll]
       | on[held[KEY_LEFTSHIFT], context | scale_move[0.5f] | scale_pen[0.5f]]
       | update_mod[keys_status]
       | low_pass_filter
       | ignore_zero_mouse_moves
+      | ignore_msc_scan
       | ignore_adjacent_syns
       | event_diagnostics
       | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];

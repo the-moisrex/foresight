@@ -14,9 +14,9 @@ export module fs8.mods:on;
 
 export import fs8.utils;
 import fs8.lib.mod_parser;
-import :keys_status;
 import fs8.context;
 import fs8.traits;
+import :keys_status;
 
 namespace fs8 {
 
@@ -35,6 +35,108 @@ namespace fs8 {
             return false;
         }
     } always_disable;
+
+    export template <typename... Funcs>
+        requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
+    struct [[nodiscard]] or_op;
+
+    export template <typename... Funcs>
+        requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
+    struct [[nodiscard]] and_op : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        constexpr and_op() noexcept = default;
+
+      private:
+        std::tuple<std::remove_cvref_t<Funcs>...> funcs;
+
+      public:
+        template <typename... InpFuncs>
+            requires((std::convertible_to<InpFuncs, Funcs> && ...))
+        explicit(false) constexpr and_op(InpFuncs&&... inp_funcs) noexcept : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
+
+        template <typename Func>
+        [[nodiscard]] consteval auto operator&(Func func) const noexcept {
+            return std::apply(
+              [func](auto const&... conds) {
+                  return and_op<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Func>>{conds..., func};
+              },
+              funcs);
+        }
+
+        template <typename Func>
+        [[nodiscard]] consteval auto operator|(Func func) const noexcept {
+            if constexpr (sizeof...(Funcs) == 0) {
+                return or_op<std::remove_cvref_t<Func>>{func};
+            } else {
+                return or_op<and_op, std::remove_cvref_t<Func>>{*this, func};
+            }
+        }
+
+        [[nodiscard]] constexpr bool operator()(Context auto& ctx) noexcept {
+            return std::apply(
+              [&ctx](auto&... cond) constexpr noexcept {
+                  return (invoke_cond(cond, ctx) && ...);
+              },
+              funcs);
+        }
+    };
+
+    export template <typename... Funcs>
+        requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
+    struct [[nodiscard]] or_op : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        constexpr or_op() noexcept = default;
+
+      private:
+        std::tuple<std::remove_cvref_t<Funcs>...> funcs{};
+
+      public:
+        template <typename... InpFuncs>
+            requires((std::convertible_to<InpFuncs, Funcs> && ...))
+        explicit(false) constexpr or_op(InpFuncs&&... inp_funcs) noexcept : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
+
+        template <typename Func>
+        [[nodiscard]] consteval auto operator&(Func func) const noexcept {
+            if constexpr (sizeof...(Funcs) == 0) {
+                return and_op<std::remove_cvref_t<Func>>{func};
+            } else {
+                return and_op<or_op, std::remove_cvref_t<Func>>{*this, func};
+            }
+        }
+
+        template <typename Func>
+        [[nodiscard]] consteval auto operator|(Func func) const noexcept {
+            return std::apply(
+              [func](auto const&... conds) {
+                  return or_op<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Func>>{conds..., func};
+              },
+              funcs);
+        }
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+            return std::apply(
+              [&ctx](auto&... cond) constexpr noexcept {
+                  return (invoke_cond(cond, ctx) || ...);
+              },
+              funcs);
+        }
+    };
+
+    export template <typename T>
+    struct [[nodiscard]] operator_adaptor {
+        template <typename Func>
+        consteval auto operator&(Func func) const noexcept {
+            return and_op<T, std::remove_cvref_t<Func>>{static_cast<T const&>(*this), func};
+        }
+
+        template <typename Func>
+        consteval auto operator|(Func func) const noexcept {
+            return or_op<T, std::remove_cvref_t<Func>>{static_cast<T const&>(*this), func};
+        }
+    };
 
     /**
      * Conditionally run some functions on each context/events.
@@ -211,7 +313,7 @@ namespace fs8 {
     };
 
     export template <template <std::size_t> typename A, std::size_t N>
-    struct [[nodiscard]] basic_code_adaptor : consteval_copyable {
+    struct [[nodiscard]] basic_code_adaptor : consteval_copyable, operator_adaptor<basic_code_adaptor<A, N>> {
         using consteval_copyable::consteval_copyable;
 
       protected:
@@ -266,7 +368,7 @@ namespace fs8 {
 
     export constexpr basic_pressed_any<0> pressed_any;
 
-    export constexpr struct [[nodiscard]] basic_keydown : consteval_copyable {
+    export constexpr struct [[nodiscard]] basic_keydown : consteval_copyable, operator_adaptor<basic_keydown> {
         using consteval_copyable::consteval_copyable;
 
       private:
@@ -284,7 +386,7 @@ namespace fs8 {
         }
     } keydown;
 
-    export constexpr struct [[nodiscard]] basic_keyup : consteval_copyable {
+    export constexpr struct [[nodiscard]] basic_keyup : consteval_copyable, operator_adaptor<basic_keyup> {
         using consteval_copyable::consteval_copyable;
 
       private:
@@ -302,12 +404,30 @@ namespace fs8 {
         }
     } keyup;
 
+    export constexpr struct [[nodiscard]] basic_key : consteval_copyable, operator_adaptor<basic_keyup> {
+        using consteval_copyable::consteval_copyable;
+
+    private:
+        code_type code = KEY_MAX;
+
+    public:
+        consteval basic_key operator[](code_type const inp_code) const noexcept {
+            basic_key res;
+            res.code = inp_code;
+            return res;
+        }
+
+        [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
+            return event.is(EV_KEY, code);
+        }
+    } key;
+
     export template <typename CondT>
     struct [[nodiscard]] basic_held_gate;
 
     /// True while every tracked key is down, except on the tracked keys' own auto-repeat
     /// events (EV_KEY with value 2). Works without keys_status in the pipeline.
-    export struct [[nodiscard]] basic_held : consteval_copyable {
+    export struct [[nodiscard]] basic_held : consteval_copyable, operator_adaptor<basic_held> {
         using consteval_copyable::consteval_copyable;
 
         static constexpr std::size_t max_codes = 32;
@@ -384,7 +504,7 @@ namespace fs8 {
      * suppressed). Usable directly in a pipeline: `held["<f1>", decider]`.
      */
     export template <typename CondT>
-    struct [[nodiscard]] basic_held_gate : consteval_copyable {
+    struct [[nodiscard]] basic_held_gate : consteval_copyable, operator_adaptor<basic_held_gate<CondT>> {
         using consteval_copyable::consteval_copyable;
 
         static constexpr std::size_t max_codes  = 32;
@@ -529,7 +649,7 @@ namespace fs8 {
     /// Place it after `keys_status`/`update_mod` so other `pressed[]` conditions
     /// still observe the physical presses.
     export template <std::size_t N, typename ModT = basic_noop>
-    struct [[nodiscard]] basic_on_held : consteval_copyable {
+    struct [[nodiscard]] basic_on_held : consteval_copyable, operator_adaptor<basic_on_held<N, ModT>> {
         using consteval_copyable::consteval_copyable;
 
         static constexpr std::size_t max_codes = 32;
@@ -691,7 +811,7 @@ namespace fs8 {
     };
 
     export template <typename FuncT>
-    struct [[nodiscard]] basic_longtime_released : consteval_copyable {
+    struct [[nodiscard]] basic_longtime_released : consteval_copyable, operator_adaptor<basic_longtime_released<FuncT>> {
         using consteval_copyable::consteval_copyable;
 
         static constexpr std::chrono::milliseconds default_delay{100};
@@ -733,7 +853,7 @@ namespace fs8 {
     export constexpr basic_longtime_released<basic_noop> longtime_released;
 
     export template <typename CondT = basic_noop>
-    struct [[nodiscard]] basic_limit_mouse_travel : consteval_copyable {
+    struct [[nodiscard]] basic_limit_mouse_travel : consteval_copyable, operator_adaptor<basic_limit_mouse_travel<CondT>> {
         using consteval_copyable::consteval_copyable;
 
       private:
@@ -804,7 +924,7 @@ namespace fs8 {
 
     export constexpr basic_limit_mouse_travel<> limit_mouse_travel;
 
-    export constexpr struct [[nodiscard]] basic_led_on : consteval_copyable {
+    export constexpr struct [[nodiscard]] basic_led_on : consteval_copyable, operator_adaptor<basic_led_on> {
         using consteval_copyable::consteval_copyable;
 
       private:
@@ -824,7 +944,7 @@ namespace fs8 {
         }
     } led_on;
 
-    export constexpr struct [[nodiscard]] basic_led_off : consteval_copyable {
+    export constexpr struct [[nodiscard]] basic_led_off : consteval_copyable, operator_adaptor<basic_led_off> {
         using consteval_copyable::consteval_copyable;
 
       private:
@@ -844,97 +964,7 @@ namespace fs8 {
         }
     } led_off;
 
-    export template <typename... Funcs>
-        requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
-    struct [[nodiscard]] or_op;
-
-    export template <typename... Funcs>
-        requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
-    struct [[nodiscard]] and_op : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
-
-        constexpr and_op() noexcept = default;
-
-      private:
-        std::tuple<std::remove_cvref_t<Funcs>...> funcs;
-
-      public:
-        template <typename... InpFuncs>
-            requires((std::convertible_to<InpFuncs, Funcs> && ...))
-        explicit(false) constexpr and_op(InpFuncs&&... inp_funcs) noexcept : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
-
-        template <typename Func>
-        [[nodiscard]] consteval auto operator&(Func func) const noexcept {
-            return std::apply(
-              [func](auto const&... conds) {
-                  return and_op<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Func>>{conds..., func};
-              },
-              funcs);
-        }
-
-        template <typename Func>
-        [[nodiscard]] consteval auto operator|(Func func) const noexcept {
-            if constexpr (sizeof...(Funcs) == 0) {
-                return or_op<std::remove_cvref_t<Func>>{func};
-            } else {
-                return or_op<and_op, std::remove_cvref_t<Func>>{*this, func};
-            }
-        }
-
-        [[nodiscard]] constexpr bool operator()(Context auto& ctx) noexcept {
-            return std::apply(
-              [&ctx](auto&... cond) constexpr noexcept {
-                  return (invoke_cond(cond, ctx) && ...);
-              },
-              funcs);
-        }
-    };
-
-    export template <typename... Funcs>
-        requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
-    struct [[nodiscard]] or_op : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
-
-        constexpr or_op() noexcept = default;
-
-      private:
-        std::tuple<std::remove_cvref_t<Funcs>...> funcs{};
-
-      public:
-        template <typename... InpFuncs>
-            requires((std::convertible_to<InpFuncs, Funcs> && ...))
-        explicit(false) constexpr or_op(InpFuncs&&... inp_funcs) noexcept : funcs{std::forward<InpFuncs>(inp_funcs)...} {}
-
-        template <typename Func>
-        [[nodiscard]] consteval auto operator&(Func func) const noexcept {
-            if constexpr (sizeof...(Funcs) == 0) {
-                return and_op<std::remove_cvref_t<Func>>{func};
-            } else {
-                return and_op<or_op, std::remove_cvref_t<Func>>{*this, func};
-            }
-        }
-
-        template <typename Func>
-        [[nodiscard]] consteval auto operator|(Func func) const noexcept {
-            return std::apply(
-              [func](auto const&... conds) {
-                  return or_op<std::remove_cvref_t<Funcs>..., std::remove_cvref_t<Func>>{conds..., func};
-              },
-              funcs);
-        }
-
-        template <Context CtxT>
-        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
-            static_assert((std::is_nothrow_invocable_r_v<bool, Funcs, CtxT&> && ...), "All must be nothrow");
-            return std::apply(
-              [&ctx](auto&... cond) constexpr noexcept {
-                  return (invoke_cond(cond, ctx) || ...);
-              },
-              funcs);
-        }
-    };
-
-    export constexpr struct [[nodiscard]] basic_swipe_detector : consteval_copyable {
+    export constexpr struct [[nodiscard]] basic_swipe_detector : consteval_copyable, operator_adaptor<basic_swipe_detector> {
         using consteval_copyable::consteval_copyable;
 
       private:
@@ -962,7 +992,7 @@ namespace fs8 {
         void operator()(event_type const& event) noexcept;
     } swipe_detector;
 
-    export struct [[nodiscard]] basic_swipe : consteval_copyable {
+    export struct [[nodiscard]] basic_swipe : consteval_copyable, operator_adaptor<basic_swipe> {
         using consteval_copyable::consteval_copyable;
 
       private:
@@ -988,7 +1018,7 @@ namespace fs8 {
         }
     };
 
-    export constexpr struct [[nodiscard]] basic_multi_click : consteval_copyable {
+    export constexpr struct [[nodiscard]] basic_multi_click : consteval_copyable, operator_adaptor<basic_multi_click> {
         using consteval_copyable::consteval_copyable;
 
         using duration_type = std::chrono::microseconds;

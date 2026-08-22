@@ -284,6 +284,15 @@ export namespace fs8 {
         }
     } ignore_event;
 
+    constexpr struct [[nodiscard]] basic_ignore_msc_scan {
+        constexpr context_action operator()(event_type const& event) const noexcept;
+    } ignore_msc_scan;
+
+    constexpr context_action basic_ignore_msc_scan::operator()(event_type const& event) const noexcept {
+        using enum context_action;
+        return event.is(EV_MSC, MSC_SCAN) ? ignore_event : next;
+    }
+
     constexpr basic_ignore_adjacent_repeats ignore_adjacent_syns{syn()};
 
     constexpr basic_ignore_fast_repeats ignore_fast_left_clicks{
