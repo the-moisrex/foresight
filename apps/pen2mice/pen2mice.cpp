@@ -48,7 +48,7 @@ int main(int const argc, char const* const* argv) try {
       | pipeline_singleton
       | io_manager
       | input_manager
-      | intercept[tablet | required | grab, keyboard | required | grab]
+      | intercept[tablet | required | grab, keyboard | grab]
       | scheduled_emitter
       | led_status
       | keys_status // Save key presses
@@ -88,8 +88,7 @@ int main(int const argc, char const* const* argv) try {
       | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];
 
     auto const parsed = args(argc, argv);
-    if (parsed.help()) {
-        parsed.print_help();
+    if (parsed.exit_if_needed()) {
         return 0;
     }
     pipeline.mod(intercept).add(parsed | grab | required);

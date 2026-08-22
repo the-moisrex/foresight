@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.23...4.1.2)
-project(foresight LANGUAGES CXX C)
+
+# Read version from VERSION file
+file(READ "${CMAKE_SOURCE_DIR}/VERSION" FORESIGHT_VERSION)
+string(STRIP "${FORESIGHT_VERSION}" FORESIGHT_VERSION)
+
+project(foresight VERSION ${FORESIGHT_VERSION} LANGUAGES CXX C)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -179,6 +184,9 @@ set_target_properties(${LIB_NAME} PROPERTIES
 target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
 target_compile_options(${LIB_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
 target_link_options(${LIB_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
+target_compile_definitions(${LIB_NAME}
+        PUBLIC FORESIGHT_VERSION="${PROJECT_VERSION}"
+)
 target_link_libraries(${LIB_NAME}
         PUBLIC libevdev
         PUBLIC udev

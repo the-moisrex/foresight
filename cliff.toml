@@ -1,0 +1,60 @@
+[changelog]
+header = """
+# Changelog\n
+All notable changes to this project will be documented in this file.\n
+"""
+body = """\
+{% if version -%}
+## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}\n
+{% else -%}
+## [Unreleased]\n
+{% endif -%}
+{%- for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}\n
+{%- for commit in commits %}
+- {{ commit.message | upper_first | trim }}
+{%- endfor %}
+{% endfor -%}
+"""
+trim = true
+footer = """
+---
+*Changelog generated with [git-cliff](https://github.com/orhun/git-cliff)*
+"""
+
+[git]
+conventional_commits = false
+filter_unconventional = true
+split_commits = false
+protect_breaking_changes = false
+
+commit_parsers = [
+    { message = "^Merge", skip = true },
+    { message = "^WIP", skip = true },
+    { message = "^Fix", group = "Bug Fixes" },
+    { message = "^fix", group = "Bug Fixes" },
+    { message = "^Add", group = "Features" },
+    { message = "^Adding", group = "Features" },
+    { message = "^feat", group = "Features" },
+    { message = "^feat\\(", group = "Features" },
+    { message = "^Revert", group = "Reverts" },
+    { message = "^revert", group = "Reverts" },
+    { message = "^Refactor", group = "Refactoring" },
+    { message = "^refactor", group = "Refactoring" },
+    { message = "^Warning fixes", group = "Maintenance" },
+    { message = "^Small changes", group = "Maintenance" },
+    { message = "^Update", group = "Maintenance" },
+    { message = "^Cleaning", group = "Maintenance" },
+    { message = "^Clean", group = "Maintenance" },
+    { message = "^Documentation", group = "Documentation" },
+    { message = "^doc", group = "Documentation" },
+    { message = "^README", group = "Documentation" },
+    { message = "^Test", group = "Testing" },
+    { message = "^test", group = "Testing" },
+    { message = "^Benchmark", group = "Testing" },
+    { message = ".*", group = "Other Changes" },
+]
+
+[remote.github]
+owner = "the-moisrex"
+repo = "foresight"

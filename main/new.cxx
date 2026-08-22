@@ -122,10 +122,7 @@ int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
 
     auto const parsed = args(argc, argv);
-    if (parsed.help()) {
-        parsed.print_help();
-        return 0;
-    }
+    if (parsed.exit_if_needed()) return 0;
 
     static constinit auto pipeline =
       context
@@ -305,10 +302,7 @@ int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
 
     auto const parsed = args(argc, argv);
-    if (parsed.help()) {
-        parsed.print_help();
-        return 0;
-    }
+    if (parsed.exit_if_needed()) return 0;
 
     static constinit auto pipeline =
       context

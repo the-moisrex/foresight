@@ -38,6 +38,7 @@ namespace {
             how_to_type,
             new_app,
             matches,
+            version,
         } action = action_type::none;
 
         /// intercept/redirect query
@@ -63,10 +64,19 @@ namespace {
         opt.action = inp_action;
     }
 
+    void print_version() {
+#ifdef FORESIGHT_VERSION
+        std::println("foresight {}", FORESIGHT_VERSION);
+#else
+        std::println("foresight (unknown version)");
+#endif
+    }
+
     void print_help() {
         std::println("{}", R"TEXT(Usage: foresight [options] [action]
   Arguments:
     -h | --help                   Print help.
+    -v | --version                Print version.
 
   Actions:
     intercept [queries...]        Intercept the devices matching the queries and
@@ -228,6 +238,9 @@ Options:
             set_action(opts, intercept);
         } else if (action_str == "help") {
             set_action(opts, help);
+        } else if (action_str == "--version" || action_str == "-v") {
+            set_action(opts, version);
+            return opts;
         } else if (action_str == "redirect" || action_str == "to") {
             set_action(opts, redirect);
         } else if (action_str == "systemd") {
@@ -252,6 +265,10 @@ Options:
 
             if (opt == "--help" || opt == "-h") {
                 opts.action = help;
+                continue;
+            }
+            if (opt == "--version" || opt == "-v") {
+                opts.action = version;
                 continue;
             }
             if (opt == "--grab" || opt == "-g") {
@@ -443,6 +460,10 @@ Options:
             case help: {
                 print_help();
                 return EXIT_FAILURE;
+            }
+            case version: {
+                print_version();
+                return EXIT_SUCCESS;
             }
             case intercept: {
                 static constinit auto pipeline =

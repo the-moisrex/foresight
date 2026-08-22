@@ -1,0 +1,122 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        include:
+          - compiler: gcc
+            cc: gcc-14
+            cxx: g++-14
+            build_type: Release
+          - compiler: clang
+            cc: clang-18
+            cxx: clang++-18
+            build_type: Release
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            ninja-build \
+            pkg-config \
+            libevdev-dev \
+            libudev-dev \
+            libxkbcommon-dev \
+            ${{ matrix.compiler == 'gcc' && 'g++-14' || 'clang-18' }}
+
+      - name: Configure
+        run: |
+          cmake -G Ninja \
+            -B build \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_C_COMPILER=${{ matrix.cc }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: |
+          if [ -d "build/tests" ]; then
+            cd build/tests && ctest --output-on-failure
+          fi
+
+      - name: Create binary archive
+        run: |
+          cd build
+          tar -czf ../foresight-${{ github.ref_name }}-${{ matrix.compiler }}-x86_64.tar.gz \
+            -C . \
+            foresight \
+            -C ../.. \
+            LICENSE README.md
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: foresight-${{ matrix.compiler }}-x86_64
+          path: foresight-${{ github.ref_name }}-${{ matrix.compiler }}-x86_64.tar.gz
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install git-cliff
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-cliff
+
+      - name: Generate changelog
+        run: |
+          git cliff --tag ${{ github.ref_name }} -o CHANGELOG-${{ github.ref_name }}.md
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Foresight ${{ github.ref_name }}
+          body_path: CHANGELOG-${{ github.ref_name }}.md
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/*.tar.gz
+            LICENSE
+            README.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: artifacts/*.tar.gz

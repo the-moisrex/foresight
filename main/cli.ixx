@@ -11,9 +11,9 @@ export namespace fs8 {
 
     /// Describes a single command-line flag.
     struct [[nodiscard]] basic_flag {
-        std::string_view name;        // e.g. "--grab"
-        std::string_view alias;       // e.g. "-g"; may be empty
-        std::string_view help;        // one-line description
+        std::string_view name;  // e.g. "--grab"
+        std::string_view alias; // e.g. "-g"; may be empty
+        std::string_view help;  // one-line description
         bool             takes_value = false;
     };
 
@@ -29,17 +29,17 @@ export namespace fs8 {
         using positional_array = std::array<char const*, MaxPositionals>;
 
       public:
-        using iterator         = positional_array::const_pointer;
-        using const_iterator   = iterator;
+        using iterator       = positional_array::const_pointer;
+        using const_iterator = iterator;
 
         /// Inline storage for the positional arguments.
         positional_array storage{};
         std::size_t      positional_count = 0;
 
         /// Copies of the registered flag definitions (for help + lookup).
-        std::array<basic_flag, MaxFlags> flags{};
-        std::size_t                      flag_count = 0;
-        std::array<bool, MaxFlags>       flag_seen{};
+        std::array<basic_flag, MaxFlags>  flags{};
+        std::size_t                       flag_count = 0;
+        std::array<bool, MaxFlags>        flag_seen{};
         std::array<char const*, MaxFlags> flag_values{};
 
         /// Placeholder names for the auto-generated help.
@@ -48,7 +48,8 @@ export namespace fs8 {
 
         std::string_view program_name{};
         std::string_view help_text{};
-        bool             help_requested = false;
+        bool             help_requested    = false;
+        bool             version_requested = false;
 
         [[nodiscard]] constexpr iterator begin() const noexcept {
             return storage.data();
@@ -69,6 +70,32 @@ export namespace fs8 {
         /// True when `-h`/`--help` was passed.
         [[nodiscard]] bool help() const noexcept {
             return help_requested;
+        }
+
+        /// True when `-v`/`--version` was passed.
+        [[nodiscard]] bool version() const noexcept {
+            return version_requested;
+        }
+
+        /// If help or version was requested, print it and return true.
+        /// Apps can use: `if (parsed.exit_if_needed()) return 0;`
+        [[nodiscard]] bool exit_if_needed() const noexcept {
+            if (help_requested) {
+                print_help();
+                return true;
+            }
+            if (version_requested) {
+                print_version();
+                return true;
+            }
+            return false;
+        }
+
+        /// Print the version string.
+        void print_version() const noexcept {
+#ifdef FORESIGHT_VERSION
+            std::println("{}", FORESIGHT_VERSION);
+#endif
         }
 
         /// True when the flag with the given name (or alias) was passed.
@@ -111,7 +138,8 @@ export namespace fs8 {
             }
             std::println();
             std::println("Options:");
-            std::println("  -h | --help    Print this help.");
+            std::println("  -h | --help      Print this help.");
+            std::println("  -v | --version   Print version.");
             for (std::size_t i = 0; i < flag_count; ++i) {
                 basic_flag const& flag = flags[i];
                 if (flag.alias.empty()) {
@@ -127,10 +155,7 @@ export namespace fs8 {
     /// placeholder names (for help), extra flags, and an optional custom help
     /// text. Configure it through method chaining (e.g. `arguments["x"].help("...").add_flag(...)`)
     /// and parse with `operator()(argc, argv)`.
-    template <std::size_t DefaultsN,
-              std::size_t MaxPositionals = 16,
-              std::size_t MaxFlags       = 8,
-              std::size_t MaxNames       = 16>
+    template <std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16>
     struct [[nodiscard]] basic_arguments {
       private:
         std::array<char const*, DefaultsN + 1> defaults_{};
@@ -168,7 +193,7 @@ export namespace fs8 {
         /// Set a custom help text; when empty, help is auto-generated.
         constexpr basic_arguments help(std::string_view const text) const noexcept {
             basic_arguments out = *this;
-            out.help_text_ = text;
+            out.help_text_      = text;
             return out;
         }
 
@@ -205,6 +230,10 @@ export namespace fs8 {
                 std::string_view const cur{beg[i]};
                 if (cur == "-h" || cur == "--help") {
                     out.help_requested = true;
+                    continue;
+                }
+                if (cur == "-v" || cur == "--version") {
+                    out.version_requested = true;
                     continue;
                 }
                 bool matched = false;
