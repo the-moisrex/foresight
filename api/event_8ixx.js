@@ -19,6 +19,7 @@ var event_8ixx =
     [ "hashed_device", "event_8ixx.html#a136b3e03f26c6f1e08c82936d634aebd", null ],
     [ "is_invalid", "event_8ixx.html#ae722fd1e3ee0e8c2f85d947b48ba18c7", null ],
     [ "is_invalid", "event_8ixx.html#a821846ec9588a6613cba5e2070b49da8", null ],
+    [ "is_mouse_clicks", "event_8ixx.html#aeb77a6041ae57e9ce9d2986db5470f0c", null ],
     [ "is_mouse_event", "event_8ixx.html#a2a626fbce15918f461d6d70f429f0095", null ],
     [ "is_mouse_movement", "event_8ixx.html#a23bdc0e0cf884a92b1a95580caebe6bd", null ],
     [ "is_syn", "event_8ixx.html#a2ef80f285619af3478b43d49a9234d88", null ],

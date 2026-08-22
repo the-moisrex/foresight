@@ -1,0 +1,23 @@
+var structfs8_1_1basic__event__sanitizer =
+[
+    [ "code_type", "structfs8_1_1basic__event__sanitizer.html#af84dc360acee2a629f083e2686c83fd9", null ],
+    [ "msec_type", "structfs8_1_1basic__event__sanitizer.html#ac3cc38d387be7a20d88b6b0738c407e9", null ],
+    [ "value_type", "structfs8_1_1basic__event__sanitizer.html#a8d349c858aa430dab88dcf322ef9fe3b", null ],
+    [ "basic_event_sanitizer", "structfs8_1_1basic__event__sanitizer.html#ae5582a35f6352b044a83aa3873a09aa3", null ],
+    [ "basic_event_sanitizer", "structfs8_1_1basic__event__sanitizer.html#a12201cddd321faf5355ed0cb69c7d6e8", null ],
+    [ "adjacent_syns", "structfs8_1_1basic__event__sanitizer.html#acf607a5e1514a5aefd82a8695687a433", null ],
+    [ "all_events", "structfs8_1_1basic__event__sanitizer.html#a06907e8511daa3abf9f2ec27f7af2b12", null ],
+    [ "big_jumps", "structfs8_1_1basic__event__sanitizer.html#af35a7dabc144962d7f2e6d8c7b983005", null ],
+    [ "consteval_copyable", "structfs8_1_1basic__event__sanitizer.html#aab9e941457bd45b9d6772f6ff421cec6", null ],
+    [ "consteval_copyable", "structfs8_1_1basic__event__sanitizer.html#a07b6aecf93085d1e8fc982b21f53ed11", null ],
+    [ "consteval_copyable", "structfs8_1_1basic__event__sanitizer.html#a23df80b9a3d5bfbc33501da95d583e26", null ],
+    [ "late_syn", "structfs8_1_1basic__event__sanitizer.html#a4095315a283dbc5597be86b002537293", null ],
+    [ "late_syns", "structfs8_1_1basic__event__sanitizer.html#a6c99bd4c8d4de3c67f13a9cae0a3f797", null ],
+    [ "only_bad", "structfs8_1_1basic__event__sanitizer.html#a9c33e31e6e62bbb81c24263a48122ec1", null ],
+    [ "operator()", "structfs8_1_1basic__event__sanitizer.html#a40e47fe48b3808e5541021ad0532b5ea", null ],
+    [ "operator()", "structfs8_1_1basic__event__sanitizer.html#a1ab0b0bf460f008c3ee75564696d3578", null ],
+    [ "operator[]", "structfs8_1_1basic__event__sanitizer.html#a28ede22541afd19096f12ba07f7dc0a7", null ],
+    [ "orphan_releases", "structfs8_1_1basic__event__sanitizer.html#aaf6b294053cc5adc10a8d8cb7eddb901", null ],
+    [ "pen_resolution", "structfs8_1_1basic__event__sanitizer.html#acd8aca5e2228abaac0ae1118ee6a420d", null ],
+    [ "threshold", "structfs8_1_1basic__event__sanitizer.html#a4b171438290cb250c9b4e8c8a688a205", null ]
+];

@@ -91,6 +91,7 @@ var module_fs8_8event =
     [ "fs8::event_type::hash", "module_fs8_8event.html#a6addf1acd18387473baeb0fb7b074371", null ],
     [ "fs8::syn", "module_fs8_8event.html#a266fcad2b4c49218e11e63b7fe183613", null ],
     [ "fs8::is_mouse_movement", "module_fs8_8event.html#a23bdc0e0cf884a92b1a95580caebe6bd", null ],
+    [ "fs8::is_mouse_clicks", "module_fs8_8event.html#aeb77a6041ae57e9ce9d2986db5470f0c", null ],
     [ "fs8::is_mouse_event", "module_fs8_8event.html#a2a626fbce15918f461d6d70f429f0095", null ],
     [ "fs8::is_syn", "module_fs8_8event.html#a2ef80f285619af3478b43d49a9234d88", null ],
     [ "fs8::is_syn", "module_fs8_8event.html#aea211e19ffdede51989600ba22d0879e", null ],

@@ -168,6 +168,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__emit__all.html">basic_emit_all</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__exit__pipeline.html">basic_exit_pipeline</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__find__devices.html">basic_find_devices</a></td></tr>
@@ -206,6 +208,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__ignore__init__moves.html">basic_ignore_init_moves</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__ignore__keys.html">basic_ignore_keys</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__ignore__mouse__clicks.html">basic_ignore_mouse_clicks</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__ignore__mouse__moves.html">basic_ignore_mouse_moves</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -718,6 +722,18 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:ac2cd2b3bb76585e09b38e12d8981983c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7275d4de75bd1ef162eb0f4b4d4b015d" id="r_a7275d4de75bd1ef162eb0f4b4d4b015d"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">fs8::sanitizer_issue</a> : std::uint8_t { <br />
+&#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da334c4a4c42fdb79d7ebc3e73b517e6f8">none</a>
+, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da9a4527d62628879977386e12cbd83eb3">adjacent_syn</a>
+, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da827d6cd79ba12509aa77d451e1a4c758">orphan_release</a>
+, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da9f68d9085af541f5b85923ba6de5dd83">late_syn</a>
+, <br />
+&#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da20d7e7ee786838bd72d3023856041cf5">out_of_resolution</a>
+, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da78b924fbd8c08b97b279da5b870b8201">big_jump</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:a7275d4de75bd1ef162eb0f4b4d4b015d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes what kind of problem the sanitizer detected for an event.  <a href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">More...</a><br /></td></tr>
+<tr class="separator:a7275d4de75bd1ef162eb0f4b4d4b015d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -1139,6 +1155,8 @@ requires Tag&lt;TagT&gt;</td></tr>
 <tr class="separator:a266fcad2b4c49218e11e63b7fe183613"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23bdc0e0cf884a92b1a95580caebe6bd" id="r_a23bdc0e0cf884a92b1a95580caebe6bd"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a23bdc0e0cf884a92b1a95580caebe6bd">fs8::is_mouse_movement</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
 <tr class="separator:a23bdc0e0cf884a92b1a95580caebe6bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb77a6041ae57e9ce9d2986db5470f0c" id="r_aeb77a6041ae57e9ce9d2986db5470f0c"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aeb77a6041ae57e9ce9d2986db5470f0c">fs8::is_mouse_clicks</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="separator:aeb77a6041ae57e9ce9d2986db5470f0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a626fbce15918f461d6d70f429f0095" id="r_a2a626fbce15918f461d6d70f429f0095"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2a626fbce15918f461d6d70f429f0095">fs8::is_mouse_event</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
 <tr class="separator:a2a626fbce15918f461d6d70f429f0095"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ef80f285619af3478b43d49a9234d88" id="r_a2ef80f285619af3478b43d49a9234d88"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2ef80f285619af3478b43d49a9234d88">fs8::is_syn</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
@@ -1525,6 +1543,8 @@ Variables</h2></td></tr>
 <tr class="separator:a0ccfdf602ed7176499a4dd32aa29c28e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf1a945bdaa9b158d92becea2968cc0b" id="r_abf1a945bdaa9b158d92becea2968cc0b"><td class="memItemLeft" align="right" valign="top">constexpr struct <a class="el" href="structfs8_1_1basic__ignore__zero__mouse__moves.html">fs8::basic_ignore_zero_mouse_moves</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#abf1a945bdaa9b158d92becea2968cc0b">ignore_zero_mouse_moves</a></td></tr>
 <tr class="separator:abf1a945bdaa9b158d92becea2968cc0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3c4d3f6646c524770fc707da6193198" id="r_ab3c4d3f6646c524770fc707da6193198"><td class="memItemLeft" align="right" valign="top">constexpr struct <a class="el" href="structfs8_1_1basic__ignore__mouse__clicks.html">fs8::basic_ignore_mouse_clicks</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ab3c4d3f6646c524770fc707da6193198">ignore_mouse_clicks</a></td></tr>
+<tr class="separator:ab3c4d3f6646c524770fc707da6193198"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d1ef636ff1edfd4a680adff3da7ab41" id="r_a7d1ef636ff1edfd4a680adff3da7ab41"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__ignore__fast__repeats.html">fs8::basic_ignore_fast_repeats</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7d1ef636ff1edfd4a680adff3da7ab41">ignore_fast_repeats</a></td></tr>
 <tr class="separator:a7d1ef636ff1edfd4a680adff3da7ab41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a08e2ae6f75d16694002bccb1be554b49" id="r_a08e2ae6f75d16694002bccb1be554b49"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__debounce.html">basic_debounce</a>&lt; 0 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a08e2ae6f75d16694002bccb1be554b49">fs8::ignore_fast_double_clicks</a></td></tr>
@@ -1655,6 +1675,8 @@ Variables</h2></td></tr>
 <tr class="separator:a7d23a51b0b591c5d3a87b00822c56ef5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3330e413e0f418b95820c4d07833beb3" id="r_a3330e413e0f418b95820c4d07833beb3"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__router.html">basic_router</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3330e413e0f418b95820c4d07833beb3">fs8::router</a></td></tr>
 <tr class="separator:a3330e413e0f418b95820c4d07833beb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeab1ae1fb368cf9f7605a348e0bb4607" id="r_aeab1ae1fb368cf9f7605a348e0bb4607"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aeab1ae1fb368cf9f7605a348e0bb4607">fs8::event_sanitizer</a></td></tr>
+<tr class="separator:aeab1ae1fb368cf9f7605a348e0bb4607"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d05cad303518ae5309d4600be564573" id="r_a1d05cad303518ae5309d4600be564573"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__scale__pen.html">fs8::basic_scale_pen</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a1d05cad303518ae5309d4600be564573">scale_pen</a></td></tr>
 <tr class="separator:a1d05cad303518ae5309d4600be564573"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9508b079e8311d1cbd45fe297c9b9f7" id="r_aa9508b079e8311d1cbd45fe297c9b9f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__scale__move.html">fs8::basic_scale_move</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa9508b079e8311d1cbd45fe297c9b9f7">scale_move</a></td></tr>
@@ -2554,6 +2576,44 @@ template&lt;template&lt; typename... &gt; typename Templ, typename... ModsT&gt; 
 <tr><td class="fieldname"><a id="ab7f0fa2c09b263592204789448be49e1a3d1ed55cf8d19ba017c831eedd5248f4" name="ab7f0fa2c09b263592204789448be49e1a3d1ed55cf8d19ba017c831eedd5248f4"></a>nomatch_subsystem&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="ab7f0fa2c09b263592204789448be49e1a823f0ecc456d90944d42e75c96d63497" name="ab7f0fa2c09b263592204789448be49e1a823f0ecc456d90944d42e75c96d63497"></a>nomatch_sysattr&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="ab7f0fa2c09b263592204789448be49e1a2808f52b903c5304ea45f5d4fb13bd3f" name="ab7f0fa2c09b263592204789448be49e1a2808f52b903c5304ea45f5d4fb13bd3f"></a>nomatch_property&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a id="a7275d4de75bd1ef162eb0f4b4d4b015d" name="a7275d4de75bd1ef162eb0f4b4d4b015d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7275d4de75bd1ef162eb0f4b4d4b015d">&#9670;&#160;</a></span>sanitizer_issue</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum struct <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">fs8::sanitizer_issue</a> : std::uint8_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Describes what kind of problem the sanitizer detected for an event. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a7275d4de75bd1ef162eb0f4b4d4b015da334c4a4c42fdb79d7ebc3e73b517e6f8" name="a7275d4de75bd1ef162eb0f4b4d4b015da334c4a4c42fdb79d7ebc3e73b517e6f8"></a>none&#160;</td><td class="fielddoc"><p>event is clean </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7275d4de75bd1ef162eb0f4b4d4b015da9a4527d62628879977386e12cbd83eb3" name="a7275d4de75bd1ef162eb0f4b4d4b015da9a4527d62628879977386e12cbd83eb3"></a>adjacent_syn&#160;</td><td class="fielddoc"><p>duplicate SYN_REPORT (no data since last syn) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7275d4de75bd1ef162eb0f4b4d4b015da827d6cd79ba12509aa77d451e1a4c758" name="a7275d4de75bd1ef162eb0f4b4d4b015da827d6cd79ba12509aa77d451e1a4c758"></a>orphan_release&#160;</td><td class="fielddoc"><p>key release without a prior press </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7275d4de75bd1ef162eb0f4b4d4b015da9f68d9085af541f5b85923ba6de5dd83" name="a7275d4de75bd1ef162eb0f4b4d4b015da9f68d9085af541f5b85923ba6de5dd83"></a>late_syn&#160;</td><td class="fielddoc"><p>SYN_REPORT arrived after a long gap with no data. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7275d4de75bd1ef162eb0f4b4d4b015da20d7e7ee786838bd72d3023856041cf5" name="a7275d4de75bd1ef162eb0f4b4d4b015da20d7e7ee786838bd72d3023856041cf5"></a>out_of_resolution&#160;</td><td class="fielddoc"><p>pen ABS value outside device bounds </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7275d4de75bd1ef162eb0f4b4d4b015da78b924fbd8c08b97b279da5b870b8201" name="a7275d4de75bd1ef162eb0f4b4d4b015da78b924fbd8c08b97b279da5b870b8201"></a>big_jump&#160;</td><td class="fielddoc"><p>mouse movement exceeding threshold </p>
+</td></tr>
 </table>
 
 </div>
@@ -6090,6 +6150,32 @@ template&lt;typename ModT , typename CtxT &gt; </div>
 </div><div class="memdoc">
 
 <p>Is this key code a modifier key (ctrl/shift/alt/meta/caps/num/scroll)? </p>
+
+</div>
+</div>
+<a id="aeb77a6041ae57e9ce9d2986db5470f0c" name="aeb77a6041ae57e9ce9d2986db5470f0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb77a6041ae57e9ce9d2986db5470f0c">&#9670;&#160;</a></span>is_mouse_clicks()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr bool fs8::is_mouse_clicks </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;&#160;</td>
+          <td class="paramname"><em>event</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -10854,6 +10940,28 @@ template&lt;typename F , typename... Ts&gt; </div>
 
 </div>
 </div>
+<a id="aeab1ae1fb368cf9f7605a348e0bb4607" name="aeab1ae1fb368cf9f7605a348e0bb4607"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeab1ae1fb368cf9f7605a348e0bb4607">&#9670;&#160;</a></span>event_sanitizer</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a> fs8::event_sanitizer</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a1d701f96dc69129488fc6e15f1f95880" name="a1d701f96dc69129488fc6e15f1f95880"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1d701f96dc69129488fc6e15f1f95880">&#9670;&#160;</a></span>exit_pipeline</h2>
 
@@ -11419,6 +11527,20 @@ template&lt;typename F , typename... Ts&gt; </div>
 <span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
   </tr>
 </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab3c4d3f6646c524770fc707da6193198" name="ab3c4d3f6646c524770fc707da6193198"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3c4d3f6646c524770fc707da6193198">&#9670;&#160;</a></span>ignore_mouse_clicks</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr struct <a class="el" href="structfs8_1_1basic__ignore__mouse__clicks.html">fs8::basic_ignore_mouse_clicks</a> fs8::ignore_mouse_clicks</td>
+        </tr>
+      </table>
 </div><div class="memdoc">
 
 </div>

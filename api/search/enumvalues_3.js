@@ -1,8 +1,4 @@
 var searchData=
 [
-  ['err_0',['err',['../namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca56bd7107802ebe56c6918992f0608ec6',1,'fs8']]],
-  ['error_1',['error',['../namespacefs8.html#acf583ae8070e458d1b44419098d31571acb5e100e5a9a3e7f6d1fd97512215282',1,'fs8']]],
-  ['event_2',['event',['../namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d',1,'fs8']]],
-  ['evtest_3',['evtest',['../namespacefs8_1_1xkb_1_1how2type.html#a25a104708adfcf170ade495493b5b08fa33480b74d40a0ca522191469f669ffd0',1,'fs8::xkb::how2type']]],
-  ['exit_4',['exit',['../namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b',1,'fs8']]]
+  ['device_5fnot_5ffound_0',['device_not_found',['../namespacefs8.html#ad37238ffd12f657195d6e3e8d71292aca2a8960c99468da97ead50c68df5f63f3',1,'fs8']]]
 ];
