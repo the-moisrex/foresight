@@ -51,21 +51,23 @@ int main(int const argc, char const* const* argv) try {
       | intercept[tablet | required | grab, keyboard | required | grab]
       | scheduled_emitter
       | led_status
+      | keys_status // Save key presses
+      | mouse_history
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
            context
              | abs2rel                             // Convert Drawing Tablet absolute moves into mouse moves
              | pen2mice                            // Convert the buttons
              | ignore_tablet
              | ignore_big_jumps
-             | ignore_fast_left_clicks]            // Ignore fast left clicks
-      | keys_status                                // Save key presses
-      | mouse_history
+             | ignore_fast_left_clicks             // Ignore fast left clicks
+             | update_mod[keys_status]
+             | update_mod[mouse_history]]
       | mice_quantifier                            // Quantify the mouse movements
       | swipe_detector                             // Detects swipes
       | on[pressed[BTN_RIGHT], ignore_start_moves] // fix right-click jumps
       | once[pressed[BTN_MIDDLE] & triple_click, emit[press(KEY_LEFTMETA, KEY_TAB)]]
       | once[limit_mouse_travel[pressed[KEY_CAPSLOCK], 50] & keyup[BTN_LEFT], schedule_emit + press(BTN_RIGHT)]
-      | on[pressed_any[BTN_MIDDLE, KEY_CAPSLOCK] & pressed[BTN_LEFT],
+      | on[pressed_any[KEY_CAPSLOCK, BTN_MIDDLE] & pressed[BTN_LEFT],
            context
              | on[swipe_right, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_RIGHT)]]
              | on[swipe_left, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)]]

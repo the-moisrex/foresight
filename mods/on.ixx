@@ -313,7 +313,7 @@ namespace fs8 {
     };
 
     export template <template <std::size_t> typename A, std::size_t N>
-    struct [[nodiscard]] basic_code_adaptor : consteval_copyable, operator_adaptor<basic_code_adaptor<A, N>> {
+    struct [[nodiscard]] basic_code_adaptor : consteval_copyable, operator_adaptor<A<N>> {
         using consteval_copyable::consteval_copyable;
 
       protected:
@@ -407,10 +407,10 @@ namespace fs8 {
     export constexpr struct [[nodiscard]] basic_key : consteval_copyable, operator_adaptor<basic_keyup> {
         using consteval_copyable::consteval_copyable;
 
-    private:
+      private:
         code_type code = KEY_MAX;
 
-    public:
+      public:
         consteval basic_key operator[](code_type const inp_code) const noexcept {
             basic_key res;
             res.code = inp_code;
