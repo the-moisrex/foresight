@@ -10,6 +10,7 @@ export import fs8.event;
 // Mods:
 export import :abs2rel;
 export import :autocomplete;
+export import :benchmark;
 export import :debounce;
 export import :device;
 export import :emitter;

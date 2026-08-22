@@ -82,6 +82,7 @@ target_sources(${LIB_NAME}
         main/systemd.cxx
         mods/abs2rel.cxx
         mods/autocomplete.cxx
+        mods/benchmark.cxx
         mods/device.cxx
         mods/emitter.cxx
         mods/ignore.cxx
@@ -130,6 +131,7 @@ target_sources(${LIB_NAME}
         main/utils.ixx
         mods/abs2rel.ixx
         mods/autocomplete.ixx
+        mods/benchmark.ixx
         mods/context_vars.ixx
         mods/debounce.ixx
         mods/device.ixx

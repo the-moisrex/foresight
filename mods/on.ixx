@@ -266,21 +266,41 @@ namespace fs8 {
 
     export constexpr basic_pressed_any<0> pressed_any;
 
-    export struct [[nodiscard]] keydown {
+    export constexpr struct [[nodiscard]] basic_keydown : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+      private:
         code_type code = KEY_MAX;
+
+      public:
+        consteval basic_keydown operator[](code_type const inp_code) const noexcept {
+            basic_keydown res;
+            res.code = inp_code;
+            return res;
+        }
 
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
             return event.is(EV_KEY, code, 1);
         }
-    };
+    } keydown;
 
-    export struct [[nodiscard]] keyup {
+    export constexpr struct [[nodiscard]] basic_keyup : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+      private:
         code_type code = KEY_MAX;
+
+      public:
+        consteval basic_keyup operator[](code_type const inp_code) const noexcept {
+            basic_keyup res;
+            res.code = inp_code;
+            return res;
+        }
 
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
             return event.is(EV_KEY, code, 0);
         }
-    };
+    } keyup;
 
     export template <typename CondT>
     struct [[nodiscard]] basic_held_gate;
