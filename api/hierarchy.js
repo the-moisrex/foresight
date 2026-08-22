@@ -13,6 +13,8 @@ var hierarchy =
     [ "fs8::basic_always_enable", "structfs8_1_1basic__always__enable.html", null ],
     [ "fs8::basic_arguments< DefaultsN, MaxPositionals, MaxFlags, MaxNames >", "structfs8_1_1basic__arguments.html", null ],
     [ "fs8::basic_auto_mode_tag", "structfs8_1_1basic__auto__mode__tag.html", null ],
+    [ "fs8::basic_benchmark_factory", "structfs8_1_1basic__benchmark__factory.html", null ],
+    [ "fs8::basic_benchmark_result_factory", "structfs8_1_1basic__benchmark__result__factory.html", null ],
     [ "fs8::basic_context_view< ParentT, SubFuncs >", "structfs8_1_1basic__context__view.html", null ],
     [ "fs8::basic_device_id_of", "structfs8_1_1basic__device__id__of.html", null ],
     [ "fs8::basic_device_is", "structfs8_1_1basic__device__is.html", null ],
@@ -41,6 +43,7 @@ var hierarchy =
     [ "fs8::basic_self_emitted", "structfs8_1_1basic__self__emitted.html", null ],
     [ "fs8::xkb::basic_state", "structfs8_1_1xkb_1_1basic__state.html", null ],
     [ "fs8::basic_tag< ID >", "structfs8_1_1basic__tag.html", null ],
+    [ "fs8::benchmark_stats", "structfs8_1_1benchmark__stats.html", null ],
     [ "fs8::event_sanitizer_state::config", "structfs8_1_1event__sanitizer__state_1_1config.html", null ],
     [ "fs8::consteval_copyable", "structfs8_1_1consteval__copyable.html", [
       [ "fs8::basic_code_adaptor< basic_pressed, N >", "structfs8_1_1basic__code__adaptor.html", [
@@ -51,6 +54,9 @@ var hierarchy =
       ] ],
       [ "fs8::pimpl_idiom< basic_autocomplete >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_autocomplete", "structfs8_1_1basic__autocomplete.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< basic_benchmark_counter >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_benchmark_counter", "structfs8_1_1basic__benchmark__counter.html", null ]
       ] ],
       [ "fs8::pimpl_idiom< basic_input_manager >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_input_manager", "structfs8_1_1basic__input__manager.html", null ]
@@ -90,6 +96,8 @@ var hierarchy =
       ] ],
       [ "fs8::and_op< Funcs >", "structfs8_1_1and__op.html", null ],
       [ "fs8::basic_abs2rel", "structfs8_1_1basic__abs2rel.html", null ],
+      [ "fs8::basic_benchmark< Funcs >", "structfs8_1_1basic__benchmark.html", null ],
+      [ "fs8::basic_benchmark_result< SinkT >", "structfs8_1_1basic__benchmark__result.html", null ],
       [ "fs8::basic_code_adaptor< A, N >", "structfs8_1_1basic__code__adaptor.html", null ],
       [ "fs8::basic_context< Funcs >", "structfs8_1_1basic__context.html", null ],
       [ "fs8::basic_debounce< N >", "structfs8_1_1basic__debounce.html", null ],
@@ -109,7 +117,9 @@ var hierarchy =
       [ "fs8::basic_ignore_origin< N >", "structfs8_1_1basic__ignore__origin.html", null ],
       [ "fs8::basic_ignore_repeats_of< N >", "structfs8_1_1basic__ignore__repeats__of.html", null ],
       [ "fs8::basic_ignore_start_moves", "structfs8_1_1basic__ignore__start__moves.html", null ],
+      [ "fs8::basic_keydown", "structfs8_1_1basic__keydown.html", null ],
       [ "fs8::basic_keys_status", "structfs8_1_1basic__keys__status.html", null ],
+      [ "fs8::basic_keyup", "structfs8_1_1basic__keyup.html", null ],
       [ "fs8::basic_led_off", "structfs8_1_1basic__led__off.html", null ],
       [ "fs8::basic_led_on", "structfs8_1_1basic__led__on.html", null ],
       [ "fs8::basic_led_status", "structfs8_1_1basic__led__status.html", null ],
@@ -179,10 +189,8 @@ var hierarchy =
     [ "fs8::udev_list_entry::iterator", "structfs8_1_1udev__list__entry_1_1iterator.html", null ],
     [ "fs8::key_event", "structfs8_1_1key__event.html", null ],
     [ "fs8::xkb::key_position", "structfs8_1_1xkb_1_1key__position.html", null ],
-    [ "fs8::keydown", "structfs8_1_1keydown.html", null ],
     [ "fs8::xkb::keymap", "structfs8_1_1xkb_1_1keymap.html", null ],
     [ "fs8::keynames_type", "structfs8_1_1keynames__type.html", null ],
-    [ "fs8::keyup", "structfs8_1_1keyup.html", null ],
     [ "fs8::low_threshold_tag", "structfs8_1_1low__threshold__tag.html", null ],
     [ "fs8::mod_of_t< ModConcept,... >", "structfs8_1_1mod__of__t.html", null ],
     [ "fs8::mod_of_t< ModConcept, Funcs... >", "structfs8_1_1mod__of__t.html", [

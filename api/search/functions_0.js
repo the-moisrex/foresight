@@ -20,5 +20,6 @@ var searchData=
   ['as_5fstring_17',['as_string',['../structfs8_1_1xkb_1_1keymap.html#a1afbc63d59fdc73e53becb740a944389',1,'fs8::xkb::keymap']]],
   ['as_5fuser_5fevents_18',['as_user_events',['../structfs8_1_1basic__record.html#af6055cb025094ae0df70861a94009038',1,'fs8::basic_record']]],
   ['at_19',['at',['../structfs8_1_1basic__record.html#a0bec1d759d86fcc39712ece854fff75c',1,'fs8::basic_record']]],
-  ['available_5ftemplates_20',['available_templates',['../namespacefs8.html#afcc7e78003f79e6f251f4f055250bfbc',1,'fs8']]]
+  ['available_5ftemplates_20',['available_templates',['../namespacefs8.html#afcc7e78003f79e6f251f4f055250bfbc',1,'fs8']]],
+  ['average_21',['average',['../structfs8_1_1benchmark__stats.html#a72304100de65c66b55e9da342d1e48b3',1,'fs8::benchmark_stats']]]
 ];
