@@ -1,5 +1,9 @@
 var NAVTREEINDEX8 =
 {
+"module_fs8_8scaffold.html#afcc7e78003f79e6f251f4f055250bfbc":[0,0,18,2],
+"module_fs8_8strings.html":[0,0,28],
+"module_fs8_8strings.html#a17c87e15291ca38d4a882bd64403f7e8":[0,0,28,1],
+"module_fs8_8strings.html#a328affbde90136c2ba4db4969561022c":[0,0,28,2],
 "module_fs8_8strings.html#ab867fefe5221d4eb5ffd359476b249e0":[0,0,28,0],
 "module_fs8_8strings.html#af09228b108cada750b70aa0d2e5cb19c":[0,0,28,3],
 "module_fs8_8systemd.html":[0,0,19],
@@ -245,9 +249,5 @@ var NAVTREEINDEX8 =
 "namespacefs8.html#a48794d31cfa934a4694345ca5c8945a3":[1,0,1,615],
 "namespacefs8.html#a48abd5fa46ed80748e63919a38ce4f2e":[1,0,1,643],
 "namespacefs8.html#a4903c94447069cae35f8d6c0a06a444d":[1,0,1,329],
-"namespacefs8.html#a490800fbed6afbf37b82c36aecd1fb7e":[1,0,1,578],
-"namespacefs8.html#a49eacdffe91d7730081c2f51016943be":[1,0,1,380],
-"namespacefs8.html#a4a56255f54979b6886ed7104491cc497":[1,0,1,346],
-"namespacefs8.html#a4a82c2a893fb2efa385a1d5818849309":[1,0,1,283],
-"namespacefs8.html#a4bb6f2f3024072863d4884f84565ffc9":[1,0,1,301]
+"namespacefs8.html#a490800fbed6afbf37b82c36aecd1fb7e":[1,0,1,578]
 };

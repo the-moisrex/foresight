@@ -5,11 +5,14 @@ var structfs8_1_1basic__parsed__args =
     [ "begin", "structfs8_1_1basic__parsed__args.html#ac7fa7d556204cd5e94dbf9e2db3943f4", null ],
     [ "empty", "structfs8_1_1basic__parsed__args.html#aa4a2848e78d3c0a3b774e04418d89259", null ],
     [ "end", "structfs8_1_1basic__parsed__args.html#a8c340aee9d61074b41c17cd552f6030c", null ],
+    [ "exit_if_needed", "structfs8_1_1basic__parsed__args.html#af7dcea877f52897e71da73a757ad1ab4", null ],
     [ "flag_value", "structfs8_1_1basic__parsed__args.html#a0a9dd3a2a4febc81adb8e8392c8139ae", null ],
     [ "has_flag", "structfs8_1_1basic__parsed__args.html#aa6eaed667551725acadd2d6594574443", null ],
     [ "help", "structfs8_1_1basic__parsed__args.html#a5ba38ca1e10ee60236c29760b9cf9f91", null ],
     [ "print_help", "structfs8_1_1basic__parsed__args.html#ad874b756a80827294ccd4831789321b4", null ],
+    [ "print_version", "structfs8_1_1basic__parsed__args.html#a631c1240112363e29fc7403000604d6a", null ],
     [ "size", "structfs8_1_1basic__parsed__args.html#af32cfe6256fcb8c31a6f4d5cd47361c0", null ],
+    [ "version", "structfs8_1_1basic__parsed__args.html#a1f38163a1aee79d2ead1ad70447993f3", null ],
     [ "flag_count", "structfs8_1_1basic__parsed__args.html#a2fe53a21b930595303dfb6bc7a7255b3", null ],
     [ "flag_seen", "structfs8_1_1basic__parsed__args.html#ad8eeefeddf6f17b85a45f0163bbe8761", null ],
     [ "flag_values", "structfs8_1_1basic__parsed__args.html#aafead29ecf10cfb9141ccbc9dac5ce32", null ],
@@ -20,5 +23,6 @@ var structfs8_1_1basic__parsed__args =
     [ "names_count", "structfs8_1_1basic__parsed__args.html#a0bf293706538f1557c3a7669713465af", null ],
     [ "positional_count", "structfs8_1_1basic__parsed__args.html#ab3068634fb04265c235efa227a4fcb37", null ],
     [ "program_name", "structfs8_1_1basic__parsed__args.html#a8b71add5d2196880403020d9f83c2586", null ],
-    [ "storage", "structfs8_1_1basic__parsed__args.html#a7c153f942caedb0415f28b53bb3f895d", null ]
+    [ "storage", "structfs8_1_1basic__parsed__args.html#a7c153f942caedb0415f28b53bb3f895d", null ],
+    [ "version_requested", "structfs8_1_1basic__parsed__args.html#a55d21aa522d8f9f50f6a3f118b7695db", null ]
 ];

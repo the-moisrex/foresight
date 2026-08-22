@@ -11,6 +11,9 @@ var module_fs8_8cli =
     [ "fs8::basic_parsed_args::empty", "module_fs8_8cli.html#aa4a2848e78d3c0a3b774e04418d89259", null ],
     [ "fs8::basic_parsed_args::size", "module_fs8_8cli.html#af32cfe6256fcb8c31a6f4d5cd47361c0", null ],
     [ "fs8::basic_parsed_args::help", "module_fs8_8cli.html#a5ba38ca1e10ee60236c29760b9cf9f91", null ],
+    [ "fs8::basic_parsed_args::version", "module_fs8_8cli.html#a1f38163a1aee79d2ead1ad70447993f3", null ],
+    [ "fs8::basic_parsed_args::exit_if_needed", "module_fs8_8cli.html#af7dcea877f52897e71da73a757ad1ab4", null ],
+    [ "fs8::basic_parsed_args::print_version", "module_fs8_8cli.html#a631c1240112363e29fc7403000604d6a", null ],
     [ "fs8::basic_parsed_args::has_flag", "module_fs8_8cli.html#aa6eaed667551725acadd2d6594574443", null ],
     [ "fs8::basic_parsed_args::flag_value", "module_fs8_8cli.html#a0a9dd3a2a4febc81adb8e8392c8139ae", null ],
     [ "fs8::basic_parsed_args::print_help", "module_fs8_8cli.html#ad874b756a80827294ccd4831789321b4", null ],
@@ -36,5 +39,6 @@ var module_fs8_8cli =
     [ "fs8::basic_parsed_args::program_name", "module_fs8_8cli.html#a8b71add5d2196880403020d9f83c2586", null ],
     [ "fs8::basic_parsed_args::help_text", "module_fs8_8cli.html#a722d4a83bb681698ab534fee3ba3f5dc", null ],
     [ "fs8::basic_parsed_args::help_requested", "module_fs8_8cli.html#ab07b34ea7874d634290707e35c049372", null ],
+    [ "fs8::basic_parsed_args::version_requested", "module_fs8_8cli.html#a55d21aa522d8f9f50f6a3f118b7695db", null ],
     [ "fs8::arguments", "module_fs8_8cli.html#af610ffe7483781111b7d638c89ff3fed", null ]
 ];
