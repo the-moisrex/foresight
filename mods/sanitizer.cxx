@@ -1,12 +1,150 @@
 // Created by moisrex on 8/21/26.
 
 module;
+#include <chrono>
 #include <cmath>
 #include <linux/input-event-codes.h>
 module fs8.mods;
 
-// The check_* member functions of basic_event_sanitizer are defined inline
-// in the .ixx file because they are part of a class template.
-//
-// This translation unit exists so the module partition is registered in the
-// build system. Any future non-template helpers can go here.
+import fs8.event;
+
+namespace fs8 {
+
+    template <>
+    struct pimpl_idiom<event_sanitizer_state>::impl {
+        using value_type = event_type::value_type;
+        using code_type  = event_type::code_type;
+        using msec_type  = std::chrono::microseconds;
+
+        bool      was_syn            = false;
+        bool      any_data_since_syn = false;
+        msec_type last_syn_time{0};
+
+        static constexpr std::size_t max_tracked_keys = 64;
+        code_type                    pressed_keys[max_tracked_keys]{};
+        std::size_t                  num_pressed = 0;
+
+        bool       has_pen_bounds = false;
+        value_type pen_x_min      = 0;
+        value_type pen_x_max      = 0;
+        value_type pen_y_min      = 0;
+        value_type pen_y_max      = 0;
+
+        [[nodiscard]] bool is_key_pressed(code_type const code) const noexcept {
+            for (std::size_t i = 0; i < num_pressed; ++i) {
+                if (pressed_keys[i] == code) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        void track_press(code_type const code) noexcept {
+            if (!is_key_pressed(code) && num_pressed < max_tracked_keys) {
+                pressed_keys[num_pressed++] = code;
+            }
+        }
+
+        void track_release(code_type const code) noexcept {
+            for (std::size_t i = 0; i < num_pressed; ++i) {
+                if (pressed_keys[i] == code) {
+                    pressed_keys[i] = pressed_keys[--num_pressed];
+                    return;
+                }
+            }
+        }
+    };
+
+    void event_sanitizer_state::ensure_initialized() noexcept {
+        if (pimpl.get() == nullptr) {
+            init_impl();
+        }
+    }
+
+    void event_sanitizer_state::seed_pen_bounds(
+      value_type const x_min,
+      value_type const x_max,
+      value_type const y_min,
+      value_type const y_max) noexcept {
+        ensure_initialized();
+        pimpl->pen_x_min      = x_min;
+        pimpl->pen_x_max      = x_max;
+        pimpl->pen_y_min      = y_min;
+        pimpl->pen_y_max      = y_max;
+        pimpl->has_pen_bounds = true;
+    }
+
+    sanitizer_issue event_sanitizer_state::check(event_type const& event, config const& cfg) noexcept {
+        ensure_initialized();
+        using enum sanitizer_issue;
+
+        if (cfg.check_adjacent_syns && event.type() == EV_SYN && event.code() == SYN_REPORT && pimpl->was_syn) {
+            return adjacent_syn;
+        }
+
+        if (cfg.check_orphan_releases && event.type() == EV_KEY && event.value() == 0 && !pimpl->is_key_pressed(event.code())) {
+            return orphan_release;
+        }
+
+        bool const is_syn_report = event.type() == EV_SYN && event.code() == SYN_REPORT;
+        bool const is_late_syn =
+          is_syn_report
+          && !pimpl->any_data_since_syn
+          && pimpl->was_syn
+          && event.micro_time()
+          - pimpl->last_syn_time
+          >= cfg.late_syn_threshold;
+        if (cfg.check_late_syns && is_late_syn) {
+            return late_syn;
+        }
+
+        if (cfg.check_pen_resolution && pimpl->has_pen_bounds && event.type() == EV_ABS) {
+            switch (event.code()) {
+                case ABS_X:
+                    if (event.value() < pimpl->pen_x_min || event.value() > pimpl->pen_x_max) {
+                        return out_of_resolution;
+                    }
+                    break;
+                case ABS_Y:
+                    if (event.value() < pimpl->pen_y_min || event.value() > pimpl->pen_y_max) {
+                        return out_of_resolution;
+                    }
+                    break;
+                default: break;
+            }
+        }
+
+        if (cfg.check_big_jumps && is_mouse_movement(event) && std::abs(event.value()) > cfg.big_jump_threshold) {
+            return big_jump;
+        }
+
+        return none;
+    }
+
+    void event_sanitizer_state::update(event_type const& event) noexcept {
+        ensure_initialized();
+        bool const is_syn = event.type() == EV_SYN && event.code() == SYN_REPORT;
+
+        if (!is_syn) {
+            pimpl->any_data_since_syn = true;
+        }
+
+        if (event.type() == EV_KEY) {
+            switch (event.value()) {
+                case 1: pimpl->track_press(event.code()); break;
+                case 0: pimpl->track_release(event.code()); break;
+                default: break;
+            }
+        }
+
+        if (is_syn) {
+            pimpl->was_syn            = true;
+            pimpl->any_data_since_syn = false;
+            pimpl->last_syn_time      = event.micro_time();
+            return;
+        }
+
+        pimpl->was_syn = false;
+    }
+
+} // namespace fs8

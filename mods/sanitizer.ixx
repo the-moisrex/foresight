@@ -1,15 +1,16 @@
 // Created by moisrex on 8/21/26.
 
 module;
-#include <algorithm>
 #include <chrono>
-#include <cmath>
+#include <concepts>
 #include <cstdint>
 #include <linux/input-event-codes.h>
+#include <type_traits>
 #include <utility>
 export module fs8.mods:sanitizer;
 import fs8.context;
 import fs8.event;
+import fs8.pimpl;
 import fs8.traits;
 import fs8.utils;
 import :input_manager;
@@ -24,6 +25,31 @@ export namespace fs8 {
         late_syn,          ///< SYN_REPORT arrived after a long gap with no data
         out_of_resolution, ///< pen ABS value outside device bounds
         big_jump,          ///< mouse movement exceeding threshold
+    };
+
+    struct [[nodiscard]] event_sanitizer_state : pimpl_idiom<event_sanitizer_state> {
+        using pimpl_idiom::pimpl_idiom;
+
+        using value_type = event_type::value_type;
+        using msec_type  = std::chrono::microseconds;
+
+        constexpr event_sanitizer_state() noexcept = default;
+
+        void ensure_initialized() noexcept;
+        void seed_pen_bounds(value_type x_min, value_type x_max, value_type y_min, value_type y_max) noexcept;
+
+        struct [[nodiscard]] config {
+            bool       check_adjacent_syns   = true;
+            bool       check_orphan_releases = true;
+            bool       check_late_syns       = true;
+            bool       check_pen_resolution  = true;
+            bool       check_big_jumps       = true;
+            value_type big_jump_threshold    = 50;
+            msec_type  late_syn_threshold{100'000};
+        };
+
+        [[nodiscard]] sanitizer_issue check(event_type const& event, config const& cfg) noexcept;
+        void                          update(event_type const& event) noexcept;
     };
 
     /**
@@ -50,162 +76,13 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
         using value_type = event_type::value_type;
-        using code_type  = event_type::code_type;
         using msec_type  = std::chrono::microseconds;
 
       private:
-        // --- Config ---
-        bool check_adjacent_syns   = true;
-        bool check_orphan_releases = true;
-        bool check_late_syns       = true;
-        bool check_pen_resolution  = true;
-        bool check_big_jumps       = true;
-        bool log_events_good       = false;
-
-        value_type big_jump_threshold = 50;
-        msec_type  late_syn_threshold{100'000};
-
-        // --- Mutable state ---
-        bool      was_syn            = false;
-        bool      any_data_since_syn = false;
-        msec_type last_syn_time{0};
-
-        static constexpr std::size_t max_tracked_keys = 64;
-        code_type                    pressed_keys[max_tracked_keys]{};
-        std::size_t                  num_pressed = 0;
-
-        value_type last_mouse_x   = 0;
-        value_type last_mouse_y   = 0;
-        bool       has_last_mouse = false;
-
-        bool       has_pen_bounds = false;
-        value_type pen_x_min      = 0;
-        value_type pen_x_max      = 0;
-        value_type pen_y_min      = 0;
-        value_type pen_y_max      = 0;
-
+        event_sanitizer_state          state{};
+        event_sanitizer_state::config  cfg{};
+        bool                           log_events_good = false;
         [[no_unique_address]] Callback cb;
-
-        // --- Key tracking helpers ---
-
-        [[nodiscard]] constexpr bool is_key_pressed(code_type const code) const noexcept {
-            for (std::size_t i = 0; i < num_pressed; ++i) {
-                if (pressed_keys[i] == code) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        constexpr void track_press(code_type const code) noexcept {
-            if (!is_key_pressed(code) && num_pressed < max_tracked_keys) {
-                pressed_keys[num_pressed++] = code;
-            }
-        }
-
-        constexpr void track_release(code_type const code) noexcept {
-            for (std::size_t i = 0; i < num_pressed; ++i) {
-                if (pressed_keys[i] == code) {
-                    pressed_keys[i] = pressed_keys[--num_pressed];
-                    return;
-                }
-            }
-        }
-
-        // --- Individual checks ---
-
-        [[nodiscard]] sanitizer_issue check_adjacent(event_type const& event) const noexcept {
-            if (event.type() == EV_SYN && event.code() == SYN_REPORT && was_syn) {
-                return sanitizer_issue::adjacent_syn;
-            }
-            return sanitizer_issue::none;
-        }
-
-        [[nodiscard]] sanitizer_issue check_orphan(event_type const& event) const noexcept {
-            if (event.type() == EV_KEY && event.value() == 0 && !is_key_pressed(event.code())) {
-                return sanitizer_issue::orphan_release;
-            }
-            return sanitizer_issue::none;
-        }
-
-        [[nodiscard]] sanitizer_issue check_late(event_type const& event) const noexcept {
-            if (event.type() == EV_SYN && event.code() == SYN_REPORT) {
-                if (!any_data_since_syn && was_syn) {
-                    auto const gap = event.micro_time() - last_syn_time;
-                    if (gap >= late_syn_threshold) {
-                        return sanitizer_issue::late_syn;
-                    }
-                }
-            }
-            return sanitizer_issue::none;
-        }
-
-        [[nodiscard]] sanitizer_issue check_pen(event_type const& event) const noexcept {
-            if (event.type() == EV_ABS) {
-                switch (event.code()) {
-                    case ABS_X: {
-                        if (event.value() < pen_x_min || event.value() > pen_x_max) {
-                            return sanitizer_issue::out_of_resolution;
-                        }
-                        break;
-                    }
-                    case ABS_Y: {
-                        if (event.value() < pen_y_min || event.value() > pen_y_max) {
-                            return sanitizer_issue::out_of_resolution;
-                        }
-                        break;
-                    }
-                    default: break;
-                }
-            }
-            return sanitizer_issue::none;
-        }
-
-        [[nodiscard]] sanitizer_issue check_jump(event_type const& event) const noexcept {
-            if (is_mouse_movement(event) && std::abs(event.value()) > big_jump_threshold) [[unlikely]] {
-                return sanitizer_issue::big_jump;
-            }
-            return sanitizer_issue::none;
-        }
-
-        /// Update tracking state after all checks have run.
-        constexpr void update_state(event_type const& event) noexcept {
-            bool const is_syn = event.type() == EV_SYN && event.code() == SYN_REPORT;
-
-            // Track whether any data events arrived since the last SYN.
-            if (!is_syn) {
-                any_data_since_syn = true;
-            }
-
-            // Track key press/release state (for orphan detection).
-            if (event.type() == EV_KEY) {
-                switch (event.value()) {
-                    case 1: track_press(event.code()); break;
-                    case 0: track_release(event.code()); break;
-                    default: break; // repeats (value 2) don't change state
-                }
-            }
-
-            // Track last mouse position (for big-jump detection).
-            if (is_mouse_movement(event)) {
-                switch (event.code()) {
-                    case REL_X: last_mouse_x += event.value(); break;
-                    case REL_Y: last_mouse_y += event.value(); break;
-                    default: break;
-                }
-                has_last_mouse = true;
-            }
-
-            // Reset adjacent-syn tracking on SYN_REPORT.
-            if (is_syn) {
-                was_syn            = true;
-                any_data_since_syn = false;
-                last_syn_time      = event.micro_time();
-                return;
-            }
-
-            was_syn = false;
-        }
 
         /// Dispatch the callback based on its arity.
         constexpr void invoke_callback(event_type const& event, sanitizer_issue const issue) noexcept {
@@ -229,14 +106,14 @@ export namespace fs8 {
         // --- Config builders ---
 
         consteval basic_event_sanitizer threshold(value_type const t) const noexcept {
-            auto copy               = *this;
-            copy.big_jump_threshold = t;
+            auto copy                   = *this;
+            copy.cfg.big_jump_threshold = t;
             return copy;
         }
 
         consteval basic_event_sanitizer late_syn(msec_type const d) const noexcept {
-            auto copy               = *this;
-            copy.late_syn_threshold = d;
+            auto copy                   = *this;
+            copy.cfg.late_syn_threshold = d;
             return copy;
         }
 
@@ -253,38 +130,39 @@ export namespace fs8 {
         }
 
         consteval basic_event_sanitizer adjacent_syns(bool const v = true) const noexcept {
-            auto copy                = *this;
-            copy.check_adjacent_syns = v;
+            auto copy                    = *this;
+            copy.cfg.check_adjacent_syns = v;
             return copy;
         }
 
         consteval basic_event_sanitizer orphan_releases(bool const v = true) const noexcept {
-            auto copy                  = *this;
-            copy.check_orphan_releases = v;
+            auto copy                      = *this;
+            copy.cfg.check_orphan_releases = v;
             return copy;
         }
 
         consteval basic_event_sanitizer late_syns(bool const v = true) const noexcept {
-            auto copy            = *this;
-            copy.check_late_syns = v;
+            auto copy                = *this;
+            copy.cfg.check_late_syns = v;
             return copy;
         }
 
         consteval basic_event_sanitizer pen_resolution(bool const v = true) const noexcept {
-            auto copy                 = *this;
-            copy.check_pen_resolution = v;
+            auto copy                     = *this;
+            copy.cfg.check_pen_resolution = v;
             return copy;
         }
 
         consteval basic_event_sanitizer big_jumps(bool const v = true) const noexcept {
-            auto copy            = *this;
-            copy.check_big_jumps = v;
+            auto copy                = *this;
+            copy.cfg.check_big_jumps = v;
             return copy;
         }
 
         // --- Compile-time factory ---
 
         template <typename C>
+            requires(!std::same_as<std::remove_cvref_t<C>, get_variables_tag>)
         consteval basic_event_sanitizer operator[](C&& inp_cb) const noexcept {
             auto copy = *this;
             copy.cb   = std::forward<C>(inp_cb);
@@ -296,17 +174,12 @@ export namespace fs8 {
         template <Context CtxT>
             requires has_mod<basic_input_manager, CtxT>
         context_action operator()(CtxT& ctx, start_tag) noexcept {
-            if (check_pen_resolution) {
-                for (auto const& dev : ctx.mod(input_manager).devices()) {
-                    if (auto const* x = dev.abs_info(ABS_X); x != nullptr) {
-                        if (auto const* y = dev.abs_info(ABS_Y); y != nullptr) {
-                            pen_x_min      = x->minimum;
-                            pen_x_max      = x->maximum;
-                            pen_y_min      = y->minimum;
-                            pen_y_max      = y->maximum;
-                            has_pen_bounds = true;
-                            break;
-                        }
+            state.ensure_initialized();
+            for (auto const& dev : ctx.mod(input_manager).devices()) {
+                if (auto const* x = dev.abs_info(ABS_X); x != nullptr) {
+                    if (auto const* y = dev.abs_info(ABS_Y); y != nullptr) {
+                        state.seed_pen_bounds(x->minimum, x->maximum, y->minimum, y->maximum);
+                        break;
                     }
                 }
             }
@@ -316,51 +189,10 @@ export namespace fs8 {
         // --- Main handler ---
 
         context_action operator()(event_type const& event) noexcept {
-            using enum sanitizer_issue;
-
-            if (check_adjacent_syns) {
-                if (auto const issue = check_adjacent(event); issue != none) {
-                    invoke_callback(event, issue);
-                    update_state(event);
-                    return context_action::ignore_event;
-                }
-            }
-
-            if (check_orphan_releases) {
-                if (auto const issue = check_orphan(event); issue != none) {
-                    invoke_callback(event, issue);
-                    update_state(event);
-                    return context_action::ignore_event;
-                }
-            }
-
-            if (check_late_syns) {
-                if (auto const issue = check_late(event); issue != none) {
-                    invoke_callback(event, issue);
-                    update_state(event);
-                    return context_action::ignore_event;
-                }
-            }
-
-            if (check_pen_resolution && has_pen_bounds) {
-                if (auto const issue = check_pen(event); issue != none) {
-                    invoke_callback(event, issue);
-                    update_state(event);
-                    return context_action::ignore_event;
-                }
-            }
-
-            if (check_big_jumps) {
-                if (auto const issue = check_jump(event); issue != none) {
-                    invoke_callback(event, issue);
-                    update_state(event);
-                    return context_action::ignore_event;
-                }
-            }
-
-            invoke_callback(event, none);
-            update_state(event);
-            return context_action::next;
+            auto const issue = state.check(event, cfg);
+            invoke_callback(event, issue);
+            state.update(event);
+            return issue == sanitizer_issue::none ? context_action::next : context_action::ignore_event;
         }
     };
 
