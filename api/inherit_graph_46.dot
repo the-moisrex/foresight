@@ -207,7 +207,7 @@ digraph "Graphical Class Hierarchy"
   Node3 -> Node4 [id="edge103_Node000003_Node000004",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node3 -> Node6 [id="edge104_Node000003_Node000006",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node3 -> Node7 [id="edge105_Node000003_Node000007",dir="back",color="steelblue1",style="solid",tooltip=" "];
-  Node41 [id="Node000041",label="fs8::operator_adaptor\l\< basic_code_adaptor\l\< A, N \> \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1operator__adaptor.html",tooltip=" "];
+  Node41 [id="Node000041",label="fs8::operator_adaptor\l\< A\< N \> \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1operator__adaptor.html",tooltip=" "];
   Node41 -> Node40 [id="edge106_Node000041_Node000040",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node49 [id="Node000049",label="fs8::operator_adaptor\l\< basic_held \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1operator__adaptor.html",tooltip=" "];
   Node49 -> Node48 [id="edge107_Node000049_Node000048",dir="back",color="steelblue1",style="solid",tooltip=" "];

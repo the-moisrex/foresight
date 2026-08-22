@@ -214,11 +214,9 @@ var hierarchy =
       [ "fs8::basic_limit_mouse_travel< CondT >", "structfs8_1_1basic__limit__mouse__travel.html", null ],
       [ "fs8::basic_on_held< N, ModT >", "structfs8_1_1basic__on__held.html", null ]
     ] ],
-    [ "fs8::operator_adaptor< basic_code_adaptor< A, N > >", "structfs8_1_1operator__adaptor.html", [
+    [ "fs8::operator_adaptor< A< N > >", "structfs8_1_1operator__adaptor.html", [
       [ "fs8::basic_code_adaptor< A, N >", "structfs8_1_1basic__code__adaptor.html", null ]
     ] ],
-    [ "fs8::operator_adaptor< basic_code_adaptor< basic_pressed, N > >", "structfs8_1_1operator__adaptor.html", null ],
-    [ "fs8::operator_adaptor< basic_code_adaptor< basic_pressed_any, N > >", "structfs8_1_1operator__adaptor.html", null ],
     [ "fs8::operator_adaptor< basic_held >", "structfs8_1_1operator__adaptor.html", [
       [ "fs8::basic_held", "structfs8_1_1basic__held.html", null ]
     ] ],
@@ -246,6 +244,8 @@ var hierarchy =
       [ "fs8::basic_multi_click", "structfs8_1_1basic__multi__click.html", null ]
     ] ],
     [ "fs8::operator_adaptor< basic_on_held< N, basic_noop > >", "structfs8_1_1operator__adaptor.html", null ],
+    [ "fs8::operator_adaptor< basic_pressed< N > >", "structfs8_1_1operator__adaptor.html", null ],
+    [ "fs8::operator_adaptor< basic_pressed_any< N > >", "structfs8_1_1operator__adaptor.html", null ],
     [ "fs8::operator_adaptor< basic_swipe >", "structfs8_1_1operator__adaptor.html", [
       [ "fs8::basic_swipe", "structfs8_1_1basic__swipe.html", null ]
     ] ],
