@@ -39,7 +39,7 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "replace.ixx", "replace_8ixx.html", "replace_8ixx" ],
     [ "router.cxx", "router_8cxx.html", "router_8cxx" ],
     [ "router.ixx", "router_8ixx.html", "router_8ixx" ],
-    [ "sanitizer.cxx", "sanitizer_8cxx.html", null ],
+    [ "sanitizer.cxx", "sanitizer_8cxx.html", "sanitizer_8cxx" ],
     [ "sanitizer.ixx", "sanitizer_8ixx.html", "sanitizer_8ixx" ],
     [ "scale.cxx", "scale_8cxx.html", null ],
     [ "scale.ixx", "scale_8ixx.html", "scale_8ixx" ],

@@ -28,12 +28,13 @@ var searchData=
   ['unmatch_25',['unmatch',['../namespacefs8.html#a2b38fa933c7d379ee7f578e78d0edaa1',1,'fs8::unmatch(query_target const action)'],['../namespacefs8.html#a0d840097e2936ed9bf9b32b42ed7e993',1,'fs8::unmatch(query_term const &amp;field) noexcept']]],
   ['unwatch_26',['unwatch',['../structfs8_1_1basic__io__manager.html#aced63c41a88655e798d9d0e778018784',1,'fs8::basic_io_manager']]],
   ['up_27',['up',['../namespacefs8.html#a5cbe27612afffd4c3186546c0c26659e',1,'fs8']]],
-  ['update_5fmod_28',['update_mod',['../namespacefs8.html#a002c97d73bca52d16d3a96c603d7f8a5',1,'fs8']]],
-  ['usec_5fsince_5finitialized_29',['usec_since_initialized',['../structfs8_1_1udev__device.html#ad602907b5e528162cb7179704ac0e174',1,'fs8::udev_device']]],
-  ['user_5fevent_30',['user_event',['../structfs8_1_1user__event.html',1,'fs8']]],
-  ['user_5fevent_5fcallback_31',['user_event_callback',['../namespacefs8.html#a36f9afa22818cbdb40e74b37064a3cc0',1,'fs8']]],
-  ['user_5fevents_32',['user_events',['../structfs8_1_1user__events.html',1,'fs8']]],
-  ['user_5fevents_5fiterator_33',['user_events_iterator',['../namespacefs8.html#ac40afdfe02441d7e68726b7840378ed7',1,'fs8']]],
-  ['utf8_5fnext_5fcode_5fpoint_34',['utf8_next_code_point',['../namespacefs8.html#a30030578279ece6dd002f2cd47275142',1,'fs8']]],
-  ['utils_2eixx_35',['utils.ixx',['../utils_8ixx.html',1,'']]]
+  ['update_28',['update',['../structfs8_1_1event__sanitizer__state.html#accef3162024322590417d25c264bb54a',1,'fs8::event_sanitizer_state']]],
+  ['update_5fmod_29',['update_mod',['../namespacefs8.html#a002c97d73bca52d16d3a96c603d7f8a5',1,'fs8']]],
+  ['usec_5fsince_5finitialized_30',['usec_since_initialized',['../structfs8_1_1udev__device.html#ad602907b5e528162cb7179704ac0e174',1,'fs8::udev_device']]],
+  ['user_5fevent_31',['user_event',['../structfs8_1_1user__event.html',1,'fs8']]],
+  ['user_5fevent_5fcallback_32',['user_event_callback',['../namespacefs8.html#a36f9afa22818cbdb40e74b37064a3cc0',1,'fs8']]],
+  ['user_5fevents_33',['user_events',['../structfs8_1_1user__events.html',1,'fs8']]],
+  ['user_5fevents_5fiterator_34',['user_events_iterator',['../namespacefs8.html#ac40afdfe02441d7e68726b7840378ed7',1,'fs8']]],
+  ['utf8_5fnext_5fcode_5fpoint_35',['utf8_next_code_point',['../namespacefs8.html#a30030578279ece6dd002f2cd47275142',1,'fs8']]],
+  ['utils_2eixx_36',['utils.ixx',['../utils_8ixx.html',1,'']]]
 ];

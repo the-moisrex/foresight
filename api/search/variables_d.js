@@ -9,6 +9,7 @@ var searchData=
   ['noop_6',['noop',['../namespacefs8.html#a3d72441ee700519b4be49b186c8afccd',1,'fs8']]],
   ['nothing_7',['nothing',['../namespacefs8_1_1caps.html#ace9c706e374bca0ffdd78fa4f70c031a',1,'fs8::caps']]],
   ['null_5fkey_8',['null_key',['../namespacefs8.html#ac7b0ae4916c36d0c778bc229801b0bd6',1,'fs8']]],
-  ['numlock_5foff_9',['numlock_off',['../namespacefs8.html#a5e13145a867352fd13a3ca42f1f21653',1,'fs8']]],
-  ['numpad_10',['numpad',['../namespacefs8_1_1caps.html#a8939b73171b13f88359865d6e1e78933',1,'fs8::caps']]]
+  ['num_5fpressed_9',['num_pressed',['../structfs8_1_1pimpl__idiom_1_1impl.html#a3a492131ddb18499ea3ff5d1eaa53e7f',1,'fs8::pimpl_idiom::impl']]],
+  ['numlock_5foff_10',['numlock_off',['../namespacefs8.html#a5e13145a867352fd13a3ca42f1f21653',1,'fs8']]],
+  ['numpad_11',['numpad',['../namespacefs8_1_1caps.html#a8939b73171b13f88359865d6e1e78933',1,'fs8::caps']]]
 ];

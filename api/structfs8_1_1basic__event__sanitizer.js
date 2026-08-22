@@ -1,6 +1,5 @@
 var structfs8_1_1basic__event__sanitizer =
 [
-    [ "code_type", "structfs8_1_1basic__event__sanitizer.html#af84dc360acee2a629f083e2686c83fd9", null ],
     [ "msec_type", "structfs8_1_1basic__event__sanitizer.html#ac3cc38d387be7a20d88b6b0738c407e9", null ],
     [ "value_type", "structfs8_1_1basic__event__sanitizer.html#a8d349c858aa430dab88dcf322ef9fe3b", null ],
     [ "basic_event_sanitizer", "structfs8_1_1basic__event__sanitizer.html#ae5582a35f6352b044a83aa3873a09aa3", null ],
@@ -16,7 +15,7 @@ var structfs8_1_1basic__event__sanitizer =
     [ "only_bad", "structfs8_1_1basic__event__sanitizer.html#a9c33e31e6e62bbb81c24263a48122ec1", null ],
     [ "operator()", "structfs8_1_1basic__event__sanitizer.html#a40e47fe48b3808e5541021ad0532b5ea", null ],
     [ "operator()", "structfs8_1_1basic__event__sanitizer.html#a1ab0b0bf460f008c3ee75564696d3578", null ],
-    [ "operator[]", "structfs8_1_1basic__event__sanitizer.html#a28ede22541afd19096f12ba07f7dc0a7", null ],
+    [ "operator[]", "structfs8_1_1basic__event__sanitizer.html#a0fd5ce54b611bc5cb84228ef81d0d2f5", null ],
     [ "orphan_releases", "structfs8_1_1basic__event__sanitizer.html#aaf6b294053cc5adc10a8d8cb7eddb901", null ],
     [ "pen_resolution", "structfs8_1_1basic__event__sanitizer.html#acd8aca5e2228abaac0ae1118ee6a420d", null ],
     [ "threshold", "structfs8_1_1basic__event__sanitizer.html#a4b171438290cb250c9b4e8c8a688a205", null ]

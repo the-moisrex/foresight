@@ -39,6 +39,7 @@ var hierarchy =
     [ "fs8::basic_self_emitted", "structfs8_1_1basic__self__emitted.html", null ],
     [ "fs8::xkb::basic_state", "structfs8_1_1xkb_1_1basic__state.html", null ],
     [ "fs8::basic_tag< ID >", "structfs8_1_1basic__tag.html", null ],
+    [ "fs8::event_sanitizer_state::config", "structfs8_1_1event__sanitizer__state_1_1config.html", null ],
     [ "fs8::consteval_copyable", "structfs8_1_1consteval__copyable.html", [
       [ "fs8::basic_code_adaptor< basic_pressed, N >", "structfs8_1_1basic__code__adaptor.html", [
         [ "fs8::basic_pressed< N >", "structfs8_1_1basic__pressed.html", null ]
@@ -81,6 +82,9 @@ var hierarchy =
       ] ],
       [ "fs8::pimpl_idiom< basic_uinput >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_uinput", "structfs8_1_1basic__uinput.html", null ]
+      ] ],
+      [ "fs8::pimpl_idiom< event_sanitizer_state >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::event_sanitizer_state", "structfs8_1_1event__sanitizer__state.html", null ]
       ] ],
       [ "fs8::and_op< Funcs >", "structfs8_1_1and__op.html", null ],
       [ "fs8::basic_abs2rel", "structfs8_1_1basic__abs2rel.html", null ],

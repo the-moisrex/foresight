@@ -112,8 +112,6 @@ Collaboration diagram for fs8::basic_event_sanitizer&lt; Callback &gt;:</div>
 Public Types</h2></td></tr>
 <tr class="memitem:a8d349c858aa430dab88dcf322ef9fe3b" id="r_a8d349c858aa430dab88dcf322ef9fe3b"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a8d349c858aa430dab88dcf322ef9fe3b">value_type</a> = <a class="el" href="structfs8_1_1event__type.html#a2e849054fba3388fcde2f566a6bcbdb9">event_type::value_type</a></td></tr>
 <tr class="separator:a8d349c858aa430dab88dcf322ef9fe3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af84dc360acee2a629f083e2686c83fd9" id="r_af84dc360acee2a629f083e2686c83fd9"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#af84dc360acee2a629f083e2686c83fd9">code_type</a> = <a class="el" href="structfs8_1_1event__type.html#a1a1df75700acff332dda0c3b2cc0cd8f">event_type::code_type</a></td></tr>
-<tr class="separator:af84dc360acee2a629f083e2686c83fd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac3cc38d387be7a20d88b6b0738c407e9" id="r_ac3cc38d387be7a20d88b6b0738c407e9"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#ac3cc38d387be7a20d88b6b0738c407e9">msec_type</a> = std::chrono::microseconds</td></tr>
 <tr class="separator:ac3cc38d387be7a20d88b6b0738c407e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -141,9 +139,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:acd8aca5e2228abaac0ae1118ee6a420d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af35a7dabc144962d7f2e6d8c7b983005" id="r_af35a7dabc144962d7f2e6d8c7b983005"><td class="memItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#af35a7dabc144962d7f2e6d8c7b983005">big_jumps</a> (bool const v=true) const noexcept</td></tr>
 <tr class="separator:af35a7dabc144962d7f2e6d8c7b983005"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a28ede22541afd19096f12ba07f7dc0a7" id="r_a28ede22541afd19096f12ba07f7dc0a7"><td class="memTemplParams" colspan="2">template&lt;typename C &gt; </td></tr>
-<tr class="memitem:a28ede22541afd19096f12ba07f7dc0a7"><td class="memTemplItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a28ede22541afd19096f12ba07f7dc0a7">operator[]</a> (C &amp;&amp;inp_cb) const noexcept</td></tr>
-<tr class="separator:a28ede22541afd19096f12ba07f7dc0a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fd5ce54b611bc5cb84228ef81d0d2f5" id="r_a0fd5ce54b611bc5cb84228ef81d0d2f5"><td class="memTemplParams" colspan="2">template&lt;typename C &gt; <br />
+requires (!std::same_as&lt;std::remove_cvref_t&lt;C&gt;, <a class="el" href="structfs8_1_1get__variables__tag.html">get_variables_tag</a>&gt;)</td></tr>
+<tr class="memitem:a0fd5ce54b611bc5cb84228ef81d0d2f5"><td class="memTemplItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a0fd5ce54b611bc5cb84228ef81d0d2f5">operator[]</a> (C &amp;&amp;inp_cb) const noexcept</td></tr>
+<tr class="separator:a0fd5ce54b611bc5cb84228ef81d0d2f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40e47fe48b3808e5541021ad0532b5ea" id="r_a40e47fe48b3808e5541021ad0532b5ea"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; <br />
 requires has_mod&lt;<a class="el" href="structfs8_1_1basic__input__manager.html">basic_input_manager</a>, CtxT&gt;</td></tr>
 <tr class="memitem:a40e47fe48b3808e5541021ad0532b5ea"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a40e47fe48b3808e5541021ad0532b5ea">operator()</a> (CtxT &amp;ctx, <a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>) noexcept</td></tr>
@@ -183,30 +182,6 @@ struct fs8::basic_event_sanitizer&lt; Callback &gt;</div><p>Sanitize input event
 <p>The callback receives (event, issue). For two-argument callbacks it is called for every event; for one-argument callbacks (like <code>log</code>) it is only called for problematic events.</p>
 <p>Usage: event_sanitizer // filter bad events, no callback event_sanitizer[log["sanitized"]] // log problematic events event_sanitizer[my_callback, .threshold(100)] </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="af84dc360acee2a629f083e2686c83fd9" name="af84dc360acee2a629f083e2686c83fd9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af84dc360acee2a629f083e2686c83fd9">&#9670;&#160;</a></span>code_type</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename Callback  = basic_noop&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">using <a class="el" href="structfs8_1_1basic__event__sanitizer.html">fs8::basic_event_sanitizer</a>&lt; Callback &gt;::code_type =  <a class="el" href="structfs8_1_1event__type.html#a1a1df75700acff332dda0c3b2cc0cd8f">event_type::code_type</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="ac3cc38d387be7a20d88b6b0738c407e9" name="ac3cc38d387be7a20d88b6b0738c407e9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac3cc38d387be7a20d88b6b0738c407e9">&#9670;&#160;</a></span>msec_type</h2>
 
@@ -630,15 +605,16 @@ template&lt;typename Callback  = basic_noop&gt; </div>
 
 </div>
 </div>
-<a id="a28ede22541afd19096f12ba07f7dc0a7" name="a28ede22541afd19096f12ba07f7dc0a7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a28ede22541afd19096f12ba07f7dc0a7">&#9670;&#160;</a></span>operator[]()</h2>
+<a id="a0fd5ce54b611bc5cb84228ef81d0d2f5" name="a0fd5ce54b611bc5cb84228ef81d0d2f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0fd5ce54b611bc5cb84228ef81d0d2f5">&#9670;&#160;</a></span>operator[]()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename Callback  = basic_noop&gt; </div>
 <div class="memtemplate">
-template&lt;typename C &gt; </div>
+template&lt;typename C &gt; <br />
+requires (!std::same_as&lt;std::remove_cvref_t&lt;C&gt;, <a class="el" href="structfs8_1_1get__variables__tag.html">get_variables_tag</a>&gt;)</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">

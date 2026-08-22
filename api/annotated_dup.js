@@ -140,6 +140,7 @@ var annotated_dup =
       [ "dynamic_scope< T, ConcreteT >", "structfs8_1_1dynamic__scope_3_01T_00_01ConcreteT_01_4.html", "structfs8_1_1dynamic__scope_3_01T_00_01ConcreteT_01_4" ],
       [ "evdev", "structfs8_1_1evdev.html", "structfs8_1_1evdev" ],
       [ "event_code", "structfs8_1_1event__code.html", "structfs8_1_1event__code" ],
+      [ "event_sanitizer_state", "structfs8_1_1event__sanitizer__state.html", "structfs8_1_1event__sanitizer__state" ],
       [ "event_type", "structfs8_1_1event__type.html", "structfs8_1_1event__type" ],
       [ "exe_hash_solution", "structfs8_1_1exe__hash__solution.html", "structfs8_1_1exe__hash__solution" ],
       [ "fail_on_no_match_tag", "structfs8_1_1fail__on__no__match__tag.html", "structfs8_1_1fail__on__no__match__tag" ],

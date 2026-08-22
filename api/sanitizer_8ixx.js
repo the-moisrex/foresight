@@ -1,5 +1,7 @@
 var sanitizer_8ixx =
 [
+    [ "fs8::event_sanitizer_state", "structfs8_1_1event__sanitizer__state.html", "structfs8_1_1event__sanitizer__state" ],
+    [ "fs8::event_sanitizer_state::config", "structfs8_1_1event__sanitizer__state_1_1config.html", "structfs8_1_1event__sanitizer__state_1_1config" ],
     [ "fs8::basic_event_sanitizer< Callback >", "structfs8_1_1basic__event__sanitizer.html", "structfs8_1_1basic__event__sanitizer" ],
     [ "sanitizer_issue", "sanitizer_8ixx.html#a7275d4de75bd1ef162eb0f4b4d4b015d", [
       [ "none", "sanitizer_8ixx.html#a7275d4de75bd1ef162eb0f4b4d4b015da334c4a4c42fdb79d7ebc3e73b517e6f8", null ],
