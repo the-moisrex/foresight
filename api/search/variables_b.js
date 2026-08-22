@@ -16,7 +16,8 @@ var searchData=
   ['limit_5fmouse_5ftravel_13',['limit_mouse_travel',['../namespacefs8.html#a4732f4557d93cef41e51d86eb8639508',1,'fs8']]],
   ['load_5fevent_14',['load_event',['../namespacefs8.html#a23534d83336f1e5cac4e0c0b81cc6401',1,'fs8']]],
   ['log_15',['log',['../namespacefs8.html#a976dc73ef435c645b097a7fa36ecfaaf',1,'fs8']]],
-  ['longtime_5freleased_16',['longtime_released',['../namespacefs8.html#a38d55a9436aeb69c0eeab34768639137',1,'fs8']]],
-  ['low_5fpass_5ffilter_17',['low_pass_filter',['../namespacefs8.html#a96522800554b963fb1a7a3fda11bbf01',1,'fs8']]],
-  ['low_5fthreshold_18',['low_threshold',['../namespacefs8.html#afce98c75abad678593079062353796f1',1,'fs8']]]
+  ['log_5fdiagnostics_16',['log_diagnostics',['../namespacefs8.html#a51a2bb7da98bfb72014b626688f89346',1,'fs8']]],
+  ['longtime_5freleased_17',['longtime_released',['../namespacefs8.html#a38d55a9436aeb69c0eeab34768639137',1,'fs8']]],
+  ['low_5fpass_5ffilter_18',['low_pass_filter',['../namespacefs8.html#a96522800554b963fb1a7a3fda11bbf01',1,'fs8']]],
+  ['low_5fthreshold_19',['low_threshold',['../namespacefs8.html#afce98c75abad678593079062353796f1',1,'fs8']]]
 ];

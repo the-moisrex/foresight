@@ -30,7 +30,9 @@ var hierarchy =
     [ "fs8::basic_ignore_self", "structfs8_1_1basic__ignore__self.html", null ],
     [ "fs8::basic_ignore_tablet", "structfs8_1_1basic__ignore__tablet.html", null ],
     [ "fs8::basic_ignore_zero_mouse_moves", "structfs8_1_1basic__ignore__zero__mouse__moves.html", null ],
-    [ "fs8::basic_log", "structfs8_1_1basic__log.html", null ],
+    [ "fs8::basic_log", "structfs8_1_1basic__log.html", [
+      [ "fs8::basic_log_diagnostics", "structfs8_1_1basic__log__diagnostics.html", null ]
+    ] ],
     [ "fs8::basic_mod_updater< ModT >", "structfs8_1_1basic__mod__updater.html", null ],
     [ "fs8::basic_noop", "structfs8_1_1basic__noop.html", null ],
     [ "fs8::basic_parsed_args< MaxPositionals, MaxFlags, MaxNames >", "structfs8_1_1basic__parsed__args.html", null ],

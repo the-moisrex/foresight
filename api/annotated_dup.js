@@ -82,6 +82,7 @@ var annotated_dup =
       [ "basic_lerp", "structfs8_1_1basic__lerp.html", "structfs8_1_1basic__lerp" ],
       [ "basic_limit_mouse_travel", "structfs8_1_1basic__limit__mouse__travel.html", "structfs8_1_1basic__limit__mouse__travel" ],
       [ "basic_log", "structfs8_1_1basic__log.html", "structfs8_1_1basic__log" ],
+      [ "basic_log_diagnostics", "structfs8_1_1basic__log__diagnostics.html", "structfs8_1_1basic__log__diagnostics" ],
       [ "basic_longtime_released", "structfs8_1_1basic__longtime__released.html", "structfs8_1_1basic__longtime__released" ],
       [ "basic_low_pass_filter", "structfs8_1_1basic__low__pass__filter.html", "structfs8_1_1basic__low__pass__filter" ],
       [ "basic_mice_quantifier", "structfs8_1_1basic__mice__quantifier.html", "structfs8_1_1basic__mice__quantifier" ],

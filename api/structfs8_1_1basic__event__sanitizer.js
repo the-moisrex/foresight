@@ -10,13 +10,16 @@ var structfs8_1_1basic__event__sanitizer =
     [ "consteval_copyable", "structfs8_1_1basic__event__sanitizer.html#aab9e941457bd45b9d6772f6ff421cec6", null ],
     [ "consteval_copyable", "structfs8_1_1basic__event__sanitizer.html#a07b6aecf93085d1e8fc982b21f53ed11", null ],
     [ "consteval_copyable", "structfs8_1_1basic__event__sanitizer.html#a23df80b9a3d5bfbc33501da95d583e26", null ],
+    [ "diagnostics", "structfs8_1_1basic__event__sanitizer.html#a614f56ca542581dbfc35e48965f1b9c8", null ],
     [ "late_syn", "structfs8_1_1basic__event__sanitizer.html#a4095315a283dbc5597be86b002537293", null ],
     [ "late_syns", "structfs8_1_1basic__event__sanitizer.html#a6c99bd4c8d4de3c67f13a9cae0a3f797", null ],
     [ "only_bad", "structfs8_1_1basic__event__sanitizer.html#a9c33e31e6e62bbb81c24263a48122ec1", null ],
     [ "operator()", "structfs8_1_1basic__event__sanitizer.html#a40e47fe48b3808e5541021ad0532b5ea", null ],
     [ "operator()", "structfs8_1_1basic__event__sanitizer.html#a1ab0b0bf460f008c3ee75564696d3578", null ],
-    [ "operator[]", "structfs8_1_1basic__event__sanitizer.html#a0fd5ce54b611bc5cb84228ef81d0d2f5", null ],
+    [ "operator[]", "structfs8_1_1basic__event__sanitizer.html#a479e6815fa48836c922eadc0ad14e4f6", null ],
     [ "orphan_releases", "structfs8_1_1basic__event__sanitizer.html#aaf6b294053cc5adc10a8d8cb7eddb901", null ],
     [ "pen_resolution", "structfs8_1_1basic__event__sanitizer.html#acd8aca5e2228abaac0ae1118ee6a420d", null ],
-    [ "threshold", "structfs8_1_1basic__event__sanitizer.html#a4b171438290cb250c9b4e8c8a688a205", null ]
+    [ "sanitize", "structfs8_1_1basic__event__sanitizer.html#a26abe8ded9ed6e9fabae803ef00aa955", null ],
+    [ "threshold", "structfs8_1_1basic__event__sanitizer.html#a4b171438290cb250c9b4e8c8a688a205", null ],
+    [ "basic_event_sanitizer", "structfs8_1_1basic__event__sanitizer.html#abf4071ca3bccd225e7e27c7b21ef097d", null ]
 ];

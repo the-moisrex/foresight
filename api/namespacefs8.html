@@ -251,6 +251,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log.html">basic_log</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__diagnostics.html">basic_log_diagnostics</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__longtime__released.html">basic_longtime_released</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__low__pass__filter.html">basic_low_pass_filter</a></td></tr>
@@ -1241,6 +1243,8 @@ requires (std::is_invocable_v&lt;T, <a class="el" href="structfs8_1_1construct__
 <tr class="memitem:ae8da3c7a962ea8e4674c5e7618c679a4" id="r_ae8da3c7a962ea8e4674c5e7618c679a4"><td class="memTemplParams" colspan="2">template&lt;typename R &gt; </td></tr>
 <tr class="memitem:ae8da3c7a962ea8e4674c5e7618c679a4"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae8da3c7a962ea8e4674c5e7618c679a4">fs8::is_ok</a> (R &amp;&amp;vdevs) noexcept</td></tr>
 <tr class="separator:ae8da3c7a962ea8e4674c5e7618c679a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8545c3eccc3e82465adae55f7ef7144" id="r_aa8545c3eccc3e82465adae55f7ef7144"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa8545c3eccc3e82465adae55f7ef7144">fs8::to_string</a> (<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">sanitizer_issue</a> const issue) noexcept</td></tr>
+<tr class="separator:aa8545c3eccc3e82465adae55f7ef7144"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a621d548d40a1829c81c2b84f46ae8ff5" id="r_a621d548d40a1829c81c2b84f46ae8ff5"><td class="memTemplParams" colspan="2">template&lt;typename CharT &gt; </td></tr>
 <tr class="memitem:a621d548d40a1829c81c2b84f46ae8ff5"><td class="memTemplItemLeft" align="right" valign="top">constexpr std::basic_string_view&lt; CharT &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a621d548d40a1829c81c2b84f46ae8ff5">fs8::to_string</a> (std::basic_string_view&lt; CharT &gt; str) noexcept</td></tr>
 <tr class="separator:a621d548d40a1829c81c2b84f46ae8ff5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1677,8 +1681,12 @@ Variables</h2></td></tr>
 <tr class="separator:a7d23a51b0b591c5d3a87b00822c56ef5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3330e413e0f418b95820c4d07833beb3" id="r_a3330e413e0f418b95820c4d07833beb3"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__router.html">basic_router</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3330e413e0f418b95820c4d07833beb3">fs8::router</a></td></tr>
 <tr class="separator:a3330e413e0f418b95820c4d07833beb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51a2bb7da98bfb72014b626688f89346" id="r_a51a2bb7da98bfb72014b626688f89346"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__log__diagnostics.html">fs8::basic_log_diagnostics</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a></td></tr>
+<tr class="separator:a51a2bb7da98bfb72014b626688f89346"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeab1ae1fb368cf9f7605a348e0bb4607" id="r_aeab1ae1fb368cf9f7605a348e0bb4607"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aeab1ae1fb368cf9f7605a348e0bb4607">fs8::event_sanitizer</a></td></tr>
 <tr class="separator:aeab1ae1fb368cf9f7605a348e0bb4607"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09874ef1f335b5dce66bcbde9e70ccf6" id="r_a09874ef1f335b5dce66bcbde9e70ccf6"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a09874ef1f335b5dce66bcbde9e70ccf6">fs8::event_diagnostics</a> = event_sanitizer.diagnostics()[<a class="el" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>]</td></tr>
+<tr class="separator:a09874ef1f335b5dce66bcbde9e70ccf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d05cad303518ae5309d4600be564573" id="r_a1d05cad303518ae5309d4600be564573"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__scale__pen.html">fs8::basic_scale_pen</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a1d05cad303518ae5309d4600be564573">scale_pen</a></td></tr>
 <tr class="separator:a1d05cad303518ae5309d4600be564573"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9508b079e8311d1cbd45fe297c9b9f7" id="r_aa9508b079e8311d1cbd45fe297c9b9f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__scale__move.html">fs8::basic_scale_move</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa9508b079e8311d1cbd45fe297c9b9f7">scale_move</a></td></tr>
@@ -9792,7 +9800,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="aebf04814ae9d82a70029373f09ddc2c5" name="aebf04814ae9d82a70029373f09ddc2c5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aebf04814ae9d82a70029373f09ddc2c5">&#9670;&#160;</a></span>to_string() <span class="overload">[1/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aebf04814ae9d82a70029373f09ddc2c5">&#9670;&#160;</a></span>to_string() <span class="overload">[1/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -9818,7 +9826,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="a4deeb0bf0ec418642b758aaf12e28f4a" name="a4deeb0bf0ec418642b758aaf12e28f4a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4deeb0bf0ec418642b758aaf12e28f4a">&#9670;&#160;</a></span>to_string() <span class="overload">[2/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4deeb0bf0ec418642b758aaf12e28f4a">&#9670;&#160;</a></span>to_string() <span class="overload">[2/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -9844,7 +9852,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="a74230e7c6877bfafeb34e38f757ffd1a" name="a74230e7c6877bfafeb34e38f757ffd1a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a74230e7c6877bfafeb34e38f757ffd1a">&#9670;&#160;</a></span>to_string() <span class="overload">[3/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a74230e7c6877bfafeb34e38f757ffd1a">&#9670;&#160;</a></span>to_string() <span class="overload">[3/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -9870,7 +9878,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="afa55c6d36c03969005e4dc314083527a" name="afa55c6d36c03969005e4dc314083527a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa55c6d36c03969005e4dc314083527a">&#9670;&#160;</a></span>to_string() <span class="overload">[4/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afa55c6d36c03969005e4dc314083527a">&#9670;&#160;</a></span>to_string() <span class="overload">[4/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -9896,7 +9904,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="a1516634fb47e8cfdd14756e407562007" name="a1516634fb47e8cfdd14756e407562007"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1516634fb47e8cfdd14756e407562007">&#9670;&#160;</a></span>to_string() <span class="overload">[5/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1516634fb47e8cfdd14756e407562007">&#9670;&#160;</a></span>to_string() <span class="overload">[5/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -9922,7 +9930,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="a7cc253bfca76ef6b4cc860e2737abd0b" name="a7cc253bfca76ef6b4cc860e2737abd0b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7cc253bfca76ef6b4cc860e2737abd0b">&#9670;&#160;</a></span>to_string() <span class="overload">[6/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7cc253bfca76ef6b4cc860e2737abd0b">&#9670;&#160;</a></span>to_string() <span class="overload">[6/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -9948,7 +9956,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="aa9d9e721362511575ad3b5de8e4a69d1" name="aa9d9e721362511575ad3b5de8e4a69d1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa9d9e721362511575ad3b5de8e4a69d1">&#9670;&#160;</a></span>to_string() <span class="overload">[7/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9d9e721362511575ad3b5de8e4a69d1">&#9670;&#160;</a></span>to_string() <span class="overload">[7/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -9977,7 +9985,7 @@ requires (std::invocable&lt;Func&gt;)</div>
 </div>
 </div>
 <a id="a5485f010ed92eaff22042d8a9dc68498" name="a5485f010ed92eaff22042d8a9dc68498"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5485f010ed92eaff22042d8a9dc68498">&#9670;&#160;</a></span>to_string() <span class="overload">[8/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5485f010ed92eaff22042d8a9dc68498">&#9670;&#160;</a></span>to_string() <span class="overload">[8/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10002,8 +10010,34 @@ requires (std::invocable&lt;Func&gt;)</div>
 
 </div>
 </div>
+<a id="aa8545c3eccc3e82465adae55f7ef7144" name="aa8545c3eccc3e82465adae55f7ef7144"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8545c3eccc3e82465adae55f7ef7144">&#9670;&#160;</a></span>to_string() <span class="overload">[9/11]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string_view fs8::to_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">sanitizer_issue</a> const&#160;</td>
+          <td class="paramname"><em>issue</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a621d548d40a1829c81c2b84f46ae8ff5" name="a621d548d40a1829c81c2b84f46ae8ff5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a621d548d40a1829c81c2b84f46ae8ff5">&#9670;&#160;</a></span>to_string() <span class="overload">[9/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a621d548d40a1829c81c2b84f46ae8ff5">&#9670;&#160;</a></span>to_string() <span class="overload">[10/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10031,7 +10065,7 @@ template&lt;typename CharT &gt; </div>
 </div>
 </div>
 <a id="a18f7254fa63e6bdec71453bfeb061372" name="a18f7254fa63e6bdec71453bfeb061372"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a18f7254fa63e6bdec71453bfeb061372">&#9670;&#160;</a></span>to_string() <span class="overload">[10/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a18f7254fa63e6bdec71453bfeb061372">&#9670;&#160;</a></span>to_string() <span class="overload">[11/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10909,6 +10943,28 @@ template&lt;typename F , typename... Ts&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__on.html">basic_on</a> fs8::enable_only</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a09874ef1f335b5dce66bcbde9e70ccf6" name="a09874ef1f335b5dce66bcbde9e70ccf6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09874ef1f335b5dce66bcbde9e70ccf6">&#9670;&#160;</a></span>event_diagnostics</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto fs8::event_diagnostics = event_sanitizer.diagnostics()[<a class="el" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>]</td>
         </tr>
       </table>
   </td>
@@ -12282,6 +12338,20 @@ template&lt;std::size_t N&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">constexpr struct <a class="el" href="structfs8_1_1basic__log.html">fs8::basic_log</a> fs8::log</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a51a2bb7da98bfb72014b626688f89346" name="a51a2bb7da98bfb72014b626688f89346"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51a2bb7da98bfb72014b626688f89346">&#9670;&#160;</a></span>log_diagnostics</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structfs8_1_1basic__log__diagnostics.html">fs8::basic_log_diagnostics</a> fs8::log_diagnostics</td>
         </tr>
       </table>
 </div><div class="memdoc">

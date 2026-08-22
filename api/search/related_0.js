@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['finalize_5fdevice_0',['finalize_device',['../structfs8_1_1basic__uinput.html#a9ffc59150a7fe699dcb4a7593895ba96',1,'fs8::basic_uinput']]]
+  ['basic_5fevent_5fsanitizer_0',['basic_event_sanitizer',['../structfs8_1_1basic__event__sanitizer.html#abf4071ca3bccd225e7e27c7b21ef097d',1,'fs8::basic_event_sanitizer']]]
 ];
