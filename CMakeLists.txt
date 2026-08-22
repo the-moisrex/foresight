@@ -94,6 +94,7 @@ target_sources(${LIB_NAME}
         mods/on.cxx
         mods/quantifier.cxx
         mods/record.cxx
+        mods/sanitizer.cxx
         mods/replace.cxx
         mods/router.cxx
         mods/scale.cxx
@@ -148,6 +149,7 @@ target_sources(${LIB_NAME}
         mods/on.ixx
         mods/quantifier.ixx
         mods/record.ixx
+        mods/sanitizer.ixx
         mods/replace.ixx
         mods/router.ixx
         mods/scale.ixx

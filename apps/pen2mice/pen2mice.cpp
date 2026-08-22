@@ -71,7 +71,8 @@ int main(int const argc, char const* const* argv) try {
              | on[swipe_left, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)]]
              | on[swipe_up, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)]]
              | on[swipe_down, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)]]
-             | ignore_mouse_moves]
+             | ignore_mouse_moves
+             | ignore_mouse_clicks]
       | once[pressed[KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC], exit_pipeline] // Restart/Quit
       | on[pressed[BTN_LEFT, KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
       | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | kalman_filter[0.3f] | mouse_to_scroll]
@@ -80,6 +81,7 @@ int main(int const argc, char const* const* argv) try {
       | low_pass_filter
       | ignore_adjacent_syns
       | ignore_zero_mouse_moves
+      | on[pressed[KEY_CAPSLOCK], log]
       | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];
 
     auto const parsed = args(argc, argv);

@@ -27,6 +27,7 @@ export import :mouse_to_scroll;
 export import :on;
 export import :quantifier;
 export import :record;
+export import :sanitizer;
 export import :replace;
 export import :router;
 export import :scale;
