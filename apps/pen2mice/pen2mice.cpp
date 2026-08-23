@@ -88,9 +88,7 @@ int main(int const argc, char const* const* argv) try {
       | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];
 
     auto const parsed = args(argc, argv);
-    if (parsed.exit_if_needed()) {
-        return 0;
-    }
+    parsed.exit_if_needed();
     pipeline.mod(intercept).add(parsed | grab | required);
     pipeline();
 

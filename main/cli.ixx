@@ -1,6 +1,7 @@
 module;
 #include <array>
 #include <cstddef>
+#include <cstdlib>
 #include <optional>
 #include <print>
 #include <string_view>
@@ -77,18 +78,16 @@ export namespace fs8 {
             return version_requested;
         }
 
-        /// If help or version was requested, print it and return true.
-        /// Apps can use: `if (parsed.exit_if_needed()) return 0;`
-        [[nodiscard]] bool exit_if_needed() const noexcept {
+        /// If help or version was requested, print it and exit.
+        void exit_if_needed() const noexcept {
             if (help_requested) {
                 print_help();
-                return true;
+                std::exit(0);
             }
             if (version_requested) {
                 print_version();
-                return true;
+                std::exit(0);
             }
-            return false;
         }
 
         /// Print the version string.
