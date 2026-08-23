@@ -77,7 +77,7 @@ var searchData=
   ['exec_74',['exec',['../structfs8_1_1bash__runner.html#abff3e262f5a54c4ce5344ad6f11234a8',1,'fs8::bash_runner']]],
   ['execstart_75',['execStart',['../structfs8_1_1systemd__service.html#aa898917e6ae6095bc17225c1196d5ade',1,'fs8::systemd_service']]],
   ['exit_76',['exit',['../namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b',1,'fs8']]],
-  ['exit_5fif_5fneeded_77',['exit_if_needed',['../structfs8_1_1basic__parsed__args.html#af7dcea877f52897e71da73a757ad1ab4',1,'fs8::basic_parsed_args']]],
+  ['exit_5fif_5fneeded_77',['exit_if_needed',['../structfs8_1_1basic__parsed__args.html#a882bc36891f334fe151d57b72e83dc46',1,'fs8::basic_parsed_args']]],
   ['exit_5fpipeline_78',['exit_pipeline',['../namespacefs8.html#a1d701f96dc69129488fc6e15f1f95880',1,'fs8']]],
   ['explicit_79',['explicit',['../structfs8_1_1or__op.html#a4e9bd918cec1f9db8b9ed1173c091907',1,'fs8::or_op::explicit()'],['../structfs8_1_1owned__query.html#a3cc7e157a82341ea306565f18bcb9612',1,'fs8::owned_query::explicit()'],['../structfs8_1_1run.html#a55dcb18f478172e8f9b341727abe8ea4',1,'fs8::run::explicit()'],['../structfs8_1_1and__op.html#a9aebb903b75c5aedb76a4c37cfa5bd2d',1,'fs8::and_op::explicit()'],['../structfs8_1_1var__type.html#ac2ed6fba569d67f13031f1df132b472c',1,'fs8::var_type::explicit()']]],
   ['extract_5fvariables_80',['extract_variables',['../namespacefs8.html#a666fccac76dbd01298dbd925b017d75f',1,'fs8']]]

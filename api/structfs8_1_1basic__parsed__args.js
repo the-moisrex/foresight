@@ -5,7 +5,7 @@ var structfs8_1_1basic__parsed__args =
     [ "begin", "structfs8_1_1basic__parsed__args.html#ac7fa7d556204cd5e94dbf9e2db3943f4", null ],
     [ "empty", "structfs8_1_1basic__parsed__args.html#aa4a2848e78d3c0a3b774e04418d89259", null ],
     [ "end", "structfs8_1_1basic__parsed__args.html#a8c340aee9d61074b41c17cd552f6030c", null ],
-    [ "exit_if_needed", "structfs8_1_1basic__parsed__args.html#af7dcea877f52897e71da73a757ad1ab4", null ],
+    [ "exit_if_needed", "structfs8_1_1basic__parsed__args.html#a882bc36891f334fe151d57b72e83dc46", null ],
     [ "flag_value", "structfs8_1_1basic__parsed__args.html#a0a9dd3a2a4febc81adb8e8392c8139ae", null ],
     [ "has_flag", "structfs8_1_1basic__parsed__args.html#aa6eaed667551725acadd2d6594574443", null ],
     [ "help", "structfs8_1_1basic__parsed__args.html#a5ba38ca1e10ee60236c29760b9cf9f91", null ],
