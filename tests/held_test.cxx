@@ -307,6 +307,31 @@ TEST(HeldTest, GateChordConsumesOnCombo) {
     EXPECT_EQ(captured_events.at(1).value(), 0);
 }
 
+TEST(HeldTest, ParseKeyTagsRepeatedTag) {
+    using code_type = fs8::event_type::code_type;
+    std::array<code_type, 8> out{};
+
+    // [Ctrl+A][Ctrl+A] — two separate keyup tags in sequence
+    auto const n = fs8::parse_key_tags("[Ctrl+A][Ctrl+A]", out);
+    ASSERT_EQ(n, 4U);
+    EXPECT_EQ(out[0], KEY_LEFTCTRL);
+    EXPECT_EQ(out[1], KEY_A);
+    EXPECT_EQ(out[2], KEY_LEFTCTRL);
+    EXPECT_EQ(out[3], KEY_A);
+}
+
+TEST(HeldTest, ParseKeyTagsDuplicateInTag) {
+    using code_type = fs8::event_type::code_type;
+    std::array<code_type, 8> out{};
+
+    // [Ctrl+A+A] — one keyup tag with duplicate key
+    auto const n = fs8::parse_key_tags("[Ctrl+A+A]", out);
+    ASSERT_EQ(n, 3U);
+    EXPECT_EQ(out[0], KEY_LEFTCTRL);
+    EXPECT_EQ(out[1], KEY_A);
+    EXPECT_EQ(out[2], KEY_A);
+}
+
 TEST(HeldTest, GateDeciderEmitsAction) {
     using namespace fs8;
     captured_events.clear();

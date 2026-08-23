@@ -179,6 +179,21 @@ TEST(SearchTest, EncodedCanonical) {
     EXPECT_EQ(encoded_modifiers("<ctrl-shift-x>"), encoded_modifiers("<shift-ctrl-x>"));
 }
 
+TEST(SearchTest, EncodedRepeatedTag) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+    // [Ctrl+A][Ctrl+A] encodes as two distinct keyup events
+    auto const enc = encoded_modifiers("[Ctrl+A][Ctrl+A]");
+    EXPECT_FALSE(enc.empty());
+    // Must differ from a single [Ctrl+A]
+    EXPECT_NE(enc, encoded_modifiers("[Ctrl+A]"));
+}
+
+TEST(SearchTest, EncodedDuplicateKeyTag) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+    // [Ctrl+A+A] encodes differently from [Ctrl+A] (extra A key-up)
+    EXPECT_NE(encoded_modifiers("[Ctrl+A+A]"), encoded_modifiers("[Ctrl+A]"));
+}
+
 TEST(SearchTest, KeyUp) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
     happened = 0;
@@ -221,6 +236,70 @@ TEST(SearchTest, OrderedKeydown) {
      | on[typed["<<ctrl-r>>"], [] noexcept {
            ++happened;
            EXPECT_EQ(happened, 1);
+       }])();
+    EXPECT_EQ(happened, 1);
+}
+
+TEST(SearchTest, RepeatedKeyUpTag) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+    happened = 0;
+
+    // [Ctrl+A][Ctrl+A] — two separate keyup tags.
+    // Each [Ctrl+A] encodes as enc_A_up, enc_CTRL_up.
+    // So the full pattern is: A↑, Ctrl↑, A↑, Ctrl↑.
+    // We need two full Ctrl+A press/release cycles.
+    (context
+     | emit_all[{
+       {.type = EV_KEY, .code = KEY_LEFTCTRL, .value = 1},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_A, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_A, .value = 0},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_LEFTCTRL, .value = 0},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+
+       {.type = EV_KEY, .code = KEY_LEFTCTRL, .value = 1},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_A, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_A, .value = 0},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_LEFTCTRL, .value = 0},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+     }]
+     | search_engine
+     | on[typed["[Ctrl+A][Ctrl+A]"], [] noexcept {
+           ++happened;
+       }])();
+    EXPECT_EQ(happened, 1);
+}
+
+TEST(SearchTest, DuplicateKeyInTag) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+    happened = 0;
+
+    // [Ctrl+A+A] — one tag with three keys.
+    // Canonical sort puts Ctrl first, then reverse for keyup: A↑, A↑, Ctrl↑.
+    // We press Ctrl+A, release A twice, then release Ctrl.
+    (context
+     | emit_all[{
+       {.type = EV_KEY, .code = KEY_LEFTCTRL, .value = 1},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_A, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_A, .value = 0},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_A, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_A, .value = 0},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_LEFTCTRL, .value = 0},
+       {.type = EV_SYN,   .code = SYN_REPORT, .value = 0},
+     }]
+     | search_engine
+     | on[typed["[Ctrl+A+A]"], [] noexcept {
+           ++happened;
        }])();
     EXPECT_EQ(happened, 1);
 }
