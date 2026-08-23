@@ -27,7 +27,7 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "lambda.ixx", "lambda_8ixx.html", "lambda_8ixx" ],
     [ "modes.ixx", "modes_8ixx.html", "modes_8ixx" ],
     [ "mods.ixx", "mods_8ixx.html", null ],
-    [ "momentum.cxx", "momentum_8cxx.html", null ],
+    [ "momentum.cxx", "momentum_8cxx.html", "momentum_8cxx" ],
     [ "momentum.ixx", "momentum_8ixx.html", "momentum_8ixx" ],
     [ "mouse_status.ixx", "mouse__status_8ixx.html", "mouse__status_8ixx" ],
     [ "mouse_to_scroll.ixx", "mouse__to__scroll_8ixx.html", "mouse__to__scroll_8ixx" ],

@@ -1,7 +1,7 @@
 var searchData=
 [
   ['table_5fsize_0',['table_size',['../structfs8_1_1detail_1_1router__state.html#a17c7ef39c9ef9435451f9cc10d3c2f6f',1,'fs8::detail::router_state']]],
-  ['tablet_1',['tablet',['../namespacefs8.html#a6ca0c26d13c7502241cd17b97564e2c2',1,'fs8::tablet'],['../namespacefs8_1_1attr.html#ab3f4b28d8081b87a18cfd8daef44dbf7',1,'fs8::attr::tablet'],['../namespacefs8_1_1caps.html#a70ac851b0cdad72c7a35a0cbf25a2357',1,'fs8::caps::tablet']]],
+  ['tablet_1',['tablet',['../namespacefs8_1_1caps.html#a70ac851b0cdad72c7a35a0cbf25a2357',1,'fs8::caps::tablet'],['../namespacefs8_1_1attr.html#ab3f4b28d8081b87a18cfd8daef44dbf7',1,'fs8::attr::tablet'],['../namespacefs8.html#a6ca0c26d13c7502241cd17b97564e2c2',1,'fs8::tablet']]],
   ['tablet_5fabs_5faxes_2',['tablet_abs_axes',['../namespacefs8_1_1caps.html#a1d5c862ec15e319b9ea8718c719c321c',1,'fs8::caps']]],
   ['tablet_5fabs_5fcommon_3',['tablet_abs_common',['../namespacefs8_1_1caps.html#acd2a2cb6ce3bebacc61d7988685e8db0',1,'fs8::caps']]],
   ['tablet_5ftool_5fbtns_4',['tablet_tool_btns',['../namespacefs8_1_1caps.html#a25888e27a78d199003f4128c98fa36f7',1,'fs8::caps']]],
@@ -20,12 +20,15 @@ var searchData=
   ['touch_5fbtns_17',['touch_btns',['../namespacefs8_1_1caps.html#a005f2b79a429521f7c46d683676f7ef0',1,'fs8::caps']]],
   ['touchpad_18',['touchpad',['../namespacefs8_1_1caps.html#a5883b0685d98e9abea6d4d354423098c',1,'fs8::caps']]],
   ['touchscreen_19',['touchscreen',['../namespacefs8_1_1caps.html#a80f18523a1cf4253f9dd8d5dad420793',1,'fs8::caps']]],
-  ['trie_20',['trie',['../structfs8_1_1pimpl__idiom_1_1impl.html#a3fbf8fea9f5144aa593adb54b92aea4d',1,'fs8::pimpl_idiom::impl']]],
-  ['trigger_5fcode_21',['trigger_code',['../structfs8_1_1pimpl__idiom_1_1impl.html#ae457cc1ff2f51a50474a2a29af6c53b8',1,'fs8::pimpl_idiom::impl']]],
-  ['trigger_5fid_22',['trigger_id',['../structfs8_1_1pimpl__idiom_1_1impl.html#a66d0e9a1fbe644a98bf1c8dde1e357b9',1,'fs8::pimpl_idiom::impl']]],
-  ['triple_5fclick_23',['triple_click',['../namespacefs8.html#a332d0d3025ab0d9c651fcac1b34d75b1',1,'fs8']]],
-  ['type_24',['type',['../structfs8_1_1dev__cap.html#a9a12941e5f8a8d0e734db8ad7cd9dcc8',1,'fs8::dev_cap::type'],['../structfs8_1_1event__code.html#a0f95fa0a9b6565a4298aec20778327e5',1,'fs8::event_code::type'],['../structfs8_1_1user__event.html#a40d050ba5e15a723e09db0a3b0e4afe6',1,'fs8::user_event::type'],['../structfs8_1_1dev__cap__view.html#a76378a31778ab0316a42a762566bf356',1,'fs8::dev_cap_view::type']]],
-  ['type_5fid_25',['type_id',['../namespacefs8.html#ad376cac94b7703cbbacd7a324e8e905e',1,'fs8']]],
-  ['type_5fstring_26',['type_string',['../namespacefs8.html#a73b41754e6168932eedbba0191dbd35d',1,'fs8']]],
-  ['typed_27',['typed',['../namespacefs8.html#ae9b5cffbef7445fb3f872a368eaa5cc6',1,'fs8']]]
+  ['track_5fcode_5fx_20',['track_code_x',['../structfs8_1_1pimpl__idiom_1_1impl.html#a093352760bfb110d8bedd2fd86c81a43',1,'fs8::pimpl_idiom::impl::track_code_x'],['../structfs8_1_1no__scroll__policy.html#a6d50620e571dbad26b82f8e52fe492f9',1,'fs8::no_scroll_policy::track_code_x'],['../structfs8_1_1scroll__momentum__policy.html#a76b4558ce9c445fc301a3313447f00a9',1,'fs8::scroll_momentum_policy::track_code_x'],['../structfs8_1_1basic__momentum.html#aa9b44eeca9aa65f7b3f083fa68469707',1,'fs8::basic_momentum::track_code_x']]],
+  ['track_5fcode_5fy_21',['track_code_y',['../structfs8_1_1pimpl__idiom_1_1impl.html#a2dd87b7d35c8b4abb9e7e9d7cc071121',1,'fs8::pimpl_idiom::impl::track_code_y'],['../structfs8_1_1no__scroll__policy.html#a0010b243ffa9a6030f2436f8cedc1ecb',1,'fs8::no_scroll_policy::track_code_y'],['../structfs8_1_1scroll__momentum__policy.html#a75a935c22a7399a47c26c967defe99b6',1,'fs8::scroll_momentum_policy::track_code_y'],['../structfs8_1_1basic__momentum.html#a6e9b06dd874ecc8e05b15e25b65b1934',1,'fs8::basic_momentum::track_code_y']]],
+  ['track_5ftype_22',['track_type',['../structfs8_1_1pimpl__idiom_1_1impl.html#abb4a1947cc4f27ddc64fc3d57871a2b7',1,'fs8::pimpl_idiom::impl::track_type'],['../structfs8_1_1no__scroll__policy.html#ae4047f4934b2215ef73ff33fe0194344',1,'fs8::no_scroll_policy::track_type'],['../structfs8_1_1scroll__momentum__policy.html#ae8176718370926b0a498da8089ff5c98',1,'fs8::scroll_momentum_policy::track_type'],['../structfs8_1_1basic__momentum.html#ad7b4af8af2378e97028290fcb3c16bec',1,'fs8::basic_momentum::track_type']]],
+  ['trie_23',['trie',['../structfs8_1_1pimpl__idiom_1_1impl.html#a3fbf8fea9f5144aa593adb54b92aea4d',1,'fs8::pimpl_idiom::impl']]],
+  ['trigger_5fcode_24',['trigger_code',['../structfs8_1_1pimpl__idiom_1_1impl.html#ae457cc1ff2f51a50474a2a29af6c53b8',1,'fs8::pimpl_idiom::impl']]],
+  ['trigger_5fid_25',['trigger_id',['../structfs8_1_1pimpl__idiom_1_1impl.html#a66d0e9a1fbe644a98bf1c8dde1e357b9',1,'fs8::pimpl_idiom::impl']]],
+  ['triple_5fclick_26',['triple_click',['../namespacefs8.html#a332d0d3025ab0d9c651fcac1b34d75b1',1,'fs8']]],
+  ['type_27',['type',['../structfs8_1_1dev__cap__view.html#a76378a31778ab0316a42a762566bf356',1,'fs8::dev_cap_view::type'],['../structfs8_1_1event__code.html#a0f95fa0a9b6565a4298aec20778327e5',1,'fs8::event_code::type'],['../structfs8_1_1user__event.html#a40d050ba5e15a723e09db0a3b0e4afe6',1,'fs8::user_event::type'],['../structfs8_1_1dev__cap.html#a9a12941e5f8a8d0e734db8ad7cd9dcc8',1,'fs8::dev_cap::type']]],
+  ['type_5fid_28',['type_id',['../namespacefs8.html#ad376cac94b7703cbbacd7a324e8e905e',1,'fs8']]],
+  ['type_5fstring_29',['type_string',['../namespacefs8.html#a73b41754e6168932eedbba0191dbd35d',1,'fs8']]],
+  ['typed_30',['typed',['../namespacefs8.html#ae9b5cffbef7445fb3f872a368eaa5cc6',1,'fs8']]]
 ];

@@ -4,6 +4,7 @@ digraph "fs8::pimpl_idiom&lt; typename &gt;::impl"
   bgcolor="transparent";
   edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
   node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
+  rankdir="LR";
   Node1 [id="Node000001",label="fs8::pimpl_idiom\< typename\l \>::impl",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip=" "];
   Node2 -> Node1 [id="edge1_Node000001_Node000002",dir="back",color="darkorchid3",style="dashed",tooltip=" ",label=" stats",fontcolor="grey" ];
   Node2 [id="Node000002",label="fs8::benchmark_stats",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$structfs8_1_1benchmark__stats.html",tooltip=" "];
@@ -17,6 +18,8 @@ digraph "fs8::pimpl_idiom&lt; typename &gt;::impl"
   Node6 [id="Node000006",label="fs8::consteval_copyable",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$structfs8_1_1consteval__copyable.html",tooltip=" "];
   Node7 -> Node5 [id="edge6_Node000005_Node000007",dir="back",color="darkorchid3",style="dashed",tooltip=" ",label=" pimpl",fontcolor="grey" ];
   Node7 [id="Node000007",label="fs8::nullable_indirect\l\< fs8::pimpl_idiom::impl \>",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$structfs8_1_1nullable__indirect.html",tooltip=" "];
-  Node8 -> Node1 [id="edge7_Node000001_Node000008",dir="back",color="darkorchid3",style="dashed",tooltip=" ",label=" aho_search_state",fontcolor="grey" ];
-  Node8 [id="Node000008",label="fs8::aho_state",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$structfs8_1_1aho__state.html",tooltip="A struct that wraps an unsigned 32-bit integer representing a state using bit-fields."];
+  Node8 -> Node1 [id="edge7_Node000001_Node000008",dir="back",color="darkorchid3",style="dashed",tooltip=" ",label=" vel_x\nvel_y",fontcolor="grey" ];
+  Node8 [id="Node000008",label="fs8::velocity_tracker",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$structfs8_1_1velocity__tracker.html",tooltip=" "];
+  Node9 -> Node1 [id="edge8_Node000001_Node000009",dir="back",color="darkorchid3",style="dashed",tooltip=" ",label=" aho_search_state",fontcolor="grey" ];
+  Node9 [id="Node000009",label="fs8::aho_state",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$structfs8_1_1aho__state.html",tooltip="A struct that wraps an unsigned 32-bit integer representing a state using bit-fields."];
 }
