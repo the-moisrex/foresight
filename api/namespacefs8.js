@@ -444,6 +444,7 @@ var namespacefs8 =
     [ "emit_str", "namespacefs8.html#a4bb6f2f3024072863d4884f84565ffc9", null ],
     [ "emit_str", "namespacefs8.html#a007ca1b92c9137f86936378eda22a6af", null ],
     [ "encoded_modifiers", "namespacefs8.html#a3f6c0a30861b57528fcd76576ad6dd64", null ],
+    [ "event_type_max_code", "namespacefs8.html#a52e6282f6c2746f7e6994978a48700ca", null ],
     [ "extract_variables", "namespacefs8.html#a666fccac76dbd01298dbd925b017d75f", null ],
     [ "filter_devices", "namespacefs8.html#a96d774a2c5537eb63a30b0efc8c23c4b", null ],
     [ "filter_devices", "namespacefs8.html#a3c3307ea21f5b386ebb264b50f98d9dc", null ],

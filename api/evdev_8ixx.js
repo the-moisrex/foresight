@@ -22,6 +22,7 @@ var evdev_8ixx =
     ] ],
     [ "clone_device", "evdev_8ixx.html#a996246e0d2b1df88f4a847d03cf0ff90", null ],
     [ "device_sysname", "evdev_8ixx.html#ae78b87ff81f45a71463545ffef6ae966", null ],
+    [ "event_type_max_code", "evdev_8ixx.html#a52e6282f6c2746f7e6994978a48700ca", null ],
     [ "is_grabbed", "evdev_8ixx.html#aedaa70224331df2832a6918257b3324d", null ],
     [ "is_usable", "evdev_8ixx.html#ad1b7d3cd1d6a5fedea83349f2ecc3ced", null ],
     [ "is_valid", "evdev_8ixx.html#a1779c7db7fd8f7f134fe900e93b0f993", null ],

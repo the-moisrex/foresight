@@ -78,6 +78,7 @@ var module_fs8_8devices_8evdev =
     [ "fs8::is_usable", "module_fs8_8devices_8evdev.html#ad1b7d3cd1d6a5fedea83349f2ecc3ced", null ],
     [ "fs8::device_sysname", "module_fs8_8devices_8evdev.html#ae78b87ff81f45a71463545ffef6ae966", null ],
     [ "fs8::clone_device", "module_fs8_8devices_8evdev.html#a996246e0d2b1df88f4a847d03cf0ff90", null ],
+    [ "fs8::event_type_max_code", "module_fs8_8devices_8evdev.html#a52e6282f6c2746f7e6994978a48700ca", null ],
     [ "fs8::basic_only_ok::operator()", "module_fs8_8devices_8evdev.html#ae988a779d5c7b3df25aebac260505a88", null ],
     [ "fs8::basic_only_ok::operator()", "module_fs8_8devices_8evdev.html#a82714628d1248221b436d3cf3a3b18a8", null ],
     [ "fs8::basic_to_evdev::operator()", "module_fs8_8devices_8evdev.html#ab1f9e01343c3a8175a6023c9d6f2acd5", null ],
