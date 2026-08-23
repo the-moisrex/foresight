@@ -537,18 +537,7 @@ evdev fs8::clone_device(evdev const& src) noexcept try {
             libevdev_free(copy);
             return {};
         }
-        auto const code_max = static_cast<unsigned>([&] {
-            switch (type) {
-                case EV_KEY: return KEY_MAX;
-                case EV_REL: return REL_MAX;
-                case EV_ABS: return ABS_MAX;
-                case EV_MSC: return MSC_MAX;
-                case EV_SW: return SW_MAX;
-                case EV_LED: return LED_MAX;
-                case EV_SND: return SND_MAX;
-                default: return FF_MAX;
-            }
-        }());
+        auto const code_max = event_type_max_code(type);
         for (unsigned code = 0; code <= code_max; ++code) {
             if (!libevdev_has_event_code(raw, type, code)) {
                 continue;

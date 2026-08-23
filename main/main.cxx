@@ -495,19 +495,7 @@ Options:
             auto const* tname = libevdev_event_type_get_name(type);
             std::println("  Event type {} ({})", type, tname ? tname : "<unknown>");
 
-            auto const code_max = static_cast<unsigned>([type] {
-                switch (type) {
-                    case EV_KEY: return static_cast<unsigned>(KEY_MAX);
-                    case EV_REL: return static_cast<unsigned>(REL_MAX);
-                    case EV_ABS: return static_cast<unsigned>(ABS_MAX);
-                    case EV_MSC: return static_cast<unsigned>(MSC_MAX);
-                    case EV_SW: return static_cast<unsigned>(SW_MAX);
-                    case EV_LED: return static_cast<unsigned>(LED_MAX);
-                    case EV_SND: return static_cast<unsigned>(SND_MAX);
-                    case EV_FF: return static_cast<unsigned>(FF_MAX);
-                    default: return 0u;
-                }
-            }());
+            auto const code_max = fs8::event_type_max_code(type);
 
             for (unsigned code = 0; code <= code_max; ++code) {
                 if (!dev.has_event_code(static_cast<fs8::event_type::type_type>(type), static_cast<fs8::event_type::code_type>(code))) {
@@ -543,10 +531,10 @@ Options:
                 std::string name;
                 int         event_num = -1;
             };
-            std::vector<DevEntry> devices;
 
-            fs8::udev         udev;
-            fs8::udev_enumerate enumerate{udev};
+            std::vector<DevEntry> devices;
+            fs8::udev             udev;
+            fs8::udev_enumerate   enumerate{udev};
             enumerate.match_subsystem("input");
             enumerate.match_sysname("event*");
             enumerate.scan_devices();
@@ -559,8 +547,8 @@ Options:
                 }
 
                 // Extract event number from sysname (e.g. "event10").
-                auto const sn = udev_dev.sysname();
-                int        num = -1;
+                auto const sn        = udev_dev.sysname();
+                int        num       = -1;
                 auto const [ptr, ec] = std::from_chars(sn.data() + 5, sn.data() + sn.size(), num);
                 if (ec != std::errc{}) {
                     continue;
@@ -572,9 +560,9 @@ Options:
                     continue;
                 }
                 devices.emplace_back(DevEntry{
-                  .devnode    = std::string{dn},
-                  .name       = std::string{d.device_name()},
-                  .event_num  = num,
+                  .devnode   = std::string{dn},
+                  .name      = std::string{d.device_name()},
+                  .event_num = num,
                 });
             }
 
@@ -599,7 +587,7 @@ Options:
             std::fflush(stdout);
 
             int selection = -1;
-            if (!(std::cin >> selection)) {
+            if (!std::cin >> selection) {
                 return EXIT_FAILURE;
             }
             // Find the device with the matching event number.
@@ -633,7 +621,7 @@ Options:
         fs8::default_evtest_format fmt;
         char                       fmt_buf[fs8::evtest_format_buf_size];
         int const                  fd  = dev.native_handle();
-        struct pollfd              pfd = {.fd = fd, .events = POLLIN, .revents = 0};
+        pollfd                     pfd = {.fd = fd, .events = POLLIN, .revents = 0};
 
         while (signals::sig == 0) {
             int ready = 0;

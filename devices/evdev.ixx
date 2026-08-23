@@ -229,6 +229,22 @@ namespace fs8 {
     /// libevdev handle).
     export [[nodiscard]] evdev clone_device(evdev const& src) noexcept;
 
+    /// Returns the highest valid code for a given event type (KEY_MAX for
+    /// EV_KEY, REL_MAX for EV_REL, etc.). Unknown types return 0.
+    export [[nodiscard]] constexpr unsigned event_type_max_code(unsigned const type) noexcept {
+        switch (type) {
+            case EV_KEY: return KEY_MAX;
+            case EV_REL: return REL_MAX;
+            case EV_ABS: return ABS_MAX;
+            case EV_MSC: return MSC_MAX;
+            case EV_SW: return SW_MAX;
+            case EV_LED: return LED_MAX;
+            case EV_SND: return SND_MAX;
+            case EV_FF: return FF_MAX;
+            default: return 0u;
+        }
+    }
+
     export constexpr struct [[nodiscard]] basic_only_ok : std::ranges::range_adaptor_closure<basic_only_ok> {
         template <typename R>
         [[nodiscard]] constexpr bool operator()(R const& obj) const noexcept {
