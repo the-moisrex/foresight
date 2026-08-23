@@ -5,7 +5,7 @@ import fs8.log;
 import fs8.cli;
 import fs8.devices.queries;
 
-static constexpr auto args = fs8::arguments["USB Keyboard"].positional("keyboard_device").help(R"TEXT(
+static constexpr auto args = fs8::arguments.positional("keyboard_device").help(R"TEXT(
 Usage: auto-typer [keyboard_device]
 
 Types a string when certain typed patterns are detected on the keyboard.
