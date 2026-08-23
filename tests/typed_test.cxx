@@ -249,3 +249,102 @@ TEST(SearchTest, OrderedKeydownNegative) {
        }])();
     EXPECT_EQ(happened, 0);
 }
+
+TEST(SearchTest, OverlappingKeys) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+    happened = 0;
+
+    // Overlapping keys: T down, E down (T held), T up, S down (E held), E up, T down, S up, T up
+    // This should still match "test".
+    (context
+     | emit_all[{
+       {.type = EV_KEY,      .code = KEY_T, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_E, .value = 1}, // T still held
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_T, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_S, .value = 1}, // E still held
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_E, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_T, .value = 1}, // S still held
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_S, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_T, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+    }]
+     | search_engine
+     | on[typed["test"], [] noexcept {
+           happened = 1;
+       }])();
+    EXPECT_TRUE(happened == 1);
+}
+
+TEST(SearchTest, OverlappingKeysWithShiftRepeat) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+    happened = 0;
+
+    // Shift repeat events + overlapping keys: the exact scenario from the bug report.
+    // Shift press with many repeats, then @ (Shift+2), then overlapping T/E/S/T.
+    (context
+     | emit_all[{
+       // Shift down with many repeats
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 1},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 2},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 2},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 2},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 2},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 2},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 2},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 2},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 2},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 2},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 2},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 2},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+
+       // @ (Shift+2)
+       {.type = EV_KEY,         .code = KEY_2, .value = 1},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,         .code = KEY_2, .value = 0},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY, .code = KEY_RIGHTSHIFT, .value = 0},
+       {.type = EV_SYN,    .code = SYN_REPORT, .value = 0},
+
+       // Overlapping T/E/S/T
+       {.type = EV_KEY,      .code = KEY_T, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_E, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_T, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_S, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_E, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_T, .value = 1},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_S, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+       {.type = EV_KEY,      .code = KEY_T, .value = 0},
+       {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+    }]
+     | search_engine
+     | on[typed["@test"], [] noexcept {
+           happened = 1;
+       }])();
+    EXPECT_TRUE(happened == 1);
+}

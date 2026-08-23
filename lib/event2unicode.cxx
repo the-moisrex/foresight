@@ -24,16 +24,29 @@ namespace {
         auto* handle = state_handle.get();
         assert(handle != nullptr);
 
-        // Map evdev code -> xkb keycode
         auto const              keycode = static_cast<xkb_keycode_t>(evdev_offset + event.code);
-        xkb_key_direction const dir     = static_cast<std::uint16_t>(event.value) == KEY_STATE_RELEASE ? XKB_KEY_UP : XKB_KEY_DOWN;
 
-        // Update state
-        xkb_state_update_key(handle, keycode, dir);
+        bool const is_release = static_cast<std::uint16_t>(event.value) == KEY_STATE_RELEASE;
+        bool const is_repeat  = static_cast<std::uint16_t>(event.value) == 2;
 
         // No Unicode for releases
-        if (dir == XKB_KEY_UP) {
+        if (is_release) {
+            // Update state for releases only (not repeats) — repeat events (value=2) must not
+            // call xkb_state_update_key because xkbcommon uses reference counting internally;
+            // each extra XKB_KEY_DOWN would increment the counter, leaving modifiers "stuck"
+            // after the actual release.
+            xkb_state_update_key(handle, keycode, XKB_KEY_UP);
             return U'\0';
+        }
+
+        // For press/repeat, get the keysym BEFORE updating the key state, as recommended
+        // by the xkbcommon documentation: "you should prefer to get the keysyms before
+        // updating the key, such that the keysyms reported for the key event are not
+        // affected by the event itself."
+        // Skip the state update entirely for repeat events (value=2) to avoid corrupting
+        // xkbcommon's internal reference counting.
+        if (!is_repeat) {
+            xkb_state_update_key(handle, keycode, XKB_KEY_DOWN);
         }
 
         return get_unicode(handle, keycode);
