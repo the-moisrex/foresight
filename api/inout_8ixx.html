@@ -93,14 +93,21 @@ $(document).ready(function(){initNavTree('inout_8ixx.html',''); initResizable();
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
+<a href="#concepts">Concepts</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">inout.ixx File Reference<div class="ingroups">module <a class="el" href="module_fs8_8mods.html">fs8.mods</a></div></div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;ctime&gt;</code><br />
+<div class="textblock"><code>#include &lt;charconv&gt;</code><br />
+<code>#include &lt;cstdint&gt;</code><br />
+<code>#include &lt;ctime&gt;</code><br />
 <code>#include &lt;linux/uinput.h&gt;</code><br />
+<code>#include &lt;span&gt;</code><br />
+<code>#include &lt;string&gt;</code><br />
+<code>#include &lt;string_view&gt;</code><br />
 <code>#include &lt;unistd.h&gt;</code><br />
 <code>import <a class="el" href="traits_8ixx.html">fs8.traits</a>;</code><br />
+<code>import <a class="el" href="evtest_8ixx.html">fs8.lib.evtest</a>;</code><br />
 <code>import <a class="el" href="event_8ixx.html">fs8.event</a>;</code><br />
 <code>import <a class="el" href="context_8ixx.html">fs8.context</a>;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -115,10 +122,24 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__input.html">fs8::basic_from_input</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1default__evtest__format.html">fs8::default_evtest_format</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default evtest format: standard evtest text with libevdev annotations.  <a href="structfs8_1_1default__evtest__format.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__evtest.html">fs8::basic_from_evtest&lt; Format &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__evtest__output.html">fs8::basic_evtest_output&lt; Format &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write events to a file descriptor in evtest text format.  <a href="structfs8_1_1basic__evtest__output.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacefs8" id="r_namespacefs8"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html">fs8</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="concepts" name="concepts"></a>
+Concepts</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptfs8_1_1EvtestFormat.html">fs8::EvtestFormat</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A type that can both parse and format evtest text lines. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
@@ -127,6 +148,16 @@ Variables</h2></td></tr>
 <tr class="separator:ac767aa8c1f4499b5712d551263a1a026"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a117715ccfac2ef6ffb0bb0503db6b2be" id="r_a117715ccfac2ef6ffb0bb0503db6b2be"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__from__input.html">fs8::basic_from_input</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a117715ccfac2ef6ffb0bb0503db6b2be">fs8::from_input</a></td></tr>
 <tr class="separator:a117715ccfac2ef6ffb0bb0503db6b2be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fce3d1270cea3fa64f2d82a4694b01e" id="r_a4fce3d1270cea3fa64f2d82a4694b01e"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a4fce3d1270cea3fa64f2d82a4694b01e">fs8::evtest_format_buf_size</a> = 128</td></tr>
+<tr class="memdesc:a4fce3d1270cea3fa64f2d82a4694b01e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum length of an evtest-format event line (including trailing newline).  <br /></td></tr>
+<tr class="separator:a4fce3d1270cea3fa64f2d82a4694b01e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26e27b44ae665701aca3c5a09a765a57" id="r_a26e27b44ae665701aca3c5a09a765a57"><td class="memItemLeft" align="right" valign="top">constinit <a class="el" href="structfs8_1_1basic__from__evtest.html">basic_from_evtest</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a26e27b44ae665701aca3c5a09a765a57">fs8::from_evtest</a></td></tr>
+<tr class="separator:a26e27b44ae665701aca3c5a09a765a57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa9df52c3767ecdf335b27ae21ce3d40" id="r_afa9df52c3767ecdf335b27ae21ce3d40"><td class="memTemplParams" colspan="2">template&lt;EvtestFormat Format&gt; </td></tr>
+<tr class="memitem:afa9df52c3767ecdf335b27ae21ce3d40"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__evtest__output.html">basic_evtest_output</a>&lt; Format &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afa9df52c3767ecdf335b27ae21ce3d40">fs8::evtest_output</a></td></tr>
+<tr class="separator:afa9df52c3767ecdf335b27ae21ce3d40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0711f4e892987aed2fa991e2ee5e314" id="r_ae0711f4e892987aed2fa991e2ee5e314"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae0711f4e892987aed2fa991e2ee5e314">fs8::to_evtest</a> = <a class="el" href="namespacefs8.html#afa9df52c3767ecdf335b27ae21ce3d40">evtest_output</a>&lt;<a class="el" href="structfs8_1_1default__evtest__format.html">default_evtest_format</a>&gt;</td></tr>
+<tr class="separator:ae0711f4e892987aed2fa991e2ee5e314"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
