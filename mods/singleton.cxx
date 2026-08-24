@@ -19,32 +19,8 @@ import fs8.log;
 
 using fs8::basic_singleton;
 using fs8::context_action;
-using fs8::exe_hash_solution;
 using fs8::SINGLETON_HASH_INIT;
 using fs8::SINGLETON_HASH_PRIME;
-
-// ---------------------------------------------------------------------------
-// exe_hash_solution
-// ---------------------------------------------------------------------------
-
-std::uint64_t exe_hash_solution::operator()(auto &) const noexcept {
-    std::uint64_t hash = SINGLETON_HASH_INIT;
-    try {
-        auto const path = std::filesystem::canonical("/proc/self/exe");
-        auto const name = path.filename().string();
-        for (auto const cur_ch : name) {
-            hash ^= static_cast<std::uint64_t>(static_cast<unsigned char>(cur_ch));
-            hash *= SINGLETON_HASH_PRIME;
-        }
-    } catch (...) {
-        // fallback: hash a fixed string so the pipeline can still run
-        for (auto const cur_ch : std::string_view{"foresight"}) {
-            hash ^= static_cast<std::uint64_t>(static_cast<unsigned char>(cur_ch));
-            hash *= SINGLETON_HASH_PRIME;
-        }
-    }
-    return hash;
-}
 
 // ---------------------------------------------------------------------------
 // basic_singleton::try_acquire_lock

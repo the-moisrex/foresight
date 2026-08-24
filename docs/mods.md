@@ -66,7 +66,7 @@ mod is for and when you'd reach for it.
 | `keys_status` | Tracks the current state of every key. |
 | `mouse_status` | Tracks the current mouse buttons. |
 | `quantifier` | Quantifies/measures events (e.g. mouse movement thresholds). |
-| `device` | Conditions/filters based on which device an event came from (`device_is`, `only_device`, `ignore_device`). |
+| `device` | Conditions/filters based on which device an event came from: `from_device`, `from_stdin`, `self_emitted`, `from_chained`, `device_is`, `only_device`, `ignore_device`, `ignore_origin`, `ignore_self` (drops both emitted + owned), `ignore_owned` (owned uinput devices only), `ignore_emitted` (synthesized events only). |
 | `vars` | Pipeline variables — share values between mods (`context[name]` lookup). |
 | `emitter` / `scheduled_emitter` | Synthesize events (`emit[press(...)]`) or schedule them to fire. |
 

@@ -118,6 +118,28 @@ export namespace fs8 {
         }
     } ignore_self;
 
+    /// Drop events from devices created by this pipeline's own uinput mods.
+    /// Unlike `ignore_self`, this does NOT drop events synthesized by emit/fork
+    /// (`device_id::self`).
+    constexpr struct [[nodiscard]] basic_ignore_owned {
+        context_action operator()(Context auto& ctx) const noexcept {
+            using enum context_action;
+            if (ctx.mod(input_manager).is_owned(ctx.event().source())) [[unlikely]] {
+                return ignore_event;
+            }
+            return next;
+        }
+    } ignore_owned;
+
+    /// Drop events synthesized by this pipeline (emit, fork_emit, etc.).
+    /// Unlike `ignore_self`, this does NOT drop events from owned uinput
+    /// devices.
+    constexpr struct [[nodiscard]] basic_ignore_emitted {
+        [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
+            return event.source() != device_id::self;
+        }
+    } ignore_emitted;
+
     /// Drop events coming from the listed devices.
     template <std::size_t N>
     struct [[nodiscard]] basic_ignore_device : consteval_copyable {

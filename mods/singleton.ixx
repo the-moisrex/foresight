@@ -2,6 +2,8 @@
 
 module;
 #include <cstdint>
+#include <filesystem>
+#include <string>
 #include <string_view>
 #include <tuple>
 #include <typeinfo>
@@ -39,7 +41,24 @@ namespace fs8 {
 
     /// Hash the executable name read from /proc/self/exe (default).
     export struct [[nodiscard]] exe_hash_solution {
-        [[nodiscard]] std::uint64_t operator()(auto &) const noexcept;
+        [[nodiscard]] std::uint64_t operator()(auto &) const noexcept {
+            std::uint64_t hash = SINGLETON_HASH_INIT;
+            try {
+                auto const path = std::filesystem::canonical("/proc/self/exe");
+                auto const name = path.filename().string();
+                for (auto const cur_ch : name) {
+                    hash ^= static_cast<std::uint64_t>(static_cast<unsigned char>(cur_ch));
+                    hash *= SINGLETON_HASH_PRIME;
+                }
+            } catch (...) {
+                // fallback: hash a fixed string so the pipeline can still run
+                for (auto const cur_ch : std::string_view{"foresight"}) {
+                    hash ^= static_cast<std::uint64_t>(static_cast<unsigned char>(cur_ch));
+                    hash *= SINGLETON_HASH_PRIME;
+                }
+            }
+            return hash;
+        }
     };
 
     /// Hash the pipeline's mod types via their `typeid().name()`.

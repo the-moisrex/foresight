@@ -320,6 +320,118 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
     uin.close();
 }
 
+TEST(DeviceTest, IgnoreOwnedDropsOwnedDeviceEvents) {
+    if (!input_available()) {
+        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
+    }
+
+    basic_uinput uin;
+    if (!uin(caps::keyboard, start)) {
+        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
+    }
+    if (!wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Virtual keyboard did not become openable.";
+    }
+
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | ignore_owned | record;
+
+    auto& io  = pipeline.mod<basic_io_manager>();
+    auto& im  = pipeline.mod<basic_input_manager>();
+    auto& col = pipeline.mod<basic_record>();
+
+    EXPECT_EQ(pipeline(start), context_action::next);
+
+    im.own_device(uin.devnode());
+
+    fs8::evdev opened = fs8::evdev{uin.devnode()};
+    ASSERT_TRUE(opened.is_ok());
+    opened.grab_input(true);
+    if (opened.get_status() == fs8::evdev_status::grab_failure) {
+        uin.close();
+        GTEST_SKIP() << "Cannot grab the virtual keyboard.";
+    }
+    im.add(std::move(opened));
+
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+
+    inject_key_down(uin.devnode());
+    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
+    // `ignore_owned` drops the event (it came back from our own device).
+    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::ignore_event);
+
+    EXPECT_TRUE(col.empty());
+
+    uin.close();
+}
+
+TEST(DeviceTest, IgnoreEmittedDropsSynthesizedEvents) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {.type = EV_KEY,      .code = KEY_A, .value = 1},
+        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+    }]
+      | ignore_emitted
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // `ignore_emitted` drops synthesized events.
+    EXPECT_TRUE(col.empty());
+}
+
+TEST(DeviceTest, IgnoreEmittedLetsOwnedThrough) {
+    if (!input_available()) {
+        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
+    }
+
+    basic_uinput uin;
+    if (!uin(caps::keyboard, start)) {
+        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
+    }
+    if (!wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Virtual keyboard did not become openable.";
+    }
+
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | ignore_emitted | record;
+
+    auto& io  = pipeline.mod<basic_io_manager>();
+    auto& im  = pipeline.mod<basic_input_manager>();
+    auto& col = pipeline.mod<basic_record>();
+
+    EXPECT_EQ(pipeline(start), context_action::next);
+
+    im.own_device(uin.devnode());
+
+    fs8::evdev opened = fs8::evdev{uin.devnode()};
+    ASSERT_TRUE(opened.is_ok());
+    opened.grab_input(true);
+    if (opened.get_status() == fs8::evdev_status::grab_failure) {
+        uin.close();
+        GTEST_SKIP() << "Cannot grab the virtual keyboard.";
+    }
+    im.add(std::move(opened));
+
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+
+    inject_key_down(uin.devnode());
+    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
+    // `ignore_emitted` only drops device_id::self, not owned device events.
+    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
+
+    ASSERT_FALSE(col.empty());
+    EXPECT_EQ(col.front().code(), KEY_A);
+    // Owned device events are not device_id::self.
+    EXPECT_NE(col.front().source(), device_id::self);
+
+    uin.close();
+}
+
 TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
     if (!input_available()) {
         GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
