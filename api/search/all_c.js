@@ -5,7 +5,7 @@ var searchData=
   ['main_2eixx_2',['main.ixx',['../main_8ixx.html',1,'']]],
   ['make_3',['make',['../structfs8_1_1nullable__indirect.html#a8aad7b2037f545844e24d5fedcb6da07',1,'fs8::nullable_indirect']]],
   ['make_5fallocated_4',['make_allocated',['../structfs8_1_1nullable__indirect.html#aad7d9b086931490257fa577b2a2a4da6',1,'fs8::nullable_indirect']]],
-  ['manual_5fdevs_5',['manual_devs',['../structfs8_1_1pimpl__idiom_1_1impl.html#aba83a47849140427dfe0bdb3cd37dd84',1,'fs8::pimpl_idiom::impl']]],
+  ['manual_5fdevs_5',['manual_devs',['../structfs8_1_1pimpl__idiom_1_1impl.html#aef0e01a3f0189cc133ac81cfd377825f',1,'fs8::pimpl_idiom::impl']]],
   ['mask_6',['mask',['../structfs8_1_1xkb_1_1key__position.html#a8476ee9c4360ece4e4cda8595d698a37',1,'fs8::xkb::key_position']]],
   ['match_7',['match',['../namespacefs8.html#ad2c92afaa3b3b598951daa001ffc3cff',1,'fs8::match(udev_monitor &amp;monitor, device_query const &amp;inp_query) noexcept'],['../namespacefs8.html#acfbf0fe543bc80b3e9bac3c5521d7b5e',1,'fs8::match(udev_enumerate &amp;enumerate, device_query const &amp;inp_query) noexcept']]],
   ['match_5fcap_8',['match_cap',['../structfs8_1_1evdev.html#a477bf2955dbd411e19d8dc44d2ef5a9f',1,'fs8::evdev']]],

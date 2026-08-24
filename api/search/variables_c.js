@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['manual_5fdevs_0',['manual_devs',['../structfs8_1_1pimpl__idiom_1_1impl.html#aba83a47849140427dfe0bdb3cd37dd84',1,'fs8::pimpl_idiom::impl']]],
+  ['manual_5fdevs_0',['manual_devs',['../structfs8_1_1pimpl__idiom_1_1impl.html#aef0e01a3f0189cc133ac81cfd377825f',1,'fs8::pimpl_idiom::impl']]],
   ['mask_1',['mask',['../structfs8_1_1xkb_1_1key__position.html#a8476ee9c4360ece4e4cda8595d698a37',1,'fs8::xkb::key_position']]],
   ['matches_5flimit_2',['matches_limit',['../structfs8_1_1basic__device__query.html#ae2b4d1d5c170fb6f7c37f2f338385607',1,'fs8::basic_device_query::matches_limit'],['../structfs8_1_1owned__query.html#af81ef6198a47e0c67da7445ef3a583a8',1,'fs8::owned_query::matches_limit'],['../namespacefs8.html#a2cc4d1b04a5240205d88194cc3b9cadd',1,'fs8::matches_limit']]],
   ['matches_5fpercentage_3',['matches_percentage',['../namespacefs8.html#a027be9691e2c5bc35c32331572496172',1,'fs8']]],

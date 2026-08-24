@@ -110,8 +110,8 @@ Collaboration diagram for fs8::basic_io_manager:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:ae1e39417b779549add1ca8798ab81fcf" id="r_ae1e39417b779549add1ca8798ab81fcf"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__io__manager.html#ae1e39417b779549add1ca8798ab81fcf">io_callback</a> = std::function_ref&lt; <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>(<a class="el" href="structfs8_1_1io__fd.html">io_fd</a> const  &amp;)&gt;</td></tr>
-<tr class="separator:ae1e39417b779549add1ca8798ab81fcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addabcc3e40ddef24d8822a7eb66ecc2f" id="r_addabcc3e40ddef24d8822a7eb66ecc2f"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__io__manager.html#addabcc3e40ddef24d8822a7eb66ecc2f">io_callback</a> = std::function_ref&lt; <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>(<a class="el" href="structfs8_1_1io__fd.html">io_fd</a> &amp;)&gt;</td></tr>
+<tr class="separator:addabcc3e40ddef24d8822a7eb66ecc2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -165,8 +165,8 @@ Additional Inherited Members</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Register file descriptors, wait for events on all of them at once, and dispatch each ready file descriptor to its registered handler. The handlers are bound by reference, so their lifetime must be as long as this manager's (e.g. mods living in the same pipeline). </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="ae1e39417b779549add1ca8798ab81fcf" name="ae1e39417b779549add1ca8798ab81fcf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae1e39417b779549add1ca8798ab81fcf">&#9670;&#160;</a></span>io_callback</h2>
+<a id="addabcc3e40ddef24d8822a7eb66ecc2f" name="addabcc3e40ddef24d8822a7eb66ecc2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#addabcc3e40ddef24d8822a7eb66ecc2f">&#9670;&#160;</a></span>io_callback</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -175,7 +175,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="structfs8_1_1basic__io__manager.html#ae1e39417b779549add1ca8798ab81fcf">fs8::basic_io_manager::io_callback</a> =  std::function_ref&lt;<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>(<a class="el" href="structfs8_1_1io__fd.html">io_fd</a> const&amp;)&gt;</td>
+          <td class="memname">using <a class="el" href="structfs8_1_1basic__io__manager.html#addabcc3e40ddef24d8822a7eb66ecc2f">fs8::basic_io_manager::io_callback</a> =  std::function_ref&lt;<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>(<a class="el" href="structfs8_1_1io__fd.html">io_fd</a>&amp;)&gt;</td>
         </tr>
       </table>
   </td>
