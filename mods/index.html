@@ -1128,7 +1128,7 @@ mod is for and when you'd reach for it.</p>
 </tr>
 <tr>
 <td><code>device</code></td>
-<td>Conditions/filters based on which device an event came from (<code>device_is</code>, <code>only_device</code>, <code>ignore_device</code>).</td>
+<td>Conditions/filters based on which device an event came from: <code>from_device</code>, <code>from_stdin</code>, <code>self_emitted</code>, <code>from_chained</code>, <code>device_is</code>, <code>only_device</code>, <code>ignore_device</code>, <code>ignore_origin</code>, <code>ignore_self</code> (drops both emitted + owned), <code>ignore_owned</code> (owned uinput devices only), <code>ignore_emitted</code> (synthesized events only).</td>
 </tr>
 <tr>
 <td><code>vars</code></td>
