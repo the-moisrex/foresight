@@ -50,6 +50,7 @@ int main(int const argc, char const* const* argv) try {
       | input_manager
       | intercept[tablet | required | grab, keyboard | grab]
       | scheduled_emitter
+      | scheduler
       | led_status
       | keys_status // Save key presses
       | mouse_history
@@ -79,8 +80,9 @@ int main(int const argc, char const* const* argv) try {
       | on[pressed[KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
       | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | kalman_filter[0.3f] | mouse_to_scroll]
       | on[held[KEY_LEFTSHIFT], context | scale_move[0.5f] | scale_pen[0.5f]]
+      | on[held[KEY_LEFTCTRL], low_pass_filter]
+      | momentum_scroll
       | update_mod[keys_status]
-      | low_pass_filter
       | ignore_zero_mouse_moves
       | ignore_msc_scan
       | ignore_adjacent_syns

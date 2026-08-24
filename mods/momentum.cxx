@@ -1,10 +1,10 @@
 // Created by moisrex on 8/17/25.
 
 module;
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <linux/input-event-codes.h>
-#include <optional>
 module fs8.mods;
 
 using fs8::basic_momentum_base;
@@ -16,18 +16,9 @@ using fs8::msecs;
 using fs8::velocity_tracker;
 
 namespace {
-    constexpr fsecs anim_dur{1.0};
-    constexpr float fps       = 60.0f;
-    constexpr int   max_iters = 10;
-    constexpr float threshold = 0.001f;
-    constexpr float init_mag  = 1.1f;
-    constexpr float min_prog  = 0.1f;
-    constexpr float max_prog  = 0.5f;
-
-    [[nodiscard]] float project_inertial(float const delta) noexcept {
-        constexpr float factor = 16.7f;
-        return factor * delta;
-    }
+    /// Decay factor for momentum events: each successive event is scaled by
+    /// `decay_rate^i`.  A value close to 1.0 gives a long tail.
+    constexpr float decay_rate = 0.93f;
 } // namespace
 
 // ── velocity_tracker ───────────────────────────────────────────────────────
@@ -44,7 +35,7 @@ void velocity_tracker::process_event(float const value, msecs const timestamp) n
     auto const  dt_us       = dt_duration.count();
     float const dt          = static_cast<float>(dt_us) * 1.0e-6f;
 
-    if (dt < 1e-6f) {
+    if (dt < 1.0e-6f) {
         return;
     }
 
@@ -72,11 +63,9 @@ void velocity_tracker::reset() noexcept {
 
 // ── momentum_calculator ────────────────────────────────────────────────────
 
-momentum_calculator::momentum_calculator(float const pos, float const delta, float const vel) noexcept
-  : delta_(delta),
-    vel_(vel),
-    pos_(pos),
-    target_{pred_dest()} {
+momentum_calculator::momentum_calculator(
+  float const pos, float const delta, float const vel) noexcept
+  : delta_(delta), vel_(vel), pos_(pos), target_{pred_dest()} {
     init_curve();
     init_interp();
 }
@@ -87,11 +76,12 @@ float momentum_calculator::pos_at(fsecs const time) const noexcept {
 }
 
 fsecs momentum_calculator::duration() const noexcept {
-    return anim_dur;
+    return fsecs{1.0};
 }
 
 float momentum_calculator::pred_dest() const noexcept {
-    return pos_ + project_inertial(delta_);
+    constexpr float factor = 16.7f;
+    return pos_ + factor * delta_;
 }
 
 void momentum_calculator::set_target(float const target) noexcept {
@@ -144,6 +134,14 @@ void momentum_calculator::init_interp() noexcept {
 }
 
 void momentum_calculator::init_curve() noexcept {
+    constexpr int   max_iters = 10;
+    constexpr float threshold = 0.001f;
+    constexpr float init_mag  = 1.1f;
+    constexpr float min_prog  = 0.1f;
+    constexpr float max_prog  = 0.5f;
+    constexpr float fps       = 60.0f;
+    constexpr fsecs anim_dur{1.0};
+
     float prog = min_prog;
 
     if (float const to_target = std::abs(target_ - pos_); to_target > 0.001f) {
@@ -167,6 +165,9 @@ void momentum_calculator::init_curve() noexcept {
 }
 
 float momentum_calculator::progress_at(fsecs const time) const noexcept {
+    constexpr float fps       = 60.0f;
+    constexpr fsecs anim_dur{1.0};
+
     float const t        = std::clamp(static_cast<float>(time.count() / anim_dur.count()), 0.0f, 1.0f);
     float const exponent = -fps * static_cast<float>(anim_dur.count() * t);
     return std::min(1.0f, curve_mag_ * (1.0f - std::pow(decay_, exponent)));
@@ -176,14 +177,11 @@ float momentum_calculator::progress_at(fsecs const time) const noexcept {
 
 template <>
 struct fs8::pimpl_idiom<basic_momentum_base>::impl {
-    velocity_tracker                   vel_x;
-    velocity_tracker                   vel_y;
-    std::optional<momentum_calculator> calc_x;
-    std::optional<momentum_calculator> calc_y;
-    event_type::type_type              track_type   = EV_REL;
-    event_type::code_type              track_code_x = REL_WHEEL_HI_RES;
-    event_type::code_type              track_code_y = REL_HWHEEL_HI_RES;
-    bool                               active       = false;
+    velocity_tracker      vel_x;
+    velocity_tracker      vel_y;
+    event_type::type_type track_type   = EV_REL;
+    event_type::code_type track_code_x = REL_WHEEL_HI_RES;
+    event_type::code_type track_code_y = REL_HWHEEL_HI_RES;
 };
 
 void basic_momentum_base::track(event_type const& event) noexcept {
@@ -202,53 +200,29 @@ void basic_momentum_base::track(event_type const& event) noexcept {
     }
 }
 
-void basic_momentum_base::start(
-  float const pos_x,
-  float const delta_x,
-  float const vel_x,
-  float const pos_y,
-  float const delta_y,
-  float const vel_y) noexcept {
-    if (pimpl.get() == nullptr) [[unlikely]] {
-        return;
-    }
-    pimpl->calc_x.emplace(pos_x, delta_x, vel_x);
-    pimpl->calc_y.emplace(pos_y, delta_y, vel_y);
-    pimpl->active = true;
-}
-
 bool basic_momentum_base::is_active() const noexcept {
-    return pimpl.get() != nullptr && pimpl->active;
+    return pimpl.get() != nullptr;
 }
 
-std::pair<float, float> basic_momentum_base::current_position() const noexcept {
-    if (pimpl.get() == nullptr || !pimpl->active) {
+std::pair<float, float> basic_momentum_base::current_velocity() const noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
         return {0.0f, 0.0f};
     }
-    return {pimpl->calc_x->pos_at(fsecs{0}), pimpl->calc_y->pos_at(fsecs{0})};
+    return {pimpl->vel_x.velocity(), pimpl->vel_y.velocity()};
 }
 
-std::pair<float, float> basic_momentum_base::position_at(fsecs const elapsed) const noexcept {
-    if (pimpl.get() == nullptr || !pimpl->active) {
-        return {0.0f, 0.0f};
-    }
-    return {pimpl->calc_x->pos_at(elapsed), pimpl->calc_y->pos_at(elapsed)};
-}
-
-fsecs basic_momentum_base::calc_duration() const noexcept {
-    if (pimpl.get() == nullptr || !pimpl->active) {
-        return fsecs{0};
-    }
-    return std::max(pimpl->calc_x->duration(), pimpl->calc_y->duration());
+float basic_momentum_base::decay_factor(int const i) const noexcept {
+    // Convert velocity (pixels/sec) to scroll-wheel units and apply decay.
+    // The velocity_tracker stores pixels/sec; scroll-wheel hi-res values
+    // are typically in the range [-120..120] per notch.
+    constexpr float scale = 0.005f;
+    return scale * std::pow(decay_rate, static_cast<float>(i));
 }
 
 context_action basic_momentum_base::operator()(start_tag) noexcept {
     if (pimpl.get() == nullptr) {
         init_impl();
     }
-    pimpl->active = false;
-    pimpl->calc_x.reset();
-    pimpl->calc_y.reset();
     pimpl->vel_x.reset();
     pimpl->vel_y.reset();
     return context_action::next;

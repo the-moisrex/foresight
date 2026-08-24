@@ -1,16 +1,16 @@
 // Created by moisrex on 8/17/25.
 
 module;
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <linux/input-event-codes.h>
-#include <optional>
-#include <thread>
 export module fs8.mods:momentum;
 import fs8.context;
 import fs8.pimpl;
 import fs8.event;
 import :quantifier;
+import :scheduler;
 
 namespace fs8 {
 
@@ -125,10 +125,13 @@ namespace fs8 {
     // ── Policies ───────────────────────────────────────────────────────────
 
     /**
-     * Default no-op policy: tracks and emits the same event codes.
-     * Used for the standalone `momentum` mod when no conversion is needed.
+     * Scroll momentum policy: tracks scroll wheel events
+     * (REL_WHEEL_HI_RES/REL_HWHEEL_HI_RES) and emits them during the
+     * momentum animation to add inertial scrolling.
+     *
+     * Requires `scheduler` earlier in the pipeline to emit timed events.
      */
-    export struct [[nodiscard]] no_scroll_policy {
+    export struct [[nodiscard]] scroll_momentum_policy {
         static constexpr auto track_type   = EV_REL;
         static constexpr auto track_code_x = REL_WHEEL_HI_RES;
         static constexpr auto track_code_y = REL_HWHEEL_HI_RES;
@@ -136,62 +139,55 @@ namespace fs8 {
         static constexpr auto emit_code_x  = REL_WHEEL_HI_RES;
         static constexpr auto emit_code_y  = REL_HWHEEL_HI_RES;
 
-        template <Context CtxT, typename MomentumT>
-        static context_action pass_through(CtxT& ctx, MomentumT& momentum) noexcept {
-            momentum.track(ctx.event());
-            return context_action::next;
-        }
-    };
-
-    /**
-     * Scroll momentum policy: tracks raw mouse movement (REL_X/REL_Y),
-     * converts to high-resolution scroll events (REL_WHEEL_HI_RES/REL_HWHEEL_HI_RES),
-     * and emits scroll events during the momentum animation.
-     *
-     * Requires `mice_quantifier` earlier in the pipeline for discrete scroll steps.
-     */
-    export struct [[nodiscard]] scroll_momentum_policy {
-        static constexpr auto track_type   = EV_REL;
-        static constexpr auto track_code_x = REL_X;
-        static constexpr auto track_code_y = REL_Y;
-        static constexpr auto emit_type    = EV_REL;
-        static constexpr auto emit_code_x  = REL_WHEEL_HI_RES;
-        static constexpr auto emit_code_y  = REL_HWHEEL_HI_RES;
-
-        /// Scroll sensitivity multiplier (positive = normal, negative = reversed).
-        static constexpr event_type::value_type default_reverse = 8;
+        /// Number of momentum events to schedule per axis.
+        static constexpr int momentum_events = 30;
+        /// Frame interval in ms (~60 fps).
+        static constexpr int frame_ms        = 16;
 
         template <Context CtxT, typename MomentumT>
         static context_action pass_through(CtxT& ctx, MomentumT& momentum) noexcept {
             using enum context_action;
 
+            static_assert(has_mod<basic_scheduler, CtxT>, "Add scheduler for the animations.");
+
             momentum.track(ctx.event());
 
-            auto const& event = ctx.event();
-            if (!is_mouse_movement(event)) {
+            auto& sched = ctx.mod(scheduler);
+
+            // Cancel any previously scheduled momentum.
+            sched.cancel();
+
+            // Compute momentum events from the current velocity.
+            auto const [vel_x, vel_y] = momentum.current_velocity();
+            if (std::abs(vel_x) < 0.5f && std::abs(vel_y) < 0.5f) {
                 return next;
             }
 
-            auto const hval = event.value() * default_reverse;
-            switch (event.code()) {
-                case REL_X: std::ignore = ctx.fork_emit(EV_REL, REL_HWHEEL_HI_RES, hval); break;
-                case REL_Y: std::ignore = ctx.fork_emit(EV_REL, REL_WHEEL_HI_RES, hval); break;
-                default: break;
+            // Build a decaying sequence of scroll events on the stack.
+            // todo: use inplace_vector
+            static constexpr int               max_events = momentum_events * 3;
+            std::array<event_type, max_events> events{};
+            std::size_t                        count = 0;
+
+            for (int i = 0; i < momentum_events; ++i) {
+                float const factor = momentum.decay_factor(i);
+                auto const  dx     = static_cast<event_type::value_type>(vel_x * factor);
+                auto const  dy     = static_cast<event_type::value_type>(vel_y * factor);
+
+                if (dx != 0) {
+                    events[count++] = event_type(emit_type, emit_code_x, dx);
+                }
+                if (dy != 0) {
+                    events[count++] = event_type(emit_type, emit_code_y, dy);
+                }
+                events[count++] = event_type(EV_SYN, SYN_REPORT, 0);
             }
 
-            if constexpr (has_mod<basic_mice_quantifier, CtxT>) {
-                auto&      quant = ctx.mod(mice_quantifier);
-                auto const val   = event.value();
-                auto const cval  = (val > 0 ? 1 : val < 0 ? -1 : 0) * (default_reverse > 0 ? 1 : -1);
-                if (auto const x_steps = quant.consume_x(); x_steps != 0) {
-                    std::ignore = ctx.fork_emit(EV_REL, REL_HWHEEL, cval);
-                }
-                if (auto const y_steps = quant.consume_y(); y_steps != 0) {
-                    std::ignore = ctx.fork_emit(EV_REL, REL_WHEEL, cval);
-                }
+            if (count > 0) {
+                sched.schedule(std::span{events.data(), count}, frame_ms);
             }
 
-            return ignore_event;
+            return next;
         }
     };
 
@@ -203,7 +199,7 @@ namespace fs8 {
      * in the .cxx so the pimpl impl stays hidden.
      *
      * `basic_momentum<Policy>` inherits from this, adding only the
-     * policy-provided constants and the template `operator()`/`run()`.
+     * policy-provided constants and the template `operator()`.
      */
     export struct [[nodiscard]] basic_momentum_base : pimpl_idiom<basic_momentum_base> {
         using pimpl_idiom::pimpl_idiom;
@@ -211,27 +207,27 @@ namespace fs8 {
 
         void track(event_type const& event) noexcept;
 
-        void start(float pos_x, float delta_x, float vel_x, float pos_y, float delta_y, float vel_y) noexcept;
+        [[nodiscard]] bool is_active() const noexcept;
 
-        [[nodiscard]] bool                    is_active() const noexcept;
-        [[nodiscard]] std::pair<float, float> current_position() const noexcept;
+        /// Get the smoothed velocity for both axes.
+        [[nodiscard]] std::pair<float, float> current_velocity() const noexcept;
+
+        /// Compute a decay factor for the i-th momentum event.
+        [[nodiscard]] float decay_factor(int i) const noexcept;
 
         context_action operator()(start_tag) noexcept;
 
       protected:
-        /// Configure which event codes to track and emit.
+        /// Configure which event codes to track.
         /// Called by derived classes in their start_tag handler.
         void configure(event_type::type_type track_type, event_type::code_type track_code_x, event_type::code_type track_code_y) noexcept;
-
-        [[nodiscard]] std::pair<float, float> position_at(fsecs elapsed) const noexcept;
-        [[nodiscard]] fsecs                   calc_duration() const noexcept;
     };
 
     /**
      * Generic momentum pipeline mod, parameterized on a Policy.
      *
-     * Tracks the velocity of axis events and can be triggered to generate
-     * momentum-based synthetic events that gradually decelerate. The policy
+     * Tracks the velocity of scroll events and schedules momentum events
+     * via the `scheduler` mod to add inertial scrolling. The policy
      * defines what to track, what to emit, and how to transform events.
      *
      * @par Example
@@ -241,7 +237,7 @@ namespace fs8 {
      *       | io_manager
      *       | input_manager
      *       | intercept[keyboard, mouse]
-     *       | mice_quantifier
+     *       | scheduler
      *       | momentum_scroll
      *       | output;
      * @endcode
@@ -257,40 +253,6 @@ namespace fs8 {
         static constexpr auto emit_code_x  = Policy::emit_code_x;
         static constexpr auto emit_code_y  = Policy::emit_code_y;
 
-        /// Run the momentum animation synchronously, emitting events via
-        /// `fork_emit` at ~60 fps.
-        template <Context CtxT>
-        void run(CtxT& ctx) noexcept {
-            using enum context_action;
-            auto const start_tp = std::chrono::steady_clock::now();
-            auto const anim_dur = calc_duration();
-            fsecs      elapsed{0};
-            float      prev_x = 0.0f;
-            float      prev_y = 0.0f;
-
-            while (elapsed < anim_dur) {
-                auto const now      = std::chrono::steady_clock::now();
-                elapsed             = std::chrono::duration_cast<fsecs>(now - start_tp);
-                auto const [px, py] = position_at(elapsed);
-                auto const dx       = std::round(px - prev_x);
-                auto const dy       = std::round(py - prev_y);
-                prev_x              = px;
-                prev_y              = py;
-
-                if (dx != 0.0f || dy != 0.0f) {
-                    if (dx != 0.0f) {
-                        std::ignore = ctx.fork_emit(emit_type, emit_code_x, static_cast<value_type>(dx));
-                    }
-                    if (dy != 0.0f) {
-                        std::ignore = ctx.fork_emit(emit_type, emit_code_y, static_cast<value_type>(dy));
-                    }
-                    std::ignore = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);
-                }
-
-                std::this_thread::sleep_until(start_tp + std::chrono::duration_cast<usecs>(elapsed + frame_dt));
-            }
-        }
-
         /// Pipeline mod: delegate pass-through behavior to the policy.
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
@@ -302,18 +264,11 @@ namespace fs8 {
             configure(track_type, track_code_x, track_code_y);
             return this->basic_momentum_base::operator()(start_tag{});
         }
-
-      private:
-        static constexpr value_type fps = 60.0f;
-        static constexpr fsecs      frame_dt{1.0 / static_cast<double>(fps)};
     };
 
     // ── Convenience aliases ────────────────────────────────────────────────
 
-    /// Scroll momentum: tracks REL_X/REL_Y, emits REL_WHEEL_HI_RES during animation.
-    export using momentum_scroll = basic_momentum<scroll_momentum_policy>;
-
-    /// Standalone momentum engine (no event conversion, tracks scroll codes directly).
-    export using momentum = basic_momentum<no_scroll_policy>;
+    /// Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation.
+    export constexpr auto momentum_scroll = basic_momentum<scroll_momentum_policy>{};
 
 } // namespace fs8

@@ -103,6 +103,7 @@ target_sources(${LIB_NAME}
         mods/sanitizer.cxx
         mods/replace.cxx
         mods/router.cxx
+        mods/scheduler.cxx
         mods/scale.cxx
         mods/singleton.cxx
         mods/smooth.cxx
@@ -159,6 +160,7 @@ target_sources(${LIB_NAME}
         mods/sanitizer.ixx
         mods/replace.ixx
         mods/router.ixx
+        mods/scheduler.ixx
         mods/scale.ixx
         mods/singleton.ixx
         mods/smooth.ixx
