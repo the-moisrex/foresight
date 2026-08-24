@@ -19,8 +19,8 @@ using fs8::io_fd;
 
 template <>
 struct fs8::pimpl_idiom<basic_io_manager>::impl {
-    std::vector<pollfd>                                          fds;
-    std::vector<std::function_ref<context_action(io_fd const&)>> callbacks;
+    std::vector<pollfd>                                    fds;
+    std::vector<std::function_ref<context_action(io_fd&)>> callbacks;
 };
 
 void basic_io_manager::clear() noexcept {
@@ -137,11 +137,17 @@ context_action basic_io_manager::operator()(load_event_tag) noexcept {
         if (it == pimpl->fds.end()) [[unlikely]] {
             break;
         }
-        auto const fd      = it->fd;
-        auto const revents = static_cast<io_event>(it->revents);
-        it->revents        = 0;
-        auto const index   = static_cast<std::size_t>(std::distance(pimpl->fds.begin(), it));
-        auto const result  = pimpl->callbacks[index](io_fd{.fd = fd, .events = static_cast<io_event>(it->events), .revents = revents});
+        auto const fd          = it->fd;
+        auto const revents     = static_cast<io_event>(it->revents);
+        it->revents            = 0;
+        auto const index       = static_cast<std::size_t>(std::distance(pimpl->fds.begin(), it));
+        auto       io_fd_state = io_fd{.fd = fd, .events = static_cast<io_event>(it->events), .revents = revents};
+        auto const result      = pimpl->callbacks[index](io_fd_state);
+        if (io_fd_state.unwatch) [[unlikely]] {
+            pimpl->fds.erase(pimpl->fds.begin() + static_cast<std::ptrdiff_t>(index));
+            pimpl->callbacks.erase(pimpl->callbacks.begin() + static_cast<std::ptrdiff_t>(index));
+            continue;
+        }
         if (result == exit) [[unlikely]] {
             return exit;
         }

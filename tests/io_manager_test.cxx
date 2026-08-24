@@ -14,7 +14,7 @@ namespace {
         io_fd                info{};
         std::array<char, 32> buf{};
 
-        context_action operator()(io_fd const& fd) noexcept {
+        context_action operator()(io_fd& fd) noexcept {
             info = fd;
             if (auto const n = ::read(fd.fd, buf.data(), static_cast<std::size_t>(buf.size() - 1)); n > 0) {
                 buf[static_cast<std::size_t>(n)] = '\0';
@@ -29,7 +29,7 @@ namespace {
         int               other = -1;
         int               calls = 0;
 
-        context_action operator()([[maybe_unused]] io_fd const& fd) noexcept {
+        context_action operator()([[maybe_unused]] io_fd& fd) noexcept {
             ++calls;
             mgr->unwatch(self);
             mgr->unwatch(other);
@@ -38,23 +38,23 @@ namespace {
     };
 
     struct not_a_handler {
-        void operator()(io_fd const&) noexcept {}
+        void operator()(io_fd&) noexcept {}
     };
 
     struct throwing_handler {
-        context_action operator()(io_fd const&) {
+        context_action operator()(io_fd&) {
             return context_action::next;
         }
     };
 
     struct exit_handler {
-        context_action operator()(io_fd const&) noexcept {
+        context_action operator()(io_fd&) noexcept {
             return context_action::exit;
         }
     };
 
     struct idle_handler {
-        context_action operator()(io_fd const&) noexcept {
+        context_action operator()(io_fd&) noexcept {
             return context_action::idle;
         }
     };

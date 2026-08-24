@@ -2,13 +2,13 @@
 
 module;
 #include <algorithm>
+#include <array>
 #include <deque>
 #include <list>
 #include <optional>
 #include <span>
 #include <sys/poll.h>
 #include <utility>
-#include <vector>
 module fs8.mods;
 import fs8.devices.evdev;
 import fs8.context;
@@ -18,18 +18,36 @@ import :input_manager;
 
 using fs8::basic_interceptor;
 using fs8::context_action;
+using fs8::device_id;
 using fs8::device_query;
 using fs8::event_type;
 using fs8::io_event;
 using fs8::io_fd;
 using fs8::provider_handle;
 
+namespace {
+    /// A tracked fd entry: caches the device_id and evdev pointer so the hot path
+    /// never calls device_id_of() (which does a readlink syscall) or iterates
+    /// im.devices() (a linked-list scan).
+    struct watched_fd {
+        int            fd   = -1;
+        fs8::device_id id   = fs8::device_id::none;
+        fs8::evdev*    dev  = nullptr;
+        bool           dead = false;
+
+        constexpr watched_fd() noexcept = default;
+
+        constexpr watched_fd(int f, fs8::device_id i, fs8::evdev* d, bool ddd = false) noexcept : fd{f}, id{i}, dev{d}, dead{ddd} {}
+    };
+} // namespace
+
 template <>
 struct fs8::pimpl_idiom<basic_interceptor>::impl {
-    basic_input_manager*   im = nullptr;
-    std::list<evdev>       manual_devs;
-    std::deque<event_type> pending;
-    std::vector<int>       watched_fds;
+    basic_input_manager*       im = nullptr;
+    std::list<fs8::evdev>      manual_devs;
+    std::deque<event_type>     pending;
+    std::array<watched_fd, 16> watched{};
+    std::size_t                watched_count = 0;
 };
 
 void basic_interceptor::add(evdev&& dev) noexcept {
@@ -67,8 +85,6 @@ context_action basic_interceptor::do_start(basic_input_manager& im, basic_io_man
 
     pimpl->im = &im;
 
-    // log("DEBUG do_start: queries_count={}", queries_count);
-
     // Queries stay owned here; register as a provider so `input_manager` can
     // pull them again (e.g. on `requery`) instead of copying them over.
     im.add_query_provider(provider_handle(*this));
@@ -88,28 +104,29 @@ context_action basic_interceptor::do_start(basic_input_manager& im, basic_io_man
     return context_action::exit;
 }
 
-context_action basic_interceptor::operator()(io_fd const& fd) noexcept try {
+context_action basic_interceptor::operator()(io_fd& fd) noexcept try {
     using enum context_action;
     if (pimpl.get() == nullptr || pimpl->im == nullptr) [[unlikely]] {
         return next;
     }
-    for (auto& dev : pimpl->im->devices()) {
-        if (dev.native_handle() != fd.fd) {
+    // Table lookup: find the watched_fd entry by fd — no device-list iteration.
+    for (std::size_t i = 0; i < pimpl->watched_count; ++i) {
+        auto& entry = pimpl->watched[i];
+        if (entry.fd != fd.fd) {
             continue;
         }
         if ((std::to_underlying(fd.revents) & (POLLERR | POLLHUP | POLLNVAL)) != 0) [[unlikely]] {
-            log("Device '{}' error/disconnected.", dev.device_name());
+            log("Device '{}' error/disconnected.", entry.dev->device_name());
+            entry.dead = true;
+            fd.unwatch = true;
             return next;
         }
-        // Stamp each event with the source device's opaque id (a hash of its
-        // sysname). Whether the device is a real one, our own uinput device,
-        // or another process's foresight virtual device is answered later by
-        // input_manager (`is_owned` / `is_chained`).
-        auto const source = pimpl->im->device_id_of(dev);
-        while (auto const ev = dev.next()) {
-            pimpl->pending.emplace_back(*ev).source(source);
+        // Drain events using cached device_id — no readlink syscall.
+        auto const id = entry.id;
+        while (auto const ev = entry.dev->next()) {
+            pimpl->pending.emplace_back(*ev).source(id);
         }
-        break;
+        return next;
     }
     return next;
 } catch (...) {
@@ -121,27 +138,58 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
         return std::nullopt;
     }
 
-    // Unwatch fds whose devices are gone (hotplug removals).
-    for (auto it = pimpl->watched_fds.begin(); it != pimpl->watched_fds.end();) {
-        bool const found = std::ranges::any_of(im.devices(), [fd = *it](evdev const& dev) noexcept {
-            return dev.native_handle() == fd;
-        });
-        if (!found) {
-            io.unwatch(*it);
-            it = pimpl->watched_fds.erase(it);
-        } else {
-            ++it;
-        }
+    // Fast path: drain the pending queue without reconciliation.
+    if (pimpl->watched_count > 0 && !pimpl->pending.empty()) [[likely]] {
+        auto const ev = pimpl->pending.front();
+        pimpl->pending.pop_front();
+        return ev;
     }
 
-    // Watch any device that is not watched yet (startup + hotplug adds).
-    for (auto& dev : im.devices()) {
-        int const fd = dev.native_handle();
-        if (io.is_watched(fd)) {
+    // Reconcile watches: single pass through the table.
+    // Evict dead/gone entries, refresh cached pointers, add new devices.
+    std::size_t write = 0;
+    for (std::size_t read = 0; read < pimpl->watched_count; ++read) {
+        auto&      entry        = pimpl->watched[read];
+        bool const device_alive = std::ranges::any_of(im.devices(), [&](evdev const& d) noexcept {
+            return d.native_handle() == entry.fd;
+        });
+        if (entry.dead || !device_alive) {
+            io.unwatch(entry.fd);
             continue;
         }
-        if (io.watch(io_fd{.fd = fd, .events = io_event::in}, *this)) {
-            pimpl->watched_fds.push_back(fd);
+        // Refresh cached pointer (list iterators may have been invalidated
+        // by input_manager hotplug).
+        for (auto& dev : im.devices()) {
+            if (dev.native_handle() == entry.fd) {
+                entry.dev = &dev;
+                break;
+            }
+        }
+        if (write != read) {
+            pimpl->watched[write] = entry;
+        }
+        ++write;
+    }
+    pimpl->watched_count = write;
+
+    // Watch new devices not yet in the table.
+    for (auto& dev : im.devices()) {
+        int const dev_fd          = dev.native_handle();
+        bool      already_tracked = false;
+        for (std::size_t i = 0; i < pimpl->watched_count; ++i) {
+            if (pimpl->watched[i].fd == dev_fd) {
+                already_tracked = true;
+                break;
+            }
+        }
+        if (already_tracked) {
+            continue;
+        }
+        if (pimpl->watched_count >= pimpl->watched.size()) [[unlikely]] {
+            break;
+        }
+        if (io.watch(io_fd{.fd = dev_fd, .events = io_event::in}, *this)) {
+            pimpl->watched[pimpl->watched_count++] = watched_fd{dev_fd, im.device_id_of(dev), &dev};
         }
     }
 

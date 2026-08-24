@@ -59,7 +59,7 @@ export namespace fs8 {
         }
 
         /// io_manager handler: drain a readable device fd into the pending queue.
-        context_action operator()(io_fd const& fd) noexcept;
+        context_action operator()(io_fd& fd) noexcept;
 
         /// next_event provider: reconcile watches, pop one event, else ignore_event.
         template <Context ContextT>

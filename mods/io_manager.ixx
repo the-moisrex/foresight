@@ -46,10 +46,11 @@ export namespace fs8 {
         int      fd      = -1;
         io_event events  = io_event::in;
         io_event revents = io_event::none; // filled by the manager before dispatching
+        bool     unwatch = false;          // set by callback to request removal
     };
 
     template <typename T>
-    concept io_handler = !Context<T> && std::is_nothrow_invocable_r_v<context_action, T&, io_fd const&>;
+    concept io_handler = !Context<T> && std::is_nothrow_invocable_r_v<context_action, T&, io_fd&>;
 
     /**
      * Register file descriptors, wait for events on all of them at once, and dispatch
@@ -58,7 +59,7 @@ export namespace fs8 {
      * manager's (e.g. mods living in the same pipeline).
      */
     constexpr struct [[nodiscard]] basic_io_manager : pimpl_idiom<basic_io_manager> {
-        using io_callback = std::function_ref<context_action(io_fd const&)>;
+        using io_callback = std::function_ref<context_action(io_fd&)>;
 
         template <io_handler HandlerT>
         [[nodiscard]] bool watch(io_fd const& fd, HandlerT& handler) noexcept {
