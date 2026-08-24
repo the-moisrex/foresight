@@ -347,6 +347,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__scheduled__emitter.html">basic_scheduled_emitter</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__scheduler.html">basic_scheduler</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__search__engine.html">basic_search_engine</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__self__emitted.html">basic_self_emitted</a></td></tr>
@@ -457,8 +459,6 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Single-axis momentum animation calculator.  <a href="structfs8_1_1momentum__calculator.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1named__solution.html">named_solution</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1no__scroll__policy.html">no_scroll_policy</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1nullable__indirect.html">nullable_indirect</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -660,12 +660,6 @@ Typedefs</h2></td></tr>
 <tr class="separator:ae1d3b62f16d4bc6ce85de47b9f9ef008"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0c0182c0bcba062c10b98ba72545d33" id="r_ad0c0182c0bcba062c10b98ba72545d33"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad0c0182c0bcba062c10b98ba72545d33">fs8::usecs</a> = std::chrono::microseconds</td></tr>
 <tr class="separator:ad0c0182c0bcba062c10b98ba72545d33"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8df3555d0f6234b6f64eaf4412f69b78" id="r_a8df3555d0f6234b6f64eaf4412f69b78"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a8df3555d0f6234b6f64eaf4412f69b78">fs8::momentum_scroll</a> = <a class="el" href="structfs8_1_1basic__momentum.html">basic_momentum</a>&lt; <a class="el" href="structfs8_1_1scroll__momentum__policy.html">scroll_momentum_policy</a> &gt;</td></tr>
-<tr class="memdesc:a8df3555d0f6234b6f64eaf4412f69b78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scroll momentum: tracks REL_X/REL_Y, emits REL_WHEEL_HI_RES during animation.  <br /></td></tr>
-<tr class="separator:a8df3555d0f6234b6f64eaf4412f69b78"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc3907b06b5f02a3e3d46fb453a4ecfd" id="r_afc3907b06b5f02a3e3d46fb453a4ecfd"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afc3907b06b5f02a3e3d46fb453a4ecfd">fs8::momentum</a> = <a class="el" href="structfs8_1_1basic__momentum.html">basic_momentum</a>&lt; <a class="el" href="structfs8_1_1no__scroll__policy.html">no_scroll_policy</a> &gt;</td></tr>
-<tr class="memdesc:afc3907b06b5f02a3e3d46fb453a4ecfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standalone momentum engine (no event conversion, tracks scroll codes directly).  <br /></td></tr>
-<tr class="separator:afc3907b06b5f02a3e3d46fb453a4ecfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a0f43acc4fadf98b4d342f68e3660c4" id="r_a8a0f43acc4fadf98b4d342f68e3660c4"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a8a0f43acc4fadf98b4d342f68e3660c4">fs8::value_type</a> = <a class="el" href="structfs8_1_1event__type.html#a2e849054fba3388fcde2f566a6bcbdb9">event_type::value_type</a></td></tr>
 <tr class="separator:a8a0f43acc4fadf98b4d342f68e3660c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -1679,6 +1673,9 @@ Variables</h2></td></tr>
 <tr class="separator:a1d3b09029b4d253898eb87b6c681b8c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af69f7b7381d92ffa6c923455721a66e6" id="r_af69f7b7381d92ffa6c923455721a66e6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__switch__mode.html">fs8::basic_switch_mode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af69f7b7381d92ffa6c923455721a66e6">switch_mode</a></td></tr>
 <tr class="separator:af69f7b7381d92ffa6c923455721a66e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcd0c204753b4cf5e3302ad649516d91" id="r_abcd0c204753b4cf5e3302ad649516d91"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#abcd0c204753b4cf5e3302ad649516d91">fs8::momentum_scroll</a> = <a class="el" href="structfs8_1_1basic__momentum.html">basic_momentum</a>&lt;<a class="el" href="structfs8_1_1scroll__momentum__policy.html">scroll_momentum_policy</a>&gt;{}</td></tr>
+<tr class="memdesc:abcd0c204753b4cf5e3302ad649516d91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation.  <br /></td></tr>
+<tr class="separator:abcd0c204753b4cf5e3302ad649516d91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa8e58604e1cb96172ab1e4abc48f95a" id="r_aaa8e58604e1cb96172ab1e4abc48f95a"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__mouse__history.html">basic_mouse_history</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aaa8e58604e1cb96172ab1e4abc48f95a">fs8::mouse_history</a></td></tr>
 <tr class="separator:aaa8e58604e1cb96172ab1e4abc48f95a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb26a239748eb1c62481a801edcec14b" id="r_afb26a239748eb1c62481a801edcec14b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__mouse__to__scroll.html">fs8::basic_mouse_to_scroll</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afb26a239748eb1c62481a801edcec14b">mouse_to_scroll</a></td></tr>
@@ -1764,6 +1761,8 @@ Variables</h2></td></tr>
 <tr class="separator:a1d05cad303518ae5309d4600be564573"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9508b079e8311d1cbd45fe297c9b9f7" id="r_aa9508b079e8311d1cbd45fe297c9b9f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__scale__move.html">fs8::basic_scale_move</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa9508b079e8311d1cbd45fe297c9b9f7">scale_move</a></td></tr>
 <tr class="separator:aa9508b079e8311d1cbd45fe297c9b9f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81700e539266ef841b59309b64be8aaa" id="r_a81700e539266ef841b59309b64be8aaa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__scheduler.html">fs8::basic_scheduler</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a81700e539266ef841b59309b64be8aaa">scheduler</a></td></tr>
+<tr class="separator:a81700e539266ef841b59309b64be8aaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a48abd5fa46ed80748e63919a38ce4f2e" id="r_a48abd5fa46ed80748e63919a38ce4f2e"><td class="memItemLeft" align="right" valign="top">constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a48abd5fa46ed80748e63919a38ce4f2e">SINGLETON_HASH_INIT</a> = 0xCBF2'9CE4'8422'2325ULL</td></tr>
 <tr class="separator:a48abd5fa46ed80748e63919a38ce4f2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d629bd7d5ebb8089d55fe9786632799" id="r_a1d629bd7d5ebb8089d55fe9786632799"><td class="memItemLeft" align="right" valign="top">constexpr std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a1d629bd7d5ebb8089d55fe9786632799">SINGLETON_HASH_PRIME</a> = 0x100'0000'01B3ULL</td></tr>
@@ -2082,54 +2081,6 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-</div>
-</div>
-<a id="afc3907b06b5f02a3e3d46fb453a4ecfd" name="afc3907b06b5f02a3e3d46fb453a4ecfd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afc3907b06b5f02a3e3d46fb453a4ecfd">&#9670;&#160;</a></span>momentum</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">using <a class="el" href="namespacefs8.html#afc3907b06b5f02a3e3d46fb453a4ecfd">fs8::momentum</a> = typedef <a class="el" href="structfs8_1_1basic__momentum.html">basic_momentum</a>&lt;<a class="el" href="structfs8_1_1no__scroll__policy.html">no_scroll_policy</a>&gt;</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Standalone momentum engine (no event conversion, tracks scroll codes directly). </p>
-
-</div>
-</div>
-<a id="a8df3555d0f6234b6f64eaf4412f69b78" name="a8df3555d0f6234b6f64eaf4412f69b78"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8df3555d0f6234b6f64eaf4412f69b78">&#9670;&#160;</a></span>momentum_scroll</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">using <a class="el" href="namespacefs8.html#a8df3555d0f6234b6f64eaf4412f69b78">fs8::momentum_scroll</a> = typedef <a class="el" href="structfs8_1_1basic__momentum.html">basic_momentum</a>&lt;<a class="el" href="structfs8_1_1scroll__momentum__policy.html">scroll_momentum_policy</a>&gt;</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Scroll momentum: tracks REL_X/REL_Y, emits REL_WHEEL_HI_RES during animation. </p>
 
 </div>
 </div>
@@ -12812,6 +12763,30 @@ template&lt;std::size_t N&gt; </div>
 
 </div>
 </div>
+<a id="abcd0c204753b4cf5e3302ad649516d91" name="abcd0c204753b4cf5e3302ad649516d91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abcd0c204753b4cf5e3302ad649516d91">&#9670;&#160;</a></span>momentum_scroll</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto fs8::momentum_scroll = <a class="el" href="structfs8_1_1basic__momentum.html">basic_momentum</a>&lt;<a class="el" href="structfs8_1_1scroll__momentum__policy.html">scroll_momentum_policy</a>&gt;{}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation. </p>
+
+</div>
+</div>
 <a id="a7211268ea02a8608b761bbd90a58da5a" name="a7211268ea02a8608b761bbd90a58da5a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7211268ea02a8608b761bbd90a58da5a">&#9670;&#160;</a></span>mouse</h2>
 
@@ -13484,6 +13459,20 @@ template&lt;std::size_t N&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="structfs8_1_1basic__scheduled__emitter.html">fs8::basic_scheduled_emitter</a> fs8::scheduled_emitter</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a81700e539266ef841b59309b64be8aaa" name="a81700e539266ef841b59309b64be8aaa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81700e539266ef841b59309b64be8aaa">&#9670;&#160;</a></span>scheduler</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structfs8_1_1basic__scheduler.html">fs8::basic_scheduler</a> fs8::scheduler</td>
         </tr>
       </table>
 </div><div class="memdoc">

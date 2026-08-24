@@ -48,9 +48,10 @@ var searchData=
   ['invalid_5funique_5fidentifier_45',['invalid_unique_identifier',['../namespacefs8.html#a7a9857b50b240a6fb910c5152594b84c',1,'fs8']]],
   ['invalid_5fuser_5fevent_46',['invalid_user_event',['../namespacefs8.html#a876ea8752da38c4c015857f01ee24e5b',1,'fs8']]],
   ['invoke_47',['invoke',['../structfs8_1_1query__provider__handle.html#aafc599a8119e8e29bf15a582eb2bb79f',1,'fs8::query_provider_handle']]],
-  ['io_5fmanager_48',['io_manager',['../namespacefs8.html#a94c045c9f25ce171f90ea715226c9df0',1,'fs8']]],
-  ['is_5fconstructible_5fat_5fcompile_5ftime_49',['is_constructible_at_compile_time',['../structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a',1,'fs8::var_type']]],
-  ['is_5fquery_50',['is_query',['../namespacefs8.html#aadc64fc1f9d5543954acb8c8ee2cfce7',1,'fs8']]],
-  ['is_5fquery_3c_20basic_5fdevice_5fquery_3c_20n_20_3e_20_3e_51',['is_query&lt; basic_device_query&lt; N &gt; &gt;',['../namespacefs8.html#af27f94630addc25ede7b41f43544cdad',1,'fs8']]],
-  ['is_5ftag_52',['is_tag',['../structfs8_1_1basic__tag.html#ac64f5b47d98b6d7838149609d6aea3e8',1,'fs8::basic_tag::is_tag'],['../structfs8_1_1basic__auto__mode__tag.html#a179809a5e6c77bfaf557b487f615a4b1',1,'fs8::basic_auto_mode_tag::is_tag'],['../structfs8_1_1basic__pass__trigger__tag.html#a93a831f44d5ae7942683bbed86f1736d',1,'fs8::basic_pass_trigger_tag::is_tag'],['../structfs8_1_1get__variables__tag.html#aafb7e269771441446c32174571d22068',1,'fs8::get_variables_tag::is_tag']]]
+  ['io_48',['io',['../structfs8_1_1pimpl__idiom_1_1impl.html#abf1c46954958674beef8bc5dbd6baafa',1,'fs8::pimpl_idiom::impl']]],
+  ['io_5fmanager_49',['io_manager',['../namespacefs8.html#a94c045c9f25ce171f90ea715226c9df0',1,'fs8']]],
+  ['is_5fconstructible_5fat_5fcompile_5ftime_50',['is_constructible_at_compile_time',['../structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a',1,'fs8::var_type']]],
+  ['is_5fquery_51',['is_query',['../namespacefs8.html#aadc64fc1f9d5543954acb8c8ee2cfce7',1,'fs8']]],
+  ['is_5fquery_3c_20basic_5fdevice_5fquery_3c_20n_20_3e_20_3e_52',['is_query&lt; basic_device_query&lt; N &gt; &gt;',['../namespacefs8.html#af27f94630addc25ede7b41f43544cdad',1,'fs8']]],
+  ['is_5ftag_53',['is_tag',['../structfs8_1_1basic__tag.html#ac64f5b47d98b6d7838149609d6aea3e8',1,'fs8::basic_tag::is_tag'],['../structfs8_1_1basic__auto__mode__tag.html#a179809a5e6c77bfaf557b487f615a4b1',1,'fs8::basic_auto_mode_tag::is_tag'],['../structfs8_1_1basic__pass__trigger__tag.html#a93a831f44d5ae7942683bbed86f1736d',1,'fs8::basic_pass_trigger_tag::is_tag'],['../structfs8_1_1get__variables__tag.html#aafb7e269771441446c32174571d22068',1,'fs8::get_variables_tag::is_tag']]]
 ];

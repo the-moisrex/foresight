@@ -85,6 +85,9 @@ var hierarchy =
       [ "fs8::pimpl_idiom< basic_record >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_record", "structfs8_1_1basic__record.html", null ]
       ] ],
+      [ "fs8::pimpl_idiom< basic_scheduler >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_scheduler", "structfs8_1_1basic__scheduler.html", null ]
+      ] ],
       [ "fs8::pimpl_idiom< basic_search_engine >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_search_engine", "structfs8_1_1basic__search__engine.html", null ]
       ] ],
@@ -210,7 +213,6 @@ var hierarchy =
     [ "fs8::momentum_calculator", "structfs8_1_1momentum__calculator.html", null ],
     [ "my_libevdev_uinput", "structmy__libevdev__uinput.html", null ],
     [ "fs8::named_solution", "structfs8_1_1named__solution.html", null ],
-    [ "fs8::no_scroll_policy", "structfs8_1_1no__scroll__policy.html", null ],
     [ "fs8::pimpl_idiom< typename >::impl::node_type", "structfs8_1_1pimpl__idiom_1_1impl_1_1node__type.html", null ],
     [ "fs8::nullable_indirect< T, Allocator >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::detail::router_state >", "structfs8_1_1nullable__indirect.html", null ],

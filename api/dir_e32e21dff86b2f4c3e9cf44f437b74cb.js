@@ -45,6 +45,8 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "sanitizer.ixx", "sanitizer_8ixx.html", "sanitizer_8ixx" ],
     [ "scale.cxx", "scale_8cxx.html", null ],
     [ "scale.ixx", "scale_8ixx.html", "scale_8ixx" ],
+    [ "scheduler.cxx", "scheduler_8cxx.html", "scheduler_8cxx" ],
+    [ "scheduler.ixx", "scheduler_8ixx.html", "scheduler_8ixx" ],
     [ "singleton.cxx", "singleton_8cxx.html", null ],
     [ "singleton.ixx", "singleton_8ixx.html", "singleton_8ixx" ],
     [ "smooth.cxx", "smooth_8cxx.html", "smooth_8cxx" ],
