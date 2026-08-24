@@ -7,6 +7,7 @@ module;
 #include <list>
 #include <optional>
 #include <span>
+#include <string_view>
 #include <sys/poll.h>
 #include <utility>
 module fs8.mods;
@@ -48,6 +49,14 @@ struct fs8::pimpl_idiom<basic_interceptor>::impl {
     std::deque<event_type>     pending;
     std::array<watched_fd, 16> watched{};
     std::size_t                watched_count = 0;
+    std::array<char, 64>       first_disconnect_name{};
+    std::size_t                first_disconnect_name_len = 0;
+    std::size_t                disconnect_count          = 0;
+    /// Fds evicted as dead during reconciliation.  The "watch new devices"
+    /// phase skips these so a device whose fd just got POLLERR is not
+    /// re-watched before udev's "remove" event arrives.
+    std::array<int, 16> dead_fds{};
+    std::size_t         dead_fd_count = 0;
 };
 
 void basic_interceptor::add(evdev&& dev) noexcept {
@@ -116,7 +125,14 @@ context_action basic_interceptor::operator()(io_fd& fd) noexcept try {
             continue;
         }
         if ((std::to_underlying(fd.revents) & (POLLERR | POLLHUP | POLLNVAL)) != 0) [[unlikely]] {
-            log("Device '{}' error/disconnected.", entry.dev->device_name());
+            if (pimpl->disconnect_count == 0) [[likely]] {
+                auto const name = entry.dev->device_name();
+                auto const len  = std::min(name.size(), pimpl->first_disconnect_name.size() - 1);
+                std::ranges::copy_n(name.begin(), len, pimpl->first_disconnect_name.begin());
+                pimpl->first_disconnect_name[len] = '\0';
+                pimpl->first_disconnect_name_len  = len;
+            }
+            ++pimpl->disconnect_count;
             entry.dead = true;
             fd.unwatch = true;
             return next;
@@ -147,7 +163,8 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
 
     // Reconcile watches: single pass through the table.
     // Evict dead/gone entries, refresh cached pointers, add new devices.
-    std::size_t write = 0;
+    pimpl->dead_fd_count = 0;
+    std::size_t write    = 0;
     for (std::size_t read = 0; read < pimpl->watched_count; ++read) {
         auto&      entry        = pimpl->watched[read];
         bool const device_alive = std::ranges::any_of(im.devices(), [&](evdev const& d) noexcept {
@@ -155,6 +172,9 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
         });
         if (entry.dead || !device_alive) {
             io.unwatch(entry.fd);
+            if (pimpl->dead_fd_count < pimpl->dead_fds.size()) {
+                pimpl->dead_fds[pimpl->dead_fd_count++] = entry.fd;
+            }
             continue;
         }
         // Refresh cached pointer (list iterators may have been invalidated
@@ -185,12 +205,34 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
         if (already_tracked) {
             continue;
         }
+        // Skip fds that were just evicted as dead in this reconciliation cycle.
+        for (std::size_t i = 0; i < pimpl->dead_fd_count; ++i) {
+            if (pimpl->dead_fds[i] == dev_fd) {
+                already_tracked = true;
+                break;
+            }
+        }
+        if (already_tracked) {
+            continue;
+        }
         if (pimpl->watched_count >= pimpl->watched.size()) [[unlikely]] {
             break;
         }
         if (io.watch(io_fd{.fd = dev_fd, .events = io_event::in}, *this)) {
             pimpl->watched[pimpl->watched_count++] = watched_fd{dev_fd, im.device_id_of(dev), &dev};
+            log("Device '{}' (re)connected.", dev.device_name());
         }
+    }
+
+    // Log a batch summary for disconnects detected during the last load_event.
+    if (pimpl->disconnect_count > 0) [[unlikely]] {
+        auto const name = std::string_view{pimpl->first_disconnect_name.data(), pimpl->first_disconnect_name_len};
+        if (pimpl->disconnect_count == 1) {
+            log("Device '{}' error/disconnected.", name);
+        } else {
+            log("Device '{}' and {} other(s) disconnected.", name, pimpl->disconnect_count - 1);
+        }
+        pimpl->disconnect_count = 0;
     }
 
     if (pimpl->pending.empty()) [[likely]] {
