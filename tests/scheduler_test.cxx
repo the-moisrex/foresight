@@ -95,7 +95,7 @@ TEST(SchedulerApi, ScheduleEmptySpanIsNoop) {
 
 TEST(SchedulerIo, IoHandlerReturnsNextForTimerFd) {
     static constinit auto pipeline = context | io_manager | scheduler;
-    pipeline(start);
+    static_cast<void>(pipeline(start));
 
     auto& sched = pipeline.mod<basic_scheduler>();
 
@@ -121,7 +121,7 @@ TEST(SchedulerIo, IoHandlerReturnsNextForTimerFd) {
 
 TEST(SchedulerIo, IoHandlerIgnoresUnrelatedFd) {
     static constinit auto pipeline = context | io_manager | scheduler;
-    pipeline(start);
+    static_cast<void>(pipeline(start));
 
     auto& sched = pipeline.mod<basic_scheduler>();
 
@@ -141,7 +141,7 @@ TEST(SchedulerIo, IoHandlerIgnoresUnrelatedFd) {
 
 TEST(SchedulerTimer, TimerFiresAndEventsAreAvailable) {
     static constinit auto pipeline = context | io_manager | scheduler;
-    pipeline(start);
+    static_cast<void>(pipeline(start));
 
     auto& sched = pipeline.mod<basic_scheduler>();
     sched.cancel();
@@ -186,11 +186,11 @@ TEST(SchedulerTimer, TimerFiresAndEventsAreAvailable) {
 
 TEST(SchedulerLifecycle, StartDoesNotCrash) {
     static constinit auto pipeline = context | io_manager | scheduler;
-    EXPECT_NO_THROW(pipeline(start));
+    EXPECT_NO_THROW(static_cast<void>(pipeline(start)));
 }
 
 TEST(SchedulerLifecycle, MultipleStartCallsReset) {
     static constinit auto pipeline = context | io_manager | scheduler;
-    pipeline(start);
-    pipeline(start); // second start should not crash
+    static_cast<void>(pipeline(start));
+    static_cast<void>(pipeline(start)); // second start should not crash
 }
