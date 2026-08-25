@@ -20,6 +20,11 @@ namespace fs8 {
 
         // NOLINTBEGIN(*-avoid-c-arrays)
 
+// GCC 16 recognises #embed from C23 but warns under -Wpedantic because it
+// is not yet a standard C++26 feature.  Silence the warning until GCC catches up.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wc23-extensions"
+
         // Embedded template files.  Paths resolve relative to this source file.
 
         // basic
@@ -123,6 +128,8 @@ namespace fs8 {
         constexpr char mouse_presets_data[] = {
 #embed "../templates/mouse/CMakePresets.json"
         };
+
+#pragma GCC diagnostic pop
 
         // NOLINTEND(*-avoid-c-arrays)
 
