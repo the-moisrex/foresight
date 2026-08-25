@@ -56,7 +56,7 @@ fs8::udev& fs8::udev::operator=(udev const& other) noexcept {
     return *this;
 }
 
-fs8::udev fs8::udev::instance() noexcept {
+fs8::udev& fs8::udev::instance() noexcept {
     static fs8::udev instance;
     return instance;
 }

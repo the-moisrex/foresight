@@ -73,7 +73,7 @@ namespace fs8 {
          * @brief Retrieves a singleton or shared instance of the udev context.
          * @return A valid udev instance.
          */
-        static udev instance() noexcept;
+        static udev& instance() noexcept;
 
       private:
         ::udev* handle;
