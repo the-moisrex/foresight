@@ -1,9 +1,6 @@
 #include <stdexcept>
 
-import fs8.mods;
-import fs8.log;
-import fs8.cli;
-import fs8.devices.queries;
+import fs8;
 
 static constexpr auto args = fs8::arguments.positional("keyboard_device").help(R"TEXT(
 Usage: auto-typer [keyboard_device]

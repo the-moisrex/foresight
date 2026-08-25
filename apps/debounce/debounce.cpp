@@ -10,10 +10,7 @@
 #include <string>
 #include <string_view>
 
-import fs8.mods;
-import fs8.log;
-import fs8.cli;
-import fs8.devices.queries;
+import fs8;
 
 namespace {
     using namespace std::chrono_literals; // NOLINT(*-using-namespace)
