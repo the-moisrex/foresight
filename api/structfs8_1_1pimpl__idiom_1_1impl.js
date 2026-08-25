@@ -60,6 +60,7 @@ var structfs8_1_1pimpl__idiom_1_1impl =
     [ "im", "structfs8_1_1pimpl__idiom_1_1impl.html#a46592a850317412383f824fa4198826f", null ],
     [ "initialized", "structfs8_1_1pimpl__idiom_1_1impl.html#a99fb6ba6c8e4441baff445e815e1cdbe", null ],
     [ "io", "structfs8_1_1pimpl__idiom_1_1impl.html#abf1c46954958674beef8bc5dbd6baafa", null ],
+    [ "is_animating", "structfs8_1_1pimpl__idiom_1_1impl.html#a625b67104c8f53e1e4f74b9abc078641", null ],
     [ "last_syn_time", "structfs8_1_1pimpl__idiom_1_1impl.html#a6e6537ae437761b4c8186bc4e3a1c90f", null ],
     [ "last_time", "structfs8_1_1pimpl__idiom_1_1impl.html#a75d6ab757265fe5804d25aae86a66f11", null ],
     [ "manual_devs", "structfs8_1_1pimpl__idiom_1_1impl.html#aef0e01a3f0189cc133ac81cfd377825f", null ],

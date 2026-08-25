@@ -145,7 +145,7 @@ Public Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Convert mouse movement into scroll-wheel events.</p>
 <p>A pure transformer: it has no condition of its own. While it's active it swallows mouse movement (<code>REL_X</code>/<code>REL_Y</code>) and re-emits it as scroll events (<code>REL_WHEEL</code>/<code>REL_HWHEEL</code> + high-res variants). Gate it with <code>hold_mod</code> (e.g. <code>hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]</code>) so it only runs while a scroll modifier key is held.</p>
-<p>Requires <code>mice_quantifier</code> earlier in the pipeline for step accumulation. </p>
+<p>Accumulates mouse movement internally and quantizes it into scroll notches: legacy events (±1 per notch) are emitted when the accumulated value crosses the step threshold, while hi-res events carry the full non-quantized value. </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="aab6bf7596a115ca4490aec9cd08a9add" name="aab6bf7596a115ca4490aec9cd08a9add"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aab6bf7596a115ca4490aec9cd08a9add">&#9670;&#160;</a></span>value_type</h2>

@@ -18,7 +18,7 @@ var searchData=
   ['has_5fsubsystem_15',['has_subsystem',['../namespacefs8.html#a173d14233d06df1098b30be20790d573',1,'fs8::has_subsystem(device_query const &amp;inp_query) noexcept'],['../namespacefs8.html#ab2746154172d04186fabd806316c9cd7',1,'fs8::has_subsystem(device_query const &amp;inp_query, std::string_view subsystem) noexcept']]],
   ['has_5fsysname_16',['has_sysname',['../structfs8_1_1pimpl__idiom_1_1impl.html#a9c5b5a137b1873e0eae2c378393b1070',1,'fs8::pimpl_idiom::impl']]],
   ['has_5ftag_17',['has_tag',['../structfs8_1_1udev__device.html#aa1f79cd5d7e9265eb3754635f159a242',1,'fs8::udev_device']]],
-  ['hash_18',['hash',['../structfs8_1_1variable__pointer.html#abadccb373330d569708051174b54f2b4',1,'fs8::variable_pointer::hash'],['../structfs8_1_1event__type.html#a6addf1acd18387473baeb0fb7b074371',1,'fs8::event_type::hash()']]],
+  ['hash_18',['hash',['../structfs8_1_1event__type.html#a6addf1acd18387473baeb0fb7b074371',1,'fs8::event_type::hash()'],['../structfs8_1_1variable__pointer.html#abadccb373330d569708051174b54f2b4',1,'fs8::variable_pointer::hash']]],
   ['hash_2ecxx_19',['hash.cxx',['../hash_8cxx.html',1,'']]],
   ['hash_2eixx_20',['hash.ixx',['../hash_8ixx.html',1,'']]],
   ['hashed_21',['hashed',['../namespacefs8.html#af9a57064d23f117022d7d4580c1b9ee4',1,'fs8::hashed(event_code::type_type const type, event_code::code_type const code) noexcept'],['../namespacefs8.html#ad5c0c1f60ca36b6331e0b76a71028073',1,'fs8::hashed(key_event const &amp;code) noexcept'],['../namespacefs8.html#acef00bf97bc1f9ccf3675d1a36edf2f3',1,'fs8::hashed(event_code const &amp;code) noexcept']]],
@@ -29,10 +29,11 @@ var searchData=
   ['help_26',['help',['../structfs8_1_1basic__arguments.html#af4c7752342ab5ff0bb755e63ea3da325',1,'fs8::basic_arguments::help()'],['../structfs8_1_1basic__parsed__args.html#a5ba38ca1e10ee60236c29760b9cf9f91',1,'fs8::basic_parsed_args::help()'],['../structfs8_1_1basic__flag.html#a88dcf0e7168d3e855d510b251d9a5fed',1,'fs8::basic_flag::help']]],
   ['help_5frequested_27',['help_requested',['../structfs8_1_1basic__parsed__args.html#ab07b34ea7874d634290707e35c049372',1,'fs8::basic_parsed_args']]],
   ['help_5ftext_28',['help_text',['../structfs8_1_1basic__parsed__args.html#a722d4a83bb681698ab534fee3ba3f5dc',1,'fs8::basic_parsed_args']]],
-  ['high_5fthreshold_29',['high_threshold',['../namespacefs8.html#adf54975160a256916e01e62a2ce35872',1,'fs8']]],
-  ['high_5fthreshold_5ftag_30',['high_threshold_tag',['../structfs8_1_1high__threshold__tag.html',1,'fs8']]],
-  ['hold_31',['hold',['../structfs8_1_1basic__on__held.html#a7943d7f6987d193796bc58a140a4d579',1,'fs8::basic_on_held']]],
-  ['how2type_2ecxx_32',['how2type.cxx',['../how2type_8cxx.html',1,'']]],
-  ['how2type_2eixx_33',['how2type.ixx',['../how2type_8ixx.html',1,'']]],
-  ['hup_34',['hup',['../namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca2ae5050db8876c01c093d5cfb519f1d0',1,'fs8']]]
+  ['hi_5fres_5fper_5fnotch_29',['hi_res_per_notch',['../structfs8_1_1scroll__momentum__policy.html#aa07e598ef1f7449e33ab96a5edaaf6e4',1,'fs8::scroll_momentum_policy']]],
+  ['high_5fthreshold_30',['high_threshold',['../namespacefs8.html#adf54975160a256916e01e62a2ce35872',1,'fs8']]],
+  ['high_5fthreshold_5ftag_31',['high_threshold_tag',['../structfs8_1_1high__threshold__tag.html',1,'fs8']]],
+  ['hold_32',['hold',['../structfs8_1_1basic__on__held.html#a7943d7f6987d193796bc58a140a4d579',1,'fs8::basic_on_held']]],
+  ['how2type_2ecxx_33',['how2type.cxx',['../how2type_8cxx.html',1,'']]],
+  ['how2type_2eixx_34',['how2type.ixx',['../how2type_8ixx.html',1,'']]],
+  ['hup_35',['hup',['../namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca2ae5050db8876c01c093d5cfb519f1d0',1,'fs8']]]
 ];

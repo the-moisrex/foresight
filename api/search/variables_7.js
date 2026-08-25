@@ -10,5 +10,6 @@ var searchData=
   ['help_7',['help',['../structfs8_1_1basic__flag.html#a88dcf0e7168d3e855d510b251d9a5fed',1,'fs8::basic_flag']]],
   ['help_5frequested_8',['help_requested',['../structfs8_1_1basic__parsed__args.html#ab07b34ea7874d634290707e35c049372',1,'fs8::basic_parsed_args']]],
   ['help_5ftext_9',['help_text',['../structfs8_1_1basic__parsed__args.html#a722d4a83bb681698ab534fee3ba3f5dc',1,'fs8::basic_parsed_args']]],
-  ['high_5fthreshold_10',['high_threshold',['../namespacefs8.html#adf54975160a256916e01e62a2ce35872',1,'fs8']]]
+  ['hi_5fres_5fper_5fnotch_10',['hi_res_per_notch',['../structfs8_1_1scroll__momentum__policy.html#aa07e598ef1f7449e33ab96a5edaaf6e4',1,'fs8::scroll_momentum_policy']]],
+  ['high_5fthreshold_11',['high_threshold',['../namespacefs8.html#adf54975160a256916e01e62a2ce35872',1,'fs8']]]
 ];
