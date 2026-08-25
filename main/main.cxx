@@ -401,8 +401,9 @@ Options:
 
         std::println();
         std::println("Next steps:");
-        std::println("  - Drop '{}' into Foresight's apps/ directory, or", name);
-        std::println("    cmake -G Ninja -DFORESIGHT_SOURCE_DIR=/path/to/foresight -B {}/build", name);
+        std::println("  cd {}", name);
+        std::println("  cmake --preset release");
+        std::println("  cmake --build --preset release");
         return EXIT_SUCCESS;
     }
 

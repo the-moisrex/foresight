@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.23...4.1.2)
+project({{name}} LANGUAGES CXX C)
+
+find_package(foresight CONFIG QUIET)
+if(NOT foresight_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(foresight
+            GIT_REPOSITORY https://github.com/the-moisrex/foresight.git
+            GIT_TAG        main
+    )
+    FetchContent_MakeAvailable(foresight)
+endif()
+
+add_executable({{name}})
+target_sources({{name}} PRIVATE {{name}}.cpp)
+set_target_properties({{name}} PROPERTIES OUTPUT_NAME {{name}})
+set_target_properties({{name}} PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties({{name}} PROPERTIES COMPILER_LANGUAGE CXX)
+set_target_properties({{name}} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+target_link_libraries({{name}} PRIVATE foresight::foresight)
+target_compile_features({{name}} PUBLIC cxx_std_26)
+set_target_properties({{name}} PROPERTIES
+        CXX_STANDARD 26
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS ON)

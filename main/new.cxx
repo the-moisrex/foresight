@@ -18,6 +18,114 @@ namespace fs8 {
 
     namespace {
 
+        // NOLINTBEGIN(*-avoid-c-arrays)
+
+        // Embedded template files.  Paths resolve relative to this source file.
+
+        // basic
+        constexpr char basic_cmake_data[] = {
+#embed "../templates/basic/CMakeLists.txt"
+        };
+        constexpr char basic_app_data[] = {
+#embed "../templates/basic/{{name}}.cpp"
+        };
+        constexpr char basic_readme_data[] = {
+#embed "../templates/basic/README.md"
+        };
+        constexpr char basic_clang_format_data[] = {
+#embed "../templates/basic/.clang-format"
+        };
+        constexpr char basic_presets_data[] = {
+#embed "../templates/basic/CMakePresets.json"
+        };
+
+        // auto-typer
+        constexpr char auto_typer_cmake_data[] = {
+#embed "../templates/auto-typer/CMakeLists.txt"
+        };
+        constexpr char auto_typer_app_data[] = {
+#embed "../templates/auto-typer/{{name}}.cpp"
+        };
+        constexpr char auto_typer_readme_data[] = {
+#embed "../templates/auto-typer/README.md"
+        };
+        constexpr char auto_typer_clang_format_data[] = {
+#embed "../templates/auto-typer/.clang-format"
+        };
+        constexpr char auto_typer_presets_data[] = {
+#embed "../templates/auto-typer/CMakePresets.json"
+        };
+
+        // x2y
+        constexpr char x2y_cmake_data[] = {
+#embed "../templates/x2y/CMakeLists.txt"
+        };
+        constexpr char x2y_app_data[] = {
+#embed "../templates/x2y/{{name}}.c"
+        };
+        constexpr char x2y_readme_data[] = {
+#embed "../templates/x2y/README.md"
+        };
+        constexpr char x2y_clang_format_data[] = {
+#embed "../templates/x2y/.clang-format"
+        };
+        constexpr char x2y_presets_data[] = {
+#embed "../templates/x2y/CMakePresets.json"
+        };
+
+        // keyboard-replacer
+        constexpr char keyboard_replacer_cmake_data[] = {
+#embed "../templates/keyboard-replacer/CMakeLists.txt"
+        };
+        constexpr char keyboard_replacer_app_data[] = {
+#embed "../templates/keyboard-replacer/{{name}}.cpp"
+        };
+        constexpr char keyboard_replacer_readme_data[] = {
+#embed "../templates/keyboard-replacer/README.md"
+        };
+        constexpr char keyboard_replacer_clang_format_data[] = {
+#embed "../templates/keyboard-replacer/.clang-format"
+        };
+        constexpr char keyboard_replacer_presets_data[] = {
+#embed "../templates/keyboard-replacer/CMakePresets.json"
+        };
+
+        // tablet
+        constexpr char tablet_cmake_data[] = {
+#embed "../templates/tablet/CMakeLists.txt"
+        };
+        constexpr char tablet_app_data[] = {
+#embed "../templates/tablet/{{name}}.cpp"
+        };
+        constexpr char tablet_readme_data[] = {
+#embed "../templates/tablet/README.md"
+        };
+        constexpr char tablet_clang_format_data[] = {
+#embed "../templates/tablet/.clang-format"
+        };
+        constexpr char tablet_presets_data[] = {
+#embed "../templates/tablet/CMakePresets.json"
+        };
+
+        // mouse
+        constexpr char mouse_cmake_data[] = {
+#embed "../templates/mouse/CMakeLists.txt"
+        };
+        constexpr char mouse_app_data[] = {
+#embed "../templates/mouse/{{name}}.cpp"
+        };
+        constexpr char mouse_readme_data[] = {
+#embed "../templates/mouse/README.md"
+        };
+        constexpr char mouse_clang_format_data[] = {
+#embed "../templates/mouse/.clang-format"
+        };
+        constexpr char mouse_presets_data[] = {
+#embed "../templates/mouse/CMakePresets.json"
+        };
+
+        // NOLINTEND(*-avoid-c-arrays)
+
         /// Replace every `{{name}}` placeholder in `text` with `name`.
         [[nodiscard]] std::string substitute(std::string_view const text, std::string_view const name) {
             constexpr std::string_view placeholder = "{{name}}";
@@ -62,299 +170,51 @@ namespace fs8 {
 
         // clang-format off
         constexpr template_file basic_files[] = {
-          {"CMakeLists.txt", R"TEMPLATE(
-cmake_minimum_required(VERSION 3.23...4.1.2)
-project({{name}} LANGUAGES CXX C)
-
-add_executable({{name}})
-target_sources({{name}} PRIVATE {{name}}.cpp)
-set_target_properties({{name}} PROPERTIES OUTPUT_NAME {{name}})
-set_target_properties({{name}} PROPERTIES LINKER_LANGUAGE CXX)
-set_target_properties({{name}} PROPERTIES COMPILER_LANGUAGE CXX)
-set_target_properties({{name}} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-
-# Builds against the Foresight library. Either drop this folder into Foresight's
-# apps/ directory, or point FORESIGHT_SOURCE_DIR at a Foresight checkout:
-#   cmake -G Ninja -DFORESIGHT_SOURCE_DIR=/path/to/foresight -B build
-#   cmake --build build
-if (NOT TARGET foresight::foresight)
-    if (NOT DEFINED FORESIGHT_SOURCE_DIR)
-        message(FATAL_ERROR "foresight::foresight not found. Add this folder to "
-                            "Foresight's apps/ directory, or set "
-                            "-DFORESIGHT_SOURCE_DIR=<foresight checkout>.")
-    endif ()
-    add_subdirectory(${FORESIGHT_SOURCE_DIR} foresight-build)
-endif ()
-
-target_link_libraries({{name}} PRIVATE foresight::foresight)
-target_compile_features({{name}} PUBLIC cxx_std_26)
-set_target_properties({{name}} PROPERTIES
-        CXX_STANDARD 26
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS ON)
-)TEMPLATE"},
-          {"{{name}}.cpp", R"TEMPLATE(
-#include <stdexcept>
-#include <linux/input-event-codes.h>
-
-import fs8.mods;
-import fs8.log;
-import fs8.cli;
-import fs8.devices.queries;
-
-static constexpr auto args =
-  fs8::arguments["USB Keyboard"]
-    .positional("keyboard_device")
-    .help(R"TEXT(
-Usage: {{name}} [keyboard_device]
-
-A Foresight app created from the 'basic' template: it grabs the keyboard and
-replaces 'x' with 'y' as you type.
-
-Arguments:
-    -h | --help           Print help.
-
-Positionals:
-    keyboard_device       The USB keyboard device query.
-)TEXT");
-
-int main(int const argc, char const* const* argv) try {
-    using namespace fs8; // NOLINT(*-using-namespace)
-
-    auto const parsed = args(argc, argv);
-    parsed.exit_if_needed();
-
-    static constinit auto pipeline =
-      context
-      | io_manager
-      | intercept[keyboard | required]
-      | input_manager
-      | keys_status
-      | on[pressed[KEY_X], replace[KEY_X, KEY_Y]]
-      | update_mod[keys_status]
-      | uinput;
-
-    pipeline.mod(intercept).add(parsed | required);
-    pipeline();
-
-    return 0;
-} catch (std::runtime_error const& err) {
-    fs8::log("Runtime Error: {}", err.what());
-    throw;
-} catch (...) {
-    fs8::log("Unknown Error.");
-    throw;
-}
-)TEMPLATE"},
-          {"README.md", R"TEMPLATE(
-# {{name}}
-
-A Foresight app created from the `basic` template: it grabs your keyboard and
-replaces every `x` with `y` as you type.
-
-## Build
-
-This app links against the Foresight library (`foresight::foresight`). Either:
-
-- Drop this folder into Foresight's `apps/` directory and add
-  `add_subdirectory({{name}})` to `apps/CMakeLists.txt`, then build Foresight.
-- Or build standalone against a Foresight checkout:
-
-  ```bash
-  cmake -G Ninja -DFORESIGHT_SOURCE_DIR=/path/to/foresight -B build
-  cmake --build build
-  ```
-
-## Usage
-
-```bash
-./{{name}} [keyboard_device]
-./{{name}} -h | --help
-```
-
-Positionals:
-
-- `keyboard_device`: The USB keyboard device query (defaults to `USB Keyboard`).
-- `-h | --help`: Print help.
-)TEMPLATE"},
-        };
-
-        constexpr template_file x2y_files[] = {
-          {"CMakeLists.txt", R"TEMPLATE(
-cmake_minimum_required(VERSION 3.23)
-project({{name}} LANGUAGES C CXX)
-
-set(name {{name}})
-add_executable(${name})
-target_sources(${name} PRIVATE {{name}}.c)
-set_target_properties(${name} PROPERTIES OUTPUT_NAME ${name})
-set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
-set_target_properties(${name} PROPERTIES COMPILER_LANGUAGE C)
-set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-)TEMPLATE"},
-          {"{{name}}.c", R"TEMPLATE(
-#include <stdio.h>
-#include <stdlib.h>
-#include <linux/input.h>
-
-int main(void) {
-    setbuf(stdin, NULL);   // disable stdin buffer
-    setbuf(stdout, NULL);  // disable stdout buffer
-
-    struct input_event event;
-
-    // read from the input
-    while (fread(&event, sizeof(event), 1, stdin) == 1) {
-
-        // modify the input however you like
-        // here, we change "x" to "y"
-        if (event.type == EV_KEY && event.code == KEY_X)
-            event.code = KEY_Y;
-
-        // write it to stdout
-        fwrite(&event, sizeof(event), 1, stdout);
-    }
-}
-)TEMPLATE"},
-          {"README.md", R"TEMPLATE(
-# {{name}}
-
-A Foresight app created from the `x2y` template: a tiny C filter that reads
-`input_event`s from stdin, modifies them, and writes them to stdout.
-
-## Build
-
-```bash
-cmake -B build
-cmake --build build
-```
-
-## Usage
-
-Put it in the middle of a Foresight pipeline:
-
-```bash
-foresight intercept $keyboard | ./{{name}} | foresight redirect $keyboard
-```
-
-The filter here changes every `x` into `y`; edit `{{name}}.c` to do anything
-you like.
-)TEMPLATE"},
+          {"CMakeLists.txt", {basic_cmake_data, sizeof(basic_cmake_data)}},
+          {"{{name}}.cpp", {basic_app_data, sizeof(basic_app_data)}},
+          {"README.md", {basic_readme_data, sizeof(basic_readme_data)}},
+          {".clang-format", {basic_clang_format_data, sizeof(basic_clang_format_data)}},
+          {"CMakePresets.json", {basic_presets_data, sizeof(basic_presets_data)}},
         };
 
         constexpr template_file auto_typer_files[] = {
-          {"CMakeLists.txt", R"TEMPLATE(
-cmake_minimum_required(VERSION 3.23...4.1.2)
-project({{name}} LANGUAGES CXX C)
+          {"CMakeLists.txt", {auto_typer_cmake_data, sizeof(auto_typer_cmake_data)}},
+          {"{{name}}.cpp", {auto_typer_app_data, sizeof(auto_typer_app_data)}},
+          {"README.md", {auto_typer_readme_data, sizeof(auto_typer_readme_data)}},
+          {".clang-format", {auto_typer_clang_format_data, sizeof(auto_typer_clang_format_data)}},
+          {"CMakePresets.json", {auto_typer_presets_data, sizeof(auto_typer_presets_data)}},
+        };
 
-add_executable({{name}})
-target_sources({{name}} PRIVATE {{name}}.cpp)
-set_target_properties({{name}} PROPERTIES OUTPUT_NAME {{name}})
-set_target_properties({{name}} PROPERTIES LINKER_LANGUAGE CXX)
-set_target_properties({{name}} PROPERTIES COMPILER_LANGUAGE CXX)
-set_target_properties({{name}} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+        constexpr template_file x2y_files[] = {
+          {"CMakeLists.txt", {x2y_cmake_data, sizeof(x2y_cmake_data)}},
+          {"{{name}}.c", {x2y_app_data, sizeof(x2y_app_data)}},
+          {"README.md", {x2y_readme_data, sizeof(x2y_readme_data)}},
+          {".clang-format", {x2y_clang_format_data, sizeof(x2y_clang_format_data)}},
+          {"CMakePresets.json", {x2y_presets_data, sizeof(x2y_presets_data)}},
+        };
 
-# Builds against the Foresight library. Either drop this folder into Foresight's
-# apps/ directory, or point FORESIGHT_SOURCE_DIR at a Foresight checkout:
-#   cmake -G Ninja -DFORESIGHT_SOURCE_DIR=/path/to/foresight -B build
-#   cmake --build build
-if (NOT TARGET foresight::foresight)
-    if (NOT DEFINED FORESIGHT_SOURCE_DIR)
-        message(FATAL_ERROR "foresight::foresight not found. Add this folder to "
-                            "Foresight's apps/ directory, or set "
-                            "-DFORESIGHT_SOURCE_DIR=<foresight checkout>.")
-    endif ()
-    add_subdirectory(${FORESIGHT_SOURCE_DIR} foresight-build)
-endif ()
+        constexpr template_file keyboard_replacer_files[] = {
+          {"CMakeLists.txt", {keyboard_replacer_cmake_data, sizeof(keyboard_replacer_cmake_data)}},
+          {"{{name}}.cpp", {keyboard_replacer_app_data, sizeof(keyboard_replacer_app_data)}},
+          {"README.md", {keyboard_replacer_readme_data, sizeof(keyboard_replacer_readme_data)}},
+          {".clang-format", {keyboard_replacer_clang_format_data, sizeof(keyboard_replacer_clang_format_data)}},
+          {"CMakePresets.json", {keyboard_replacer_presets_data, sizeof(keyboard_replacer_presets_data)}},
+        };
 
-target_link_libraries({{name}} PRIVATE foresight::foresight)
-target_compile_features({{name}} PUBLIC cxx_std_26)
-set_target_properties({{name}} PROPERTIES
-        CXX_STANDARD 26
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS ON)
-)TEMPLATE"},
-          {"{{name}}.cpp", R"TEMPLATE(
-#include <stdexcept>
+        constexpr template_file tablet_files[] = {
+          {"CMakeLists.txt", {tablet_cmake_data, sizeof(tablet_cmake_data)}},
+          {"{{name}}.cpp", {tablet_app_data, sizeof(tablet_app_data)}},
+          {"README.md", {tablet_readme_data, sizeof(tablet_readme_data)}},
+          {".clang-format", {tablet_clang_format_data, sizeof(tablet_clang_format_data)}},
+          {"CMakePresets.json", {tablet_presets_data, sizeof(tablet_presets_data)}},
+        };
 
-import fs8.mods;
-import fs8.log;
-import fs8.cli;
-import fs8.devices.queries;
-
-static constexpr auto args =
-  fs8::arguments["USB Keyboard"]
-    .positional("keyboard_device")
-    .help(R"TEXT(
-Usage: {{name}} [keyboard_device]
-
-A Foresight app created from the 'auto-typer' template: it watches your typing
-and completes the pattern "@test" into the string "nice".
-
-Arguments:
-    -h | --help           Print help.
-
-Positionals:
-    keyboard_device       The USB keyboard device query.
-)TEXT");
-
-int main(int const argc, char const* const* argv) try {
-    using namespace fs8; // NOLINT(*-using-namespace)
-
-    auto const parsed = args(argc, argv);
-    parsed.exit_if_needed();
-
-    static constinit auto pipeline =
-      context
-      | io_manager
-      | intercept[keyboard | required | matches_limit(10)]
-      | input_manager
-      | search_engine
-      | on[typed["@test"], type_string("nice")]
-      | ignore_adjacent_syns
-      | uinput;
-
-    pipeline.mod(intercept).add(parsed | required);
-    pipeline();
-
-    return 0;
-} catch (std::runtime_error const& err) {
-    fs8::log("Runtime Error: {}", err.what());
-    throw;
-} catch (...) {
-    fs8::log("Unknown Error.");
-    throw;
-}
-)TEMPLATE"},
-          {"README.md", R"TEMPLATE(
-# {{name}}
-
-A Foresight app created from the `auto-typer` template: it watches a keyboard
-for typed patterns and auto-completes them into longer strings.
-
-## Build
-
-This app links against the Foresight library (`foresight::foresight`). Either:
-
-- Drop this folder into Foresight's `apps/` directory and add
-  `add_subdirectory({{name}})` to `apps/CMakeLists.txt`, then build Foresight.
-- Or build standalone against a Foresight checkout:
-
-  ```bash
-  cmake -G Ninja -DFORESIGHT_SOURCE_DIR=/path/to/foresight -B build
-  cmake --build build
-  ```
-
-## Usage
-
-```bash
-./{{name}} [keyboard_device]
-./{{name}} -h | --help
-```
-
-The template completes the pattern `@test` into `nice`; edit `{{name}}.cpp` to
-change the pattern and the completion.
-)TEMPLATE"},
+        constexpr template_file mouse_files[] = {
+          {"CMakeLists.txt", {mouse_cmake_data, sizeof(mouse_cmake_data)}},
+          {"{{name}}.cpp", {mouse_app_data, sizeof(mouse_app_data)}},
+          {"README.md", {mouse_readme_data, sizeof(mouse_readme_data)}},
+          {".clang-format", {mouse_clang_format_data, sizeof(mouse_clang_format_data)}},
+          {"CMakePresets.json", {mouse_presets_data, sizeof(mouse_presets_data)}},
         };
         // clang-format on
 
@@ -373,6 +233,21 @@ change the pattern and the completion.
                        .name        = "auto-typer",
                        .description = "C++ pipeline: complete a typed pattern into a string.",
                        .files       = auto_typer_files,
+                       },
+          app_template{
+                       .name        = "keyboard-replacer",
+                       .description = "Swap keyboard keys (e.g. CapsLock to Escape).",
+                       .files       = keyboard_replacer_files,
+                       },
+          app_template{
+                       .name        = "tablet",
+                       .description = "Convert drawing tablet input to relative mouse movements.",
+                       .files       = tablet_files,
+                       },
+          app_template{
+                       .name        = "mouse",
+                       .description = "Amplify mouse movements.",
+                       .files       = mouse_files,
                        },
         };
 

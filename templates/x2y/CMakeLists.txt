@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.23)
+project({{name}} LANGUAGES C CXX)
+
+set(name {{name}})
+add_executable(${name})
+target_sources(${name} PRIVATE {{name}}.c)
+set_target_properties(${name} PROPERTIES OUTPUT_NAME ${name})
+set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(${name} PROPERTIES COMPILER_LANGUAGE C)
+set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")

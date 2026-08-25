@@ -45,6 +45,7 @@ if (IS_CLANG)
 endif ()
 include(./cmake/import.cmake)
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 # Libraries
 #find_package(PkgConfig REQUIRED)
@@ -196,8 +197,10 @@ target_link_libraries(${LIB_NAME}
 )
 
 install(TARGETS ${LIB_NAME}
+        EXPORT ${LIB_NAME}-targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        FILE_SET foresight DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 
@@ -218,6 +221,33 @@ target_link_libraries(${PROJECT_NAME}
 install(TARGETS ${PROJECT_NAME}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+#############################################################
+########## --------- CMake Package Config ---------- ##########
+#############################################################
+
+write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/ForesightConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/ForesightConfig.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/ForesightConfig.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/foresight
+)
+
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/ForesightConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/ForesightConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/foresight
+)
+
+install(EXPORT ${LIB_NAME}-targets
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/foresight
 )
 
 #############################################################
