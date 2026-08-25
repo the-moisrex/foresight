@@ -182,6 +182,7 @@ struct fs8::pimpl_idiom<basic_momentum_base>::impl {
     event_type::type_type track_type   = EV_REL;
     event_type::code_type track_code_x = REL_WHEEL_HI_RES;
     event_type::code_type track_code_y = REL_HWHEEL_HI_RES;
+    bool                  is_animating = false;
 };
 
 void basic_momentum_base::track(event_type const& event) noexcept {
@@ -219,12 +220,29 @@ float basic_momentum_base::decay_factor(int const i) const noexcept {
     return scale * std::pow(decay_rate, static_cast<float>(i));
 }
 
+bool basic_momentum_base::is_animating() const noexcept {
+    return pimpl.get() != nullptr && pimpl->is_animating;
+}
+
+void basic_momentum_base::set_animating() noexcept {
+    if (pimpl.get() != nullptr) {
+        pimpl->is_animating = true;
+    }
+}
+
+void basic_momentum_base::clear_animating() noexcept {
+    if (pimpl.get() != nullptr) {
+        pimpl->is_animating = false;
+    }
+}
+
 context_action basic_momentum_base::operator()(start_tag) noexcept {
     if (pimpl.get() == nullptr) {
         init_impl();
     }
     pimpl->vel_x.reset();
     pimpl->vel_y.reset();
+    pimpl->is_animating = false;
     return context_action::next;
 }
 

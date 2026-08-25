@@ -9,7 +9,6 @@ export module fs8.mods:momentum;
 import fs8.context;
 import fs8.pimpl;
 import fs8.event;
-import :quantifier;
 import :scheduler;
 
 namespace fs8 {
@@ -139,6 +138,13 @@ namespace fs8 {
         static constexpr auto emit_code_x  = REL_WHEEL_HI_RES;
         static constexpr auto emit_code_y  = REL_HWHEEL_HI_RES;
 
+        /// Legacy scroll codes (quantized, ±1 per notch).
+        static constexpr auto legacy_code_x = REL_HWHEEL;
+        static constexpr auto legacy_code_y = REL_WHEEL;
+
+        /// High-res multiplier: the hi-res value for one notch.
+        static constexpr auto hi_res_per_notch = 120;
+
         /// Number of momentum events to schedule per axis.
         static constexpr int momentum_events = 30;
         /// Frame interval in ms (~60 fps).
@@ -154,6 +160,19 @@ namespace fs8 {
 
             auto& sched = ctx.mod(scheduler);
 
+            // Skip re-scheduling if we're mid-animation and this is a
+            // self-emitted event (from the scheduler).  User scrolls (non-
+            // self-emitted) can still re-trigger with updated velocity.
+            if (momentum.is_animating() && sched.has_pending()
+                && ctx.event().source() == device_id::self) {
+                return next;
+            }
+
+            // Clear animation flag when the scheduler has drained.
+            if (momentum.is_animating() && !sched.has_pending()) {
+                momentum.clear_animating();
+            }
+
             // Cancel any previously scheduled momentum.
             sched.cancel();
 
@@ -165,9 +184,15 @@ namespace fs8 {
 
             // Build a decaying sequence of scroll events on the stack.
             // todo: use inplace_vector
-            static constexpr int               max_events = momentum_events * 3;
+            // Up to 5 events per tick: hi-res x, legacy x, hi-res y, legacy y, syn
+            static constexpr int               max_events = momentum_events * 5;
             std::array<event_type, max_events> events{};
             std::size_t                        count = 0;
+
+            // Accumulate fractional hi-res movement and emit ±1 legacy events
+            // each time the accumulator crosses a notch boundary (120 units).
+            auto acc_x = 0.0f;
+            auto acc_y = 0.0f;
 
             for (int i = 0; i < momentum_events; ++i) {
                 float const factor = momentum.decay_factor(i);
@@ -175,16 +200,39 @@ namespace fs8 {
                 auto const  dy     = static_cast<event_type::value_type>(vel_y * factor);
 
                 if (dx != 0) {
+                    // Hi-res (non-quantized)
                     events[count++] = event_type(emit_type, emit_code_x, dx);
+                    // Legacy (quantized): accumulate and emit ±1 per notch.
+                    acc_x += static_cast<float>(dx);
+                    while (acc_x >= hi_res_per_notch) {
+                        events[count++] = event_type(emit_type, legacy_code_x, 1);
+                        acc_x -= hi_res_per_notch;
+                    }
+                    while (acc_x <= -hi_res_per_notch) {
+                        events[count++] = event_type(emit_type, legacy_code_x, -1);
+                        acc_x += hi_res_per_notch;
+                    }
                 }
                 if (dy != 0) {
+                    // Hi-res (non-quantized)
                     events[count++] = event_type(emit_type, emit_code_y, dy);
+                    // Legacy (quantized): accumulate and emit ±1 per notch.
+                    acc_y += static_cast<float>(dy);
+                    while (acc_y >= hi_res_per_notch) {
+                        events[count++] = event_type(emit_type, legacy_code_y, 1);
+                        acc_y -= hi_res_per_notch;
+                    }
+                    while (acc_y <= -hi_res_per_notch) {
+                        events[count++] = event_type(emit_type, legacy_code_y, -1);
+                        acc_y += hi_res_per_notch;
+                    }
                 }
-                events[count++] = event_type(EV_SYN, SYN_REPORT, 0);
+                events[count++] = syn();
             }
 
             if (count > 0) {
                 sched.schedule(std::span{events.data(), count}, frame_ms);
+                momentum.set_animating();
             }
 
             return next;
@@ -214,6 +262,15 @@ namespace fs8 {
 
         /// Compute a decay factor for the i-th momentum event.
         [[nodiscard]] float decay_factor(int i) const noexcept;
+
+        /// Whether a momentum animation is currently in progress.
+        [[nodiscard]] bool is_animating() const noexcept;
+
+        /// Mark the animation as in progress.
+        void set_animating() noexcept;
+
+        /// Mark the animation as finished.
+        void clear_animating() noexcept;
 
         context_action operator()(start_tag) noexcept;
 

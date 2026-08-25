@@ -63,7 +63,7 @@ int main(int const argc, char const* const* argv) try {
              | ignore_fast_left_clicks             // Ignore fast left clicks
              | update_mod[keys_status]
              | update_mod[mouse_history]]
-      | mice_quantifier                            // Quantify the mouse movements
+
       | swipe_detector                             // Detects swipes
       | on[pressed[BTN_RIGHT], ignore_start_moves] // fix right-click jumps
       | once[pressed[BTN_MIDDLE] & triple_click, emit[press(KEY_LEFTMETA, KEY_TAB)]]

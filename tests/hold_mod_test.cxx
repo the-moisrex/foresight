@@ -88,7 +88,6 @@ TEST(HoldModTest, MovementWhileHeldConsumesRelease) {
        {.type = EV_REL, .code = REL_X, .value = 5},
        {.type = EV_KEY, .code = KEY_A, .value = 0},
     }]
-     | mice_quantifier
      | on_held[KEY_A, mouse_to_scroll]
      | record[tap_out])();
 
@@ -111,7 +110,6 @@ TEST(HoldModTest, PassThroughWhenNotHeld) {
      | emit_all[{
        {.type = EV_REL, .code = REL_X, .value = 5},
     }]
-     | mice_quantifier
      | on_held[KEY_A, mouse_to_scroll]
      | record[tap_out])();
 
@@ -132,7 +130,6 @@ TEST(HoldModTest, ToggleModeTurnedBackOffAfterModifierUse) {
        {.type = EV_REL,        .code = REL_X, .value = 5},
        {.type = EV_KEY, .code = KEY_CAPSLOCK, .value = 0},
     }]
-     | mice_quantifier
      | on_held[KEY_CAPSLOCK, mouse_to_scroll]
      | record[tap_out])();
 
@@ -168,7 +165,6 @@ TEST(HoldModTest, PenModeRestoredAfterModifierUse) {
        {.type = EV_REL,        .code = REL_X, .value = 5},
        {.type = EV_KEY, .code = KEY_CAPSLOCK, .value = 0},
     }]
-     | mice_quantifier
      | on_held[KEY_CAPSLOCK, mouse_to_scroll]
      | record[tap_out])();
 
@@ -201,7 +197,6 @@ TEST(HoldModTest, ToggleModeLeftAloneWhenDesktopDidNotToggle) {
        {.type = EV_REL,        .code = REL_X, .value = 5},
        {.type = EV_KEY, .code = KEY_CAPSLOCK, .value = 0},
     }]
-     | mice_quantifier
      | on_held[KEY_CAPSLOCK, mouse_to_scroll]
      | record[tap_out])();
 

@@ -273,7 +273,6 @@ TEST(SmoothTest, KalmanInSubPipelineForksToMouseToScroll) {
        {.type = EV_KEY,      .code = KEY_A,  .value = 0},
        {.type = EV_SYN, .code = SYN_REPORT,  .value = 0},
     }]
-     | mice_quantifier
      | on_held[KEY_A, context | kalman_filter[0.1f, 0.5f] | mouse_to_scroll]
      | record[subpipeline_out])();
 

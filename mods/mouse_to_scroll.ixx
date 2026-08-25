@@ -2,11 +2,11 @@
 
 module;
 #include <cassert>
+#include <cmath>
 #include <linux/uinput.h>
 #include <span>
 export module fs8.mods:mouse_to_scroll;
 import fs8.context;
-import :quantifier;
 import fs8.event;
 import fs8.traits;
 
@@ -20,7 +20,10 @@ export namespace fs8 {
     /// `hold_mod` (e.g. `hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]`)
     /// so it only runs while a scroll modifier key is held.
     ///
-    /// Requires `mice_quantifier` earlier in the pipeline for step accumulation.
+    /// Accumulates mouse movement internally and quantizes it into scroll
+    /// notches: legacy events (±1 per notch) are emitted when the accumulated
+    /// value crosses the step threshold, while hi-res events carry the full
+    /// non-quantized value.
     constexpr struct [[nodiscard]] basic_mouse_to_scroll : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
@@ -28,6 +31,11 @@ export namespace fs8 {
 
       private:
         value_type reverse = 8;
+        value_type step    = 10; // pixels per scroll notch
+
+        /// Accumulated (signed) mouse deltas awaiting quantization.
+        value_type x_accum = 0;
+        value_type y_accum = 0;
 
       public:
         constexpr explicit basic_mouse_to_scroll(value_type const inp_reverse) noexcept : reverse{inp_reverse} {
@@ -41,27 +49,47 @@ export namespace fs8 {
         template <Context CtxT>
         [[nodiscard]] context_action operator()(CtxT& ctx) noexcept {
             using enum context_action;
-            static_assert(has_mod<basic_mice_quantifier, CtxT>, "We need access quantifier.");
 
-            auto&       quant = ctx.mod(mice_quantifier);
             auto const& event = ctx.event();
 
             if (!is_mouse_movement(event)) {
                 return next;
             }
 
-            auto const val  = event.value();
-            auto const code = event.code();
-            auto const cval = (val > 0 ? 1 : val < 0 ? -1 : 0) * (reverse > 0 ? 1 : -1);
-            if (auto const x_steps = quant.consume_x(); x_steps != 0) {
-                std::ignore = ctx.fork_emit(EV_REL, REL_HWHEEL, cval);
-            }
-            if (auto const y_steps = quant.consume_y(); y_steps != 0) {
-                std::ignore = ctx.fork_emit(EV_REL, REL_WHEEL, cval);
+            // Accumulate movement for step quantization.
+            switch (event.code()) {
+                case REL_X: x_accum += event.value(); break;
+                case REL_Y: y_accum += event.value(); break;
+                default: break;
             }
 
-            auto const hval = val * reverse;
-            switch (code) {
+            // Emit legacy scroll events (±1 per notch) when the accumulated
+            // value crosses the step threshold.
+            auto sign_x = [](value_type v) noexcept -> value_type {
+                return (v > 0) - (v < 0);
+            };
+            auto const sign_reverse = reverse > 0 ? 1 : -1;
+
+            while (x_accum >= step) {
+                x_accum     -= step;
+                std::ignore  = ctx.fork_emit(EV_REL, REL_HWHEEL, sign_x(1) * sign_reverse);
+            }
+            while (x_accum <= -step) {
+                x_accum     += step;
+                std::ignore  = ctx.fork_emit(EV_REL, REL_HWHEEL, sign_x(-1) * sign_reverse);
+            }
+            while (y_accum >= step) {
+                y_accum     -= step;
+                std::ignore  = ctx.fork_emit(EV_REL, REL_WHEEL, sign_x(1) * sign_reverse);
+            }
+            while (y_accum <= -step) {
+                y_accum     += step;
+                std::ignore  = ctx.fork_emit(EV_REL, REL_WHEEL, sign_x(-1) * sign_reverse);
+            }
+
+            // Hi-res (non-quantized): carry the full value.
+            auto const hval = event.value() * reverse;
+            switch (event.code()) {
                 case REL_X: std::ignore = ctx.fork_emit(EV_REL, REL_HWHEEL_HI_RES, hval); break;
                 case REL_Y: std::ignore = ctx.fork_emit(EV_REL, REL_WHEEL_HI_RES, hval); break;
                 default: break;
