@@ -20,6 +20,9 @@ namespace fs8 {
         bool      any_data_since_syn = false;
         msec_type last_syn_time{0};
 
+        value_type data_events_since_syn = 0;
+        value_type travel_since_syn      = 0;
+
         static constexpr std::size_t max_tracked_keys = 64;
         code_type                    pressed_keys[max_tracked_keys]{};
         std::size_t                  num_pressed = 0;
@@ -64,6 +67,9 @@ namespace fs8 {
             case late_syn: return {"SYN_REPORT arrived after a long gap with no data"};
             case out_of_resolution: return {"pen ABS value outside device bounds"};
             case big_jump: return {"mouse movement exceeding threshold"};
+            case missing_syn_time: return {"data events long after last SYN_REPORT"};
+            case missing_syn_count: return {"too many data events without SYN_REPORT"};
+            case missing_syn_travel: return {"mouse travel exceeding threshold without SYN_REPORT"};
             default: break;
         }
         return {"<unknown>"};
@@ -92,11 +98,12 @@ namespace fs8 {
         ensure_initialized();
         using enum sanitizer_issue;
 
-        if (cfg.check_adjacent_syns && event.type() == EV_SYN && event.code() == SYN_REPORT && pimpl->was_syn) {
+        if (cfg.check_adjacent_syns && event.type() == EV_SYN && event.code() == SYN_REPORT && pimpl->was_syn) [[unlikely]] {
             return adjacent_syn;
         }
 
-        if (cfg.check_orphan_releases && event.type() == EV_KEY && event.value() == 0 && !pimpl->is_key_pressed(event.code())) {
+        if (cfg.check_orphan_releases && event.type() == EV_KEY && event.value() == 0 && !pimpl->is_key_pressed(event.code())) [[unlikely]]
+        {
             return orphan_release;
         }
 
@@ -108,19 +115,19 @@ namespace fs8 {
           && event.micro_time()
           - pimpl->last_syn_time
           >= cfg.late_syn_threshold;
-        if (cfg.check_late_syns && is_late_syn) {
+        if (cfg.check_late_syns && is_late_syn) [[unlikely]] {
             return late_syn;
         }
 
         if (cfg.check_pen_resolution && pimpl->has_pen_bounds && event.type() == EV_ABS) {
             switch (event.code()) {
                 case ABS_X:
-                    if (event.value() < pimpl->pen_x_min || event.value() > pimpl->pen_x_max) {
+                    if (event.value() < pimpl->pen_x_min || event.value() > pimpl->pen_x_max) [[unlikely]] {
                         return out_of_resolution;
                     }
                     break;
                 case ABS_Y:
-                    if (event.value() < pimpl->pen_y_min || event.value() > pimpl->pen_y_max) {
+                    if (event.value() < pimpl->pen_y_min || event.value() > pimpl->pen_y_max) [[unlikely]] {
                         return out_of_resolution;
                     }
                     break;
@@ -128,8 +135,25 @@ namespace fs8 {
             }
         }
 
-        if (cfg.check_big_jumps && is_mouse_movement(event) && std::abs(event.value()) > cfg.big_jump_threshold) {
+        if (cfg.check_big_jumps && is_mouse_movement(event) && std::abs(event.value()) > cfg.big_jump_threshold) [[unlikely]] {
             return big_jump;
+        }
+
+        if (!is_syn_report) {
+            if (cfg.check_missing_syn_time && event.micro_time() - pimpl->last_syn_time >= cfg.missing_syn_time_threshold) [[unlikely]] {
+                return missing_syn_time;
+            }
+            if (cfg.check_missing_syn_count && pimpl->data_events_since_syn >= cfg.missing_syn_count_threshold) [[unlikely]] {
+                return missing_syn_count;
+            }
+            if (cfg.check_missing_syn_travel
+                && is_mouse_movement(event)
+                && pimpl->travel_since_syn
+                + std::abs(event.value())
+                >= cfg.missing_syn_travel_threshold) [[unlikely]]
+            {
+                return missing_syn_travel;
+            }
         }
 
         return none;
@@ -141,6 +165,10 @@ namespace fs8 {
 
         if (!is_syn) {
             pimpl->any_data_since_syn = true;
+            ++pimpl->data_events_since_syn;
+            if (is_mouse_movement(event)) {
+                pimpl->travel_since_syn += std::abs(event.value());
+            }
         }
 
         if (event.type() == EV_KEY) {
@@ -152,9 +180,11 @@ namespace fs8 {
         }
 
         if (is_syn) {
-            pimpl->was_syn            = true;
-            pimpl->any_data_since_syn = false;
-            pimpl->last_syn_time      = event.micro_time();
+            pimpl->was_syn               = true;
+            pimpl->any_data_since_syn    = false;
+            pimpl->last_syn_time         = event.micro_time();
+            pimpl->data_events_since_syn = 0;
+            pimpl->travel_since_syn      = 0;
             return;
         }
 

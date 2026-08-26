@@ -158,3 +158,87 @@ TEST(SanitizerTest, DiagnosticsShorthandAcceptsCallback) {
     auto const& col = pipeline.mod<basic_record>();
     ASSERT_EQ(col.size(), 2U);
 }
+
+TEST(SanitizerTest, DetectsMissingSynTime) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 0us),
+                      timed_ev(EV_REL, REL_X, 10, 200ms),
+                    }}
+                  | event_sanitizer.missing_syn_count(false).missing_syn_travel(false)
+                    .missing_syn_time_threshold(100ms)
+                  | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 1U);
+    EXPECT_EQ(col[0].type(), EV_SYN);
+    EXPECT_EQ(col[0].code(), SYN_REPORT);
+}
+
+TEST(SanitizerTest, DetectsMissingSynCount) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 0us),
+                      timed_ev(EV_REL, REL_X, 1, 1000us),
+                      timed_ev(EV_REL, REL_X, 1, 2000us),
+                      timed_ev(EV_REL, REL_X, 1, 3000us),
+                      timed_ev(EV_REL, REL_X, 1, 4000us),
+                      timed_ev(EV_REL, REL_X, 1, 5000us),
+                      timed_ev(EV_REL, REL_X, 1, 6000us),
+                      timed_ev(EV_REL, REL_X, 1, 7000us),
+                      timed_ev(EV_REL, REL_X, 1, 8000us),
+                      timed_ev(EV_REL, REL_X, 1, 9000us),
+                      timed_ev(EV_REL, REL_X, 1, 10000us),
+                      timed_ev(EV_REL, REL_X, 1, 11000us),
+                      timed_ev(EV_REL, REL_X, 1, 12000us),
+                      timed_ev(EV_REL, REL_X, 1, 13000us),
+                      timed_ev(EV_REL, REL_X, 1, 14000us),
+                      timed_ev(EV_REL, REL_X, 1, 15000us),
+                      timed_ev(EV_REL, REL_X, 1, 16000us),
+                      timed_ev(EV_REL, REL_X, 1, 17000us),
+                      timed_ev(EV_REL, REL_X, 1, 18000us),
+                      timed_ev(EV_REL, REL_X, 1, 19000us),
+                      timed_ev(EV_REL, REL_X, 1, 20000us),
+                      timed_ev(EV_REL, REL_X, 1, 21000us),
+                    }}
+                  | event_sanitizer.missing_syn_time(false).missing_syn_travel(false)
+                  | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 21U);
+    EXPECT_EQ(col[0].type(), EV_SYN);
+    EXPECT_EQ(col[0].code(), SYN_REPORT);
+    for (std::size_t i = 1; i < 21; ++i) {
+        EXPECT_EQ(col[i].code(), REL_X);
+    }
+}
+
+TEST(SanitizerTest, DetectsMissingSynTravel) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 0us),
+                      timed_ev(EV_REL, REL_X, 300, 1ms),
+                      timed_ev(EV_REL, REL_Y, 300, 2ms),
+                    }}
+                  | event_sanitizer.missing_syn_time(false).missing_syn_count(false).big_jumps(false)
+                    .missing_syn_travel_threshold(500)
+                  | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 2U);
+    EXPECT_EQ(col[0].type(), EV_SYN);
+    EXPECT_EQ(col[0].code(), SYN_REPORT);
+    EXPECT_EQ(col[1].code(), REL_X);
+}

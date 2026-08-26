@@ -26,6 +26,9 @@ export namespace fs8 {
         late_syn,          ///< SYN_REPORT arrived after a long gap with no data
         out_of_resolution, ///< pen ABS value outside device bounds
         big_jump,          ///< mouse movement exceeding threshold
+        missing_syn_time,  ///< data events long after last SYN_REPORT
+        missing_syn_count, ///< too many data events without SYN_REPORT
+        missing_syn_travel,///< mouse travel exceeding threshold without SYN_REPORT
     };
 
     [[nodiscard]] std::string_view to_string(sanitizer_issue issue) noexcept;
@@ -42,13 +45,19 @@ export namespace fs8 {
         void seed_pen_bounds(value_type x_min, value_type x_max, value_type y_min, value_type y_max) noexcept;
 
         struct [[nodiscard]] config {
-            bool       check_adjacent_syns   = true;
-            bool       check_orphan_releases = true;
-            bool       check_late_syns       = true;
-            bool       check_pen_resolution  = true;
-            bool       check_big_jumps       = true;
-            value_type big_jump_threshold    = 50;
+            bool       check_adjacent_syns      = true;
+            bool       check_orphan_releases    = true;
+            bool       check_late_syns          = true;
+            bool       check_pen_resolution     = true;
+            bool       check_big_jumps          = true;
+            bool       check_missing_syn_time   = true;
+            bool       check_missing_syn_count  = true;
+            bool       check_missing_syn_travel = true;
+            value_type big_jump_threshold       = 50;
             msec_type  late_syn_threshold{100'000};
+            msec_type  missing_syn_time_threshold{100'000};
+            value_type missing_syn_count_threshold  = 20;
+            value_type missing_syn_travel_threshold = 500;
         };
 
         [[nodiscard]] sanitizer_issue check(event_type const& event, config const& cfg) noexcept;
@@ -189,6 +198,42 @@ export namespace fs8 {
         consteval basic_event_sanitizer big_jumps(bool const v = true) const noexcept {
             auto copy                = *this;
             copy.cfg.check_big_jumps = v;
+            return copy;
+        }
+
+        consteval basic_event_sanitizer missing_syn_time(bool const v = true) const noexcept {
+            auto copy                       = *this;
+            copy.cfg.check_missing_syn_time = v;
+            return copy;
+        }
+
+        consteval basic_event_sanitizer missing_syn_count(bool const v = true) const noexcept {
+            auto copy                        = *this;
+            copy.cfg.check_missing_syn_count = v;
+            return copy;
+        }
+
+        consteval basic_event_sanitizer missing_syn_travel(bool const v = true) const noexcept {
+            auto copy                          = *this;
+            copy.cfg.check_missing_syn_travel = v;
+            return copy;
+        }
+
+        consteval basic_event_sanitizer missing_syn_time_threshold(msec_type const d) const noexcept {
+            auto copy                            = *this;
+            copy.cfg.missing_syn_time_threshold = d;
+            return copy;
+        }
+
+        consteval basic_event_sanitizer missing_syn_count_threshold(value_type const n) const noexcept {
+            auto copy                             = *this;
+            copy.cfg.missing_syn_count_threshold = n;
+            return copy;
+        }
+
+        consteval basic_event_sanitizer missing_syn_travel_threshold(value_type const d) const noexcept {
+            auto copy                              = *this;
+            copy.cfg.missing_syn_travel_threshold = d;
             return copy;
         }
 
