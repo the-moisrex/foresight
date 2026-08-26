@@ -58,6 +58,7 @@ export namespace fs8 {
         int                                hwheel         = 0;  // REL_HWHEEL accumulation
         std::size_t                        event_count    = 0;
         std::size_t                        syn_count      = 0;
+        std::chrono::microseconds          first_event_time{};
         std::chrono::microseconds          last_event_time{};
         float                              prev_dir_x     = 0.f;
         float                              prev_dir_y     = 0.f;
@@ -68,6 +69,7 @@ export namespace fs8 {
     struct [[nodiscard]] held_key {
         std::uint16_t                  code = KEY_MAX;
         std::chrono::microseconds      press_time{};
+        bool                           has_intervening_events = false;
     };
 
     /// Per-device state for the live view.
@@ -88,7 +90,7 @@ export namespace fs8 {
         bool                                                          terminal_mode_ = false;
         bool                                                          use_ansi_      = false;
         float                                                         direction_epsilon_ = 0.0f;
-        std::chrono::microseconds                                     flush_timeout_{50'000}; // 50ms
+        std::chrono::microseconds                                     flush_timeout_{16'000}; // 16ms (~60fps)
         std::unordered_map<device_id, device_live_state>              devices_;
         xkb::context                                                          xkb_ctx_;
         std::optional<xkb::keymap>                                            xkb_keymap_;
@@ -178,7 +180,7 @@ export namespace fs8 {
         static constexpr std::string_view ansi_bright_cyan = "\033[96m";
     };
 
-    inline constexpr auto default_live_flush_timeout = std::chrono::microseconds{50'000};
+    inline constexpr auto default_live_flush_timeout = std::chrono::microseconds{16'000};
 
     // ── Pipeline mods ────────────────────────────────────────────────────────
 
