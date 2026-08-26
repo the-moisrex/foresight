@@ -439,6 +439,10 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da20d7e7ee786838bd72d3023856041cf5">out_of_resolution</a>
 , <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da78b924fbd8c08b97b279da5b870b8201">big_jump</a>
+, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015dafe3958e9e78777133e77cec1291082e4">missing_syn_time</a>
+, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daa492034aaec0b60fe846dcabb3f0bc5b">missing_syn_count</a>
+, <br />
+&#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daf9f8d908da56826ccb9c3f3975f5430f">missing_syn_travel</a>
 <br />
  }</td></tr>
 <tr class="memdesc:a7275d4de75bd1ef162eb0f4b4d4b015d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes what kind of problem the sanitizer detected for an event.  <a href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">More...</a><br /></td></tr>
@@ -1000,6 +1004,18 @@ requires ((std::convertible_to&lt;T, event_type::code_type&gt; &amp;&amp; ...))<
 <tr class="separator:acd8aca5e2228abaac0ae1118ee6a420d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af35a7dabc144962d7f2e6d8c7b983005" id="r_af35a7dabc144962d7f2e6d8c7b983005"><td class="memItemLeft" align="right" valign="top">consteval basic_event_sanitizer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#af35a7dabc144962d7f2e6d8c7b983005">big_jumps</a> (bool const v=true) const noexcept</td></tr>
 <tr class="separator:af35a7dabc144962d7f2e6d8c7b983005"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59c37098cbc330b5bf299e3f761b4008" id="r_a59c37098cbc330b5bf299e3f761b4008"><td class="memItemLeft" align="right" valign="top">consteval basic_event_sanitizer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a59c37098cbc330b5bf299e3f761b4008">missing_syn_time</a> (bool const v=true) const noexcept</td></tr>
+<tr class="separator:a59c37098cbc330b5bf299e3f761b4008"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d1b29515d9d3c3fdabef1f0ee04a887" id="r_a2d1b29515d9d3c3fdabef1f0ee04a887"><td class="memItemLeft" align="right" valign="top">consteval basic_event_sanitizer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a2d1b29515d9d3c3fdabef1f0ee04a887">missing_syn_count</a> (bool const v=true) const noexcept</td></tr>
+<tr class="separator:a2d1b29515d9d3c3fdabef1f0ee04a887"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4405b343c0bd6a1ff78128e245742975" id="r_a4405b343c0bd6a1ff78128e245742975"><td class="memItemLeft" align="right" valign="top">consteval basic_event_sanitizer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a4405b343c0bd6a1ff78128e245742975">missing_syn_travel</a> (bool const v=true) const noexcept</td></tr>
+<tr class="separator:a4405b343c0bd6a1ff78128e245742975"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b3d2ad21ee50f7b49c884835675017b" id="r_a4b3d2ad21ee50f7b49c884835675017b"><td class="memItemLeft" align="right" valign="top">consteval basic_event_sanitizer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a4b3d2ad21ee50f7b49c884835675017b">missing_syn_time_threshold</a> (msec_type const d) const noexcept</td></tr>
+<tr class="separator:a4b3d2ad21ee50f7b49c884835675017b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a739d424b34073319b41c8d8ee144efed" id="r_a739d424b34073319b41c8d8ee144efed"><td class="memItemLeft" align="right" valign="top">consteval basic_event_sanitizer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a739d424b34073319b41c8d8ee144efed">missing_syn_count_threshold</a> (value_type const n) const noexcept</td></tr>
+<tr class="separator:a739d424b34073319b41c8d8ee144efed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f9cb6e307aba9d7f4f32e7eb413dc8f" id="r_a1f9cb6e307aba9d7f4f32e7eb413dc8f"><td class="memItemLeft" align="right" valign="top">consteval basic_event_sanitizer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a1f9cb6e307aba9d7f4f32e7eb413dc8f">missing_syn_travel_threshold</a> (value_type const d) const noexcept</td></tr>
+<tr class="separator:a1f9cb6e307aba9d7f4f32e7eb413dc8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a479e6815fa48836c922eadc0ad14e4f6" id="r_a479e6815fa48836c922eadc0ad14e4f6"><td class="memTemplParams" colspan="2">template&lt;typename C &gt; <br />
 requires (!std::same_as&lt;std::remove_cvref_t&lt;C&gt;, get_variables_tag&gt;)</td></tr>
 <tr class="memitem:a479e6815fa48836c922eadc0ad14e4f6"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a479e6815fa48836c922eadc0ad14e4f6">operator[]</a> (C &amp;&amp;inp_cb) const noexcept</td></tr>
@@ -1781,10 +1797,22 @@ Variables</h2></td></tr>
 <tr class="separator:a46638faa2fd2276c547afe619364db83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0cea3fe213d8c74bc62894707612b4d" id="r_aa0cea3fe213d8c74bc62894707612b4d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__sanitizer__state_1_1config.html#aa0cea3fe213d8c74bc62894707612b4d">check_big_jumps</a> = true</td></tr>
 <tr class="separator:aa0cea3fe213d8c74bc62894707612b4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7873769f3fdb8713fa457bc982659a6" id="r_af7873769f3fdb8713fa457bc982659a6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__sanitizer__state_1_1config.html#af7873769f3fdb8713fa457bc982659a6">check_missing_syn_time</a> = true</td></tr>
+<tr class="separator:af7873769f3fdb8713fa457bc982659a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa60d7c55cdbc3cf11e60ef8f957d85af" id="r_aa60d7c55cdbc3cf11e60ef8f957d85af"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__sanitizer__state_1_1config.html#aa60d7c55cdbc3cf11e60ef8f957d85af">check_missing_syn_count</a> = true</td></tr>
+<tr class="separator:aa60d7c55cdbc3cf11e60ef8f957d85af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a05f5e70e9c622ca817c96cd806ffec5a" id="r_a05f5e70e9c622ca817c96cd806ffec5a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__sanitizer__state_1_1config.html#a05f5e70e9c622ca817c96cd806ffec5a">check_missing_syn_travel</a> = true</td></tr>
+<tr class="separator:a05f5e70e9c622ca817c96cd806ffec5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea6c0389d6fa31d9cd925caeb42fbccb" id="r_aea6c0389d6fa31d9cd925caeb42fbccb"><td class="memItemLeft" align="right" valign="top">value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__sanitizer__state_1_1config.html#aea6c0389d6fa31d9cd925caeb42fbccb">big_jump_threshold</a> = 50</td></tr>
 <tr class="separator:aea6c0389d6fa31d9cd925caeb42fbccb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a037d3f51cbabcfaa9dd75d5af959cf35" id="r_a037d3f51cbabcfaa9dd75d5af959cf35"><td class="memItemLeft" align="right" valign="top">msec_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__sanitizer__state_1_1config.html#a037d3f51cbabcfaa9dd75d5af959cf35">late_syn_threshold</a> {100'000}</td></tr>
 <tr class="separator:a037d3f51cbabcfaa9dd75d5af959cf35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad36d5f3d771cb50c213dec679f091e35" id="r_ad36d5f3d771cb50c213dec679f091e35"><td class="memItemLeft" align="right" valign="top">msec_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__sanitizer__state_1_1config.html#ad36d5f3d771cb50c213dec679f091e35">missing_syn_time_threshold</a> {100'000}</td></tr>
+<tr class="separator:ad36d5f3d771cb50c213dec679f091e35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87684b8416f389bf9ef0ee80d01561cf" id="r_a87684b8416f389bf9ef0ee80d01561cf"><td class="memItemLeft" align="right" valign="top">value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__sanitizer__state_1_1config.html#a87684b8416f389bf9ef0ee80d01561cf">missing_syn_count_threshold</a> = 20</td></tr>
+<tr class="separator:a87684b8416f389bf9ef0ee80d01561cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f816533250b037c21bc784fab01235a" id="r_a9f816533250b037c21bc784fab01235a"><td class="memItemLeft" align="right" valign="top">value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__sanitizer__state_1_1config.html#a9f816533250b037c21bc784fab01235a">missing_syn_travel_threshold</a> = 500</td></tr>
+<tr class="separator:a9f816533250b037c21bc784fab01235a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeab1ae1fb368cf9f7605a348e0bb4607" id="r_aeab1ae1fb368cf9f7605a348e0bb4607"><td class="memItemLeft" align="right" valign="top">constexpr basic_event_sanitizer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aeab1ae1fb368cf9f7605a348e0bb4607">fs8::event_sanitizer</a></td></tr>
 <tr class="separator:aeab1ae1fb368cf9f7605a348e0bb4607"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09874ef1f335b5dce66bcbde9e70ccf6" id="r_a09874ef1f335b5dce66bcbde9e70ccf6"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a09874ef1f335b5dce66bcbde9e70ccf6">fs8::event_diagnostics</a> = event_sanitizer.diagnostics()[log_diagnostics]</td></tr>

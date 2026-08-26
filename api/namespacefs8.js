@@ -406,7 +406,10 @@ var namespacefs8 =
       [ "orphan_release", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da827d6cd79ba12509aa77d451e1a4c758", null ],
       [ "late_syn", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da9f68d9085af541f5b85923ba6de5dd83", null ],
       [ "out_of_resolution", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da20d7e7ee786838bd72d3023856041cf5", null ],
-      [ "big_jump", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da78b924fbd8c08b97b279da5b870b8201", null ]
+      [ "big_jump", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da78b924fbd8c08b97b279da5b870b8201", null ],
+      [ "missing_syn_time", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015dafe3958e9e78777133e77cec1291082e4", null ],
+      [ "missing_syn_count", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daa492034aaec0b60fe846dcabb3f0bc5b", null ],
+      [ "missing_syn_travel", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daf9f8d908da56826ccb9c3f3975f5430f", null ]
     ] ],
     [ "uinput_access_result", "namespacefs8.html#ad37238ffd12f657195d6e3e8d71292ac", [
       [ "available", "namespacefs8.html#ad37238ffd12f657195d6e3e8d71292acae4894ca167b08880bfc35862f18575eb", null ],
