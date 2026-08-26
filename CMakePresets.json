@@ -65,7 +65,7 @@
     },
     {
       "$comment": "GCC Debug preset",
-      "name": "gcc-debug",
+      "name": "debug-gcc",
       "displayName": "GCC Debug",
       "description": "Debug build using GCC compiler",
       "inherits": ["base", "gcc", "debug"],
@@ -73,7 +73,7 @@
     },
     {
       "$comment": "GCC Release preset",
-      "name": "gcc-release",
+      "name": "release-gcc",
       "displayName": "GCC Release",
       "description": "Release build using GCC compiler",
       "inherits": ["base", "gcc", "release"],
@@ -81,7 +81,7 @@
     },
     {
       "$comment": "Clang Debug preset",
-      "name": "clang-debug",
+      "name": "debug-clang",
       "displayName": "Clang Debug",
       "description": "Debug build using Clang compiler",
       "inherits": ["base", "clang", "debug"],
@@ -89,7 +89,7 @@
     },
     {
       "$comment": "Clang Release preset",
-      "name": "clang-release",
+      "name": "release-clang",
       "displayName": "Clang Release",
       "description": "Release build using Clang compiler",
       "inherits": ["base", "clang", "release"],
@@ -97,11 +97,11 @@
     },
     {
       "$comment": "Clang Debug + ASan preset",
-      "name": "clang-asan-debug",
+      "name": "asan-debug-clang",
       "displayName": "Clang Debug + ASan",
       "description": "Debug build with AddressSanitizer using Clang",
       "inherits": ["base", "clang", "debug", "asan"],
-      "binaryDir": "${sourceDir}/build-asan-clang"
+      "binaryDir": "${sourceDir}/build-asan-debug-clang"
     }
   ],
   "buildPresets": [
@@ -113,43 +113,43 @@
     },
     {
       "$comment": "GCC Debug build preset",
-      "name": "gcc-debug",
+      "name": "debug-gcc",
       "displayName": "Build GCC Debug",
       "description": "Build Debug configuration with GCC",
       "inherits": "build-base",
-      "configurePreset": "gcc-debug"
+      "configurePreset": "debug-gcc"
     },
     {
       "$comment": "GCC Release build preset",
-      "name": "gcc-release",
+      "name": "release-gcc",
       "displayName": "Build GCC Release",
       "description": "Build Release configuration with GCC",
       "inherits": "build-base",
-      "configurePreset": "gcc-release"
+      "configurePreset": "release-gcc"
     },
     {
       "$comment": "Clang Debug build preset",
-      "name": "clang-debug",
+      "name": "debug-clang",
       "displayName": "Build Clang Debug",
       "description": "Build Debug configuration with Clang",
       "inherits": "build-base",
-      "configurePreset": "clang-debug"
+      "configurePreset": "debug-clang"
     },
     {
       "$comment": "Clang Release build preset",
-      "name": "clang-release",
+      "name": "release-clang",
       "displayName": "Build Clang Release",
       "description": "Build Release configuration with Clang",
       "inherits": "build-base",
-      "configurePreset": "clang-release"
+      "configurePreset": "release-clang"
     },
     {
       "$comment": "Clang Debug + ASan build preset",
-      "name": "clang-asan-debug",
+      "name": "asan-debug-clang",
       "displayName": "Build Clang Debug + ASan",
       "description": "Build Debug+ASan configuration with Clang",
       "inherits": "build-base",
-      "configurePreset": "clang-asan-debug"
+      "configurePreset": "asan-debug-clang"
     }
   ],
   "testPresets": [
@@ -167,123 +167,123 @@
     },
     {
       "$comment": "GCC Debug test preset",
-      "name": "gcc-debug",
+      "name": "debug-gcc",
       "displayName": "Test GCC Debug",
       "description": "Test Debug configuration with GCC",
       "inherits": "test-base",
-      "configurePreset": "gcc-debug"
+      "configurePreset": "debug-gcc"
     },
     {
       "$comment": "GCC Release test preset",
-      "name": "gcc-release",
+      "name": "release-gcc",
       "displayName": "Test GCC Release",
       "description": "Test Release configuration with GCC",
       "inherits": "test-base",
-      "configurePreset": "gcc-release"
+      "configurePreset": "release-gcc"
     },
     {
       "$comment": "Clang Debug test preset",
-      "name": "clang-debug",
+      "name": "debug-clang",
       "displayName": "Test Clang Debug",
       "description": "Test Debug configuration with Clang",
       "inherits": "test-base",
-      "configurePreset": "clang-debug"
+      "configurePreset": "debug-clang"
     },
     {
       "$comment": "Clang Release test preset",
-      "name": "clang-release",
+      "name": "release-clang",
       "displayName": "Test Clang Release",
       "description": "Test Release configuration with Clang",
       "inherits": "test-base",
-      "configurePreset": "clang-release"
+      "configurePreset": "release-clang"
     },
     {
       "$comment": "Clang Debug + ASan test preset",
-      "name": "clang-asan-debug",
+      "name": "asan-debug-clang",
       "displayName": "Test Clang Debug + ASan",
       "description": "Test Debug+ASan configuration with Clang",
       "inherits": "test-base",
-      "configurePreset": "clang-asan-debug"
+      "configurePreset": "asan-debug-clang"
     }
   ],
   "workflowPresets": [
     {
       "$comment": "Complete workflow for GCC Debug",
-      "name": "gcc-debug",
+      "name": "debug-gcc",
       "displayName": "Workflow GCC Debug",
       "description": "Complete workflow for GCC Debug configuration",
       "steps": [
         {
           "type": "configure",
-          "name": "gcc-debug"
+          "name": "debug-gcc"
         },
         {
           "type": "build",
-          "name": "gcc-debug"
+          "name": "debug-gcc"
         },
         {
           "type": "test",
-          "name": "gcc-debug"
+          "name": "debug-gcc"
         }
       ]
     },
     {
       "$comment": "Complete workflow for GCC Release",
-      "name": "gcc-release",
+      "name": "release-gcc",
       "displayName": "Workflow GCC Release",
       "description": "Complete workflow for GCC Release configuration",
       "steps": [
         {
           "type": "configure",
-          "name": "gcc-release"
+          "name": "release-gcc"
         },
         {
           "type": "build",
-          "name": "gcc-release"
+          "name": "release-gcc"
         },
         {
           "type": "test",
-          "name": "gcc-release"
+          "name": "release-gcc"
         }
       ]
     },
     {
       "$comment": "Complete workflow for Clang Debug",
-      "name": "clang-debug",
+      "name": "debug-clang",
       "displayName": "Workflow Clang Debug",
       "description": "Complete workflow for Clang Debug configuration",
       "steps": [
         {
           "type": "configure",
-          "name": "clang-debug"
+          "name": "debug-clang"
         },
         {
           "type": "build",
-          "name": "clang-debug"
+          "name": "debug-clang"
         },
         {
           "type": "test",
-          "name": "clang-debug"
+          "name": "debug-clang"
         }
       ]
     },
     {
       "$comment": "Complete workflow for Clang Release",
-      "name": "clang-release",
+      "name": "release-clang",
       "displayName": "Workflow Clang Release",
       "description": "Complete workflow for Clang Release configuration",
       "steps": [
         {
           "type": "configure",
-          "name": "clang-release"
+          "name": "release-clang"
         },
         {
           "type": "build",
-          "name": "clang-release"
+          "name": "release-clang"
         },
         {
           "type": "test",
-          "name": "clang-release"
+          "name": "release-clang"
         }
       ]
     }

@@ -25,13 +25,13 @@ The repository ships CMake presets for both GCC and Clang, in Debug and Release 
 
 ```bash
 # Configure
-cmake --preset gcc-debug
+cmake --preset debug-gcc
 
 # Build everything (library, foresight binary, and the example apps)
-cmake --build --preset gcc-debug
+cmake --build --preset debug-gcc
 ```
 
-The available presets are `gcc-debug`, `gcc-release`, `clang-debug`, and `clang-release`.
+The available presets are `debug-gcc`, `release-gcc`, `debug-clang`, and `release-clang`.
 
 The build produces:
 
@@ -44,7 +44,7 @@ The build produces:
 Tests are built in Debug configurations and run through CTest:
 
 ```bash
-cmake --test --preset gcc-debug
+cmake --test --preset debug-gcc
 ```
 
 ## Building the docs

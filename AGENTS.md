@@ -23,13 +23,13 @@ All library code lives behind C++26 modules; the directory layout mirrors the
 
 ## Build / test
 
-Presets: `gcc-debug`, `gcc-release`, `clang-debug`, `clang-release`; build dirs
+Presets: `debug-gcc`, `release-gcc`, `debug-clang`, `release-clang`; build dirs
 are `build-{debug,release}-{gcc,clang}`. Each also has a matching test preset
 and a `cmake --workflow` preset (configure + build + test).
 
 ```sh
-cmake --preset gcc-debug
-cmake --build --preset gcc-debug
+cmake --preset debug-gcc
+cmake --build --preset debug-gcc
 ```
 
 - Tests are GoogleTest and are **only built in Debug** (the root CMakeLists.txt
@@ -42,7 +42,7 @@ cmake --build --preset gcc-debug
   `test-bash`, `test-io-manager`), plus a combined `foresight-tests`. Run one
   suite with `./build-debug-gcc/tests/test-bash` or
   `ctest --test-dir build-debug-gcc/tests -R test-bash`.
-- `cmake --workflow --preset gcc-debug` = configure + build + test.
+- `cmake --workflow --preset debug-gcc` = configure + build + test.
 - There is **no CI that compiles or runs the C++** (`.github/workflows/docs.yml`
   only builds docs) — verify locally after changes.
 
@@ -207,7 +207,7 @@ clang-format). Regenerate with that script instead of editing.
 
 - `compile_commands.json` is only exported for **Clang** builds (`IS_CLANG`);
   `.clangd` points at `build-debug-gcc/compile_commands.json`. Use the
-  `clang-debug` preset for editor/analysis support.
+  `debug-clang` preset for editor/analysis support.
 - Formatting/lint: `.clang-format` and `.clang-tidy` are configured but not
   wired into any build target; run `clang-format` yourself on changed files.
 

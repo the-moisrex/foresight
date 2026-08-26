@@ -445,7 +445,7 @@ namespace {
                         fs8::log("  Failed to enable {} {} on the virtual-device template.", type_name(type), code_name(type, code));
                         return false;
                     }
-                    fs8::log("  Enabled: {} {}", type_name(type), code_name(type, code));
+                    // fs8::log("  Enabled: {} {}", type_name(type), code_name(type, code));
                 }
             } else if (action == remove_codes) {
                 for (auto const code : codes) {
@@ -453,14 +453,14 @@ namespace {
                         fs8::log("  Failed to disable {} {} on the virtual-device template.", type_name(type), code_name(type, code));
                         return false;
                     }
-                    fs8::log("  Disabled: {} {}", type_name(type), code_name(type, code));
+                    // fs8::log("  Disabled: {} {}", type_name(type), code_name(type, code));
                 }
             } else if (action == remove_type) {
                 if (libevdev_disable_event_type(dev_ptr, type) < 0) [[unlikely]] {
                     fs8::log("  Failed to disable type {} on the virtual-device template.", type_name(type));
                     return false;
                 }
-                fs8::log("  Disabled type: {}", type_name(type));
+                // fs8::log("  Disabled type: {}", type_name(type));
             }
         }
         return true;

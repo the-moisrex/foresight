@@ -25,6 +25,8 @@ QWEN.md
 # CMake Build directories
 build-*/
 build/
+cmake-build-*/
+cmake-build/
 
 Testing/
 
