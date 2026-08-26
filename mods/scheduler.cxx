@@ -98,7 +98,8 @@ context_action basic_scheduler::operator()(event_type& event, next_event_tag) no
     if (pimpl.get() == nullptr || pimpl->expiration_count == 0 || pimpl->empty()) [[likely]] {
         return ignore_event;
     }
-    event       = pimpl->pending[pimpl->head];
+    event = pimpl->pending[pimpl->head];
+    event.source(fs8::device_id::scheduler);
     pimpl->head = (pimpl->head + 1) % decltype(pimpl)::element_type::capacity;
     --pimpl->size;
     --pimpl->expiration_count;

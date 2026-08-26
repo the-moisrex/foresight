@@ -56,8 +56,7 @@ namespace fs8 {
         }
 
         template <Context CtxT, Tag TagT>
-            requires(!std::same_as<std::remove_cvref_t<TagT>, load_event_tag>
-                  && !std::same_as<std::remove_cvref_t<TagT>, next_event_tag>)
+            requires(!std::same_as<std::remove_cvref_t<TagT>, load_event_tag> && !std::same_as<std::remove_cvref_t<TagT>, next_event_tag>)
         context_action operator()(CtxT& ctx, TagT tag) noexcept {
             return invoke_mods(ctx, funcs, tag);
         }

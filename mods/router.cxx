@@ -29,7 +29,9 @@ namespace fs8::detail {
         std::int8_t                         last_index = 0;
     };
 
-    void router_set_caps(nullable_indirect<router_state>& state, device_query const* const queries_begin, std::size_t const queries_count) noexcept {
+    void router_set_caps(nullable_indirect<router_state>& state,
+                         device_query const* const        queries_begin,
+                         std::size_t const                queries_count) noexcept {
         if (state.get() == nullptr) [[unlikely]] {
             state = nullable_indirect<router_state>::make();
         }

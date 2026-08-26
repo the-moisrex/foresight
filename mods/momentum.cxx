@@ -63,9 +63,11 @@ void velocity_tracker::reset() noexcept {
 
 // ── momentum_calculator ────────────────────────────────────────────────────
 
-momentum_calculator::momentum_calculator(
-  float const pos, float const delta, float const vel) noexcept
-  : delta_(delta), vel_(vel), pos_(pos), target_{pred_dest()} {
+momentum_calculator::momentum_calculator(float const pos, float const delta, float const vel) noexcept
+  : delta_(delta),
+    vel_(vel),
+    pos_(pos),
+    target_{pred_dest()} {
     init_curve();
     init_interp();
 }
@@ -165,7 +167,7 @@ void momentum_calculator::init_curve() noexcept {
 }
 
 float momentum_calculator::progress_at(fsecs const time) const noexcept {
-    constexpr float fps       = 60.0f;
+    constexpr float fps = 60.0f;
     constexpr fsecs anim_dur{1.0};
 
     float const t        = std::clamp(static_cast<float>(time.count() / anim_dur.count()), 0.0f, 1.0f);
@@ -256,4 +258,58 @@ void basic_momentum_base::configure(
     pimpl->track_type   = t;
     pimpl->track_code_x = cx;
     pimpl->track_code_y = cy;
+}
+
+std::size_t basic_momentum_base::build_scroll_events(
+  event_type* const           out,
+  std::size_t const           capacity,
+  float const                 vel_x,
+  float const                 vel_y,
+  int const                   num_events,
+  event_type::type_type const emit_type,
+  event_type::code_type const emit_code_x,
+  event_type::code_type const emit_code_y,
+  event_type::code_type const legacy_code_x,
+  event_type::code_type const legacy_code_y,
+  int const                   hi_res_per_notch) noexcept {
+    // Up to 5 events per tick: hi-res x, legacy x, hi-res y, legacy y, syn.
+    auto const  capped = std::min(num_events, static_cast<int>(capacity / 5));
+    std::size_t count  = 0;
+
+    auto acc_x = 0.0f;
+    auto acc_y = 0.0f;
+
+    for (int i = 0; i < capped; ++i) {
+        float const factor = decay_factor(i);
+        auto const  dx     = static_cast<event_type::value_type>(vel_x * factor);
+        auto const  dy     = static_cast<event_type::value_type>(vel_y * factor);
+
+        if (dx != 0) {
+            out[count++]  = event_type(emit_type, emit_code_x, dx);
+            acc_x        += static_cast<float>(dx);
+            while (acc_x >= static_cast<float>(hi_res_per_notch)) {
+                out[count++]  = event_type(emit_type, legacy_code_x, 1);
+                acc_x        -= static_cast<float>(hi_res_per_notch);
+            }
+            while (acc_x <= -static_cast<float>(hi_res_per_notch)) {
+                out[count++]  = event_type(emit_type, legacy_code_x, -1);
+                acc_x        += static_cast<float>(hi_res_per_notch);
+            }
+        }
+        if (dy != 0) {
+            out[count++]  = event_type(emit_type, emit_code_y, dy);
+            acc_y        += static_cast<float>(dy);
+            while (acc_y >= static_cast<float>(hi_res_per_notch)) {
+                out[count++]  = event_type(emit_type, legacy_code_y, 1);
+                acc_y        -= static_cast<float>(hi_res_per_notch);
+            }
+            while (acc_y <= -static_cast<float>(hi_res_per_notch)) {
+                out[count++]  = event_type(emit_type, legacy_code_y, -1);
+                acc_y        += static_cast<float>(hi_res_per_notch);
+            }
+        }
+        out[count++] = syn();
+    }
+
+    return count;
 }

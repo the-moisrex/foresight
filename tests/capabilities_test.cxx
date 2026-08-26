@@ -168,16 +168,16 @@ TEST(CapsMatch, MatchesHonoursSupportPercentage) {
     device_query base{};
     base.caps = caps::tablet;
 
-    EXPECT_TRUE(matches(pen, base)); // default 50 <= 70
+    EXPECT_TRUE(matches(pen, base));  // default 50 <= 70
 
     base.caps_support_percentage = 80;
     EXPECT_FALSE(matches(pen, base)); // 70 < 80
 
     base.caps_support_percentage = 40;
-    EXPECT_TRUE(matches(pen, base)); // 40 <= 70
+    EXPECT_TRUE(matches(pen, base));  // 40 <= 70
 
     base.caps_support_percentage = 70;
-    EXPECT_TRUE(matches(pen, base)); // boundary passes
+    EXPECT_TRUE(matches(pen, base));  // boundary passes
 
     base.caps_support_percentage = 71;
     EXPECT_FALSE(matches(pen, base)); // one above the score fails

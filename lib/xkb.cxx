@@ -218,7 +218,7 @@ keymap& fs8::xkb::get_default_keymap() {
     // (e.g. /etc/default/keyboard) instead of always falling back to plain "us",
     // so characters from any configured layout are typable.
     static system_keyboard const sys = detect_system_keyboard();
-    static keymap map{
+    static keymap                map{
       get_default_context(),
       sys.rules.empty() ? nullptr : sys.rules.c_str(),
       sys.model.empty() ? nullptr : sys.model.c_str(),

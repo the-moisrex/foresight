@@ -31,11 +31,19 @@ if (IS_GCC AND IS_DEBUG)
     # For profiling (https://www.jetbrains.com/help/clion/cpu-profiler.html#UsingTheProfiler)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fno-omit-frame-pointer")
 
+    # AddressSanitizer for catching use-after-free / double-free at runtime.
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
+    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address")
+
 elseif (IS_CLANG AND IS_DEBUG)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -Wall -Wpedantic -Wextra -Wconversion -Wshadow")
 
     # For profiling (https://www.jetbrains.com/help/clion/cpu-profiler.html#UsingTheProfiler)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer")
+
+    # AddressSanitizer for catching use-after-free / double-free at runtime.
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
+    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address")
 
 endif ()
 
@@ -93,6 +101,7 @@ target_sources(${LIB_NAME}
         mods/emitter.cxx
         mods/ignore.cxx
         mods/inout.cxx
+        mods/live_view.cxx
         mods/input_manager.cxx
         mods/intercept.cxx
         mods/io_manager.cxx
@@ -145,6 +154,7 @@ target_sources(${LIB_NAME}
         mods/emitter.ixx
         mods/ignore.ixx
         mods/inout.ixx
+        mods/live_view.ixx
         mods/input_manager.ixx
         mods/intercept.ixx
         mods/io_manager.ixx

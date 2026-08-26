@@ -160,11 +160,10 @@ namespace fs8 {
 
             auto& sched = ctx.mod(scheduler);
 
-            // Skip re-scheduling if we're mid-animation and this is a
-            // self-emitted event (from the scheduler).  User scrolls (non-
-            // self-emitted) can still re-trigger with updated velocity.
-            if (momentum.is_animating() && sched.has_pending()
-                && ctx.event().source() == device_id::self) {
+            // Skip re-scheduling if we're mid-animation and this is a scheduler
+            // event.  User scrolls (including fork_emit'd mouse_to_scroll) can
+            // still re-trigger with updated velocity.
+            if (momentum.is_animating() && sched.has_pending() && ctx.event().source() == device_id::scheduler) {
                 return next;
             }
 
@@ -182,56 +181,25 @@ namespace fs8 {
                 return next;
             }
 
-            // Build a decaying sequence of scroll events on the stack.
+            // Build a decaying sequence of scroll events.
             // todo: use inplace_vector
-            // Up to 5 events per tick: hi-res x, legacy x, hi-res y, legacy y, syn
-            static constexpr int               max_events = momentum_events * 5;
-            std::array<event_type, max_events> events{};
-            std::size_t                        count = 0;
-
-            // Accumulate fractional hi-res movement and emit ±1 legacy events
-            // each time the accumulator crosses a notch boundary (120 units).
-            auto acc_x = 0.0f;
-            auto acc_y = 0.0f;
-
-            for (int i = 0; i < momentum_events; ++i) {
-                float const factor = momentum.decay_factor(i);
-                auto const  dx     = static_cast<event_type::value_type>(vel_x * factor);
-                auto const  dy     = static_cast<event_type::value_type>(vel_y * factor);
-
-                if (dx != 0) {
-                    // Hi-res (non-quantized)
-                    events[count++] = event_type(emit_type, emit_code_x, dx);
-                    // Legacy (quantized): accumulate and emit ±1 per notch.
-                    acc_x += static_cast<float>(dx);
-                    while (acc_x >= hi_res_per_notch) {
-                        events[count++] = event_type(emit_type, legacy_code_x, 1);
-                        acc_x -= hi_res_per_notch;
-                    }
-                    while (acc_x <= -hi_res_per_notch) {
-                        events[count++] = event_type(emit_type, legacy_code_x, -1);
-                        acc_x += hi_res_per_notch;
-                    }
-                }
-                if (dy != 0) {
-                    // Hi-res (non-quantized)
-                    events[count++] = event_type(emit_type, emit_code_y, dy);
-                    // Legacy (quantized): accumulate and emit ±1 per notch.
-                    acc_y += static_cast<float>(dy);
-                    while (acc_y >= hi_res_per_notch) {
-                        events[count++] = event_type(emit_type, legacy_code_y, 1);
-                        acc_y -= hi_res_per_notch;
-                    }
-                    while (acc_y <= -hi_res_per_notch) {
-                        events[count++] = event_type(emit_type, legacy_code_y, -1);
-                        acc_y += hi_res_per_notch;
-                    }
-                }
-                events[count++] = syn();
-            }
+            static constexpr int                   max_events_cap = 500;
+            std::array<event_type, max_events_cap> events{};
+            auto const                             count = momentum.build_scroll_events(
+              events.data(),
+              events.size(),
+              vel_x,
+              vel_y,
+              momentum.num_events_,
+              emit_type,
+              emit_code_x,
+              emit_code_y,
+              legacy_code_x,
+              legacy_code_y,
+              hi_res_per_notch);
 
             if (count > 0) {
-                sched.schedule(std::span{events.data(), count}, frame_ms);
+                sched.schedule(std::span{events.data(), count}, momentum.frame_ms_);
                 momentum.set_animating();
             }
 
@@ -272,6 +240,21 @@ namespace fs8 {
         /// Mark the animation as finished.
         void clear_animating() noexcept;
 
+        /// Build a decaying sequence of scroll events into `out`.
+        /// Returns the number of events written.
+        [[nodiscard]] std::size_t build_scroll_events(
+          event_type*           out,
+          std::size_t           capacity,
+          float                 vel_x,
+          float                 vel_y,
+          int                   num_events,
+          event_type::type_type emit_type,
+          event_type::code_type emit_code_x,
+          event_type::code_type emit_code_y,
+          event_type::code_type legacy_code_x,
+          event_type::code_type legacy_code_y,
+          int                   hi_res_per_notch) noexcept;
+
         context_action operator()(start_tag) noexcept;
 
       protected:
@@ -310,6 +293,14 @@ namespace fs8 {
         static constexpr auto emit_code_x  = Policy::emit_code_x;
         static constexpr auto emit_code_y  = Policy::emit_code_y;
 
+        /// Set the number of momentum events (default from policy).
+        /// More events = longer momentum animation.
+        consteval basic_momentum operator[](int const events) const noexcept {
+            basic_momentum result{*this};
+            result.num_events_ = events;
+            return result;
+        }
+
         /// Pipeline mod: delegate pass-through behavior to the policy.
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
@@ -321,6 +312,14 @@ namespace fs8 {
             configure(track_type, track_code_x, track_code_y);
             return this->basic_momentum_base::operator()(start_tag{});
         }
+
+      private:
+        friend Policy;
+
+        /// Number of momentum events to schedule per axis.
+        int num_events_ = Policy::momentum_events;
+        /// Frame interval in ms (~60 fps by default).
+        int frame_ms_   = Policy::frame_ms;
     };
 
     // ── Convenience aliases ────────────────────────────────────────────────

@@ -64,14 +64,6 @@ export namespace fs8 {
         context_action operator()(event_type& event, load_event_tag) const noexcept;
     } from_input;
 
-    /// A type that can both parse and format evtest text lines.
-    template <typename T>
-    concept EvtestFormat =
-      requires(T const fmt, std::string_view line, parsed_evtest_event& out, event_type const& event, std::span<char> buf) {
-          { fmt.parse(line, out) } noexcept -> std::same_as<bool>;
-          { fmt.format(event, buf) } noexcept -> std::same_as<std::string_view>;
-      };
-
     /// Default evtest format: standard evtest text with libevdev annotations.
     struct [[nodiscard]] default_evtest_format {
         /// Parse one evtest text line. Returns false for non-event lines

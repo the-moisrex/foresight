@@ -5,10 +5,10 @@
 #include <array>
 #include <chrono>
 #include <cstdint>
+#include <linux/input-event-codes.h>
 #include <sys/timerfd.h>
 #include <thread>
 #include <unistd.h>
-#include <linux/input-event-codes.h>
 import fs8.mods;
 
 using namespace fs8;
@@ -167,7 +167,7 @@ TEST(SchedulerTimer, TimerFiresAndEventsAreAvailable) {
 
     // Manually read the timerfd to simulate what io_handler does.
     std::uint64_t expirations = 0;
-    auto const    n = ::read(tfd, &expirations, sizeof(expirations));
+    auto const    n           = ::read(tfd, &expirations, sizeof(expirations));
     ASSERT_GT(n, 0);
     EXPECT_GT(expirations, 0u);
 

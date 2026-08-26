@@ -44,6 +44,7 @@ namespace {
             new_app,
             matches,
             evtest,
+            live,
             version,
         } action = action_type::none;
 
@@ -107,9 +108,14 @@ namespace {
        --echo-events              Also echo the triggering event line.
 
     evtest   [device]             Like the evtest command: list devices and let
-                                   the user select one, or open the specified
-                                   device. Print device info and events in
-                                   evtest text format to stdout.
+                                    the user select one, or open the specified
+                                    device. Print device info and events in
+                                    evtest text format to stdout.
+       -g | --grab                Grab the input exclusively.
+
+    live     [device]             Live view: compact, aligned event display with
+                                    mouse accumulation, keyboard text, and hold
+                                    durations. Uses terminal colors when interactive.
        -g | --grab                Grab the input exclusively.
 
     help                 Print help.
@@ -274,6 +280,8 @@ Options:
             set_action(opts, matches);
         } else if (action_str == "evtest") {
             set_action(opts, evtest);
+        } else if (action_str == "live") {
+            set_action(opts, live);
         }
 
         bool grab = false;
@@ -306,7 +314,8 @@ Options:
                     break;
                 }
 
-                case evtest: {
+                case evtest:
+                case live: {
                     opts.queries.emplace_back(opt);
                     break;
                 }
@@ -534,8 +543,7 @@ Options:
             };
 
             std::vector<DevEntry> devices;
-            fs8::udev             udev;
-            fs8::udev_enumerate   enumerate{udev};
+            fs8::udev_enumerate   enumerate{};
             enumerate.match_subsystem("input");
             enumerate.match_sysname("event*");
             enumerate.scan_devices();
@@ -588,7 +596,8 @@ Options:
             std::fflush(stdout);
 
             int selection = -1;
-            if (!std::cin >> selection) {
+            if (!(std::cin >> selection)) {
+                std::println(stderr, "Selection failure.");
                 return EXIT_FAILURE;
             }
             // Find the device with the matching event number.
@@ -653,6 +662,144 @@ Options:
                 }
             }
         }
+
+        return EXIT_SUCCESS;
+    }
+
+    int run_live(options const& opts) {
+        // --- open the device ---
+        fs8::evdev dev;
+        if (opts.queries.empty()) {
+            // No query given — enumerate all event* devices via udev.
+            struct DevEntry {
+                std::string devnode;
+                std::string name;
+                int         event_num = -1;
+            };
+
+            std::vector<DevEntry> devices;
+            fs8::udev_enumerate   enumerate{};
+            enumerate.match_subsystem("input");
+            enumerate.match_sysname("event*");
+            enumerate.scan_devices();
+
+            for (auto const& entry : enumerate.list_entries()) {
+                fs8::udev_device udev_dev{entry};
+                auto const       dn = udev_dev.devnode();
+                if (dn.empty()) {
+                    continue;
+                }
+
+                auto const sn        = udev_dev.sysname();
+                int        num       = -1;
+                auto const [ptr, ec] = std::from_chars(sn.data() + 5, sn.data() + sn.size(), num);
+                if (ec != std::errc{}) {
+                    continue;
+                }
+
+                fs8::evdev d{std::filesystem::path{dn}};
+                if (!d.is_ok()) {
+                    continue;
+                }
+                devices.emplace_back(DevEntry{
+                  .devnode   = std::string{dn},
+                  .name      = std::string{d.device_name()},
+                  .event_num = num,
+                });
+            }
+
+            if (devices.empty()) {
+                std::println(stderr, "No devices available");
+                return EXIT_FAILURE;
+            }
+
+            std::ranges::sort(devices, {}, &DevEntry::event_num);
+
+            std::println("No device specified, trying to scan all of /dev/input/event*");
+            if (getuid() != 0) {
+                std::println("Not running as root, no devices may be available.");
+            }
+            std::println("Available devices:");
+            for (std::size_t i = 0; i < devices.size(); ++i) {
+                std::println("{}:\t{}", devices[i].devnode, devices[i].name);
+            }
+
+            std::print("Select the device event number [0-{}]: ", devices.back().event_num);
+            std::fflush(stdout);
+
+            int selection = -1;
+            if (!(std::cin >> selection)) {
+                std::println(stderr, "Could not select.");
+                return EXIT_FAILURE;
+            }
+            auto const it = std::ranges::find_if(devices, [selection](auto const& d) {
+                return d.event_num == selection;
+            });
+            if (it == devices.end()) {
+                std::println(stderr, "Invalid selection.");
+                return EXIT_FAILURE;
+            }
+
+            dev = fs8::evdev{std::filesystem::path{it->devnode}};
+        } else {
+            dev = fs8::device(opts.queries.front());
+        }
+
+        if (!dev.is_ok()) {
+            std::println(stderr, "Could not open device.");
+            return EXIT_FAILURE;
+        }
+
+        // --- print the header ---
+        std::println("Live view — {} — interrupt to exit", dev.device_name());
+
+        // --- grab ---
+        if (opts.grab) {
+            dev.grab_input(true);
+        }
+
+        // --- event loop ---
+        bool const     is_terminal = isatty(STDOUT_FILENO) == 1;
+        fs8::live_view lv{is_terminal};
+        lv.set_ansi(is_terminal);
+
+        int const fd  = dev.native_handle();
+        pollfd    pfd = {.fd = fd, .events = POLLIN, .revents = 0};
+
+        while (signals::sig == 0) {
+            int ready = 0;
+            do {
+                ready = ::poll(&pfd, 1, 100); // 100ms timeout for live flush
+            } while (ready < 0 && errno == EINTR && signals::sig == 0);
+
+            if (signals::sig != 0) {
+                break;
+            }
+
+            if (ready == 0) {
+                // Timeout — flush accumulated state
+                lv.flush(STDOUT_FILENO);
+                continue;
+            }
+
+            if (pfd.revents & (POLLHUP | POLLERR)) {
+                break;
+            }
+
+            while (signals::sig == 0) {
+                auto const ev = dev.next();
+                if (!ev.has_value()) {
+                    break;
+                }
+
+                fs8::event_type event{*ev};
+                event.source(fs8::hashed_device(fs8::device_sysname(dev)));
+                lv.process_event(event, STDOUT_FILENO);
+            }
+        }
+
+        // Flush any remaining accumulated state on exit
+        lv.flush(STDOUT_FILENO);
 
         return EXIT_SUCCESS;
     }
@@ -754,6 +901,9 @@ Options:
             }
             case evtest: {
                 return run_evtest(opts);
+            }
+            case live: {
+                return run_live(opts);
             }
             default: {
                 fs8::keyboard_runner kbd;

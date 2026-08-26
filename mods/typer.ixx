@@ -74,7 +74,9 @@ namespace fs8 {
         }
 
         template <typename T>
-            requires(!std::is_array_v<std::remove_cvref_t<T>> && !Tag<std::remove_cvref_t<T>> && !Context<std::remove_cvref_t<T>>) // no strings, no tags, no pipeline contexts
+            requires(!std::is_array_v<std::remove_cvref_t<T>>
+                     && !Tag<std::remove_cvref_t<T>>
+                     && !Context<std::remove_cvref_t<T>>) // no strings, no tags, no pipeline contexts
         consteval auto operator()(T&& getter) const noexcept {
             return basic_type_string<std::remove_cvref_t<T>>{std::forward<T>(getter)};
         }

@@ -13,6 +13,7 @@ module fs8.event;
         case none: return {"none"};
         case stdin: return {"stdin"};
         case self: return {"self"};
+        case scheduler: return {"scheduler"};
         default: {
             // Device hashes are resolved to their sysname via input_manager;
             // here we only have the opaque id, so print it in hex. The buffer

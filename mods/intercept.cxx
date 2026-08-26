@@ -128,7 +128,7 @@ context_action basic_interceptor::operator()(io_fd& fd) noexcept try {
             if (pimpl->disconnect_count == 0) [[likely]] {
                 auto const name = entry.dev->device_name();
                 auto const len  = std::min(name.size(), pimpl->first_disconnect_name.size() - 1);
-                std::ranges::copy_n(name.begin(), len, pimpl->first_disconnect_name.begin());
+                std::ranges::copy_n(name.begin(), static_cast<std::ptrdiff_t>(len), pimpl->first_disconnect_name.begin());
                 pimpl->first_disconnect_name[len] = '\0';
                 pimpl->first_disconnect_name_len  = len;
             }

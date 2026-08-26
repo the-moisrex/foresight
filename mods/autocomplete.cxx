@@ -111,16 +111,16 @@ fs8::context_action fs8::basic_autocomplete::on_event(event_type const&         
     if (pimpl.get() == nullptr || !pimpl->valid) [[unlikely]] {
         return next;
     }
-    auto const key = static_cast<key_event>(event);
+    auto const ke = static_cast<key_event>(event);
 
     // feed the keyboard state and get the code point for this key
-    auto const code = unicode_encoded_event(keyboard_state, key);
+    auto const code = unicode_encoded_event(keyboard_state, ke);
 
-    if (key.value != 1) {
+    if (ke.value != 1) {
         return next; // only track keydowns
     }
 
-    if (key.code == KEY_BACKSPACE) {
+    if (ke.code == KEY_BACKSPACE) {
         if (!pimpl->buffer.empty()) {
             pimpl->buffer.pop_back();
         }
@@ -128,7 +128,7 @@ fs8::context_action fs8::basic_autocomplete::on_event(event_type const&         
     }
 
     // trigger mode: complete when the trigger key is pressed after the prefix
-    if (!auto_mode && key.code == pimpl->trigger_code) {
+    if (!auto_mode && ke.code == pimpl->trigger_code) {
         if (pimpl->prefix.empty() || pimpl->buffer.ends_with(pimpl->prefix)) {
             inp_emit(pimpl->completion);
             pimpl->buffer  = pimpl->prefix;
@@ -137,7 +137,7 @@ fs8::context_action fs8::basic_autocomplete::on_event(event_type const&         
         }
     }
 
-    if (is_modifier_key(key.code)) {
+    if (is_modifier_key(ke.code)) {
         return next; // don't disturb the current word
     }
 

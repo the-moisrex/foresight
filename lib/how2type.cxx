@@ -12,8 +12,8 @@ module;
 #include <string>
 #include <vector>
 #include <xkbcommon/xkbcommon-compose.h>
-#include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-keysyms.h>
+#include <xkbcommon/xkbcommon.h>
 module fs8.lib.xkb.how2type;
 import fs8.log;
 import fs8.event;
@@ -238,7 +238,15 @@ namespace {
             // todo: can we cache these results if this function is heavy?
             num_masks = xkb_keymap_key_get_mods_for_level(map.get(), pos.keycode, pos.layout, pos.level, masks.data(), masks.size());
 
-            if (num_masks > 0 && invoke_mod_events(map.get(), masks.at(0), true, [&](fs8::user_event const &event) { callback(event); })) {
+            if (num_masks
+                > 0
+                && invoke_mod_events(map.get(),
+                                     masks.at(0),
+                                     true,
+                                     [&](fs8::user_event const &event) {
+                                         callback(event);
+                                     }))
+            {
                 callback(ev_syn);
             }
         }
@@ -249,7 +257,16 @@ namespace {
         callback(ev_syn);
 
         // release the evs
-        if (requires_mods && num_masks > 0 && invoke_mod_events(map.get(), masks.at(0), false, [&](fs8::user_event const &event) { callback(event); })) {
+        if (requires_mods
+            && num_masks
+            > 0
+            && invoke_mod_events(map.get(),
+                                 masks.at(0),
+                                 false,
+                                 [&](fs8::user_event const &event) {
+                                     callback(event);
+                                 }))
+        {
             callback(ev_syn);
         }
     }
@@ -286,9 +303,8 @@ namespace {
                 return "en_US.UTF-8";
             };
 
-            xkb_context *const ctx = fs8::xkb::get_default_context().get();
-            xkb_compose_table *result =
-              xkb_compose_table_new_from_locale(ctx, locale_for_compose().c_str(), XKB_COMPOSE_COMPILE_NO_FLAGS);
+            xkb_context *const ctx    = fs8::xkb::get_default_context().get();
+            xkb_compose_table *result = xkb_compose_table_new_from_locale(ctx, locale_for_compose().c_str(), XKB_COMPOSE_COMPILE_NO_FLAGS);
             if (result == nullptr) [[unlikely]] {
                 result = xkb_compose_table_new_from_locale(ctx, "en_US.UTF-8", XKB_COMPOSE_COMPILE_NO_FLAGS);
             }
@@ -327,8 +343,13 @@ namespace {
 
     /// Search the compose table for a sequence producing `target`, using only keysyms that are
     /// physically typable on this keymap. Fills `path` with the sequence when found.
-    bool find_composed(xkb_compose_state *state, xkb_keysym_t const target, std::vector<xkb_keysym_t> const &candidates,
-                       std::vector<xkb_keysym_t> &path, int const depth, int &feed_budget) {
+    bool find_composed(
+      xkb_compose_state               *state,
+      xkb_keysym_t const               target,
+      std::vector<xkb_keysym_t> const &candidates,
+      std::vector<xkb_keysym_t>       &path,
+      int const                        depth,
+      int                             &feed_budget) {
         for (xkb_keysym_t const candidate : candidates) {
             if (--feed_budget < 0) [[unlikely]] {
                 return false;
@@ -375,7 +396,7 @@ namespace {
         }
 
         std::vector<xkb_keysym_t>       path;
-        std::vector<xkb_keysym_t> const candidates = collect_typable_keysyms(map.get());
+        std::vector<xkb_keysym_t> const candidates  = collect_typable_keysyms(map.get());
         int                             feed_budget = 100'000;
         bool const                      found       = find_composed(state, target, candidates, path, 1, feed_budget);
         xkb_compose_state_unref(state);
@@ -426,19 +447,19 @@ namespace {
             if (i > 0) {
                 out += ", ";
             }
-            char const *const name = xkb_keymap_layout_get_name(keymap, i);
-            out += name != nullptr ? name : "?";
+            char const *const name  = xkb_keymap_layout_get_name(keymap, i);
+            out                    += name != nullptr ? name : "?";
         }
         return out;
     }
 
     /// Characters that can't be produced by any keyboard layout and need an IME.
     [[nodiscard]] bool needs_ime(char32_t const ucs32) noexcept {
-        return (ucs32 >= 0x3400 && ucs32 <= 0x4DBF)   // CJK Ext. A
-            || (ucs32 >= 0x4E00 && ucs32 <= 0x9FFF)   // CJK Unified Ideographs
-            || (ucs32 >= 0x20000 && ucs32 <= 0x2A6DF) // CJK Ext. B
-            || (ucs32 >= 0x3040 && ucs32 <= 0x30FF)   // Hiragana / Katakana
-            || (ucs32 >= 0xAC00 && ucs32 <= 0xD7AF);  // Hangul syllables
+        return (ucs32 >= 0x3400 && ucs32 <= 0x4DBF)        // CJK Ext. A
+               || (ucs32 >= 0x4E00 && ucs32 <= 0x9FFF)     // CJK Unified Ideographs
+               || (ucs32 >= 0x2'0000 && ucs32 <= 0x2'A6DF) // CJK Ext. B
+               || (ucs32 >= 0x3040 && ucs32 <= 0x30FF)     // Hiragana / Katakana
+               || (ucs32 >= 0xAC00 && ucs32 <= 0xD7AF);    // Hangul syllables
     }
 
     /// Explain why a character can't be typed and how to make it typable.
@@ -447,9 +468,9 @@ namespace {
         std::string const layouts = layout_names(map.get());
 
         fs8::log("Warning: no way to type '{}' (U+{:04X}) with the current keyboard layouts: {}",
-            glyph.empty() ? "?" : glyph,
-            static_cast<uint32_t>(ucs32),
-            layouts);
+                 glyph.empty() ? "?" : glyph,
+                 static_cast<uint32_t>(ucs32),
+                 layouts);
 
         if (needs_ime(ucs32)) {
             fs8::log("  Hint: CJK (Chinese/Japanese/Korean) characters aren't on any keyboard layout;");

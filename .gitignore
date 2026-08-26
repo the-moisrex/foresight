@@ -40,7 +40,9 @@ Testing/
 
 
 .project
-cmake-build-*/
+build-debug-*/
+build-release-*/
+build-asan-*/
 .kdev4
 foresight.kdev4
 *.plist

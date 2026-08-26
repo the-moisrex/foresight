@@ -87,7 +87,7 @@ namespace {
     /// Write `digits` zero-padded microseconds. No overflow check needed — caller
     /// must guarantee at least 6 bytes of space.
     void write_usec(char* pos, std::int32_t const usec) noexcept {
-        auto [ptr, ec] = std::to_chars(pos, pos + 6, usec);
+        auto [ptr, ec]     = std::to_chars(pos, pos + 6, usec);
         // Pad with leading zeros if the number had fewer than 6 digits.
         auto const written = static_cast<std::size_t>(ptr - pos);
         if (written < 6) {
@@ -110,9 +110,9 @@ bool fs8::default_evtest_format::parse(std::string_view const line, parsed_evtes
 }
 
 std::string_view fs8::default_evtest_format::format(event_type const& event, std::span<char> const buf) const noexcept {
-    auto const  tv        = event.native().time;
-    auto const  sec       = static_cast<std::int64_t>(tv.tv_sec);
-    auto const  usec      = static_cast<std::int32_t>(tv.tv_usec);
+    auto const       tv        = event.native().time;
+    auto const       sec       = static_cast<std::int64_t>(tv.tv_sec);
+    auto const       usec      = static_cast<std::int32_t>(tv.tv_usec);
     std::string_view type_name = event.type_name();
     std::string_view code_name = event.code_name();
 

@@ -16,6 +16,7 @@ export import :device;
 export import :emitter;
 export import :ignore;
 export import :inout;
+export import :live_view;
 export import :input_manager;
 export import :intercept;
 export import :io_manager;

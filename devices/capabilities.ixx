@@ -595,7 +595,7 @@ namespace fs8 {
         // -- Composite Device Capabilities --
 
         // A standard 104-key Keyboard
-        constexpr auto keyboard = syn + keyboard_leds + keyboard_keys - pointer_btns - pointer_rel_axes - touch_abs_axes;
+        constexpr auto keyboard                  = syn + keyboard_leds + keyboard_keys - pointer_btns - pointer_rel_axes - touch_abs_axes;
         constexpr auto consumer_control_keyboard = syn + keyboard_consumer_control_keys + pointer_wheels;
         // todo: add these to consumer controls as well:
         //  Event type 3 (EV_ABS)

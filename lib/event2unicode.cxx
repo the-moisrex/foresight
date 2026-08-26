@@ -24,7 +24,7 @@ namespace {
         auto* handle = state_handle.get();
         assert(handle != nullptr);
 
-        auto const              keycode = static_cast<xkb_keycode_t>(evdev_offset + event.code);
+        auto const keycode = static_cast<xkb_keycode_t>(evdev_offset + event.code);
 
         bool const is_release = static_cast<std::uint16_t>(event.value) == KEY_STATE_RELEASE;
         bool const is_repeat  = static_cast<std::uint16_t>(event.value) == 2;

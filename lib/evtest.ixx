@@ -1,6 +1,8 @@
 // Created by moisrex on 8/18/26.
 
 module;
+#include <concepts>
+#include <span>
 #include <string_view>
 export module fs8.lib.evtest;
 import fs8.event;
@@ -25,5 +27,13 @@ export namespace fs8 {
     /// evtest's header/preamble lines, empty lines, and malformed input.
     /// The timestamp is optional; when missing it defaults to 0.
     [[nodiscard]] bool parse_evtest_line(std::string_view line, parsed_evtest_event& out) noexcept;
+
+    /// A type that can both parse and format evtest text lines.
+    template <typename T>
+    concept EvtestFormat =
+      requires(T const fmt, std::string_view line, parsed_evtest_event& out, event_type const& event, std::span<char> buf) {
+          { fmt.parse(line, out) } noexcept -> std::same_as<bool>;
+          { fmt.format(event, buf) } noexcept -> std::same_as<std::string_view>;
+      };
 
 } // namespace fs8

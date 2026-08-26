@@ -48,6 +48,7 @@ evdev::evdev(evdev&& inp) noexcept : dev{std::exchange(inp.dev, nullptr)}, statu
 
 evdev& evdev::operator=(evdev&& other) noexcept {
     if (&other != this) {
+        this->close();
         dev    = std::exchange(other.dev, nullptr);
         status = std::exchange(other.status, evdev_status::unknown);
     }
@@ -59,8 +60,7 @@ evdev::~evdev() noexcept {
 }
 
 void evdev::close() noexcept {
-    if (is_fd_initialized()) {
-        // just to be safe
+    if (is_fd_initialized() && is_ok()) {
         libevdev_grab(dev, LIBEVDEV_UNGRAB);
     }
     auto const file_descriptor = native_handle();
@@ -100,9 +100,15 @@ void evdev::set_file(int const file) noexcept {
         return;
     }
     if (res_rc < 0) [[unlikely]] {
-        // res_rc is now -errno
-        ::close(file);
-        this->close();
+        // libevdev_new_from_fd allocated dev but initialization failed.
+        // Do NOT call close() here — it would libevdev_grab() on a
+        // partially-initialized handle, which corrupts the heap.
+        auto const fd = libevdev_get_fd(dev);
+        libevdev_free(dev);
+        dev = nullptr;
+        if (fd >= 0) {
+            ::close(fd);
+        }
         status = failed_setting_file_descriptor;
         return;
     }
@@ -428,6 +434,10 @@ std::optional<input_event> evdev::next() noexcept {
             while (rc == LIBEVDEV_READ_STATUS_SYNC) {
                 rc = libevdev_next_event(dev, LIBEVDEV_READ_FLAG_SYNC, &input);
             }
+            if (rc == LIBEVDEV_READ_STATUS_SUCCESS) {
+                return input;
+            }
+            break;
         }
         case -EAGAIN: break;
         default: return std::nullopt;

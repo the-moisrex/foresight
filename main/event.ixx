@@ -114,10 +114,11 @@ export namespace fs8 {
     /// `input_manager`. The value never crosses a process boundary: only the
     /// raw `input_event` is serialized through stdin/stdout.
     enum struct [[nodiscard]] device_id : std::uint32_t {
-        none  = 0, // unset / raw input_event
-        stdin = 1, // read from stdin (redirect mode)
-        self  = 2, // synthesized by this pipeline
-        // values >= 3: ci_hash(sysname) of the source device
+        none      = 0, // unset / raw input_event
+        stdin     = 1, // read from stdin (redirect mode)
+        self      = 2, // synthesized by this pipeline
+        scheduler = 3, // emitted by the scheduler mod (timed events)
+        // values >= 4: ci_hash(sysname) of the source device
     };
 
     /// Derive the device id for a device whose sysname is `sysname` (e.g.

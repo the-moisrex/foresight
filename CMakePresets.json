@@ -53,12 +53,23 @@
       }
     },
     {
+      "$comment": "AddressSanitizer flags",
+      "name": "asan",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": "-fsanitize=address -fno-omit-frame-pointer",
+        "CMAKE_CXX_FLAGS": "-fsanitize=address -fno-omit-frame-pointer",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fsanitize=address"
+      }
+    },
+    {
       "$comment": "GCC Debug preset",
       "name": "gcc-debug",
       "displayName": "GCC Debug",
       "description": "Debug build using GCC compiler",
       "inherits": ["base", "gcc", "debug"],
-      "binaryDir": "${sourceDir}/cmake-build-debug"
+      "binaryDir": "${sourceDir}/build-debug-gcc"
     },
     {
       "$comment": "GCC Release preset",
@@ -66,7 +77,7 @@
       "displayName": "GCC Release",
       "description": "Release build using GCC compiler",
       "inherits": ["base", "gcc", "release"],
-      "binaryDir": "${sourceDir}/cmake-build-release"
+      "binaryDir": "${sourceDir}/build-release-gcc"
     },
     {
       "$comment": "Clang Debug preset",
@@ -74,7 +85,7 @@
       "displayName": "Clang Debug",
       "description": "Debug build using Clang compiler",
       "inherits": ["base", "clang", "debug"],
-      "binaryDir": "${sourceDir}/cmake-build-debug-clang"
+      "binaryDir": "${sourceDir}/build-debug-clang"
     },
     {
       "$comment": "Clang Release preset",
@@ -82,7 +93,15 @@
       "displayName": "Clang Release",
       "description": "Release build using Clang compiler",
       "inherits": ["base", "clang", "release"],
-      "binaryDir": "${sourceDir}/cmake-build-release-clang"
+      "binaryDir": "${sourceDir}/build-release-clang"
+    },
+    {
+      "$comment": "Clang Debug + ASan preset",
+      "name": "clang-asan-debug",
+      "displayName": "Clang Debug + ASan",
+      "description": "Debug build with AddressSanitizer using Clang",
+      "inherits": ["base", "clang", "debug", "asan"],
+      "binaryDir": "${sourceDir}/build-asan-clang"
     }
   ],
   "buildPresets": [
@@ -123,6 +142,14 @@
       "description": "Build Release configuration with Clang",
       "inherits": "build-base",
       "configurePreset": "clang-release"
+    },
+    {
+      "$comment": "Clang Debug + ASan build preset",
+      "name": "clang-asan-debug",
+      "displayName": "Build Clang Debug + ASan",
+      "description": "Build Debug+ASan configuration with Clang",
+      "inherits": "build-base",
+      "configurePreset": "clang-asan-debug"
     }
   ],
   "testPresets": [
@@ -169,6 +196,14 @@
       "description": "Test Release configuration with Clang",
       "inherits": "test-base",
       "configurePreset": "clang-release"
+    },
+    {
+      "$comment": "Clang Debug + ASan test preset",
+      "name": "clang-asan-debug",
+      "displayName": "Test Clang Debug + ASan",
+      "description": "Test Debug+ASan configuration with Clang",
+      "inherits": "test-base",
+      "configurePreset": "clang-asan-debug"
     }
   ],
   "workflowPresets": [

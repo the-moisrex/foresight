@@ -24,7 +24,7 @@ All library code lives behind C++26 modules; the directory layout mirrors the
 ## Build / test
 
 Presets: `gcc-debug`, `gcc-release`, `clang-debug`, `clang-release`; build dirs
-are `cmake-build-{debug,release}[-clang]`. Each also has a matching test preset
+are `build-{debug,release}-{gcc,clang}`. Each also has a matching test preset
 and a `cmake --workflow` preset (configure + build + test).
 
 ```sh
@@ -36,12 +36,12 @@ cmake --build --preset gcc-debug
   guards `add_subdirectory(tests)` on `IS_DEBUG`).
 - `enable_testing()` is called from `tests/CMakeLists.txt` (a subdir), so no
   root `CTestTestfile.cmake` is generated. Run ctest from the tests dir:
-  `ctest --test-dir cmake-build-debug/tests`. (The docs' `cmake --test --preset`
+  `ctest --test-dir build-debug-gcc/tests`. (The docs' `cmake --test --preset`
   is a typo; that flag doesn't exist.)
 - Each `tests/*_test.cxx` also builds a dedicated target `test-<file>` (e.g.
   `test-bash`, `test-io-manager`), plus a combined `foresight-tests`. Run one
-  suite with `./cmake-build-debug/tests/test-bash` or
-  `ctest --test-dir cmake-build-debug/tests -R test-bash`.
+  suite with `./build-debug-gcc/tests/test-bash` or
+  `ctest --test-dir build-debug-gcc/tests -R test-bash`.
 - `cmake --workflow --preset gcc-debug` = configure + build + test.
 - There is **no CI that compiles or runs the C++** (`.github/workflows/docs.yml`
   only builds docs) — verify locally after changes.
@@ -206,7 +206,7 @@ clang-format). Regenerate with that script instead of editing.
 ## Toolchain quirks
 
 - `compile_commands.json` is only exported for **Clang** builds (`IS_CLANG`);
-  `.clangd` points at `cmake-build-debug/compile_commands.json`. Use the
+  `.clangd` points at `build-debug-gcc/compile_commands.json`. Use the
   `clang-debug` preset for editor/analysis support.
 - Formatting/lint: `.clang-format` and `.clang-tidy` are configured but not
   wired into any build target; run `clang-format` yourself on changed files.
