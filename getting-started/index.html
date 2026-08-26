@@ -951,12 +951,12 @@
 <h2 id="building">Building</h2>
 <p>The repository ships CMake presets for both GCC and Clang, in Debug and Release configurations.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Configure</span>
-cmake<span class="w"> </span>--preset<span class="w"> </span>gcc-debug
+cmake<span class="w"> </span>--preset<span class="w"> </span>debug-gcc
 
 <span class="c1"># Build everything (library, foresight binary, and the example apps)</span>
-cmake<span class="w"> </span>--build<span class="w"> </span>--preset<span class="w"> </span>gcc-debug
+cmake<span class="w"> </span>--build<span class="w"> </span>--preset<span class="w"> </span>debug-gcc
 </code></pre></div>
-<p>The available presets are <code>gcc-debug</code>, <code>gcc-release</code>, <code>clang-debug</code>, and <code>clang-release</code>.</p>
+<p>The available presets are <code>debug-gcc</code>, <code>release-gcc</code>, <code>debug-clang</code>, and <code>release-clang</code>.</p>
 <p>The build produces:</p>
 <ul>
 <li><code>libforesight</code> — the library</li>
@@ -965,7 +965,7 @@ cmake<span class="w"> </span>--build<span class="w"> </span>--preset<span class=
 </ul>
 <h2 id="running-tests">Running tests</h2>
 <p>Tests are built in Debug configurations and run through CTest:</p>
-<div class="highlight"><pre><span></span><code>cmake<span class="w"> </span>--test<span class="w"> </span>--preset<span class="w"> </span>gcc-debug
+<div class="highlight"><pre><span></span><code>cmake<span class="w"> </span>--test<span class="w"> </span>--preset<span class="w"> </span>debug-gcc
 </code></pre></div>
 <h2 id="building-the-docs">Building the docs</h2>
 <p>The API reference is generated with Doxygen and can be built through CMake:</p>
