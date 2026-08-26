@@ -28,9 +28,9 @@ digraph "lib/how2type.cxx"
   Node1 -> Node12 [id="edge11_Node000001_Node000012",color="steelblue1",style="solid",tooltip=" "];
   Node12 [id="Node000012",label="xkbcommon/xkbcommon\l-compose.h",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node1 -> Node13 [id="edge12_Node000001_Node000013",color="steelblue1",style="solid",tooltip=" "];
-  Node13 [id="Node000013",label="xkbcommon/xkbcommon.h",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node13 [id="Node000013",label="xkbcommon/xkbcommon\l-keysyms.h",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node1 -> Node14 [id="edge13_Node000001_Node000014",color="steelblue1",style="solid",tooltip=" "];
-  Node14 [id="Node000014",label="xkbcommon/xkbcommon\l-keysyms.h",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node14 [id="Node000014",label="xkbcommon/xkbcommon.h",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node1 -> Node15 [id="edge14_Node000001_Node000015",color="steelblue1",style="solid",tooltip=" "];
   Node15 [id="Node000015",label="fs8.lib.mod_parser",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$mod__parser_8ixx.html",tooltip=" "];
   Node15 -> Node16 [id="edge15_Node000015_Node000016",color="steelblue1",style="solid",tooltip=" "];
@@ -50,7 +50,7 @@ digraph "lib/how2type.cxx"
   Node22 -> Node7 [id="edge22_Node000022_Node000007",color="steelblue1",style="solid",tooltip=" "];
   Node22 -> Node23 [id="edge23_Node000022_Node000023",color="steelblue1",style="solid",tooltip=" "];
   Node23 [id="Node000023",label="stdexcept",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
-  Node22 -> Node13 [id="edge24_Node000022_Node000013",color="steelblue1",style="solid",tooltip=" "];
+  Node22 -> Node14 [id="edge24_Node000022_Node000014",color="steelblue1",style="solid",tooltip=" "];
   Node15 -> Node24 [id="edge25_Node000015_Node000024",color="steelblue1",style="solid",tooltip=" "];
   Node24 [id="Node000024",label="fs8.event",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$event_8ixx.html",tooltip=" "];
   Node24 -> Node25 [id="edge26_Node000024_Node000025",color="steelblue1",style="solid",tooltip=" "];

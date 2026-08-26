@@ -11,7 +11,8 @@ var event_8ixx =
     [ "device_id", "event_8ixx.html#ae866c9f657ce20c4be67ff6c37074ea0", [
       [ "none", "event_8ixx.html#ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8", null ],
       [ "stdin", "event_8ixx.html#ae866c9f657ce20c4be67ff6c37074ea0a3c6c257ed29622500badf6cc7741375c", null ],
-      [ "self", "event_8ixx.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63", null ]
+      [ "self", "event_8ixx.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63", null ],
+      [ "scheduler", "event_8ixx.html#ae866c9f657ce20c4be67ff6c37074ea0a499f31e79c00c9e8f61bdaadc5e82f45", null ]
     ] ],
     [ "hashed", "event_8ixx.html#acef00bf97bc1f9ccf3675d1a36edf2f3", null ],
     [ "hashed", "event_8ixx.html#af9a57064d23f117022d7d4580c1b9ee4", null ],

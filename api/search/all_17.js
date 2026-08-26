@@ -6,5 +6,6 @@ var searchData=
   ['xkb_2ecxx_3',['xkb.cxx',['../xkb_8cxx.html',1,'']]],
   ['xkb_2eixx_4',['xkb.ixx',['../xkb_8ixx.html',1,'']]],
   ['xkb_5ferror_5',['xkb_error',['../structfs8_1_1xkb_1_1xkb__error.html',1,'fs8::xkb::xkb_error'],['../structfs8_1_1xkb_1_1xkb__error.html#a994f2a4507b5a7963da715ffabc15216',1,'fs8::xkb::xkb_error::xkb_error()']]],
-  ['xkb_5fkeysym_5fname_5fmax_5fsize_6',['XKB_KEYSYM_NAME_MAX_SIZE',['../xkb_8cxx.html#a5618b67de8948b23189b478cb45bafae',1,'xkb.cxx']]]
+  ['xkb_5fkeysym_5fname_5fmax_5fsize_6',['XKB_KEYSYM_NAME_MAX_SIZE',['../xkb_8cxx.html#a5618b67de8948b23189b478cb45bafae',1,'xkb.cxx']]],
+  ['xkb_5fstate_7',['xkb_state',['../structfs8_1_1device__live__state.html#aa376a1ac81b790978163fd097ed7a126',1,'fs8::device_live_state']]]
 ];

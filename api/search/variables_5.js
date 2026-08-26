@@ -24,6 +24,7 @@ var searchData=
   ['from_5fdevice_21',['from_device',['../namespacefs8.html#a60ce220b375cdeb91af651d5163c4b7a',1,'fs8']]],
   ['from_5fevtest_22',['from_evtest',['../namespacefs8.html#a26e27b44ae665701aca3c5a09a765a57',1,'fs8']]],
   ['from_5finput_23',['from_input',['../namespacefs8.html#a117715ccfac2ef6ffb0bb0503db6b2be',1,'fs8']]],
-  ['from_5fstdin_24',['from_stdin',['../namespacefs8.html#aa8b48a82fe91e0cf236d5873c3805ba9',1,'fs8']]],
-  ['func_25',['func',['../structfs8_1_1op__not.html#a68d673d111658f048236bd118d592c2c',1,'fs8::op_not']]]
+  ['from_5flive_5fview_24',['from_live_view',['../namespacefs8.html#ac2387c5430bc4aa06191f9e216382ed2',1,'fs8']]],
+  ['from_5fstdin_25',['from_stdin',['../namespacefs8.html#aa8b48a82fe91e0cf236d5873c3805ba9',1,'fs8']]],
+  ['func_26',['func',['../structfs8_1_1op__not.html#a68d673d111658f048236bd118d592c2c',1,'fs8::op_not']]]
 ];

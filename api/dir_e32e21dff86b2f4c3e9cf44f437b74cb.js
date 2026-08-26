@@ -25,6 +25,8 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "keys_status.cxx", "keys__status_8cxx.html", null ],
     [ "keys_status.ixx", "keys__status_8ixx.html", "keys__status_8ixx" ],
     [ "lambda.ixx", "lambda_8ixx.html", "lambda_8ixx" ],
+    [ "live_view.cxx", "live__view_8cxx.html", null ],
+    [ "live_view.ixx", "live__view_8ixx.html", "live__view_8ixx" ],
     [ "modes.ixx", "modes_8ixx.html", "modes_8ixx" ],
     [ "mods.ixx", "mods_8ixx.html", null ],
     [ "momentum.cxx", "momentum_8cxx.html", "momentum_8cxx" ],

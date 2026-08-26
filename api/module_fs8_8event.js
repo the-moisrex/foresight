@@ -8,7 +8,8 @@ var module_fs8_8event =
     [ "fs8::device_id", "module_fs8_8event.html#ae866c9f657ce20c4be67ff6c37074ea0", [
       [ "none", "module_fs8_8event.html#ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8", null ],
       [ "stdin", "module_fs8_8event.html#ae866c9f657ce20c4be67ff6c37074ea0a3c6c257ed29622500badf6cc7741375c", null ],
-      [ "self", "module_fs8_8event.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63", null ]
+      [ "self", "module_fs8_8event.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63", null ],
+      [ "scheduler", "module_fs8_8event.html#ae866c9f657ce20c4be67ff6c37074ea0a499f31e79c00c9e8f61bdaadc5e82f45", null ]
     ] ],
     [ "fs8::user_event::type_type", "module_fs8_8event.html#a8b91bfeaf0d0ede593ee3feabfbc8ead", null ],
     [ "fs8::user_event::code_type", "module_fs8_8event.html#af39140b12049ff3cd905f15f493aa7ff", null ],

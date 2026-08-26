@@ -1,6 +1,7 @@
 var structfs8_1_1basic__momentum__base =
 [
     [ "value_type", "structfs8_1_1basic__momentum__base.html#a4251d7a2a43cb1e1eeea5b8064f6d6c8", null ],
+    [ "build_scroll_events", "structfs8_1_1basic__momentum__base.html#af9a575ed0e128f4e5376f979b4153a5f", null ],
     [ "clear_animating", "structfs8_1_1basic__momentum__base.html#a7b4b35c2ee992ae34609ab218b3ca0de", null ],
     [ "configure", "structfs8_1_1basic__momentum__base.html#a6cf8a86fcef9497227ac0b206634b792", null ],
     [ "current_velocity", "structfs8_1_1basic__momentum__base.html#a4e8c6fc8362b82674535dfc7b4b3d5d7", null ],
