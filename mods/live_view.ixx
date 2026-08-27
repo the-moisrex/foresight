@@ -11,8 +11,8 @@ module;
 #include <span>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <unistd.h>
+#include <unordered_map>
 #include <vector>
 export module fs8.mods:live_view;
 import fs8.context;
@@ -50,34 +50,34 @@ export namespace fs8 {
 
     /// Accumulated mouse movement between SYN_REPORTs.
     struct [[nodiscard]] mouse_accum {
-        int                                delta_x        = 0;
-        int                                delta_y        = 0;
-        int                                wheel_hi       = 0;  // REL_WHEEL_HI_RES accumulation
-        int                                wheel          = 0;  // REL_WHEEL accumulation
-        int                                hwheel_hi      = 0;  // REL_HWHEEL_HI_RES accumulation
-        int                                hwheel         = 0;  // REL_HWHEEL accumulation
-        std::size_t                        event_count    = 0;
-        std::size_t                        syn_count      = 0;
-        std::chrono::microseconds          first_event_time{};
-        std::chrono::microseconds          last_event_time{};
-        float                              prev_dir_x     = 0.f;
-        float                              prev_dir_y     = 0.f;
-        bool                               has_direction  = false;
+        int                       delta_x     = 0;
+        int                       delta_y     = 0;
+        int                       wheel_hi    = 0; // REL_WHEEL_HI_RES accumulation
+        int                       wheel       = 0; // REL_WHEEL accumulation
+        int                       hwheel_hi   = 0; // REL_HWHEEL_HI_RES accumulation
+        int                       hwheel      = 0; // REL_HWHEEL accumulation
+        std::size_t               event_count = 0;
+        std::size_t               syn_count   = 0;
+        std::chrono::microseconds first_event_time{};
+        std::chrono::microseconds last_event_time{};
+        float                     prev_dir_x    = 0.f;
+        float                     prev_dir_y    = 0.f;
+        bool                      has_direction = false;
     };
 
     /// A key currently held down.
     struct [[nodiscard]] held_key {
-        std::uint16_t                  code = KEY_MAX;
-        std::chrono::microseconds      press_time{};
-        bool                           has_intervening_events = false;
+        std::uint16_t             code = KEY_MAX;
+        std::chrono::microseconds press_time{};
+        bool                      has_intervening_events = false;
     };
 
     /// Per-device state for the live view.
     struct [[nodiscard]] device_live_state {
-        mouse_accum                                      mouse{};
-        std::unordered_map<std::uint16_t, held_key>     held_keys;
-        std::optional<xkb::basic_state>                 xkb_state;
-        sanitizer_issue                                 pending_issue   = sanitizer_issue::none;
+        mouse_accum                                 mouse{};
+        std::unordered_map<std::uint16_t, held_key> held_keys;
+        std::optional<xkb::basic_state>             xkb_state;
+        sanitizer_issue                             pending_issue = sanitizer_issue::none;
     };
 
     // ── Live view state ──────────────────────────────────────────────────────
@@ -87,29 +87,37 @@ export namespace fs8 {
     /// terminal display.
     struct [[nodiscard]] live_view {
       private:
-        bool                                                          terminal_mode_ = false;
-        bool                                                          use_ansi_      = false;
-        float                                                         direction_epsilon_ = 0.0f;
-        std::chrono::microseconds                                     flush_timeout_{16'000}; // 16ms (~60fps)
-        std::unordered_map<device_id, device_live_state>              devices_;
-        xkb::context                                                          xkb_ctx_;
-        std::optional<xkb::keymap>                                            xkb_keymap_;
+        bool                                             terminal_mode_     = false;
+        bool                                             use_ansi_          = false;
+        float                                            direction_epsilon_ = 0.0f;
+        std::chrono::microseconds                        flush_timeout_{16'000}; // 16ms (~60fps)
+        std::unordered_map<device_id, device_live_state> devices_;
+        xkb::context                                     xkb_ctx_;
+        std::optional<xkb::keymap>                       xkb_keymap_;
 
       public:
         /// Construct a live view. Detects terminal mode if term_fd is a TTY.
         explicit live_view(bool force_terminal = false) noexcept;
 
         /// Enable or disable ANSI color output.
-        void set_ansi(bool on) noexcept { use_ansi_ = on; }
+        void set_ansi(bool on) noexcept {
+            use_ansi_ = on;
+        }
 
         /// Set the direction-change epsilon (dot-product threshold).
-        void set_direction_epsilon(float eps) noexcept { direction_epsilon_ = eps; }
+        void set_direction_epsilon(float eps) noexcept {
+            direction_epsilon_ = eps;
+        }
 
         /// Set the flush timeout (default 1 second).
-        void set_flush_timeout(std::chrono::microseconds t) noexcept { flush_timeout_ = t; }
+        void set_flush_timeout(std::chrono::microseconds t) noexcept {
+            flush_timeout_ = t;
+        }
 
         /// Whether we're in terminal mode.
-        [[nodiscard]] bool is_terminal() const noexcept { return terminal_mode_; }
+        [[nodiscard]] bool is_terminal() const noexcept {
+            return terminal_mode_;
+        }
 
         /// Process one event: accumulate mouse, track keys, format and write.
         void process_event(event_type const& event, int fd, sanitizer_issue issue = sanitizer_issue::none);
@@ -164,20 +172,20 @@ export namespace fs8 {
         static constexpr std::string_view ansi_carriage_return = "\r";
 
         // ── ANSI color codes ─────────────────────────────────────────────
-        static constexpr std::string_view ansi_reset      = "\033[0m";
-        static constexpr std::string_view ansi_dim        = "\033[2m";
-        static constexpr std::string_view ansi_bold       = "\033[1m";
-        static constexpr std::string_view ansi_red        = "\033[31m";
-        static constexpr std::string_view ansi_green      = "\033[32m";
-        static constexpr std::string_view ansi_yellow     = "\033[33m";
-        static constexpr std::string_view ansi_blue       = "\033[34m";
-        static constexpr std::string_view ansi_magenta    = "\033[35m";
-        static constexpr std::string_view ansi_cyan       = "\033[36m";
-        static constexpr std::string_view ansi_white      = "\033[37m";
-        static constexpr std::string_view ansi_bright_red = "\033[91m";
-        static constexpr std::string_view ansi_bright_green = "\033[92m";
+        static constexpr std::string_view ansi_reset         = "\033[0m";
+        static constexpr std::string_view ansi_dim           = "\033[2m";
+        static constexpr std::string_view ansi_bold          = "\033[1m";
+        static constexpr std::string_view ansi_red           = "\033[31m";
+        static constexpr std::string_view ansi_green         = "\033[32m";
+        static constexpr std::string_view ansi_yellow        = "\033[33m";
+        static constexpr std::string_view ansi_blue          = "\033[34m";
+        static constexpr std::string_view ansi_magenta       = "\033[35m";
+        static constexpr std::string_view ansi_cyan          = "\033[36m";
+        static constexpr std::string_view ansi_white         = "\033[37m";
+        static constexpr std::string_view ansi_bright_red    = "\033[91m";
+        static constexpr std::string_view ansi_bright_green  = "\033[92m";
         static constexpr std::string_view ansi_bright_yellow = "\033[93m";
-        static constexpr std::string_view ansi_bright_cyan = "\033[96m";
+        static constexpr std::string_view ansi_bright_cyan   = "\033[96m";
     };
 
     inline constexpr auto default_live_flush_timeout = std::chrono::microseconds{16'000};

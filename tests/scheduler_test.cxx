@@ -26,7 +26,10 @@ static event_type simple_buf; // NOLINT(*-global-variables)
 
 static basic_scheduler::tick_result simple_tick(void* /*data*/) noexcept {
     simple_buf = make_scroll(42);
-    return {std::span<event_type const>{&simple_buf, 1}, 100ms};
+    return {
+      std::span<event_type const>{&simple_buf, 1},
+      100ms
+    };
 }
 
 /// Persistent buffer for finite_tick.
@@ -39,7 +42,10 @@ static basic_scheduler::tick_result finite_tick(void* data) noexcept {
     }
     finite_buf = make_scroll(count + 1);
     ++count;
-    return {std::span<event_type const>{&finite_buf, 1}, 1ms};
+    return {
+      std::span<event_type const>{&finite_buf, 1},
+      1ms
+    };
 }
 
 /// Persistent buffer for second_tick.
@@ -47,7 +53,10 @@ static event_type second_buf; // NOLINT(*-global-variables)
 
 static basic_scheduler::tick_result second_tick(void* /*data*/) noexcept {
     second_buf = make_scroll(99);
-    return {std::span<event_type const>{&second_buf, 1}, 100ms};
+    return {
+      std::span<event_type const>{&second_buf, 1},
+      100ms
+    };
 }
 
 /// Persistent buffer for multi_event_tick.
@@ -62,7 +71,10 @@ static basic_scheduler::tick_result multi_event_tick(void* data) noexcept {
     multi_buf[1] = make_scroll(20);
     multi_buf[2] = syn();
     ++count;
-    return {std::span<event_type const>{multi_buf.data(), 3}, 1ms};
+    return {
+      std::span<event_type const>{multi_buf.data(), 3},
+      1ms
+    };
 }
 
 /// Tick that emits one event then cancels itself.
@@ -70,7 +82,10 @@ static event_type cancel_buf; // NOLINT(*-global-variables)
 
 static basic_scheduler::tick_result cancel_after_one_tick(void* /*data*/) noexcept {
     cancel_buf = make_scroll(77);
-    return {std::span<event_type const>{&cancel_buf, 1}, basic_scheduler::cancel_tick};
+    return {
+      std::span<event_type const>{&cancel_buf, 1},
+      basic_scheduler::cancel_tick
+    };
 }
 
 // ── Tests: scheduler API ───────────────────────────────────────────────────
@@ -181,8 +196,12 @@ TEST(SchedulerApi, MultipleTicksFireIndependently) {
     bool found_42 = false;
     bool found_99 = false;
     for (std::size_t i = 0; i < count; ++i) {
-        if (events[i].value() == 42) found_42 = true;
-        if (events[i].value() == 99) found_99 = true;
+        if (events[i].value() == 42) {
+            found_42 = true;
+        }
+        if (events[i].value() == 99) {
+            found_99 = true;
+        }
     }
     EXPECT_TRUE(found_42);
     EXPECT_TRUE(found_99);

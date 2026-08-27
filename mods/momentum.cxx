@@ -185,7 +185,6 @@ struct fs8::pimpl_idiom<basic_momentum_base>::impl {
     basic_scheduler*             scheduler = nullptr;
     basic_scheduler::tick_handle momentum_handle{};
     bool                         is_animating       = false;
-    bool                         reversal_cancelled  = false;
     float                        mouse_x            = 0.0f;
     float                        mouse_y            = 0.0f;
     float                        origin_x           = 0.0f;
@@ -263,13 +262,6 @@ void basic_momentum_base::update_mouse_distance(event_type const& event) noexcep
     if (pimpl->max_mouse_distance <= 0.0f) {
         cancel_momentum_tick();
         clear_animating();
-    }
-}
-
-void basic_momentum_base::reset_mouse_distance() noexcept {
-    if (pimpl.get() != nullptr) {
-        pimpl->origin_x = pimpl->mouse_x;
-        pimpl->origin_y = pimpl->mouse_y;
     }
 }
 
@@ -399,7 +391,7 @@ namespace {
 
         if (state.step >= ctx.config->momentum_frames) {
             ctx.momentum_base->clear_animating();
-            ctx.momentum_base->reset_mouse_distance();
+            ctx.momentum_base->set_mouse_origin();
             return {
               .events       = std::span<event_type const>{ctx.event_buffer.data(), count},
               .next_timeout = basic_scheduler::cancel_tick,
@@ -419,7 +411,6 @@ context_action basic_momentum_scroll::handle_scroll_event(basic_scheduler& sched
     using enum context_action;
 
     track(event);
-    reset_mouse_distance();
 
     auto const [vel_x, vel_y] = current_velocity();
 
@@ -434,7 +425,7 @@ context_action basic_momentum_scroll::handle_scroll_event(basic_scheduler& sched
     // If momentum is already active and the scroll opposes it, reduce
     // the existing momentum instead of restarting.
     if (is_animating() && pimpl->scheduler != nullptr) {
-        auto& ts = mctx.tick_state;
+        auto& ts      = mctx.tick_state;
         bool  opposed = false;
 
         if (ts.vel_x != 0.0f && event.is(EV_REL, REL_WHEEL_HI_RES)) {
@@ -445,7 +436,7 @@ context_action basic_momentum_scroll::handle_scroll_event(basic_scheduler& sched
                     new_vel = 0.0f;
                 }
                 ts.vel_x = new_vel;
-                opposed = true;
+                opposed  = true;
             }
         }
         if (ts.vel_y != 0.0f && event.is(EV_REL, REL_HWHEEL_HI_RES)) {
@@ -456,7 +447,7 @@ context_action basic_momentum_scroll::handle_scroll_event(basic_scheduler& sched
                     new_vel = 0.0f;
                 }
                 ts.vel_y = new_vel;
-                opposed = true;
+                opposed  = true;
             }
         }
 
@@ -465,15 +456,9 @@ context_action basic_momentum_scroll::handle_scroll_event(basic_scheduler& sched
             if (std::abs(ts.vel_x) < 0.5f && std::abs(ts.vel_y) < 0.5f) {
                 pimpl->scheduler->cancel(pimpl->momentum_handle);
                 clear_animating();
-                pimpl->reversal_cancelled = true;
             }
             return next;
         }
-    }
-
-    // Don't restart momentum immediately after a reversal-cancellation.
-    if (pimpl->reversal_cancelled) {
-        return next;
     }
 
     if (std::abs(vel_x) < 0.5f && std::abs(vel_y) < 0.5f) {
@@ -489,7 +474,6 @@ context_action basic_momentum_scroll::handle_scroll_event(basic_scheduler& sched
     mctx.tick_state.distance_scale = 1.0f;
     sched.cancel(pimpl->momentum_handle);
     pimpl->momentum_handle = sched.schedule(&momentum_tick, &mctx, std::chrono::microseconds{config.frame_ms * 1000});
-    pimpl->reversal_cancelled = false;
     set_animating();
 
     return next;

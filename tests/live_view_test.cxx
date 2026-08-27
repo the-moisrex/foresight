@@ -17,7 +17,7 @@ using fs8::user_event;
 
 TEST(LiveViewFormat, FormatKeyEvent) {
     fs8::live_view_format fmt;
-    event_type event{EV_KEY, KEY_A, 1};
+    event_type            event{EV_KEY, KEY_A, 1};
     event.native().time = {.tv_sec = 1'787'439'635, .tv_usec = 318'229};
 
     char       buf[fs8::live_view_format_buf_size];
@@ -33,7 +33,7 @@ TEST(LiveViewFormat, FormatKeyEvent) {
 
 TEST(LiveViewFormat, FormatSynReport) {
     fs8::live_view_format fmt;
-    event_type event{EV_SYN, SYN_REPORT, 0};
+    event_type            event{EV_SYN, SYN_REPORT, 0};
     event.native().time = {.tv_sec = 1'787'439'635, .tv_usec = 318'229};
 
     char       buf[fs8::live_view_format_buf_size];
@@ -44,7 +44,7 @@ TEST(LiveViewFormat, FormatSynReport) {
 
 TEST(LiveViewFormat, FormatNegativeValue) {
     fs8::live_view_format fmt;
-    event_type event{EV_REL, REL_X, -5};
+    event_type            event{EV_REL, REL_X, -5};
 
     char       buf[fs8::live_view_format_buf_size];
     auto const text = fmt.format(event, buf);
@@ -53,9 +53,9 @@ TEST(LiveViewFormat, FormatNegativeValue) {
 }
 
 TEST(LiveViewFormat, ParseKeyEvent) {
-    fs8::live_view_format fmt;
+    fs8::live_view_format      fmt;
     constexpr std::string_view line = "Event: time 1787439635.318229, type 1 (EV_KEY), code 30 (KEY_A), value 1";
-    parsed_evtest_event out;
+    parsed_evtest_event        out;
     EXPECT_TRUE(fmt.parse(line, out));
     EXPECT_EQ(out.event, (user_event{.type = EV_KEY, .code = KEY_A, .value = 1}));
     EXPECT_DOUBLE_EQ(out.time, 1787439635.318229);
@@ -63,21 +63,21 @@ TEST(LiveViewFormat, ParseKeyEvent) {
 
 TEST(LiveViewFormat, ParseSynReport) {
     fs8::live_view_format fmt;
-    parsed_evtest_event out;
+    parsed_evtest_event   out;
     EXPECT_FALSE(fmt.parse("Event: time 0.000000, -------------- SYN_REPORT ------------", out));
 }
 
 TEST(LiveViewFormat, ParseNegativeValue) {
-    fs8::live_view_format fmt;
+    fs8::live_view_format      fmt;
     constexpr std::string_view line = "Event: time 0.000000, type 2 (EV_REL), code 0 (REL_X), value -5";
-    parsed_evtest_event out;
+    parsed_evtest_event        out;
     EXPECT_TRUE(fmt.parse(line, out));
     EXPECT_EQ(out.event, (user_event{.type = EV_REL, .code = REL_X, .value = -5}));
 }
 
 TEST(LiveViewFormat, ParseJunkLines) {
     fs8::live_view_format fmt;
-    parsed_evtest_event out;
+    parsed_evtest_event   out;
     EXPECT_FALSE(fmt.parse("", out));
     EXPECT_FALSE(fmt.parse("some random garbage", out));
     EXPECT_FALSE(fmt.parse("Input device name: \"Logitech\"", out));

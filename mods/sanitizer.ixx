@@ -20,15 +20,15 @@ export namespace fs8 {
 
     /// Describes what kind of problem the sanitizer detected for an event.
     enum struct [[nodiscard]] sanitizer_issue : std::uint8_t {
-        none,              ///< event is clean
-        adjacent_syn,      ///< duplicate SYN_REPORT (no data since last syn)
-        orphan_release,    ///< key release without a prior press
-        late_syn,          ///< SYN_REPORT arrived after a long gap with no data
-        out_of_resolution, ///< pen ABS value outside device bounds
-        big_jump,          ///< mouse movement exceeding threshold
-        missing_syn_time,  ///< data events long after last SYN_REPORT
-        missing_syn_count, ///< too many data events without SYN_REPORT
-        missing_syn_travel,///< mouse travel exceeding threshold without SYN_REPORT
+        none,               ///< event is clean
+        adjacent_syn,       ///< duplicate SYN_REPORT (no data since last syn)
+        orphan_release,     ///< key release without a prior press
+        late_syn,           ///< SYN_REPORT arrived after a long gap with no data
+        out_of_resolution,  ///< pen ABS value outside device bounds
+        big_jump,           ///< mouse movement exceeding threshold
+        missing_syn_time,   ///< data events long after last SYN_REPORT
+        missing_syn_count,  ///< too many data events without SYN_REPORT
+        missing_syn_travel, ///< mouse travel exceeding threshold without SYN_REPORT
     };
 
     [[nodiscard]] std::string_view to_string(sanitizer_issue issue) noexcept;
@@ -224,25 +224,25 @@ export namespace fs8 {
         }
 
         consteval basic_event_sanitizer missing_syn_travel(bool const v = true) const noexcept {
-            auto copy                          = *this;
+            auto copy                         = *this;
             copy.cfg.check_missing_syn_travel = v;
             return copy;
         }
 
         consteval basic_event_sanitizer missing_syn_time_threshold(msec_type const d) const noexcept {
-            auto copy                            = *this;
+            auto copy                           = *this;
             copy.cfg.missing_syn_time_threshold = d;
             return copy;
         }
 
         consteval basic_event_sanitizer missing_syn_count_threshold(value_type const n) const noexcept {
-            auto copy                             = *this;
+            auto copy                            = *this;
             copy.cfg.missing_syn_count_threshold = n;
             return copy;
         }
 
         consteval basic_event_sanitizer missing_syn_travel_threshold(value_type const d) const noexcept {
-            auto copy                              = *this;
+            auto copy                             = *this;
             copy.cfg.missing_syn_travel_threshold = d;
             return copy;
         }

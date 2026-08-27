@@ -144,7 +144,13 @@ namespace fs8 {
         }
 
         if (!is_syn_report) {
-            if (cfg.check_missing_syn_time && pimpl->data_events_since_syn > 0 && event.micro_time() - pimpl->last_syn_time >= cfg.missing_syn_time_threshold) [[unlikely]] {
+            if (cfg.check_missing_syn_time
+                && pimpl->data_events_since_syn
+                > 0
+                && event.micro_time()
+                - pimpl->last_syn_time
+                >= cfg.missing_syn_time_threshold) [[unlikely]]
+            {
                 last_issue_duration_ = event.micro_time() - pimpl->last_syn_time;
                 return missing_syn_time;
             }
@@ -204,11 +210,19 @@ namespace fs8 {
         pimpl->was_syn = false;
     }
 
-    void basic_log_diagnostics::operator()(event_type const& event, sanitizer_issue const issue, std::chrono::microseconds const duration) const noexcept {
+    void basic_log_diagnostics::operator()(
+      event_type const&               event,
+      sanitizer_issue const           issue,
+      std::chrono::microseconds const duration) const noexcept {
         if (duration.count() > 0) {
             auto const us = duration.count();
             if (us >= 1000) {
-                log("{} ({}ms) - {} {} {}", to_string(issue), static_cast<double>(us) / 1000.0, event.type_name(), event.code_name(), event.value());
+                log("{} ({}ms) - {} {} {}",
+                    to_string(issue),
+                    static_cast<double>(us) / 1000.0,
+                    event.type_name(),
+                    event.code_name(),
+                    event.value());
             } else {
                 log("{} ({}us) - {} {} {}", to_string(issue), us, event.type_name(), event.code_name(), event.value());
             }

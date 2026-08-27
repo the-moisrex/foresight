@@ -59,22 +59,21 @@ template <typename Pred>
 
 [[nodiscard]] static std::size_t count_scroll_events(std::span<event_type const> events) noexcept {
     return count_if(events, [](event_type const& e) noexcept {
-        return e.is(EV_REL, REL_WHEEL_HI_RES) || e.is(EV_REL, REL_HWHEEL_HI_RES)
-            || e.is(EV_REL, REL_WHEEL) || e.is(EV_REL, REL_HWHEEL);
+        return e.is(EV_REL, REL_WHEEL_HI_RES) || e.is(EV_REL, REL_HWHEEL_HI_RES) || e.is(EV_REL, REL_WHEEL) || e.is(EV_REL, REL_HWHEEL);
     });
 }
 
 [[nodiscard]] static event_type make_scroll(int value, long long ts_us) noexcept {
-    auto e   = event_type{EV_REL, REL_WHEEL_HI_RES, value};
-    auto& n  = e.native();
+    auto  e        = event_type{EV_REL, REL_WHEEL_HI_RES, value};
+    auto& n        = e.native();
     n.time.tv_sec  = static_cast<__time_t>(ts_us / 1'000'000LL);
     n.time.tv_usec = static_cast<__suseconds_t>(ts_us % 1'000'000LL);
     return e;
 }
 
 [[nodiscard]] static event_type make_mouse_move(int value, long long ts_us) noexcept {
-    auto e   = event_type{EV_REL, REL_X, value};
-    auto& n  = e.native();
+    auto  e        = event_type{EV_REL, REL_X, value};
+    auto& n        = e.native();
     n.time.tv_sec  = static_cast<__time_t>(ts_us / 1'000'000LL);
     n.time.tv_usec = static_cast<__suseconds_t>(ts_us % 1'000'000LL);
     return e;
@@ -84,7 +83,7 @@ template <std::size_t N>
 [[nodiscard]] static std::array<event_type, N> make_scroll_sequence(int value, long long base_ts_us) noexcept {
     std::array<event_type, N> events{};
     for (std::size_t i = 0; i < N; ++i) {
-        events[i] = make_scroll(value, base_ts_us + static_cast<long long>(i) * 8'000);
+        events[i] = make_scroll(value, base_ts_us + static_cast<long long>(i) * 8000);
     }
     return events;
 }
@@ -93,7 +92,7 @@ template <std::size_t N>
 [[nodiscard]] static std::array<event_type, N> make_mouse_sequence(int value, long long base_ts_us) noexcept {
     std::array<event_type, N> events{};
     for (std::size_t i = 0; i < N; ++i) {
-        events[i] = make_mouse_move(value, base_ts_us + static_cast<long long>(i) * 8'000);
+        events[i] = make_mouse_move(value, base_ts_us + static_cast<long long>(i) * 8000);
     }
     return events;
 }
@@ -108,7 +107,9 @@ static std::vector<event_type> drain_scheduler(basic_scheduler& sched, int max_i
         if (sched(event, next_event) == context_action::next) {
             events.push_back(event);
         }
-        if (!sched.has_pending()) break;
+        if (!sched.has_pending()) {
+            break;
+        }
         // Sleep only when we got no event (waiting for next tick to fire).
         if (events.empty() || sched(event, next_event) != context_action::next) {
             std::this_thread::sleep_for(20ms);
@@ -122,13 +123,7 @@ static std::vector<event_type> drain_scheduler(basic_scheduler& sched, int max_i
 // All momentum tests use this single pipeline to avoid use-after-return
 // on the static momentum_context inside the momentum mod.
 static auto& momentum_pipeline() {
-    static auto pipeline =
-      context
-      | scroll_feeder{}
-      | emit_all[{syn_user_event}]
-      | scheduler
-      | momentum_scroll
-      | record;
+    static auto pipeline = context | scroll_feeder{} | emit_all[{syn_user_event}] | scheduler | momentum_scroll | record;
     return pipeline;
 }
 
@@ -137,7 +132,7 @@ template <std::size_t N>
 static void feed_and_run(std::array<event_type, N> const& events) {
     auto& pipeline = momentum_pipeline();
     static_cast<void>(pipeline(start));
-    auto& feeder = pipeline.mod<scroll_feeder>();
+    auto& feeder  = pipeline.mod<scroll_feeder>();
     feeder.events = std::span<event_type const>{events};
     feeder.index  = 0;
     pipeline();
@@ -147,9 +142,9 @@ static void feed_and_run(std::array<event_type, N> const& events) {
 template <std::size_t N>
 static void feed_no_init(std::array<event_type, N> const& events) {
     auto& pipeline = momentum_pipeline();
-    auto& feeder = pipeline.mod<scroll_feeder>();
-    feeder.events = std::span<event_type const>{events};
-    feeder.index  = 0;
+    auto& feeder   = pipeline.mod<scroll_feeder>();
+    feeder.events  = std::span<event_type const>{events};
+    feeder.index   = 0;
     pipeline(no_init);
 }
 
@@ -159,23 +154,23 @@ TEST(MomentumPipeline, MouseToScrollConvertsRelXToScroll) {
     static std::vector<event_type> captured; // NOLINT(*-global-variables)
     captured.clear();
     (context
-      | emit_all[{
-          {.type = EV_KEY, .code = KEY_CAPSLOCK, .value = 1},
-          {.type = EV_SYN, .code = SYN_REPORT,   .value = 0},
-          {.type = EV_KEY, .code = BTN_MIDDLE,    .value = 1},
-          {.type = EV_SYN, .code = SYN_REPORT,   .value = 0},
-          {.type = EV_REL, .code = REL_X,         .value = 10},
-          {.type = EV_SYN, .code = SYN_REPORT,   .value = 0},
-          {.type = EV_REL, .code = REL_X,         .value = 10},
-          {.type = EV_SYN, .code = SYN_REPORT,   .value = 0},
-          {.type = EV_REL, .code = REL_X,         .value = 10},
-          {.type = EV_SYN, .code = SYN_REPORT,   .value = 0},
-          {.type = EV_KEY, .code = BTN_MIDDLE,    .value = 0},
-          {.type = EV_SYN, .code = SYN_REPORT,   .value = 0},
-      }]
-      | keys_status
-      | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | mouse_to_scroll]
-      | record[captured])();
+     | emit_all[{
+       {.type = EV_KEY, .code = KEY_CAPSLOCK,  .value = 1},
+       {.type = EV_SYN,   .code = SYN_REPORT,  .value = 0},
+       {.type = EV_KEY,   .code = BTN_MIDDLE,  .value = 1},
+       {.type = EV_SYN,   .code = SYN_REPORT,  .value = 0},
+       {.type = EV_REL,        .code = REL_X, .value = 10},
+       {.type = EV_SYN,   .code = SYN_REPORT,  .value = 0},
+       {.type = EV_REL,        .code = REL_X, .value = 10},
+       {.type = EV_SYN,   .code = SYN_REPORT,  .value = 0},
+       {.type = EV_REL,        .code = REL_X, .value = 10},
+       {.type = EV_SYN,   .code = SYN_REPORT,  .value = 0},
+       {.type = EV_KEY,   .code = BTN_MIDDLE,  .value = 0},
+       {.type = EV_SYN,   .code = SYN_REPORT,  .value = 0},
+    }]
+     | keys_status
+     | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | mouse_to_scroll]
+     | record[captured])();
 
     auto const scrolls = count_scroll_events(captured);
     EXPECT_GT(scrolls, 0u) << "mouse_to_scroll should produce scroll events";
@@ -190,11 +185,11 @@ TEST(MomentumPipeline, NoScrollWithoutModifier) {
     static constinit auto pipeline =
       context
       | emit_all[{
-          {.type = EV_REL, .code = REL_X, .value = -15},
-          {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
-          {.type = EV_REL, .code = REL_X, .value = -15},
-          {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
-      }]
+        {.type = EV_REL,      .code = REL_X, .value = -15},
+        {.type = EV_SYN, .code = SYN_REPORT,   .value = 0},
+        {.type = EV_REL,      .code = REL_X, .value = -15},
+        {.type = EV_SYN, .code = SYN_REPORT,   .value = 0},
+    }]
       | keys_status
       | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | mouse_to_scroll]
       | scheduler
@@ -241,7 +236,8 @@ TEST(MomentumPipeline, MomentumTickProducesScrollEvents) {
     for (auto const& e : momentum_events) {
         EXPECT_EQ(e.source(), device_id::scheduler);
         EXPECT_TRUE(e.type() == EV_REL || e.type() == EV_SYN)
-          << "momentum events should be EV_REL or EV_SYN (SYN_REPORT), got type=" << e.type();
+          << "momentum events should be EV_REL or EV_SYN (SYN_REPORT), got type="
+          << e.type();
     }
 
     auto const has_hi_res = std::ranges::any_of(momentum_events, [](event_type const& e) {
@@ -261,7 +257,7 @@ TEST(MomentumPipeline, MomentumDecayDecreasesOverFrames) {
     auto events = drain_scheduler(sched);
 
     std::vector<int> frame_max_values;
-    int current_max = 0;
+    int              current_max = 0;
     for (auto const& e : events) {
         if (e.is(EV_REL, REL_WHEEL_HI_RES)) {
             current_max = std::max(current_max, std::abs(e.value()));
@@ -275,10 +271,8 @@ TEST(MomentumPipeline, MomentumDecayDecreasesOverFrames) {
 
     ASSERT_GE(frame_max_values.size(), 3u) << "need at least 3 frames to compare decay";
 
-    EXPECT_GE(frame_max_values[0], frame_max_values[1])
-      << "first frame should have larger scroll value than second";
-    EXPECT_GE(frame_max_values[1], frame_max_values[2])
-      << "second frame should have larger or equal scroll value than third";
+    EXPECT_GE(frame_max_values[0], frame_max_values[1]) << "first frame should have larger scroll value than second";
+    EXPECT_GE(frame_max_values[1], frame_max_values[2]) << "second frame should have larger or equal scroll value than third";
 }
 
 TEST(MomentumPipeline, LowVelocityDoesNotSchedule) {
@@ -406,7 +400,7 @@ TEST(MomentumPipeline, OpposingScrollReducesMomentum) {
     sched.cancel_all();
 }
 
-TEST(MomentumPipeline, OpposingScrollCancelsMomentum) {
+TEST(MomentumPipeline, OpposingScrollCancelsAndRestarts) {
     // Feed a weak scroll in the negative direction to start momentum.
     static auto scroll_down_weak = make_scroll_sequence<3>(-120, 10'000'000LL);
     feed_and_run(scroll_down_weak);
@@ -417,14 +411,15 @@ TEST(MomentumPipeline, OpposingScrollCancelsMomentum) {
     ASSERT_TRUE(sched.has_pending());
     ASSERT_TRUE(momentum.is_animating());
 
-    // Feed enough opposing scrolls to fully deplete the momentum velocity.
-    // The velocity tracker uses exponential smoothing (tau=100ms). With events
-    // 1μs apart, each contributes ~1200 to the smoothed velocity.  3 initial
-    // scrolls give ~-2400.  Each opposing scroll adds +120*0.3=36 to the tick
-    // state.  Need ≥67 opposing scrolls to cancel.
+    // Feed enough opposing scrolls to fully deplete the momentum velocity,
+    // then continue scrolling in the new direction.  Momentum should restart
+    // in the new direction once the tracker velocity exceeds the threshold.
     static auto opposing_scroll_cancel = make_scroll_sequence<80>(120, 10'100'000LL);
     feed_no_init(opposing_scroll_cancel);
 
-    // Momentum should be cancelled because velocity was fully depleted.
-    EXPECT_FALSE(momentum.is_animating()) << "strong opposing scroll should cancel momentum";
+    // Momentum should be animating again (restarted in the new direction)
+    // because the remaining opposing scrolls restarted it after cancellation.
+    EXPECT_TRUE(momentum.is_animating()) << "opposing scrolls should restart momentum in new direction";
+
+    sched.cancel_all();
 }
