@@ -215,7 +215,7 @@ TEST(MomentumPipeline, VelocityTrackingSchedulesMomentum) {
 
     auto& pipeline = momentum_pipeline();
     auto& sched    = pipeline.mod<basic_scheduler>();
-    auto& momentum = pipeline.mod<basic_momentum<scroll_momentum_policy>>();
+    auto& momentum = pipeline.mod<basic_momentum_scroll>();
 
     EXPECT_TRUE(sched.has_pending()) << "scheduler should have pending momentum ticks";
     EXPECT_TRUE(momentum.is_animating()) << "momentum should be animating";
@@ -229,7 +229,7 @@ TEST(MomentumPipeline, MomentumTickProducesScrollEvents) {
 
     auto& pipeline = momentum_pipeline();
     auto& sched    = pipeline.mod<basic_scheduler>();
-    auto& momentum = pipeline.mod<basic_momentum<scroll_momentum_policy>>();
+    auto& momentum = pipeline.mod<basic_momentum_scroll>();
 
     ASSERT_TRUE(sched.has_pending());
     ASSERT_TRUE(momentum.is_animating());
@@ -287,7 +287,7 @@ TEST(MomentumPipeline, LowVelocityDoesNotSchedule) {
 
     auto& pipeline = momentum_pipeline();
     auto& sched    = pipeline.mod<basic_scheduler>();
-    auto& momentum = pipeline.mod<basic_momentum<scroll_momentum_policy>>();
+    auto& momentum = pipeline.mod<basic_momentum_scroll>();
 
     EXPECT_FALSE(sched.has_pending()) << "low velocity should not schedule momentum";
     EXPECT_FALSE(momentum.is_animating());
@@ -302,7 +302,7 @@ TEST(MomentumPipeline, MouseMoveCancelsMomentum) {
 
     auto& pipeline = momentum_pipeline();
     auto& sched    = pipeline.mod<basic_scheduler>();
-    auto& momentum = pipeline.mod<basic_momentum<scroll_momentum_policy>>();
+    auto& momentum = pipeline.mod<basic_momentum_scroll>();
 
     // After second batch (mouse moves), momentum should be cancelled.
     EXPECT_FALSE(sched.has_pending()) << "mouse move should cancel momentum";
@@ -335,7 +335,7 @@ TEST(MomentumPipeline, NewScrollRestartsMomentum) {
 
     auto& pipeline = momentum_pipeline();
     auto& sched    = pipeline.mod<basic_scheduler>();
-    auto& momentum = pipeline.mod<basic_momentum<scroll_momentum_policy>>();
+    auto& momentum = pipeline.mod<basic_momentum_scroll>();
 
     EXPECT_TRUE(sched.has_pending());
     EXPECT_TRUE(momentum.is_animating());
@@ -363,7 +363,7 @@ TEST(MomentumPipeline, DistanceTrackingAccumulates) {
 
     auto& pipeline = momentum_pipeline();
     auto& sched    = pipeline.mod<basic_scheduler>();
-    auto& momentum = pipeline.mod<basic_momentum<scroll_momentum_policy>>();
+    auto& momentum = pipeline.mod<basic_momentum_scroll>();
     momentum.set_max_mouse_distance(500.0f);
     ASSERT_TRUE(sched.has_pending());
     ASSERT_TRUE(momentum.is_animating());
