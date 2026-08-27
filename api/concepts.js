@@ -15,7 +15,6 @@ var concepts =
       [ "has_variables", "conceptfs8_1_1has__variables.html", null ],
       [ "query_provider", "conceptfs8_1_1query__provider.html", null ],
       [ "io_handler", "conceptfs8_1_1io__handler.html", null ],
-      [ "MomentumPolicy", "conceptfs8_1_1MomentumPolicy.html", null ],
       [ "binder_instance", "conceptfs8_1_1binder__instance.html", null ],
       [ "dynamically_scoped", "conceptfs8_1_1dynamically__scoped.html", null ],
       [ "polymorphic_scoped", "conceptfs8_1_1polymorphic__scoped.html", null ],

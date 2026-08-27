@@ -1,8 +1,8 @@
 var searchData=
 [
   ['abs2rel_0',['abs2rel',['../namespacefs8.html#a2b6bbcf4ede7e0321ee5e0faa0fb082b',1,'fs8']]],
-  ['acc_5fx_1',['acc_x',['../structfs8_1_1pimpl__idiom_1_1impl.html#ac6ca262ae579b31599fee8d487922c72',1,'fs8::pimpl_idiom::impl::acc_x'],['../structfs8_1_1momentum__tick__state.html#aa82b47b4a8dd11eb2c8f280de747aa10',1,'fs8::momentum_tick_state::acc_x']]],
-  ['acc_5fy_2',['acc_y',['../structfs8_1_1momentum__tick__state.html#a2269b86ff98b95adf68315d1548fc554',1,'fs8::momentum_tick_state::acc_y'],['../structfs8_1_1pimpl__idiom_1_1impl.html#a2d3b6c89371a88301c956c60ac244932',1,'fs8::pimpl_idiom::impl::acc_y']]],
+  ['acc_5fx_1',['acc_x',['../structfs8_1_1pimpl__idiom_1_1impl.html#ac6ca262ae579b31599fee8d487922c72',1,'fs8::pimpl_idiom::impl']]],
+  ['acc_5fy_2',['acc_y',['../structfs8_1_1pimpl__idiom_1_1impl.html#a2d3b6c89371a88301c956c60ac244932',1,'fs8::pimpl_idiom::impl']]],
   ['accumulated_5fmouse_5fdistance_3',['accumulated_mouse_distance',['../structfs8_1_1pimpl__idiom_1_1impl.html#a2a6dd3ea7d92d460200850af08ebbd3d',1,'fs8::pimpl_idiom::impl']]],
   ['action_4',['action',['../structfs8_1_1dev__cap__view.html#a05e8fa97f9c5679002bf0eda4969c8aa',1,'fs8::dev_cap_view']]],
   ['aho_5fsearch_5fstate_5',['aho_search_state',['../structfs8_1_1pimpl__idiom_1_1impl.html#ab084438f2533cfde064d6f08e2e05e02',1,'fs8::pimpl_idiom::impl::aho_search_state'],['../structfs8_1_1pimpl__idiom_1_1impl.html#a7e0375ad13264542c5476c2d06243ddf',1,'fs8::pimpl_idiom::impl::aho_search_state']]],

@@ -123,9 +123,6 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4e8c6fc8362b82674535dfc7b4b3d5d7" id="r_a4e8c6fc8362b82674535dfc7b4b3d5d7"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a>, <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__momentum__base.html#a4e8c6fc8362b82674535dfc7b4b3d5d7">current_velocity</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="memdesc:a4e8c6fc8362b82674535dfc7b4b3d5d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the smoothed velocity for both axes.  <br /></td></tr>
 <tr class="separator:a4e8c6fc8362b82674535dfc7b4b3d5d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac81a44ef1dd8e5bbc55c4ca9d953f4b" id="r_aac81a44ef1dd8e5bbc55c4ca9d953f4b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__momentum__base.html#aac81a44ef1dd8e5bbc55c4ca9d953f4b">decay_factor</a> (<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">int</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">i</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
-<tr class="memdesc:aac81a44ef1dd8e5bbc55c4ca9d953f4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a decay factor for the i-th momentum event.  <br /></td></tr>
-<tr class="separator:aac81a44ef1dd8e5bbc55c4ca9d953f4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac3b19d0ed6346a720ea53ce89c1380a7" id="r_ac3b19d0ed6346a720ea53ce89c1380a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__momentum__base.html#ac3b19d0ed6346a720ea53ce89c1380a7">is_animating</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="memdesc:ac3b19d0ed6346a720ea53ce89c1380a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether a momentum animation is currently in progress.  <br /></td></tr>
 <tr class="separator:ac3b19d0ed6346a720ea53ce89c1380a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -188,7 +185,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Non-template base class that owns the velocity trackers, animation calculators, and all non-template-dependent logic. Defined out-of-line in the .cxx so the pimpl impl stays hidden.</p>
-<p><code><a class="el" href="structfs8_1_1basic__momentum.html">basic_momentum</a>&lt;Policy&gt;</code> inherits from this, adding only the policy-provided constants and the template <code><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b" title="Quadratic in-out: slow at start and end, fast in the middle.">operator()</a></code>. </p>
+<p><code>momentum_scroll</code> inherits from this, adding only the template <code><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b" title="Quadratic in-out: slow at start and end, fast in the middle.">operator()</a></code>. </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a4251d7a2a43cb1e1eeea5b8064f6d6c8" name="a4251d7a2a43cb1e1eeea5b8064f6d6c8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4251d7a2a43cb1e1eeea5b8064f6d6c8">&#9670;&#160;</a></span>value_type</h2>
@@ -328,34 +325,6 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Get the smoothed velocity for both axes. </p>
-
-</div>
-</div>
-<a id="aac81a44ef1dd8e5bbc55c4ca9d953f4b" name="aac81a44ef1dd8e5bbc55c4ca9d953f4b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aac81a44ef1dd8e5bbc55c4ca9d953f4b">&#9670;&#160;</a></span>decay_factor()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a> basic_momentum_base::decay_factor </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">int</a>&#160;</td>
-          <td class="paramname"><em>i</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Compute a decay factor for the i-th momentum event. </p>
 
 </div>
 </div>

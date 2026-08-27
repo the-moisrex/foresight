@@ -20,7 +20,6 @@ var searchData=
   ['devnode_17',['devnode',['../structmy__libevdev__uinput.html#a55ea7ee64ec1a5d778ef8ecf7996b04c',1,'my_libevdev_uinput']]],
   ['devs_18',['devs',['../structfs8_1_1pimpl__idiom_1_1impl.html#a0706c0821b41d1d40b5ac1c818e0ed28',1,'fs8::pimpl_idiom::impl']]],
   ['disconnect_5fcount_19',['disconnect_count',['../structfs8_1_1pimpl__idiom_1_1impl.html#ac9fbc37b2b173e4391118e62ad7b77a8',1,'fs8::pimpl_idiom::impl']]],
-  ['distance_5fscale_20',['distance_scale',['../structfs8_1_1momentum__tick__state.html#a03d1482ea54da69fc560262c3eb35271',1,'fs8::momentum_tick_state']]],
-  ['double_5fclick_21',['double_click',['../namespacefs8.html#aded10e0e6210d5f74bef6b7c9deb7de6',1,'fs8']]],
-  ['dynamic_5fcontext_22',['dynamic_context',['../namespacefs8.html#a51c56ad8c2b6f112c12cec0618c358c4',1,'fs8']]]
+  ['double_5fclick_20',['double_click',['../namespacefs8.html#aded10e0e6210d5f74bef6b7c9deb7de6',1,'fs8']]],
+  ['dynamic_5fcontext_21',['dynamic_context',['../namespacefs8.html#a51c56ad8c2b6f112c12cec0618c358c4',1,'fs8']]]
 ];

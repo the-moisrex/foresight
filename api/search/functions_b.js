@@ -28,6 +28,5 @@ var searchData=
   ['modifier_5fmode_5fof_25',['modifier_mode_of',['../namespacefs8.html#a12da44da122d58eb0853911a63654847',1,'fs8']]],
   ['mods_26',['mods',['../structfs8_1_1basic__context__view.html#aa2f4c780619e8affa69c87c6e36fb5ee',1,'fs8::basic_context_view::mods()'],['../structfs8_1_1basic__context.html#a87eefd936efceaba7de9c44aef35b7b1',1,'fs8::basic_context::mods()'],['../structfs8_1_1basic__dynamic__context.html#a2245144e0b69c7d3565493d7398e8df1',1,'fs8::basic_dynamic_context::mods()']]],
   ['momentum_5fcalculator_27',['momentum_calculator',['../structfs8_1_1momentum__calculator.html#a027eb3c2a3a387e9802ee2d9d393d34f',1,'fs8::momentum_calculator::momentum_calculator(momentum_calculator &amp;&amp;) noexcept=default'],['../structfs8_1_1momentum__calculator.html#ae3855665b0f175a11b3b0283d11d0698',1,'fs8::momentum_calculator::momentum_calculator(momentum_calculator const &amp;)=default'],['../structfs8_1_1momentum__calculator.html#ab8e23598c62883533479503f63a300e9',1,'fs8::momentum_calculator::momentum_calculator(float pos, float delta, float vel) noexcept']]],
-  ['momentum_5ftick_28',['momentum_tick',['../namespacefs8.html#af68d7d94ea9364ecfcd6c4fd8f70097d',1,'fs8']]],
-  ['mouse_5fdistance_5fscale_29',['mouse_distance_scale',['../structfs8_1_1basic__momentum__base.html#a327fac8cf810333466f15647b89ace6a',1,'fs8::basic_momentum_base']]]
+  ['mouse_5fdistance_5fscale_28',['mouse_distance_scale',['../structfs8_1_1basic__momentum__base.html#a327fac8cf810333466f15647b89ace6a',1,'fs8::basic_momentum_base']]]
 ];

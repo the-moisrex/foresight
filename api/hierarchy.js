@@ -81,7 +81,7 @@ var hierarchy =
       ] ],
       [ "fs8::pimpl_idiom< basic_momentum_base >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_momentum_base", "structfs8_1_1basic__momentum__base.html", [
-          [ "fs8::basic_momentum< Policy >", "structfs8_1_1basic__momentum.html", null ]
+          [ "fs8::basic_momentum_scroll", "structfs8_1_1basic__momentum__scroll.html", null ]
         ] ]
       ] ],
       [ "fs8::pimpl_idiom< basic_record >", "structfs8_1_1pimpl__idiom.html", [
@@ -220,8 +220,6 @@ var hierarchy =
     ] ],
     [ "fs8::mod_of_t< TT< T... >, TT< U... >, Funcs... >", "structfs8_1_1mod__of__t_3_01TT_3_01T_8_8_8_01_4_00_01TT_3_01U_8_8_8_01_4_00_01Funcs_8_8_8_01_4.html", null ],
     [ "fs8::momentum_calculator", "structfs8_1_1momentum__calculator.html", null ],
-    [ "fs8::momentum_context< Policy >", "structfs8_1_1momentum__context.html", null ],
-    [ "fs8::momentum_tick_state< Policy >", "structfs8_1_1momentum__tick__state.html", null ],
     [ "fs8::mouse_accum", "structfs8_1_1mouse__accum.html", null ],
     [ "my_libevdev_uinput", "structmy__libevdev__uinput.html", null ],
     [ "fs8::named_solution", "structfs8_1_1named__solution.html", null ],
@@ -304,7 +302,6 @@ var hierarchy =
     [ "std::runtime_error", null, [
       [ "fs8::xkb::xkb_error", "structfs8_1_1xkb_1_1xkb__error.html", null ]
     ] ],
-    [ "fs8::scroll_momentum_policy", "structfs8_1_1scroll__momentum__policy.html", null ],
     [ "fs8::basic_kalman_filter::smoothed", "structfs8_1_1basic__kalman__filter_1_1smoothed.html", null ],
     [ "fs8::basic_low_pass_filter::smoothed", "structfs8_1_1basic__low__pass__filter_1_1smoothed.html", null ],
     [ "fs8::template_file", "structfs8_1_1template__file.html", null ],

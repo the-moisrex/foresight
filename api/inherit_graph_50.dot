@@ -51,7 +51,7 @@ digraph "Graphical Class Hierarchy"
   Node24 -> Node25 [id="edge25_Node000024_Node000025",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node25 [id="Node000025",label="fs8::basic_momentum_base",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__momentum__base.html",tooltip=" "];
   Node25 -> Node26 [id="edge26_Node000025_Node000026",dir="back",color="steelblue1",style="solid",tooltip=" "];
-  Node26 [id="Node000026",label="fs8::basic_momentum\l\< Policy \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__momentum.html",tooltip=" "];
+  Node26 [id="Node000026",label="fs8::basic_momentum\l_scroll",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__momentum__scroll.html",tooltip=" "];
   Node0 -> Node27 [id="edge27_Node000000_Node000027",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node27 [id="Node000027",label="fs8::pimpl_idiom\< basic\l_record \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1pimpl__idiom.html",tooltip=" "];
   Node27 -> Node28 [id="edge28_Node000027_Node000028",dir="back",color="steelblue1",style="solid",tooltip=" "];
