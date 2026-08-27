@@ -104,8 +104,14 @@ namespace fs8 {
         int momentum_frames      = 60;
         /// Frame interval in ms (~60 fps).
         int frame_ms             = 16;
-        /// Maximum mouse travel (in accumulated REL units) before momentum is
-        /// fully cancelled.  A value of 0 disables distance-based slowdown.
+        /// Per-frame velocity scale: delta = velocity * scale * decay^step.
+        float initial_scale      = 0.02f;
+        /// Decay rate per frame.  Closer to 1.0 = longer tail.
+        float decay_rate         = 0.97f;
+        /// Maximum mouse travel (in accumulated REL units) from the point
+        /// where momentum started.  A value of 0 disables distance-based
+        /// slowdown.  Both axes are tracked independently; momentum scales
+        /// down when the furthest axis exceeds this threshold.
         float max_mouse_distance = 500.0f;
     };
 
@@ -142,14 +148,17 @@ namespace fs8 {
         /// A value of 0 disables distance-based slowdown.
         void set_max_mouse_distance(float d) noexcept;
 
-        /// Accumulate mouse movement distance (from REL_X/REL_Y events).
-        void accumulate_mouse_distance(event_type const& event) noexcept;
+        /// Record the current mouse position as the origin for distance tracking.
+        void set_mouse_origin() noexcept;
 
-        /// Reset accumulated mouse distance to zero.
+        /// Update mouse position during animation and track distance from origin.
+        void update_mouse_distance(event_type const& event) noexcept;
+
+        /// Reset mouse distance tracking.
         void reset_mouse_distance() noexcept;
 
-        /// Returns a scale factor [0,1] based on how far the mouse has moved.
-        /// 1.0 = no movement, 0.0 = at or past max_distance.
+        /// Returns a scale factor [0,1] based on how far the mouse has moved
+        /// from the origin.  1.0 = at origin, 0.0 = at or past max_distance.
         [[nodiscard]] float mouse_distance_scale() const noexcept;
 
         /// Whether distance tracking is enabled (max_mouse_distance > 0).
@@ -171,6 +180,10 @@ namespace fs8 {
      * REL_WHEEL_HI_RES / REL_HWHEEL_HI_RES events with legacy fallback.
      *
      * Distance-based slowdown is enabled by default (max_mouse_distance = 500).
+     * If the mouse moves far enough from where momentum started, the momentum
+     * scales down to zero.  Moving the mouse back toward the origin restores
+     * momentum.
+     *
      * Use `operator[]` to configure:
      *   momentum_scroll[40]           — 40 momentum frames
      *   momentum_scroll[30, 16]       — 30 frames at 16ms interval
@@ -231,16 +244,10 @@ namespace fs8 {
                 return handle_scroll_event(ctx.mod(scheduler), event);
             }
 
-            // Mouse movements during animation: accumulate distance if tracking,
-            // or cancel momentum if distance tracking is disabled.
+            // Mouse movements during animation: track distance from origin.
+            // The distance scale naturally reduces momentum to zero.
             if (is_mouse_movement(event) && is_animating()) {
-                if (has_distance_tracking()) {
-                    accumulate_mouse_distance(event);
-                    return next;
-                }
-                cancel_momentum_tick();
-                clear_animating();
-                reset_mouse_distance();
+                update_mouse_distance(event);
                 return next;
             }
 

@@ -22,23 +22,6 @@ using fs8::msecs;
 using fs8::syn;
 using fs8::velocity_tracker;
 
-namespace {
-    /// Decay factor for momentum events: each successive event is scaled by
-    /// `decay_rate^i`.  A value close to 1.0 gives a long tail.
-    constexpr float decay_rate = 0.93f;
-
-    // ── Scroll event codes (hardcoded) ──────────────────────────────────
-    constexpr auto scroll_track_type    = EV_REL;
-    constexpr auto scroll_track_code_x  = REL_WHEEL_HI_RES;
-    constexpr auto scroll_track_code_y  = REL_HWHEEL_HI_RES;
-    constexpr auto scroll_emit_type     = EV_REL;
-    constexpr auto scroll_emit_code_x   = REL_WHEEL_HI_RES;
-    constexpr auto scroll_emit_code_y   = REL_HWHEEL_HI_RES;
-    constexpr auto scroll_legacy_code_x = REL_HWHEEL;
-    constexpr auto scroll_legacy_code_y = REL_HWHEEL;
-    constexpr auto hi_res_per_notch     = 120;
-} // namespace
-
 // ── velocity_tracker ───────────────────────────────────────────────────────
 
 void velocity_tracker::process_event(float const value, msecs const timestamp) noexcept {
@@ -201,9 +184,12 @@ struct fs8::pimpl_idiom<basic_momentum_base>::impl {
     velocity_tracker             vel_y;
     basic_scheduler*             scheduler = nullptr;
     basic_scheduler::tick_handle momentum_handle{};
-    bool                         is_animating               = false;
-    float                        accumulated_mouse_distance = 0.0f;
-    float                        max_mouse_distance         = 0.0f;
+    bool                         is_animating       = false;
+    float                        mouse_x            = 0.0f;
+    float                        mouse_y            = 0.0f;
+    float                        origin_x           = 0.0f;
+    float                        origin_y           = 0.0f;
+    float                        max_mouse_distance = 0.0f;
 };
 
 void basic_momentum_base::track(event_type const& event) noexcept {
@@ -215,9 +201,9 @@ void basic_momentum_base::track(event_type const& event) noexcept {
     auto const  usec = static_cast<long long>(ts.tv_sec) * 1'000'000LL + static_cast<long long>(ts.tv_usec);
     msecs const timestamp{usec};
 
-    if (event.is(scroll_track_type, scroll_track_code_x)) {
+    if (event.is(EV_REL, REL_WHEEL_HI_RES)) {
         pimpl->vel_x.process_event(static_cast<float>(event.value()), timestamp);
-    } else if (event.is(scroll_track_type, scroll_track_code_y)) {
+    } else if (event.is(EV_REL, REL_HWHEEL_HI_RES)) {
         pimpl->vel_y.process_event(static_cast<float>(event.value()), timestamp);
     }
 }
@@ -255,18 +241,34 @@ void basic_momentum_base::set_max_mouse_distance(float const d) noexcept {
     }
 }
 
-void basic_momentum_base::accumulate_mouse_distance(event_type const& event) noexcept {
-    if (pimpl.get() == nullptr || pimpl->max_mouse_distance <= 0.0f) [[unlikely]] {
+void basic_momentum_base::set_mouse_origin() noexcept {
+    if (pimpl.get() == nullptr) {
         return;
     }
-    if (event.is(EV_REL, REL_X) || event.is(EV_REL, REL_Y)) {
-        pimpl->accumulated_mouse_distance += static_cast<float>(std::abs(event.value()));
+    pimpl->origin_x = pimpl->mouse_x;
+    pimpl->origin_y = pimpl->mouse_y;
+}
+
+void basic_momentum_base::update_mouse_distance(event_type const& event) noexcept {
+    if (pimpl.get() == nullptr) {
+        return;
+    }
+    if (event.is(EV_REL, REL_X)) {
+        pimpl->mouse_x += static_cast<float>(event.value());
+    } else if (event.is(EV_REL, REL_Y)) {
+        pimpl->mouse_y += static_cast<float>(event.value());
+    }
+    // When distance tracking is disabled, any mouse move cancels momentum.
+    if (pimpl->max_mouse_distance <= 0.0f) {
+        cancel_momentum_tick();
+        clear_animating();
     }
 }
 
 void basic_momentum_base::reset_mouse_distance() noexcept {
     if (pimpl.get() != nullptr) {
-        pimpl->accumulated_mouse_distance = 0.0f;
+        pimpl->origin_x = pimpl->mouse_x;
+        pimpl->origin_y = pimpl->mouse_y;
     }
 }
 
@@ -274,10 +276,13 @@ float basic_momentum_base::mouse_distance_scale() const noexcept {
     if (pimpl.get() == nullptr || pimpl->max_mouse_distance <= 0.0f) {
         return 1.0f;
     }
-    if (pimpl->accumulated_mouse_distance >= pimpl->max_mouse_distance) {
+    float const dx       = pimpl->mouse_x - pimpl->origin_x;
+    float const dy       = pimpl->mouse_y - pimpl->origin_y;
+    float const distance = std::max(std::abs(dx), std::abs(dy));
+    if (distance >= pimpl->max_mouse_distance) {
         return 0.0f;
     }
-    return 1.0f - pimpl->accumulated_mouse_distance / pimpl->max_mouse_distance;
+    return 1.0f - distance / pimpl->max_mouse_distance;
 }
 
 bool basic_momentum_base::has_distance_tracking() const noexcept {
@@ -296,8 +301,11 @@ context_action basic_momentum_base::operator()(start_tag) noexcept {
     }
     pimpl->vel_x.reset();
     pimpl->vel_y.reset();
-    pimpl->is_animating               = false;
-    pimpl->accumulated_mouse_distance = 0.0f;
+    pimpl->is_animating = false;
+    pimpl->mouse_x      = 0.0f;
+    pimpl->mouse_y      = 0.0f;
+    pimpl->origin_x     = 0.0f;
+    pimpl->origin_y     = 0.0f;
     return context_action::next;
 }
 
@@ -337,7 +345,7 @@ namespace {
         }
 
         // Compute per-frame delta (with decay and distance scaling).
-        float const factor = 0.005f * std::pow(decay_rate, static_cast<float>(state.step));
+        float const factor = ctx.config->initial_scale * std::pow(ctx.config->decay_rate, static_cast<float>(state.step));
         auto const  dx     = static_cast<float>(state.vel_x * factor * state.distance_scale);
         auto const  dy     = static_cast<float>(state.vel_y * factor * state.distance_scale);
 
@@ -345,39 +353,39 @@ namespace {
 
         // ── hi_res_x ──────────────────────────────────────────────────
         if (dx != 0.0f) {
-            ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_emit_code_x, static_cast<event_type::value_type>(dx));
+            ctx.event_buffer[count++]  = event_type(EV_REL, REL_WHEEL_HI_RES, static_cast<event_type::value_type>(dx));
             state.acc_x               += dx;
         }
 
         // ── legacy_x ──────────────────────────────────────────────────
         {
-            auto const notch = static_cast<float>(hi_res_per_notch);
+            constexpr auto notch = 120.0f;
             while (state.acc_x >= notch) {
                 state.acc_x               -= notch;
-                ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_legacy_code_x, 1);
+                ctx.event_buffer[count++]  = event_type(EV_REL, REL_WHEEL, 1);
             }
             while (state.acc_x <= -notch) {
                 state.acc_x               += notch;
-                ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_legacy_code_x, -1);
+                ctx.event_buffer[count++]  = event_type(EV_REL, REL_WHEEL, -1);
             }
         }
 
         // ── hi_res_y ──────────────────────────────────────────────────
         if (dy != 0.0f) {
-            ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_emit_code_y, static_cast<event_type::value_type>(dy));
+            ctx.event_buffer[count++]  = event_type(EV_REL, REL_HWHEEL_HI_RES, static_cast<event_type::value_type>(dy));
             state.acc_y               += dy;
         }
 
         // ── legacy_y ──────────────────────────────────────────────────
         {
-            auto const notch = static_cast<float>(hi_res_per_notch);
+            constexpr auto notch = 120.0f;
             while (state.acc_y >= notch) {
                 state.acc_y               -= notch;
-                ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_legacy_code_y, 1);
+                ctx.event_buffer[count++]  = event_type(EV_REL, REL_HWHEEL, 1);
             }
             while (state.acc_y <= -notch) {
                 state.acc_y               += notch;
-                ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_legacy_code_y, -1);
+                ctx.event_buffer[count++]  = event_type(EV_REL, REL_HWHEEL, -1);
             }
         }
 
@@ -421,6 +429,9 @@ context_action basic_momentum_scroll::handle_scroll_event(basic_scheduler& sched
     if (pimpl.get() != nullptr && pimpl->scheduler == nullptr) {
         pimpl->scheduler = &sched;
     }
+
+    // Record mouse origin for distance tracking.
+    set_mouse_origin();
 
     static momentum_context mctx{this, &config, {}, {}};
     mctx.config                    = &config;
