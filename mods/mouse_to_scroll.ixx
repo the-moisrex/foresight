@@ -2,7 +2,6 @@
 
 module;
 #include <cassert>
-#include <cmath>
 #include <linux/uinput.h>
 #include <span>
 export module fs8.mods:mouse_to_scroll;
@@ -65,7 +64,7 @@ export namespace fs8 {
 
             // Emit legacy scroll events (±1 per notch) when the accumulated
             // value crosses the step threshold.
-            auto sign_x = [](value_type v) noexcept -> value_type {
+            auto const sign_x = [](value_type v) noexcept -> value_type {
                 return (v > 0) - (v < 0);
             };
             auto const sign_reverse = reverse > 0 ? 1 : -1;

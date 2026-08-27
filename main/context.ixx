@@ -975,7 +975,9 @@ export namespace fs8 {
         }
 
         context_action fork_emit(type_type const inp_type, code_type const inp_code, value_type const inp_val) noexcept {
-            return fork_emit(event_type{inp_type, inp_code, inp_val});
+            auto ev = event();
+            ev.set(inp_type, inp_code, inp_val);
+            return fork_emit(ev);
         }
 
         template <typename Self>

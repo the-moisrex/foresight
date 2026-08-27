@@ -4,6 +4,7 @@ module;
 #include <array>
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <linux/input-event-codes.h>
 export module fs8.mods:momentum;
 import fs8.context;
@@ -99,18 +100,6 @@ namespace fs8 {
 
     // ── Momentum policy concept ────────────────────────────────────────────
 
-    /**
-     * A momentum policy defines *what* events to track and emit, and *how*
-     * to transform input events during pass-through.
-     *
-     * Required static members:
-     *   track_type, track_code_x, track_code_y  — velocity tracking codes
-     *   emit_type, emit_code_x, emit_code_y     — animation emission codes
-     *
-     * Required static method:
-     *   template <Context CtxT, typename MomentumT>
-     *   static context_action pass_through(CtxT& ctx, MomentumT& momentum) noexcept;
-     */
     template <typename T>
     concept MomentumPolicy = requires {
         { T::track_type } -> std::convertible_to<event_type::type_type>;
@@ -123,13 +112,6 @@ namespace fs8 {
 
     // ── Policies ───────────────────────────────────────────────────────────
 
-    /**
-     * Scroll momentum policy: tracks scroll wheel events
-     * (REL_WHEEL_HI_RES/REL_HWHEEL_HI_RES) and emits them during the
-     * momentum animation to add inertial scrolling.
-     *
-     * Requires `scheduler` earlier in the pipeline to emit timed events.
-     */
     export struct [[nodiscard]] scroll_momentum_policy {
         static constexpr auto track_type   = EV_REL;
         static constexpr auto track_code_x = REL_WHEEL_HI_RES;
@@ -138,73 +120,17 @@ namespace fs8 {
         static constexpr auto emit_code_x  = REL_WHEEL_HI_RES;
         static constexpr auto emit_code_y  = REL_HWHEEL_HI_RES;
 
-        /// Legacy scroll codes (quantized, ±1 per notch).
+        /// Legacy scroll codes (quantized, +/-1 per notch).
         static constexpr auto legacy_code_x = REL_HWHEEL;
         static constexpr auto legacy_code_y = REL_WHEEL;
 
         /// High-res multiplier: the hi-res value for one notch.
         static constexpr auto hi_res_per_notch = 120;
 
-        /// Number of momentum events to schedule per axis.
+        /// Number of momentum frames to schedule per axis.
         static constexpr int momentum_events = 30;
         /// Frame interval in ms (~60 fps).
         static constexpr int frame_ms        = 16;
-
-        template <Context CtxT, typename MomentumT>
-        static context_action pass_through(CtxT& ctx, MomentumT& momentum) noexcept {
-            using enum context_action;
-
-            static_assert(has_mod<basic_scheduler, CtxT>, "Add scheduler for the animations.");
-
-            momentum.track(ctx.event());
-
-            auto& sched = ctx.mod(scheduler);
-
-            // Skip re-scheduling if we're mid-animation and this is a scheduler
-            // event.  User scrolls (including fork_emit'd mouse_to_scroll) can
-            // still re-trigger with updated velocity.
-            if (momentum.is_animating() && sched.has_pending() && ctx.event().source() == device_id::scheduler) {
-                return next;
-            }
-
-            // Clear animation flag when the scheduler has drained.
-            if (momentum.is_animating() && !sched.has_pending()) {
-                momentum.clear_animating();
-            }
-
-            // Cancel any previously scheduled momentum.
-            sched.cancel();
-
-            // Compute momentum events from the current velocity.
-            auto const [vel_x, vel_y] = momentum.current_velocity();
-            if (std::abs(vel_x) < 0.5f && std::abs(vel_y) < 0.5f) {
-                return next;
-            }
-
-            // Build a decaying sequence of scroll events.
-            // todo: use inplace_vector
-            static constexpr int                   max_events_cap = 500;
-            std::array<event_type, max_events_cap> events{};
-            auto const                             count = momentum.build_scroll_events(
-              events.data(),
-              events.size(),
-              vel_x,
-              vel_y,
-              momentum.num_events_,
-              emit_type,
-              emit_code_x,
-              emit_code_y,
-              legacy_code_x,
-              legacy_code_y,
-              hi_res_per_notch);
-
-            if (count > 0) {
-                sched.schedule(std::span{events.data(), count}, momentum.frame_ms_);
-                momentum.set_animating();
-            }
-
-            return next;
-        }
     };
 
     // ── Momentum engine ────────────────────────────────────────────────────
@@ -240,28 +166,147 @@ namespace fs8 {
         /// Mark the animation as finished.
         void clear_animating() noexcept;
 
-        /// Build a decaying sequence of scroll events into `out`.
-        /// Returns the number of events written.
-        [[nodiscard]] std::size_t build_scroll_events(
-          event_type*           out,
-          std::size_t           capacity,
-          float                 vel_x,
-          float                 vel_y,
-          int                   num_events,
-          event_type::type_type emit_type,
-          event_type::code_type emit_code_x,
-          event_type::code_type emit_code_y,
-          event_type::code_type legacy_code_x,
-          event_type::code_type legacy_code_y,
-          int                   hi_res_per_notch) noexcept;
+        /// Set the max mouse distance before momentum is fully cancelled.
+        /// A value of 0 disables distance-based slowdown.
+        void set_max_mouse_distance(float d) noexcept;
+
+        /// Accumulate mouse movement distance (from REL_X/REL_Y events).
+        void accumulate_mouse_distance(event_type const& event) noexcept;
+
+        /// Reset accumulated mouse distance to zero.
+        void reset_mouse_distance() noexcept;
+
+        /// Returns a scale factor [0,1] based on how far the mouse has moved.
+        /// 1.0 = no movement, 0.0 = at or past max_distance.
+        [[nodiscard]] float mouse_distance_scale() const noexcept;
+
+        /// Whether distance tracking is enabled (max_mouse_distance > 0).
+        [[nodiscard]] bool has_distance_tracking() const noexcept;
 
         context_action operator()(start_tag) noexcept;
 
       protected:
         /// Configure which event codes to track.
-        /// Called by derived classes in their start_tag handler.
         void configure(event_type::type_type track_type, event_type::code_type track_code_x, event_type::code_type track_code_y) noexcept;
     };
+
+    // ── Momentum tick state ──────────────────────────────────────────────
+
+    template <MomentumPolicy Policy>
+    struct momentum_tick_state {
+        float vel_x          = 0.0f;
+        float vel_y          = 0.0f;
+        int   step           = 0;
+        float distance_scale = 1.0f;
+        float acc_x          = 0.0f;
+        float acc_y          = 0.0f;
+    };
+
+    // ── Momentum context (passed as tick_fn data) ─────────────────────────
+
+    template <MomentumPolicy Policy>
+    struct momentum_context {
+        basic_scheduler&             scheduler;
+        basic_scheduler::tick_handle handle{};
+        momentum_tick_state<Policy>  tick_state{};
+        basic_momentum_base*         momentum_base = nullptr;
+        /// Buffer for events produced by the tick callback.
+        std::array<event_type, 8> event_buffer{};
+    };
+
+    // ── Momentum tick callback ────────────────────────────────────────────
+
+    /**
+     * Tick callback invoked by the scheduler on each timer tick.
+     * Produces ALL scroll events for one frame and returns them as a span.
+     *
+     * Events per frame:
+     *   hi_res_x (if dx != 0) + legacy_x events + hi_res_y (if dy != 0) + legacy_y events + syn_report
+     */
+    template <MomentumPolicy Policy>
+    basic_scheduler::tick_result momentum_tick(void* const data) noexcept {
+        using enum context_action;
+
+        auto& ctx   = *static_cast<momentum_context<Policy>*>(data);
+        auto& state = ctx.tick_state;
+
+        if (state.step >= Policy::momentum_events) {
+            return {};
+        }
+
+        // Recompute distance scale from live mouse distance tracking.
+        if (ctx.momentum_base && ctx.momentum_base->has_distance_tracking()) {
+            state.distance_scale = ctx.momentum_base->mouse_distance_scale();
+        }
+
+        // Compute per-frame delta (with decay and distance scaling).
+        float const factor = 0.005f * std::pow(0.93f, static_cast<float>(state.step));
+        auto const  dx     = static_cast<float>(state.vel_x * factor * state.distance_scale);
+        auto const  dy     = static_cast<float>(state.vel_y * factor * state.distance_scale);
+
+        std::size_t count = 0;
+
+        // ── hi_res_x ──────────────────────────────────────────────────
+        if (dx != 0.0f) {
+            ctx.event_buffer[count++]  = event_type(Policy::emit_type, Policy::emit_code_x, static_cast<event_type::value_type>(dx));
+            state.acc_x               += dx;
+        }
+
+        // ── legacy_x ──────────────────────────────────────────────────
+        {
+            auto const notch = static_cast<float>(Policy::hi_res_per_notch);
+            while (state.acc_x >= notch) {
+                state.acc_x               -= notch;
+                ctx.event_buffer[count++]  = event_type(Policy::emit_type, Policy::legacy_code_x, 1);
+            }
+            while (state.acc_x <= -notch) {
+                state.acc_x               += notch;
+                ctx.event_buffer[count++]  = event_type(Policy::emit_type, Policy::legacy_code_x, -1);
+            }
+        }
+
+        // ── hi_res_y ──────────────────────────────────────────────────
+        if (dy != 0.0f) {
+            ctx.event_buffer[count++]  = event_type(Policy::emit_type, Policy::emit_code_y, static_cast<event_type::value_type>(dy));
+            state.acc_y               += dy;
+        }
+
+        // ── legacy_y ──────────────────────────────────────────────────
+        {
+            auto const notch = static_cast<float>(Policy::hi_res_per_notch);
+            while (state.acc_y >= notch) {
+                state.acc_y               -= notch;
+                ctx.event_buffer[count++]  = event_type(Policy::emit_type, Policy::legacy_code_y, 1);
+            }
+            while (state.acc_y <= -notch) {
+                state.acc_y               += notch;
+                ctx.event_buffer[count++]  = event_type(Policy::emit_type, Policy::legacy_code_y, -1);
+            }
+        }
+
+        // ── SYN_REPORT ────────────────────────────────────────────────
+        if (count > 0) {
+            ctx.event_buffer[count++] = syn();
+        }
+
+        ++state.step;
+
+        if (state.step >= Policy::momentum_events) {
+            ctx.momentum_base->clear_animating();
+            ctx.momentum_base->reset_mouse_distance();
+            return {
+              .events       = std::span<event_type const>{ctx.event_buffer.data(), count},
+              .next_timeout = basic_scheduler::cancel_tick,
+            };
+        }
+
+        return {
+          .events       = std::span<event_type const>{ctx.event_buffer.data(), count},
+          .next_timeout = std::chrono::microseconds{Policy::frame_ms * 1000},
+        };
+    }
+
+    // ── Momentum mod ─────────────────────────────────────────────────────
 
     /**
      * Generic momentum pipeline mod, parameterized on a Policy.
@@ -272,7 +317,6 @@ namespace fs8 {
      *
      * @par Example
      * @code
-     *   // Scroll momentum:
      *   auto pipeline = context
      *       | io_manager
      *       | input_manager
@@ -293,38 +337,94 @@ namespace fs8 {
         static constexpr auto emit_code_x  = Policy::emit_code_x;
         static constexpr auto emit_code_y  = Policy::emit_code_y;
 
+        /// Maximum mouse travel (in accumulated REL units) before momentum is
+        /// fully cancelled.  A value of 0 disables distance-based slowdown.
+        float max_mouse_distance = 0.0f;
+
         /// Set the number of momentum events (default from policy).
-        /// More events = longer momentum animation.
         consteval basic_momentum operator[](int const events) const noexcept {
             basic_momentum result{*this};
             result.num_events_ = events;
             return result;
         }
 
-        /// Pipeline mod: delegate pass-through behavior to the policy.
+        /// Track velocity from events and schedule momentum when velocity
+        /// is sufficient.  Scheduler-emitted events are passed through.
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
-            return Policy::pass_through(ctx, *this);
+            using enum context_action;
+            auto const& event = ctx.event();
+
+            // Scheduler-emitted events: pass through without tracking.
+            if (event.source() == device_id::scheduler) {
+                return next;
+            }
+
+            // Track velocity for hi_res scroll events only.
+            bool const is_scroll_hi_res =
+              event.is(Policy::track_type, Policy::track_code_x) || event.is(Policy::track_type, Policy::track_code_y);
+
+            if (is_scroll_hi_res) {
+                track(event);
+                reset_mouse_distance();
+
+                auto const [vel_x, vel_y] = current_velocity();
+                if (std::abs(vel_x) < 0.5f && std::abs(vel_y) < 0.5f) {
+                    return next;
+                }
+
+                // Cancel any previous momentum tick, then schedule a fresh one.
+                static momentum_context<Policy> mctx{ctx.mod(scheduler), {}, {}, this};
+                mctx.scheduler.cancel(mctx.handle);
+                mctx.tick_state                = {};
+                mctx.tick_state.vel_x          = vel_x;
+                mctx.tick_state.vel_y          = vel_y;
+                mctx.tick_state.distance_scale = 1.0f;
+                mctx.handle                    = mctx.scheduler.schedule(
+                  [](void* const d) noexcept -> basic_scheduler::tick_result {
+                      return momentum_tick<Policy>(d);
+                  },
+                  &mctx,
+                  std::chrono::microseconds{Policy::frame_ms * 1000});
+                set_animating();
+            }
+
+            // Mouse movements during animation: accumulate distance if tracking,
+            // or cancel momentum if distance tracking is disabled.
+            if (is_mouse_movement(event) && is_animating()) {
+                if (has_distance_tracking()) {
+                    accumulate_mouse_distance(event);
+                    return next;
+                }
+                // No distance tracking — mouse move cancels momentum.
+                ctx.mod(scheduler).cancel_all();
+                clear_animating();
+                reset_mouse_distance();
+                return next;
+            }
+
+            return next;
         }
 
         /// Initialize state on pipeline start.
-        context_action operator()(start_tag) noexcept {
+        template <Context CtxT>
+        context_action operator()(CtxT& /*ctx*/, start_tag) noexcept {
+            static_assert(has_mod<basic_scheduler, CtxT>, "Add scheduler for the animations.");
             configure(track_type, track_code_x, track_code_y);
-            return this->basic_momentum_base::operator()(start_tag{});
+            auto const result = this->basic_momentum_base::operator()(start_tag{});
+            set_max_mouse_distance(max_mouse_distance);
+            return result;
         }
 
       private:
-        friend Policy;
-
-        /// Number of momentum events to schedule per axis.
         int num_events_ = Policy::momentum_events;
-        /// Frame interval in ms (~60 fps by default).
         int frame_ms_   = Policy::frame_ms;
     };
 
     // ── Convenience aliases ────────────────────────────────────────────────
 
     /// Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation.
+    /// Set `max_mouse_distance` to enable distance-based slowdown on mouse moves.
     export constexpr auto momentum_scroll = basic_momentum<scroll_momentum_policy>{};
 
 } // namespace fs8

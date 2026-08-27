@@ -181,10 +181,12 @@ template <>
 struct fs8::pimpl_idiom<basic_momentum_base>::impl {
     velocity_tracker      vel_x;
     velocity_tracker      vel_y;
-    event_type::type_type track_type   = EV_REL;
-    event_type::code_type track_code_x = REL_WHEEL_HI_RES;
-    event_type::code_type track_code_y = REL_HWHEEL_HI_RES;
-    bool                  is_animating = false;
+    event_type::type_type track_type                 = EV_REL;
+    event_type::code_type track_code_x               = REL_WHEEL_HI_RES;
+    event_type::code_type track_code_y               = REL_HWHEEL_HI_RES;
+    bool                  is_animating               = false;
+    float                 accumulated_mouse_distance = 0.0f;
+    float                 max_mouse_distance         = 0.0f;
 };
 
 void basic_momentum_base::track(event_type const& event) noexcept {
@@ -238,13 +240,49 @@ void basic_momentum_base::clear_animating() noexcept {
     }
 }
 
+void basic_momentum_base::set_max_mouse_distance(float const d) noexcept {
+    if (pimpl.get() != nullptr) {
+        pimpl->max_mouse_distance = d;
+    }
+}
+
+void basic_momentum_base::accumulate_mouse_distance(event_type const& event) noexcept {
+    if (pimpl.get() == nullptr || pimpl->max_mouse_distance <= 0.0f) [[unlikely]] {
+        return;
+    }
+    if (event.is(EV_REL, REL_X) || event.is(EV_REL, REL_Y)) {
+        pimpl->accumulated_mouse_distance += static_cast<float>(std::abs(event.value()));
+    }
+}
+
+void basic_momentum_base::reset_mouse_distance() noexcept {
+    if (pimpl.get() != nullptr) {
+        pimpl->accumulated_mouse_distance = 0.0f;
+    }
+}
+
+float basic_momentum_base::mouse_distance_scale() const noexcept {
+    if (pimpl.get() == nullptr || pimpl->max_mouse_distance <= 0.0f) {
+        return 1.0f;
+    }
+    if (pimpl->accumulated_mouse_distance >= pimpl->max_mouse_distance) {
+        return 0.0f;
+    }
+    return 1.0f - pimpl->accumulated_mouse_distance / pimpl->max_mouse_distance;
+}
+
+bool basic_momentum_base::has_distance_tracking() const noexcept {
+    return pimpl.get() != nullptr && pimpl->max_mouse_distance > 0.0f;
+}
+
 context_action basic_momentum_base::operator()(start_tag) noexcept {
     if (pimpl.get() == nullptr) {
         init_impl();
     }
     pimpl->vel_x.reset();
     pimpl->vel_y.reset();
-    pimpl->is_animating = false;
+    pimpl->is_animating               = false;
+    pimpl->accumulated_mouse_distance = 0.0f;
     return context_action::next;
 }
 
@@ -258,58 +296,4 @@ void basic_momentum_base::configure(
     pimpl->track_type   = t;
     pimpl->track_code_x = cx;
     pimpl->track_code_y = cy;
-}
-
-std::size_t basic_momentum_base::build_scroll_events(
-  event_type* const           out,
-  std::size_t const           capacity,
-  float const                 vel_x,
-  float const                 vel_y,
-  int const                   num_events,
-  event_type::type_type const emit_type,
-  event_type::code_type const emit_code_x,
-  event_type::code_type const emit_code_y,
-  event_type::code_type const legacy_code_x,
-  event_type::code_type const legacy_code_y,
-  int const                   hi_res_per_notch) noexcept {
-    // Up to 5 events per tick: hi-res x, legacy x, hi-res y, legacy y, syn.
-    auto const  capped = std::min(num_events, static_cast<int>(capacity / 5));
-    std::size_t count  = 0;
-
-    auto acc_x = 0.0f;
-    auto acc_y = 0.0f;
-
-    for (int i = 0; i < capped; ++i) {
-        float const factor = decay_factor(i);
-        auto const  dx     = static_cast<event_type::value_type>(vel_x * factor);
-        auto const  dy     = static_cast<event_type::value_type>(vel_y * factor);
-
-        if (dx != 0) {
-            out[count++]  = event_type(emit_type, emit_code_x, dx);
-            acc_x        += static_cast<float>(dx);
-            while (acc_x >= static_cast<float>(hi_res_per_notch)) {
-                out[count++]  = event_type(emit_type, legacy_code_x, 1);
-                acc_x        -= static_cast<float>(hi_res_per_notch);
-            }
-            while (acc_x <= -static_cast<float>(hi_res_per_notch)) {
-                out[count++]  = event_type(emit_type, legacy_code_x, -1);
-                acc_x        += static_cast<float>(hi_res_per_notch);
-            }
-        }
-        if (dy != 0) {
-            out[count++]  = event_type(emit_type, emit_code_y, dy);
-            acc_y        += static_cast<float>(dy);
-            while (acc_y >= static_cast<float>(hi_res_per_notch)) {
-                out[count++]  = event_type(emit_type, legacy_code_y, 1);
-                acc_y        -= static_cast<float>(hi_res_per_notch);
-            }
-            while (acc_y <= -static_cast<float>(hi_res_per_notch)) {
-                out[count++]  = event_type(emit_type, legacy_code_y, -1);
-                acc_y        += static_cast<float>(hi_res_per_notch);
-            }
-        }
-        out[count++] = syn();
-    }
-
-    return count;
 }
