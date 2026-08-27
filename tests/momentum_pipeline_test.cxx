@@ -298,11 +298,15 @@ TEST(MomentumPipeline, MouseMoveCancelsMomentum) {
     static auto mouse_events  = make_mouse_sequence<5>(50, 3'000'000LL);
 
     feed_and_run(scroll_events);
-    feed_no_init(mouse_events);
 
     auto& pipeline = momentum_pipeline();
-    auto& sched    = pipeline.mod<basic_scheduler>();
     auto& momentum = pipeline.mod<basic_momentum_scroll>();
+    // Disable distance tracking so mouse moves cancel momentum.
+    momentum.set_max_mouse_distance(0.0f);
+
+    feed_no_init(mouse_events);
+
+    auto& sched = pipeline.mod<basic_scheduler>();
 
     // After second batch (mouse moves), momentum should be cancelled.
     EXPECT_FALSE(sched.has_pending()) << "mouse move should cancel momentum";

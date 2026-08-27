@@ -97,6 +97,18 @@ namespace fs8 {
         bool  linear_only_{};
     };
 
+    // ── Momentum config ───────────────────────────────────────────────────
+
+    export struct [[nodiscard]] momentum_config {
+        /// Number of momentum frames to schedule per axis.
+        int momentum_frames      = 60;
+        /// Frame interval in ms (~60 fps).
+        int frame_ms             = 16;
+        /// Maximum mouse travel (in accumulated REL units) before momentum is
+        /// fully cancelled.  A value of 0 disables distance-based slowdown.
+        float max_mouse_distance = 500.0f;
+    };
+
     // ── Momentum engine ────────────────────────────────────────────────────
 
     /**
@@ -104,7 +116,7 @@ namespace fs8 {
      * calculators, and all non-template-dependent logic.  Defined out-of-line
      * in the .cxx so the pimpl impl stays hidden.
      *
-     * `momentum_scroll` inherits from this, adding only the template `operator()`.
+     * `basic_momentum_scroll` inherits from this, adding only the template `operator()`.
      */
     export struct [[nodiscard]] basic_momentum_base : pimpl_idiom<basic_momentum_base> {
         using pimpl_idiom::pimpl_idiom;
@@ -143,11 +155,10 @@ namespace fs8 {
         /// Whether distance tracking is enabled (max_mouse_distance > 0).
         [[nodiscard]] bool has_distance_tracking() const noexcept;
 
-        context_action operator()(start_tag) noexcept;
+        /// Cancel the pending momentum tick.
+        void cancel_momentum_tick() noexcept;
 
-      protected:
-        /// Configure which event codes to track.
-        void configure(event_type::type_type track_type, event_type::code_type track_code_x, event_type::code_type track_code_y) noexcept;
+        context_action operator()(start_tag) noexcept;
     };
 
     // ── Momentum mod ─────────────────────────────────────────────────────
@@ -159,7 +170,11 @@ namespace fs8 {
      * via the `scheduler` mod to add inertial scrolling. Emits
      * REL_WHEEL_HI_RES / REL_HWHEEL_HI_RES events with legacy fallback.
      *
-     * Set `max_mouse_distance` to enable distance-based slowdown on mouse moves.
+     * Distance-based slowdown is enabled by default (max_mouse_distance = 500).
+     * Use `operator[]` to configure:
+     *   momentum_scroll[40]           — 40 momentum frames
+     *   momentum_scroll[30, 16]       — 30 frames at 16ms interval
+     *   momentum_scroll[30, 16, 800]  — + max mouse distance 800
      *
      * @par Example
      * @code
@@ -175,28 +190,33 @@ namespace fs8 {
     export struct [[nodiscard]] basic_momentum_scroll : basic_momentum_base {
         using basic_momentum_base::basic_momentum_base;
 
-        static constexpr auto track_type   = EV_REL;
-        static constexpr auto track_code_x = REL_WHEEL_HI_RES;
-        static constexpr auto track_code_y = REL_HWHEEL_HI_RES;
-        static constexpr auto emit_type    = EV_REL;
-        static constexpr auto emit_code_x  = REL_WHEEL_HI_RES;
-        static constexpr auto emit_code_y  = REL_HWHEEL_HI_RES;
+      private:
+        momentum_config config;
 
-        /// Legacy scroll codes (quantized, +/-1 per notch).
-        static constexpr auto legacy_code_x = REL_HWHEEL;
-        static constexpr auto legacy_code_y = REL_HWHEEL;
+      public:
+        /// Set the number of momentum frames.
+        consteval basic_momentum_scroll operator[](int const frames) const noexcept {
+            basic_momentum_scroll result{*this};
+            result.config.momentum_frames = frames;
+            return result;
+        }
 
-        /// High-res multiplier: the hi-res value for one notch.
-        static constexpr auto hi_res_per_notch = 120;
+        /// Set the number of momentum frames and frame interval.
+        consteval basic_momentum_scroll operator[](int const frames, int const frame_ms) const noexcept {
+            basic_momentum_scroll result{*this};
+            result.config.momentum_frames = frames;
+            result.config.frame_ms        = frame_ms;
+            return result;
+        }
 
-        /// Number of momentum frames to schedule per axis.
-        static constexpr int momentum_events = 30;
-        /// Frame interval in ms (~60 fps).
-        static constexpr int frame_ms        = 16;
-
-        /// Maximum mouse travel (in accumulated REL units) before momentum is
-        /// fully cancelled.  A value of 0 disables distance-based slowdown.
-        float max_mouse_distance = 0.0f;
+        /// Set the number of momentum frames, frame interval, and max mouse distance.
+        consteval basic_momentum_scroll operator[](int const frames, int const frame_ms, float const max_dist) const noexcept {
+            basic_momentum_scroll result{*this};
+            result.config.momentum_frames    = frames;
+            result.config.frame_ms           = frame_ms;
+            result.config.max_mouse_distance = max_dist;
+            return result;
+        }
 
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
@@ -207,10 +227,7 @@ namespace fs8 {
                 return next;
             }
 
-            bool const is_scroll =
-              event.is(track_type, track_code_x) || event.is(track_type, track_code_y);
-
-            if (is_scroll) {
+            if (is_high_res_scroll(event)) {
                 return handle_scroll_event(ctx.mod(scheduler), event);
             }
 
@@ -221,7 +238,7 @@ namespace fs8 {
                     accumulate_mouse_distance(event);
                     return next;
                 }
-                ctx.mod(scheduler).cancel_all();
+                cancel_momentum_tick();
                 clear_animating();
                 reset_mouse_distance();
                 return next;
@@ -233,9 +250,8 @@ namespace fs8 {
         template <Context CtxT>
         context_action operator()(CtxT& /*ctx*/, start_tag) noexcept {
             static_assert(has_mod<basic_scheduler, CtxT>, "Add scheduler for the animations.");
-            configure(track_type, track_code_x, track_code_y);
             auto const result = this->basic_momentum_base::operator()(start_tag{});
-            set_max_mouse_distance(max_mouse_distance);
+            set_max_mouse_distance(config.max_mouse_distance);
             return result;
         }
 
@@ -244,7 +260,7 @@ namespace fs8 {
     };
 
     /// Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation.
-    /// Set `max_mouse_distance` to enable distance-based slowdown on mouse moves.
+    /// Distance-based slowdown is enabled by default (max_mouse_distance = 500).
     export constexpr auto momentum_scroll = basic_momentum_scroll{};
 
 } // namespace fs8

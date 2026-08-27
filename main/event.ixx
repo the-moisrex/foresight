@@ -380,6 +380,10 @@ export namespace fs8 {
         return event.type() == EV_REL && (event.code() == REL_X || event.code() == REL_Y);
     }
 
+    [[nodiscard]] constexpr bool is_high_res_scroll(event_type const& event) noexcept {
+        return event.type() == EV_REL && (event.code() == REL_WHEEL_HI_RES || event.code() == REL_HWHEEL_HI_RES);
+    }
+
     [[nodiscard]] constexpr bool is_mouse_clicks(event_type const& event) noexcept {
         auto const code = event.code();
         auto const type = event.type();

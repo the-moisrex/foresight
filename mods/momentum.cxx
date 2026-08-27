@@ -5,8 +5,8 @@ module;
 #include <chrono>
 #include <cmath>
 #include <cstddef>
-#include <span>
 #include <linux/input-event-codes.h>
+#include <span>
 module fs8.mods;
 import fs8.event;
 
@@ -17,6 +17,7 @@ using fs8::context_action;
 using fs8::event_type;
 using fs8::fsecs;
 using fs8::momentum_calculator;
+using fs8::momentum_config;
 using fs8::msecs;
 using fs8::syn;
 using fs8::velocity_tracker;
@@ -25,6 +26,17 @@ namespace {
     /// Decay factor for momentum events: each successive event is scaled by
     /// `decay_rate^i`.  A value close to 1.0 gives a long tail.
     constexpr float decay_rate = 0.93f;
+
+    // ── Scroll event codes (hardcoded) ──────────────────────────────────
+    constexpr auto scroll_track_type    = EV_REL;
+    constexpr auto scroll_track_code_x  = REL_WHEEL_HI_RES;
+    constexpr auto scroll_track_code_y  = REL_HWHEEL_HI_RES;
+    constexpr auto scroll_emit_type     = EV_REL;
+    constexpr auto scroll_emit_code_x   = REL_WHEEL_HI_RES;
+    constexpr auto scroll_emit_code_y   = REL_HWHEEL_HI_RES;
+    constexpr auto scroll_legacy_code_x = REL_HWHEEL;
+    constexpr auto scroll_legacy_code_y = REL_HWHEEL;
+    constexpr auto hi_res_per_notch     = 120;
 } // namespace
 
 // ── velocity_tracker ───────────────────────────────────────────────────────
@@ -185,14 +197,13 @@ float momentum_calculator::progress_at(fsecs const time) const noexcept {
 
 template <>
 struct fs8::pimpl_idiom<basic_momentum_base>::impl {
-    velocity_tracker      vel_x;
-    velocity_tracker      vel_y;
-    event_type::type_type track_type                 = EV_REL;
-    event_type::code_type track_code_x               = REL_WHEEL_HI_RES;
-    event_type::code_type track_code_y               = REL_HWHEEL_HI_RES;
-    bool                  is_animating               = false;
-    float                 accumulated_mouse_distance = 0.0f;
-    float                 max_mouse_distance         = 0.0f;
+    velocity_tracker             vel_x;
+    velocity_tracker             vel_y;
+    basic_scheduler*             scheduler = nullptr;
+    basic_scheduler::tick_handle momentum_handle{};
+    bool                         is_animating               = false;
+    float                        accumulated_mouse_distance = 0.0f;
+    float                        max_mouse_distance         = 0.0f;
 };
 
 void basic_momentum_base::track(event_type const& event) noexcept {
@@ -204,9 +215,9 @@ void basic_momentum_base::track(event_type const& event) noexcept {
     auto const  usec = static_cast<long long>(ts.tv_sec) * 1'000'000LL + static_cast<long long>(ts.tv_usec);
     msecs const timestamp{usec};
 
-    if (event.is(pimpl->track_type, pimpl->track_code_x)) {
+    if (event.is(scroll_track_type, scroll_track_code_x)) {
         pimpl->vel_x.process_event(static_cast<float>(event.value()), timestamp);
-    } else if (event.is(pimpl->track_type, pimpl->track_code_y)) {
+    } else if (event.is(scroll_track_type, scroll_track_code_y)) {
         pimpl->vel_y.process_event(static_cast<float>(event.value()), timestamp);
     }
 }
@@ -273,6 +284,12 @@ bool basic_momentum_base::has_distance_tracking() const noexcept {
     return pimpl.get() != nullptr && pimpl->max_mouse_distance > 0.0f;
 }
 
+void basic_momentum_base::cancel_momentum_tick() noexcept {
+    if (pimpl.get() != nullptr && pimpl->scheduler != nullptr) {
+        pimpl->scheduler->cancel(pimpl->momentum_handle);
+    }
+}
+
 context_action basic_momentum_base::operator()(start_tag) noexcept {
     if (pimpl.get() == nullptr) {
         init_impl();
@@ -282,18 +299,6 @@ context_action basic_momentum_base::operator()(start_tag) noexcept {
     pimpl->is_animating               = false;
     pimpl->accumulated_mouse_distance = 0.0f;
     return context_action::next;
-}
-
-void basic_momentum_base::configure(
-  event_type::type_type const t,
-  event_type::code_type const cx,
-  event_type::code_type const cy) noexcept {
-    if (pimpl.get() == nullptr) [[unlikely]] {
-        return;
-    }
-    pimpl->track_type   = t;
-    pimpl->track_code_x = cx;
-    pimpl->track_code_y = cy;
 }
 
 // ── momentum tick (scroll-specific) ────────────────────────────────────────
@@ -309,10 +314,9 @@ namespace {
     };
 
     struct momentum_context {
-        basic_scheduler&             scheduler;
-        basic_scheduler::tick_handle handle{};
-        momentum_tick_state          tick_state{};
-        basic_momentum_base*         momentum_base = nullptr;
+        basic_momentum_base*   momentum_base = nullptr;
+        momentum_config const* config        = nullptr;
+        momentum_tick_state    tick_state{};
         /// Buffer for events produced by the tick callback.
         std::array<event_type, 8> event_buffer{};
     };
@@ -323,7 +327,7 @@ namespace {
         auto& ctx   = *static_cast<momentum_context*>(data);
         auto& state = ctx.tick_state;
 
-        if (state.step >= basic_momentum_scroll::momentum_events) {
+        if (state.step >= ctx.config->momentum_frames) {
             return {};
         }
 
@@ -333,7 +337,7 @@ namespace {
         }
 
         // Compute per-frame delta (with decay and distance scaling).
-        float const factor = 0.005f * std::pow(0.93f, static_cast<float>(state.step));
+        float const factor = 0.005f * std::pow(decay_rate, static_cast<float>(state.step));
         auto const  dx     = static_cast<float>(state.vel_x * factor * state.distance_scale);
         auto const  dy     = static_cast<float>(state.vel_y * factor * state.distance_scale);
 
@@ -341,39 +345,39 @@ namespace {
 
         // ── hi_res_x ──────────────────────────────────────────────────
         if (dx != 0.0f) {
-            ctx.event_buffer[count++]  = event_type(basic_momentum_scroll::emit_type, basic_momentum_scroll::emit_code_x, static_cast<event_type::value_type>(dx));
+            ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_emit_code_x, static_cast<event_type::value_type>(dx));
             state.acc_x               += dx;
         }
 
         // ── legacy_x ──────────────────────────────────────────────────
         {
-            auto const notch = static_cast<float>(basic_momentum_scroll::hi_res_per_notch);
+            auto const notch = static_cast<float>(hi_res_per_notch);
             while (state.acc_x >= notch) {
                 state.acc_x               -= notch;
-                ctx.event_buffer[count++]  = event_type(basic_momentum_scroll::emit_type, basic_momentum_scroll::legacy_code_x, 1);
+                ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_legacy_code_x, 1);
             }
             while (state.acc_x <= -notch) {
                 state.acc_x               += notch;
-                ctx.event_buffer[count++]  = event_type(basic_momentum_scroll::emit_type, basic_momentum_scroll::legacy_code_x, -1);
+                ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_legacy_code_x, -1);
             }
         }
 
         // ── hi_res_y ──────────────────────────────────────────────────
         if (dy != 0.0f) {
-            ctx.event_buffer[count++]  = event_type(basic_momentum_scroll::emit_type, basic_momentum_scroll::emit_code_y, static_cast<event_type::value_type>(dy));
+            ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_emit_code_y, static_cast<event_type::value_type>(dy));
             state.acc_y               += dy;
         }
 
         // ── legacy_y ──────────────────────────────────────────────────
         {
-            auto const notch = static_cast<float>(basic_momentum_scroll::hi_res_per_notch);
+            auto const notch = static_cast<float>(hi_res_per_notch);
             while (state.acc_y >= notch) {
                 state.acc_y               -= notch;
-                ctx.event_buffer[count++]  = event_type(basic_momentum_scroll::emit_type, basic_momentum_scroll::legacy_code_y, 1);
+                ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_legacy_code_y, 1);
             }
             while (state.acc_y <= -notch) {
                 state.acc_y               += notch;
-                ctx.event_buffer[count++]  = event_type(basic_momentum_scroll::emit_type, basic_momentum_scroll::legacy_code_y, -1);
+                ctx.event_buffer[count++]  = event_type(scroll_emit_type, scroll_legacy_code_y, -1);
             }
         }
 
@@ -384,7 +388,7 @@ namespace {
 
         ++state.step;
 
-        if (state.step >= basic_momentum_scroll::momentum_events) {
+        if (state.step >= ctx.config->momentum_frames) {
             ctx.momentum_base->clear_animating();
             ctx.momentum_base->reset_mouse_distance();
             return {
@@ -395,12 +399,12 @@ namespace {
 
         return {
           .events       = std::span<event_type const>{ctx.event_buffer.data(), count},
-          .next_timeout = std::chrono::microseconds{basic_momentum_scroll::frame_ms * 1000},
+          .next_timeout = std::chrono::microseconds{ctx.config->frame_ms * 1000},
         };
     }
 } // namespace
 
-// ── momentum_scroll ────────────────────────────────────────────────────────
+// ── basic_momentum_scroll ──────────────────────────────────────────────────
 
 context_action basic_momentum_scroll::handle_scroll_event(basic_scheduler& sched, event_type const& event) noexcept {
     using enum context_action;
@@ -413,16 +417,19 @@ context_action basic_momentum_scroll::handle_scroll_event(basic_scheduler& sched
         return next;
     }
 
-    static momentum_context mctx{sched, {}, {}, this};
-    mctx.scheduler.cancel(mctx.handle);
+    // Store scheduler reference on first call.
+    if (pimpl.get() != nullptr && pimpl->scheduler == nullptr) {
+        pimpl->scheduler = &sched;
+    }
+
+    static momentum_context mctx{this, &config, {}, {}};
+    mctx.config                    = &config;
     mctx.tick_state                = {};
     mctx.tick_state.vel_x          = vel_x;
     mctx.tick_state.vel_y          = vel_y;
     mctx.tick_state.distance_scale = 1.0f;
-    mctx.handle                    = mctx.scheduler.schedule(
-      &momentum_tick,
-      &mctx,
-      std::chrono::microseconds{basic_momentum_scroll::frame_ms * 1000});
+    sched.cancel(pimpl->momentum_handle);
+    pimpl->momentum_handle = sched.schedule(&momentum_tick, &mctx, std::chrono::microseconds{config.frame_ms * 1000});
     set_animating();
 
     return next;
