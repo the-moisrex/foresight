@@ -44,6 +44,8 @@ export namespace fs8 {
         void ensure_initialized() noexcept;
         void seed_pen_bounds(value_type x_min, value_type x_max, value_type y_min, value_type y_max) noexcept;
 
+        [[nodiscard]] msec_type last_issue_duration() const noexcept;
+
         struct [[nodiscard]] config {
             bool       check_adjacent_syns      = true;
             bool       check_orphan_releases    = true;
@@ -62,6 +64,9 @@ export namespace fs8 {
 
         [[nodiscard]] sanitizer_issue check(event_type const& event, config const& cfg) noexcept;
         void                          update(event_type const& event) noexcept;
+
+      private:
+        msec_type last_issue_duration_{0};
     };
 
     /**
@@ -104,7 +109,12 @@ export namespace fs8 {
 
         /// Dispatch the callback based on its arity.
         constexpr void invoke_callback(event_type const& event, sanitizer_issue const issue) noexcept {
-            if constexpr (std::invocable<Callback&, event_type const&, sanitizer_issue>) {
+            if constexpr (std::invocable<Callback&, event_type const&, sanitizer_issue, event_sanitizer_state::msec_type>) {
+                if (issue == sanitizer_issue::none && !log_events_good) {
+                    return;
+                }
+                cb(event, issue, state.last_issue_duration());
+            } else if constexpr (std::invocable<Callback&, event_type const&, sanitizer_issue>) {
                 if (issue == sanitizer_issue::none && !log_events_good) {
                     return;
                 }
@@ -281,7 +291,7 @@ export namespace fs8 {
     };
 
     constexpr struct [[nodiscard]] basic_log_diagnostics : basic_log {
-        void operator()(event_type const& event, sanitizer_issue issue) const noexcept;
+        void operator()(event_type const& event, sanitizer_issue issue, std::chrono::microseconds duration) const noexcept;
     } log_diagnostics;
 
     constexpr basic_event_sanitizer<> event_sanitizer;

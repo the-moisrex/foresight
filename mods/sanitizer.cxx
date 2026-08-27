@@ -81,6 +81,10 @@ namespace fs8 {
         }
     }
 
+    std::chrono::microseconds event_sanitizer_state::last_issue_duration() const noexcept {
+        return last_issue_duration_;
+    }
+
     void event_sanitizer_state::seed_pen_bounds(
       value_type const x_min,
       value_type const x_max,
@@ -140,7 +144,8 @@ namespace fs8 {
         }
 
         if (!is_syn_report) {
-            if (cfg.check_missing_syn_time && event.micro_time() - pimpl->last_syn_time >= cfg.missing_syn_time_threshold) [[unlikely]] {
+            if (cfg.check_missing_syn_time && pimpl->data_events_since_syn > 0 && event.micro_time() - pimpl->last_syn_time >= cfg.missing_syn_time_threshold) [[unlikely]] {
+                last_issue_duration_ = event.micro_time() - pimpl->last_syn_time;
                 return missing_syn_time;
             }
             if (cfg.check_missing_syn_count && pimpl->data_events_since_syn >= cfg.missing_syn_count_threshold) [[unlikely]] {
@@ -165,6 +170,14 @@ namespace fs8 {
 
         if (!is_syn) {
             pimpl->any_data_since_syn = true;
+            if (pimpl->data_events_since_syn == 0) {
+                // First data event after SYN: advance last_syn_time to the current
+                // event's timestamp so subsequent events in the same frame compare
+                // against the frame start rather than the previous frame's SYN_REPORT.
+                // This prevents false positives for multi-event frames (e.g. tablet
+                // REL_X + REL_Y) after normal idle gaps.
+                pimpl->last_syn_time = event.micro_time();
+            }
             ++pimpl->data_events_since_syn;
             if (is_mouse_movement(event)) {
                 pimpl->travel_since_syn += std::abs(event.value());
@@ -191,8 +204,17 @@ namespace fs8 {
         pimpl->was_syn = false;
     }
 
-    void basic_log_diagnostics::operator()(event_type const& event, sanitizer_issue const issue) const noexcept {
-        log("{} - {} {} {}", to_string(issue), event.type_name(), event.code_name(), event.value());
+    void basic_log_diagnostics::operator()(event_type const& event, sanitizer_issue const issue, std::chrono::microseconds const duration) const noexcept {
+        if (duration.count() > 0) {
+            auto const us = duration.count();
+            if (us >= 1000) {
+                log("{} ({}ms) - {} {} {}", to_string(issue), static_cast<double>(us) / 1000.0, event.type_name(), event.code_name(), event.value());
+            } else {
+                log("{} ({}us) - {} {} {}", to_string(issue), us, event.type_name(), event.code_name(), event.value());
+            }
+        } else {
+            log("{} - {} {} {}", to_string(issue), event.type_name(), event.code_name(), event.value());
+        }
     }
 
 } // namespace fs8

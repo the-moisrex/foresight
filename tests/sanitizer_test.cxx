@@ -162,9 +162,12 @@ TEST(SanitizerTest, DiagnosticsShorthandAcceptsCallback) {
 TEST(SanitizerTest, DetectsMissingSynTime) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
 
+    // The first data event after a SYN passes through (idle gap, not a missing SYN).
+    // The second data event in the same frame triggers missing_syn_time.
     auto pipeline = context
                   | timed_sequence{std::array{
                       timed_ev(EV_SYN, SYN_REPORT, 0, 0us),
+                      timed_ev(EV_REL, REL_X, 10, 1ms),
                       timed_ev(EV_REL, REL_X, 10, 200ms),
                     }}
                   | event_sanitizer.missing_syn_count(false).missing_syn_travel(false)
@@ -174,9 +177,75 @@ TEST(SanitizerTest, DetectsMissingSynTime) {
     pipeline();
 
     auto const& col = pipeline.mod<basic_record>();
-    ASSERT_EQ(col.size(), 1U);
+    ASSERT_EQ(col.size(), 2U);
     EXPECT_EQ(col[0].type(), EV_SYN);
     EXPECT_EQ(col[0].code(), SYN_REPORT);
+    EXPECT_EQ(col[1].code(), REL_X);
+}
+
+TEST(SanitizerTest, IdleGapDoesNotTriggerMissingSynTime) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    // A data event arriving long after the last SYN is a normal idle gap, not a
+    // missing-SYN issue. The first data event after a SYN should pass through
+    // even if the time gap exceeds the threshold.
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 0us),
+                      timed_ev(EV_KEY, KEY_A, 1, 200ms),
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 201ms),
+                    }}
+                  | event_sanitizer.missing_syn_count(false).missing_syn_travel(false)
+                    .missing_syn_time_threshold(100ms)
+                  | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 3U);
+    EXPECT_EQ(col[0].type(), EV_SYN);
+    EXPECT_EQ(col[0].code(), SYN_REPORT);
+    EXPECT_EQ(col[1].code(), KEY_A);
+    EXPECT_EQ(col[2].type(), EV_SYN);
+    EXPECT_EQ(col[2].code(), SYN_REPORT);
+}
+
+TEST(SanitizerTest, MultiEventFrameAfterIdleGapDoesNotTriggerMissingSynTime) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    // Simulates a tablet frame: REL_X + REL_Y + SYN_REPORT. After an idle gap,
+    // both REL events in the same frame should pass through without triggering
+    // missing_syn_time, because the first data event resets last_syn_time.
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 0us),
+                      timed_ev(EV_REL, REL_X, 10, 200ms),
+                      timed_ev(EV_REL, REL_Y, 5, 200ms),
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 201ms),
+                      timed_ev(EV_REL, REL_X, 10, 202ms),
+                      timed_ev(EV_REL, REL_Y, 5, 202ms),
+                      timed_ev(EV_SYN, SYN_REPORT, 0, 203ms),
+                    }}
+                  | event_sanitizer.missing_syn_count(false).missing_syn_travel(false)
+                    .missing_syn_time_threshold(100ms)
+                  | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 7U);
+    // First frame: SYN, REL_X, REL_Y, SYN
+    EXPECT_EQ(col[0].type(), EV_SYN);
+    EXPECT_EQ(col[0].code(), SYN_REPORT);
+    EXPECT_EQ(col[1].code(), REL_X);
+    EXPECT_EQ(col[2].code(), REL_Y);
+    EXPECT_EQ(col[3].type(), EV_SYN);
+    EXPECT_EQ(col[3].code(), SYN_REPORT);
+    // Second frame: REL_X, REL_Y, SYN
+    EXPECT_EQ(col[4].code(), REL_X);
+    EXPECT_EQ(col[5].code(), REL_Y);
+    EXPECT_EQ(col[6].type(), EV_SYN);
+    EXPECT_EQ(col[6].code(), SYN_REPORT);
 }
 
 TEST(SanitizerTest, DetectsMissingSynCount) {
