@@ -105,10 +105,32 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:adefb7b32229ea6c0b6721c5c5441aec9" id="r_adefb7b32229ea6c0b6721c5c5441aec9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1momentum__config.html#adefb7b32229ea6c0b6721c5c5441aec9">frame_ms</a> = 16</td></tr>
 <tr class="memdesc:adefb7b32229ea6c0b6721c5c5441aec9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frame interval in ms (~60 fps).  <br /></td></tr>
 <tr class="separator:adefb7b32229ea6c0b6721c5c5441aec9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae21e8b313413dd51e1d13ea843036106" id="r_ae21e8b313413dd51e1d13ea843036106"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1momentum__config.html#ae21e8b313413dd51e1d13ea843036106">initial_scale</a> = 0.02<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">f</a></td></tr>
+<tr class="memdesc:ae21e8b313413dd51e1d13ea843036106"><td class="mdescLeft">&#160;</td><td class="mdescRight">Per-frame velocity scale: delta = velocity * scale * decay^step.  <br /></td></tr>
+<tr class="separator:ae21e8b313413dd51e1d13ea843036106"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c456ad2588916c80addc63fad224a8c" id="r_a3c456ad2588916c80addc63fad224a8c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1momentum__config.html#a3c456ad2588916c80addc63fad224a8c">decay_rate</a> = 0.97<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">f</a></td></tr>
+<tr class="memdesc:a3c456ad2588916c80addc63fad224a8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decay rate per frame. Closer to 1.0 = longer tail.  <br /></td></tr>
+<tr class="separator:a3c456ad2588916c80addc63fad224a8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc089848867860faaf8e8129110fd44a" id="r_abc089848867860faaf8e8129110fd44a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1momentum__config.html#abc089848867860faaf8e8129110fd44a">max_mouse_distance</a> = 500.0f</td></tr>
 <tr class="separator:abc089848867860faaf8e8129110fd44a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Data Documentation</h2>
+<a id="a3c456ad2588916c80addc63fad224a8c" name="a3c456ad2588916c80addc63fad224a8c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3c456ad2588916c80addc63fad224a8c">&#9670;&#160;</a></span>decay_rate</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a> fs8::momentum_config::decay_rate = 0.97<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">f</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decay rate per frame. Closer to 1.0 = longer tail. </p>
+
+</div>
+</div>
 <a id="adefb7b32229ea6c0b6721c5c5441aec9" name="adefb7b32229ea6c0b6721c5c5441aec9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#adefb7b32229ea6c0b6721c5c5441aec9">&#9670;&#160;</a></span>frame_ms</h2>
 
@@ -125,6 +147,22 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="ae21e8b313413dd51e1d13ea843036106" name="ae21e8b313413dd51e1d13ea843036106"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae21e8b313413dd51e1d13ea843036106">&#9670;&#160;</a></span>initial_scale</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a> fs8::momentum_config::initial_scale = 0.02<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">f</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Per-frame velocity scale: delta = velocity * scale * decay^step. </p>
+
+</div>
+</div>
 <a id="abc089848867860faaf8e8129110fd44a" name="abc089848867860faaf8e8129110fd44a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abc089848867860faaf8e8129110fd44a">&#9670;&#160;</a></span>max_mouse_distance</h2>
 
@@ -136,7 +174,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Maximum mouse travel (in accumulated REL units) before momentum is fully cancelled. A value of 0 disables distance-based slowdown. </p>
+<p>Maximum mouse travel (in accumulated REL units) from the point where momentum started. A value of 0 disables distance-based slowdown. Both axes are tracked independently; momentum scales down when the furthest axis exceeds this threshold. </p>
 
 </div>
 </div>

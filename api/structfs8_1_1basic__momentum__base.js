@@ -1,7 +1,6 @@
 var structfs8_1_1basic__momentum__base =
 [
     [ "value_type", "structfs8_1_1basic__momentum__base.html#a4251d7a2a43cb1e1eeea5b8064f6d6c8", null ],
-    [ "accumulate_mouse_distance", "structfs8_1_1basic__momentum__base.html#a7307f048a4881d060bde1d80b9ae2d69", null ],
     [ "cancel_momentum_tick", "structfs8_1_1basic__momentum__base.html#afcfc53b5fbcb017665f11b97a3d5cee2", null ],
     [ "clear_animating", "structfs8_1_1basic__momentum__base.html#a7b4b35c2ee992ae34609ab218b3ca0de", null ],
     [ "current_velocity", "structfs8_1_1basic__momentum__base.html#a4e8c6fc8362b82674535dfc7b4b3d5d7", null ],
@@ -13,5 +12,7 @@ var structfs8_1_1basic__momentum__base =
     [ "reset_mouse_distance", "structfs8_1_1basic__momentum__base.html#a91b2d89abcfe1383eec6c79c4b3653eb", null ],
     [ "set_animating", "structfs8_1_1basic__momentum__base.html#a9890e6ce887a2456e4277afe79d516c1", null ],
     [ "set_max_mouse_distance", "structfs8_1_1basic__momentum__base.html#a349c73ae15462bac60baadd2259577f0", null ],
-    [ "track", "structfs8_1_1basic__momentum__base.html#a483fe8e93c4d0d520c770f1447345a56", null ]
+    [ "set_mouse_origin", "structfs8_1_1basic__momentum__base.html#a49d95e025eb52cbc7c5ba1fd24bf8da4", null ],
+    [ "track", "structfs8_1_1basic__momentum__base.html#a483fe8e93c4d0d520c770f1447345a56", null ],
+    [ "update_mouse_distance", "structfs8_1_1basic__momentum__base.html#acfa91bc0e52f6efb3e1d0cd687d9055d", null ]
 ];
