@@ -115,7 +115,7 @@ context_action basic_interceptor::do_start(basic_input_manager& im, basic_io_man
 
 context_action basic_interceptor::operator()(io_fd& fd) noexcept try {
     using enum context_action;
-    if (pimpl.get() == nullptr || pimpl->im == nullptr) [[unlikely]] {
+    if (pimpl->im == nullptr) [[unlikely]] {
         return next;
     }
     // Table lookup: find the watched_fd entry by fd — no device-list iteration.
@@ -150,7 +150,7 @@ context_action basic_interceptor::operator()(io_fd& fd) noexcept try {
 }
 
 std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, basic_io_manager& io) noexcept try {
-    if (pimpl.get() == nullptr || pimpl->im == nullptr) [[unlikely]] {
+    if (pimpl->im == nullptr) [[unlikely]] {
         return std::nullopt;
     }
 

@@ -38,7 +38,7 @@ std::span<event_type const> basic_record::events() const noexcept {
     if (sink != nullptr) [[unlikely]] {
         return {*sink};
     }
-    if (pimpl.get() == nullptr) [[unlikely]] {
+    if (!static_cast<bool>(pimpl)) [[unlikely]] {
         return {};
     }
     return pimpl->events;
@@ -55,7 +55,7 @@ bool basic_record::empty() const noexcept {
 void basic_record::clear() noexcept {
     if (sink != nullptr) {
         sink->clear();
-    } else if (pimpl.get() != nullptr) {
+    } else if (static_cast<bool>(pimpl)) {
         pimpl->events.clear();
     }
 }

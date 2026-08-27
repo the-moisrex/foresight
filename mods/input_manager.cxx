@@ -330,7 +330,7 @@ bool basic_input_manager::is_owned(evdev const& dev) const noexcept {
 }
 
 bool basic_input_manager::is_owned_sysname(std::string_view const sysname) const noexcept {
-    if (pimpl.get() == nullptr || sysname.empty()) [[unlikely]] {
+    if (sysname.empty()) [[unlikely]] {
         return false;
     }
     return std::ranges::any_of(pimpl->owned_sysnames, [&](std::string const& cur) noexcept {
@@ -350,9 +350,6 @@ fs8::device_id basic_input_manager::device_id_of(evdev const& dev) const noexcep
 }
 
 fs8::evdev const* basic_input_manager::device_of(device_id const id) const noexcept {
-    if (pimpl.get() == nullptr) [[unlikely]] {
-        return nullptr;
-    }
     using enum device_id;
     if (id == none || id == stdin || id == self) [[unlikely]] {
         return nullptr;
@@ -401,7 +398,7 @@ bool basic_input_manager::is_chained(device_id const id) const noexcept {
 }
 
 void basic_input_manager::requery() {
-    if (pimpl.get() == nullptr || !pimpl->started) [[unlikely]] {
+    if (!pimpl->started) [[unlikely]] {
         return;
     }
 
