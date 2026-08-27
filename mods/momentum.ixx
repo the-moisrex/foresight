@@ -101,13 +101,17 @@ namespace fs8 {
 
     export struct [[nodiscard]] momentum_config {
         /// Number of momentum frames to schedule per axis.
-        int momentum_frames      = 60;
+        int momentum_frames = 30;
         /// Frame interval in ms (~60 fps).
-        int frame_ms             = 16;
+        int frame_ms        = 16;
         /// Per-frame velocity scale: delta = velocity * scale * decay^step.
-        float initial_scale      = 0.02f;
+        float initial_scale = 0.005f;
         /// Decay rate per frame.  Closer to 1.0 = longer tail.
-        float decay_rate         = 0.97f;
+        float decay_rate    = 0.93f;
+        /// How much an opposing scroll event reduces the current momentum velocity.
+        /// 0.0 = opposing scrolls have no effect, 1.0 = a single opposing notch
+        /// cancels all momentum in that axis.
+        float reversal_scale = 0.3f;
         /// Maximum mouse travel (in accumulated REL units) from the point
         /// where momentum started.  A value of 0 disables distance-based
         /// slowdown.  Both axes are tracked independently; momentum scales

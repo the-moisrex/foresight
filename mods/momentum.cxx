@@ -185,6 +185,7 @@ struct fs8::pimpl_idiom<basic_momentum_base>::impl {
     basic_scheduler*             scheduler = nullptr;
     basic_scheduler::tick_handle momentum_handle{};
     bool                         is_animating       = false;
+    bool                         reversal_cancelled  = false;
     float                        mouse_x            = 0.0f;
     float                        mouse_y            = 0.0f;
     float                        origin_x           = 0.0f;
@@ -421,26 +422,74 @@ context_action basic_momentum_scroll::handle_scroll_event(basic_scheduler& sched
     reset_mouse_distance();
 
     auto const [vel_x, vel_y] = current_velocity();
-    if (std::abs(vel_x) < 0.5f && std::abs(vel_y) < 0.5f) {
-        return next;
-    }
 
     // Store scheduler reference on first call.
     if (pimpl.get() != nullptr && pimpl->scheduler == nullptr) {
         pimpl->scheduler = &sched;
     }
 
+    static momentum_context mctx{this, &config, {}, {}};
+    mctx.config = &config;
+
+    // If momentum is already active and the scroll opposes it, reduce
+    // the existing momentum instead of restarting.
+    if (is_animating() && pimpl->scheduler != nullptr) {
+        auto& ts = mctx.tick_state;
+        bool  opposed = false;
+
+        if (ts.vel_x != 0.0f && event.is(EV_REL, REL_WHEEL_HI_RES)) {
+            float const scroll_val = static_cast<float>(event.value());
+            if ((ts.vel_x > 0.0f) != (scroll_val > 0.0f)) {
+                float new_vel = ts.vel_x + scroll_val * config.reversal_scale;
+                if ((new_vel > 0.0f) != (ts.vel_x > 0.0f)) {
+                    new_vel = 0.0f;
+                }
+                ts.vel_x = new_vel;
+                opposed = true;
+            }
+        }
+        if (ts.vel_y != 0.0f && event.is(EV_REL, REL_HWHEEL_HI_RES)) {
+            float const scroll_val = static_cast<float>(event.value());
+            if ((ts.vel_y > 0.0f) != (scroll_val > 0.0f)) {
+                float new_vel = ts.vel_y + scroll_val * config.reversal_scale;
+                if ((new_vel > 0.0f) != (ts.vel_y > 0.0f)) {
+                    new_vel = 0.0f;
+                }
+                ts.vel_y = new_vel;
+                opposed = true;
+            }
+        }
+
+        if (opposed) {
+            // If velocity is fully depleted, stop momentum.
+            if (std::abs(ts.vel_x) < 0.5f && std::abs(ts.vel_y) < 0.5f) {
+                pimpl->scheduler->cancel(pimpl->momentum_handle);
+                clear_animating();
+                pimpl->reversal_cancelled = true;
+            }
+            return next;
+        }
+    }
+
+    // Don't restart momentum immediately after a reversal-cancellation.
+    if (pimpl->reversal_cancelled) {
+        return next;
+    }
+
+    if (std::abs(vel_x) < 0.5f && std::abs(vel_y) < 0.5f) {
+        return next;
+    }
+
     // Record mouse origin for distance tracking.
     set_mouse_origin();
 
-    static momentum_context mctx{this, &config, {}, {}};
-    mctx.config                    = &config;
     mctx.tick_state                = {};
     mctx.tick_state.vel_x          = vel_x;
     mctx.tick_state.vel_y          = vel_y;
     mctx.tick_state.distance_scale = 1.0f;
     sched.cancel(pimpl->momentum_handle);
     pimpl->momentum_handle = sched.schedule(&momentum_tick, &mctx, std::chrono::microseconds{config.frame_ms * 1000});
+    pimpl->reversal_cancelled = false;
     set_animating();
 
     return next;

@@ -382,3 +382,49 @@ TEST(MomentumPipeline, DistanceTrackingAccumulates) {
     momentum.set_max_mouse_distance(0.0f);
     sched.cancel_all();
 }
+
+TEST(MomentumPipeline, OpposingScrollReducesMomentum) {
+    // Feed a strong scroll in the negative direction to start momentum.
+    static auto scroll_down = make_scroll_sequence<10>(-120, 1'000'000LL);
+    feed_and_run(scroll_down);
+
+    auto& pipeline = momentum_pipeline();
+    auto& sched    = pipeline.mod<basic_scheduler>();
+    auto& momentum = pipeline.mod<basic_momentum_scroll>();
+    ASSERT_TRUE(sched.has_pending());
+    ASSERT_TRUE(momentum.is_animating());
+
+    // Feed a stronger opposing scroll (positive direction) while momentum is active.
+    // With reversal_scale=0.3, each +120 scroll reduces vel by 120*0.3=36.
+    // Momentum vel_x ~ -800, 10 scrolls of +120 = -800 + 10*36 = -440, still negative.
+    static auto opposing_scroll_1 = make_scroll_sequence<10>(120, 5'000'000LL);
+    feed_no_init(opposing_scroll_1);
+
+    // Momentum should still be active (reduced, not cancelled).
+    EXPECT_TRUE(momentum.is_animating()) << "opposing scroll should reduce, not cancel, momentum";
+
+    sched.cancel_all();
+}
+
+TEST(MomentumPipeline, OpposingScrollCancelsMomentum) {
+    // Feed a weak scroll in the negative direction to start momentum.
+    static auto scroll_down_weak = make_scroll_sequence<3>(-120, 10'000'000LL);
+    feed_and_run(scroll_down_weak);
+
+    auto& pipeline = momentum_pipeline();
+    auto& sched    = pipeline.mod<basic_scheduler>();
+    auto& momentum = pipeline.mod<basic_momentum_scroll>();
+    ASSERT_TRUE(sched.has_pending());
+    ASSERT_TRUE(momentum.is_animating());
+
+    // Feed enough opposing scrolls to fully deplete the momentum velocity.
+    // The velocity tracker uses exponential smoothing (tau=100ms). With events
+    // 1μs apart, each contributes ~1200 to the smoothed velocity.  3 initial
+    // scrolls give ~-2400.  Each opposing scroll adds +120*0.3=36 to the tick
+    // state.  Need ≥67 opposing scrolls to cancel.
+    static auto opposing_scroll_cancel = make_scroll_sequence<80>(120, 10'100'000LL);
+    feed_no_init(opposing_scroll_cancel);
+
+    // Momentum should be cancelled because velocity was fully depleted.
+    EXPECT_FALSE(momentum.is_animating()) << "strong opposing scroll should cancel momentum";
+}
