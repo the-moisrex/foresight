@@ -87,6 +87,7 @@ var structfs8_1_1pimpl__idiom_1_1impl =
     [ "prev_x", "structfs8_1_1pimpl__idiom_1_1impl.html#abf567461551129854eed676091bbb3ce", null ],
     [ "prev_y", "structfs8_1_1pimpl__idiom_1_1impl.html#a47112acc747702fbfdaf44baf3332dfb", null ],
     [ "providers", "structfs8_1_1pimpl__idiom_1_1impl.html#ae8827c234cebc9f2b9e6c168bd191834", null ],
+    [ "reversal_cancelled", "structfs8_1_1pimpl__idiom_1_1impl.html#ae1fe7f40035fbb52415df82c1d410886", null ],
     [ "scheduler", "structfs8_1_1pimpl__idiom_1_1impl.html#ae812b4947ca61554a2363b50ee9c8057", null ],
     [ "started", "structfs8_1_1pimpl__idiom_1_1impl.html#a6bf557e20b7c52ba68f877fa69133e0b", null ],
     [ "stats", "structfs8_1_1pimpl__idiom_1_1impl.html#ad947b0834a83eb87ad3885dcfe367c8f", null ],
