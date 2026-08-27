@@ -2,8 +2,8 @@ var structfs8_1_1basic__momentum__base =
 [
     [ "value_type", "structfs8_1_1basic__momentum__base.html#a4251d7a2a43cb1e1eeea5b8064f6d6c8", null ],
     [ "accumulate_mouse_distance", "structfs8_1_1basic__momentum__base.html#a7307f048a4881d060bde1d80b9ae2d69", null ],
+    [ "cancel_momentum_tick", "structfs8_1_1basic__momentum__base.html#afcfc53b5fbcb017665f11b97a3d5cee2", null ],
     [ "clear_animating", "structfs8_1_1basic__momentum__base.html#a7b4b35c2ee992ae34609ab218b3ca0de", null ],
-    [ "configure", "structfs8_1_1basic__momentum__base.html#a6cf8a86fcef9497227ac0b206634b792", null ],
     [ "current_velocity", "structfs8_1_1basic__momentum__base.html#a4e8c6fc8362b82674535dfc7b4b3d5d7", null ],
     [ "has_distance_tracking", "structfs8_1_1basic__momentum__base.html#a98319b619e460267a644e79437f8e441", null ],
     [ "is_active", "structfs8_1_1basic__momentum__base.html#a66a3e7e51a0582ce07ab88a62bd10321", null ],

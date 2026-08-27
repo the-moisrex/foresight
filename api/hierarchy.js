@@ -220,6 +220,7 @@ var hierarchy =
     ] ],
     [ "fs8::mod_of_t< TT< T... >, TT< U... >, Funcs... >", "structfs8_1_1mod__of__t_3_01TT_3_01T_8_8_8_01_4_00_01TT_3_01U_8_8_8_01_4_00_01Funcs_8_8_8_01_4.html", null ],
     [ "fs8::momentum_calculator", "structfs8_1_1momentum__calculator.html", null ],
+    [ "fs8::momentum_config", "structfs8_1_1momentum__config.html", null ],
     [ "fs8::mouse_accum", "structfs8_1_1mouse__accum.html", null ],
     [ "my_libevdev_uinput", "structmy__libevdev__uinput.html", null ],
     [ "fs8::named_solution", "structfs8_1_1named__solution.html", null ],

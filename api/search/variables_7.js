@@ -12,8 +12,7 @@ var searchData=
   ['help_9',['help',['../structfs8_1_1basic__flag.html#a88dcf0e7168d3e855d510b251d9a5fed',1,'fs8::basic_flag']]],
   ['help_5frequested_10',['help_requested',['../structfs8_1_1basic__parsed__args.html#ab07b34ea7874d634290707e35c049372',1,'fs8::basic_parsed_args']]],
   ['help_5ftext_11',['help_text',['../structfs8_1_1basic__parsed__args.html#a722d4a83bb681698ab534fee3ba3f5dc',1,'fs8::basic_parsed_args']]],
-  ['hi_5fres_5fper_5fnotch_12',['hi_res_per_notch',['../structfs8_1_1basic__momentum__scroll.html#a1d9e3b3ee5895dd730fd1bb0c1844c97',1,'fs8::basic_momentum_scroll']]],
-  ['high_5fthreshold_13',['high_threshold',['../namespacefs8.html#adf54975160a256916e01e62a2ce35872',1,'fs8']]],
-  ['hwheel_14',['hwheel',['../structfs8_1_1mouse__accum.html#a49282f9469ad376a8e26d47d8dbd29a4',1,'fs8::mouse_accum']]],
-  ['hwheel_5fhi_15',['hwheel_hi',['../structfs8_1_1mouse__accum.html#a069a0c2a2e9b066b39b3e29c442cdc90',1,'fs8::mouse_accum']]]
+  ['high_5fthreshold_12',['high_threshold',['../namespacefs8.html#adf54975160a256916e01e62a2ce35872',1,'fs8']]],
+  ['hwheel_13',['hwheel',['../structfs8_1_1mouse__accum.html#a49282f9469ad376a8e26d47d8dbd29a4',1,'fs8::mouse_accum']]],
+  ['hwheel_5fhi_14',['hwheel_hi',['../structfs8_1_1mouse__accum.html#a069a0c2a2e9b066b39b3e29c442cdc90',1,'fs8::mouse_accum']]]
 ];

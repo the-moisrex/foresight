@@ -482,6 +482,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1momentum__calculator.html">momentum_calculator</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Single-axis momentum animation calculator.  <a href="structfs8_1_1momentum__calculator.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1momentum__config.html">momentum_config</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1mouse__accum.html">mouse_accum</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accumulated mouse movement between SYN_REPORTs.  <a href="structfs8_1_1mouse__accum.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1232,6 +1234,8 @@ requires Tag&lt;TagT&gt;</td></tr>
 <tr class="separator:a266fcad2b4c49218e11e63b7fe183613"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23bdc0e0cf884a92b1a95580caebe6bd" id="r_a23bdc0e0cf884a92b1a95580caebe6bd"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a23bdc0e0cf884a92b1a95580caebe6bd">fs8::is_mouse_movement</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
 <tr class="separator:a23bdc0e0cf884a92b1a95580caebe6bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a938387a7a0a0264ae3cc05b0fcbc4914" id="r_a938387a7a0a0264ae3cc05b0fcbc4914"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a938387a7a0a0264ae3cc05b0fcbc4914">fs8::is_high_res_scroll</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="separator:a938387a7a0a0264ae3cc05b0fcbc4914"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb77a6041ae57e9ce9d2986db5470f0c" id="r_aeb77a6041ae57e9ce9d2986db5470f0c"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aeb77a6041ae57e9ce9d2986db5470f0c">fs8::is_mouse_clicks</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
 <tr class="separator:aeb77a6041ae57e9ce9d2986db5470f0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a626fbce15918f461d6d70f429f0095" id="r_a2a626fbce15918f461d6d70f429f0095"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2a626fbce15918f461d6d70f429f0095">fs8::is_mouse_event</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
@@ -6179,6 +6183,32 @@ template&lt;typename ModT , typename CtxT &gt; </div>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a938387a7a0a0264ae3cc05b0fcbc4914" name="a938387a7a0a0264ae3cc05b0fcbc4914"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a938387a7a0a0264ae3cc05b0fcbc4914">&#9670;&#160;</a></span>is_high_res_scroll()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr bool fs8::is_high_res_scroll </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;&#160;</td>
+          <td class="paramname"><em>event</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -12949,7 +12979,7 @@ template&lt;EvtestFormat Format&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation. Set <code>max_mouse_distance</code> to enable distance-based slowdown on mouse moves. </p>
+<p>Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation. Distance-based slowdown is enabled by default (max_mouse_distance = 500). </p>
 
 </div>
 </div>

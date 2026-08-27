@@ -189,6 +189,7 @@ var annotated_dup =
       [ "mod_of_t< ModConcept, Func, Funcs... >", "structfs8_1_1mod__of__t_3_01ModConcept_00_01Func_00_01Funcs_8_8_8_01_4.html", "structfs8_1_1mod__of__t_3_01ModConcept_00_01Func_00_01Funcs_8_8_8_01_4" ],
       [ "mod_of_t< TT< T... >, TT< U... >, Funcs... >", "structfs8_1_1mod__of__t_3_01TT_3_01T_8_8_8_01_4_00_01TT_3_01U_8_8_8_01_4_00_01Funcs_8_8_8_01_4.html", "structfs8_1_1mod__of__t_3_01TT_3_01T_8_8_8_01_4_00_01TT_3_01U_8_8_8_01_4_00_01Funcs_8_8_8_01_4" ],
       [ "momentum_calculator", "structfs8_1_1momentum__calculator.html", "structfs8_1_1momentum__calculator" ],
+      [ "momentum_config", "structfs8_1_1momentum__config.html", "structfs8_1_1momentum__config" ],
       [ "mouse_accum", "structfs8_1_1mouse__accum.html", "structfs8_1_1mouse__accum" ],
       [ "named_solution", "structfs8_1_1named__solution.html", "structfs8_1_1named__solution" ],
       [ "nullable_indirect", "structfs8_1_1nullable__indirect.html", "structfs8_1_1nullable__indirect" ],

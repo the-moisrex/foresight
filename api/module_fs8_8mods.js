@@ -117,6 +117,7 @@ var module_fs8_8mods =
     [ "run", "structfs8_1_1run.html", "structfs8_1_1run" ],
     [ "velocity_tracker", "structfs8_1_1velocity__tracker.html", "structfs8_1_1velocity__tracker" ],
     [ "momentum_calculator", "structfs8_1_1momentum__calculator.html", "structfs8_1_1momentum__calculator" ],
+    [ "momentum_config", "structfs8_1_1momentum__config.html", "structfs8_1_1momentum__config" ],
     [ "basic_momentum_base", "structfs8_1_1basic__momentum__base.html", "structfs8_1_1basic__momentum__base" ],
     [ "basic_momentum_scroll", "structfs8_1_1basic__momentum__scroll.html", "structfs8_1_1basic__momentum__scroll" ],
     [ "basic_keys_status", "structfs8_1_1basic__keys__status.html", "structfs8_1_1basic__keys__status" ],

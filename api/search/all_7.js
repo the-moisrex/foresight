@@ -35,13 +35,12 @@ var searchData=
   ['help_32',['help',['../structfs8_1_1basic__arguments.html#af4c7752342ab5ff0bb755e63ea3da325',1,'fs8::basic_arguments::help()'],['../structfs8_1_1basic__parsed__args.html#a5ba38ca1e10ee60236c29760b9cf9f91',1,'fs8::basic_parsed_args::help()'],['../structfs8_1_1basic__flag.html#a88dcf0e7168d3e855d510b251d9a5fed',1,'fs8::basic_flag::help']]],
   ['help_5frequested_33',['help_requested',['../structfs8_1_1basic__parsed__args.html#ab07b34ea7874d634290707e35c049372',1,'fs8::basic_parsed_args']]],
   ['help_5ftext_34',['help_text',['../structfs8_1_1basic__parsed__args.html#a722d4a83bb681698ab534fee3ba3f5dc',1,'fs8::basic_parsed_args']]],
-  ['hi_5fres_5fper_5fnotch_35',['hi_res_per_notch',['../structfs8_1_1basic__momentum__scroll.html#a1d9e3b3ee5895dd730fd1bb0c1844c97',1,'fs8::basic_momentum_scroll']]],
-  ['high_5fthreshold_36',['high_threshold',['../namespacefs8.html#adf54975160a256916e01e62a2ce35872',1,'fs8']]],
-  ['high_5fthreshold_5ftag_37',['high_threshold_tag',['../structfs8_1_1high__threshold__tag.html',1,'fs8']]],
-  ['hold_38',['hold',['../structfs8_1_1basic__on__held.html#a7943d7f6987d193796bc58a140a4d579',1,'fs8::basic_on_held']]],
-  ['how2type_2ecxx_39',['how2type.cxx',['../how2type_8cxx.html',1,'']]],
-  ['how2type_2eixx_40',['how2type.ixx',['../how2type_8ixx.html',1,'']]],
-  ['hup_41',['hup',['../namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca2ae5050db8876c01c093d5cfb519f1d0',1,'fs8']]],
-  ['hwheel_42',['hwheel',['../structfs8_1_1mouse__accum.html#a49282f9469ad376a8e26d47d8dbd29a4',1,'fs8::mouse_accum']]],
-  ['hwheel_5fhi_43',['hwheel_hi',['../structfs8_1_1mouse__accum.html#a069a0c2a2e9b066b39b3e29c442cdc90',1,'fs8::mouse_accum']]]
+  ['high_5fthreshold_35',['high_threshold',['../namespacefs8.html#adf54975160a256916e01e62a2ce35872',1,'fs8']]],
+  ['high_5fthreshold_5ftag_36',['high_threshold_tag',['../structfs8_1_1high__threshold__tag.html',1,'fs8']]],
+  ['hold_37',['hold',['../structfs8_1_1basic__on__held.html#a7943d7f6987d193796bc58a140a4d579',1,'fs8::basic_on_held']]],
+  ['how2type_2ecxx_38',['how2type.cxx',['../how2type_8cxx.html',1,'']]],
+  ['how2type_2eixx_39',['how2type.ixx',['../how2type_8ixx.html',1,'']]],
+  ['hup_40',['hup',['../namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca2ae5050db8876c01c093d5cfb519f1d0',1,'fs8']]],
+  ['hwheel_41',['hwheel',['../structfs8_1_1mouse__accum.html#a49282f9469ad376a8e26d47d8dbd29a4',1,'fs8::mouse_accum']]],
+  ['hwheel_5fhi_42',['hwheel_hi',['../structfs8_1_1mouse__accum.html#a069a0c2a2e9b066b39b3e29c442cdc90',1,'fs8::mouse_accum']]]
 ];

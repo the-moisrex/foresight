@@ -2,6 +2,7 @@ var momentum_8ixx =
 [
     [ "fs8::velocity_tracker", "structfs8_1_1velocity__tracker.html", "structfs8_1_1velocity__tracker" ],
     [ "fs8::momentum_calculator", "structfs8_1_1momentum__calculator.html", "structfs8_1_1momentum__calculator" ],
+    [ "fs8::momentum_config", "structfs8_1_1momentum__config.html", "structfs8_1_1momentum__config" ],
     [ "fs8::basic_momentum_base", "structfs8_1_1basic__momentum__base.html", "structfs8_1_1basic__momentum__base" ],
     [ "fs8::basic_momentum_scroll", "structfs8_1_1basic__momentum__scroll.html", "structfs8_1_1basic__momentum__scroll" ],
     [ "fsecs", "momentum_8ixx.html#ada3fe906c6d7b16143ebc0997d8b2086", null ],
