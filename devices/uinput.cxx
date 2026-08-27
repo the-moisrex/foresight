@@ -627,21 +627,21 @@ void basic_uinput::set_device(int fd, std::string_view const name) noexcept {
 }
 
 int basic_uinput::native_handle() const noexcept {
-    if (pimpl.get() == nullptr || !is_ok()) [[unlikely]] {
+    if (!is_ok()) [[unlikely]] {
         return -1;
     }
     return libevdev_uinput_get_fd(pimpl->dev);
 }
 
 std::string_view basic_uinput::syspath() const noexcept {
-    if (pimpl.get() == nullptr || !is_ok()) [[unlikely]] {
+    if (!is_ok()) [[unlikely]] {
         return invalid_syspath;
     }
     return libevdev_uinput_get_syspath(pimpl->dev);
 }
 
 std::string_view basic_uinput::devnode() const noexcept {
-    if (pimpl.get() == nullptr || !is_ok()) [[unlikely]] {
+    if (!is_ok()) [[unlikely]] {
         return invalid_devnode;
     }
     return libevdev_uinput_get_devnode(pimpl->dev);

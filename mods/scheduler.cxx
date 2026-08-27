@@ -110,7 +110,7 @@ context_action basic_scheduler::do_start(basic_io_manager& io) noexcept try {
 
 context_action basic_scheduler::operator()(io_fd const& fd) noexcept try {
     using enum context_action;
-    if (pimpl.get() == nullptr || fd.fd != pimpl->timer_fd) [[unlikely]] {
+    if (fd.fd != pimpl->timer_fd) [[unlikely]] {
         return next;
     }
     std::uint64_t expirations = 0;
