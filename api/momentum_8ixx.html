@@ -95,6 +95,7 @@ $(document).ready(function(){initNavTree('momentum_8ixx.html',''); initResizable
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#concepts">Concepts</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">momentum.ixx File Reference<div class="ingroups">module <a class="el" href="module_fs8_8mods.html">fs8.mods</a></div></div></div>
 </div><!--header-->
@@ -102,6 +103,7 @@ $(document).ready(function(){initNavTree('momentum_8ixx.html',''); initResizable
 <div class="textblock"><code>#include &lt;array&gt;</code><br />
 <code>#include &lt;chrono&gt;</code><br />
 <code>#include &lt;cmath&gt;</code><br />
+<code>#include &lt;cstddef&gt;</code><br />
 <code>#include &lt;linux/input-event-codes.h&gt;</code><br />
 <code>import <a class="el" href="mods_8ixx.html">fs8.mods:scheduler</a>;</code><br />
 <code>import <a class="el" href="event_8ixx.html">fs8.event</a>;</code><br />
@@ -123,6 +125,10 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1scroll__momentum__policy.html">fs8::scroll_momentum_policy</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__momentum__base.html">fs8::basic_momentum_base</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1momentum__tick__state.html">fs8::momentum_tick_state&lt; Policy &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1momentum__context.html">fs8::momentum_context&lt; Policy &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__momentum.html">fs8::basic_momentum&lt; Policy &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -146,10 +152,15 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ad0c0182c0bcba062c10b98ba72545d33" id="r_ad0c0182c0bcba062c10b98ba72545d33"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad0c0182c0bcba062c10b98ba72545d33">fs8::usecs</a> = std::chrono::microseconds</td></tr>
 <tr class="separator:ad0c0182c0bcba062c10b98ba72545d33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:af68d7d94ea9364ecfcd6c4fd8f70097d" id="r_af68d7d94ea9364ecfcd6c4fd8f70097d"><td class="memTemplParams" colspan="2">template&lt;MomentumPolicy Policy&gt; </td></tr>
+<tr class="memitem:af68d7d94ea9364ecfcd6c4fd8f70097d"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__scheduler_1_1tick__result.html">basic_scheduler::tick_result</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af68d7d94ea9364ecfcd6c4fd8f70097d">fs8::momentum_tick</a> (void *const data) noexcept</td></tr>
+<tr class="separator:af68d7d94ea9364ecfcd6c4fd8f70097d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:abcd0c204753b4cf5e3302ad649516d91" id="r_abcd0c204753b4cf5e3302ad649516d91"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#abcd0c204753b4cf5e3302ad649516d91">fs8::momentum_scroll</a> = <a class="el" href="structfs8_1_1basic__momentum.html">basic_momentum</a>&lt;<a class="el" href="structfs8_1_1scroll__momentum__policy.html">scroll_momentum_policy</a>&gt;{}</td></tr>
-<tr class="memdesc:abcd0c204753b4cf5e3302ad649516d91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation.  <br /></td></tr>
 <tr class="separator:abcd0c204753b4cf5e3302ad649516d91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->

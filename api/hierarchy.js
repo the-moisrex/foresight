@@ -220,6 +220,8 @@ var hierarchy =
     ] ],
     [ "fs8::mod_of_t< TT< T... >, TT< U... >, Funcs... >", "structfs8_1_1mod__of__t_3_01TT_3_01T_8_8_8_01_4_00_01TT_3_01U_8_8_8_01_4_00_01Funcs_8_8_8_01_4.html", null ],
     [ "fs8::momentum_calculator", "structfs8_1_1momentum__calculator.html", null ],
+    [ "fs8::momentum_context< Policy >", "structfs8_1_1momentum__context.html", null ],
+    [ "fs8::momentum_tick_state< Policy >", "structfs8_1_1momentum__tick__state.html", null ],
     [ "fs8::mouse_accum", "structfs8_1_1mouse__accum.html", null ],
     [ "my_libevdev_uinput", "structmy__libevdev__uinput.html", null ],
     [ "fs8::named_solution", "structfs8_1_1named__solution.html", null ],
@@ -310,6 +312,9 @@ var hierarchy =
     [ "fs8::thread_binding< any_dynamic_context >", "structfs8_1_1thread__binding.html", [
       [ "fs8::basic_dynamic_context", "structfs8_1_1basic__dynamic__context.html", null ]
     ] ],
+    [ "fs8::pimpl_idiom< typename >::impl::tick_entry", "structfs8_1_1pimpl__idiom_1_1impl_1_1tick__entry.html", null ],
+    [ "fs8::basic_scheduler::tick_handle", "structfs8_1_1basic__scheduler_1_1tick__handle.html", null ],
+    [ "fs8::basic_scheduler::tick_result", "structfs8_1_1basic__scheduler_1_1tick__result.html", null ],
     [ "fs8::type_at_impl< I, T, Ts >", "structfs8_1_1type__at__impl.html", null ],
     [ "fs8::type_at_impl< 0, T, Ts... >", "structfs8_1_1type__at__impl_3_010_00_01T_00_01Ts_8_8_8_01_4.html", null ],
     [ "fs8::type_id_t< T >", "structfs8_1_1type__id__t.html", null ],

@@ -482,6 +482,10 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1momentum__calculator.html">momentum_calculator</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Single-axis momentum animation calculator.  <a href="structfs8_1_1momentum__calculator.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1momentum__context.html">momentum_context</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1momentum__tick__state.html">momentum_tick_state</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1mouse__accum.html">mouse_accum</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accumulated mouse movement between SYN_REPORTs.  <a href="structfs8_1_1mouse__accum.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1299,6 +1303,9 @@ requires (std::is_invocable_v&lt;T, <a class="el" href="structfs8_1_1construct__
 <tr class="memitem:a7c8764ffa126fca31a16ae49359b9fba" id="r_a7c8764ffa126fca31a16ae49359b9fba"><td class="memTemplParams" colspan="2">template&lt;typename... Ts&gt; </td></tr>
 <tr class="memitem:a7c8764ffa126fca31a16ae49359b9fba"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7c8764ffa126fca31a16ae49359b9fba">fs8::run</a> (Ts &amp;&amp;...) -&gt; <a class="el" href="structfs8_1_1run.html">run</a>&lt; std::remove_cvref_t&lt; Ts &gt;... &gt;</td></tr>
 <tr class="separator:a7c8764ffa126fca31a16ae49359b9fba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af68d7d94ea9364ecfcd6c4fd8f70097d" id="r_af68d7d94ea9364ecfcd6c4fd8f70097d"><td class="memTemplParams" colspan="2">template&lt;MomentumPolicy Policy&gt; </td></tr>
+<tr class="memitem:af68d7d94ea9364ecfcd6c4fd8f70097d"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__scheduler_1_1tick__result.html">basic_scheduler::tick_result</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af68d7d94ea9364ecfcd6c4fd8f70097d">momentum_tick</a> (void *const data) noexcept</td></tr>
+<tr class="separator:af68d7d94ea9364ecfcd6c4fd8f70097d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64b669309027c5732d33de060628ee86" id="r_a64b669309027c5732d33de060628ee86"><td class="memTemplParams" colspan="2">template&lt;typename F , typename... Ts&gt; </td></tr>
 <tr class="memitem:a64b669309027c5732d33de060628ee86"><td class="memTemplItemLeft" align="right" valign="top">constexpr decltype(auto)&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a64b669309027c5732d33de060628ee86">visit_at</a> (std::tuple&lt; Ts... &gt; const &amp;tup, std::size_t idx, F &amp;&amp;fun) noexcept</td></tr>
 <tr class="separator:a64b669309027c5732d33de060628ee86"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1721,7 +1728,6 @@ Variables</h2></td></tr>
 <tr class="memitem:af69f7b7381d92ffa6c923455721a66e6" id="r_af69f7b7381d92ffa6c923455721a66e6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__switch__mode.html">fs8::basic_switch_mode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af69f7b7381d92ffa6c923455721a66e6">switch_mode</a></td></tr>
 <tr class="separator:af69f7b7381d92ffa6c923455721a66e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abcd0c204753b4cf5e3302ad649516d91" id="r_abcd0c204753b4cf5e3302ad649516d91"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#abcd0c204753b4cf5e3302ad649516d91">fs8::momentum_scroll</a> = <a class="el" href="structfs8_1_1basic__momentum.html">basic_momentum</a>&lt;<a class="el" href="structfs8_1_1scroll__momentum__policy.html">scroll_momentum_policy</a>&gt;{}</td></tr>
-<tr class="memdesc:abcd0c204753b4cf5e3302ad649516d91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation.  <br /></td></tr>
 <tr class="separator:abcd0c204753b4cf5e3302ad649516d91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa8e58604e1cb96172ab1e4abc48f95a" id="r_aaa8e58604e1cb96172ab1e4abc48f95a"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__mouse__history.html">basic_mouse_history</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aaa8e58604e1cb96172ab1e4abc48f95a">fs8::mouse_history</a></td></tr>
 <tr class="separator:aaa8e58604e1cb96172ab1e4abc48f95a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -7443,6 +7449,36 @@ template&lt;typename CharT &gt; </div>
 
 </div>
 </div>
+<a id="af68d7d94ea9364ecfcd6c4fd8f70097d" name="af68d7d94ea9364ecfcd6c4fd8f70097d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af68d7d94ea9364ecfcd6c4fd8f70097d">&#9670;&#160;</a></span>momentum_tick()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;MomentumPolicy Policy&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structfs8_1_1basic__scheduler_1_1tick__result.html">basic_scheduler::tick_result</a> fs8::momentum_tick </td>
+          <td>(</td>
+          <td class="paramtype">void *const&#160;</td>
+          <td class="paramname"><em>data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Tick callback invoked by the scheduler on each timer tick. Produces ALL scroll events for one frame and returns them as a span.</p>
+<p>Events per frame: hi_res_x (if dx != 0) + legacy_x events + hi_res_y (if dy != 0) + legacy_y events + syn_report </p>
+
+</div>
+</div>
 <a id="a05a903cf46bc0d209f5172a60d221b80" name="a05a903cf46bc0d209f5172a60d221b80"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a05a903cf46bc0d209f5172a60d221b80">&#9670;&#160;</a></span>name() <span class="overload">[1/2]</span></h2>
 
@@ -12954,8 +12990,7 @@ template&lt;EvtestFormat Format&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation. </p>
+<p>Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation. Set <code>max_mouse_distance</code> to enable distance-based slowdown on mouse moves. </p>
 
 </div>
 </div>

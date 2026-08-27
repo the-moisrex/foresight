@@ -143,6 +143,5 @@ var searchData=
   ['binding_140',['binding',['../structfs8_1_1dynamic__scope_3_01T_00_01ConcreteT_01_4.html#a18a00f502b5bb9dc17813f2ab9200128',1,'fs8::dynamic_scope&lt; T, ConcreteT &gt;::binding'],['../structfs8_1_1dynamic__scope.html#aad7cb94848e7ee59b6f1cdd6bc0875a8',1,'fs8::dynamic_scope::binding'],['../structfs8_1_1thread__binding.html#a0b6ed6ac8097416be1fab893b9170fc8',1,'fs8::thread_binding::binding'],['../structfs8_1_1global__binding.html#a35714a7a7fae4b1f7713219a4016dad1',1,'fs8::global_binding::binding']]],
   ['blowup_5fif_141',['blowup_if',['../namespacefs8.html#a60bae359abb2a65c97674f784edc4002',1,'fs8']]],
   ['bound_142',['bound',['../structfs8_1_1basic__dynamic__context.html#a642be6143cb0f8681fbd7743dc12ff32',1,'fs8::basic_dynamic_context']]],
-  ['buffer_143',['buffer',['../structfs8_1_1pimpl__idiom_1_1impl.html#ab9de36b65c0cffdeae54869f470ec07c',1,'fs8::pimpl_idiom::impl::buffer'],['../structfs8_1_1keyboard__runner.html#a77f209a6e0d5fe61937a1b7c663e7d6f',1,'fs8::keyboard_runner::buffer()']]],
-  ['build_5fscroll_5fevents_144',['build_scroll_events',['../structfs8_1_1basic__momentum__base.html#af9a575ed0e128f4e5376f979b4153a5f',1,'fs8::basic_momentum_base']]]
+  ['buffer_143',['buffer',['../structfs8_1_1pimpl__idiom_1_1impl.html#ab9de36b65c0cffdeae54869f470ec07c',1,'fs8::pimpl_idiom::impl::buffer'],['../structfs8_1_1keyboard__runner.html#a77f209a6e0d5fe61937a1b7c663e7d6f',1,'fs8::keyboard_runner::buffer()']]]
 ];

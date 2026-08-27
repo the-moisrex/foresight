@@ -110,6 +110,8 @@ Collaboration diagram for fs8::pimpl_idiom&lt; typename &gt;::impl:</div>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl_1_1node__type.html">node_type</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl_1_1tick__entry.html">tick_entry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
@@ -142,10 +144,11 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a2116546ff33eeed9a64277568ff74e19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c3cf1aeb632f87131e5a637b1667a7d" id="r_a9c3cf1aeb632f87131e5a637b1667a7d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a9c3cf1aeb632f87131e5a637b1667a7d">track_release</a> (<a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#aca056a56c9dc191a5dca47bb050decd4">code_type</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a9c3cf1aeb632f87131e5a637b1667a7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af6233043f063c59bb94f304f35de63a0" id="r_af6233043f063c59bb94f304f35de63a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#af6233043f063c59bb94f304f35de63a0">empty</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
-<tr class="separator:af6233043f063c59bb94f304f35de63a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad767f63c78bf273685c245541e181d44" id="r_ad767f63c78bf273685c245541e181d44"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#ad767f63c78bf273685c245541e181d44">clear</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
-<tr class="separator:ad767f63c78bf273685c245541e181d44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fd3d4f0b5f51724bdc1b45c75eb31bd" id="r_a8fd3d4f0b5f51724bdc1b45c75eb31bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a8fd3d4f0b5f51724bdc1b45c75eb31bd">has_active</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
+<tr class="separator:a8fd3d4f0b5f51724bdc1b45c75eb31bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc5f0c24220fb3353b2807802365d1cc" id="r_abc5f0c24220fb3353b2807802365d1cc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#abc5f0c24220fb3353b2807802365d1cc">rearm_timer</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
+<tr class="memdesc:abc5f0c24220fb3353b2807802365d1cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Arm or disarm the timerfd based on the earliest next_fire time.  <br /></td></tr>
+<tr class="separator:abc5f0c24220fb3353b2807802365d1cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acf4920732501ae4992e9f27c230be5ff" id="r_acf4920732501ae4992e9f27c230be5ff"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#acf4920732501ae4992e9f27c230be5ff">accumulate</a> (std::uint16_t <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a>, <a class="el" href="structfs8_1_1basic__lerp.html#a37197d72aee57e86214ee33dd556b696">basic_lerp::value_type</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">value</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:acf4920732501ae4992e9f27c230be5ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a81718eb7795da07ca2aca84c201d8ef8" id="r_a81718eb7795da07ca2aca84c201d8ef8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a81718eb7795da07ca2aca84c201d8ef8">take_frame</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
@@ -237,6 +240,10 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a2dd87b7d35c8b4abb9e7e9d7cc071121"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a625b67104c8f53e1e4f74b9abc078641" id="r_a625b67104c8f53e1e4f74b9abc078641"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a625b67104c8f53e1e4f74b9abc078641">is_animating</a> = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">false</a></td></tr>
 <tr class="separator:a625b67104c8f53e1e4f74b9abc078641"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a6dd3ea7d92d460200850af08ebbd3d" id="r_a2a6dd3ea7d92d460200850af08ebbd3d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a2a6dd3ea7d92d460200850af08ebbd3d">accumulated_mouse_distance</a> = 0.0f</td></tr>
+<tr class="separator:a2a6dd3ea7d92d460200850af08ebbd3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45e9e17aeaf69a0f44978503213fa9d2" id="r_a45e9e17aeaf69a0f44978503213fa9d2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a45e9e17aeaf69a0f44978503213fa9d2">max_mouse_distance</a> = 0.0f</td></tr>
+<tr class="separator:a45e9e17aeaf69a0f44978503213fa9d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1998b457b63614cd8d8bc1b5b030d7c6" id="r_a1998b457b63614cd8d8bc1b5b030d7c6"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="structfs8_1_1event__type.html">event_type</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a1998b457b63614cd8d8bc1b5b030d7c6">events</a></td></tr>
 <tr class="separator:a1998b457b63614cd8d8bc1b5b030d7c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaad7287cc0fc6006737c3117a92819fa" id="r_aaad7287cc0fc6006737c3117a92819fa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#aaad7287cc0fc6006737c3117a92819fa">was_syn</a> = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">false</a></td></tr>
@@ -265,14 +272,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a254b46029345b2a9589ba36664336268"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47026de60d3015ac534d46901f8f43ba" id="r_a47026de60d3015ac534d46901f8f43ba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a47026de60d3015ac534d46901f8f43ba">timer_fd</a> = -1</td></tr>
 <tr class="separator:a47026de60d3015ac534d46901f8f43ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ca7a7f1d426b03db4d56b2d72b8a384" id="r_a3ca7a7f1d426b03db4d56b2d72b8a384"><td class="memItemLeft" align="right" valign="top">std::array&lt; <a class="el" href="structfs8_1_1event__type.html">event_type</a>, <a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#ae8bbde740adf7e6404526ca120ae460e">capacity</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a3ca7a7f1d426b03db4d56b2d72b8a384">pending</a> {}</td></tr>
-<tr class="separator:a3ca7a7f1d426b03db4d56b2d72b8a384"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a636b69c54e3109e5f721756d01e701c1" id="r_a636b69c54e3109e5f721756d01e701c1"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a636b69c54e3109e5f721756d01e701c1">head</a> = 0</td></tr>
-<tr class="separator:a636b69c54e3109e5f721756d01e701c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15903c3ec745175aabbf0108afb78bf0" id="r_a15903c3ec745175aabbf0108afb78bf0"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a15903c3ec745175aabbf0108afb78bf0">size</a> = 0</td></tr>
-<tr class="separator:a15903c3ec745175aabbf0108afb78bf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8f74e0914e9417f535fbf927d8c0763" id="r_ae8f74e0914e9417f535fbf927d8c0763"><td class="memItemLeft" align="right" valign="top">std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#ae8f74e0914e9417f535fbf927d8c0763">expiration_count</a> = 0</td></tr>
-<tr class="separator:ae8f74e0914e9417f535fbf927d8c0763"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84c1bda9fb33c4b2a57c3026351c2b2e" id="r_a84c1bda9fb33c4b2a57c3026351c2b2e"><td class="memItemLeft" align="right" valign="top">std::array&lt; <a class="el" href="structfs8_1_1pimpl__idiom_1_1impl_1_1tick__entry.html">tick_entry</a>, <a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#aa7be220df3507e4d1c8563346d238afd">max_ticks</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a84c1bda9fb33c4b2a57c3026351c2b2e">ticks</a> {}</td></tr>
+<tr class="separator:a84c1bda9fb33c4b2a57c3026351c2b2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf1c46954958674beef8bc5dbd6baafa" id="r_abf1c46954958674beef8bc5dbd6baafa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__io__manager.html">basic_io_manager</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#abf1c46954958674beef8bc5dbd6baafa">io</a> = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">nullptr</a></td></tr>
 <tr class="separator:abf1c46954958674beef8bc5dbd6baafa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c7118765f40b258fa452a05a2d0e1b7" id="r_a4c7118765f40b258fa452a05a2d0e1b7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a4c7118765f40b258fa452a05a2d0e1b7">had_movement</a> = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">false</a></td></tr>
@@ -319,8 +320,8 @@ Public Attributes</h2></td></tr>
 Static Public Attributes</h2></td></tr>
 <tr class="memitem:afe65caf43637f30b2e358a62dcd2d424" id="r_afe65caf43637f30b2e358a62dcd2d424"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">static</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#afe65caf43637f30b2e358a62dcd2d424">max_tracked_keys</a> = 64</td></tr>
 <tr class="separator:afe65caf43637f30b2e358a62dcd2d424"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8bbde740adf7e6404526ca120ae460e" id="r_ae8bbde740adf7e6404526ca120ae460e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">static</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#ae8bbde740adf7e6404526ca120ae460e">capacity</a> = 128</td></tr>
-<tr class="separator:ae8bbde740adf7e6404526ca120ae460e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7be220df3507e4d1c8563346d238afd" id="r_aa7be220df3507e4d1c8563346d238afd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">static</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#aa7be220df3507e4d1c8563346d238afd">max_ticks</a> = 8</td></tr>
+<tr class="separator:aa7be220df3507e4d1c8563346d238afd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="aca056a56c9dc191a5dca47bb050decd4" name="aca056a56c9dc191a5dca47bb050decd4"></a>
@@ -514,33 +515,6 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
 
 </div>
 </div>
-<a id="ad767f63c78bf273685c245541e181d44" name="ad767f63c78bf273685c245541e181d44"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad767f63c78bf273685c245541e181d44">&#9670;&#160;</a></span>clear()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a> <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::clear </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a235e6187d6261a4cafffc641971e44be" name="a235e6187d6261a4cafffc641971e44be"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a235e6187d6261a4cafffc641971e44be">&#9670;&#160;</a></span>drain()</h2>
 
@@ -562,33 +536,6 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="af6233043f063c59bb94f304f35de63a0" name="af6233043f063c59bb94f304f35de63a0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af6233043f063c59bb94f304f35de63a0">&#9670;&#160;</a></span>empty()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::empty </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -785,6 +732,33 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
 
 </div>
 </div>
+<a id="a8fd3d4f0b5f51724bdc1b45c75eb31bd" name="a8fd3d4f0b5f51724bdc1b45c75eb31bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fd3d4f0b5f51724bdc1b45c75eb31bd">&#9670;&#160;</a></span>has_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::has_active </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a9c5b5a137b1873e0eae2c378393b1070" name="a9c5b5a137b1873e0eae2c378393b1070"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9c5b5a137b1873e0eae2c378393b1070">&#9670;&#160;</a></span>has_sysname()</h2>
 
@@ -949,6 +923,35 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="abc5f0c24220fb3353b2807802365d1cc" name="abc5f0c24220fb3353b2807802365d1cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc5f0c24220fb3353b2807802365d1cc">&#9670;&#160;</a></span>rearm_timer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a> <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::rearm_timer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Arm or disarm the timerfd based on the earliest next_fire time. </p>
 
 </div>
 </div>
@@ -1149,6 +1152,22 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
 
 </div>
 </div>
+<a id="a2a6dd3ea7d92d460200850af08ebbd3d" name="a2a6dd3ea7d92d460200850af08ebbd3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a6dd3ea7d92d460200850af08ebbd3d">&#9670;&#160;</a></span>accumulated_mouse_distance</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a> <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::accumulated_mouse_distance = 0.0f</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="ab084438f2533cfde064d6f08e2e05e02" name="ab084438f2533cfde064d6f08e2e05e02"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab084438f2533cfde064d6f08e2e05e02">&#9670;&#160;</a></span>aho_search_state <span class="overload">[1/2]</span></h2>
 
@@ -1225,30 +1244,6 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
           <td class="memname">std::vector&lt;std::function_ref&lt;<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>(<a class="el" href="structfs8_1_1io__fd.html">io_fd</a>&amp;)&gt; &gt; <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::callbacks</td>
         </tr>
       </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ae8bbde740adf7e6404526ca120ae460e" name="ae8bbde740adf7e6404526ca120ae460e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae8bbde740adf7e6404526ca120ae460e">&#9670;&#160;</a></span>capacity</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> std::size_t <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::capacity = 128</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
@@ -1494,22 +1489,6 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
 
 </div>
 </div>
-<a id="ae8f74e0914e9417f535fbf927d8c0763" name="ae8f74e0914e9417f535fbf927d8c0763"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae8f74e0914e9417f535fbf927d8c0763">&#9670;&#160;</a></span>expiration_count</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::uint64_t <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::expiration_count = 0</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="aede4f211ae1d547f00c0d4ace3b351cf" name="aede4f211ae1d547f00c0d4ace3b351cf"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aede4f211ae1d547f00c0d4ace3b351cf">&#9670;&#160;</a></span>fds</h2>
 
@@ -1584,22 +1563,6 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::has_pen_bounds = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">false</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a636b69c54e3109e5f721756d01e701c1" name="a636b69c54e3109e5f721756d01e701c1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a636b69c54e3109e5f721756d01e701c1">&#9670;&#160;</a></span>head</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::size_t <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::head = 0</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1714,6 +1677,46 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
           <td class="memname">std::list&lt;<a class="el" href="structfs8_1_1evdev.html">fs8::evdev</a>&gt; <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::manual_devs</td>
         </tr>
       </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a45e9e17aeaf69a0f44978503213fa9d2" name="a45e9e17aeaf69a0f44978503213fa9d2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a45e9e17aeaf69a0f44978503213fa9d2">&#9670;&#160;</a></span>max_mouse_distance</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">float</a> <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::max_mouse_distance = 0.0f</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa7be220df3507e4d1c8563346d238afd" name="aa7be220df3507e4d1c8563346d238afd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa7be220df3507e4d1c8563346d238afd">&#9670;&#160;</a></span>max_ticks</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> std::size_t <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::max_ticks = 8</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>
@@ -1907,7 +1910,7 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
 </div>
 </div>
 <a id="a5f4a2271a965b11ec54d3a69d73e7d3e" name="a5f4a2271a965b11ec54d3a69d73e7d3e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5f4a2271a965b11ec54d3a69d73e7d3e">&#9670;&#160;</a></span>pending <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f4a2271a965b11ec54d3a69d73e7d3e">&#9670;&#160;</a></span>pending</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1916,22 +1919,6 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
       <table class="memname">
         <tr>
           <td class="memname">std::deque&lt;<a class="el" href="structfs8_1_1event__type.html">event_type</a>&gt; <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::pending</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a3ca7a7f1d426b03db4d56b2d72b8a384" name="a3ca7a7f1d426b03db4d56b2d72b8a384"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3ca7a7f1d426b03db4d56b2d72b8a384">&#9670;&#160;</a></span>pending <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::array&lt;<a class="el" href="structfs8_1_1event__type.html">event_type</a>, <a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#ae8bbde740adf7e6404526ca120ae460e">capacity</a>&gt; <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::pending {}</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -2018,22 +2005,6 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
 
 </div>
 </div>
-<a id="a15903c3ec745175aabbf0108afb78bf0" name="a15903c3ec745175aabbf0108afb78bf0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a15903c3ec745175aabbf0108afb78bf0">&#9670;&#160;</a></span>size</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">std::size_t <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::size = 0</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a6bf557e20b7c52ba68f877fa69133e0b" name="a6bf557e20b7c52ba68f877fa69133e0b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6bf557e20b7c52ba68f877fa69133e0b">&#9670;&#160;</a></span>started</h2>
 
@@ -2060,6 +2031,22 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="structfs8_1_1benchmark__stats.html">benchmark_stats</a> <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::stats</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a84c1bda9fb33c4b2a57c3026351c2b2e" name="a84c1bda9fb33c4b2a57c3026351c2b2e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84c1bda9fb33c4b2a57c3026351c2b2e">&#9670;&#160;</a></span>ticks</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::array&lt;<a class="el" href="structfs8_1_1pimpl__idiom_1_1impl_1_1tick__entry.html">tick_entry</a>, <a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#aa7be220df3507e4d1c8563346d238afd">max_ticks</a>&gt; <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::ticks {}</td>
         </tr>
       </table>
 </div><div class="memdoc">

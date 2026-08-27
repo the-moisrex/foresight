@@ -194,8 +194,9 @@ var NAVTREEINDEX1 =
 "functions_y.html":[3,3,0,23],
 "functions_~.html":[3,3,0,24],
 "globals.html":[4,1,0],
-"globals_defs.html":[4,1,3],
+"globals_defs.html":[4,1,4],
 "globals_func.html":[4,1,1],
+"globals_type.html":[4,1,3],
 "globals_vars.html":[4,1,2],
 "hash_8cxx.html":[4,0,5,2],
 "hash_8ixx.html":[4,0,5,3],
@@ -248,6 +249,5 @@ var NAVTREEINDEX1 =
 "ignore_8ixx.html#ab8042ba7643faf3089e6d1358fbb7fab":[4,0,4,13,35],
 "ignore_8ixx.html#abf1a945bdaa9b158d92becea2968cc0b":[4,0,4,13,39],
 "ignore_8ixx.html#ad6e02008290ef7b4d0a44fa8c4ba5265":[4,0,4,13,37],
-"ignore_8ixx.html#aee8b0b14a6fe55fc91f0bc8981c9641a":[4,0,4,13,32],
-"index.html":[]
+"ignore_8ixx.html#aee8b0b14a6fe55fc91f0bc8981c9641a":[4,0,4,13,32]
 };

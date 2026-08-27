@@ -1,6 +1,5 @@
 var structfs8_1_1scroll__momentum__policy =
 [
-    [ "pass_through", "structfs8_1_1scroll__momentum__policy.html#a36dbd77d3d87e421eda366a4121f3ff1", null ],
     [ "emit_code_x", "structfs8_1_1scroll__momentum__policy.html#a5c08db58ba45408cc321bba6724ee7bf", null ],
     [ "emit_code_y", "structfs8_1_1scroll__momentum__policy.html#ad250ca67fc153c2f5d20ab1b38573354", null ],
     [ "emit_type", "structfs8_1_1scroll__momentum__policy.html#aeec88a7425769137a7501272fb334e59", null ],
