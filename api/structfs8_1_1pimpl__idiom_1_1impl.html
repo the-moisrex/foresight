@@ -196,6 +196,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:ae8827c234cebc9f2b9e6c168bd191834"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a991eca0cc94976f8a46082072092adba" id="r_a991eca0cc94976f8a46082072092adba"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a991eca0cc94976f8a46082072092adba">owned_sysnames</a></td></tr>
 <tr class="separator:a991eca0cc94976f8a46082072092adba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad15932b96ff1c1bae83fd41aa4edde87" id="r_ad15932b96ff1c1bae83fd41aa4edde87"><td class="memItemLeft" align="right" valign="top">std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#ad15932b96ff1c1bae83fd41aa4edde87">devices_generation</a> = 1</td></tr>
+<tr class="separator:ad15932b96ff1c1bae83fd41aa4edde87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a46592a850317412383f824fa4198826f" id="r_a46592a850317412383f824fa4198826f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__input__manager.html">basic_input_manager</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a46592a850317412383f824fa4198826f">im</a> = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">nullptr</a></td></tr>
 <tr class="separator:a46592a850317412383f824fa4198826f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef0e01a3f0189cc133ac81cfd377825f" id="r_aef0e01a3f0189cc133ac81cfd377825f"><td class="memItemLeft" align="right" valign="top">std::list&lt; <a class="el" href="structfs8_1_1evdev.html">fs8::evdev</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#aef0e01a3f0189cc133ac81cfd377825f">manual_devs</a></td></tr>
@@ -216,6 +218,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:af1b35e4e1229c3406443491f04c57730"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac4d734d78f67e383c8c7196369cd3cdb" id="r_ac4d734d78f67e383c8c7196369cd3cdb"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#ac4d734d78f67e383c8c7196369cd3cdb">dead_fd_count</a> = 0</td></tr>
 <tr class="separator:ac4d734d78f67e383c8c7196369cd3cdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fc2b40c9cc72207529f7498c1df3525" id="r_a8fc2b40c9cc72207529f7498c1df3525"><td class="memItemLeft" align="right" valign="top">std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a8fc2b40c9cc72207529f7498c1df3525">last_generation</a> = 0</td></tr>
+<tr class="separator:a8fc2b40c9cc72207529f7498c1df3525"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aede4f211ae1d547f00c0d4ace3b351cf" id="r_aede4f211ae1d547f00c0d4ace3b351cf"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">pollfd</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#aede4f211ae1d547f00c0d4ace3b351cf">fds</a></td></tr>
 <tr class="separator:aede4f211ae1d547f00c0d4ace3b351cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22d4150ce62b8682abf22f36fbf3bd9c" id="r_a22d4150ce62b8682abf22f36fbf3bd9c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::function_ref&lt; <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>(<a class="el" href="structfs8_1_1io__fd.html">io_fd</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a22d4150ce62b8682abf22f36fbf3bd9c">callbacks</a></td></tr>
@@ -1267,6 +1271,22 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
 
 </div>
 </div>
+<a id="ad15932b96ff1c1bae83fd41aa4edde87" name="ad15932b96ff1c1bae83fd41aa4edde87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad15932b96ff1c1bae83fd41aa4edde87">&#9670;&#160;</a></span>devices_generation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint32_t <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::devices_generation = 1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a0706c0821b41d1d40b5ac1c818e0ed28" name="a0706c0821b41d1d40b5ac1c818e0ed28"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0706c0821b41d1d40b5ac1c818e0ed28">&#9670;&#160;</a></span>devs</h2>
 
@@ -1504,6 +1524,23 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8fc2b40c9cc72207529f7498c1df3525" name="a8fc2b40c9cc72207529f7498c1df3525"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fc2b40c9cc72207529f7498c1df3525">&#9670;&#160;</a></span>last_generation</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint32_t <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::last_generation = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Last-seen value of input_manager::devices_generation(). When it has not changed since the last reconciliation and there are no disconnects, do_pop can skip the entire slow path. </p>
 
 </div>
 </div>

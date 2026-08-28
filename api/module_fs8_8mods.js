@@ -337,6 +337,7 @@ var module_fs8_8mods =
     [ "fs8::basic_input_manager::is_chained", "module_fs8_8mods.html#a85bd19e1804e53a186d8e6ab5aedf4b0", null ],
     [ "fs8::basic_input_manager::devices", "module_fs8_8mods.html#ae726b26ee8351b04b9140d7b2c2ceaf2", null ],
     [ "fs8::basic_input_manager::devices", "module_fs8_8mods.html#a13c8ba44a791628acf1ccade504ac84a", null ],
+    [ "fs8::basic_input_manager::devices_generation", "module_fs8_8mods.html#aa942c5088a09bcbeea859030b612701d", null ],
     [ "fs8::basic_input_manager::start", "module_fs8_8mods.html#a602abc468b2988cc4a54f8c7a68bf479", null ],
     [ "fs8::basic_input_manager::operator()", "module_fs8_8mods.html#af5a8bc645bf328107bafd80ae04b42ca", null ],
     [ "fs8::basic_input_manager::operator()", "module_fs8_8mods.html#a80cc43f55f9652df8c81179fd80ab86a", null ],

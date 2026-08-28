@@ -7,6 +7,7 @@ var structfs8_1_1basic__input__manager =
     [ "device_of", "structfs8_1_1basic__input__manager.html#a5c20c782b2926e41c4a50a6463233b0f", null ],
     [ "devices", "structfs8_1_1basic__input__manager.html#ae726b26ee8351b04b9140d7b2c2ceaf2", null ],
     [ "devices", "structfs8_1_1basic__input__manager.html#a13c8ba44a791628acf1ccade504ac84a", null ],
+    [ "devices_generation", "structfs8_1_1basic__input__manager.html#aa942c5088a09bcbeea859030b612701d", null ],
     [ "fd_of", "structfs8_1_1basic__input__manager.html#a8ee3f22a868789fa7356af8cdbcf845d", null ],
     [ "is_chained", "structfs8_1_1basic__input__manager.html#a85bd19e1804e53a186d8e6ab5aedf4b0", null ],
     [ "is_owned", "structfs8_1_1basic__input__manager.html#afc11d4370dd13c31b2ac7e1ed97e2b37", null ],

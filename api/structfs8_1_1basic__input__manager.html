@@ -149,6 +149,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ae726b26ee8351b04b9140d7b2c2ceaf2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13c8ba44a791628acf1ccade504ac84a" id="r_a13c8ba44a791628acf1ccade504ac84a"><td class="memItemLeft" align="right" valign="top">std::ranges::subrange&lt; std::list&lt; <a class="el" href="structfs8_1_1evdev.html">evdev</a> &gt;::iterator &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a13c8ba44a791628acf1ccade504ac84a">devices</a> () noexcept</td></tr>
 <tr class="separator:a13c8ba44a791628acf1ccade504ac84a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa942c5088a09bcbeea859030b612701d" id="r_aa942c5088a09bcbeea859030b612701d"><td class="memItemLeft" align="right" valign="top">std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#aa942c5088a09bcbeea859030b612701d">devices_generation</a> () const noexcept</td></tr>
+<tr class="separator:aa942c5088a09bcbeea859030b612701d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a602abc468b2988cc4a54f8c7a68bf479" id="r_a602abc468b2988cc4a54f8c7a68bf479"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a602abc468b2988cc4a54f8c7a68bf479">start</a> (<a class="el" href="structfs8_1_1basic__io__manager.html">basic_io_manager</a> &amp;io) noexcept</td></tr>
 <tr class="memdesc:a602abc468b2988cc4a54f8c7a68bf479"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start monitoring; also used by <code>intercept</code> to trigger enumeration.  <br /></td></tr>
 <tr class="separator:a602abc468b2988cc4a54f8c7a68bf479"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -378,6 +380,32 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa942c5088a09bcbeea859030b612701d" name="aa942c5088a09bcbeea859030b612701d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa942c5088a09bcbeea859030b612701d">&#9670;&#160;</a></span>devices_generation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint32_t basic_input_manager::devices_generation </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Opaque generation token that changes on every device add/remove. Used only for equality checks; not ordered. The value is randomized so overflow is practically impossible. </p>
 
 </div>
 </div>
