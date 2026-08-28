@@ -133,7 +133,7 @@ fs8::context_action fs8::basic_autocomplete::on_event(event_type const&         
             inp_emit(pimpl->completion);
             pimpl->buffer  = pimpl->prefix;
             pimpl->buffer += to_u32(pimpl->completion);
-            return pass_trigger ? next : ignore_event;
+            return pass_trigger ? next : drop_event;
         }
     }
 

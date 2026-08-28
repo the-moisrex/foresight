@@ -462,7 +462,7 @@ namespace fs8 {
             return basic_held{std::array<code_type, sizeof...(T)>{static_cast<code_type>(inp_codes)...}};
         }
 
-        /// Gate form: a decider decides whether the tracked key(s) are emitted or ignored.
+        /// Gate form: a decider decides whether the tracked key(s) are emitted or dropped.
         template <typename CondT>
             requires(!std::convertible_to<CondT, code_type> && !Tag<CondT> && !Context<CondT>)
         consteval auto operator[](std::string_view const inp_pattern, CondT const& inp_cond) const noexcept {
@@ -498,7 +498,7 @@ namespace fs8 {
 
     /**
      * Gate the tracked key(s): while they're held, every event is passed to a decider.
-     * If the decider says "ignore", the buffered key events are dropped (the keys are
+     * If the decider says "drop", the buffered key events are dropped (the keys are
      * consumed and never emitted). Otherwise they stay buffered until the keys are
      * fully released, at which point they're emitted normally (repeats are always
      * suppressed). Usable directly in a pipeline: `held["<f1>", decider]`.
@@ -553,7 +553,7 @@ namespace fs8 {
 
             if (pending) {
                 if (invoke_cond(cond, ctx)) {
-                    // decider said "ignore": drop everything buffered so far
+                    // decider said "drop": drop everything buffered so far
                     pending     = false;
                     consumed    = true;
                     buffer_size = 0;
@@ -562,25 +562,25 @@ namespace fs8 {
                         if (down_count == 0) {
                             consumed = false;
                         }
-                        return ignore_event;
+                        return drop_event;
                     }
                     return next;
                 }
                 if (is_gate) {
                     if (event.value() == 2) {
-                        return ignore_event; // suppress repeats
+                        return drop_event; // suppress repeats
                     }
                     if (buffer_size < max_buffer) {
                         buffer[buffer_size++] = event;
                     }
                     update_down_count(event);
                     if (down_count == 0) {
-                        // fully released without being ignored: emit the chord normally
+                        // fully released without being dropped: emit the chord normally
                         pending = false;
                         flush(ctx);
-                        return ignore_event; // the release is already in the buffer
+                        return drop_event; // the release is already in the buffer
                     }
-                    return ignore_event;
+                    return drop_event;
                 }
                 return next;
             }
@@ -591,7 +591,7 @@ namespace fs8 {
                     if (down_count == 0) {
                         consumed = false;
                     }
-                    return ignore_event;
+                    return drop_event;
                 }
                 return next;
             }
@@ -601,7 +601,7 @@ namespace fs8 {
                 buffer[buffer_size++] = event;
                 down_count            = 1;
                 pending               = true;
-                return ignore_event;
+                return drop_event;
             }
             return next;
         }
@@ -748,10 +748,10 @@ namespace fs8 {
                             // arrives after this event).
                             led_before[i] = led_on[i];
                         }
-                        return ignore_event;
+                        return drop_event;
                     }
                     if (event.value() == 2) {
-                        return ignore_event;
+                        return drop_event;
                     }
                     if (event.value() == 0 && held[i]) {
                         held[i] = false;
@@ -765,13 +765,13 @@ namespace fs8 {
                                 std::ignore = ctx.fork_emit(EV_KEY, codes[i], 0);
                                 std::ignore = ctx.fork_emit(EV_SYN, SYN_REPORT, 0);
                             }
-                            return ignore_event;
+                            return drop_event;
                         }
                         // quick tap: re-emit the buffered press + this release
                         // so the OS sees a real press+release (caps toggle / click)
                         std::ignore = ctx.fork_emit(pending[i]);
                         std::ignore = ctx.fork_emit(event);
-                        return ignore_event;
+                        return drop_event;
                     }
                     return next;
                 }

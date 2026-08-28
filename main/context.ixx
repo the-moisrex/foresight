@@ -135,10 +135,10 @@ export namespace fs8 {
      * Actions that each mod can take
      */
     enum struct [[nodiscard]] context_action : std::uint8_t {
-        next,         // pass it to the next mod
-        ignore_event, // ignore this event (drop it)
-        idle,         // idle mode, or watching mode, or restart mode
-        exit,         // exit the software
+        next,       // pass it to the next mod
+        drop_event, // drop this event
+        idle,       // idle mode, or watching mode, or restart mode
+        exit,       // exit the software
     };
 
     [[nodiscard]] std::string_view to_string(context_action action) noexcept;
@@ -212,7 +212,7 @@ export namespace fs8 {
         using result = std::invoke_result_t<ModT, Args...>;
         static_assert(std::is_nothrow_invocable_v<ModT, Args...>, "Mark the mod as nothrow.");
         if constexpr (std::same_as<result, bool>) {
-            return mod(std::forward<Args>(args)...) ? next : ignore_event;
+            return mod(std::forward<Args>(args)...) ? next : drop_event;
         } else if constexpr (std::same_as<result, context_action>) {
             return mod(std::forward<Args>(args)...);
         } else {
@@ -375,8 +375,8 @@ export namespace fs8 {
     constexpr context_action invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept {
         using enum context_action;
         return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
-            auto action = ignore_event;
-            std::ignore = (((action = fork_mod<I>(ctx, funcs, ignore_event, args...)) != next) && ...);
+            auto action = drop_event;
+            std::ignore = (((action = fork_mod<I>(ctx, funcs, drop_event, args...)) != next) && ...);
             return action;
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }
@@ -844,7 +844,7 @@ export namespace fs8 {
                                 return;
                             }
                             continue;
-                        [[likely]] case ignore_event:
+                        [[likely]] case drop_event:
                             break;
                         [[unlikely]] default:
                         [[unlikely]] case idle:
@@ -860,7 +860,7 @@ export namespace fs8 {
                     if constexpr (load_event_count > 0) {
                         switch (invoke_mods(*this, mods_, load_event)) {
                             [[likely]] case next:
-                            case ignore_event:
+                            case drop_event:
                                 continue; // key change (was `break` -> trailing invoke_mods)
                             [[unlikely]] default:
                             [[unlikely]] case idle:
@@ -881,7 +881,7 @@ export namespace fs8 {
                     switch (invoke_mods(*this, mods_, load_event)) {
                         [[likely]] case next:
                             break;
-                        case ignore_event:
+                        case drop_event:
                             continue;
                         [[unlikely]] default:
                         [[unlikely]] case idle:

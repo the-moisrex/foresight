@@ -79,12 +79,12 @@ A mod can be invoked in several forms depending on what it accepts:
 - `mod(ctx, tag)` — a *tag* request (see below).
 
 Mods return a `context_action`; a mod returning `bool` means `true` → `next`,
-`false` → `ignore_event`.
+`false` → `drop_event`.
 
 | Action         | Meaning                                            |
 |----------------|----------------------------------------------------|
 | `next`         | Pass the event to the next mod.                    |
-| `ignore_event` | Drop this event.                                   |
+| `drop_event` | Drop this event.                                   |
 | `idle`         | Restart / enter watch mode.                        |
 | `exit`         | Exit the pipeline.                                 |
 
@@ -120,7 +120,7 @@ Tags are constexpr sentinels passed as the last argument:
 | `mouse_to_scroll` | Convert mouse movement into scroll-wheel events. Pure transformer; gate it with `hold_mod`. | `mice_quantifier` |
 | `smooth` (`lerp`, `low_pass_filter`, `kalman_filter`) | Smooth mouse movement. | `mouse_history` |
 | `momentum` | Keep motion going after the input stops (`velocity_tracker`, `momentum_calculator`). | — |
-| `ignore_*` | Filters: `ignore_big_jumps`, `ignore_init_moves`, `ignore_start_moves`, `ignore_mouse_moves`, `ignore_fast_repeats`, `ignore_adjacent_repeats`, `ignore_repeats_of`, `ignore_keys`, `ignore_abs`, `ignore_tablet`, `ignore_caps`, plus `ignore_event` and `exit_pipeline`. | — |
+| `ignore_*` | Filters: `drop_big_jumps`, `drop_init_moves`, `drop_start_moves`, `drop_mouse_moves`, `drop_fast_repeats`, `drop_adjacent_repeats`, `drop_repeats_of`, `drop_keys`, `drop_abs`, `drop_tablet`, `drop_caps`, plus `drop_event` and `exit_pipeline`. | — |
 | `debounce` | Drop events arriving within a window of the same code. `click` mode swallows a fast second press + its release (mouse double-clicks, bouncing keys); `event` mode swallows any repeat. Any `event_code`: `debounce[BTN_LEFT]`, `debounce[{.type = EV_ABS, .code = ABS_X}].event()`. | — |
 | `typed`, `timed_typed` | Match what the user typed (`timed_typed` adds a time window). | `search_engine` |
 | `type_string` (`typer`) | Type text into the app via xkb how2type. | — |
@@ -148,7 +148,7 @@ Tags are constexpr sentinels passed as the last argument:
 | `keys_status` | Current state of every key (+ `led_status`, `led_toggle`). |
 | `mouse_status` / `mouse_history` | Current/previous mouse positions. |
 | `quantifier` / `mice_quantifier` | Threshold-step accumulation for movement. |
-| `device` (`device_is`, `only_device`, `ignore_device`, `ignore_origin`, `ignore_self`, `from_device`, `from_stdin`, `self_emitted`, `from_chained`) | Conditions on which device an event came from. |
+| `device` (`device_is`, `only_device`, `drop_device`, `drop_origin`, `drop_self`, `from_device`, `from_stdin`, `self_emitted`, `from_chained`) | Conditions on which device an event came from. |
 | `var_type` (`vars`) | Typed pipeline variables; read back via `context[name]`. |
 
 **Misc**: `record` (record events into a buffer for tests/inspection), `stopper`

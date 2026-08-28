@@ -122,7 +122,7 @@ export namespace fs8 {
     };
 
     /// Derive the device id for a device whose sysname is `sysname` (e.g.
-    /// "event9"). Use with `device_is`, `only_device`, `ignore_device`, ...
+    /// "event9"). Use with `device_is`, `only_device`, `drop_device`, ...
     [[nodiscard]] constexpr device_id hashed_device(std::string_view const sysname) noexcept {
         return static_cast<device_id>(ci_hash(sysname));
     }

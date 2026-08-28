@@ -138,6 +138,6 @@ TEST(Router, SingleRouteStartAndDispatch) {
 
     // A mouse button is outside the keyboard caps, so it is dropped by the router.
     single_route_pipeline.event(event_type{EV_KEY, BTN_LEFT, 1});
-    EXPECT_EQ(single_route_pipeline.mod<single_router_t>()(single_route_pipeline), context_action::ignore_event);
+    EXPECT_EQ(single_route_pipeline.mod<single_router_t>()(single_route_pipeline), context_action::drop_event);
     EXPECT_EQ(single_route_counter, 2);
 }

@@ -163,7 +163,7 @@ TEST(SchedulerApi, FiniteTickDeactivatesWhenDone) {
     std::this_thread::sleep_for(5ms);
     event_type event;
     auto const result = sched(event, next_event);
-    EXPECT_EQ(result, context_action::ignore_event);
+    EXPECT_EQ(result, context_action::drop_event);
     EXPECT_FALSE(sched.has_pending());
 
     sched.cancel_all();
@@ -257,7 +257,7 @@ TEST(SchedulerApi, CancelTickEmitsEventThenRemoves) {
 
     // Next call finds no ticks.
     auto const result2 = sched(event, next_event);
-    EXPECT_EQ(result2, context_action::ignore_event);
+    EXPECT_EQ(result2, context_action::drop_event);
     EXPECT_FALSE(sched.has_pending());
 
     sched.cancel_all();

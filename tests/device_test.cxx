@@ -131,7 +131,7 @@ TEST(DeviceTest, IgnoreOriginDropsSelf) {
         {.type = EV_KEY,      .code = KEY_A, .value = 1},
         {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     }]
-      | ignore_origin[device_id::self]
+      | drop_origin[device_id::self]
       | record;
     auto& col = pipeline.mod<basic_record>();
 
@@ -147,7 +147,7 @@ TEST(DeviceTest, IgnoreOriginKeepsOthers) {
         {.type = EV_KEY,      .code = KEY_A, .value = 1},
         {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     }]
-      | ignore_origin[device_id::stdin]
+      | drop_origin[device_id::stdin]
       | record;
     auto& col = pipeline.mod<basic_record>();
 
@@ -210,8 +210,8 @@ TEST(DeviceTest, OnlyDeviceAndIgnoreDevice) {
     drop();
     EXPECT_TRUE(cold.empty());
 
-    // ignore_device[device_id::self] drops them.
-    auto  drop2 = context | emit_all[{syn_user_event}] | ignore_device[device_id::self] | record;
+    // drop_device[device_id::self] drops them.
+    auto  drop2 = context | emit_all[{syn_user_event}] | drop_device[device_id::self] | record;
     auto& cold2 = drop2.mod<basic_record>();
     drop2();
     EXPECT_TRUE(cold2.empty());
@@ -297,7 +297,7 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
     int const expected_fd = opened.native_handle();
     im.add(std::move(opened));
 
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
     inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
@@ -320,7 +320,7 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
     uin.close();
 }
 
-TEST(DeviceTest, IgnoreOwnedDropsOwnedDeviceEvents) {
+TEST(DeviceTest, DropOwnedDropsOwnedDeviceEvents) {
     if (!input_available()) {
         GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
     }
@@ -334,7 +334,7 @@ TEST(DeviceTest, IgnoreOwnedDropsOwnedDeviceEvents) {
         GTEST_SKIP() << "Virtual keyboard did not become openable.";
     }
 
-    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | ignore_owned | record;
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | drop_owned | record;
 
     auto& io  = pipeline.mod<basic_io_manager>();
     auto& im  = pipeline.mod<basic_input_manager>();
@@ -353,37 +353,37 @@ TEST(DeviceTest, IgnoreOwnedDropsOwnedDeviceEvents) {
     }
     im.add(std::move(opened));
 
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
     inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
-    // `ignore_owned` drops the event (it came back from our own device).
-    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::ignore_event);
+    // `drop_owned` drops the event (it came back from our own device).
+    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::drop_event);
 
     EXPECT_TRUE(col.empty());
 
     uin.close();
 }
 
-TEST(DeviceTest, IgnoreEmittedDropsSynthesizedEvents) {
+TEST(DeviceTest, DropEmittedDropsSynthesizedEvents) {
     auto pipeline =
       context
       | emit_all[{
         {.type = EV_KEY,      .code = KEY_A, .value = 1},
         {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     }]
-      | ignore_emitted
+      | drop_emitted
       | record;
     auto& col = pipeline.mod<basic_record>();
 
     pipeline();
 
-    // `ignore_emitted` drops synthesized events.
+    // `drop_emitted` drops synthesized events.
     EXPECT_TRUE(col.empty());
 }
 
-TEST(DeviceTest, IgnoreEmittedLetsOwnedThrough) {
+TEST(DeviceTest, DropEmittedLetsOwnedThrough) {
     if (!input_available()) {
         GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
     }
@@ -397,7 +397,7 @@ TEST(DeviceTest, IgnoreEmittedLetsOwnedThrough) {
         GTEST_SKIP() << "Virtual keyboard did not become openable.";
     }
 
-    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | ignore_emitted | record;
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | drop_emitted | record;
 
     auto& io  = pipeline.mod<basic_io_manager>();
     auto& im  = pipeline.mod<basic_input_manager>();
@@ -416,12 +416,12 @@ TEST(DeviceTest, IgnoreEmittedLetsOwnedThrough) {
     }
     im.add(std::move(opened));
 
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
     inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
-    // `ignore_emitted` only drops device_id::self, not owned device events.
+    // `drop_emitted` only drops device_id::self, not owned device events.
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
 
     ASSERT_FALSE(col.empty());
@@ -470,7 +470,7 @@ TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
     int const expected_fd = opened.native_handle();
     im.add(std::move(opened));
 
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
     inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
@@ -542,7 +542,7 @@ TEST(DeviceTest, ChainedDeviceIsChained) {
     }
     im.add(std::move(opened));
 
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
     inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
@@ -561,7 +561,7 @@ TEST(DeviceTest, ChainedDeviceIsChained) {
     uin.close();
 }
 
-TEST(DeviceTest, IgnoreSelfDropsOwnedDeviceEvents) {
+TEST(DeviceTest, DropSelfDropsOwnedDeviceEvents) {
     if (!input_available()) {
         GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
     }
@@ -575,7 +575,7 @@ TEST(DeviceTest, IgnoreSelfDropsOwnedDeviceEvents) {
         GTEST_SKIP() << "Virtual keyboard did not become openable.";
     }
 
-    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | ignore_self | record;
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | drop_self | record;
 
     auto& io  = pipeline.mod<basic_io_manager>();
     auto& im  = pipeline.mod<basic_input_manager>();
@@ -596,15 +596,15 @@ TEST(DeviceTest, IgnoreSelfDropsOwnedDeviceEvents) {
     }
     im.add(std::move(opened));
 
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
     inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
-    // `ignore_self` drops the last event (it came back from our own device).
-    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::ignore_event);
+    // `drop_self` drops the last event (it came back from our own device).
+    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::drop_event);
 
-    // All events came back from our own device, so `ignore_self` dropped them.
+    // All events came back from our own device, so `drop_self` dropped them.
     EXPECT_TRUE(col.empty());
 
     uin.close();

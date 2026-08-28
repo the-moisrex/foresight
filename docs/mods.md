@@ -32,7 +32,7 @@ mod is for and when you'd reach for it.
 | `mouse_to_scroll` | Convert mouse movement into scroll-wheel events. Pure transformer with no condition of its own — gate it with `hold_mod`, e.g. `hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]`. Requires `mice_quantifier`. |
 | `smooth` | Smooth mouse movement / ease the output: `lerp[max_steps, easing]`, `low_pass_filter[alpha]`, `kalman_filter[q, r]`. Requires `mouse_history` placed before it in the pipeline. |
 | `momentum` | Keep mouse momentum going after you stop moving. |
-| `ignore` | Family of "ignore" filters: big jumps, starting moves, fast repeats, adjacent repeats, and full event ignoring. |
+| `drop` | Family of "drop" filters: big jumps, starting moves, fast repeats, adjacent repeats, and full event dropping. |
 | `debounce` | Drop events that arrive too soon after a previous event of the same code (faulty mouse double-clicks, bouncing keys, noisy axes/scroll). `click` mode (default) swallows a fast second press *and its release*; `event` mode swallows any event within the window. Works on any `event_code`, e.g. `debounce[BTN_LEFT, BTN_RIGHT]`, `debounce[{.type = EV_ABS, .code = ABS_X}].event()`. |
 | `typed` | Track what the user is typing/editing. |
 | `timed_typed` | Like `typed`, but only matches if the pattern is typed within a time window (`timed_typed["test", 2s]`); pauses longer than the window discard the partial match. |
@@ -66,7 +66,7 @@ mod is for and when you'd reach for it.
 | `keys_status` | Tracks the current state of every key. |
 | `mouse_status` | Tracks the current mouse buttons. |
 | `quantifier` | Quantifies/measures events (e.g. mouse movement thresholds). |
-| `device` | Conditions/filters based on which device an event came from: `from_device`, `from_stdin`, `self_emitted`, `from_chained`, `device_is`, `only_device`, `ignore_device`, `ignore_origin`, `ignore_self` (drops both emitted + owned), `ignore_owned` (owned uinput devices only), `ignore_emitted` (synthesized events only). |
+| `device` | Conditions/filters based on which device an event came from: `from_device`, `from_stdin`, `self_emitted`, `from_chained`, `device_is`, `only_device`, `drop_device`, `drop_origin`, `drop_self` (drops both emitted + owned), `drop_owned` (owned uinput devices only), `drop_emitted` (synthesized events only). |
 | `vars` | Pipeline variables — share values between mods (`context[name]` lookup). |
 | `emitter` / `scheduled_emitter` | Synthesize events (`emit[press(...)]`) or schedule them to fire. |
 
@@ -77,7 +77,7 @@ Mods communicate their intent by returning a `context_action`:
 | Action         | Meaning                                            |
 |----------------|----------------------------------------------------|
 | `next`         | Pass the event to the next mod.                    |
-| `ignore_event` | Drop this event.                                   |
+| `drop_event` | Drop this event.                                   |
 | `idle`         | Restart / enter watch mode.                        |
 | `exit`         | Exit the pipeline.                                 |
 

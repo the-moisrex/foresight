@@ -186,7 +186,7 @@ int main(int const argc, char const* const* argv) try {
       | intercept[mouse | required | grab | matches_limit(1)]
       | input_manager
       | basic_debounce<max_codes>{}
-      | ignore_adjacent_syns
+      | drop_adjacent_syns
       | uinput;
 
     pipeline.mod(basic_debounce<max_codes>{}).set_codes(codes);

@@ -1,7 +1,7 @@
 add_subdirectory(auto-typer)
 add_subdirectory(debounce)
 add_subdirectory(flat-accelerate)
-add_subdirectory(ignore-big-jumps)
+add_subdirectory(drop-big-jumps)
 add_subdirectory(long-press)
 add_subdirectory(pen2mice)
 add_subdirectory(x2y)

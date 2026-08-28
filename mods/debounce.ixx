@@ -158,13 +158,13 @@ export namespace fs8 {
                 switch (event.value()) {
                     case 0: // release
                         if (std::exchange(swallow_release[found], false)) [[unlikely]] {
-                            return ignore_event;
+                            return drop_event;
                         }
                         break;
                     case 1: { // press
                         if (has_event[found] && now - last_event[found] < time_threshold) [[unlikely]] {
                             swallow_release[found] = true;
-                            return ignore_event;
+                            return drop_event;
                         }
                         has_event[found]  = true;
                         last_event[found] = now;
@@ -174,7 +174,7 @@ export namespace fs8 {
                 }
             } else {
                 if (has_event[found] && now - last_event[found] < time_threshold) [[unlikely]] {
-                    return ignore_event;
+                    return drop_event;
                 }
                 has_event[found]  = true;
                 last_event[found] = now;

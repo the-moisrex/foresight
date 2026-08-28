@@ -1254,8 +1254,8 @@ fs8::context_action fs8::basic_from_live_view<Format>::operator()(event_type& ev
         if (n > 0) {
             continue;
         }
-        // n < 0: read error — treat as ignore.
-        return ignore_event;
+        // n < 0: read error — treat as drop.
+        return drop_event;
     }
 }
 

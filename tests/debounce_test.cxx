@@ -78,7 +78,7 @@ TEST(DebounceTest, RealDoubleClickPasses) {
           timed_ev(EV_KEY, BTN_LEFT, 1, 100ms),
           timed_ev(EV_KEY, BTN_LEFT, 0, 150ms),
         }}
-      | ignore_fast_left_double_clicks
+      | drop_fast_left_double_clicks
       | record;
 
     pipeline();
@@ -104,7 +104,7 @@ TEST(DebounceTest, UntouchedButtonsPassThrough) {
           timed_ev(EV_KEY, BTN_RIGHT, 1, 12ms),
           timed_ev(EV_KEY, BTN_RIGHT, 0, 14ms),
         }}
-      | ignore_fast_left_double_clicks
+      | drop_fast_left_double_clicks
       | record;
 
     pipeline();
@@ -319,9 +319,9 @@ TEST(DebounceTest, RuntimeCodesAndMode) {
 TEST(DebounceTest, LegacyAliasStillDebounces) {
     using namespace fs8; // NOLINT(*-build-using-namespace}
 
-    static_assert(basic_ignore_fast_double_clicks<1>::default_time_threshold == basic_debounce<1>::default_time_threshold);
+    static_assert(basic_drop_fast_double_clicks<1>::default_time_threshold == basic_debounce<1>::default_time_threshold);
 
-    auto pipeline = context | timed_sequence{spurious_left_click} | ignore_fast_double_clicks[BTN_LEFT] | record;
+    auto pipeline = context | timed_sequence{spurious_left_click} | drop_fast_double_clicks[BTN_LEFT] | record;
 
     pipeline();
 

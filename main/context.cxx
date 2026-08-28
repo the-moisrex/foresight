@@ -9,7 +9,7 @@ module fs8.context;
     using enum context_action;
     switch (action) {
         case next: return {"Next"};
-        case ignore_event: return {"Ignore Event"};
+        case drop_event: return {"Drop Event"};
         case idle: return {"Idle"};
         case exit: return {"Exit"};
         default: return {"<unknown>"};

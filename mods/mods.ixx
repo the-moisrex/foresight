@@ -14,7 +14,7 @@ export import :benchmark;
 export import :debounce;
 export import :device;
 export import :emitter;
-export import :ignore;
+export import :drop;
 export import :inout;
 export import :live_view;
 export import :input_manager;

@@ -53,7 +53,7 @@ context_action fs8::basic_from_input::operator()(event_type& event, load_event_t
         return exit;
     }
     if (res != sizeof(input_event)) [[unlikely]] {
-        return ignore_event;
+        return drop_event;
     }
     event.source(device_id::stdin);
     return next;

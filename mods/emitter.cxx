@@ -9,7 +9,7 @@ using fs8::event_type;
 fs8::context_action fs8::basic_scheduled_emitter::operator()(event_type& event, next_event_tag) noexcept {
     using enum context_action;
     if (events.empty()) {
-        return ignore_event;
+        return drop_event;
     }
 
     event = events.front();

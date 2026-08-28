@@ -76,7 +76,7 @@ bool fs8::basic_multi_click::operator()(event_type const& event) noexcept {
     }
     auto const dur = now - std::exchange(last_click, now);
     if (dur <= std::chrono::milliseconds(1)) {
-        return false; // ignore less than 1 millisecond clicks
+        return false; // drop less than 1 millisecond clicks
     }
     if (dur > duration_threshold) {
         cur_count = 1;

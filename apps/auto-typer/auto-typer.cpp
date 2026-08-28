@@ -25,11 +25,11 @@ int main(int const argc, char const* const* argv) try {
       | pipeline_singleton
       | io_manager
       | input_manager
-      | ignore_owned
+      | drop_owned
       | intercept[keyboard | required | matches_limit(10)]
       | search_engine
       | on[typed["@test"], type_string("nice")]
-      | ignore_adjacent_syns
+      | drop_adjacent_syns
       | to_evtest;
 
     pipeline.mod(intercept).add(parsed | required);

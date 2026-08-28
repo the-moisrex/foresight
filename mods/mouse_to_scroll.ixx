@@ -93,7 +93,7 @@ export namespace fs8 {
                 case REL_Y: std::ignore = ctx.fork_emit(EV_REL, REL_WHEEL_HI_RES, hval); break;
                 default: break;
             }
-            return ignore_event;
+            return drop_event;
         }
     } mouse_to_scroll;
 

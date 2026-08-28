@@ -171,13 +171,13 @@ export namespace fs8 {
                 if (n > 0) {
                     continue;
                 }
-                // n < 0: read error — treat as ignore.
-                return ignore_event;
+                // n < 0: read error — treat as drop.
+                return drop_event;
             }
         } catch (...) {
-            // Allocation failure in string operations: treat as ignore.
+            // Allocation failure in string operations: treat as drop.
             log("Unknown exception");
-            return context_action::ignore_event;
+            return context_action::drop_event;
         }
     };
 

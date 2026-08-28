@@ -6,7 +6,7 @@ module;
 #include <cstddef>
 #include <linux/input-event-codes.h>
 #include <utility>
-export module fs8.mods:ignore;
+export module fs8.mods:drop;
 import fs8.context;
 import fs8.devices.capabilities;
 import fs8.traits;
@@ -16,19 +16,19 @@ import :input_manager;
 
 export namespace fs8 {
 
-    constexpr struct [[nodiscard]] basic_ignore_abs {
+    constexpr struct [[nodiscard]] basic_drop_abs {
         context_action operator()(event_type const& event) const noexcept;
-    } ignore_abs;
+    } drop_abs;
 
-    constexpr struct [[nodiscard]] basic_ignore_tablet {
+    constexpr struct [[nodiscard]] basic_drop_tablet {
         context_action operator()(event_type const& event) const noexcept;
-    } ignore_tablet;
+    } drop_tablet;
 
     /**
      * Ignore Big Mouse Jumps
      * Any jumps bigger than specified threshold is ignored
      */
-    constexpr struct [[nodiscard]] basic_ignore_big_jumps : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_drop_big_jumps : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
         using value_type = event_type::value_type;
@@ -38,19 +38,19 @@ export namespace fs8 {
       private:
         value_type threshold = default_threshold; // pixels to resistance to move
       public:
-        constexpr explicit basic_ignore_big_jumps(value_type const inp_threshold) noexcept : threshold{inp_threshold} {}
+        constexpr explicit basic_drop_big_jumps(value_type const inp_threshold) noexcept : threshold{inp_threshold} {}
 
-        consteval basic_ignore_big_jumps operator[](value_type const inp_threshold) const noexcept {
-            return basic_ignore_big_jumps{inp_threshold};
+        consteval basic_drop_big_jumps operator[](value_type const inp_threshold) const noexcept {
+            return basic_drop_big_jumps{inp_threshold};
         }
 
         context_action operator()(event_type const& event) const noexcept;
-    } ignore_big_jumps;
+    } drop_big_jumps;
 
     /**
      * Ignore initial mouse moves
      */
-    constexpr struct [[nodiscard]] basic_ignore_init_moves : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_drop_init_moves : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
         using value_type = event_type::value_type;
@@ -68,32 +68,32 @@ export namespace fs8 {
         msec_type  last_moved{0};
 
       public:
-        constexpr explicit basic_ignore_init_moves(value_type const inp_threshold,
-                                                   msec_type const  inp_time_threshold = default_time_threshold) noexcept
+        constexpr explicit basic_drop_init_moves(value_type const inp_threshold,
+                                                 msec_type const  inp_time_threshold = default_time_threshold) noexcept
           : threshold{inp_threshold},
             time_threshold{inp_time_threshold} {}
 
-        consteval basic_ignore_init_moves operator[](value_type const inp_threshold,
-                                                     msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
-            return basic_ignore_init_moves{inp_threshold, inp_time_threshold};
+        consteval basic_drop_init_moves operator[](value_type const inp_threshold,
+                                                   msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
+            return basic_drop_init_moves{inp_threshold, inp_time_threshold};
         }
 
         context_action operator()(event_type const& event) noexcept;
-    } ignore_init_moves;
+    } drop_init_moves;
 
-    constexpr struct [[nodiscard]] basic_ignore_mouse_moves {
+    constexpr struct [[nodiscard]] basic_drop_mouse_moves {
         context_action operator()(event_type const& event) const noexcept;
-    } ignore_mouse_moves;
+    } drop_mouse_moves;
 
-    constexpr struct [[nodiscard]] basic_ignore_zero_mouse_moves {
+    constexpr struct [[nodiscard]] basic_drop_zero_mouse_moves {
         context_action operator()(event_type const& event) const noexcept;
-    } ignore_zero_mouse_moves;
+    } drop_zero_mouse_moves;
 
-    constexpr struct [[nodiscard]] basic_ignore_mouse_clicks {
+    constexpr struct [[nodiscard]] basic_drop_mouse_clicks {
         context_action operator()(event_type const& event) const noexcept;
-    } ignore_mouse_clicks;
+    } drop_mouse_clicks;
 
-    constexpr struct [[nodiscard]] basic_ignore_fast_repeats : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_drop_fast_repeats : consteval_copyable {
         using consteval_copyable::consteval_copyable;
         using msec_type = std::chrono::microseconds;
 
@@ -105,101 +105,101 @@ export namespace fs8 {
         msec_type  last_emitted{0};
 
       public:
-        constexpr explicit basic_ignore_fast_repeats(event_code const inp_code,
-                                                     msec_type const  inp_time_threshold = default_time_threshold) noexcept
+        constexpr explicit basic_drop_fast_repeats(event_code const inp_code,
+                                                   msec_type const  inp_time_threshold = default_time_threshold) noexcept
           : code{.type = inp_code.type, .code = inp_code.code, .value = 1},
             time_threshold{inp_time_threshold} {}
 
-        consteval basic_ignore_fast_repeats operator[](event_code const inp_code,
-                                                       msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
-            return basic_ignore_fast_repeats{inp_code, inp_time_threshold};
+        consteval basic_drop_fast_repeats operator[](event_code const inp_code,
+                                                     msec_type const  inp_time_threshold = default_time_threshold) const noexcept {
+            return basic_drop_fast_repeats{inp_code, inp_time_threshold};
         }
 
         context_action operator()(event_type const& event) noexcept;
-    } ignore_fast_repeats;
+    } drop_fast_repeats;
 
     /// Deprecated aliases of the general `fs8.mods:debounce` mod.
     ///
-    /// `basic_ignore_fast_double_clicks` used to be a mouse-click-only debouncer;
+    /// `basic_drop_fast_double_clicks` used to be a mouse-click-only debouncer;
     /// it is now a thin alias of `basic_debounce` in `click` mode. Prefer the
     /// `debounce` mod going forward.
     template <std::size_t N>
-    using basic_ignore_fast_double_clicks = basic_debounce<N>;
+    using basic_drop_fast_double_clicks = basic_debounce<N>;
 
-    constexpr basic_debounce<0> ignore_fast_double_clicks;
+    constexpr basic_debounce<0> drop_fast_double_clicks;
 
-    constexpr basic_debounce<1> ignore_fast_left_double_clicks{
+    constexpr basic_debounce<1> drop_fast_left_double_clicks{
       {.type = EV_KEY, .code = BTN_LEFT},
     };
 
-    constexpr basic_debounce<1> ignore_fast_right_double_clicks{
+    constexpr basic_debounce<1> drop_fast_right_double_clicks{
       {.type = EV_KEY, .code = BTN_RIGHT},
     };
 
-    constexpr basic_debounce<1> ignore_fast_middle_double_clicks{
+    constexpr basic_debounce<1> drop_fast_middle_double_clicks{
       {.type = EV_KEY, .code = BTN_MIDDLE},
     };
 
     template <std::size_t N>
-    struct [[nodiscard]] basic_ignore_keys : consteval_copyable {
+    struct [[nodiscard]] basic_drop_keys : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
         std::array<event_code, N> codes{};
 
       public:
-        constexpr explicit basic_ignore_keys(std::array<event_code, N> const inp_codes) noexcept : codes{inp_codes} {}
+        constexpr explicit basic_drop_keys(std::array<event_code, N> const inp_codes) noexcept : codes{inp_codes} {}
 
         template <std::size_t NN>
-        consteval basic_ignore_keys operator[](std::array<event_code, NN> const inp_codes) const noexcept {
-            return basic_ignore_keys<NN>{inp_codes};
+        consteval basic_drop_keys operator[](std::array<event_code, NN> const inp_codes) const noexcept {
+            return basic_drop_keys<NN>{inp_codes};
         }
 
         template <std::size_t NN>
         consteval auto operator[](event_code (&&inp_codes)[NN]) const noexcept {
-            return basic_ignore_keys<NN>{std::to_array(std::move(inp_codes))};
+            return basic_drop_keys<NN>{std::to_array(std::move(inp_codes))};
         }
 
         template <typename... T>
             requires((std::convertible_to<T, event_type::code_type> && ...))
         consteval auto operator[](T... inp_codes) const noexcept {
-            return basic_ignore_keys<sizeof...(T)>{
+            return basic_drop_keys<sizeof...(T)>{
               std::array<event_code, sizeof...(T)>{event_code{.type = EV_KEY, .code = static_cast<event_type::code_type>(inp_codes)}...}};
         }
 
         context_action operator()(event_type const& event) const noexcept {
             for (event_code const code : codes) {
                 if (event.is(code)) {
-                    return context_action::ignore_event;
+                    return context_action::drop_event;
                 }
             }
             return context_action::next;
         }
     };
 
-    constexpr basic_ignore_keys<0> ignore_keys;
+    constexpr basic_drop_keys<0> drop_keys;
 
     /// Ignore the auto-repeat events (EV_KEY with value 2) of the given keys,
     /// while letting their press/release events pass through.
     template <std::size_t N>
-    struct [[nodiscard]] basic_ignore_repeats_of : consteval_copyable {
+    struct [[nodiscard]] basic_drop_repeats_of : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
         std::array<event_type::code_type, N> codes{};
 
       public:
-        constexpr explicit basic_ignore_repeats_of(std::array<event_type::code_type, N> const inp_codes) noexcept : codes{inp_codes} {}
+        constexpr explicit basic_drop_repeats_of(std::array<event_type::code_type, N> const inp_codes) noexcept : codes{inp_codes} {}
 
         template <std::size_t NN>
-        consteval basic_ignore_repeats_of operator[](std::array<event_type::code_type, NN> const inp_codes) const noexcept {
-            return basic_ignore_repeats_of<NN>{inp_codes};
+        consteval basic_drop_repeats_of operator[](std::array<event_type::code_type, NN> const inp_codes) const noexcept {
+            return basic_drop_repeats_of<NN>{inp_codes};
         }
 
         template <typename... T>
             requires((std::convertible_to<T, event_type::code_type> && ...))
         consteval auto operator[](T... inp_codes) const noexcept {
-            return basic_ignore_repeats_of<sizeof...(T)>{
+            return basic_drop_repeats_of<sizeof...(T)>{
               std::array<event_type::code_type, sizeof...(T)>{static_cast<event_type::code_type>(inp_codes)...}};
         }
 
@@ -210,32 +210,32 @@ export namespace fs8 {
             }
             for (event_type::code_type const code : codes) {
                 if (event.code() == code) {
-                    return ignore_event;
+                    return drop_event;
                 }
             }
             return next;
         }
     };
 
-    constexpr basic_ignore_repeats_of<0> ignore_repeats_of;
+    constexpr basic_drop_repeats_of<0> drop_repeats_of;
 
-    constexpr struct [[nodiscard]] basic_ignore_caps : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_drop_caps : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
         dev_caps_view caps{};
 
       public:
-        constexpr explicit basic_ignore_caps(dev_caps_view const inp_caps) noexcept : caps{inp_caps} {}
+        constexpr explicit basic_drop_caps(dev_caps_view const inp_caps) noexcept : caps{inp_caps} {}
 
         consteval auto operator[](dev_caps_view const inp_caps) const noexcept {
-            return basic_ignore_caps{inp_caps};
+            return basic_drop_caps{inp_caps};
         }
 
         context_action operator()(event_type const& event) const noexcept;
-    } ignore_caps;
+    } drop_caps;
 
-    constexpr struct [[nodiscard]] basic_ignore_start_moves : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_drop_start_moves : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
@@ -243,17 +243,17 @@ export namespace fs8 {
         std::uint32_t emitted_count{0};
 
       public:
-        constexpr explicit basic_ignore_start_moves(std::uint32_t const inp_time_threshold) noexcept : emit_threshold{inp_time_threshold} {}
+        constexpr explicit basic_drop_start_moves(std::uint32_t const inp_time_threshold) noexcept : emit_threshold{inp_time_threshold} {}
 
-        consteval basic_ignore_start_moves operator[](std::uint32_t const inp_time_threshold) const noexcept {
-            return basic_ignore_start_moves{inp_time_threshold};
+        consteval basic_drop_start_moves operator[](std::uint32_t const inp_time_threshold) const noexcept {
+            return basic_drop_start_moves{inp_time_threshold};
         }
 
         void           operator()(toggle_on_tag) noexcept;
         context_action operator()(event_type const& event) noexcept;
-    } ignore_start_moves;
+    } drop_start_moves;
 
-    constexpr struct [[nodiscard]] basic_ignore_adjacent_repeats : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_drop_adjacent_repeats : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
@@ -261,16 +261,16 @@ export namespace fs8 {
         bool       is_found = false;
 
       public:
-        constexpr explicit basic_ignore_adjacent_repeats(event_code const code) noexcept : asked_event{code} {}
+        constexpr explicit basic_drop_adjacent_repeats(event_code const code) noexcept : asked_event{code} {}
 
-        constexpr explicit basic_ignore_adjacent_repeats(event_type const code) noexcept : asked_event{static_cast<event_code>(code)} {}
+        constexpr explicit basic_drop_adjacent_repeats(event_type const code) noexcept : asked_event{static_cast<event_code>(code)} {}
 
-        consteval basic_ignore_adjacent_repeats operator[](event_code const code) const noexcept {
-            return basic_ignore_adjacent_repeats{code};
+        consteval basic_drop_adjacent_repeats operator[](event_code const code) const noexcept {
+            return basic_drop_adjacent_repeats{code};
         }
 
         context_action operator()(event_type const& event) noexcept;
-    } ignore_adjacent_repeats;
+    } drop_adjacent_repeats;
 
     constexpr struct [[nodiscard]] basic_exit_pipeline {
         constexpr context_action operator()(event_type const&) const noexcept {
@@ -279,28 +279,28 @@ export namespace fs8 {
         }
     } exit_pipeline;
 
-    constexpr struct [[nodiscard]] basic_ignore_event {
+    constexpr struct [[nodiscard]] basic_drop_event {
         constexpr context_action operator()(event_type const&) const noexcept {
-            return context_action::ignore_event;
+            return context_action::drop_event;
         }
-    } ignore_event;
+    } drop_event;
 
-    constexpr struct [[nodiscard]] basic_ignore_msc_scan {
+    constexpr struct [[nodiscard]] basic_drop_msc_scan {
         constexpr context_action operator()(event_type const& event) const noexcept;
-    } ignore_msc_scan;
+    } drop_msc_scan;
 
-    constexpr context_action basic_ignore_msc_scan::operator()(event_type const& event) const noexcept {
+    constexpr context_action basic_drop_msc_scan::operator()(event_type const& event) const noexcept {
         using enum context_action;
-        return event.is(EV_MSC, MSC_SCAN) ? ignore_event : next;
+        return event.is(EV_MSC, MSC_SCAN) ? drop_event : next;
     }
 
-    constexpr basic_ignore_adjacent_repeats ignore_adjacent_syns{syn()};
+    constexpr basic_drop_adjacent_repeats drop_adjacent_syns{syn()};
 
-    constexpr basic_ignore_fast_repeats ignore_fast_left_clicks{
+    constexpr basic_drop_fast_repeats drop_fast_left_clicks{
       {.type = EV_KEY, .code = BTN_LEFT},
     };
 
-    constexpr basic_ignore_fast_repeats ignore_fast_right_clicks{
+    constexpr basic_drop_fast_repeats drop_fast_right_clicks{
       {.type = EV_KEY, .code = BTN_RIGHT},
     };
 
@@ -344,7 +344,7 @@ export namespace fs8 {
 
     /// Ignore late SYN_REPORTs — empty sync packets that arrive after a long
     /// idle gap with no data events in between.
-    constexpr struct [[nodiscard]] basic_ignore_late_syn : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_drop_late_syn : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
         using msec_type = std::chrono::microseconds;
@@ -359,21 +359,20 @@ export namespace fs8 {
         msec_type last_syn_time{0};
 
       public:
-        constexpr explicit basic_ignore_late_syn(msec_type const inp_threshold = default_threshold) noexcept
-          : threshold{inp_threshold} {}
+        constexpr explicit basic_drop_late_syn(msec_type const inp_threshold = default_threshold) noexcept : threshold{inp_threshold} {}
 
-        consteval basic_ignore_late_syn operator[](msec_type const inp_threshold) const noexcept {
-            return basic_ignore_late_syn{inp_threshold};
+        consteval basic_drop_late_syn operator[](msec_type const inp_threshold) const noexcept {
+            return basic_drop_late_syn{inp_threshold};
         }
 
         context_action operator()(event_type const& event) noexcept;
-    } ignore_late_syn;
+    } drop_late_syn;
 
     /// Ignore pen ABS values that fall outside the device-reported bounds.
     ///
     /// Pen bounds are seeded from `input_manager` on `start_tag`.  Only
     /// `ABS_X` and `ABS_Y` events are checked.
-    constexpr struct [[nodiscard]] basic_ignore_pen_out_of_bounds : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_drop_pen_out_of_bounds : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
         using value_type = event_type::value_type;
@@ -386,7 +385,8 @@ export namespace fs8 {
         value_type pen_y_max      = 0;
 
       public:
-        constexpr void seed_pen_bounds(value_type const x_min, value_type const x_max, value_type const y_min, value_type const y_max) noexcept {
+        constexpr void
+        seed_pen_bounds(value_type const x_min, value_type const x_max, value_type const y_min, value_type const y_max) noexcept {
             pen_x_min      = x_min;
             pen_x_max      = x_max;
             pen_y_min      = y_min;
@@ -409,7 +409,7 @@ export namespace fs8 {
         }
 
         context_action operator()(event_type const& event) const noexcept;
-    } ignore_pen_out_of_bounds;
+    } drop_pen_out_of_bounds;
 
     /// Ignore data events when the SYN_REPORT framing is broken.
     ///
@@ -417,7 +417,7 @@ export namespace fs8 {
     ///  - `missing_syn_time`: a data event arrives long after the last SYN
     ///  - `missing_syn_count`: too many data events without a SYN
     ///  - `missing_syn_travel`: cumulative mouse travel exceeds threshold without a SYN
-    constexpr struct [[nodiscard]] basic_ignore_missing_syns : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_drop_missing_syns : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
         using value_type = event_type::value_type;
@@ -433,33 +433,33 @@ export namespace fs8 {
         value_type travel_since_syn      = 0;
 
       public:
-        constexpr explicit basic_ignore_missing_syns(
-          msec_type const  inp_time_threshold  = msec_type{100'000},
-          value_type const inp_count_threshold = 20,
+        constexpr explicit basic_drop_missing_syns(
+          msec_type const  inp_time_threshold   = msec_type{100'000},
+          value_type const inp_count_threshold  = 20,
           value_type const inp_travel_threshold = 500) noexcept
           : time_threshold{inp_time_threshold},
             count_threshold{inp_count_threshold},
             travel_threshold{inp_travel_threshold} {}
 
-        consteval basic_ignore_missing_syns time(msec_type const d) const noexcept {
+        consteval basic_drop_missing_syns time(msec_type const d) const noexcept {
             auto copy           = *this;
             copy.time_threshold = d;
             return copy;
         }
 
-        consteval basic_ignore_missing_syns count(value_type const n) const noexcept {
+        consteval basic_drop_missing_syns count(value_type const n) const noexcept {
             auto copy            = *this;
             copy.count_threshold = n;
             return copy;
         }
 
-        consteval basic_ignore_missing_syns travel(value_type const d) const noexcept {
+        consteval basic_drop_missing_syns travel(value_type const d) const noexcept {
             auto copy             = *this;
             copy.travel_threshold = d;
             return copy;
         }
 
         context_action operator()(event_type const& event) noexcept;
-    } ignore_missing_syns;
+    } drop_missing_syns;
 
 } // namespace fs8

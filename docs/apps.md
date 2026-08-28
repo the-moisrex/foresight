@@ -39,9 +39,9 @@ scroll wheels. The window defaults to 30ms and is adjustable via `-t | --time`
 Accelerates the mouse through a `foresight intercept | flat-accelerate | foresight redirect`
 pipeline.
 
-## ignore-big-jumps
+## drop-big-jumps
 
-Ignores the big jumps of a faulty mouse.
+Drops the big jumps of a faulty mouse.
 
 ## long-press
 

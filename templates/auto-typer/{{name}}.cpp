@@ -31,7 +31,7 @@ int main(int const argc, char const* const* argv) try {
       | input_manager
       | search_engine
       | on[typed["@test"], type_string("nice")]
-      | ignore_adjacent_syns
+      | drop_adjacent_syns
       | uinput;
 
     pipeline.mod(intercept).add(parsed | required);

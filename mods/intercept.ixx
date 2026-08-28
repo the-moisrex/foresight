@@ -61,7 +61,7 @@ export namespace fs8 {
         /// io_manager handler: drain a readable device fd into the pending queue.
         context_action operator()(io_fd& fd) noexcept;
 
-        /// next_event provider: reconcile watches, pop one event, else ignore_event.
+        /// next_event provider: reconcile watches, pop one event, else drop_event.
         template <Context ContextT>
         context_action operator()(ContextT& ctx, next_event_tag) noexcept {
             using enum context_action;
@@ -69,7 +69,7 @@ export namespace fs8 {
                 ctx.event(*ev);
                 return next;
             }
-            return ignore_event;
+            return drop_event;
         }
 
       private:

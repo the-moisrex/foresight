@@ -7,29 +7,29 @@ module;
 #include <utility>
 module fs8.mods;
 
+using fs8::basic_drop_abs;
+using fs8::basic_drop_big_jumps;
+using fs8::basic_drop_fast_repeats;
+using fs8::basic_drop_init_moves;
+using fs8::basic_drop_late_syn;
+using fs8::basic_drop_missing_syns;
+using fs8::basic_drop_pen_out_of_bounds;
 using fs8::basic_enforce_key_state;
-using fs8::basic_ignore_abs;
-using fs8::basic_ignore_big_jumps;
-using fs8::basic_ignore_fast_repeats;
-using fs8::basic_ignore_init_moves;
-using fs8::basic_ignore_late_syn;
-using fs8::basic_ignore_missing_syns;
-using fs8::basic_ignore_pen_out_of_bounds;
 using fs8::context_action;
 using fs8::event_type;
 
-context_action basic_ignore_abs::operator()(event_type const& event) const noexcept {
+context_action basic_drop_abs::operator()(event_type const& event) const noexcept {
     using enum context_action;
-    return EV_ABS == event.type() ? ignore_event : next;
+    return EV_ABS == event.type() ? drop_event : next;
 }
 
-context_action fs8::basic_ignore_tablet::operator()(event_type const& event) const noexcept {
+context_action fs8::basic_drop_tablet::operator()(event_type const& event) const noexcept {
     using enum context_action;
     auto const type = event.type();
     auto const code = event.code();
 
     if (EV_ABS == type) {
-        return ignore_event;
+        return drop_event;
     }
     if (EV_KEY == type) {
         switch (code) {
@@ -40,22 +40,22 @@ context_action fs8::basic_ignore_tablet::operator()(event_type const& event) con
             case BTN_TOOL_AIRBRUSH:
             case BTN_TOOL_FINGER:
             case BTN_TOOL_MOUSE:
-            case BTN_TOOL_LENS: return ignore_event;
+            case BTN_TOOL_LENS: return drop_event;
             default: break;
         }
     }
     return next;
 }
 
-context_action basic_ignore_big_jumps::operator()(event_type const& event) const noexcept {
+context_action basic_drop_big_jumps::operator()(event_type const& event) const noexcept {
     using enum context_action;
     if (is_mouse_movement(event) && std::abs(event.value()) > threshold) [[unlikely]] {
-        return ignore_event;
+        return drop_event;
     }
     return next;
 }
 
-context_action basic_ignore_init_moves::operator()(event_type const& event) noexcept {
+context_action basic_drop_init_moves::operator()(event_type const& event) noexcept {
     using enum context_action;
     if (event.type() == EV_KEY && event.code() == BTN_LEFT) {
         init_distance    = 0;
@@ -68,7 +68,7 @@ context_action basic_ignore_init_moves::operator()(event_type const& event) noex
         msec_type const now_time{std::chrono::seconds{ev_time.tv_sec} + msec_type{ev_time.tv_usec}};
 
         if (std::abs(init_distance) < threshold && (now_time - last_moved) >= time_threshold) {
-            return ignore_event;
+            return drop_event;
         }
         last_moved       = now_time;
         is_left_btn_down = false;
@@ -76,22 +76,22 @@ context_action basic_ignore_init_moves::operator()(event_type const& event) noex
     return next;
 }
 
-context_action fs8::basic_ignore_mouse_moves::operator()(event_type const& event) const noexcept {
+context_action fs8::basic_drop_mouse_moves::operator()(event_type const& event) const noexcept {
     using enum context_action;
-    return is_mouse_movement(event) ? ignore_event : next;
+    return is_mouse_movement(event) ? drop_event : next;
 }
 
-context_action fs8::basic_ignore_zero_mouse_moves::operator()(event_type const& event) const noexcept {
+context_action fs8::basic_drop_zero_mouse_moves::operator()(event_type const& event) const noexcept {
     using enum context_action;
-    return is_mouse_movement(event) && event.value() == 0 ? ignore_event : next;
+    return is_mouse_movement(event) && event.value() == 0 ? drop_event : next;
 }
 
-context_action fs8::basic_ignore_mouse_clicks::operator()(event_type const& event) const noexcept {
+context_action fs8::basic_drop_mouse_clicks::operator()(event_type const& event) const noexcept {
     using enum context_action;
-    return is_mouse_clicks(event) ? ignore_event : next;
+    return is_mouse_clicks(event) ? drop_event : next;
 }
 
-context_action basic_ignore_fast_repeats::operator()(event_type const& event) noexcept {
+context_action basic_drop_fast_repeats::operator()(event_type const& event) noexcept {
     using enum context_action;
 
     if (!event.is(code)) {
@@ -100,37 +100,37 @@ context_action basic_ignore_fast_repeats::operator()(event_type const& event) no
 
     auto const now = event.micro_time();
     if (now - std::exchange(last_emitted, now) < time_threshold) [[unlikely]] {
-        return ignore_event;
+        return drop_event;
     }
 
     return next;
 }
 
-context_action fs8::basic_ignore_caps::operator()(event_type const& event) const noexcept {
+context_action fs8::basic_drop_caps::operator()(event_type const& event) const noexcept {
     // todo: optimize this
     for (auto const cap : caps) {
         for (auto const code : cap.codes) {
             if (event.is(cap.type, code)) {
-                return context_action::ignore_event;
+                return context_action::drop_event;
             }
         }
     }
     return context_action::next;
 }
 
-void fs8::basic_ignore_start_moves::operator()(toggle_on_tag) noexcept {
+void fs8::basic_drop_start_moves::operator()(toggle_on_tag) noexcept {
     emitted_count = 0;
 }
 
-context_action fs8::basic_ignore_start_moves::operator()(event_type const& event) noexcept {
+context_action fs8::basic_drop_start_moves::operator()(event_type const& event) noexcept {
     using enum context_action;
-    return is_mouse_movement(event) && ++emitted_count < emit_threshold ? ignore_event : next;
+    return is_mouse_movement(event) && ++emitted_count < emit_threshold ? drop_event : next;
 }
 
-context_action fs8::basic_ignore_adjacent_repeats::operator()(event_type const& event) noexcept {
+context_action fs8::basic_drop_adjacent_repeats::operator()(event_type const& event) noexcept {
     using enum context_action;
     bool const found_asked = event.is_of(asked_event);
-    return std::exchange(is_found, found_asked) && found_asked ? ignore_event : next;
+    return std::exchange(is_found, found_asked) && found_asked ? drop_event : next;
 }
 
 // --- enforce_key_state ---
@@ -146,18 +146,18 @@ context_action basic_enforce_key_state::operator()(event_type const& event) noex
     }
     bool invalid = false;
     switch (event.value()) {
-        case 1: // press
+        case 1:                 // press
             if (pressed[code]) [[unlikely]] {
                 invalid = true; // double press
             }
             pressed[code] = true;
             break;
-        case 2: // repeat
+        case 2:                 // repeat
             if (!pressed[code]) [[unlikely]] {
                 invalid = true; // orphan repeat
             }
             break;
-        case 0: // release
+        case 0:                 // release
             if (!pressed[code]) [[unlikely]] {
                 invalid = true; // orphan release
             }
@@ -165,12 +165,12 @@ context_action basic_enforce_key_state::operator()(event_type const& event) noex
             break;
         default: break;
     }
-    return invalid ? ignore_event : next;
+    return invalid ? drop_event : next;
 }
 
-// --- ignore_late_syn ---
+// --- drop_late_syn ---
 
-context_action basic_ignore_late_syn::operator()(event_type const& event) noexcept {
+context_action basic_drop_late_syn::operator()(event_type const& event) noexcept {
     using enum context_action;
     bool const is_syn_report = event.type() == EV_SYN && event.code() == SYN_REPORT;
 
@@ -180,35 +180,32 @@ context_action basic_ignore_late_syn::operator()(event_type const& event) noexce
     }
 
     // SYN_REPORT arrives
-    bool const is_late =
-      !any_data_since_syn && was_syn && event.micro_time() - last_syn_time >= threshold;
+    bool const is_late = !any_data_since_syn && was_syn && event.micro_time() - last_syn_time >= threshold;
 
     was_syn            = true;
     any_data_since_syn = false;
     last_syn_time      = event.micro_time();
 
-    return is_late ? ignore_event : next;
+    return is_late ? drop_event : next;
 }
 
-// --- ignore_pen_out_of_bounds ---
+// --- drop_pen_out_of_bounds ---
 
-context_action fs8::basic_ignore_pen_out_of_bounds::operator()(event_type const& event) const noexcept {
+context_action fs8::basic_drop_pen_out_of_bounds::operator()(event_type const& event) const noexcept {
     using enum context_action;
     if (!has_pen_bounds || event.type() != EV_ABS) {
         return next;
     }
     switch (event.code()) {
-        case ABS_X:
-            return (event.value() < pen_x_min || event.value() > pen_x_max) ? ignore_event : next;
-        case ABS_Y:
-            return (event.value() < pen_y_min || event.value() > pen_y_max) ? ignore_event : next;
+        case ABS_X: return (event.value() < pen_x_min || event.value() > pen_x_max) ? drop_event : next;
+        case ABS_Y: return (event.value() < pen_y_min || event.value() > pen_y_max) ? drop_event : next;
         default: return next;
     }
 }
 
-// --- ignore_missing_syns ---
+// --- drop_missing_syns ---
 
-context_action basic_ignore_missing_syns::operator()(event_type const& event) noexcept {
+context_action basic_drop_missing_syns::operator()(event_type const& event) noexcept {
     using enum context_action;
     bool const is_syn_report = event.type() == EV_SYN && event.code() == SYN_REPORT;
 
@@ -222,13 +219,13 @@ context_action basic_ignore_missing_syns::operator()(event_type const& event) no
         }
 
         if (data_events_since_syn > 1 && event.micro_time() - last_syn_time >= time_threshold) [[unlikely]] {
-            return ignore_event;
+            return drop_event;
         }
         if (data_events_since_syn > count_threshold) [[unlikely]] {
-            return ignore_event;
+            return drop_event;
         }
         if (travel_since_syn >= travel_threshold) [[unlikely]] {
-            return ignore_event;
+            return drop_event;
         }
         return next;
     }

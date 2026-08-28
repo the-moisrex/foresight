@@ -7,7 +7,7 @@ import fs8.context;
 import fs8.devices.evdev;
 import :input_manager;
 import fs8.devices.capabilities;
-import :ignore;
+import :drop;
 import :keys_status;
 import fs8.traits;
 
@@ -40,7 +40,7 @@ export namespace fs8 {
 
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
-            static_assert(has_mod<basic_ignore_adjacent_repeats, CtxT>, "You need to ignore syn repeats.");
+            static_assert(has_mod<basic_drop_adjacent_repeats, CtxT>, "You need to drop syn repeats.");
             return operator()(ctx.event());
         }
     } pressure2mouse_clicks;
@@ -179,7 +179,7 @@ export namespace fs8 {
 
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
-            static_assert(has_mod<basic_ignore_adjacent_repeats, CtxT>, "You need to ignore syn repeats.");
+            static_assert(has_mod<basic_drop_adjacent_repeats, CtxT>, "You need to drop syn repeats.");
             return operator()(ctx.event());
         }
 

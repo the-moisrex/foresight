@@ -323,7 +323,7 @@ void basic_input_manager::own_device(std::string_view const devnode) noexcept {
         pimpl->owned_sysnames.emplace_back(sysname);
     } catch (...) {
         log("Possibly allocation failure");
-        // Allocation failure: silently ignore.
+        // Allocation failure: silently drop.
     }
 }
 

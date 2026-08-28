@@ -109,7 +109,7 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
     }
 
     // A next_event with nothing pending sets up the watches and yields nothing.
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
     EXPECT_TRUE(io.is_watched(im.devices().front().native_handle()));
 
     // Grab the uinput keyboard so the injected events never reach the display
@@ -186,7 +186,7 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
     // uinput keyboard is only the *newest* device; track it by count delta.
     auto const known    = std::ranges::distance(im.devices());
     int const  first_fd = std::ranges::next(im.devices().begin(), static_cast<std::ptrdiff_t>(known - 1))->native_handle();
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::ignore_event);
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
     EXPECT_TRUE(io.is_watched(first_fd));
 
     // Hotplug in a second keyboard.

@@ -48,12 +48,12 @@ Mods return a `context_action`:
 | Action         | Meaning                                            |
 |----------------|----------------------------------------------------|
 | `next`         | Pass the event to the next mod.                    |
-| `ignore_event` | Drop this event.                                   |
+| `drop_event` | Drop this event.                                   |
 | `idle`         | Restart/enter watch mode.                          |
 | `exit`         | Exit the pipeline.                                 |
 
 A mod that returns `bool` is interpreted as `true` → `next`, `false` →
-`ignore_event`.
+`drop_event`.
 
 ## Events
 
@@ -135,7 +135,7 @@ static constinit auto pipeline =
     | fs8::abs2rel                // absolute → relative moves
     | fs8::pen2mice               // translate pen buttons
     | fs8::keys_status
-    | fs8::on[fs8::pressed[BTN_RIGHT], fs8::ignore_start_moves]
+    | fs8::on[fs8::pressed[BTN_RIGHT], fs8::drop_start_moves]
     | fs8::router[fs8::caps::mouse >> fs8::uinput];
 
 int main() {

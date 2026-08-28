@@ -37,7 +37,7 @@ int main(int const argc, char const* const* argv) try {
                 | replace[KEY_S, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_DOWN]
                 | replace[KEY_E, KEY_LEFTMETA, KEY_TAB]
                 | on[pressed[KEY_ESC], switch_mode[0]]
-                | ignore_caps[caps::keyboard_alphabets]]
+                | drop_caps[caps::keyboard_alphabets]]
       | uinput;
 
     static constinit auto pipeline =
@@ -56,14 +56,14 @@ int main(int const argc, char const* const* argv) try {
            context
              | abs2rel                             // Convert Drawing Tablet absolute moves into mouse moves
              | pen2mice                            // Convert the buttons
-             | ignore_tablet
-             | ignore_big_jumps
-             | ignore_fast_left_clicks             // Ignore fast left clicks
+             | drop_tablet
+             | drop_big_jumps
+             | drop_fast_left_clicks             // Ignore fast left clicks
              | update_mod[keys_status]
              | update_mod[mouse_history]]
 
       | swipe_detector                             // Detects swipes
-      | on[pressed[BTN_RIGHT], ignore_start_moves] // fix right-click jumps
+      | on[pressed[BTN_RIGHT], drop_start_moves] // fix right-click jumps
       | once[pressed[BTN_MIDDLE] & triple_click, emit[press(KEY_LEFTMETA, KEY_TAB)]]
       | once[limit_mouse_travel[pressed[KEY_CAPSLOCK], 50] & keyup[BTN_LEFT], schedule_emit + press(BTN_RIGHT)]
       | on[pressed_any[KEY_CAPSLOCK, BTN_MIDDLE] & pressed[BTN_LEFT],
@@ -72,18 +72,18 @@ int main(int const argc, char const* const* argv) try {
              | on[swipe_left, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_LEFT)]]
              | on[swipe_up, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_UP)]]
              | on[swipe_down, emit[press(KEY_LEFTCTRL, KEY_LEFTMETA, KEY_DOWN)]]
-             | ignore_mouse_moves
-             | ignore_mouse_clicks]
+             | drop_mouse_moves
+             | drop_mouse_clicks]
       | once[pressed[KEY_CAPSLOCK, KEY_LEFTSHIFT, KEY_ESC], exit_pipeline] // Restart/Quit
-      | on[pressed[KEY_CAPSLOCK], ignore_keys[BTN_LEFT]]
+      | on[pressed[KEY_CAPSLOCK], drop_keys[BTN_LEFT]]
       | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | kalman_filter[0.3f] | mouse_to_scroll]
       | on[held[KEY_LEFTSHIFT], context | scale_move[0.5f] | scale_pen[0.5f]]
       | on[held[KEY_LEFTCTRL], low_pass_filter]
       | momentum_scroll
       | update_mod[keys_status]
-      | ignore_zero_mouse_moves
-      | ignore_msc_scan
-      | ignore_adjacent_syns
+      | drop_zero_mouse_moves
+      | drop_msc_scan
+      | drop_adjacent_syns
       | event_diagnostics
       | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];
 

@@ -128,7 +128,7 @@ context_action basic_scheduler::operator()(event_type& event, next_event_tag) no
     using enum context_action;
 
     if (pimpl.get() == nullptr) [[unlikely]] {
-        return ignore_event;
+        return drop_event;
     }
 
     auto const now = steady_clock::now();
@@ -190,7 +190,7 @@ context_action basic_scheduler::operator()(event_type& event, next_event_tag) no
         return next;
     }
 
-    return ignore_event;
+    return drop_event;
 }
 
 basic_scheduler::tick_handle

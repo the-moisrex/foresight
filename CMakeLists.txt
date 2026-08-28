@@ -99,7 +99,7 @@ target_sources(${LIB_NAME}
         mods/benchmark.cxx
         mods/device.cxx
         mods/emitter.cxx
-        mods/ignore.cxx
+        mods/drop.cxx
         mods/inout.cxx
         mods/live_view.cxx
         mods/input_manager.cxx
@@ -152,7 +152,7 @@ target_sources(${LIB_NAME}
         mods/debounce.ixx
         mods/device.ixx
         mods/emitter.ixx
-        mods/ignore.ixx
+        mods/drop.ixx
         mods/inout.ixx
         mods/live_view.ixx
         mods/input_manager.ixx

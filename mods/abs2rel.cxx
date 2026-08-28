@@ -40,7 +40,7 @@ context_action fs8::basic_pressure2mouse_clicks::operator()(event_type& event) n
                 is_left_down = false;
                 break;
             }
-            return ignore_event;
+            return drop_event;
         }
         case hashed(EV_KEY, BTN_STYLUS): event.code(BTN_RIGHT); break;
         case hashed(EV_KEY, BTN_TOOL_RUBBER): event.code(BTN_MIDDLE); break;
@@ -51,7 +51,7 @@ context_action fs8::basic_pressure2mouse_clicks::operator()(event_type& event) n
         case hashed(EV_KEY, BTN_STYLUS2):
         case hashed(EV_KEY, BTN_STYLUS3):
         case hashed(EV_ABS, ABS_TILT_X):
-        case hashed(EV_ABS, ABS_TILT_Y): return ignore_event;
+        case hashed(EV_ABS, ABS_TILT_Y): return drop_event;
         default: break;
     }
     return next;
@@ -179,7 +179,7 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
 
     // -1 is given because the syn itself is an event that's being sent
     // if (is_syn(event) && std::exchange(events_sent, -1) <= 0) {
-    //     return ignore_event;
+    //     return drop_event;
     // }
 
     if (EV_ABS == type) {
@@ -218,7 +218,7 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
             // case BTN_STYLUS: break;
             // case BTN_TOUCH:
             // case BTN_STYLUS2:
-            // case BTN_STYLUS3: return ignore_event;
+            // case BTN_STYLUS3: return drop_event;
             case BTN_TOOL_RUBBER:
             case BTN_TOOL_PEN:
             case BTN_TOOL_BRUSH:

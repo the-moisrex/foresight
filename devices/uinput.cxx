@@ -809,7 +809,7 @@ bool basic_uinput::operator()(device_query const& inp_query, start_tag) noexcept
 fs8::context_action basic_uinput::operator()(event_type const& event) noexcept {
     using enum context_action;
     if (!emit(event)) [[unlikely]] {
-        return ignore_event;
+        return drop_event;
     }
     return next;
 }

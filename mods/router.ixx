@@ -298,7 +298,7 @@ export namespace fs8 {
             }
             auto const index = detail::router_lookup(*state, hashed_value, is_syn(event));
             if (index < 0) [[unlikely]] {
-                return context_action::ignore_event;
+                return context_action::drop_event;
             }
             // log("Index: {} {}", index, event.code_name());
             return visit_at(routes, static_cast<std::size_t>(index), [&](auto& route) {

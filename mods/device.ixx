@@ -64,116 +64,116 @@ export namespace fs8 {
 
     /// Ignore events whose source is one of the listed ids.
     template <std::size_t N>
-    struct [[nodiscard]] basic_ignore_origin : consteval_copyable {
+    struct [[nodiscard]] basic_drop_origin : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
         std::array<device_id, N> origins{};
 
       public:
-        explicit constexpr basic_ignore_origin(std::array<device_id, N> const inp_origins) noexcept : origins{inp_origins} {}
+        explicit constexpr basic_drop_origin(std::array<device_id, N> const inp_origins) noexcept : origins{inp_origins} {}
 
         template <std::size_t NN>
-        consteval basic_ignore_origin operator[](std::array<device_id, NN> const inp_origins) const noexcept {
-            return basic_ignore_origin<NN>{inp_origins};
+        consteval basic_drop_origin operator[](std::array<device_id, NN> const inp_origins) const noexcept {
+            return basic_drop_origin<NN>{inp_origins};
         }
 
         template <std::size_t NN>
         consteval auto operator[](device_id (&&inp_origins)[NN]) const noexcept {
-            return basic_ignore_origin<NN>{std::to_array(std::move(inp_origins))};
+            return basic_drop_origin<NN>{std::to_array(std::move(inp_origins))};
         }
 
         template <typename... T>
             requires((std::convertible_to<T, device_id> && ...))
         consteval auto operator[](T... inp_origins) const noexcept {
-            return basic_ignore_origin<sizeof...(T)>{std::array<device_id, sizeof...(T)>{static_cast<device_id>(inp_origins)...}};
+            return basic_drop_origin<sizeof...(T)>{std::array<device_id, sizeof...(T)>{static_cast<device_id>(inp_origins)...}};
         }
 
         context_action operator()(event_type const& event) const noexcept {
             using enum context_action;
             for (device_id const origin : origins) {
                 if (event.source() == origin) {
-                    return ignore_event;
+                    return drop_event;
                 }
             }
             return next;
         }
     };
 
-    constexpr basic_ignore_origin<0> ignore_origin;
+    constexpr basic_drop_origin<0> drop_origin;
 
     /// Convenience: drop synthesized events (`device_id::self`) and events read
     /// back from this process's own uinput devices.
-    constexpr struct [[nodiscard]] basic_ignore_self {
+    constexpr struct [[nodiscard]] basic_drop_self {
         context_action operator()(Context auto& ctx) const noexcept {
             using enum context_action;
             auto const& event = ctx.event();
             if (event.source() == device_id::self) [[unlikely]] {
-                return ignore_event;
+                return drop_event;
             }
             if (ctx.mod(input_manager).is_owned(event.source())) [[unlikely]] {
-                return ignore_event;
+                return drop_event;
             }
             return next;
         }
-    } ignore_self;
+    } drop_self;
 
     /// Drop events from devices created by this pipeline's own uinput mods.
-    /// Unlike `ignore_self`, this does NOT drop events synthesized by emit/fork
+    /// Unlike `drop_self`, this does NOT drop events synthesized by emit/fork
     /// (`device_id::self`).
-    constexpr struct [[nodiscard]] basic_ignore_owned {
+    constexpr struct [[nodiscard]] basic_drop_owned {
         context_action operator()(Context auto& ctx) const noexcept {
             using enum context_action;
             if (ctx.mod(input_manager).is_owned(ctx.event().source())) [[unlikely]] {
-                return ignore_event;
+                return drop_event;
             }
             return next;
         }
-    } ignore_owned;
+    } drop_owned;
 
     /// Drop events synthesized by this pipeline (emit, fork_emit, etc.).
-    /// Unlike `ignore_self`, this does NOT drop events from owned uinput
+    /// Unlike `drop_self`, this does NOT drop events from owned uinput
     /// devices.
-    constexpr struct [[nodiscard]] basic_ignore_emitted {
+    constexpr struct [[nodiscard]] basic_drop_emitted {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
             return event.source() != device_id::self;
         }
-    } ignore_emitted;
+    } drop_emitted;
 
     /// Drop events coming from the listed devices.
     template <std::size_t N>
-    struct [[nodiscard]] basic_ignore_device : consteval_copyable {
+    struct [[nodiscard]] basic_drop_device : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
         std::array<device_id, N> devices{};
 
       public:
-        explicit constexpr basic_ignore_device(std::array<device_id, N> const inp_devices) noexcept : devices{inp_devices} {}
+        explicit constexpr basic_drop_device(std::array<device_id, N> const inp_devices) noexcept : devices{inp_devices} {}
 
         template <std::size_t NN>
         consteval auto operator[](device_id (&&inp_devices)[NN]) const noexcept {
-            return basic_ignore_device<NN>{std::to_array(std::move(inp_devices))};
+            return basic_drop_device<NN>{std::to_array(std::move(inp_devices))};
         }
 
         template <typename... T>
             requires((std::convertible_to<T, device_id> && ...))
         consteval auto operator[](T... inp_devices) const noexcept {
-            return basic_ignore_device<sizeof...(T)>{std::array<device_id, sizeof...(T)>{static_cast<device_id>(inp_devices)...}};
+            return basic_drop_device<sizeof...(T)>{std::array<device_id, sizeof...(T)>{static_cast<device_id>(inp_devices)...}};
         }
 
         context_action operator()(event_type const& event) const noexcept {
             using enum context_action;
             for (device_id const device : devices) {
                 if (event.source() == device) {
-                    return ignore_event;
+                    return drop_event;
                 }
             }
             return next;
         }
     };
 
-    constexpr basic_ignore_device<0> ignore_device;
+    constexpr basic_drop_device<0> drop_device;
 
     /// Only pass events coming from the listed devices.
     template <std::size_t N>
@@ -204,7 +204,7 @@ export namespace fs8 {
                     return next;
                 }
             }
-            return ignore_event;
+            return drop_event;
         }
     };
 
