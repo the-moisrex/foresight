@@ -1009,8 +1009,8 @@ mod is for and when you'd reach for it.</p>
 <td>Keep mouse momentum going after you stop moving.</td>
 </tr>
 <tr>
-<td><code>ignore</code></td>
-<td>Family of "ignore" filters: big jumps, starting moves, fast repeats, adjacent repeats, and full event ignoring.</td>
+<td><code>drop</code></td>
+<td>Family of "drop" filters: big jumps, starting moves, fast repeats, adjacent repeats, and full event dropping.</td>
 </tr>
 <tr>
 <td><code>debounce</code></td>
@@ -1128,7 +1128,7 @@ mod is for and when you'd reach for it.</p>
 </tr>
 <tr>
 <td><code>device</code></td>
-<td>Conditions/filters based on which device an event came from: <code>from_device</code>, <code>from_stdin</code>, <code>self_emitted</code>, <code>from_chained</code>, <code>device_is</code>, <code>only_device</code>, <code>ignore_device</code>, <code>ignore_origin</code>, <code>ignore_self</code> (drops both emitted + owned), <code>ignore_owned</code> (owned uinput devices only), <code>ignore_emitted</code> (synthesized events only).</td>
+<td>Conditions/filters based on which device an event came from: <code>from_device</code>, <code>from_stdin</code>, <code>self_emitted</code>, <code>from_chained</code>, <code>device_is</code>, <code>only_device</code>, <code>drop_device</code>, <code>drop_origin</code>, <code>drop_self</code> (drops both emitted + owned), <code>drop_owned</code> (owned uinput devices only), <code>drop_emitted</code> (synthesized events only).</td>
 </tr>
 <tr>
 <td><code>vars</code></td>
@@ -1155,7 +1155,7 @@ mod is for and when you'd reach for it.</p>
 <td>Pass the event to the next mod.</td>
 </tr>
 <tr>
-<td><code>ignore_event</code></td>
+<td><code>drop_event</code></td>
 <td>Drop this event.</td>
 </tr>
 <tr>

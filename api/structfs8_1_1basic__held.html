@@ -127,7 +127,7 @@ requires ((std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#a96bf
 <tr class="memitem:ac29316a2733bbd1c6306f24809b6c358" id="r_ac29316a2733bbd1c6306f24809b6c358"><td class="memTemplParams" colspan="2">template&lt;typename CondT &gt; <br />
 requires (!std::convertible_to&lt;CondT, <a class="el" href="namespacefs8.html#a96bf794b46a81f366a1910b738966cf2">code_type</a>&gt; &amp;&amp; !Tag&lt;CondT&gt; &amp;&amp; !Context&lt;CondT&gt;)</td></tr>
 <tr class="memitem:ac29316a2733bbd1c6306f24809b6c358"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__held.html#ac29316a2733bbd1c6306f24809b6c358">operator[]</a> (std::string_view const inp_pattern, CondT const &amp;inp_cond) const noexcept</td></tr>
-<tr class="memdesc:ac29316a2733bbd1c6306f24809b6c358"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gate form: a decider decides whether the tracked <a class="el" href="namespacefs8.html#a7360bdf7c0054ee4648141e1c3b3c8a2">key(s)</a> are emitted or ignored.  <br /></td></tr>
+<tr class="memdesc:ac29316a2733bbd1c6306f24809b6c358"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gate form: a decider decides whether the tracked <a class="el" href="namespacefs8.html#a7360bdf7c0054ee4648141e1c3b3c8a2">key(s)</a> are emitted or dropped.  <br /></td></tr>
 <tr class="separator:ac29316a2733bbd1c6306f24809b6c358"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a424a85cc2510944e56ab8a174824140b" id="r_a424a85cc2510944e56ab8a174824140b"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; <br />
 requires (sizeof...(Args) &gt;= 2 &amp;&amp; std::convertible_to&lt;std::tuple_element_t&lt;0, std::tuple&lt;Args...&gt;&gt;, <a class="el" href="namespacefs8.html#a96bf794b46a81f366a1910b738966cf2">code_type</a>&gt; &amp;&amp; !std::convertible_to&lt;std::tuple_element_t&lt;sizeof...(Args) - 1, std::tuple&lt;Args...&gt;&gt;, <a class="el" href="namespacefs8.html#a96bf794b46a81f366a1910b738966cf2">code_type</a>&gt;)</td></tr>
@@ -457,7 +457,7 @@ requires (!std::convertible_to&lt;CondT, <a class="el" href="namespacefs8.html#a
 </table>
 </div><div class="memdoc">
 
-<p>Gate form: a decider decides whether the tracked <a class="el" href="namespacefs8.html#a7360bdf7c0054ee4648141e1c3b3c8a2">key(s)</a> are emitted or ignored. </p>
+<p>Gate form: a decider decides whether the tracked <a class="el" href="namespacefs8.html#a7360bdf7c0054ee4648141e1c3b3c8a2">key(s)</a> are emitted or dropped. </p>
 
 </div>
 </div>

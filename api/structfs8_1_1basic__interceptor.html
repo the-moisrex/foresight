@@ -136,7 +136,7 @@ requires (sizeof...(Qs) &gt;= 1 &amp;&amp; (std::convertible_to&lt;Qs, <a class=
 <tr class="separator:aa3b5c8bbda835eb62b818a7738c25f58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff28abad0d914b5ac5d259ecdb67bc13" id="r_aff28abad0d914b5ac5d259ecdb67bc13"><td class="memTemplParams" colspan="2">template&lt;Context ContextT&gt; </td></tr>
 <tr class="memitem:aff28abad0d914b5ac5d259ecdb67bc13"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__interceptor.html#aff28abad0d914b5ac5d259ecdb67bc13">operator()</a> (ContextT &amp;ctx, <a class="el" href="namespacefs8.html#acb4f566f578b0d3013871b415c623375">next_event_tag</a>) noexcept</td></tr>
-<tr class="memdesc:aff28abad0d914b5ac5d259ecdb67bc13"><td class="mdescLeft">&#160;</td><td class="mdescRight">next_event provider: reconcile watches, pop one event, else ignore_event.  <br /></td></tr>
+<tr class="memdesc:aff28abad0d914b5ac5d259ecdb67bc13"><td class="mdescLeft">&#160;</td><td class="mdescRight">next_event provider: reconcile watches, pop one event, else drop_event.  <br /></td></tr>
 <tr class="separator:aff28abad0d914b5ac5d259ecdb67bc13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structfs8_1_1pimpl__idiom"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structfs8_1_1pimpl__idiom')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom&lt; basic_interceptor &gt;</a></td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6 inherit pub_methods_structfs8_1_1pimpl__idiom" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
@@ -318,7 +318,7 @@ template&lt;Context ContextT&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>next_event provider: reconcile watches, pop one event, else ignore_event. </p>
+<p>next_event provider: reconcile watches, pop one event, else drop_event. </p>
 
 </div>
 </div>

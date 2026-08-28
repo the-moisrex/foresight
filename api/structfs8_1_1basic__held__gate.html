@@ -155,7 +155,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename CondT&gt;<br />
-struct fs8::basic_held_gate&lt; CondT &gt;</div><p>Gate the tracked <a class="el" href="namespacefs8.html#a7360bdf7c0054ee4648141e1c3b3c8a2">key(s)</a>: while they're held, every event is passed to a decider. If the decider says "ignore", the buffered key events are dropped (the keys are consumed and never emitted). Otherwise they stay buffered until the keys are fully released, at which point they're emitted normally (repeats are always suppressed). Usable directly in a pipeline: <code>held["&lt;f1&gt;", decider]</code>. </p>
+struct fs8::basic_held_gate&lt; CondT &gt;</div><p>Gate the tracked <a class="el" href="namespacefs8.html#a7360bdf7c0054ee4648141e1c3b3c8a2">key(s)</a>: while they're held, every event is passed to a decider. If the decider says "drop", the buffered key events are dropped (the keys are consumed and never emitted). Otherwise they stay buffered until the keys are fully released, at which point they're emitted normally (repeats are always suppressed). Usable directly in a pipeline: <code>held["&lt;f1&gt;", decider]</code>. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ae6b961591c446446a32628d610143da8" name="ae6b961591c446446a32628d610143da8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae6b961591c446446a32628d610143da8">&#9670;&#160;</a></span>basic_held_gate() <span class="overload">[1/2]</span></h2>

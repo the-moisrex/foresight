@@ -1026,7 +1026,7 @@ forms depending on what it accepts:</p>
 <td>Pass the event to the next mod.</td>
 </tr>
 <tr>
-<td><code>ignore_event</code></td>
+<td><code>drop_event</code></td>
 <td>Drop this event.</td>
 </tr>
 <tr>
@@ -1040,7 +1040,7 @@ forms depending on what it accepts:</p>
 </tbody>
 </table>
 <p>A mod that returns <code>bool</code> is interpreted as <code>true</code> → <code>next</code>, <code>false</code> →
-<code>ignore_event</code>.</p>
+<code>drop_event</code>.</p>
 <h2 id="events">Events</h2>
 <p><code>fs8::event_type</code> wraps a kernel <code>input_event</code> and adds helpers:</p>
 <ul>
@@ -1103,7 +1103,7 @@ reduced version of <a href="../apps/"><code>apps/pen2mice</code></a>:</p>
 <span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">fs8</span><span class="o">::</span><span class="n">abs2rel</span><span class="w">                </span><span class="c1">// absolute → relative moves</span>
 <span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">fs8</span><span class="o">::</span><span class="n">pen2mice</span><span class="w">               </span><span class="c1">// translate pen buttons</span>
 <span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">fs8</span><span class="o">::</span><span class="n">keys_status</span>
-<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">fs8</span><span class="o">::</span><span class="n">on</span><span class="p">[</span><span class="n">fs8</span><span class="o">::</span><span class="n">pressed</span><span class="p">[</span><span class="n">BTN_RIGHT</span><span class="p">],</span><span class="w"> </span><span class="n">fs8</span><span class="o">::</span><span class="n">ignore_start_moves</span><span class="p">]</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">fs8</span><span class="o">::</span><span class="n">on</span><span class="p">[</span><span class="n">fs8</span><span class="o">::</span><span class="n">pressed</span><span class="p">[</span><span class="n">BTN_RIGHT</span><span class="p">],</span><span class="w"> </span><span class="n">fs8</span><span class="o">::</span><span class="n">drop_start_moves</span><span class="p">]</span>
 <span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">fs8</span><span class="o">::</span><span class="n">router</span><span class="p">[</span><span class="n">fs8</span><span class="o">::</span><span class="n">caps</span><span class="o">::</span><span class="n">mouse</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">fs8</span><span class="o">::</span><span class="n">uinput</span><span class="p">];</span>
 
 <span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
