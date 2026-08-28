@@ -114,8 +114,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a64a073c55d5f6cc0fd15358920989309"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html#a64a073c55d5f6cc0fd15358920989309">operator()</a> (CtxT &amp;ctx, <a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>) noexcept</td></tr>
 <tr class="memdesc:a64a073c55d5f6cc0fd15358920989309"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a device-change listener and check already-enumerated devices.  <br /></td></tr>
 <tr class="separator:a64a073c55d5f6cc0fd15358920989309"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38949ec966190def6c304f4dbf4089a4" id="r_a38949ec966190def6c304f4dbf4089a4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html#a38949ec966190def6c304f4dbf4089a4">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;) const noexcept</td></tr>
-<tr class="separator:a38949ec966190def6c304f4dbf4089a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a434d8c5b93966c9ca2c57d3636f0c17c" id="r_a434d8c5b93966c9ca2c57d3636f0c17c"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html#a434d8c5b93966c9ca2c57d3636f0c17c">operator()</a> () const noexcept</td></tr>
+<tr class="separator:a434d8c5b93966c9ca2c57d3636f0c17c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
 <tr class="separator:aab9e941457bd45b9d6772f6ff421cec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;) noexcept</td></tr>
@@ -138,13 +138,13 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a05af6fb19c7e761e6cfcd218ba8f9c43" id="r_a05af6fb19c7e761e6cfcd218ba8f9c43"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html#a05af6fb19c7e761e6cfcd218ba8f9c43">has_held_keys</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;dev) noexcept</td></tr>
-<tr class="memdesc:a05af6fb19c7e761e6cfcd218ba8f9c43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check a single device for held keys. Returns true if any key is pressed.  <br /></td></tr>
-<tr class="separator:a05af6fb19c7e761e6cfcd218ba8f9c43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a307341bd7ddf43621d59e4ccdf954ca5" id="r_a307341bd7ddf43621d59e4ccdf954ca5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html#a307341bd7ddf43621d59e4ccdf954ca5">release_all_keys</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> &amp;dev) noexcept</td></tr>
+<tr class="memdesc:a307341bd7ddf43621d59e4ccdf954ca5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Release all held keys on a device by sending EV_KEY release events.  <br /></td></tr>
+<tr class="separator:a307341bd7ddf43621d59e4ccdf954ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Sync the pipeline with the physical keyboard state at startup. On device connect, queries the device's EVIOCGKEY bitmap. If any key is held down, returns idle to restart the pipeline — repeats until all keys are released, then proceeds.</p>
-<p>This is useful when the pipeline is launched by a key press (e.g. holding Enter to start pen2mice): the OS has already seen the press from the physical keyboard, so the pipeline must wait for the user to release before it can correctly track key state. </p>
+<div class="textblock"><p>Sync the pipeline with the physical keyboard state at startup. On device connect, queries the device's EVIOCGKEY bitmap and releases any held keys by sending EV_KEY release events.</p>
+<p>This is useful when the pipeline is launched by a key press (e.g. holding Enter to start pen2mice): the OS has already seen the press from the physical keyboard, so the pipeline must synthetically release them before it can correctly track key state. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="aab9e941457bd45b9d6772f6ff421cec6" name="aab9e941457bd45b9d6772f6ff421cec6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aab9e941457bd45b9d6772f6ff421cec6">&#9670;&#160;</a></span>consteval_copyable() <span class="overload">[1/3]</span></h2>
@@ -223,8 +223,8 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a05af6fb19c7e761e6cfcd218ba8f9c43" name="a05af6fb19c7e761e6cfcd218ba8f9c43"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a05af6fb19c7e761e6cfcd218ba8f9c43">&#9670;&#160;</a></span>has_held_keys()</h2>
+<a id="a434d8c5b93966c9ca2c57d3636f0c17c" name="a434d8c5b93966c9ca2c57d3636f0c17c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a434d8c5b93966c9ca2c57d3636f0c17c">&#9670;&#160;</a></span>operator()() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -233,26 +233,23 @@ Static Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static bool fs8::basic_key_sync_lock::has_held_keys </td>
+          <td class="memname">constexpr void fs8::basic_key_sync_lock::operator() </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;&#160;</td>
-          <td class="paramname"><em>dev</em></td><td>)</td>
-          <td></td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Check a single device for held keys. Returns true if any key is pressed. </p>
-
 </div>
 </div>
 <a id="a64a073c55d5f6cc0fd15358920989309" name="a64a073c55d5f6cc0fd15358920989309"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a64a073c55d5f6cc0fd15358920989309">&#9670;&#160;</a></span>operator()() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a64a073c55d5f6cc0fd15358920989309">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -291,8 +288,8 @@ template&lt;ContextWith&lt; <a class="el" href="structfs8_1_1basic__input__manag
 
 </div>
 </div>
-<a id="a38949ec966190def6c304f4dbf4089a4" name="a38949ec966190def6c304f4dbf4089a4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a38949ec966190def6c304f4dbf4089a4">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
+<a id="a307341bd7ddf43621d59e4ccdf954ca5" name="a307341bd7ddf43621d59e4ccdf954ca5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a307341bd7ddf43621d59e4ccdf954ca5">&#9670;&#160;</a></span>release_all_keys()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -301,19 +298,21 @@ template&lt;ContextWith&lt; <a class="el" href="structfs8_1_1basic__input__manag
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::basic_key_sync_lock::operator() </td>
+          <td class="memname">static void fs8::basic_key_sync_lock::release_all_keys </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1evdev.html">evdev</a> &amp;&#160;</td>
+          <td class="paramname"><em>dev</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Release all held keys on a device by sending EV_KEY release events. </p>
 
 </div>
 </div>
