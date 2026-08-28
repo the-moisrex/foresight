@@ -16,7 +16,7 @@ export import fs8.utils;
 import fs8.lib.mod_parser;
 import fs8.context;
 import fs8.traits;
-import :keys_status;
+import :keys_state;
 
 namespace fs8 {
 
@@ -347,8 +347,8 @@ namespace fs8 {
 
         template <Context CtxT>
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
-            static_assert(has_mod<basic_keys_status, CtxT>, "We need keys_status to be in the pipeline.");
-            return ctx.mod(keys_status).is_pressed(this->codes);
+            static_assert(has_mod<basic_keys_state, CtxT>, "We need keys_state to be in the pipeline.");
+            return ctx.mod(keys_state).is_pressed(this->codes);
         }
     };
 
@@ -361,8 +361,8 @@ namespace fs8 {
 
         template <Context CtxT>
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
-            static_assert(has_mod<basic_keys_status, CtxT>, "We need keys_status to be in the pipeline.");
-            return ctx.mod(keys_status).is_pressed_any(this->codes);
+            static_assert(has_mod<basic_keys_state, CtxT>, "We need keys_state to be in the pipeline.");
+            return ctx.mod(keys_state).is_pressed_any(this->codes);
         }
     };
 
@@ -426,7 +426,7 @@ namespace fs8 {
     struct [[nodiscard]] basic_held_gate;
 
     /// True while every tracked key is down, except on the tracked keys' own auto-repeat
-    /// events (EV_KEY with value 2). Works without keys_status in the pipeline.
+    /// events (EV_KEY with value 2). Works without keys_state in the pipeline.
     export struct [[nodiscard]] basic_held : consteval_copyable, operator_adaptor<basic_held> {
         using consteval_copyable::consteval_copyable;
 
@@ -646,7 +646,7 @@ namespace fs8 {
     /// before the press (so a caps-hold that scrolled doesn't leave you in a
     /// different mode).
     ///
-    /// Place it after `keys_status`/`update_mod` so other `pressed[]` conditions
+    /// Place it after `keys_state`/`update_mod` so other `pressed[]` conditions
     /// still observe the physical presses.
     export template <std::size_t N, typename ModT = basic_noop>
     struct [[nodiscard]] basic_on_held : consteval_copyable, operator_adaptor<basic_on_held<N, ModT>> {
@@ -939,8 +939,8 @@ namespace fs8 {
 
         template <Context CtxT>
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) const noexcept {
-            static_assert(has_mod<basic_led_status, CtxT>, "We need keys_status to be in the pipeline.");
-            return ctx.mod(led_status).is_on(code);
+            static_assert(has_mod<basic_led_state, CtxT>, "We need led_state to be in the pipeline.");
+            return ctx.mod(led_state).is_on(code);
         }
     } led_on;
 
@@ -959,8 +959,8 @@ namespace fs8 {
 
         template <Context CtxT>
         [[nodiscard]] bool operator()(CtxT& ctx) const noexcept {
-            static_assert(has_mod<basic_led_status, CtxT>, "We need keys_status to be in the pipeline.");
-            return ctx.mod(led_status).is_off(code);
+            static_assert(has_mod<basic_led_state, CtxT>, "We need led_state to be in the pipeline.");
+            return ctx.mod(led_state).is_off(code);
         }
     } led_off;
 

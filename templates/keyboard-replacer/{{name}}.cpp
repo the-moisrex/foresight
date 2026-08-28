@@ -28,9 +28,9 @@ int main(int const argc, char const* const* argv) try {
       | io_manager
       | intercept[keyboard | required]
       | input_manager
-      | keys_status
+      | keys_state
       | on[pressed[KEY_CAPSLOCK], replace[KEY_CAPSLOCK, KEY_ESC]]
-      | update_mod[keys_status]
+      | update_mod[keys_state]
       | uinput;
 
     pipeline.mod(intercept).add(parsed | required);

@@ -63,8 +63,8 @@ mod is for and when you'd reach for it.
 
 | Mod | What it does |
 |-----|--------------|
-| `keys_status` | Tracks the current state of every key. |
-| `mouse_status` | Tracks the current mouse buttons. |
+| `keys_state` | Tracks the current state of every key. |
+| `mouse_state` | Tracks the current mouse buttons. |
 | `quantifier` | Quantifies/measures events (e.g. mouse movement thresholds). |
 | `device` | Conditions/filters based on which device an event came from: `from_device`, `from_stdin`, `self_emitted`, `from_chained`, `device_is`, `only_device`, `drop_device`, `drop_origin`, `drop_self` (drops both emitted + owned), `drop_owned` (owned uinput devices only), `drop_emitted` (synthesized events only). |
 | `vars` | Pipeline variables — share values between mods (`context[name]` lookup). |

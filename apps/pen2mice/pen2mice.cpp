@@ -48,9 +48,9 @@ int main(int const argc, char const* const* argv) try {
       | intercept[tablet | required | grab, keyboard | grab]
       | scheduled_emitter
       | scheduler
-      | led_status
+      | led_state
       | enforce_key_state
-      | keys_status // Save key presses
+      | keys_state // Save key presses
       | mouse_history
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
            context
@@ -59,7 +59,7 @@ int main(int const argc, char const* const* argv) try {
              | drop_tablet
              | drop_big_jumps
              | drop_fast_left_clicks             // Ignore fast left clicks
-             | update_mod[keys_status]
+              | update_mod[keys_state]
              | update_mod[mouse_history]]
 
       | swipe_detector                             // Detects swipes
@@ -80,7 +80,7 @@ int main(int const argc, char const* const* argv) try {
       | on[held[KEY_LEFTSHIFT], context | scale_move[0.5f] | scale_pen[0.5f]]
       | on[held[KEY_LEFTCTRL], low_pass_filter]
       | momentum_scroll
-      | update_mod[keys_status]
+      | update_mod[keys_state]
       | drop_zero_mouse_moves
       | drop_msc_scan
       | drop_adjacent_syns

@@ -60,7 +60,7 @@ static constinit auto pipeline =
     | fs8::io_manager
     | fs8::input_manager
     | fs8::intercept[fs8::keyboard | fs8::required | fs8::grab]
-    | fs8::keys_status
+    | fs8::keys_state
     | fs8::on[fs8::pressed[KEY_A], /* do something */]
     | fs8::output;
 
@@ -132,12 +132,12 @@ Tags are constexpr sentinels passed as the last argument:
 | `on`, `once` | Run actions while/once when a condition is true. | — |
 | `held` | True while a key/chord is held; `held[key, decider]` gates it. | — |
 | `hold_mod` | Run a mod while modifier keys are held (`hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]`); quick taps re-emit as a real press+release, holds/swallowed keys don't. | — |
-| `pressed`, `pressed_any` | True when specific keys are down. | `keys_status` |
+| `pressed`, `pressed_any` | True when specific keys are down. | `keys_state` |
 | `keydown`, `keyup` | Match a key press / release event. | — |
 | `multi_click` (`double_click`, `triple_click`) | Double/triple click detection. | — |
 | `swipe_left/right/up/down` | Swipe detection. | `swipe_detector` |
 | `longtime_released`, `limit_mouse_travel` | Time / distance gates. | — |
-| `led_on`, `led_off` | Keyboard LED state conditions. | `led_status` |
+| `led_on`, `led_off` | Keyboard LED state conditions. | `led_state` |
 | `op` (`&`, `|`, `!`), `always_enable`, `always_disable` | Boolean combinators. | — |
 | `modes` / `switch_mode` | Vim-like modes/layers. | — |
 | `run` (`lambda`) | Wrap arbitrary functions as mods/callbacks. | — |
@@ -145,8 +145,8 @@ Tags are constexpr sentinels passed as the last argument:
 **State** (tracked by the pipeline):
 | Mod | What it does |
 |-----|--------------|
-| `keys_status` | Current state of every key (+ `led_status`, `led_toggle`). |
-| `mouse_status` / `mouse_history` | Current/previous mouse positions. |
+| `keys_state` | Current state of every key (+ `led_state`, `led_toggle`). |
+| `mouse_state` / `mouse_history` | Current/previous mouse positions. |
 | `quantifier` / `mice_quantifier` | Threshold-step accumulation for movement. |
 | `device` (`device_is`, `only_device`, `drop_device`, `drop_origin`, `drop_self`, `from_device`, `from_stdin`, `self_emitted`, `from_chained`) | Conditions on which device an event came from. |
 | `var_type` (`vars`) | Typed pipeline variables; read back via `context[name]`. |
@@ -155,7 +155,7 @@ Tags are constexpr sentinels passed as the last argument:
 (exits the pipeline on demand).
 
 Inter-mod dependencies are enforced at compile time via `static_assert`s (e.g.
-"We need keys_status to be in the pipeline."), so a pipeline that forgets a
+"We need keys_state to be in the pipeline."), so a pipeline that forgets a
 state mod fails to build.
 
 ### Mod invariants

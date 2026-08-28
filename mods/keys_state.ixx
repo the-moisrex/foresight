@@ -7,7 +7,7 @@ module;
 #include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
 #include <span>
-export module fs8.mods:keys_status;
+export module fs8.mods:keys_state;
 import fs8.event;
 import fs8.context;
 import fs8.traits;
@@ -19,7 +19,7 @@ export namespace fs8 {
     /**
      * If you need to check if a key is pressed or not, this is what you need to use.
      */
-    constexpr struct [[nodiscard]] basic_keys_status : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_keys_state : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
         using code_type  = event_type::code_type;
@@ -50,8 +50,7 @@ export namespace fs8 {
         [[nodiscard]] code_type first_pressed(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
             code_type pressed = KEY_MAX;
-            std::ignore =
-              ((btns.test(static_cast<std::size_t>(key_codes)) && (pressed = static_cast<code_type>(key_codes), true)) && ...);
+            std::ignore = ((btns.test(static_cast<std::size_t>(key_codes)) && (pressed = static_cast<code_type>(key_codes), true)) && ...);
             return pressed;
         }
 
@@ -90,20 +89,22 @@ export namespace fs8 {
         template <ContextWith<basic_input_manager> CtxT>
         context_action operator()(CtxT& ctx, start_tag) noexcept {
             using enum context_action;
-            ctx.mod(input_manager).add_device_change_listener({
-              .identity = this,
-              .invoke   = [this, &input_manager = ctx.mod(input_manager)](device_id const id, device_change const change) noexcept {
-                  if (change != device_change::connected) {
-                      return;
-                  }
-                  if (auto* dev = input_manager.device_of(id); dev != nullptr) {
-                      seed_from_device(*dev);
-                  }
-              },
-            });
+            ctx.mod(input_manager)
+              .add_device_change_listener({
+                .identity = this,
+                .invoke =
+                  [this, &input_manager = ctx.mod(input_manager)](device_id const id, device_change const change) noexcept {
+                      if (change != device_change::connected) {
+                          return;
+                      }
+                      if (auto* dev = input_manager.device_of(id); dev != nullptr) {
+                          seed_from_device(*dev);
+                      }
+                  },
+              });
             return next;
         }
-    } keys_status;
+    } keys_state;
 
     template <typename ModT = void>
     struct [[nodiscard]] basic_mod_updater {
@@ -126,7 +127,7 @@ export namespace fs8 {
     /**
      * Keeps the track of LEDs
      */
-    constexpr struct [[nodiscard]] basic_led_status : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_led_state : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
         using code_type = event_type::code_type;
@@ -223,14 +224,14 @@ export namespace fs8 {
         }
 
         void operator()(event_type const& event) noexcept;
-    } led_status;
+    } led_state;
 
     /// Flip the CapsLock mode by toggling the (physical) CapsLock LED.
     constexpr struct [[nodiscard]] basic_led_toggle : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
         void operator()(Context auto& ctx) const noexcept {
-            std::ignore = ctx.mod(led_status).toggle_capslock(ctx);
+            std::ignore = ctx.mod(led_state).toggle_capslock(ctx);
         }
     } led_toggle;
 
@@ -242,7 +243,7 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
         void operator()(Context auto& ctx) const noexcept {
-            std::ignore = ctx.mod(led_status).set_led(ctx, LedCode, KeyCode, false);
+            std::ignore = ctx.mod(led_state).set_led(ctx, LedCode, KeyCode, false);
         }
     };
 

@@ -168,7 +168,7 @@ TEST(MomentumPipeline, MouseToScrollConvertsRelXToScroll) {
        {.type = EV_KEY,   .code = BTN_MIDDLE,  .value = 0},
        {.type = EV_SYN,   .code = SYN_REPORT,  .value = 0},
     }]
-     | keys_status
+     | keys_state
      | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | mouse_to_scroll]
      | record[captured])();
 
@@ -190,7 +190,7 @@ TEST(MomentumPipeline, NoScrollWithoutModifier) {
         {.type = EV_REL,      .code = REL_X, .value = -15},
         {.type = EV_SYN, .code = SYN_REPORT,   .value = 0},
     }]
-      | keys_status
+      | keys_state
       | on_held[KEY_CAPSLOCK, BTN_MIDDLE, context | mouse_to_scroll]
       | scheduler
       | momentum_scroll

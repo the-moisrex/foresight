@@ -105,7 +105,7 @@ target_sources(${LIB_NAME}
         mods/input_manager.cxx
         mods/intercept.cxx
         mods/io_manager.cxx
-        mods/keys_status.cxx
+        mods/keys_state.cxx
         mods/momentum.cxx
         mods/on.cxx
         mods/quantifier.cxx
@@ -158,12 +158,12 @@ target_sources(${LIB_NAME}
         mods/input_manager.ixx
         mods/intercept.ixx
         mods/io_manager.ixx
-        mods/keys_status.ixx
+        mods/keys_state.ixx
         mods/lambda.ixx
         mods/modes.ixx
         mods/mods.ixx
         mods/momentum.ixx
-        mods/mouse_status.ixx
+        mods/mouse_state.ixx
         mods/mouse_to_scroll.ixx
         mods/on.ixx
         mods/quantifier.ixx

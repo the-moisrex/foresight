@@ -8,7 +8,7 @@ import fs8.devices.evdev;
 import :input_manager;
 import fs8.devices.capabilities;
 import :drop;
-import :keys_status;
+import :keys_state;
 import fs8.traits;
 
 export namespace fs8 {
@@ -53,8 +53,8 @@ export namespace fs8 {
 
         template <Context CtxT>
         void operator()(CtxT& ctx, start_tag) const noexcept {
-            if constexpr (has_mod<basic_keys_status, CtxT>) {
-                auto const& keys = ctx.mod(keys_status);
+            if constexpr (has_mod<basic_keys_state, CtxT>) {
+                auto const& keys = ctx.mod(keys_state);
                 for (code_type const tool :
                      std::initializer_list<code_type>{
                        BTN_TOOL_PEN,
@@ -151,8 +151,8 @@ export namespace fs8 {
         /// this fixes flickering of the pen after we switched while the pen (in mouse mode) is still active.
         template <Context CtxT>
         void operator()(CtxT& ctx, toggle_off_tag) noexcept {
-            if constexpr (has_mod<basic_keys_status, CtxT>) {
-                auto const& keys = ctx.mod(keys_status);
+            if constexpr (has_mod<basic_keys_state, CtxT>) {
+                auto const& keys = ctx.mod(keys_state);
                 for (code_type const tool :
                      std::initializer_list<code_type>{
                        BTN_TOOL_PEN,

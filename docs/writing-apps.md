@@ -20,7 +20,7 @@ static constinit auto pipeline =
     | fs8::io_manager
     | fs8::input_manager
     | fs8::intercept[tablet | required | grab]
-    | fs8::keys_status
+    | fs8::keys_state
     | fs8::on[fs8::pressed[KEY_A], /* do something */]
     | fs8::output;
 
@@ -134,7 +134,7 @@ static constinit auto pipeline =
     | fs8::intercept[fs8::tablet | fs8::required | fs8::grab]
     | fs8::abs2rel                // absolute → relative moves
     | fs8::pen2mice               // translate pen buttons
-    | fs8::keys_status
+    | fs8::keys_state
     | fs8::on[fs8::pressed[BTN_RIGHT], fs8::drop_start_moves]
     | fs8::router[fs8::caps::mouse >> fs8::uinput];
 

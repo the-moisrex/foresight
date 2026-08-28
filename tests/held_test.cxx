@@ -98,7 +98,7 @@ TEST(HeldTest, PressedStillFiresOnRepeats) {
        {.type = EV_KEY, .code = KEY_F1, .value = 2},
        {.type = EV_KEY, .code = KEY_F1, .value = 0},
     }]
-     | keys_status
+     | keys_state
      | on[pressed[KEY_F1], record[captured_events]])();
 
     // Contrast with held: `pressed` treats the auto-repeat as "still pressed".
@@ -192,7 +192,7 @@ TEST(HeldTest, GateComboIgnores) {
        {.type = EV_KEY,  .code = KEY_G, .value = 0},
        {.type = EV_KEY, .code = KEY_F1, .value = 0},
     }]
-     | keys_status
+     | keys_state
      | held["<f1>", pressed[KEY_G]]
      | on[always_enable, record[captured_events]])();
 
@@ -215,7 +215,7 @@ TEST(HeldTest, GateOrderIndependent) {
        {.type = EV_KEY, .code = KEY_F1, .value = 0},
        {.type = EV_KEY,  .code = KEY_G, .value = 0},
     }]
-     | keys_status
+     | keys_state
      | held["<f1>", pressed[KEY_G]]
      | on[always_enable, record[captured_events]])();
 
@@ -295,7 +295,7 @@ TEST(HeldTest, GateChordConsumesOnCombo) {
        {.type = EV_KEY,      .code = KEY_F1, .value = 0},
        {.type = EV_KEY, .code = KEY_LEFTALT, .value = 0},
     }]
-     | keys_status
+     | keys_state
      | held["[F1][Alt]", pressed[KEY_G]]
      | on[always_enable, record[captured_events]])();
 
