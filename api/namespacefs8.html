@@ -419,6 +419,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1dev__cap__view.html">dev_cap_view</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1device__change__handle.html">device_change_handle</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1device__live__state.html">device_live_state</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Per-device state for the live view.  <a href="structfs8_1_1device__live__state.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -793,6 +795,11 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a2008ba272c641df21f53c054eacdf257"><td class="mdescLeft">&#160;</td><td class="mdescRight">How a debounce drops events.  <a href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257">More...</a><br /></td></tr>
 <tr class="separator:a2008ba272c641df21f53c054eacdf257"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a20a1a79bbb5147ba7a0db2bb301c63" id="r_a5a20a1a79bbb5147ba7a0db2bb301c63"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63">fs8::device_change</a> : std::uint8_t { <a class="el" href="namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63a06aa6fa8bdc2078e7e1bd903e70c8f6a">connected</a>
+, <a class="el" href="namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63a3a561116f0c9675a3c83d21fa365050d">disconnected</a>
+ }</td></tr>
+<tr class="memdesc:a5a20a1a79bbb5147ba7a0db2bb301c63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether a device was just connected or disconnected.  <a href="namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63">More...</a><br /></td></tr>
+<tr class="separator:a5a20a1a79bbb5147ba7a0db2bb301c63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac2cd2b3bb76585e09b38e12d8981983c" id="r_ac2cd2b3bb76585e09b38e12d8981983c"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983c">fs8::io_event</a> : short { <br />
 &#160;&#160;<a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca334c4a4c42fdb79d7ebc3e73b517e6f8">none</a> = 0
 , <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca13b5bfe96f3e2fe411c9f66f4a582adf">in</a> = POLLIN
@@ -2525,6 +2532,34 @@ template&lt;template&lt; typename... &gt; typename Templ, typename... ModsT&gt; 
 </td></tr>
 <tr><td class="fieldname"><a id="a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d" name="a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d"></a>event&#160;</td><td class="fielddoc"><p>any code: drop every event that lands within the window of the previous one. </p>
 </td></tr>
+</table>
+
+</div>
+</div>
+<a id="a5a20a1a79bbb5147ba7a0db2bb301c63" name="a5a20a1a79bbb5147ba7a0db2bb301c63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a20a1a79bbb5147ba7a0db2bb301c63">&#9670;&#160;</a></span>device_change</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum struct <a class="el" href="namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63">fs8::device_change</a> : std::uint8_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether a device was just connected or disconnected. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a5a20a1a79bbb5147ba7a0db2bb301c63a06aa6fa8bdc2078e7e1bd903e70c8f6a" name="a5a20a1a79bbb5147ba7a0db2bb301c63a06aa6fa8bdc2078e7e1bd903e70c8f6a"></a>connected&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a5a20a1a79bbb5147ba7a0db2bb301c63a3a561116f0c9675a3c83d21fa365050d" name="a5a20a1a79bbb5147ba7a0db2bb301c63a3a561116f0c9675a3c83d21fa365050d"></a>disconnected&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>

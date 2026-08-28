@@ -206,6 +206,7 @@ var namespacefs8 =
     [ "default_evtest_format", "structfs8_1_1default__evtest__format.html", "structfs8_1_1default__evtest__format" ],
     [ "dev_cap", "structfs8_1_1dev__cap.html", "structfs8_1_1dev__cap" ],
     [ "dev_cap_view", "structfs8_1_1dev__cap__view.html", "structfs8_1_1dev__cap__view" ],
+    [ "device_change_handle", "structfs8_1_1device__change__handle.html", "structfs8_1_1device__change__handle" ],
     [ "device_live_state", "structfs8_1_1device__live__state.html", "structfs8_1_1device__live__state" ],
     [ "dynamic_scope", "structfs8_1_1dynamic__scope.html", "structfs8_1_1dynamic__scope" ],
     [ "dynamic_scope< T, ConcreteT >", "structfs8_1_1dynamic__scope_3_01T_00_01ConcreteT_01_4.html", "structfs8_1_1dynamic__scope_3_01T_00_01ConcreteT_01_4" ],
@@ -342,6 +343,10 @@ var namespacefs8 =
     [ "debounce_mode", "namespacefs8.html#a2008ba272c641df21f53c054eacdf257", [
       [ "click", "namespacefs8.html#a2008ba272c641df21f53c054eacdf257aa8affc088cbca89fa20dbd98c91362e4", null ],
       [ "event", "namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d", null ]
+    ] ],
+    [ "device_change", "namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63", [
+      [ "connected", "namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63a06aa6fa8bdc2078e7e1bd903e70c8f6a", null ],
+      [ "disconnected", "namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63a3a561116f0c9675a3c83d21fa365050d", null ]
     ] ],
     [ "device_id", "namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0", [
       [ "none", "namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8", null ],

@@ -31,13 +31,14 @@ var searchData=
   ['not_5fgrabbing_28',['not_grabbing',['../namespacefs8.html#acf583ae8070e458d1b44419098d31571a2cc53d0c363a43c70e57a9e0df540572',1,'fs8']]],
   ['not_5fmatched_29',['not_matched',['../namespacefs8.html#a1cd6248f16c943ae782320ce417f2338a41e620346a872ece4af00452a824aa92',1,'fs8']]],
   ['nothing_30',['nothing',['../namespacefs8_1_1caps.html#ace9c706e374bca0ffdd78fa4f70c031a',1,'fs8::caps']]],
-  ['null_5fkey_31',['null_key',['../namespacefs8.html#ac7b0ae4916c36d0c778bc229801b0bd6',1,'fs8']]],
-  ['nullable_5findirect_32',['nullable_indirect',['../structfs8_1_1nullable__indirect.html#a613fcfd694be471a01a874ee49615b86',1,'fs8::nullable_indirect::nullable_indirect() noexcept=default'],['../structfs8_1_1nullable__indirect.html#a4eea7a470fe105358775ae32933f9191',1,'fs8::nullable_indirect::nullable_indirect(nullable_indirect &amp;&amp;other) noexcept'],['../structfs8_1_1nullable__indirect.html#a74e4b435d29dd3f68bbf992d74d575ef',1,'fs8::nullable_indirect::nullable_indirect(nullable_indirect const &amp;other)'],['../structfs8_1_1nullable__indirect.html#a6df4277014c70d69d14f11aa64256a41',1,'fs8::nullable_indirect::nullable_indirect(std::nullptr_t) noexcept'],['../structfs8_1_1nullable__indirect.html',1,'fs8::nullable_indirect&lt; T, Allocator &gt;']]],
-  ['nullable_5findirect_2eixx_33',['nullable_indirect.ixx',['../nullable__indirect_8ixx.html',1,'']]],
-  ['nullable_5findirect_3c_20fs8_3a_3adetail_3a_3arouter_5fstate_20_3e_34',['nullable_indirect&lt; fs8::detail::router_state &gt;',['../structfs8_1_1nullable__indirect.html',1,'fs8']]],
-  ['nullable_5findirect_3c_20fs8_3a_3apimpl_5fidiom_3a_3aimpl_20_3e_35',['nullable_indirect&lt; fs8::pimpl_idiom::impl &gt;',['../structfs8_1_1nullable__indirect.html',1,'fs8']]],
-  ['nullable_5findirect_3c_20fs8_3a_3aplain_5fpimpl_5fidiom_3a_3aimpl_20_3e_36',['nullable_indirect&lt; fs8::plain_pimpl_idiom::impl &gt;',['../structfs8_1_1nullable__indirect.html',1,'fs8']]],
-  ['numlock_5foff_37',['numlock_off',['../namespacefs8.html#a5e13145a867352fd13a3ca42f1f21653',1,'fs8']]],
-  ['numpad_38',['numpad',['../namespacefs8_1_1caps.html#a8939b73171b13f88359865d6e1e78933',1,'fs8::caps']]],
-  ['nval_39',['nval',['../namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983caa5e0fb6ca915cf212b6528e5ae1786f2',1,'fs8']]]
+  ['notify_5flisteners_31',['notify_listeners',['../structfs8_1_1pimpl__idiom_1_1impl.html#a62e1691d049c22b9955c6c60fc9d9a99',1,'fs8::pimpl_idiom::impl']]],
+  ['null_5fkey_32',['null_key',['../namespacefs8.html#ac7b0ae4916c36d0c778bc229801b0bd6',1,'fs8']]],
+  ['nullable_5findirect_33',['nullable_indirect',['../structfs8_1_1nullable__indirect.html#a613fcfd694be471a01a874ee49615b86',1,'fs8::nullable_indirect::nullable_indirect() noexcept=default'],['../structfs8_1_1nullable__indirect.html#a4eea7a470fe105358775ae32933f9191',1,'fs8::nullable_indirect::nullable_indirect(nullable_indirect &amp;&amp;other) noexcept'],['../structfs8_1_1nullable__indirect.html#a74e4b435d29dd3f68bbf992d74d575ef',1,'fs8::nullable_indirect::nullable_indirect(nullable_indirect const &amp;other)'],['../structfs8_1_1nullable__indirect.html#a6df4277014c70d69d14f11aa64256a41',1,'fs8::nullable_indirect::nullable_indirect(std::nullptr_t) noexcept'],['../structfs8_1_1nullable__indirect.html',1,'fs8::nullable_indirect&lt; T, Allocator &gt;']]],
+  ['nullable_5findirect_2eixx_34',['nullable_indirect.ixx',['../nullable__indirect_8ixx.html',1,'']]],
+  ['nullable_5findirect_3c_20fs8_3a_3adetail_3a_3arouter_5fstate_20_3e_35',['nullable_indirect&lt; fs8::detail::router_state &gt;',['../structfs8_1_1nullable__indirect.html',1,'fs8']]],
+  ['nullable_5findirect_3c_20fs8_3a_3apimpl_5fidiom_3a_3aimpl_20_3e_36',['nullable_indirect&lt; fs8::pimpl_idiom::impl &gt;',['../structfs8_1_1nullable__indirect.html',1,'fs8']]],
+  ['nullable_5findirect_3c_20fs8_3a_3aplain_5fpimpl_5fidiom_3a_3aimpl_20_3e_37',['nullable_indirect&lt; fs8::plain_pimpl_idiom::impl &gt;',['../structfs8_1_1nullable__indirect.html',1,'fs8']]],
+  ['numlock_5foff_38',['numlock_off',['../namespacefs8.html#a5e13145a867352fd13a3ca42f1f21653',1,'fs8']]],
+  ['numpad_39',['numpad',['../namespacefs8_1_1caps.html#a8939b73171b13f88359865d6e1e78933',1,'fs8::caps']]],
+  ['nval_40',['nval',['../namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983caa5e0fb6ca915cf212b6528e5ae1786f2',1,'fs8']]]
 ];

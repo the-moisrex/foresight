@@ -115,6 +115,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a46097b37159f00126d970baab082c62d" id="r_a46097b37159f00126d970baab082c62d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a46097b37159f00126d970baab082c62d">add_query_provider</a> (<a class="el" href="structfs8_1_1query__provider__handle.html">query_provider_handle</a> provider)</td></tr>
 <tr class="memdesc:a46097b37159f00126d970baab082c62d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a query provider by reference (idempotent per provider).  <br /></td></tr>
 <tr class="separator:a46097b37159f00126d970baab082c62d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7e4a7a8c1616bfb310ee4d3deccd5e0" id="r_ad7e4a7a8c1616bfb310ee4d3deccd5e0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#ad7e4a7a8c1616bfb310ee4d3deccd5e0">add_device_change_listener</a> (<a class="el" href="structfs8_1_1device__change__handle.html">device_change_handle</a> listener)</td></tr>
+<tr class="separator:ad7e4a7a8c1616bfb310ee4d3deccd5e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae92ae2c2e2fce6fcc080448e9a75c3b9" id="r_ae92ae2c2e2fce6fcc080448e9a75c3b9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#ae92ae2c2e2fce6fcc080448e9a75c3b9">requery</a> ()</td></tr>
 <tr class="separator:ae92ae2c2e2fce6fcc080448e9a75c3b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa34542c4b6f7e27fb1db3953d9cf96e" id="r_aaa34542c4b6f7e27fb1db3953d9cf96e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#aaa34542c4b6f7e27fb1db3953d9cf96e">own_device</a> (std::string_view devnode) noexcept</td></tr>
@@ -221,6 +223,33 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Add device manually. </p>
+
+</div>
+</div>
+<a id="ad7e4a7a8c1616bfb310ee4d3deccd5e0" name="ad7e4a7a8c1616bfb310ee4d3deccd5e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7e4a7a8c1616bfb310ee4d3deccd5e0">&#9670;&#160;</a></span>add_device_change_listener()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void basic_input_manager::add_device_change_listener </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1device__change__handle.html">device_change_handle</a>&#160;</td>
+          <td class="paramname"><em>listener</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Register a listener that is notified on device connect/disconnect. Idempotent by identity pointer. </p>
 
 </div>
 </div>

@@ -161,6 +161,7 @@ var annotated_dup =
       [ "default_evtest_format", "structfs8_1_1default__evtest__format.html", "structfs8_1_1default__evtest__format" ],
       [ "dev_cap", "structfs8_1_1dev__cap.html", "structfs8_1_1dev__cap" ],
       [ "dev_cap_view", "structfs8_1_1dev__cap__view.html", "structfs8_1_1dev__cap__view" ],
+      [ "device_change_handle", "structfs8_1_1device__change__handle.html", "structfs8_1_1device__change__handle" ],
       [ "device_live_state", "structfs8_1_1device__live__state.html", "structfs8_1_1device__live__state" ],
       [ "dynamic_scope", "structfs8_1_1dynamic__scope.html", "structfs8_1_1dynamic__scope" ],
       [ "dynamic_scope< T, ConcreteT >", "structfs8_1_1dynamic__scope_3_01T_00_01ConcreteT_01_4.html", "structfs8_1_1dynamic__scope_3_01T_00_01ConcreteT_01_4" ],

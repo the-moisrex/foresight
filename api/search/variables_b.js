@@ -16,12 +16,13 @@ var searchData=
   ['lerp_13',['lerp',['../namespacefs8.html#a2bb11e4e60596fe650042cb7d9e48933',1,'fs8']]],
   ['level_14',['level',['../structfs8_1_1xkb_1_1key__position.html#a2c39f0e9919e2e7a366be819d3364882',1,'fs8::xkb::key_position']]],
   ['limit_5fmouse_5ftravel_15',['limit_mouse_travel',['../namespacefs8.html#a4732f4557d93cef41e51d86eb8639508',1,'fs8']]],
-  ['live_5fview_5fformat_5fbuf_5fsize_16',['live_view_format_buf_size',['../namespacefs8.html#a406bf237d35926f500f1ef51fa27e829',1,'fs8']]],
-  ['live_5fview_5foutput_17',['live_view_output',['../namespacefs8.html#a5f2890a556ad43fb5a6968f83af24dfd',1,'fs8']]],
-  ['load_5fevent_18',['load_event',['../namespacefs8.html#a23534d83336f1e5cac4e0c0b81cc6401',1,'fs8']]],
-  ['log_19',['log',['../namespacefs8.html#a976dc73ef435c645b097a7fa36ecfaaf',1,'fs8']]],
-  ['log_5fdiagnostics_20',['log_diagnostics',['../namespacefs8.html#a51a2bb7da98bfb72014b626688f89346',1,'fs8']]],
-  ['longtime_5freleased_21',['longtime_released',['../namespacefs8.html#a38d55a9436aeb69c0eeab34768639137',1,'fs8']]],
-  ['low_5fpass_5ffilter_22',['low_pass_filter',['../namespacefs8.html#a96522800554b963fb1a7a3fda11bbf01',1,'fs8']]],
-  ['low_5fthreshold_23',['low_threshold',['../namespacefs8.html#afce98c75abad678593079062353796f1',1,'fs8']]]
+  ['listeners_16',['listeners',['../structfs8_1_1pimpl__idiom_1_1impl.html#a222a0e785afcf212ee0030db395b88b9',1,'fs8::pimpl_idiom::impl']]],
+  ['live_5fview_5fformat_5fbuf_5fsize_17',['live_view_format_buf_size',['../namespacefs8.html#a406bf237d35926f500f1ef51fa27e829',1,'fs8']]],
+  ['live_5fview_5foutput_18',['live_view_output',['../namespacefs8.html#a5f2890a556ad43fb5a6968f83af24dfd',1,'fs8']]],
+  ['load_5fevent_19',['load_event',['../namespacefs8.html#a23534d83336f1e5cac4e0c0b81cc6401',1,'fs8']]],
+  ['log_20',['log',['../namespacefs8.html#a976dc73ef435c645b097a7fa36ecfaaf',1,'fs8']]],
+  ['log_5fdiagnostics_21',['log_diagnostics',['../namespacefs8.html#a51a2bb7da98bfb72014b626688f89346',1,'fs8']]],
+  ['longtime_5freleased_22',['longtime_released',['../namespacefs8.html#a38d55a9436aeb69c0eeab34768639137',1,'fs8']]],
+  ['low_5fpass_5ffilter_23',['low_pass_filter',['../namespacefs8.html#a96522800554b963fb1a7a3fda11bbf01',1,'fs8']]],
+  ['low_5fthreshold_24',['low_threshold',['../namespacefs8.html#afce98c75abad678593079062353796f1',1,'fs8']]]
 ];

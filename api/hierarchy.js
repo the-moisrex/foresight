@@ -188,6 +188,7 @@ var hierarchy =
     [ "fs8::default_evtest_format", "structfs8_1_1default__evtest__format.html", null ],
     [ "fs8::dev_cap< N >", "structfs8_1_1dev__cap.html", null ],
     [ "fs8::dev_cap_view", "structfs8_1_1dev__cap__view.html", null ],
+    [ "fs8::device_change_handle", "structfs8_1_1device__change__handle.html", null ],
     [ "fs8::device_live_state", "structfs8_1_1device__live__state.html", null ],
     [ "fs8::dynamic_scope< T, typename >", "structfs8_1_1dynamic__scope.html", null ],
     [ "fs8::dynamic_scope< T, ConcreteT >", "structfs8_1_1dynamic__scope_3_01T_00_01ConcreteT_01_4.html", null ],

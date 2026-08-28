@@ -14,8 +14,11 @@ var NAVTREEINDEX2 =
 "inout_8ixx.html#afa9df52c3767ecdf335b27ae21ce3d40":[4,0,4,15,6],
 "input__manager_8cxx.html":[4,0,4,16],
 "input__manager_8ixx.html":[4,0,4,17],
-"input__manager_8ixx.html#a2909da901642b75795d9c5ab3c4322c9":[4,0,4,17,3],
-"input__manager_8ixx.html#a804062ceba9799980345ac46a758f297":[4,0,4,17,4],
+"input__manager_8ixx.html#a2909da901642b75795d9c5ab3c4322c9":[4,0,4,17,5],
+"input__manager_8ixx.html#a5a20a1a79bbb5147ba7a0db2bb301c63":[4,0,4,17,4],
+"input__manager_8ixx.html#a5a20a1a79bbb5147ba7a0db2bb301c63a06aa6fa8bdc2078e7e1bd903e70c8f6a":[4,0,4,17,4,0],
+"input__manager_8ixx.html#a5a20a1a79bbb5147ba7a0db2bb301c63a3a561116f0c9675a3c83d21fa365050d":[4,0,4,17,4,1],
+"input__manager_8ixx.html#a804062ceba9799980345ac46a758f297":[4,0,4,17,6],
 "inputs-event-codes_8ixx.html":[4,0,1,4],
 "inputs-event-codes_8ixx.html#a31ba11602e19e705ab53f7956cc2f56f":[4,0,1,4,1],
 "intercept_8cxx.html":[4,0,4,18],
@@ -246,8 +249,5 @@ var NAVTREEINDEX2 =
 "module_fs8_8context.html#a4a39b2761eae68bce62009497f408e67":[0,0,13,197],
 "module_fs8_8context.html#a4a56255f54979b6886ed7104491cc497":[0,0,13,70],
 "module_fs8_8context.html#a4ed552c86e05bc9df46b06bae65dfda4":[0,0,13,125],
-"module_fs8_8context.html#a4f8ac0dfce54c0e2123a88f1df687a50":[0,0,13,64],
-"module_fs8_8context.html#a51c1603ca29c1cee1bd0230269e81c72":[0,0,13,118],
-"module_fs8_8context.html#a520cf6e62cb808188b11ed69fdd6846b":[0,0,13,164],
-"module_fs8_8context.html#a52c640f36664d65bad609eafd5066513":[0,0,13,40]
+"module_fs8_8context.html#a4f8ac0dfce54c0e2123a88f1df687a50":[0,0,13,64]
 };

@@ -1,6 +1,7 @@
 var structfs8_1_1basic__input__manager =
 [
     [ "add", "structfs8_1_1basic__input__manager.html#a98111f1e8dd4f64b709a7611d21157e5", null ],
+    [ "add_device_change_listener", "structfs8_1_1basic__input__manager.html#ad7e4a7a8c1616bfb310ee4d3deccd5e0", null ],
     [ "add_query_provider", "structfs8_1_1basic__input__manager.html#a46097b37159f00126d970baab082c62d", null ],
     [ "device_id_of", "structfs8_1_1basic__input__manager.html#a42f398603960288f0d002e4c3653ffc7", null ],
     [ "device_of", "structfs8_1_1basic__input__manager.html#a47cba82267484195ae6250b5e9a028dc", null ],

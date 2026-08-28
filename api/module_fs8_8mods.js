@@ -42,6 +42,7 @@ var module_fs8_8mods =
     [ "basic_search_engine", "structfs8_1_1basic__search__engine.html", "structfs8_1_1basic__search__engine" ],
     [ "basic_typed", "structfs8_1_1basic__typed.html", "structfs8_1_1basic__typed" ],
     [ "query_provider_handle", "structfs8_1_1query__provider__handle.html", "structfs8_1_1query__provider__handle" ],
+    [ "device_change_handle", "structfs8_1_1device__change__handle.html", "structfs8_1_1device__change__handle" ],
     [ "basic_input_manager", "structfs8_1_1basic__input__manager.html", "structfs8_1_1basic__input__manager" ],
     [ "basic_record", "structfs8_1_1basic__record.html", "structfs8_1_1basic__record" ],
     [ "basic_pressure2mouse_clicks", "structfs8_1_1basic__pressure2mouse__clicks.html", "structfs8_1_1basic__pressure2mouse__clicks" ],
@@ -139,6 +140,10 @@ var module_fs8_8mods =
     [ "basic_mice_quantifier", "structfs8_1_1basic__mice__quantifier.html", "structfs8_1_1basic__mice__quantifier" ],
     [ "query_provider", "conceptfs8_1_1query__provider.html", null ],
     [ "io_handler", "conceptfs8_1_1io__handler.html", null ],
+    [ "fs8::device_change", "module_fs8_8mods.html#a5a20a1a79bbb5147ba7a0db2bb301c63", [
+      [ "connected", "module_fs8_8mods.html#a5a20a1a79bbb5147ba7a0db2bb301c63a06aa6fa8bdc2078e7e1bd903e70c8f6a", null ],
+      [ "disconnected", "module_fs8_8mods.html#a5a20a1a79bbb5147ba7a0db2bb301c63a3a561116f0c9675a3c83d21fa365050d", null ]
+    ] ],
     [ "fs8::sanitizer_issue", "module_fs8_8mods.html#a7275d4de75bd1ef162eb0f4b4d4b015d", [
       [ "none", "module_fs8_8mods.html#a7275d4de75bd1ef162eb0f4b4d4b015da334c4a4c42fdb79d7ebc3e73b517e6f8", null ],
       [ "adjacent_syn", "module_fs8_8mods.html#a7275d4de75bd1ef162eb0f4b4d4b015da9a4527d62628879977386e12cbd83eb3", null ],
@@ -323,6 +328,7 @@ var module_fs8_8mods =
     [ "fs8::provider_handle", "module_fs8_8mods.html#a2909da901642b75795d9c5ab3c4322c9", null ],
     [ "fs8::basic_input_manager::add", "module_fs8_8mods.html#a98111f1e8dd4f64b709a7611d21157e5", null ],
     [ "fs8::basic_input_manager::add_query_provider", "module_fs8_8mods.html#a46097b37159f00126d970baab082c62d", null ],
+    [ "fs8::basic_input_manager::add_device_change_listener", "module_fs8_8mods.html#ad7e4a7a8c1616bfb310ee4d3deccd5e0", null ],
     [ "fs8::basic_input_manager::requery", "module_fs8_8mods.html#ae92ae2c2e2fce6fcc080448e9a75c3b9", null ],
     [ "fs8::basic_input_manager::own_device", "module_fs8_8mods.html#aaa34542c4b6f7e27fb1db3953d9cf96e", null ],
     [ "fs8::basic_input_manager::is_owned", "module_fs8_8mods.html#a10fe2cb7f6c3e41622a6145e702e7a67", null ],
@@ -734,6 +740,8 @@ var module_fs8_8mods =
     [ "fs8::search_engine", "module_fs8_8mods.html#a9340941b64c4218d5897c73863566827", null ],
     [ "fs8::query_provider_handle::identity", "module_fs8_8mods.html#a3ed1c85c05ca41785cc0c7077b8c2c4c", null ],
     [ "fs8::query_provider_handle::invoke", "module_fs8_8mods.html#aafc599a8119e8e29bf15a582eb2bb79f", null ],
+    [ "fs8::device_change_handle::identity", "module_fs8_8mods.html#aa22b7e1f21b8054589cf2a87d313dd83", null ],
+    [ "fs8::device_change_handle::invoke", "module_fs8_8mods.html#a20cb9a3b7c460418ad1e80ae4b0d57d9", null ],
     [ "fs8::basic_device_is::id", "module_fs8_8mods.html#aed16a6c6c373f0962a6c709d80307efc", null ],
     [ "fs8::drop_origin", "module_fs8_8mods.html#a3d78e9f121fb63f8ff1ac59f78c3c743", null ],
     [ "fs8::drop_device", "module_fs8_8mods.html#a463b4d214a4e84e156b75035b679cf5c", null ],
