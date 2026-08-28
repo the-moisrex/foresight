@@ -1,10 +1,8 @@
 // Created by moisrex on 8/28/26.
 
 module;
-#include <array>
-#include <cstdint>
 #include <linux/input-event-codes.h>
-export module fs8.mods:key_sync_lock;
+export module fs8.mods:startup_key_releases;
 import fs8.event;
 import fs8.context;
 import fs8.traits;
@@ -22,43 +20,8 @@ export namespace fs8 {
     /// holding Enter to start pen2mice): the OS has already seen the press
     /// from the physical keyboard, so the pipeline must synthetically
     /// release them before it can correctly track key state.
-    constexpr struct [[nodiscard]] basic_key_sync_lock : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_startup_key_releases : consteval_copyable {
         using consteval_copyable::consteval_copyable;
-
-        /// Release all held keys on a device by sending EV_KEY release events.
-        static void release_all_keys(evdev& dev) noexcept {
-            if (!dev.has_event_type(EV_KEY)) {
-                return;
-            }
-            std::array<std::uint8_t, key_bitmap_bytes> bitmap{};
-            if (!query_key_state(dev, bitmap)) [[unlikely]] {
-                return;
-            }
-            for (std::size_t i = 0; i < key_bitmap_bytes; ++i) {
-                if (bitmap[i] == 0) [[likely]] {
-                    continue;
-                }
-                for (int bit = 0; bit < 8; ++bit) {
-                    if (bitmap[i] & (1u << bit)) {
-                        auto const       code = static_cast<std::uint16_t>(i * 8 + bit);
-                        event_type const event{EV_KEY, code, 0};
-                        log("Releasing key {} for device: {}", event.code_name(), dev.device_name());
-                        auto const state = dev.grab();
-                        if (state == grab_state::grabbing) {
-                            log("  ungrabbing it.");
-                            dev.grab_input(false);
-                        }
-                        if (!dev.send_event(event.native()) || !dev.send_event(syn().native())) [[unlikely]] {
-                            log("  Failed to release the key.");
-                        }
-                        if (state == grab_state::grabbing) {
-                            log("  re-grabbing it.");
-                            dev.grab_input(true);
-                        }
-                    }
-                }
-            }
-        }
 
         /// Register a device-change listener and check already-enumerated devices.
         template <ContextWith<basic_input_manager> CtxT>
@@ -94,6 +57,6 @@ export namespace fs8 {
         constexpr void operator()() const noexcept {
             // do nothing
         }
-    } key_sync_lock;
+    } startup_key_releases;
 
 } // namespace fs8

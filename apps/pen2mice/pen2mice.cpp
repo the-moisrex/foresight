@@ -45,7 +45,7 @@ int main(int const argc, char const* const* argv) try {
       | pipeline_singleton
       | io_manager
       | input_manager
-      | key_sync_lock
+      | startup_key_releases
       | intercept[tablet | required | grab, keyboard | grab]
       | scheduled_emitter
       | scheduler

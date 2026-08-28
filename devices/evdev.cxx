@@ -2,6 +2,7 @@
 
 module;
 #include <algorithm>
+#include <array>
 #include <bits/this_thread_sleep.h>
 #include <cassert>
 #include <cstring>
@@ -598,4 +599,38 @@ bool fs8::query_key_state(evdev const& dev, std::span<unsigned char, key_bitmap_
         return false;
     }
     return ::ioctl(fd, EVIOCGKEY(out.size()), out.data()) >= 0;
+}
+
+void fs8::release_all_keys(evdev& dev) noexcept {
+    if (!dev.has_event_type(EV_KEY)) {
+        return;
+    }
+    std::array<std::uint8_t, key_bitmap_bytes> bitmap{};
+    if (!query_key_state(dev, bitmap)) [[unlikely]] {
+        return;
+    }
+    for (std::size_t i = 0; i < key_bitmap_bytes; ++i) {
+        if (bitmap[i] == 0) [[likely]] {
+            continue;
+        }
+        for (int bit = 0; bit < 8; ++bit) {
+            if (bitmap[i] & (1u << bit)) {
+                auto const       code = static_cast<std::uint16_t>(i * 8 + bit);
+                event_type const event{EV_KEY, code, 0};
+                log("Releasing key {} for device: {}", event.code_name(), dev.device_name());
+                auto const state = dev.grab();
+                if (state == grab_state::grabbing) {
+                    log("  ungrabbing it.");
+                    dev.grab_input(false);
+                }
+                if (!dev.send_event(event.native()) || !dev.send_event(syn().native())) [[unlikely]] {
+                    log("  Failed to release the key.");
+                }
+                if (state == grab_state::grabbing) {
+                    log("  re-grabbing it.");
+                    dev.grab_input(true);
+                }
+            }
+        }
+    }
 }

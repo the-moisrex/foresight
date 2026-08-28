@@ -239,6 +239,9 @@ namespace fs8 {
     /// elements.  Returns true on success.
     export [[nodiscard]] bool query_key_state(evdev const& dev, std::span<unsigned char, key_bitmap_bytes> out) noexcept;
 
+    /// Release all held keys on a device by sending EV_KEY release events.
+    export void release_all_keys(evdev& dev) noexcept;
+
     /// Returns the highest valid code for a given event type (KEY_MAX for
     /// EV_KEY, REL_MAX for EV_REL, etc.). Unknown types return 0.
     export [[nodiscard]] constexpr unsigned event_type_max_code(unsigned const type) noexcept {

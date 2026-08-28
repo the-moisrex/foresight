@@ -109,7 +109,7 @@ TEST(SchedulerApi, ScheduleReturnsHandle) {
     auto&                 sched    = pipeline.mod<basic_scheduler>();
     sched.cancel_all();
 
-    auto const handle = sched.schedule(simple_tick, nullptr, 1ms);
+    static_cast<void>(sched.schedule(simple_tick, nullptr, 1ms));
     EXPECT_TRUE(sched.has_pending());
 
     sched.cancel_all();
@@ -136,8 +136,8 @@ TEST(SchedulerApi, CancelAllClearsAllTicks) {
     auto&                 sched    = pipeline.mod<basic_scheduler>();
     sched.cancel_all();
 
-    sched.schedule(simple_tick, nullptr, 1ms);
-    sched.schedule(second_tick, nullptr, 1ms);
+    static_cast<void>(sched.schedule(simple_tick, nullptr, 1ms));
+    static_cast<void>(sched.schedule(second_tick, nullptr, 1ms));
     EXPECT_TRUE(sched.has_pending());
 
     sched.cancel_all();
@@ -150,7 +150,7 @@ TEST(SchedulerApi, FiniteTickDeactivatesWhenDone) {
     sched.cancel_all();
 
     int counter = 0;
-    sched.schedule(finite_tick, &counter, 1ms);
+    static_cast<void>(sched.schedule(finite_tick, &counter, 1ms));
 
     for (int i = 0; i < 3; ++i) {
         std::this_thread::sleep_for(5ms);
@@ -174,8 +174,8 @@ TEST(SchedulerApi, MultipleTicksFireIndependently) {
     auto&                 sched    = pipeline.mod<basic_scheduler>();
     sched.cancel_all();
 
-    sched.schedule(simple_tick, nullptr, 1ms);
-    sched.schedule(second_tick, nullptr, 1ms);
+    static_cast<void>(sched.schedule(simple_tick, nullptr, 1ms));
+    static_cast<void>(sched.schedule(second_tick, nullptr, 1ms));
 
     std::this_thread::sleep_for(10ms);
 
@@ -215,7 +215,7 @@ TEST(SchedulerApi, MultipleEventsPerTick) {
     sched.cancel_all();
 
     int counter = 0;
-    sched.schedule(multi_event_tick, &counter, 1ms);
+    static_cast<void>(sched.schedule(multi_event_tick, &counter, 1ms));
 
     std::this_thread::sleep_for(5ms);
 
@@ -244,7 +244,7 @@ TEST(SchedulerApi, CancelTickEmitsEventThenRemoves) {
     auto&                 sched    = pipeline.mod<basic_scheduler>();
     sched.cancel_all();
 
-    sched.schedule(cancel_after_one_tick, nullptr, 1ms);
+    static_cast<void>(sched.schedule(cancel_after_one_tick, nullptr, 1ms));
 
     std::this_thread::sleep_for(5ms);
 
