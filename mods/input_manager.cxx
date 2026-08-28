@@ -56,6 +56,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
     udev_monitor                       monitor;
     std::list<evdev>                   devs;                   // stable handles; todo: switch to std::hive once available
     std::vector<query_provider_handle> providers;
+    std::vector<device_change_handle>  listeners;
     std::vector<std::string>           owned_sysnames;         // uinput devices created by this process
     std::uint32_t                      devices_generation = 1; // must be non-zero for xorshift
 
@@ -135,7 +136,14 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         //     event_dev.property("ID_INPUT_KEYBOARD"));
 
         if (action == "remove" || action == "unbind") {
-            erase_by_sysname(name);
+            // Compute the device_id before erasing so listeners can identify it.
+            if (!name.empty()) {
+                auto const id = hashed_device(name);
+                erase_by_sysname(name);
+                notify_listeners(id, fs8::device_change::disconnected);
+            } else {
+                erase_by_sysname(name);
+            }
             return;
         }
 
@@ -171,7 +179,9 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 }
                 devs.emplace_back(std::move(edev));
                 next_generation(devices_generation);
-                added = true;
+                added         = true;
+                auto const id = fs8::hashed_device(fs8::device_sysname(devs.back()));
+                notify_listeners(id, fs8::device_change::connected);
             }
         }
     }
@@ -179,6 +189,14 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
     void drain() {
         while (auto event_dev = monitor.next_device()) {
             add_udev_device(std::move(event_dev));
+        }
+    }
+
+    void notify_listeners(fs8::device_id const id, fs8::device_change const change) noexcept {
+        for (auto& listener : listeners) {
+            if (listener.invoke) {
+                listener.invoke(id, change);
+            }
         }
     }
 
@@ -280,6 +298,8 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 break;
             }
             devs.emplace_back(std::move(edev));
+            auto const id = fs8::hashed_device(fs8::device_sysname(devs.back()));
+            notify_listeners(id, fs8::device_change::connected);
             --remaining;
         }
         return found;
@@ -308,6 +328,22 @@ void basic_input_manager::add_query_provider(query_provider_handle provider) {
         return; // already registered; keep a single handle per provider
     }
     pimpl->providers.push_back(std::move(provider));
+}
+
+void basic_input_manager::add_device_change_listener(device_change_handle listener) {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+    if (listener.identity == nullptr) [[unlikely]] {
+        return;
+    }
+    auto const found = std::ranges::find_if(pimpl->listeners, [&](device_change_handle const& cur) noexcept {
+        return cur.identity == listener.identity;
+    });
+    if (found != pimpl->listeners.end()) [[unlikely]] {
+        return; // already registered; keep a single handle per listener
+    }
+    pimpl->listeners.push_back(std::move(listener));
 }
 
 void basic_input_manager::own_device(std::string_view const devnode) noexcept {

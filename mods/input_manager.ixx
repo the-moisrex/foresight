@@ -35,6 +35,22 @@ export namespace fs8 {
         { p.queries() } noexcept -> std::same_as<std::span<device_query const>>;
     };
 
+    /// Whether a device was just connected or disconnected.
+    enum struct [[nodiscard]] device_change : std::uint8_t {
+        connected,
+        disconnected
+    };
+
+    /// A type-erased listener that is notified when a device is connected or
+    /// disconnected.  The listener receives the device_id and the change type.
+    /// For connect events the device can be resolved via
+    /// `input_manager::device_of(id)`; for disconnect events the device has
+    /// already been removed.
+    struct [[nodiscard]] device_change_handle {
+        void const*                                                      identity = nullptr;
+        std::move_only_function<void(device_id, device_change) noexcept> invoke;
+    };
+
     /// Type-erase a provider object into a `query_provider_handle`. May throw
     /// (constructing the closure), so callers must handle it.
     template <query_provider ProviderT>
@@ -61,6 +77,10 @@ export namespace fs8 {
 
         /// Register a query provider by reference (idempotent per provider).
         void add_query_provider(query_provider_handle provider);
+
+        /// Register a listener that is notified on device connect/disconnect.
+        /// Idempotent by identity pointer.
+        void add_device_change_listener(device_change_handle listener);
 
         /// Re-ask every registered provider for its queries, then re-run
         /// enumeration and rebuild the udev monitor filter so hotplug
