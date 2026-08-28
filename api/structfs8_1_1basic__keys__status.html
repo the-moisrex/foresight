@@ -144,6 +144,13 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a8d1291ae79263af19a403eaa3c530703"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0df878de74a084a82285529dd1f33d27" id="r_a0df878de74a084a82285529dd1f33d27"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__status.html#a0df878de74a084a82285529dd1f33d27">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
 <tr class="separator:a0df878de74a084a82285529dd1f33d27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52dda08ec92ad576c9dc69f984badf51" id="r_a52dda08ec92ad576c9dc69f984badf51"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__status.html#a52dda08ec92ad576c9dc69f984badf51">seed_from_device</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;dev) noexcept</td></tr>
+<tr class="memdesc:a52dda08ec92ad576c9dc69f984badf51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Seed key state from a device's EVIOCGKEY bitmap.  <br /></td></tr>
+<tr class="separator:a52dda08ec92ad576c9dc69f984badf51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf6f7c6ba78a43d2ba3319a14c6f27dc" id="r_abf6f7c6ba78a43d2ba3319a14c6f27dc"><td class="memTemplParams" colspan="2">template&lt;ContextWith&lt; <a class="el" href="structfs8_1_1basic__input__manager.html">basic_input_manager</a> &gt; CtxT&gt; </td></tr>
+<tr class="memitem:abf6f7c6ba78a43d2ba3319a14c6f27dc"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__status.html#abf6f7c6ba78a43d2ba3319a14c6f27dc">operator()</a> (CtxT &amp;ctx, <a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>) noexcept</td></tr>
+<tr class="memdesc:abf6f7c6ba78a43d2ba3319a14c6f27dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a device-change listener to seed key state on connect.  <br /></td></tr>
+<tr class="separator:abf6f7c6ba78a43d2ba3319a14c6f27dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__status.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
 <tr class="separator:aab9e941457bd45b9d6772f6ff421cec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__status.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;) noexcept</td></tr>
@@ -533,8 +540,48 @@ template&lt;std::integral... T&gt; </div>
 
 </div>
 </div>
+<a id="abf6f7c6ba78a43d2ba3319a14c6f27dc" name="abf6f7c6ba78a43d2ba3319a14c6f27dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf6f7c6ba78a43d2ba3319a14c6f27dc">&#9670;&#160;</a></span>operator()() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;ContextWith&lt; <a class="el" href="structfs8_1_1basic__input__manager.html">basic_input_manager</a> &gt; CtxT&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::basic_keys_status::operator() </td>
+          <td>(</td>
+          <td class="paramtype">CtxT &amp;&#160;</td>
+          <td class="paramname"><em>ctx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>&#160;</td>
+          <td class="paramname">&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Register a device-change listener to seed key state on connect. </p>
+
+</div>
+</div>
 <a id="a0df878de74a084a82285529dd1f33d27" name="a0df878de74a084a82285529dd1f33d27"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0df878de74a084a82285529dd1f33d27">&#9670;&#160;</a></span>operator()()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a0df878de74a084a82285529dd1f33d27">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -582,6 +629,34 @@ template&lt;std::integral... T&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a52dda08ec92ad576c9dc69f984badf51" name="a52dda08ec92ad576c9dc69f984badf51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52dda08ec92ad576c9dc69f984badf51">&#9670;&#160;</a></span>seed_from_device()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void basic_keys_status::seed_from_device </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;&#160;</td>
+          <td class="paramname"><em>dev</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Seed key state from a device's EVIOCGKEY bitmap. </p>
 
 </div>
 </div>

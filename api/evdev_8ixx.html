@@ -100,10 +100,12 @@ $(document).ready(function(){initNavTree('evdev_8ixx.html',''); initResizable();
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;concepts&gt;</code><br />
+<code>#include &lt;cstddef&gt;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;libevdev/libevdev.h&gt;</code><br />
 <code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;ranges&gt;</code><br />
+<code>#include &lt;span&gt;</code><br />
 <code>#include &lt;string_view&gt;</code><br />
 <code>#include &lt;utility&gt;</code><br />
 <code>import <a class="el" href="utils_8ixx.html">fs8.utils</a>;</code><br />
@@ -170,6 +172,8 @@ Functions</h2></td></tr>
 <tr class="separator:ae78b87ff81f45a71463545ffef6ae966"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a996246e0d2b1df88f4a847d03cf0ff90" id="r_a996246e0d2b1df88f4a847d03cf0ff90"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1evdev.html">evdev</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a996246e0d2b1df88f4a847d03cf0ff90">fs8::clone_device</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;src) noexcept</td></tr>
 <tr class="separator:a996246e0d2b1df88f4a847d03cf0ff90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe60ef2a0599c31e3dc7781cc0aff466" id="r_afe60ef2a0599c31e3dc7781cc0aff466"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afe60ef2a0599c31e3dc7781cc0aff466">fs8::query_key_state</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;dev, std::span&lt; unsigned char, <a class="el" href="namespacefs8.html#af8d58ebfb1a36ac2980b48788f5c5005">key_bitmap_bytes</a> &gt; <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a>) noexcept</td></tr>
+<tr class="separator:afe60ef2a0599c31e3dc7781cc0aff466"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a52e6282f6c2746f7e6994978a48700ca" id="r_a52e6282f6c2746f7e6994978a48700ca"><td class="memItemLeft" align="right" valign="top">constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a52e6282f6c2746f7e6994978a48700ca">fs8::event_type_max_code</a> (unsigned const <a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a>) noexcept</td></tr>
 <tr class="separator:a52e6282f6c2746f7e6994978a48700ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -181,6 +185,9 @@ Variables</h2></td></tr>
 <tr class="separator:a89f3fc67cb8b70fc5e4bb073f8e09152"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a9857b50b240a6fb910c5152594b84c" id="r_a7a9857b50b240a6fb910c5152594b84c"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7a9857b50b240a6fb910c5152594b84c">fs8::invalid_unique_identifier</a> = &quot;[NO-UNIQ-ID]&quot;</td></tr>
 <tr class="separator:a7a9857b50b240a6fb910c5152594b84c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8d58ebfb1a36ac2980b48788f5c5005" id="r_af8d58ebfb1a36ac2980b48788f5c5005"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af8d58ebfb1a36ac2980b48788f5c5005">fs8::key_bitmap_bytes</a> = (KEY_MAX + 7) / 8</td></tr>
+<tr class="memdesc:af8d58ebfb1a36ac2980b48788f5c5005"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of bytes in the kernel key state bitmap for EVIOCGKEY.  <br /></td></tr>
+<tr class="separator:af8d58ebfb1a36ac2980b48788f5c5005"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad1b7496df046638a428cb76e13c68bb1" id="r_ad1b7496df046638a428cb76e13c68bb1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__only__ok.html">fs8::basic_only_ok</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad1b7496df046638a428cb76e13c68bb1">fs8::only_ok</a></td></tr>
 <tr class="separator:ad1b7496df046638a428cb76e13c68bb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a10d98ad9d0582ab940aa057c698b9a10" id="r_a10d98ad9d0582ab940aa057c698b9a10"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__to__evdev.html">fs8::basic_to_evdev</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a10d98ad9d0582ab940aa057c698b9a10">fs8::to_evdev</a></td></tr>

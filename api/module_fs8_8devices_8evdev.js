@@ -78,6 +78,7 @@ var module_fs8_8devices_8evdev =
     [ "fs8::is_usable", "module_fs8_8devices_8evdev.html#ad1b7d3cd1d6a5fedea83349f2ecc3ced", null ],
     [ "fs8::device_sysname", "module_fs8_8devices_8evdev.html#ae78b87ff81f45a71463545ffef6ae966", null ],
     [ "fs8::clone_device", "module_fs8_8devices_8evdev.html#a996246e0d2b1df88f4a847d03cf0ff90", null ],
+    [ "fs8::query_key_state", "module_fs8_8devices_8evdev.html#afe60ef2a0599c31e3dc7781cc0aff466", null ],
     [ "fs8::event_type_max_code", "module_fs8_8devices_8evdev.html#a52e6282f6c2746f7e6994978a48700ca", null ],
     [ "fs8::basic_only_ok::operator()", "module_fs8_8devices_8evdev.html#ae988a779d5c7b3df25aebac260505a88", null ],
     [ "fs8::basic_only_ok::operator()", "module_fs8_8devices_8evdev.html#a82714628d1248221b436d3cf3a3b18a8", null ],
@@ -86,5 +87,6 @@ var module_fs8_8devices_8evdev =
     [ "fs8::basic_to_evdev::operator()", "module_fs8_8devices_8evdev.html#a924cbf00c7351bf0ded2f523bba957ad", null ],
     [ "fs8::invalid_device_name", "module_fs8_8devices_8evdev.html#a7435db60b41e7eaca5d2b3a786f86fbf", null ],
     [ "fs8::invalid_device_location", "module_fs8_8devices_8evdev.html#a89f3fc67cb8b70fc5e4bb073f8e09152", null ],
-    [ "fs8::invalid_unique_identifier", "module_fs8_8devices_8evdev.html#a7a9857b50b240a6fb910c5152594b84c", null ]
+    [ "fs8::invalid_unique_identifier", "module_fs8_8devices_8evdev.html#a7a9857b50b240a6fb910c5152594b84c", null ],
+    [ "fs8::key_bitmap_bytes", "module_fs8_8devices_8evdev.html#af8d58ebfb1a36ac2980b48788f5c5005", null ]
 ];

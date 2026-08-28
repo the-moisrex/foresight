@@ -279,6 +279,8 @@ requires ((std::convertible_to&lt;T, code_type&gt; &amp;&amp; ...) &amp;&amp; si
 <tr class="separator:ae78b87ff81f45a71463545ffef6ae966"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a996246e0d2b1df88f4a847d03cf0ff90" id="r_a996246e0d2b1df88f4a847d03cf0ff90"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1evdev.html">evdev</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a996246e0d2b1df88f4a847d03cf0ff90">fs8::clone_device</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;src) noexcept</td></tr>
 <tr class="separator:a996246e0d2b1df88f4a847d03cf0ff90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe60ef2a0599c31e3dc7781cc0aff466" id="r_afe60ef2a0599c31e3dc7781cc0aff466"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afe60ef2a0599c31e3dc7781cc0aff466">fs8::query_key_state</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;dev, std::span&lt; unsigned char, key_bitmap_bytes &gt; out) noexcept</td></tr>
+<tr class="separator:afe60ef2a0599c31e3dc7781cc0aff466"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a52e6282f6c2746f7e6994978a48700ca" id="r_a52e6282f6c2746f7e6994978a48700ca"><td class="memItemLeft" align="right" valign="top">constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a52e6282f6c2746f7e6994978a48700ca">fs8::event_type_max_code</a> (unsigned const type) noexcept</td></tr>
 <tr class="separator:a52e6282f6c2746f7e6994978a48700ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae988a779d5c7b3df25aebac260505a88" id="r_ae988a779d5c7b3df25aebac260505a88"><td class="memTemplParams" colspan="2">template&lt;typename R &gt; </td></tr>
@@ -307,6 +309,9 @@ Variables</h2></td></tr>
 <tr class="separator:a89f3fc67cb8b70fc5e4bb073f8e09152"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a9857b50b240a6fb910c5152594b84c" id="r_a7a9857b50b240a6fb910c5152594b84c"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7a9857b50b240a6fb910c5152594b84c">fs8::invalid_unique_identifier</a> = &quot;[NO-UNIQ-ID]&quot;</td></tr>
 <tr class="separator:a7a9857b50b240a6fb910c5152594b84c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8d58ebfb1a36ac2980b48788f5c5005" id="r_af8d58ebfb1a36ac2980b48788f5c5005"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af8d58ebfb1a36ac2980b48788f5c5005">fs8::key_bitmap_bytes</a> = (KEY_MAX + 7) / 8</td></tr>
+<tr class="memdesc:af8d58ebfb1a36ac2980b48788f5c5005"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of bytes in the kernel key state bitmap for EVIOCGKEY.  <br /></td></tr>
+<tr class="separator:af8d58ebfb1a36ac2980b48788f5c5005"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>

@@ -14,6 +14,8 @@ var structfs8_1_1basic__keys__status =
     [ "is_released", "structfs8_1_1basic__keys__status.html#afb2ed7e39d225dbbf45c8eee761e7777", null ],
     [ "is_released_any", "structfs8_1_1basic__keys__status.html#a17675021035589e16c5e11921eb3fa0a", null ],
     [ "is_released_any", "structfs8_1_1basic__keys__status.html#a91627872babb25dfdde3b5df3473249a", null ],
+    [ "operator()", "structfs8_1_1basic__keys__status.html#abf6f7c6ba78a43d2ba3319a14c6f27dc", null ],
     [ "operator()", "structfs8_1_1basic__keys__status.html#a0df878de74a084a82285529dd1f33d27", null ],
-    [ "release_all", "structfs8_1_1basic__keys__status.html#a8d1291ae79263af19a403eaa3c530703", null ]
+    [ "release_all", "structfs8_1_1basic__keys__status.html#a8d1291ae79263af19a403eaa3c530703", null ],
+    [ "seed_from_device", "structfs8_1_1basic__keys__status.html#a52dda08ec92ad576c9dc69f984badf51", null ]
 ];

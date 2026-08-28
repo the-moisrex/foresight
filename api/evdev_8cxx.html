@@ -101,11 +101,13 @@ $(document).ready(function(){initNavTree('evdev_8cxx.html',''); initResizable();
 <code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;libevdev/libevdev.h&gt;</code><br />
 <code>#include &lt;linux/input-event-codes.h&gt;</code><br />
+<code>#include &lt;linux/input.h&gt;</code><br />
 <code>#include &lt;linux/limits.h&gt;</code><br />
 <code>#include &lt;numeric&gt;</code><br />
 <code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;string_view&gt;</code><br />
+<code>#include &lt;sys/ioctl.h&gt;</code><br />
 <code>#include &lt;thread&gt;</code><br />
 <code>#include &lt;unistd.h&gt;</code><br />
 <code>#include &lt;utility&gt;</code><br />

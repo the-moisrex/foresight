@@ -686,6 +686,8 @@ var module_fs8_8mods =
     [ "fs8::basic_keys_status::is_released_any", "module_fs8_8mods.html#a91627872babb25dfdde3b5df3473249a", null ],
     [ "fs8::basic_keys_status::release_all", "module_fs8_8mods.html#a8d1291ae79263af19a403eaa3c530703", null ],
     [ "fs8::basic_keys_status::operator()", "module_fs8_8mods.html#a0df878de74a084a82285529dd1f33d27", null ],
+    [ "fs8::basic_keys_status::seed_from_device", "module_fs8_8mods.html#a52dda08ec92ad576c9dc69f984badf51", null ],
+    [ "fs8::basic_keys_status::operator()", "module_fs8_8mods.html#abf6f7c6ba78a43d2ba3319a14c6f27dc", null ],
     [ "fs8::basic_mod_updater::operator()", "module_fs8_8mods.html#acebd040f648afdcd046c546659e72661", null ],
     [ "fs8::basic_mod_updater::operator()", "module_fs8_8mods.html#a8da1151e7d05ad8e422e5cf683c183cb", null ],
     [ "fs8::basic_mod_updater::operator[]", "module_fs8_8mods.html#a63b9b9fcec95f1563e6233b7d4807e66", null ],

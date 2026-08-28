@@ -26,11 +26,13 @@ var evdev_8ixx =
     [ "is_grabbed", "evdev_8ixx.html#aedaa70224331df2832a6918257b3324d", null ],
     [ "is_usable", "evdev_8ixx.html#ad1b7d3cd1d6a5fedea83349f2ecc3ced", null ],
     [ "is_valid", "evdev_8ixx.html#a1779c7db7fd8f7f134fe900e93b0f993", null ],
+    [ "query_key_state", "evdev_8ixx.html#afe60ef2a0599c31e3dc7781cc0aff466", null ],
     [ "test_grab", "evdev_8ixx.html#a80f07b5fe57b5df73e8ab9db6ceeebc0", null ],
     [ "to_string", "evdev_8ixx.html#a7cc253bfca76ef6b4cc860e2737abd0b", null ],
     [ "invalid_device_location", "evdev_8ixx.html#a89f3fc67cb8b70fc5e4bb073f8e09152", null ],
     [ "invalid_device_name", "evdev_8ixx.html#a7435db60b41e7eaca5d2b3a786f86fbf", null ],
     [ "invalid_unique_identifier", "evdev_8ixx.html#a7a9857b50b240a6fb910c5152594b84c", null ],
+    [ "key_bitmap_bytes", "evdev_8ixx.html#af8d58ebfb1a36ac2980b48788f5c5005", null ],
     [ "only_ok", "evdev_8ixx.html#ad1b7496df046638a428cb76e13c68bb1", null ],
     [ "to_evdev", "evdev_8ixx.html#a10d98ad9d0582ab940aa057c698b9a10", null ]
 ];
