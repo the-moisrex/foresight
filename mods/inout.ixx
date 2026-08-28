@@ -1,10 +1,12 @@
 // Created by moisrex on 6/9/25.
 
 module;
+#include <bits/valarray_after.h>
 #include <charconv>
 #include <cstdint>
 #include <ctime>
 #include <linux/uinput.h>
+#include <math.h>
 #include <span>
 #include <string>
 #include <string_view>
@@ -14,6 +16,7 @@ import fs8.context;
 import fs8.event;
 import fs8.lib.evtest;
 import fs8.traits;
+import fs8.log;
 
 export namespace fs8 {
 
@@ -98,9 +101,8 @@ export namespace fs8 {
             file_descriptor = inp_fd;
         }
 
-        context_action operator()(event_type& event, load_event_tag) noexcept {
+        context_action operator()(event_type& event, load_event_tag) noexcept try {
             using enum context_action;
-
             // Try to parse existing lines in the buffer first.
             while (true) {
                 auto const newline = line_buffer.find('\n');
@@ -166,10 +168,12 @@ export namespace fs8 {
                 // n < 0: read error — treat as ignore.
                 return ignore_event;
             }
+        } catch (...) {
+            // Allocation failure in string operations: treat as ignore.
+            log("Unknown exception");
+            return context_action::ignore_event;
         }
     };
-
-    inline constinit basic_from_evtest<> from_evtest;
 
     /// Write events to a file descriptor in evtest text format.
     template <EvtestFormat Format = default_evtest_format>
@@ -225,7 +229,8 @@ export namespace fs8 {
     template <EvtestFormat Format>
     inline constexpr basic_evtest_output<Format> evtest_output;
 
-    constexpr auto to_evtest = evtest_output<default_evtest_format>;
+    constexpr basic_from_evtest<> from_evtest;
+    constexpr auto                to_evtest = evtest_output<default_evtest_format>;
 
     static_assert(OutputModifier<basic_evtest_output<>>, "Must be a output modifier.");
 

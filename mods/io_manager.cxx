@@ -2,6 +2,7 @@
 
 module;
 #include <algorithm>
+#include <array>
 #include <cerrno>
 #include <cstring>
 #include <functional>
@@ -52,12 +53,17 @@ void basic_io_manager::unwatch(int const fd) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;
     }
-    for (std::size_t i = 0; i < pimpl->fds.size(); ++i) {
-        if (pimpl->fds[i].fd == fd) {
-            pimpl->fds.erase(pimpl->fds.begin() + static_cast<std::ptrdiff_t>(i));
-            pimpl->callbacks.erase(pimpl->callbacks.begin() + static_cast<std::ptrdiff_t>(i));
-            return;
+    try {
+        for (std::size_t i = 0; i < pimpl->fds.size(); ++i) {
+            if (pimpl->fds[i].fd == fd) {
+                pimpl->fds.erase(pimpl->fds.begin() + static_cast<std::ptrdiff_t>(i));
+                pimpl->callbacks.erase(pimpl->callbacks.begin() + static_cast<std::ptrdiff_t>(i));
+                return;
+            }
         }
+    } catch (...) {
+        log("Allocation failure during erase.");
+        // Allocation failure during erase: leave in a consistent state.
     }
 }
 
@@ -87,7 +93,7 @@ bool basic_io_manager::watch(io_fd const& fd, io_callback const& cb) noexcept tr
         pimpl->callbacks.push_back(cb);
     } catch (...) {
         pimpl->fds.pop_back();
-        throw;
+        return false;
     }
     return true;
 } catch (...) {
@@ -125,27 +131,49 @@ context_action basic_io_manager::operator()(load_event_tag) noexcept {
         return exit;
     }
 
-    // Dispatch the ready fds one at a time, re-scanning from the front on each
-    // iteration. There's no snapshot to allocate, and handlers are free to
-    // watch/unwatch: the fd this round is cleared before its handler runs, and
-    // `it` is never used again afterwards.
+    // Collect all ready fds in a single forward scan, then dispatch forward.
+    // Each handler is only called if its fd is still watched (a prior handler
+    // may have unwatched it), so we re-validate before every dispatch.
     auto action = next;
-    while (true) {
-        auto const it = std::ranges::find_if(pimpl->fds, [](pollfd const& pfd) noexcept {
-            return pfd.revents != 0;
-        });
-        if (it == pimpl->fds.end()) [[unlikely]] {
-            break;
+
+    struct ready_entry {
+        std::size_t index;
+        int         fd;
+        io_event    revents;
+        io_event    events;
+    };
+
+    std::array<ready_entry, 64> ready_fds{};
+    std::size_t                 ready_count = 0;
+
+    for (std::size_t i = 0; i < pimpl->fds.size(); ++i) {
+        if (pimpl->fds[i].revents != 0 && ready_count < ready_fds.size()) {
+            ready_fds[ready_count++] = {
+              .index   = i,
+              .fd      = pimpl->fds[i].fd,
+              .revents = static_cast<io_event>(pimpl->fds[i].revents),
+              .events  = static_cast<io_event>(pimpl->fds[i].events),
+            };
+            pimpl->fds[i].revents = 0;
         }
-        auto const fd          = it->fd;
-        auto const revents     = static_cast<io_event>(it->revents);
-        it->revents            = 0;
-        auto const index       = static_cast<std::size_t>(std::distance(pimpl->fds.begin(), it));
-        auto       io_fd_state = io_fd{.fd = fd, .events = static_cast<io_event>(it->events), .revents = revents};
-        auto const result      = pimpl->callbacks[index](io_fd_state);
+    }
+
+    for (std::size_t i = 0; i < ready_count; ++i) {
+        auto const& entry = ready_fds[i];
+        // A prior handler may have unwatched this fd; skip if so.
+        if (entry.index >= pimpl->fds.size() || pimpl->fds[entry.index].fd != entry.fd) [[unlikely]] {
+            continue;
+        }
+        auto       io_fd_state = io_fd{.fd = entry.fd, .events = entry.events, .revents = entry.revents};
+        auto const result      = pimpl->callbacks[entry.index](io_fd_state);
         if (io_fd_state.unwatch) [[unlikely]] {
-            pimpl->fds.erase(pimpl->fds.begin() + static_cast<std::ptrdiff_t>(index));
-            pimpl->callbacks.erase(pimpl->callbacks.begin() + static_cast<std::ptrdiff_t>(index));
+            try {
+                pimpl->fds.erase(pimpl->fds.begin() + static_cast<std::ptrdiff_t>(entry.index));
+                pimpl->callbacks.erase(pimpl->callbacks.begin() + static_cast<std::ptrdiff_t>(entry.index));
+            } catch (...) {
+                // Allocation failure during erase: leave in a consistent state.
+                log("Allocation failure during erase.");
+            }
             continue;
         }
         if (result == exit) [[unlikely]] {

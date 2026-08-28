@@ -319,7 +319,12 @@ void basic_input_manager::own_device(std::string_view const devnode) noexcept {
     if (is_owned_sysname(sysname)) [[unlikely]] {
         return; // already recorded
     }
-    pimpl->owned_sysnames.emplace_back(sysname);
+    try {
+        pimpl->owned_sysnames.emplace_back(sysname);
+    } catch (...) {
+        log("Possibly allocation failure");
+        // Allocation failure: silently ignore.
+    }
 }
 
 bool basic_input_manager::is_owned(evdev const& dev) const noexcept {

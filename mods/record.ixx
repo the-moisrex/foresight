@@ -11,6 +11,7 @@ export module fs8.mods:record;
 import fs8.event;
 import fs8.context;
 import fs8.pimpl;
+import fs8.log;
 
 namespace fs8 {
 
@@ -86,10 +87,14 @@ namespace fs8 {
         template <typename Pred>
         [[nodiscard]] std::vector<event_type> filter(Pred&& pred) const noexcept {
             std::vector<event_type> out;
-            for (auto const& event : events()) {
-                if (std::invoke(std::forward<Pred>(pred), event)) {
-                    out.push_back(event);
+            try {
+                for (auto const& event : events()) {
+                    if (std::invoke(std::forward<Pred>(pred), event)) {
+                        out.push_back(event);
+                    }
                 }
+            } catch (...) {
+                log("Allocation failure");
             }
             return out;
         }

@@ -2,6 +2,7 @@
 
 module;
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstddef>
@@ -312,6 +313,10 @@ namespace {
         float distance_scale = 1.0f;
         float acc_x          = 0.0f;
         float acc_y          = 0.0f;
+        /// Precomputed factors[step] = initial_scale * decay_rate^step.
+        /// Avoids calling std::pow on every 60 fps tick.
+        std::array<float, 64> factors{};
+        std::size_t           factors_count = 0;
     };
 
     struct momentum_context {
@@ -337,8 +342,8 @@ namespace {
             state.distance_scale = ctx.momentum_base->mouse_distance_scale();
         }
 
-        // Compute per-frame delta (with decay and distance scaling).
-        float const factor = ctx.config->initial_scale * std::pow(ctx.config->decay_rate, static_cast<float>(state.step));
+        // Use precomputed factor (avoids std::pow on every tick).
+        float const factor = state.factors[static_cast<std::size_t>(state.step)];
         auto const  dx     = static_cast<float>(state.vel_x * factor * state.distance_scale);
         auto const  dy     = static_cast<float>(state.vel_y * factor * state.distance_scale);
 
@@ -472,6 +477,13 @@ context_action basic_momentum_scroll::handle_scroll_event(basic_scheduler& sched
     mctx.tick_state.vel_x          = vel_x;
     mctx.tick_state.vel_y          = vel_y;
     mctx.tick_state.distance_scale = 1.0f;
+
+    // Precompute decay factors to avoid std::pow on every tick.
+    mctx.tick_state.factors_count = static_cast<std::size_t>(config.momentum_frames);
+    for (std::size_t i = 0; i < mctx.tick_state.factors_count; ++i) {
+        mctx.tick_state.factors[i] = config.initial_scale * std::pow(config.decay_rate, static_cast<float>(i));
+    }
+
     sched.cancel(pimpl->momentum_handle);
     pimpl->momentum_handle = sched.schedule(&momentum_tick, &mctx, std::chrono::microseconds{config.frame_ms * 1000});
     set_animating();

@@ -57,11 +57,11 @@ namespace fs8 {
      */
     export struct momentum_calculator {
         momentum_calculator(float pos, float delta, float vel) noexcept;
-        momentum_calculator(momentum_calculator&&) noexcept        = default;
-        momentum_calculator(momentum_calculator const&)            = default;
-        momentum_calculator& operator=(momentum_calculator const&) = default;
-        momentum_calculator& operator=(momentum_calculator&&)      = default;
-        ~momentum_calculator() noexcept                            = default;
+        momentum_calculator(momentum_calculator&&) noexcept            = default;
+        momentum_calculator(momentum_calculator const&)                = default;
+        momentum_calculator& operator=(momentum_calculator const&)     = default;
+        momentum_calculator& operator=(momentum_calculator&&) noexcept = default;
+        ~momentum_calculator() noexcept                                = default;
 
         [[nodiscard]] float pos_at(fsecs time) const noexcept;
         [[nodiscard]] fsecs duration() const noexcept;

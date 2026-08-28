@@ -22,7 +22,7 @@ struct fs8::pimpl_idiom<basic_record>::impl {
     std::vector<event_type> events;
 };
 
-context_action basic_record::record_event(event_type const& event) noexcept {
+context_action basic_record::record_event(event_type const& event) noexcept try {
     if (sink != nullptr) [[unlikely]] {
         sink->push_back(event);
     } else {
@@ -31,6 +31,10 @@ context_action basic_record::record_event(event_type const& event) noexcept {
         }
         pimpl->events.push_back(event);
     }
+    return context_action::next;
+} catch (...) {
+    log("Allocation failure: silently drop the event rather than terminate.");
+    // Allocation failure: silently drop the event rather than terminate.
     return context_action::next;
 }
 
@@ -91,9 +95,13 @@ std::span<event_type const>::const_iterator basic_record::end() const noexcept {
 std::vector<user_event> basic_record::as_user_events() const noexcept {
     auto const              evs = events();
     std::vector<user_event> out;
-    out.reserve(evs.size());
-    for (auto const& event : evs) {
-        out.push_back(static_cast<user_event>(event));
+    try {
+        out.reserve(evs.size());
+        for (auto const& event : evs) {
+            out.push_back(static_cast<user_event>(event));
+        }
+    } catch (...) {
+        // Return whatever we've collected so far.
     }
     return out;
 }
@@ -112,20 +120,30 @@ std::size_t basic_record::count(event_type::type_type const type, event_type::co
 
 std::vector<event_type> basic_record::keys() const noexcept {
     std::vector<event_type> out;
-    for (auto const& event : events()) {
-        if (event.type() == EV_KEY) {
-            out.push_back(event);
+    try {
+        for (auto const& event : events()) {
+            if (event.type() == EV_KEY) {
+                out.push_back(event);
+            }
         }
+    } catch (...) {
+        log("Allocation failure during vector creation.");
+        // Return whatever we've collected so far.
     }
     return out;
 }
 
 std::vector<event_type> basic_record::without_syn() const noexcept {
     std::vector<event_type> out;
-    for (auto const& event : events()) {
-        if (event.type() != EV_SYN) {
-            out.push_back(event);
+    try {
+        for (auto const& event : events()) {
+            if (event.type() != EV_SYN) {
+                out.push_back(event);
+            }
         }
+    } catch (...) {
+        log("Allocation failure during event creation.");
+        // Return whatever we've collected so far.
     }
     return out;
 }

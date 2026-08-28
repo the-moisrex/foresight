@@ -161,15 +161,39 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
         return ev;
     }
 
+    // Build a flat lookup table of (fd, evdev*) from the linked list once,
+    // avoiding repeated O(n) list scans for each watched fd.
+    struct fd_entry {
+        int         fd;
+        fs8::evdev* dev;
+    };
+
+    std::array<fd_entry, 16> device_table{};
+    std::size_t              device_count = 0;
+    for (auto& dev : im.devices()) {
+        if (device_count < device_table.size()) {
+            device_table[device_count++] = {dev.native_handle(), &dev};
+        }
+    }
+
+    // Helper: find a device by fd in the flat table (O(n) but n is small).
+    auto find_device = [&](int fd) noexcept -> fs8::evdev* {
+        for (std::size_t i = 0; i < device_count; ++i) {
+            if (device_table[i].fd == fd) {
+                return device_table[i].dev;
+            }
+        }
+        return nullptr;
+    };
+
     // Reconcile watches: single pass through the table.
     // Evict dead/gone entries, refresh cached pointers, add new devices.
     pimpl->dead_fd_count = 0;
     std::size_t write    = 0;
     for (std::size_t read = 0; read < pimpl->watched_count; ++read) {
         auto&      entry        = pimpl->watched[read];
-        bool const device_alive = std::ranges::any_of(im.devices(), [&](evdev const& d) noexcept {
-            return d.native_handle() == entry.fd;
-        });
+        auto*      live_dev     = find_device(entry.fd);
+        bool const device_alive = live_dev != nullptr;
         if (entry.dead || !device_alive) {
             io.unwatch(entry.fd);
             if (pimpl->dead_fd_count < pimpl->dead_fds.size()) {
@@ -177,14 +201,8 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
             }
             continue;
         }
-        // Refresh cached pointer (list iterators may have been invalidated
-        // by input_manager hotplug).
-        for (auto& dev : im.devices()) {
-            if (dev.native_handle() == entry.fd) {
-                entry.dev = &dev;
-                break;
-            }
-        }
+        // Refresh cached pointer from the flat table (no list iteration).
+        entry.dev = live_dev;
         if (write != read) {
             pimpl->watched[write] = entry;
         }
@@ -193,8 +211,9 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
     pimpl->watched_count = write;
 
     // Watch new devices not yet in the table.
-    for (auto& dev : im.devices()) {
-        int const dev_fd          = dev.native_handle();
+    for (std::size_t d = 0; d < device_count; ++d) {
+        auto&     dev             = *device_table[d].dev;
+        int const dev_fd          = device_table[d].fd;
         bool      already_tracked = false;
         for (std::size_t i = 0; i < pimpl->watched_count; ++i) {
             if (pimpl->watched[i].fd == dev_fd) {
