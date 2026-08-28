@@ -25,6 +25,7 @@ int main(int const argc, char const* const* argv) try {
 
     static constexpr auto keyboard_pipeline =
       context
+      | enforce_key_state
       | modes[multi_click[KEY_RIGHTCTRL],
               // Normal Mode:
               context, // empty context as the default
@@ -50,7 +51,6 @@ int main(int const argc, char const* const* argv) try {
       | scheduled_emitter
       | scheduler
       | led_state
-      | enforce_key_state
       | keys_state // Save key presses
       | mouse_history
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
@@ -84,6 +84,7 @@ int main(int const argc, char const* const* argv) try {
       | update_mod[keys_state]
       | drop_zero_mouse_moves
       | drop_msc_scan
+      | drop_orphan_abs
       | drop_adjacent_syns
       | event_diagnostics
       | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];

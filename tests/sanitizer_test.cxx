@@ -311,3 +311,73 @@ TEST(SanitizerTest, DetectsMissingSynTravel) {
     EXPECT_EQ(col[0].code(), SYN_REPORT);
     EXPECT_EQ(col[1].code(), REL_X);
 }
+
+TEST(SanitizerTest, FiltersAbsPositionsWithoutTool) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    // ABS_X/ABS_Y before any BTN_TOOL_* press should be dropped.
+    // After BTN_TOOL_PEN=1, ABS_X should pass.
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_ABS, ABS_X, 500, 0us),
+                      timed_ev(EV_ABS, ABS_Y, 300, 1ms),
+                      timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 2ms),
+                      timed_ev(EV_ABS, ABS_X, 510, 3ms),
+                    }}
+                  | event_sanitizer
+                  | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 2U);
+    EXPECT_EQ(col[0].type(), EV_KEY);
+    EXPECT_EQ(col[0].code(), BTN_TOOL_PEN);
+    EXPECT_EQ(col[1].type(), EV_ABS);
+    EXPECT_EQ(col[1].code(), ABS_X);
+}
+
+TEST(SanitizerTest, DropsAbsAfterToolRelease) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    // After BTN_TOOL_PEN=0, ABS_X should be dropped again.
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+                      timed_ev(EV_ABS, ABS_X, 500, 1ms),
+                      timed_ev(EV_KEY, BTN_TOOL_PEN, 0, 2ms),
+                      timed_ev(EV_ABS, ABS_X, 510, 3ms),
+                    }}
+                  | event_sanitizer
+                  | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 3U);
+    EXPECT_EQ(col[0].type(), EV_KEY);
+    EXPECT_EQ(col[0].code(), BTN_TOOL_PEN);
+    EXPECT_EQ(col[0].value(), 1);
+    EXPECT_EQ(col[1].type(), EV_ABS);
+    EXPECT_EQ(col[1].code(), ABS_X);
+    EXPECT_EQ(col[2].type(), EV_KEY);
+    EXPECT_EQ(col[2].code(), BTN_TOOL_PEN);
+    EXPECT_EQ(col[2].value(), 0);
+}
+
+TEST(SanitizerTest, DisabledOrphanAbsCheckPassesEventsThrough) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_ABS, ABS_X, 500, 0us),
+                      timed_ev(EV_ABS, ABS_Y, 300, 1ms),
+                    }}
+                  | event_sanitizer.orphan_abs(false)
+                  | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    EXPECT_EQ(col.size(), 2U);
+}

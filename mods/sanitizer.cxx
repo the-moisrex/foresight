@@ -43,6 +43,7 @@ namespace fs8 {
             case missing_syn_time: return {"data events long after last SYN_REPORT"};
             case missing_syn_count: return {"too many data events without SYN_REPORT"};
             case missing_syn_travel: return {"mouse travel exceeding threshold without SYN_REPORT"};
+            case orphan_abs: return {"ABS position event without a preceding tool press"};
             default: break;
         }
         return {"<unknown>"};

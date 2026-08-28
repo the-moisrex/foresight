@@ -32,6 +32,7 @@ export namespace fs8 {
         missing_syn_time,   ///< data events long after last SYN_REPORT
         missing_syn_count,  ///< too many data events without SYN_REPORT
         missing_syn_travel, ///< mouse travel exceeding threshold without SYN_REPORT
+        orphan_abs,         ///< ABS position event without a preceding tool press
     };
 
     [[nodiscard]] std::string_view to_string(sanitizer_issue issue) noexcept;
@@ -60,6 +61,7 @@ export namespace fs8 {
             bool       check_missing_syn_time   = true;
             bool       check_missing_syn_count  = true;
             bool       check_missing_syn_travel = true;
+            bool       check_orphan_abs         = true;
             value_type big_jump_threshold       = 50;
             msec_type  late_syn_threshold{100'000};
             msec_type  missing_syn_time_threshold{100'000};
@@ -116,6 +118,7 @@ export namespace fs8 {
         basic_enforce_key_state      key_state_enforcer{};
         basic_drop_late_syn          late_syn_checker{};
         basic_drop_pen_out_of_bounds pen_bounds_checker{};
+        basic_drop_orphan_abs        orphan_abs_checker{};
         basic_drop_missing_syns      missing_syn_checker{};
 
         /// Dispatch the callback based on its arity.
@@ -270,6 +273,12 @@ export namespace fs8 {
             return copy;
         }
 
+        consteval basic_event_sanitizer orphan_abs(bool const v = true) const noexcept {
+            auto copy                 = *this;
+            copy.cfg.check_orphan_abs = v;
+            return copy;
+        }
+
         // --- Compile-time factory ---
 
         template <typename C>
@@ -290,6 +299,7 @@ export namespace fs8 {
         context_action operator()(CtxT& ctx, start_tag) noexcept {
             state.ensure_initialized();
             key_state_enforcer(start);
+            orphan_abs_checker(start);
             return pen_bounds_checker(ctx, start);
         }
 
@@ -328,6 +338,16 @@ export namespace fs8 {
             if (cfg.check_pen_resolution) {
                 if (pen_bounds_checker(event) == drop_event) [[unlikely]] {
                     invoke_callback(event, sanitizer_issue::out_of_resolution);
+                    if (!diagnostics_only) {
+                        return drop_event;
+                    }
+                }
+            }
+
+            // 3b. Orphan ABS (position events without active tool)
+            if (cfg.check_orphan_abs) {
+                if (orphan_abs_checker(event) == drop_event) [[unlikely]] {
+                    invoke_callback(event, sanitizer_issue::orphan_abs);
                     if (!diagnostics_only) {
                         return drop_event;
                     }

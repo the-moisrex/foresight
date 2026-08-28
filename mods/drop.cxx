@@ -203,6 +203,29 @@ context_action fs8::basic_drop_pen_out_of_bounds::operator()(event_type const& e
     }
 }
 
+// --- drop_orphan_abs ---
+
+context_action fs8::basic_drop_orphan_abs::operator()(event_type const& event) noexcept {
+    using enum context_action;
+    if (event.type() == EV_KEY) {
+        switch (event.code()) {
+            case BTN_TOOL_PEN:
+            case BTN_TOOL_RUBBER:
+            case BTN_TOOL_BRUSH:
+            case BTN_TOOL_PENCIL:
+            case BTN_TOOL_AIRBRUSH:
+            case BTN_TOOL_FINGER:
+            case BTN_TOOL_MOUSE:
+            case BTN_TOOL_LENS: tool_active = (event.value() == 1); break;
+            default: break;
+        }
+    }
+    if (!tool_active && event.type() == EV_ABS && (event.code() == ABS_X || event.code() == ABS_Y)) [[unlikely]] {
+        return drop_event;
+    }
+    return next;
+}
+
 // --- drop_missing_syns ---
 
 context_action basic_drop_missing_syns::operator()(event_type const& event) noexcept {

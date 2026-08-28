@@ -411,6 +411,23 @@ export namespace fs8 {
         context_action operator()(event_type const& event) const noexcept;
     } drop_pen_out_of_bounds;
 
+    /// Ignore ABS_X/ABS_Y position events arriving before any BTN_TOOL_* has
+    /// been pressed.  A tool press (value 1) on any BTN_TOOL_* arms position
+    /// tracking; a tool release (value 0) disarms it.
+    constexpr struct [[nodiscard]] basic_drop_orphan_abs : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+      private:
+        bool tool_active = false;
+
+      public:
+        constexpr void operator()(start_tag) noexcept {
+            tool_active = false;
+        }
+
+        context_action operator()(event_type const& event) noexcept;
+    } drop_orphan_abs;
+
     /// Ignore data events when the SYN_REPORT framing is broken.
     ///
     /// Tracks three conditions:
