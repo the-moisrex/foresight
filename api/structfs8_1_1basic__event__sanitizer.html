@@ -140,6 +140,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:acf607a5e1514a5aefd82a8695687a433"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaf6b294053cc5adc10a8d8cb7eddb901" id="r_aaf6b294053cc5adc10a8d8cb7eddb901"><td class="memItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#aaf6b294053cc5adc10a8d8cb7eddb901">orphan_releases</a> (bool const v=true) const noexcept</td></tr>
 <tr class="separator:aaf6b294053cc5adc10a8d8cb7eddb901"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac54f8c9571c99db6d7a76e78bf368bc3" id="r_ac54f8c9571c99db6d7a76e78bf368bc3"><td class="memItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#ac54f8c9571c99db6d7a76e78bf368bc3">orphan_repeats</a> (bool const v=true) const noexcept</td></tr>
+<tr class="separator:ac54f8c9571c99db6d7a76e78bf368bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab97edf7746b1e56170c1d08393637e05" id="r_ab97edf7746b1e56170c1d08393637e05"><td class="memItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#ab97edf7746b1e56170c1d08393637e05">double_presses</a> (bool const v=true) const noexcept</td></tr>
+<tr class="separator:ab97edf7746b1e56170c1d08393637e05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6c99bd4c8d4de3c67f13a9cae0a3f797" id="r_a6c99bd4c8d4de3c67f13a9cae0a3f797"><td class="memItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#a6c99bd4c8d4de3c67f13a9cae0a3f797">late_syns</a> (bool const v=true) const noexcept</td></tr>
 <tr class="separator:a6c99bd4c8d4de3c67f13a9cae0a3f797"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd8aca5e2228abaac0ae1118ee6a420d" id="r_acd8aca5e2228abaac0ae1118ee6a420d"><td class="memItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__sanitizer.html#acd8aca5e2228abaac0ae1118ee6a420d">pen_resolution</a> (bool const v=true) const noexcept</td></tr>
@@ -198,11 +202,12 @@ Friends</h2></td></tr>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename Callback = basic_noop&gt;<br />
 struct fs8::basic_event_sanitizer&lt; Callback &gt;</div><p>Sanitize input events by detecting and filtering problematic events.</p>
 <p>Checks:</p><ul>
+<li>Key state enforcement (orphan releases/repeats, double presses)</li>
 <li>Adjacent SYN_REPORTs (duplicate sync with no data in between)</li>
-<li>Orphan key releases (EV_KEY release for a key that was never pressed)</li>
 <li>Late SYN_REPORTs (sync after a long gap with no data events)</li>
 <li>Out-of-resolution pen locations (ABS values outside device bounds)</li>
 <li>Big mouse jumps (REL movement exceeding a pixel threshold)</li>
+<li>Missing SYN framing (time/count/travel thresholds)</li>
 </ul>
 <p>The callback receives (event, issue). For two-argument callbacks it is called for every event; for one-argument callbacks (like <code>log</code>) it is only called for problematic events.</p>
 <p>Usage: event_sanitizer // filter bad events, no callback event_sanitizer[log["sanitized"]] // log and filter problematic events event_sanitizer.diagnostics()[log["bad"]] // log problematic events, keep them event_diagnostics[log["bad"]] // diagnostics-only shorthand event_sanitizer[my_callback, .threshold(100)] </p>
@@ -505,6 +510,34 @@ template&lt;typename Callback  = basic_noop&gt; </div>
 </div><div class="memdoc">
 
 <p>Report sanitizer issues without filtering or rewriting events. </p>
+
+</div>
+</div>
+<a id="ab97edf7746b1e56170c1d08393637e05" name="ab97edf7746b1e56170c1d08393637e05"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab97edf7746b1e56170c1d08393637e05">&#9670;&#160;</a></span>double_presses()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Callback  = basic_noop&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">consteval <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a> <a class="el" href="structfs8_1_1basic__event__sanitizer.html">fs8::basic_event_sanitizer</a>&lt; Callback &gt;::double_presses </td>
+          <td>(</td>
+          <td class="paramtype">bool const&#160;</td>
+          <td class="paramname"><em>v</em> = <code>true</code></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -872,6 +905,34 @@ template&lt;typename Callback  = basic_noop&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">consteval <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a> <a class="el" href="structfs8_1_1basic__event__sanitizer.html">fs8::basic_event_sanitizer</a>&lt; Callback &gt;::orphan_releases </td>
+          <td>(</td>
+          <td class="paramtype">bool const&#160;</td>
+          <td class="paramname"><em>v</em> = <code>true</code></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac54f8c9571c99db6d7a76e78bf368bc3" name="ac54f8c9571c99db6d7a76e78bf368bc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac54f8c9571c99db6d7a76e78bf368bc3">&#9670;&#160;</a></span>orphan_repeats()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Callback  = basic_noop&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">consteval <a class="el" href="structfs8_1_1basic__event__sanitizer.html">basic_event_sanitizer</a> <a class="el" href="structfs8_1_1basic__event__sanitizer.html">fs8::basic_event_sanitizer</a>&lt; Callback &gt;::orphan_repeats </td>
           <td>(</td>
           <td class="paramtype">bool const&#160;</td>
           <td class="paramname"><em>v</em> = <code>true</code></td><td>)</td>

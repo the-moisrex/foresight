@@ -36,7 +36,7 @@ var searchData=
   ['is_5finitialized_33',['is_initialized',['../structfs8_1_1udev__device.html#a1bfcdd0cab97058fada278ef04f2fed0',1,'fs8::udev_device']]],
   ['is_5finput_5fvirtual_34',['is_input_virtual',['../namespacefs8.html#a84dc8f2ec0c7b904517c56e6ac1d638c',1,'fs8']]],
   ['is_5finvalid_35',['is_invalid',['../namespacefs8.html#ae722fd1e3ee0e8c2f85d947b48ba18c7',1,'fs8::is_invalid(key_event const &amp;event) noexcept'],['../namespacefs8.html#a821846ec9588a6613cba5e2070b49da8',1,'fs8::is_invalid(user_event const &amp;event) noexcept']]],
-  ['is_5fkey_5fpressed_36',['is_key_pressed',['../structfs8_1_1pimpl__idiom_1_1impl.html#a5db0a20d16074b59a3f97875a3b1837f',1,'fs8::pimpl_idiom::impl']]],
+  ['is_5fkey_5fpressed_36',['is_key_pressed',['../structfs8_1_1basic__enforce__key__state.html#abc41b7f86eb1c4d61245f52434c2dad5',1,'fs8::basic_enforce_key_state']]],
   ['is_5flinear_37',['is_linear',['../structfs8_1_1momentum__calculator.html#abe18eeacec6e850986afd1d9a006fb50',1,'fs8::momentum_calculator']]],
   ['is_5fmatched_38',['is_matched',['../namespacefs8.html#aa584a3570ab50904ad3672f77e732012',1,'fs8']]],
   ['is_5fmodifier_5fkey_39',['is_modifier_key',['../namespacefs8.html#af6d14c4ce234f2becac2325d0d429d4a',1,'fs8']]],

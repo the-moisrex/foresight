@@ -103,7 +103,7 @@ $(document).ready(function(){initNavTree('ignore_8ixx.html',''); initResizable()
 <code>#include &lt;cstddef&gt;</code><br />
 <code>#include &lt;linux/input-event-codes.h&gt;</code><br />
 <code>#include &lt;utility&gt;</code><br />
-<code>import <a class="el" href="mods_8ixx.html">fs8.mods:debounce</a>;</code><br />
+<code>import <a class="el" href="mods_8ixx.html">fs8.mods:input_manager</a>;</code><br />
 <code>import <a class="el" href="log_8ixx.html">fs8.log</a>;</code><br />
 <code>import <a class="el" href="capabilities_8ixx.html">fs8.devices.capabilities</a>;</code><br />
 <code>import <a class="el" href="traits_8ixx.html">fs8.traits</a>;</code><br />
@@ -147,6 +147,16 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__ignore__event.html">fs8::basic_ignore_event</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__ignore__msc__scan.html">fs8::basic_ignore_msc_scan</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__enforce__key__state.html">fs8::basic_enforce_key_state</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__ignore__late__syn.html">fs8::basic_ignore_late_syn</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__ignore__pen__out__of__bounds.html">fs8::basic_ignore_pen_out_of_bounds</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ignore pen ABS values that fall outside the device-reported bounds.  <a href="structfs8_1_1basic__ignore__pen__out__of__bounds.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__ignore__missing__syns.html">fs8::basic_ignore_missing_syns</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ignore data events when the SYN_REPORT framing is broken.  <a href="structfs8_1_1basic__ignore__missing__syns.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -208,6 +218,14 @@ Variables</h2></td></tr>
 <tr class="separator:a59077ef4a28b3ea882557a23472d5c70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab61e54b7d08974f513683cbc44dc7a40" id="r_ab61e54b7d08974f513683cbc44dc7a40"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__ignore__fast__repeats.html">basic_ignore_fast_repeats</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ab61e54b7d08974f513683cbc44dc7a40">fs8::ignore_fast_right_clicks</a></td></tr>
 <tr class="separator:ab61e54b7d08974f513683cbc44dc7a40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5d3ab5eee7a7b9bc68df318657ba5cc" id="r_af5d3ab5eee7a7b9bc68df318657ba5cc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__enforce__key__state.html">fs8::basic_enforce_key_state</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af5d3ab5eee7a7b9bc68df318657ba5cc">fs8::enforce_key_state</a></td></tr>
+<tr class="separator:af5d3ab5eee7a7b9bc68df318657ba5cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ee5a67200aa0176d68f5605d473ffc6" id="r_a9ee5a67200aa0176d68f5605d473ffc6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__ignore__late__syn.html">fs8::basic_ignore_late_syn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a9ee5a67200aa0176d68f5605d473ffc6">fs8::ignore_late_syn</a></td></tr>
+<tr class="separator:a9ee5a67200aa0176d68f5605d473ffc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad62e9eeae10a8b0494c51384f8ccfa33" id="r_ad62e9eeae10a8b0494c51384f8ccfa33"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__ignore__pen__out__of__bounds.html">fs8::basic_ignore_pen_out_of_bounds</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad62e9eeae10a8b0494c51384f8ccfa33">fs8::ignore_pen_out_of_bounds</a></td></tr>
+<tr class="separator:ad62e9eeae10a8b0494c51384f8ccfa33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc5716ea72800977c57b4e5e8c103f9d" id="r_afc5716ea72800977c57b4e5e8c103f9d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__ignore__missing__syns.html">fs8::basic_ignore_missing_syns</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afc5716ea72800977c57b4e5e8c103f9d">fs8::ignore_missing_syns</a></td></tr>
+<tr class="separator:afc5716ea72800977c57b4e5e8c103f9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
