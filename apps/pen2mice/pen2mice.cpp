@@ -49,6 +49,7 @@ int main(int const argc, char const* const* argv) try {
       | scheduled_emitter
       | scheduler
       | led_status
+      | enforce_key_state
       | keys_status // Save key presses
       | mouse_history
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],

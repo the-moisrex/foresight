@@ -13,7 +13,6 @@ namespace fs8 {
     template <>
     struct pimpl_idiom<event_sanitizer_state>::impl {
         using value_type = event_type::value_type;
-        using code_type  = event_type::code_type;
         using msec_type  = std::chrono::microseconds;
 
         bool      was_syn            = false;
@@ -23,39 +22,11 @@ namespace fs8 {
         value_type data_events_since_syn = 0;
         value_type travel_since_syn      = 0;
 
-        static constexpr std::size_t max_tracked_keys = 64;
-        code_type                    pressed_keys[max_tracked_keys]{};
-        std::size_t                  num_pressed = 0;
-
         bool       has_pen_bounds = false;
         value_type pen_x_min      = 0;
         value_type pen_x_max      = 0;
         value_type pen_y_min      = 0;
         value_type pen_y_max      = 0;
-
-        [[nodiscard]] bool is_key_pressed(code_type const code) const noexcept {
-            for (std::size_t i = 0; i < num_pressed; ++i) {
-                if (pressed_keys[i] == code) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        void track_press(code_type const code) noexcept {
-            if (!is_key_pressed(code) && num_pressed < max_tracked_keys) {
-                pressed_keys[num_pressed++] = code;
-            }
-        }
-
-        void track_release(code_type const code) noexcept {
-            for (std::size_t i = 0; i < num_pressed; ++i) {
-                if (pressed_keys[i] == code) {
-                    pressed_keys[i] = pressed_keys[--num_pressed];
-                    return;
-                }
-            }
-        }
     };
 
     std::string_view to_string(sanitizer_issue const issue) noexcept {
@@ -64,6 +35,8 @@ namespace fs8 {
             case none: return {"event is clean"};
             case adjacent_syn: return {"duplicate SYN_REPORT (no data since last syn)"};
             case orphan_release: return {"key release without a prior press"};
+            case orphan_repeat: return {"key repeat without a prior press"};
+            case double_press: return {"key press while already pressed"};
             case late_syn: return {"SYN_REPORT arrived after a long gap with no data"};
             case out_of_resolution: return {"pen ABS value outside device bounds"};
             case big_jump: return {"mouse movement exceeding threshold"};
@@ -104,11 +77,6 @@ namespace fs8 {
 
         if (cfg.check_adjacent_syns && event.type() == EV_SYN && event.code() == SYN_REPORT && pimpl->was_syn) [[unlikely]] {
             return adjacent_syn;
-        }
-
-        if (cfg.check_orphan_releases && event.type() == EV_KEY && event.value() == 0 && !pimpl->is_key_pressed(event.code())) [[unlikely]]
-        {
-            return orphan_release;
         }
 
         bool const is_syn_report = event.type() == EV_SYN && event.code() == SYN_REPORT;
@@ -177,24 +145,11 @@ namespace fs8 {
         if (!is_syn) {
             pimpl->any_data_since_syn = true;
             if (pimpl->data_events_since_syn == 0) {
-                // First data event after SYN: advance last_syn_time to the current
-                // event's timestamp so subsequent events in the same frame compare
-                // against the frame start rather than the previous frame's SYN_REPORT.
-                // This prevents false positives for multi-event frames (e.g. tablet
-                // REL_X + REL_Y) after normal idle gaps.
                 pimpl->last_syn_time = event.micro_time();
             }
             ++pimpl->data_events_since_syn;
             if (is_mouse_movement(event)) {
                 pimpl->travel_since_syn += std::abs(event.value());
-            }
-        }
-
-        if (event.type() == EV_KEY) {
-            switch (event.value()) {
-                case 1: pimpl->track_press(event.code()); break;
-                case 0: pimpl->track_release(event.code()); break;
-                default: break;
             }
         }
 

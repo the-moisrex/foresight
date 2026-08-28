@@ -14,6 +14,7 @@ import fs8.pimpl;
 import fs8.traits;
 import fs8.utils;
 import :input_manager;
+import :ignore;
 import fs8.log;
 
 export namespace fs8 {
@@ -23,6 +24,8 @@ export namespace fs8 {
         none,               ///< event is clean
         adjacent_syn,       ///< duplicate SYN_REPORT (no data since last syn)
         orphan_release,     ///< key release without a prior press
+        orphan_repeat,      ///< key repeat without a prior press
+        double_press,       ///< key press while already pressed
         late_syn,           ///< SYN_REPORT arrived after a long gap with no data
         out_of_resolution,  ///< pen ABS value outside device bounds
         big_jump,           ///< mouse movement exceeding threshold
@@ -49,6 +52,8 @@ export namespace fs8 {
         struct [[nodiscard]] config {
             bool       check_adjacent_syns      = true;
             bool       check_orphan_releases    = true;
+            bool       check_orphan_repeats     = true;
+            bool       check_double_presses     = true;
             bool       check_late_syns          = true;
             bool       check_pen_resolution     = true;
             bool       check_big_jumps          = true;
@@ -73,11 +78,12 @@ export namespace fs8 {
      * Sanitize input events by detecting and filtering problematic events.
      *
      * Checks:
+     *  - Key state enforcement (orphan releases/repeats, double presses)
      *  - Adjacent SYN_REPORTs (duplicate sync with no data in between)
-     *  - Orphan key releases (EV_KEY release for a key that was never pressed)
      *  - Late SYN_REPORTs (sync after a long gap with no data events)
      *  - Out-of-resolution pen locations (ABS values outside device bounds)
      *  - Big mouse jumps (REL movement exceeding a pixel threshold)
+     *  - Missing SYN framing (time/count/travel thresholds)
      *
      * The callback receives (event, issue). For two-argument callbacks it is
      * called for every event; for one-argument callbacks (like `log`) it is
@@ -106,6 +112,11 @@ export namespace fs8 {
         bool                           log_events_good  = false;
         bool                           diagnostics_only = false;
         [[no_unique_address]] Callback cb;
+
+        basic_enforce_key_state       key_state_enforcer{};
+        basic_ignore_late_syn         late_syn_checker{};
+        basic_ignore_pen_out_of_bounds pen_bounds_checker{};
+        basic_ignore_missing_syns     missing_syn_checker{};
 
         /// Dispatch the callback based on its arity.
         constexpr void invoke_callback(event_type const& event, sanitizer_issue const issue) noexcept {
@@ -193,6 +204,18 @@ export namespace fs8 {
             return copy;
         }
 
+        consteval basic_event_sanitizer orphan_repeats(bool const v = true) const noexcept {
+            auto copy                     = *this;
+            copy.cfg.check_orphan_repeats = v;
+            return copy;
+        }
+
+        consteval basic_event_sanitizer double_presses(bool const v = true) const noexcept {
+            auto copy                    = *this;
+            copy.cfg.check_double_presses = v;
+            return copy;
+        }
+
         consteval basic_event_sanitizer late_syns(bool const v = true) const noexcept {
             auto copy                = *this;
             copy.cfg.check_late_syns = v;
@@ -260,33 +283,102 @@ export namespace fs8 {
             };
         }
 
-        // --- Start: seed pen resolution from input_manager ---
+        // --- Start: seed pen bounds from input_manager ---
 
         template <Context CtxT>
             requires has_mod<basic_input_manager, CtxT>
         context_action operator()(CtxT& ctx, start_tag) noexcept {
             state.ensure_initialized();
-            for (auto const& dev : ctx.mod(input_manager).devices()) {
-                if (auto const* x = dev.abs_info(ABS_X); x != nullptr) {
-                    if (auto const* y = dev.abs_info(ABS_Y); y != nullptr) {
-                        state.seed_pen_bounds(x->minimum, x->maximum, y->minimum, y->maximum);
-                        break;
-                    }
-                }
-            }
-            return context_action::next;
+            key_state_enforcer(start);
+            return pen_bounds_checker(ctx, start);
         }
 
         // --- Main handler ---
 
         context_action operator()(event_type const& event) noexcept {
+            using enum context_action;
+
+            // 1. Key state enforcement (always updates state; filtering respects config)
+            if (event.type() == EV_KEY) {
+                auto const key_action = key_state_enforcer(event);
+                if (key_action == ignore_event) [[unlikely]] {
+                    auto const issue = determine_key_issue(event);
+                    bool const should_filter =
+                      (issue == sanitizer_issue::orphan_release && cfg.check_orphan_releases)
+                      || (issue == sanitizer_issue::orphan_repeat && cfg.check_orphan_repeats)
+                      || (issue == sanitizer_issue::double_press && cfg.check_double_presses);
+                    invoke_callback(event, issue);
+                    if (!diagnostics_only && should_filter) {
+                        return ignore_event;
+                    }
+                }
+            }
+
+            // 2. Late SYN
+            if (cfg.check_late_syns) {
+                if (late_syn_checker(event) == ignore_event) [[unlikely]] {
+                    invoke_callback(event, sanitizer_issue::late_syn);
+                    if (!diagnostics_only) {
+                        return ignore_event;
+                    }
+                }
+            }
+
+            // 3. Pen bounds
+            if (cfg.check_pen_resolution) {
+                if (pen_bounds_checker(event) == ignore_event) [[unlikely]] {
+                    invoke_callback(event, sanitizer_issue::out_of_resolution);
+                    if (!diagnostics_only) {
+                        return ignore_event;
+                    }
+                }
+            }
+
+            // 4. Missing SYN
+            if (cfg.check_missing_syn_time || cfg.check_missing_syn_count || cfg.check_missing_syn_travel) {
+                if (missing_syn_checker(event) == ignore_event) [[unlikely]] {
+                    auto const issue = determine_missing_syn_issue(event);
+                    invoke_callback(event, issue);
+                    if (!diagnostics_only) {
+                        return ignore_event;
+                    }
+                }
+            }
+
+            // 5. Existing checks: adjacent SYN, big jumps (delegated to state)
             auto const issue = state.check(event, cfg);
             invoke_callback(event, issue);
             state.update(event);
             if (diagnostics_only) {
-                return context_action::next;
+                return next;
             }
-            return issue == sanitizer_issue::none ? context_action::next : context_action::ignore_event;
+            return issue == sanitizer_issue::none ? next : ignore_event;
+        }
+
+      private:
+        /// Map a rejected key event to the specific sanitizer issue.
+        [[nodiscard]] sanitizer_issue determine_key_issue(event_type const& event) const noexcept {
+            using enum sanitizer_issue;
+            switch (event.value()) {
+                case 0: return orphan_release;
+                case 2: return orphan_repeat;
+                case 1: return double_press;
+                default: return none;
+            }
+        }
+
+        /// Map a rejected event from `ignore_missing_syns` to the specific issue.
+        [[nodiscard]] sanitizer_issue determine_missing_syn_issue(event_type const& event) const noexcept {
+            using enum sanitizer_issue;
+            if (event.type() == EV_SYN) {
+                return none; // should not happen
+            }
+            // We can't distinguish which threshold fired inside ignore_missing_syns,
+            // so report the most relevant one based on event type.
+            if (is_mouse_movement(event)) {
+                return missing_syn_travel;
+            }
+            return missing_syn_time;
         }
     };
 

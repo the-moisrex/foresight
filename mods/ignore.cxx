@@ -7,10 +7,14 @@ module;
 #include <utility>
 module fs8.mods;
 
+using fs8::basic_enforce_key_state;
 using fs8::basic_ignore_abs;
 using fs8::basic_ignore_big_jumps;
 using fs8::basic_ignore_fast_repeats;
 using fs8::basic_ignore_init_moves;
+using fs8::basic_ignore_late_syn;
+using fs8::basic_ignore_missing_syns;
+using fs8::basic_ignore_pen_out_of_bounds;
 using fs8::context_action;
 using fs8::event_type;
 
@@ -127,4 +131,111 @@ context_action fs8::basic_ignore_adjacent_repeats::operator()(event_type const& 
     using enum context_action;
     bool const found_asked = event.is_of(asked_event);
     return std::exchange(is_found, found_asked) && found_asked ? ignore_event : next;
+}
+
+// --- enforce_key_state ---
+
+context_action basic_enforce_key_state::operator()(event_type const& event) noexcept {
+    using enum context_action;
+    if (event.type() != EV_KEY) {
+        return next;
+    }
+    auto const code = static_cast<std::size_t>(event.code());
+    if (code >= max_keys) [[unlikely]] {
+        return next;
+    }
+    bool invalid = false;
+    switch (event.value()) {
+        case 1: // press
+            if (pressed[code]) [[unlikely]] {
+                invalid = true; // double press
+            }
+            pressed[code] = true;
+            break;
+        case 2: // repeat
+            if (!pressed[code]) [[unlikely]] {
+                invalid = true; // orphan repeat
+            }
+            break;
+        case 0: // release
+            if (!pressed[code]) [[unlikely]] {
+                invalid = true; // orphan release
+            }
+            pressed[code] = false;
+            break;
+        default: break;
+    }
+    return invalid ? ignore_event : next;
+}
+
+// --- ignore_late_syn ---
+
+context_action basic_ignore_late_syn::operator()(event_type const& event) noexcept {
+    using enum context_action;
+    bool const is_syn_report = event.type() == EV_SYN && event.code() == SYN_REPORT;
+
+    if (!is_syn_report) {
+        any_data_since_syn = true;
+        return next;
+    }
+
+    // SYN_REPORT arrives
+    bool const is_late =
+      !any_data_since_syn && was_syn && event.micro_time() - last_syn_time >= threshold;
+
+    was_syn            = true;
+    any_data_since_syn = false;
+    last_syn_time      = event.micro_time();
+
+    return is_late ? ignore_event : next;
+}
+
+// --- ignore_pen_out_of_bounds ---
+
+context_action fs8::basic_ignore_pen_out_of_bounds::operator()(event_type const& event) const noexcept {
+    using enum context_action;
+    if (!has_pen_bounds || event.type() != EV_ABS) {
+        return next;
+    }
+    switch (event.code()) {
+        case ABS_X:
+            return (event.value() < pen_x_min || event.value() > pen_x_max) ? ignore_event : next;
+        case ABS_Y:
+            return (event.value() < pen_y_min || event.value() > pen_y_max) ? ignore_event : next;
+        default: return next;
+    }
+}
+
+// --- ignore_missing_syns ---
+
+context_action basic_ignore_missing_syns::operator()(event_type const& event) noexcept {
+    using enum context_action;
+    bool const is_syn_report = event.type() == EV_SYN && event.code() == SYN_REPORT;
+
+    if (!is_syn_report) {
+        if (data_events_since_syn == 0) {
+            last_syn_time = event.micro_time();
+        }
+        ++data_events_since_syn;
+        if (is_mouse_movement(event)) {
+            travel_since_syn += std::abs(event.value());
+        }
+
+        if (data_events_since_syn > 1 && event.micro_time() - last_syn_time >= time_threshold) [[unlikely]] {
+            return ignore_event;
+        }
+        if (data_events_since_syn > count_threshold) [[unlikely]] {
+            return ignore_event;
+        }
+        if (travel_since_syn >= travel_threshold) [[unlikely]] {
+            return ignore_event;
+        }
+        return next;
+    }
+
+    // SYN_REPORT: reset counters
+    last_syn_time         = event.micro_time();
+    data_events_since_syn = 0;
+    travel_since_syn      = 0;
+    return next;
 }

@@ -12,6 +12,7 @@ import fs8.devices.capabilities;
 import fs8.traits;
 import fs8.log;
 import :debounce;
+import :input_manager;
 
 export namespace fs8 {
 
@@ -305,5 +306,160 @@ export namespace fs8 {
 
     // todo: ignore_types(EV_ABS)
     // todo: ignore_codes(EV_BTN_TOOL_RUBBER)
+
+    /// Enforce valid key event state transitions.
+    ///
+    /// Maintains a per-key pressed flag.  The following transitions are
+    /// considered valid and pass through:
+    ///   - not pressed → press (value 1)
+    ///   - pressed → repeat (value 2)
+    ///   - pressed → release (value 0)
+    ///
+    /// Everything else is filtered:
+    ///   - not pressed → repeat (orphan repeat, e.g. key held at startup)
+    ///   - not pressed → release (orphan release)
+    ///   - pressed → press (double press / bounce)
+    ///
+    /// Invalid events never update state, so the tracker stays consistent.
+    constexpr struct [[nodiscard]] basic_enforce_key_state : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        using code_type = event_type::code_type;
+
+      private:
+        static constexpr std::size_t max_keys = 256;
+        std::array<bool, max_keys>   pressed{};
+
+      public:
+        constexpr void operator()(start_tag) noexcept {
+            pressed = {};
+        }
+
+        context_action operator()(event_type const& event) noexcept;
+
+        [[nodiscard]] constexpr bool is_key_pressed(code_type const code) const noexcept {
+            return pressed[static_cast<std::size_t>(code)];
+        }
+    } enforce_key_state;
+
+    /// Ignore late SYN_REPORTs — empty sync packets that arrive after a long
+    /// idle gap with no data events in between.
+    constexpr struct [[nodiscard]] basic_ignore_late_syn : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        using msec_type = std::chrono::microseconds;
+
+      private:
+        static constexpr msec_type default_threshold{100'000}; // 100 ms
+
+        msec_type threshold{default_threshold};
+        // state
+        bool      was_syn            = false;
+        bool      any_data_since_syn = false;
+        msec_type last_syn_time{0};
+
+      public:
+        constexpr explicit basic_ignore_late_syn(msec_type const inp_threshold = default_threshold) noexcept
+          : threshold{inp_threshold} {}
+
+        consteval basic_ignore_late_syn operator[](msec_type const inp_threshold) const noexcept {
+            return basic_ignore_late_syn{inp_threshold};
+        }
+
+        context_action operator()(event_type const& event) noexcept;
+    } ignore_late_syn;
+
+    /// Ignore pen ABS values that fall outside the device-reported bounds.
+    ///
+    /// Pen bounds are seeded from `input_manager` on `start_tag`.  Only
+    /// `ABS_X` and `ABS_Y` events are checked.
+    constexpr struct [[nodiscard]] basic_ignore_pen_out_of_bounds : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        using value_type = event_type::value_type;
+
+      private:
+        bool       has_pen_bounds = false;
+        value_type pen_x_min      = 0;
+        value_type pen_x_max      = 0;
+        value_type pen_y_min      = 0;
+        value_type pen_y_max      = 0;
+
+      public:
+        constexpr void seed_pen_bounds(value_type const x_min, value_type const x_max, value_type const y_min, value_type const y_max) noexcept {
+            pen_x_min      = x_min;
+            pen_x_max      = x_max;
+            pen_y_min      = y_min;
+            pen_y_max      = y_max;
+            has_pen_bounds = true;
+        }
+
+        template <typename CtxT>
+            requires has_mod<basic_input_manager, CtxT>
+        context_action operator()(CtxT& ctx, start_tag) noexcept {
+            for (auto const& dev : ctx.mod(input_manager).devices()) {
+                if (auto const* x = dev.abs_info(ABS_X); x != nullptr) {
+                    if (auto const* y = dev.abs_info(ABS_Y); y != nullptr) {
+                        seed_pen_bounds(x->minimum, x->maximum, y->minimum, y->maximum);
+                        return context_action::next;
+                    }
+                }
+            }
+            return context_action::next;
+        }
+
+        context_action operator()(event_type const& event) const noexcept;
+    } ignore_pen_out_of_bounds;
+
+    /// Ignore data events when the SYN_REPORT framing is broken.
+    ///
+    /// Tracks three conditions:
+    ///  - `missing_syn_time`: a data event arrives long after the last SYN
+    ///  - `missing_syn_count`: too many data events without a SYN
+    ///  - `missing_syn_travel`: cumulative mouse travel exceeds threshold without a SYN
+    constexpr struct [[nodiscard]] basic_ignore_missing_syns : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        using value_type = event_type::value_type;
+        using msec_type  = std::chrono::microseconds;
+
+      private:
+        msec_type  time_threshold{100'000}; // 100 ms
+        value_type count_threshold  = 20;
+        value_type travel_threshold = 500;
+        // state
+        msec_type  last_syn_time{0};
+        value_type data_events_since_syn = 0;
+        value_type travel_since_syn      = 0;
+
+      public:
+        constexpr explicit basic_ignore_missing_syns(
+          msec_type const  inp_time_threshold  = msec_type{100'000},
+          value_type const inp_count_threshold = 20,
+          value_type const inp_travel_threshold = 500) noexcept
+          : time_threshold{inp_time_threshold},
+            count_threshold{inp_count_threshold},
+            travel_threshold{inp_travel_threshold} {}
+
+        consteval basic_ignore_missing_syns time(msec_type const d) const noexcept {
+            auto copy           = *this;
+            copy.time_threshold = d;
+            return copy;
+        }
+
+        consteval basic_ignore_missing_syns count(value_type const n) const noexcept {
+            auto copy            = *this;
+            copy.count_threshold = n;
+            return copy;
+        }
+
+        consteval basic_ignore_missing_syns travel(value_type const d) const noexcept {
+            auto copy             = *this;
+            copy.travel_threshold = d;
+            return copy;
+        }
+
+        context_action operator()(event_type const& event) noexcept;
+    } ignore_missing_syns;
 
 } // namespace fs8
