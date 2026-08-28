@@ -20,6 +20,7 @@ export import :live_view;
 export import :input_manager;
 export import :intercept;
 export import :io_manager;
+export import :key_sync_lock;
 export import :keys_state;
 export import :lambda;
 export import :modes;

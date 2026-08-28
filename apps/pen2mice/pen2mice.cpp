@@ -45,6 +45,7 @@ int main(int const argc, char const* const* argv) try {
       | pipeline_singleton
       | io_manager
       | input_manager
+      | key_sync_lock
       | intercept[tablet | required | grab, keyboard | grab]
       | scheduled_emitter
       | scheduler
@@ -54,15 +55,15 @@ int main(int const argc, char const* const* argv) try {
       | mouse_history
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
            context
-             | abs2rel                             // Convert Drawing Tablet absolute moves into mouse moves
-             | pen2mice                            // Convert the buttons
+             | abs2rel               // Convert Drawing Tablet absolute moves into mouse moves
+             | pen2mice              // Convert the buttons
              | drop_tablet
              | drop_big_jumps
-             | drop_fast_left_clicks             // Ignore fast left clicks
-              | update_mod[keys_state]
+             | drop_fast_left_clicks // Ignore fast left clicks
+             | update_mod[keys_state]
              | update_mod[mouse_history]]
 
-      | swipe_detector                             // Detects swipes
+      | swipe_detector                           // Detects swipes
       | on[pressed[BTN_RIGHT], drop_start_moves] // fix right-click jumps
       | once[pressed[BTN_MIDDLE] & triple_click, emit[press(KEY_LEFTMETA, KEY_TAB)]]
       | once[limit_mouse_travel[pressed[KEY_CAPSLOCK], 50] & keyup[BTN_LEFT], schedule_emit + press(BTN_RIGHT)]

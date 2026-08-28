@@ -158,6 +158,7 @@ target_sources(${LIB_NAME}
         mods/input_manager.ixx
         mods/intercept.ixx
         mods/io_manager.ixx
+        mods/key_sync_lock.ixx
         mods/keys_state.ixx
         mods/lambda.ixx
         mods/modes.ixx
