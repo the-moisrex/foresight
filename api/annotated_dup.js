@@ -90,6 +90,7 @@ var annotated_dup =
       [ "basic_io_manager", "structfs8_1_1basic__io__manager.html", "structfs8_1_1basic__io__manager" ],
       [ "basic_kalman_filter", "structfs8_1_1basic__kalman__filter.html", "structfs8_1_1basic__kalman__filter" ],
       [ "basic_key", "structfs8_1_1basic__key.html", "structfs8_1_1basic__key" ],
+      [ "basic_key_sync_lock", "structfs8_1_1basic__key__sync__lock.html", "structfs8_1_1basic__key__sync__lock" ],
       [ "basic_keydown", "structfs8_1_1basic__keydown.html", "structfs8_1_1basic__keydown" ],
       [ "basic_keys_state", "structfs8_1_1basic__keys__state.html", "structfs8_1_1basic__keys__state" ],
       [ "basic_keyup", "structfs8_1_1basic__keyup.html", "structfs8_1_1basic__keyup" ],

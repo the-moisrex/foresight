@@ -22,6 +22,7 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "intercept.ixx", "intercept_8ixx.html", "intercept_8ixx" ],
     [ "io_manager.cxx", "io__manager_8cxx.html", "io__manager_8cxx" ],
     [ "io_manager.ixx", "io__manager_8ixx.html", "io__manager_8ixx" ],
+    [ "key_sync_lock.ixx", "key__sync__lock_8ixx.html", "key__sync__lock_8ixx" ],
     [ "keys_state.cxx", "keys__state_8cxx.html", null ],
     [ "keys_state.ixx", "keys__state_8ixx.html", "keys__state_8ixx" ],
     [ "lambda.ixx", "lambda_8ixx.html", "lambda_8ixx" ],

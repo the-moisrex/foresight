@@ -6,6 +6,6 @@ digraph "Graphical Class Hierarchy"
   node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
   rankdir="LR";
   Node0 [id="Node000000",label="fs8::plain_pimpl_idiom\l\< keyboard_runner \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1plain__pimpl__idiom.html",tooltip=" "];
-  Node0 -> Node1 [id="edge133_Node000000_Node000001",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node0 -> Node1 [id="edge134_Node000000_Node000001",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node1 [id="Node000001",label="fs8::keyboard_runner",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1keyboard__runner.html",tooltip=" "];
 }

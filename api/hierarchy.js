@@ -136,6 +136,7 @@ var hierarchy =
       [ "fs8::basic_held", "structfs8_1_1basic__held.html", null ],
       [ "fs8::basic_held_gate< CondT >", "structfs8_1_1basic__held__gate.html", null ],
       [ "fs8::basic_key", "structfs8_1_1basic__key.html", null ],
+      [ "fs8::basic_key_sync_lock", "structfs8_1_1basic__key__sync__lock.html", null ],
       [ "fs8::basic_keydown", "structfs8_1_1basic__keydown.html", null ],
       [ "fs8::basic_keys_state", "structfs8_1_1basic__keys__state.html", null ],
       [ "fs8::basic_keyup", "structfs8_1_1basic__keyup.html", null ],
