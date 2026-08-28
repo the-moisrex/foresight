@@ -1,6 +1,5 @@
 var module_fs8_8mods =
 [
-    [ "basic_key_sync_lock", "structfs8_1_1basic__key__sync__lock.html", "structfs8_1_1basic__key__sync__lock" ],
     [ "basic_uinput", "structfs8_1_1basic__uinput.html", "structfs8_1_1basic__uinput" ],
     [ "basic_put", "structfs8_1_1basic__put.html", "structfs8_1_1basic__put" ],
     [ "basic_replace", "structfs8_1_1basic__replace.html", "structfs8_1_1basic__replace" ],
@@ -52,6 +51,7 @@ var module_fs8_8mods =
     [ "basic_swipe_detector", "structfs8_1_1basic__swipe__detector.html", "structfs8_1_1basic__swipe__detector" ],
     [ "basic_swipe", "structfs8_1_1basic__swipe.html", "structfs8_1_1basic__swipe" ],
     [ "basic_multi_click", "structfs8_1_1basic__multi__click.html", "structfs8_1_1basic__multi__click" ],
+    [ "basic_startup_key_releases", "structfs8_1_1basic__startup__key__releases.html", "structfs8_1_1basic__startup__key__releases" ],
     [ "basic_lerp", "structfs8_1_1basic__lerp.html", "structfs8_1_1basic__lerp" ],
     [ "basic_low_pass_filter", "structfs8_1_1basic__low__pass__filter.html", "structfs8_1_1basic__low__pass__filter" ],
     [ "basic_kalman_filter", "structfs8_1_1basic__kalman__filter.html", "structfs8_1_1basic__kalman__filter" ],
@@ -244,9 +244,6 @@ var module_fs8_8mods =
     [ "fs8::basic_quantifier::code_type", "module_fs8_8mods.html#a8a35ff40017e8f35acbc68922f659eb9", null ],
     [ "fs8::basic_mice_quantifier::value_type", "module_fs8_8mods.html#a03e9c3092991b8a9f76f1ecf40a4fb24", null ],
     [ "fs8::basic_mice_quantifier::code_type", "module_fs8_8mods.html#a1a0d3a29860d4431b629376375b3a264", null ],
-    [ "fs8::basic_key_sync_lock::release_all_keys", "module_fs8_8mods.html#a307341bd7ddf43621d59e4ccdf954ca5", null ],
-    [ "fs8::basic_key_sync_lock::operator()", "module_fs8_8mods.html#a64a073c55d5f6cc0fd15358920989309", null ],
-    [ "fs8::basic_key_sync_lock::operator()", "module_fs8_8mods.html#a434d8c5b93966c9ca2c57d3636f0c17c", null ],
     [ "fs8::verify_access_to_uinput", "module_fs8_8mods.html#a925df7ee1aac9d6cf75918ee02624b59", null ],
     [ "fs8::to_string", "module_fs8_8mods.html#a18f7254fa63e6bdec71453bfeb061372", null ],
     [ "fs8::finalize_device", "module_fs8_8mods.html#adee1a80366c18034df5097aa668dd38c", null ],
@@ -479,6 +476,8 @@ var module_fs8_8mods =
     [ "fs8::basic_multi_click::operator[]", "module_fs8_8mods.html#a747d0a3467ec8eba7cf1fe734630b779", null ],
     [ "fs8::basic_multi_click::operator[]", "module_fs8_8mods.html#a85dec99899afff047467f2b5534e3a73", null ],
     [ "fs8::basic_multi_click::operator()", "module_fs8_8mods.html#ae6ae8d8c2b31d795836cb5d3e1f039ab", null ],
+    [ "fs8::basic_startup_key_releases::operator()", "module_fs8_8mods.html#a5441a46730760f17dd1bf4896d53a2a1", null ],
+    [ "fs8::basic_startup_key_releases::operator()", "module_fs8_8mods.html#a79c483981dd70983578118397e66a0b3", null ],
     [ "fs8::basic_lerp::basic_lerp", "module_fs8_8mods.html#ab954bfb612cf78e35c0610a02b9a52de", null ],
     [ "fs8::basic_lerp::operator[]", "module_fs8_8mods.html#a9600ad0f7e9cc34a6cd3599fdbbfcb90", null ],
     [ "fs8::basic_lerp::operator[]", "module_fs8_8mods.html#a965aa6275c2df2d2bcbba00b9d268a6f", null ],

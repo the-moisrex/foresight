@@ -272,8 +272,6 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key.html">basic_key</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html">basic_key_sync_lock</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keydown.html">basic_keydown</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__state.html">basic_keys_state</a></td></tr>
@@ -376,6 +374,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__self__emitted.html">basic_self_emitted</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__singleton.html">basic_singleton</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__startup__key__releases.html">basic_startup_key_releases</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__stopper.html">basic_stopper</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -917,6 +917,9 @@ Functions</h2></td></tr>
 <tr class="separator:a996246e0d2b1df88f4a847d03cf0ff90"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe60ef2a0599c31e3dc7781cc0aff466" id="r_afe60ef2a0599c31e3dc7781cc0aff466"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afe60ef2a0599c31e3dc7781cc0aff466">fs8::query_key_state</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;dev, std::span&lt; unsigned char, <a class="el" href="namespacefs8.html#af8d58ebfb1a36ac2980b48788f5c5005">key_bitmap_bytes</a> &gt; <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a>) noexcept</td></tr>
 <tr class="separator:afe60ef2a0599c31e3dc7781cc0aff466"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1591a14b327703acffe77dfb9bc58fda" id="r_a1591a14b327703acffe77dfb9bc58fda"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a1591a14b327703acffe77dfb9bc58fda">fs8::release_all_keys</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> &amp;dev) noexcept</td></tr>
+<tr class="memdesc:a1591a14b327703acffe77dfb9bc58fda"><td class="mdescLeft">&#160;</td><td class="mdescRight">Release all held keys on a device by sending EV_KEY release events.  <br /></td></tr>
+<tr class="separator:a1591a14b327703acffe77dfb9bc58fda"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a52e6282f6c2746f7e6994978a48700ca" id="r_a52e6282f6c2746f7e6994978a48700ca"><td class="memItemLeft" align="right" valign="top">constexpr unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a52e6282f6c2746f7e6994978a48700ca">fs8::event_type_max_code</a> (unsigned const <a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a>) noexcept</td></tr>
 <tr class="separator:a52e6282f6c2746f7e6994978a48700ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af848054874ae987ce7a93293d3b273a2" id="r_af848054874ae987ce7a93293d3b273a2"><td class="memTemplParams" colspan="2">template&lt;typename CharT &gt; </td></tr>
@@ -1722,8 +1725,6 @@ Variables</h2></td></tr>
 <tr class="separator:a5e581dd9f7cd73975863af9a06630070"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a94c045c9f25ce171f90ea715226c9df0" id="r_a94c045c9f25ce171f90ea715226c9df0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__io__manager.html">fs8::basic_io_manager</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a94c045c9f25ce171f90ea715226c9df0">io_manager</a></td></tr>
 <tr class="separator:a94c045c9f25ce171f90ea715226c9df0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7704d7a7be02882dcf527f7f69618922" id="r_a7704d7a7be02882dcf527f7f69618922"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__key__sync__lock.html">fs8::basic_key_sync_lock</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7704d7a7be02882dcf527f7f69618922">key_sync_lock</a></td></tr>
-<tr class="separator:a7704d7a7be02882dcf527f7f69618922"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9d1f3ac9853dd7abe497647be001b08" id="r_ae9d1f3ac9853dd7abe497647be001b08"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__keys__state.html">fs8::basic_keys_state</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae9d1f3ac9853dd7abe497647be001b08">keys_state</a></td></tr>
 <tr class="separator:ae9d1f3ac9853dd7abe497647be001b08"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a002c97d73bca52d16d3a96c603d7f8a5" id="r_a002c97d73bca52d16d3a96c603d7f8a5"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__mod__updater.html">basic_mod_updater</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a002c97d73bca52d16d3a96c603d7f8a5">fs8::update_mod</a></td></tr>
@@ -1864,6 +1865,8 @@ Variables</h2></td></tr>
 <tr class="separator:a96522800554b963fb1a7a3fda11bbf01"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af49a41415ab39c577a31b462a8e74f61" id="r_af49a41415ab39c577a31b462a8e74f61"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__kalman__filter.html">fs8::basic_kalman_filter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af49a41415ab39c577a31b462a8e74f61">kalman_filter</a></td></tr>
 <tr class="separator:af49a41415ab39c577a31b462a8e74f61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5a1b0b68e20676fa009969bc6d77e5d" id="r_ad5a1b0b68e20676fa009969bc6d77e5d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__startup__key__releases.html">fs8::basic_startup_key_releases</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad5a1b0b68e20676fa009969bc6d77e5d">startup_key_releases</a></td></tr>
+<tr class="separator:ad5a1b0b68e20676fa009969bc6d77e5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae36c0ebc1ffd8c28734932b184f569cb" id="r_ae36c0ebc1ffd8c28734932b184f569cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__stopper.html">fs8::basic_stopper</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae36c0ebc1ffd8c28734932b184f569cb">stopper</a></td></tr>
 <tr class="separator:ae36c0ebc1ffd8c28734932b184f569cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af626de489d69bfdf6e119cd286797b4c" id="r_af626de489d69bfdf6e119cd286797b4c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__timed__typed.html">fs8::basic_timed_typed</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af626de489d69bfdf6e119cd286797b4c">timed_typed</a></td></tr>
@@ -9671,6 +9674,34 @@ template&lt;query_provider ProviderT&gt; </div>
 
 </div>
 </div>
+<a id="a1591a14b327703acffe77dfb9bc58fda" name="a1591a14b327703acffe77dfb9bc58fda"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1591a14b327703acffe77dfb9bc58fda">&#9670;&#160;</a></span>release_all_keys()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fs8::release_all_keys </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1evdev.html">evdev</a> &amp;&#160;</td>
+          <td class="paramname"><em>dev</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Release all held keys on a device by sending EV_KEY release events. </p>
+
+</div>
+</div>
 <a id="ab5a3b771d2db79a39d8155ea204cd610" name="ab5a3b771d2db79a39d8155ea204cd610"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab5a3b771d2db79a39d8155ea204cd610">&#9670;&#160;</a></span>replace_modifier_strings()</h2>
 
@@ -12734,20 +12765,6 @@ template&lt;std::size_t N&gt; </div>
 
 </div>
 </div>
-<a id="a7704d7a7be02882dcf527f7f69618922" name="a7704d7a7be02882dcf527f7f69618922"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7704d7a7be02882dcf527f7f69618922">&#9670;&#160;</a></span>key_sync_lock</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structfs8_1_1basic__key__sync__lock.html">fs8::basic_key_sync_lock</a> fs8::key_sync_lock</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a5badf60048a89aac3981bfd0ff9e708c" name="a5badf60048a89aac3981bfd0ff9e708c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5badf60048a89aac3981bfd0ff9e708c">&#9670;&#160;</a></span>keyboard</h2>
 
@@ -14023,6 +14040,20 @@ template&lt;EvtestFormat Format&gt; </div>
 </div><div class="memdoc">
 
 <p>Initialization and the setup parts of the mods will happen in actions using this tag. </p>
+
+</div>
+</div>
+<a id="ad5a1b0b68e20676fa009969bc6d77e5d" name="ad5a1b0b68e20676fa009969bc6d77e5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5a1b0b68e20676fa009969bc6d77e5d">&#9670;&#160;</a></span>startup_key_releases</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structfs8_1_1basic__startup__key__releases.html">fs8::basic_startup_key_releases</a> fs8::startup_key_releases</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

@@ -136,8 +136,6 @@ Concepts</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html">fs8::basic_key_sync_lock</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__uinput.html">fs8::basic_uinput</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__put.html">fs8::basic_put&lt; EventType &gt;</a></td></tr>
@@ -246,6 +244,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__swipe.html">fs8::basic_swipe</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__multi__click.html">fs8::basic_multi_click</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__startup__key__releases.html">fs8::basic_startup_key_releases</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__lerp.html">fs8::basic_lerp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -634,15 +634,6 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a307341bd7ddf43621d59e4ccdf954ca5" id="r_a307341bd7ddf43621d59e4ccdf954ca5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html#a307341bd7ddf43621d59e4ccdf954ca5">release_all_keys</a> (evdev &amp;dev) noexcept</td></tr>
-<tr class="memdesc:a307341bd7ddf43621d59e4ccdf954ca5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Release all held keys on a device by sending EV_KEY release events.  <br /></td></tr>
-<tr class="separator:a307341bd7ddf43621d59e4ccdf954ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64a073c55d5f6cc0fd15358920989309" id="r_a64a073c55d5f6cc0fd15358920989309"><td class="memTemplParams" colspan="2">template&lt;ContextWith&lt; basic_input_manager &gt; CtxT&gt; </td></tr>
-<tr class="memitem:a64a073c55d5f6cc0fd15358920989309"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html#a64a073c55d5f6cc0fd15358920989309">operator()</a> (CtxT &amp;ctx, start_tag) noexcept</td></tr>
-<tr class="memdesc:a64a073c55d5f6cc0fd15358920989309"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a device-change listener and check already-enumerated devices.  <br /></td></tr>
-<tr class="separator:a64a073c55d5f6cc0fd15358920989309"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a434d8c5b93966c9ca2c57d3636f0c17c" id="r_a434d8c5b93966c9ca2c57d3636f0c17c"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__key__sync__lock.html#a434d8c5b93966c9ca2c57d3636f0c17c">operator()</a> () const noexcept</td></tr>
-<tr class="separator:a434d8c5b93966c9ca2c57d3636f0c17c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a925df7ee1aac9d6cf75918ee02624b59" id="r_a925df7ee1aac9d6cf75918ee02624b59"><td class="memItemLeft" align="right" valign="top">uinput_access_result&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a925df7ee1aac9d6cf75918ee02624b59">fs8::verify_access_to_uinput</a> () noexcept</td></tr>
 <tr class="separator:a925df7ee1aac9d6cf75918ee02624b59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18f7254fa63e6bdec71453bfeb061372" id="r_a18f7254fa63e6bdec71453bfeb061372"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a18f7254fa63e6bdec71453bfeb061372">fs8::to_string</a> (uinput_access_result) noexcept</td></tr>
@@ -1219,6 +1210,12 @@ requires (!Context&lt;InpFuncT&gt; &amp;&amp; !Tag&lt;InpFuncT&gt;)</td></tr>
 <tr class="separator:a85dec99899afff047467f2b5534e3a73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6ae8d8c2b31d795836cb5d3e1f039ab" id="r_ae6ae8d8c2b31d795836cb5d3e1f039ab"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__multi__click.html#ae6ae8d8c2b31d795836cb5d3e1f039ab">operator()</a> (event_type const &amp;event) noexcept</td></tr>
 <tr class="separator:ae6ae8d8c2b31d795836cb5d3e1f039ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5441a46730760f17dd1bf4896d53a2a1" id="r_a5441a46730760f17dd1bf4896d53a2a1"><td class="memTemplParams" colspan="2">template&lt;ContextWith&lt; basic_input_manager &gt; CtxT&gt; </td></tr>
+<tr class="memitem:a5441a46730760f17dd1bf4896d53a2a1"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__startup__key__releases.html#a5441a46730760f17dd1bf4896d53a2a1">operator()</a> (CtxT &amp;ctx, start_tag) noexcept</td></tr>
+<tr class="memdesc:a5441a46730760f17dd1bf4896d53a2a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a device-change listener and check already-enumerated devices.  <br /></td></tr>
+<tr class="separator:a5441a46730760f17dd1bf4896d53a2a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79c483981dd70983578118397e66a0b3" id="r_a79c483981dd70983578118397e66a0b3"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__startup__key__releases.html#a79c483981dd70983578118397e66a0b3">operator()</a> () const noexcept</td></tr>
+<tr class="separator:a79c483981dd70983578118397e66a0b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab954bfb612cf78e35c0610a02b9a52de" id="r_ab954bfb612cf78e35c0610a02b9a52de"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__lerp.html#ab954bfb612cf78e35c0610a02b9a52de">basic_lerp</a> (std::size_t const inp_max_steps, float(*const inp_easing)(float)) noexcept</td></tr>
 <tr class="separator:ab954bfb612cf78e35c0610a02b9a52de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9600ad0f7e9cc34a6cd3599fdbbfcb90" id="r_a9600ad0f7e9cc34a6cd3599fdbbfcb90"><td class="memItemLeft" align="right" valign="top">consteval basic_lerp&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__lerp.html#a9600ad0f7e9cc34a6cd3599fdbbfcb90">operator[]</a> (std::size_t const inp_max_steps) const noexcept</td></tr>
@@ -2109,8 +2106,6 @@ Files</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:io__manager_8ixx" id="r_io__manager_8ixx"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom">mods/<a class="el" href="io__manager_8ixx.html">io_manager.ixx</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:key__sync__lock_8ixx" id="r_key__sync__lock_8ixx"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom">mods/<a class="el" href="key__sync__lock_8ixx.html">key_sync_lock.ixx</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:keys__state_8ixx" id="r_keys__state_8ixx"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom">mods/<a class="el" href="keys__state_8ixx.html">keys_state.ixx</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:lambda_8ixx" id="r_lambda_8ixx"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom">mods/<a class="el" href="lambda_8ixx.html">lambda.ixx</a></td></tr>
@@ -2144,6 +2139,8 @@ Files</h2></td></tr>
 <tr class="memitem:singleton_8ixx" id="r_singleton_8ixx"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom">mods/<a class="el" href="singleton_8ixx.html">singleton.ixx</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:smooth_8ixx" id="r_smooth_8ixx"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom">mods/<a class="el" href="smooth_8ixx.html">smooth.ixx</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:startup__key__releases_8ixx" id="r_startup__key__releases_8ixx"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom">mods/<a class="el" href="startup__key__releases_8ixx.html">startup_key_releases.ixx</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:stopper_8ixx" id="r_stopper_8ixx"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom">mods/<a class="el" href="stopper_8ixx.html">stopper.ixx</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>

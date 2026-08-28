@@ -10,8 +10,9 @@ var searchData=
   ['singleton_2eixx_7',['singleton.ixx',['../singleton_8ixx.html',1,'']]],
   ['smooth_2ecxx_8',['smooth.cxx',['../smooth_8cxx.html',1,'']]],
   ['smooth_2eixx_9',['smooth.ixx',['../smooth_8ixx.html',1,'']]],
-  ['stopper_2eixx_10',['stopper.ixx',['../stopper_8ixx.html',1,'']]],
-  ['strings_2eixx_11',['strings.ixx',['../strings_8ixx.html',1,'']]],
-  ['systemd_2ecxx_12',['systemd.cxx',['../systemd_8cxx.html',1,'']]],
-  ['systemd_2eixx_13',['systemd.ixx',['../systemd_8ixx.html',1,'']]]
+  ['startup_5fkey_5freleases_2eixx_10',['startup_key_releases.ixx',['../startup__key__releases_8ixx.html',1,'']]],
+  ['stopper_2eixx_11',['stopper.ixx',['../stopper_8ixx.html',1,'']]],
+  ['strings_2eixx_12',['strings.ixx',['../strings_8ixx.html',1,'']]],
+  ['systemd_2ecxx_13',['systemd.cxx',['../systemd_8cxx.html',1,'']]],
+  ['systemd_2eixx_14',['systemd.ixx',['../systemd_8ixx.html',1,'']]]
 ];

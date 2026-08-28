@@ -1,6 +1,5 @@
 var NAVTREEINDEX37 =
 {
-"uinput_8cxx.html":[4,0,1,11],
 "uinput_8cxx.html#a81f4e5a0468c8040953b6372c9dd5712":[4,0,1,11,2],
 "uinput_8cxx.html#aac0d6122fd87c8f92170a7310c6b67cd":[4,0,1,11,4],
 "uinput_8cxx.html#acfe021fbcd5f8a826a4d3e8c9a45fded":[4,0,1,11,5],
