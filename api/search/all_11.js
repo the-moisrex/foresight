@@ -6,7 +6,7 @@ var searchData=
   ['record_2eixx_3',['record.ixx',['../record_8ixx.html',1,'']]],
   ['reemit_4',['reemit',['../structfs8_1_1any__dynamic__context.html#a69932ede74588aeb1b36ce439e764648',1,'fs8::any_dynamic_context::reemit(std::size_t from_index) noexcept=0'],['../structfs8_1_1any__dynamic__context.html#a94727aad4a4c8b764c9ade1c3974b094',1,'fs8::any_dynamic_context::reemit(std::size_t from_index, event_type const &amp;inp_event) noexcept=0'],['../structfs8_1_1any__dynamic__context__model.html#a187f18325de31f348a0b121820bf2ff0',1,'fs8::any_dynamic_context_model::reemit(std::size_t const from_index) noexcept override'],['../structfs8_1_1any__dynamic__context__model.html#aa7fbe12b5f3482483db3cc32f18dee43',1,'fs8::any_dynamic_context_model::reemit(std::size_t const from_index, event_type const &amp;inp_event) noexcept override']]],
   ['reference_5',['reference',['../structfs8_1_1udev__list__entry_1_1iterator.html#a526fc76c7ba08e7880750bdce211ebd7',1,'fs8::udev_list_entry::iterator']]],
-  ['release_5fall_6',['release_all',['../structfs8_1_1basic__keys__status.html#a8d1291ae79263af19a403eaa3c530703',1,'fs8::basic_keys_status']]],
+  ['release_5fall_6',['release_all',['../structfs8_1_1basic__keys__state.html#ae5821417e7ee247abbc68e4d6ba01774',1,'fs8::basic_keys_state']]],
   ['remaining_7',['remaining',['../structfs8_1_1pimpl__idiom_1_1impl_1_1tick__entry.html#aaa60865f847481cb15256b44e2a43fa9',1,'fs8::pimpl_idiom::impl::tick_entry']]],
   ['remove_8',['remove',['../structfs8_1_1keyboard__runner.html#aa729b55300d12b6012dae0e36cbd77f7',1,'fs8::keyboard_runner']]],
   ['remove_5fcodes_9',['remove_codes',['../namespacefs8.html#a3fdcc39ac6fec68ff27153511c2d997ba22a8f38ad4b8a29d8f1d6b8b38fd2b4f',1,'fs8']]],

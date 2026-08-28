@@ -26,7 +26,7 @@ var searchData=
   ['first_5fdisconnect_5fname_23',['first_disconnect_name',['../structfs8_1_1pimpl__idiom_1_1impl.html#a7fbcc91a468bed2cf39efb2c20516628',1,'fs8::pimpl_idiom::impl']]],
   ['first_5fdisconnect_5fname_5flen_24',['first_disconnect_name_len',['../structfs8_1_1pimpl__idiom_1_1impl.html#a0bf04ec5c808738b28725452fa9b9b34',1,'fs8::pimpl_idiom::impl']]],
   ['first_5fevent_5ftime_25',['first_event_time',['../structfs8_1_1mouse__accum.html#a6c3515751b67c837767fb92f60f39257',1,'fs8::mouse_accum']]],
-  ['first_5fpressed_26',['first_pressed',['../structfs8_1_1basic__keys__status.html#a1a3b9d1d260bf2ed57a083aebd89b6e2',1,'fs8::basic_keys_status']]],
+  ['first_5fpressed_26',['first_pressed',['../structfs8_1_1basic__keys__state.html#ad9b60042fae84092d66d8db891333e1e',1,'fs8::basic_keys_state']]],
   ['flag_5fcount_27',['flag_count',['../structfs8_1_1basic__parsed__args.html#a2fe53a21b930595303dfb6bc7a7255b3',1,'fs8::basic_parsed_args']]],
   ['flag_5fseen_28',['flag_seen',['../structfs8_1_1basic__parsed__args.html#ad8eeefeddf6f17b85a45f0163bbe8761',1,'fs8::basic_parsed_args']]],
   ['flag_5fvalue_29',['flag_value',['../structfs8_1_1basic__parsed__args.html#a0a9dd3a2a4febc81adb8e8392c8139ae',1,'fs8::basic_parsed_args']]],

@@ -3,7 +3,7 @@ var searchData=
   ['rearm_5ftimer_0',['rearm_timer',['../structfs8_1_1pimpl__idiom_1_1impl.html#abc5f0c24220fb3353b2807802365d1cc',1,'fs8::pimpl_idiom::impl']]],
   ['record_1',['record',['../structfs8_1_1basic__benchmark__counter.html#a545a70ddb59aafd8d85f8ae1001ac96e',1,'fs8::basic_benchmark_counter']]],
   ['reemit_2',['reemit',['../structfs8_1_1any__dynamic__context.html#a69932ede74588aeb1b36ce439e764648',1,'fs8::any_dynamic_context::reemit(std::size_t from_index) noexcept=0'],['../structfs8_1_1any__dynamic__context.html#a94727aad4a4c8b764c9ade1c3974b094',1,'fs8::any_dynamic_context::reemit(std::size_t from_index, event_type const &amp;inp_event) noexcept=0'],['../structfs8_1_1any__dynamic__context__model.html#a187f18325de31f348a0b121820bf2ff0',1,'fs8::any_dynamic_context_model::reemit(std::size_t const from_index) noexcept override'],['../structfs8_1_1any__dynamic__context__model.html#aa7fbe12b5f3482483db3cc32f18dee43',1,'fs8::any_dynamic_context_model::reemit(std::size_t const from_index, event_type const &amp;inp_event) noexcept override']]],
-  ['release_5fall_3',['release_all',['../structfs8_1_1basic__keys__status.html#a8d1291ae79263af19a403eaa3c530703',1,'fs8::basic_keys_status']]],
+  ['release_5fall_3',['release_all',['../structfs8_1_1basic__keys__state.html#ae5821417e7ee247abbc68e4d6ba01774',1,'fs8::basic_keys_state']]],
   ['remove_4',['remove',['../structfs8_1_1keyboard__runner.html#aa729b55300d12b6012dae0e36cbd77f7',1,'fs8::keyboard_runner']]],
   ['replace_5',['replace',['../structfs8_1_1keyboard__runner.html#a51eaded0fd73d1aebd25fbbb91f8c6e9',1,'fs8::keyboard_runner']]],
   ['replace_5fmodifier_5fstrings_6',['replace_modifier_strings',['../namespacefs8.html#ab5a3b771d2db79a39d8155ea204cd610',1,'fs8']]],

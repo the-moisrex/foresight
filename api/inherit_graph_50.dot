@@ -145,7 +145,7 @@ digraph "Graphical Class Hierarchy"
   Node0 -> Node77 [id="edge72_Node000000_Node000077",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node77 [id="Node000077",label="fs8::basic_keydown",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__keydown.html",tooltip=" "];
   Node0 -> Node79 [id="edge73_Node000000_Node000079",dir="back",color="steelblue1",style="solid",tooltip=" "];
-  Node79 [id="Node000079",label="fs8::basic_keys_status",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__keys__status.html",tooltip=" "];
+  Node79 [id="Node000079",label="fs8::basic_keys_state",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__keys__state.html",tooltip=" "];
   Node0 -> Node76 [id="edge74_Node000000_Node000076",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node76 [id="Node000076",label="fs8::basic_keyup",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__keyup.html",tooltip=" "];
   Node0 -> Node80 [id="edge75_Node000000_Node000080",dir="back",color="steelblue1",style="solid",tooltip=" "];
@@ -153,7 +153,7 @@ digraph "Graphical Class Hierarchy"
   Node0 -> Node82 [id="edge76_Node000000_Node000082",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node82 [id="Node000082",label="fs8::basic_led_on",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__led__on.html",tooltip=" "];
   Node0 -> Node84 [id="edge77_Node000000_Node000084",dir="back",color="steelblue1",style="solid",tooltip=" "];
-  Node84 [id="Node000084",label="fs8::basic_led_status",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__led__status.html",tooltip=" "];
+  Node84 [id="Node000084",label="fs8::basic_led_state",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__led__state.html",tooltip=" "];
   Node0 -> Node85 [id="edge78_Node000000_Node000085",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node85 [id="Node000085",label="fs8::basic_led_toggle",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__led__toggle.html",tooltip="Flip the CapsLock mode by toggling the (physical) CapsLock LED."];
   Node0 -> Node6 [id="edge79_Node000000_Node000006",dir="back",color="steelblue1",style="solid",tooltip=" "];

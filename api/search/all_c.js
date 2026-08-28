@@ -70,7 +70,7 @@ var searchData=
   ['mouse_5faccum_67',['mouse_accum',['../structfs8_1_1mouse__accum.html',1,'fs8']]],
   ['mouse_5fdistance_5fscale_68',['mouse_distance_scale',['../structfs8_1_1basic__momentum__base.html#a327fac8cf810333466f15647b89ace6a',1,'fs8::basic_momentum_base']]],
   ['mouse_5fhistory_69',['mouse_history',['../namespacefs8.html#aaa8e58604e1cb96172ab1e4abc48f95a',1,'fs8']]],
-  ['mouse_5fstatus_2eixx_70',['mouse_status.ixx',['../mouse__status_8ixx.html',1,'']]],
+  ['mouse_5fstate_2eixx_70',['mouse_state.ixx',['../mouse__state_8ixx.html',1,'']]],
   ['mouse_5fto_5fscroll_71',['mouse_to_scroll',['../namespacefs8.html#afb26a239748eb1c62481a801edcec14b',1,'fs8']]],
   ['mouse_5fto_5fscroll_2eixx_72',['mouse_to_scroll.ixx',['../mouse__to__scroll_8ixx.html',1,'']]],
   ['mouse_5fx_73',['mouse_x',['../structfs8_1_1pimpl__idiom_1_1impl.html#a67c5ddcf6efe00a662b68a3a922d7dca',1,'fs8::pimpl_idiom::impl']]],

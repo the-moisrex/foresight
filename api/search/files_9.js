@@ -8,6 +8,6 @@ var searchData=
   ['mods_2eixx_5',['mods.ixx',['../mods_8ixx.html',1,'']]],
   ['momentum_2ecxx_6',['momentum.cxx',['../momentum_8cxx.html',1,'']]],
   ['momentum_2eixx_7',['momentum.ixx',['../momentum_8ixx.html',1,'']]],
-  ['mouse_5fstatus_2eixx_8',['mouse_status.ixx',['../mouse__status_8ixx.html',1,'']]],
+  ['mouse_5fstate_2eixx_8',['mouse_state.ixx',['../mouse__state_8ixx.html',1,'']]],
   ['mouse_5fto_5fscroll_2eixx_9',['mouse_to_scroll.ixx',['../mouse__to__scroll_8ixx.html',1,'']]]
 ];

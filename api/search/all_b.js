@@ -13,7 +13,7 @@ var searchData=
   ['layout_10',['layout',['../structfs8_1_1xkb_1_1key__position.html#a157f192e9a722fae3613ac51510fddcb',1,'fs8::xkb::key_position']]],
   ['led_5foff_11',['led_off',['../namespacefs8.html#a22958dc5584c4b0139fae4d49fee19fc',1,'fs8']]],
   ['led_5fon_12',['led_on',['../namespacefs8.html#a3a8ebf36a87a2a71cec6b006093861dd',1,'fs8']]],
-  ['led_5fstatus_13',['led_status',['../namespacefs8.html#a9c2afbbbaa0ad09bcb9db63f5bf24e54',1,'fs8']]],
+  ['led_5fstate_13',['led_state',['../namespacefs8.html#ae803b7d8ad8ba1c361102bf6fe998b9f',1,'fs8']]],
   ['led_5ftoggle_14',['led_toggle',['../namespacefs8.html#a8bd80d3f6d26de1dc332891357bbac3c',1,'fs8']]],
   ['leds_15',['leds',['../namespacefs8_1_1caps.html#a7a2f4baf591c01459d269112c76a4b77',1,'fs8::caps']]],
   ['left_5fclick_16',['left_click',['../namespacefs8.html#a308e4534fa90881960db21ee4c33d7f7',1,'fs8']]],
