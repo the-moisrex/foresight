@@ -122,6 +122,7 @@ var hierarchy =
       [ "fs8::basic_drop_late_syn", "structfs8_1_1basic__drop__late__syn.html", null ],
       [ "fs8::basic_drop_missing_syns", "structfs8_1_1basic__drop__missing__syns.html", null ],
       [ "fs8::basic_drop_origin< N >", "structfs8_1_1basic__drop__origin.html", null ],
+      [ "fs8::basic_drop_orphan_abs", "structfs8_1_1basic__drop__orphan__abs.html", null ],
       [ "fs8::basic_drop_pen_out_of_bounds", "structfs8_1_1basic__drop__pen__out__of__bounds.html", null ],
       [ "fs8::basic_drop_repeats_of< N >", "structfs8_1_1basic__drop__repeats__of.html", null ],
       [ "fs8::basic_drop_start_moves", "structfs8_1_1basic__drop__start__moves.html", null ],

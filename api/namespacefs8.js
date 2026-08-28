@@ -105,6 +105,7 @@ var namespacefs8 =
     [ "basic_drop_mouse_moves", "structfs8_1_1basic__drop__mouse__moves.html", "structfs8_1_1basic__drop__mouse__moves" ],
     [ "basic_drop_msc_scan", "structfs8_1_1basic__drop__msc__scan.html", "structfs8_1_1basic__drop__msc__scan" ],
     [ "basic_drop_origin", "structfs8_1_1basic__drop__origin.html", "structfs8_1_1basic__drop__origin" ],
+    [ "basic_drop_orphan_abs", "structfs8_1_1basic__drop__orphan__abs.html", "structfs8_1_1basic__drop__orphan__abs" ],
     [ "basic_drop_owned", "structfs8_1_1basic__drop__owned.html", "structfs8_1_1basic__drop__owned" ],
     [ "basic_drop_pen_out_of_bounds", "structfs8_1_1basic__drop__pen__out__of__bounds.html", "structfs8_1_1basic__drop__pen__out__of__bounds" ],
     [ "basic_drop_repeats_of", "structfs8_1_1basic__drop__repeats__of.html", "structfs8_1_1basic__drop__repeats__of" ],
@@ -420,7 +421,8 @@ var namespacefs8 =
       [ "big_jump", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da78b924fbd8c08b97b279da5b870b8201", null ],
       [ "missing_syn_time", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015dafe3958e9e78777133e77cec1291082e4", null ],
       [ "missing_syn_count", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daa492034aaec0b60fe846dcabb3f0bc5b", null ],
-      [ "missing_syn_travel", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daf9f8d908da56826ccb9c3f3975f5430f", null ]
+      [ "missing_syn_travel", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daf9f8d908da56826ccb9c3f3975f5430f", null ],
+      [ "orphan_abs", "namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da902d7a8856f92d11e2fdc9c10966ba6c", null ]
     ] ],
     [ "uinput_access_result", "namespacefs8.html#ad37238ffd12f657195d6e3e8d71292ac", [
       [ "available", "namespacefs8.html#ad37238ffd12f657195d6e3e8d71292acae4894ca167b08880bfc35862f18575eb", null ],
@@ -711,6 +713,7 @@ var namespacefs8 =
     [ "drop_mouse_moves", "namespacefs8.html#a23d4c5944805a6fe0ece7c28ffa10522", null ],
     [ "drop_msc_scan", "namespacefs8.html#a56b2acd8167a61a6585d80393cf23e8e", null ],
     [ "drop_origin", "namespacefs8.html#a3d78e9f121fb63f8ff1ac59f78c3c743", null ],
+    [ "drop_orphan_abs", "namespacefs8.html#acf24c41750d29d84f397e07a5ba9d49d", null ],
     [ "drop_owned", "namespacefs8.html#aaea4d129b51d9991734b93efdb6be150", null ],
     [ "drop_pen_out_of_bounds", "namespacefs8.html#a59408af032207ae865f793a7e0bc569c", null ],
     [ "drop_repeats_of", "namespacefs8.html#af1a9d117e2b411be6d1a97d128f0baaa", null ],

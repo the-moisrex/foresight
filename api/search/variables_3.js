@@ -46,12 +46,13 @@ var searchData=
   ['drop_5fmouse_5fmoves_43',['drop_mouse_moves',['../namespacefs8.html#a23d4c5944805a6fe0ece7c28ffa10522',1,'fs8']]],
   ['drop_5fmsc_5fscan_44',['drop_msc_scan',['../namespacefs8.html#a56b2acd8167a61a6585d80393cf23e8e',1,'fs8']]],
   ['drop_5forigin_45',['drop_origin',['../namespacefs8.html#a3d78e9f121fb63f8ff1ac59f78c3c743',1,'fs8']]],
-  ['drop_5fowned_46',['drop_owned',['../namespacefs8.html#aaea4d129b51d9991734b93efdb6be150',1,'fs8']]],
-  ['drop_5fpen_5fout_5fof_5fbounds_47',['drop_pen_out_of_bounds',['../namespacefs8.html#a59408af032207ae865f793a7e0bc569c',1,'fs8']]],
-  ['drop_5frepeats_5fof_48',['drop_repeats_of',['../namespacefs8.html#af1a9d117e2b411be6d1a97d128f0baaa',1,'fs8']]],
-  ['drop_5fself_49',['drop_self',['../namespacefs8.html#a89f15cf9907456455748826de5a33798',1,'fs8']]],
-  ['drop_5fstart_5fmoves_50',['drop_start_moves',['../namespacefs8.html#a60195888e9c0240bb128298ed55c3f00',1,'fs8']]],
-  ['drop_5ftablet_51',['drop_tablet',['../namespacefs8.html#a70524e8ba0be2ff0ee844c45a4a716d8',1,'fs8']]],
-  ['drop_5fzero_5fmouse_5fmoves_52',['drop_zero_mouse_moves',['../namespacefs8.html#a7b26a0710f379947322f975ab6e32e10',1,'fs8']]],
-  ['dynamic_5fcontext_53',['dynamic_context',['../namespacefs8.html#a51c56ad8c2b6f112c12cec0618c358c4',1,'fs8']]]
+  ['drop_5forphan_5fabs_46',['drop_orphan_abs',['../namespacefs8.html#acf24c41750d29d84f397e07a5ba9d49d',1,'fs8']]],
+  ['drop_5fowned_47',['drop_owned',['../namespacefs8.html#aaea4d129b51d9991734b93efdb6be150',1,'fs8']]],
+  ['drop_5fpen_5fout_5fof_5fbounds_48',['drop_pen_out_of_bounds',['../namespacefs8.html#a59408af032207ae865f793a7e0bc569c',1,'fs8']]],
+  ['drop_5frepeats_5fof_49',['drop_repeats_of',['../namespacefs8.html#af1a9d117e2b411be6d1a97d128f0baaa',1,'fs8']]],
+  ['drop_5fself_50',['drop_self',['../namespacefs8.html#a89f15cf9907456455748826de5a33798',1,'fs8']]],
+  ['drop_5fstart_5fmoves_51',['drop_start_moves',['../namespacefs8.html#a60195888e9c0240bb128298ed55c3f00',1,'fs8']]],
+  ['drop_5ftablet_52',['drop_tablet',['../namespacefs8.html#a70524e8ba0be2ff0ee844c45a4a716d8',1,'fs8']]],
+  ['drop_5fzero_5fmouse_5fmoves_53',['drop_zero_mouse_moves',['../namespacefs8.html#a7b26a0710f379947322f975ab6e32e10',1,'fs8']]],
+  ['dynamic_5fcontext_54',['dynamic_context',['../namespacefs8.html#a51c56ad8c2b6f112c12cec0618c358c4',1,'fs8']]]
 ];

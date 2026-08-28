@@ -74,6 +74,7 @@ var module_fs8_8mods =
     [ "basic_enforce_key_state", "structfs8_1_1basic__enforce__key__state.html", "structfs8_1_1basic__enforce__key__state" ],
     [ "basic_drop_late_syn", "structfs8_1_1basic__drop__late__syn.html", "structfs8_1_1basic__drop__late__syn" ],
     [ "basic_drop_pen_out_of_bounds", "structfs8_1_1basic__drop__pen__out__of__bounds.html", "structfs8_1_1basic__drop__pen__out__of__bounds" ],
+    [ "basic_drop_orphan_abs", "structfs8_1_1basic__drop__orphan__abs.html", "structfs8_1_1basic__drop__orphan__abs" ],
     [ "basic_drop_missing_syns", "structfs8_1_1basic__drop__missing__syns.html", "structfs8_1_1basic__drop__missing__syns" ],
     [ "basic_pressure2mouse_clicks", "structfs8_1_1basic__pressure2mouse__clicks.html", "structfs8_1_1basic__pressure2mouse__clicks" ],
     [ "basic_pen2touch", "structfs8_1_1basic__pen2touch.html", "structfs8_1_1basic__pen2touch" ],
@@ -163,7 +164,8 @@ var module_fs8_8mods =
       [ "big_jump", "module_fs8_8mods.html#a7275d4de75bd1ef162eb0f4b4d4b015da78b924fbd8c08b97b279da5b870b8201", null ],
       [ "missing_syn_time", "module_fs8_8mods.html#a7275d4de75bd1ef162eb0f4b4d4b015dafe3958e9e78777133e77cec1291082e4", null ],
       [ "missing_syn_count", "module_fs8_8mods.html#a7275d4de75bd1ef162eb0f4b4d4b015daa492034aaec0b60fe846dcabb3f0bc5b", null ],
-      [ "missing_syn_travel", "module_fs8_8mods.html#a7275d4de75bd1ef162eb0f4b4d4b015daf9f8d908da56826ccb9c3f3975f5430f", null ]
+      [ "missing_syn_travel", "module_fs8_8mods.html#a7275d4de75bd1ef162eb0f4b4d4b015daf9f8d908da56826ccb9c3f3975f5430f", null ],
+      [ "orphan_abs", "module_fs8_8mods.html#a7275d4de75bd1ef162eb0f4b4d4b015da902d7a8856f92d11e2fdc9c10966ba6c", null ]
     ] ],
     [ "fs8::debounce_mode", "module_fs8_8mods.html#a2008ba272c641df21f53c054eacdf257", [
       [ "click", "module_fs8_8mods.html#a2008ba272c641df21f53c054eacdf257aa8affc088cbca89fa20dbd98c91362e4", null ],
@@ -382,6 +384,7 @@ var module_fs8_8mods =
     [ "fs8::basic_event_sanitizer::missing_syn_time_threshold", "module_fs8_8mods.html#a4b3d2ad21ee50f7b49c884835675017b", null ],
     [ "fs8::basic_event_sanitizer::missing_syn_count_threshold", "module_fs8_8mods.html#a739d424b34073319b41c8d8ee144efed", null ],
     [ "fs8::basic_event_sanitizer::missing_syn_travel_threshold", "module_fs8_8mods.html#a1f9cb6e307aba9d7f4f32e7eb413dc8f", null ],
+    [ "fs8::basic_event_sanitizer::orphan_abs", "module_fs8_8mods.html#ac5219c101346f5f68c1247678e2c94b4", null ],
     [ "fs8::basic_event_sanitizer::operator[]", "module_fs8_8mods.html#a479e6815fa48836c922eadc0ad14e4f6", null ],
     [ "fs8::basic_event_sanitizer::operator()", "module_fs8_8mods.html#a40e47fe48b3808e5541021ad0532b5ea", null ],
     [ "fs8::basic_event_sanitizer::operator()", "module_fs8_8mods.html#a1ab0b0bf460f008c3ee75564696d3578", null ],
@@ -534,6 +537,8 @@ var module_fs8_8mods =
     [ "fs8::basic_drop_pen_out_of_bounds::seed_pen_bounds", "module_fs8_8mods.html#a3b13db7be9c4ae6c6ff89d83bc18c364", null ],
     [ "fs8::basic_drop_pen_out_of_bounds::operator()", "module_fs8_8mods.html#afa9524f278ec7a25da42352f409689f5", null ],
     [ "fs8::basic_drop_pen_out_of_bounds::operator()", "module_fs8_8mods.html#a3b826f6f20e323d51bf9cd1b9efbfb43", null ],
+    [ "fs8::basic_drop_orphan_abs::operator()", "module_fs8_8mods.html#ae5e68292356d1878a9341e1f57e1a8ca", null ],
+    [ "fs8::basic_drop_orphan_abs::operator()", "module_fs8_8mods.html#ad564717d2192a6952fce0d5857dd93eb", null ],
     [ "fs8::basic_drop_missing_syns::basic_drop_missing_syns", "module_fs8_8mods.html#af6c4a7b7a5461c25596e37f65681ea9d", null ],
     [ "fs8::basic_drop_missing_syns::time", "module_fs8_8mods.html#a49cd089e5c70d4a48e0ab117e63a4fbd", null ],
     [ "fs8::basic_drop_missing_syns::count", "module_fs8_8mods.html#ae29f137c70ea691d709fedde5a259d46", null ],
@@ -747,6 +752,7 @@ var module_fs8_8mods =
     [ "fs8::event_sanitizer_state::config::check_missing_syn_time", "module_fs8_8mods.html#af7873769f3fdb8713fa457bc982659a6", null ],
     [ "fs8::event_sanitizer_state::config::check_missing_syn_count", "module_fs8_8mods.html#aa60d7c55cdbc3cf11e60ef8f957d85af", null ],
     [ "fs8::event_sanitizer_state::config::check_missing_syn_travel", "module_fs8_8mods.html#a05f5e70e9c622ca817c96cd806ffec5a", null ],
+    [ "fs8::event_sanitizer_state::config::check_orphan_abs", "module_fs8_8mods.html#a47767450ce3019548a59a06d41f7df02", null ],
     [ "fs8::event_sanitizer_state::config::big_jump_threshold", "module_fs8_8mods.html#aea6c0389d6fa31d9cd925caeb42fbccb", null ],
     [ "fs8::event_sanitizer_state::config::late_syn_threshold", "module_fs8_8mods.html#a037d3f51cbabcfaa9dd75d5af959cf35", null ],
     [ "fs8::event_sanitizer_state::config::missing_syn_time_threshold", "module_fs8_8mods.html#ad36d5f3d771cb50c213dec679f091e35", null ],

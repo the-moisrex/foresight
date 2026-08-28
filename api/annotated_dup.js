@@ -60,6 +60,7 @@ var annotated_dup =
       [ "basic_drop_mouse_moves", "structfs8_1_1basic__drop__mouse__moves.html", "structfs8_1_1basic__drop__mouse__moves" ],
       [ "basic_drop_msc_scan", "structfs8_1_1basic__drop__msc__scan.html", "structfs8_1_1basic__drop__msc__scan" ],
       [ "basic_drop_origin", "structfs8_1_1basic__drop__origin.html", "structfs8_1_1basic__drop__origin" ],
+      [ "basic_drop_orphan_abs", "structfs8_1_1basic__drop__orphan__abs.html", "structfs8_1_1basic__drop__orphan__abs" ],
       [ "basic_drop_owned", "structfs8_1_1basic__drop__owned.html", "structfs8_1_1basic__drop__owned" ],
       [ "basic_drop_pen_out_of_bounds", "structfs8_1_1basic__drop__pen__out__of__bounds.html", "structfs8_1_1basic__drop__pen__out__of__bounds" ],
       [ "basic_drop_repeats_of", "structfs8_1_1basic__drop__repeats__of.html", "structfs8_1_1basic__drop__repeats__of" ],

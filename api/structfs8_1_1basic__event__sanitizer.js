@@ -24,6 +24,7 @@ var structfs8_1_1basic__event__sanitizer =
     [ "operator()", "structfs8_1_1basic__event__sanitizer.html#a40e47fe48b3808e5541021ad0532b5ea", null ],
     [ "operator()", "structfs8_1_1basic__event__sanitizer.html#a1ab0b0bf460f008c3ee75564696d3578", null ],
     [ "operator[]", "structfs8_1_1basic__event__sanitizer.html#a479e6815fa48836c922eadc0ad14e4f6", null ],
+    [ "orphan_abs", "structfs8_1_1basic__event__sanitizer.html#ac5219c101346f5f68c1247678e2c94b4", null ],
     [ "orphan_releases", "structfs8_1_1basic__event__sanitizer.html#aaf6b294053cc5adc10a8d8cb7eddb901", null ],
     [ "orphan_repeats", "structfs8_1_1basic__event__sanitizer.html#ac54f8c9571c99db6d7a76e78bf368bc3", null ],
     [ "pen_resolution", "structfs8_1_1basic__event__sanitizer.html#acd8aca5e2228abaac0ae1118ee6a420d", null ],

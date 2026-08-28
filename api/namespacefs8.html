@@ -207,6 +207,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop__origin.html">basic_drop_origin</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ignore events whose source is one of the listed ids.  <a href="structfs8_1_1basic__drop__origin.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop__orphan__abs.html">basic_drop_orphan_abs</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ignore ABS_X/ABS_Y position events arriving before any BTN_TOOL_* has been pressed. A tool press (value 1) on any BTN_TOOL_* arms position tracking; a tool release (value 0) disarms it.  <a href="structfs8_1_1basic__drop__orphan__abs.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop__owned.html">basic_drop_owned</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop__pen__out__of__bounds.html">basic_drop_pen_out_of_bounds</a></td></tr>
@@ -828,6 +831,7 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015dafe3958e9e78777133e77cec1291082e4">missing_syn_time</a>
 , <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daa492034aaec0b60fe846dcabb3f0bc5b">missing_syn_count</a>
 , <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daf9f8d908da56826ccb9c3f3975f5430f">missing_syn_travel</a>
+, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da902d7a8856f92d11e2fdc9c10966ba6c">orphan_abs</a>
 <br />
  }</td></tr>
 <tr class="memdesc:a7275d4de75bd1ef162eb0f4b4d4b015d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes what kind of problem the sanitizer detected for an event.  <a href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">More...</a><br /></td></tr>
@@ -1693,6 +1697,8 @@ Variables</h2></td></tr>
 <tr class="separator:aba9e2689292766ad3ca3da7c13e8e818"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59408af032207ae865f793a7e0bc569c" id="r_a59408af032207ae865f793a7e0bc569c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__drop__pen__out__of__bounds.html">fs8::basic_drop_pen_out_of_bounds</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a59408af032207ae865f793a7e0bc569c">drop_pen_out_of_bounds</a></td></tr>
 <tr class="separator:a59408af032207ae865f793a7e0bc569c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf24c41750d29d84f397e07a5ba9d49d" id="r_acf24c41750d29d84f397e07a5ba9d49d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__drop__orphan__abs.html">fs8::basic_drop_orphan_abs</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#acf24c41750d29d84f397e07a5ba9d49d">drop_orphan_abs</a></td></tr>
+<tr class="separator:acf24c41750d29d84f397e07a5ba9d49d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf540ff57457d7ecfd67c965c70725b2" id="r_adf540ff57457d7ecfd67c965c70725b2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__drop__missing__syns.html">fs8::basic_drop_missing_syns</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#adf540ff57457d7ecfd67c965c70725b2">drop_missing_syns</a></td></tr>
 <tr class="separator:adf540ff57457d7ecfd67c965c70725b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a213fe86ebb36272ce0129f95625c0a70" id="r_a213fe86ebb36272ce0129f95625c0a70"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__emit.html">basic_emit</a>&lt; 0 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a213fe86ebb36272ce0129f95625c0a70">fs8::emit</a></td></tr>
@@ -2841,6 +2847,8 @@ template&lt;template&lt; typename... &gt; typename Templ, typename... ModsT&gt; 
 <tr><td class="fieldname"><a id="a7275d4de75bd1ef162eb0f4b4d4b015daa492034aaec0b60fe846dcabb3f0bc5b" name="a7275d4de75bd1ef162eb0f4b4d4b015daa492034aaec0b60fe846dcabb3f0bc5b"></a>missing_syn_count&#160;</td><td class="fielddoc"><p>too many data events without SYN_REPORT </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a7275d4de75bd1ef162eb0f4b4d4b015daf9f8d908da56826ccb9c3f3975f5430f" name="a7275d4de75bd1ef162eb0f4b4d4b015daf9f8d908da56826ccb9c3f3975f5430f"></a>missing_syn_travel&#160;</td><td class="fielddoc"><p>mouse travel exceeding threshold without SYN_REPORT </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7275d4de75bd1ef162eb0f4b4d4b015da902d7a8856f92d11e2fdc9c10966ba6c" name="a7275d4de75bd1ef162eb0f4b4d4b015da902d7a8856f92d11e2fdc9c10966ba6c"></a>orphan_abs&#160;</td><td class="fielddoc"><p>ABS position event without a preceding tool press. </p>
 </td></tr>
 </table>
 
@@ -11667,6 +11675,20 @@ template&lt;typename F , typename... Ts&gt; </div>
 <span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
   </tr>
 </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="acf24c41750d29d84f397e07a5ba9d49d" name="acf24c41750d29d84f397e07a5ba9d49d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf24c41750d29d84f397e07a5ba9d49d">&#9670;&#160;</a></span>drop_orphan_abs</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structfs8_1_1basic__drop__orphan__abs.html">fs8::basic_drop_orphan_abs</a> fs8::drop_orphan_abs</td>
+        </tr>
+      </table>
 </div><div class="memdoc">
 
 </div>
