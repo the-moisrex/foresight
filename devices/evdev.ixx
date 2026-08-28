@@ -2,10 +2,12 @@
 
 module;
 #include <concepts>
+#include <cstddef>
 #include <filesystem>
 #include <libevdev/libevdev.h>
 #include <optional>
 #include <ranges>
+#include <span>
 #include <string_view>
 #include <utility>
 export module fs8.devices.evdev;
@@ -228,6 +230,14 @@ namespace fs8 {
     /// may still be in use (e.g. an input_manager device that shares this
     /// libevdev handle).
     export [[nodiscard]] evdev clone_device(evdev const& src) noexcept;
+
+    /// Number of bytes in the kernel key state bitmap for EVIOCGKEY.
+    export inline constexpr std::size_t key_bitmap_bytes = (KEY_MAX + 7) / 8;
+
+    /// Read the current key state bitmap from the kernel (EVIOCGKEY) into
+    /// the provided span.  The span must have at least `key_bitmap_bytes`
+    /// elements.  Returns true on success.
+    export [[nodiscard]] bool query_key_state(evdev const& dev, std::span<unsigned char, key_bitmap_bytes> out) noexcept;
 
     /// Returns the highest valid code for a given event type (KEY_MAX for
     /// EV_KEY, REL_MAX for EV_REL, etc.). Unknown types return 0.

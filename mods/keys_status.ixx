@@ -2,6 +2,7 @@
 
 module;
 #include <array>
+#include <bitset>
 #include <cassert>
 #include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
@@ -25,9 +26,7 @@ export namespace fs8 {
         using value_type = event_type::value_type;
 
       private:
-        // We know this is wasteful, but we don't care :)
-        // It's about ~3KiB of storage
-        std::array<value_type, KEY_MAX> btns{};
+        std::bitset<KEY_MAX> btns{};
 
       public:
         [[nodiscard]] bool is_pressed(std::span<code_type const> key_codes) const noexcept;
@@ -38,13 +37,13 @@ export namespace fs8 {
         template <std::integral... T>
         [[nodiscard]] bool is_pressed(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
-            return ((btns.at(static_cast<std::size_t>(key_codes)) != 0) && ...);
+            return ((btns.test(static_cast<std::size_t>(key_codes)) && ...));
         }
 
         template <std::integral... T>
         [[nodiscard]] bool is_pressed_any(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
-            return ((btns.at(static_cast<std::size_t>(key_codes)) != 0) || ...);
+            return ((btns.test(static_cast<std::size_t>(key_codes)) || ...));
         }
 
         template <std::integral... T>
@@ -52,29 +51,29 @@ export namespace fs8 {
             assert(((key_codes < KEY_MAX) && ...));
             code_type pressed = KEY_MAX;
             std::ignore =
-              ((btns.at(static_cast<std::size_t>(key_codes)) != 0 && (pressed = static_cast<code_type>(key_codes), true)) && ...);
+              ((btns.test(static_cast<std::size_t>(key_codes)) && (pressed = static_cast<code_type>(key_codes), true)) && ...);
             return pressed;
         }
 
         template <std::integral... T>
         [[nodiscard]] bool is_released(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
-            return ((btns.at(static_cast<std::size_t>(key_codes)) == 0) && ...);
+            return ((!btns.test(static_cast<std::size_t>(key_codes)) && ...));
         }
 
         template <std::integral... T>
         [[nodiscard]] bool is_released_any(T const... key_codes) const noexcept {
             assert(((key_codes < KEY_MAX) && ...));
-            return ((btns.at(static_cast<std::size_t>(key_codes)) == 0) || ...);
+            return ((!btns.test(static_cast<std::size_t>(key_codes)) || ...));
         }
 
         void release_all(Context auto& ctx) noexcept {
             bool is_any_pressed = false;
             for (code_type code = 0; code < KEY_MAX; ++code) {
-                if (is_pressed(code)) {
+                if (btns.test(static_cast<std::size_t>(code))) {
                     ctx.fork_emit(event_type{EV_KEY, code, 0});
-                    is_any_pressed      = true;
-                    this->btns.at(code) = 0;
+                    is_any_pressed = true;
+                    btns.reset(static_cast<std::size_t>(code));
                 }
             }
             if (is_any_pressed) {
@@ -83,6 +82,27 @@ export namespace fs8 {
         }
 
         void operator()(event_type const& event) noexcept;
+
+        /// Seed key state from a device's EVIOCGKEY bitmap.
+        void seed_from_device(evdev const& dev) noexcept;
+
+        /// Register a device-change listener to seed key state on connect.
+        template <ContextWith<basic_input_manager> CtxT>
+        context_action operator()(CtxT& ctx, start_tag) noexcept {
+            using enum context_action;
+            ctx.mod(input_manager).add_device_change_listener({
+              .identity = this,
+              .invoke   = [this, &input_manager = ctx.mod(input_manager)](device_id const id, device_change const change) noexcept {
+                  if (change != device_change::connected) {
+                      return;
+                  }
+                  if (auto* dev = input_manager.device_of(id); dev != nullptr) {
+                      seed_from_device(*dev);
+                  }
+              },
+            });
+            return next;
+        }
     } keys_status;
 
     template <typename ModT = void>

@@ -1,5 +1,6 @@
 module;
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <linux/input-event-codes.h>
 #include <span>
@@ -8,30 +9,30 @@ using fs8::basic_keys_status;
 using fs8::basic_led_status;
 
 bool basic_keys_status::is_pressed(std::span<code_type const> const key_codes) const noexcept {
-    return std::ranges::all_of(key_codes, [this](code_type const code) {
+    return std::ranges::all_of(key_codes, [this](code_type const code) noexcept {
         assert(code < KEY_MAX);
-        return this->btns.at(code) != 0;
+        return this->btns.test(static_cast<std::size_t>(code));
     });
 }
 
 bool basic_keys_status::is_released(std::span<code_type const> const key_codes) const noexcept {
-    return std::ranges::all_of(key_codes, [this](code_type const code) {
+    return std::ranges::all_of(key_codes, [this](code_type const code) noexcept {
         assert(code < KEY_MAX);
-        return this->btns.at(code) == 0;
+        return !this->btns.test(static_cast<std::size_t>(code));
     });
 }
 
 bool basic_keys_status::is_pressed_any(std::span<code_type const> const key_codes) const noexcept {
-    return std::ranges::any_of(key_codes, [this](code_type const code) {
+    return std::ranges::any_of(key_codes, [this](code_type const code) noexcept {
         assert(code < KEY_MAX);
-        return this->btns.at(code) != 0;
+        return this->btns.test(static_cast<std::size_t>(code));
     });
 }
 
 bool basic_keys_status::is_released_any(std::span<code_type const> const key_codes) const noexcept {
-    return std::ranges::any_of(key_codes, [this](code_type const code) {
+    return std::ranges::any_of(key_codes, [this](code_type const code) noexcept {
         assert(code < KEY_MAX);
-        return this->btns.at(code) == 0;
+        return !this->btns.test(static_cast<std::size_t>(code));
     });
 }
 
@@ -40,10 +41,34 @@ void basic_keys_status::operator()(event_type const& event) noexcept {
         return;
     }
     if (event.code() >= KEY_MAX) [[unlikely]] {
-        // Just in case
         return;
     }
-    this->btns.at(event.code()) = event.value();
+    if (event.value() != 0) {
+        btns.set(static_cast<std::size_t>(event.code()));
+    } else {
+        btns.reset(static_cast<std::size_t>(event.code()));
+    }
+}
+
+void basic_keys_status::seed_from_device(evdev const& dev) noexcept {
+    if (!dev.has_event_type(EV_KEY)) {
+        return;
+    }
+    std::array<unsigned char, key_bitmap_bytes> bitmap{};
+    if (!query_key_state(dev, bitmap)) {
+        return;
+    }
+    for (std::size_t byte = 0; byte < key_bitmap_bytes; ++byte) {
+        auto const b = bitmap[byte];
+        if (b == 0) {
+            continue;
+        }
+        for (int bit = 0; bit < 8; ++bit) {
+            if (b & (1 << bit)) {
+                btns.set(byte * 8 + bit);
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +95,7 @@ void basic_led_status::operator()(event_type const& event) noexcept {
             // Just in case
             return;
         }
-        // fs8::log("LED event: code={} value={}", event.code(), event.value());
+        // log("LED event: code={} value={}", event.code(), event.value());
         this->leds.at(event.code()) = event.value();
     }
 }

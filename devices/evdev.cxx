@@ -9,11 +9,13 @@ module;
 #include <filesystem>
 #include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
+#include <linux/input.h>
 #include <linux/limits.h>
 #include <numeric>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <sys/ioctl.h>
 #include <thread>
 #include <unistd.h>
 #include <utility>
@@ -585,4 +587,15 @@ evdev fs8::clone_device(evdev const& src) noexcept try {
     return evdev{copy, evdev_status::success};
 } catch (...) {
     return {};
+}
+
+bool fs8::query_key_state(evdev const& dev, std::span<unsigned char, key_bitmap_bytes> const out) noexcept {
+    if (dev.device_ptr() == nullptr) [[unlikely]] {
+        return false;
+    }
+    int const fd = libevdev_get_fd(dev.device_ptr());
+    if (fd < 0) [[unlikely]] {
+        return false;
+    }
+    return ::ioctl(fd, EVIOCGKEY(out.size()), out.data()) >= 0;
 }
