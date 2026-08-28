@@ -1,6 +1,7 @@
 // Created by moisrex on 7/10/26.
 
 module;
+#include <cstdint>
 #include <functional>
 #include <list>
 #include <memory>
@@ -108,6 +109,11 @@ export namespace fs8 {
         /// `std::list`, so adds/removes never invalidate existing devices).
         [[nodiscard]] std::ranges::subrange<std::list<evdev>::const_iterator> devices() const noexcept;
         [[nodiscard]] std::ranges::subrange<std::list<evdev>::iterator>       devices() noexcept;
+
+        /// Opaque generation token that changes on every device add/remove.
+        /// Used only for equality checks; not ordered.  The value is
+        /// randomized so overflow is practically impossible.
+        [[nodiscard]] std::uint32_t devices_generation() const noexcept;
 
         /// Start monitoring; also used by `intercept` to trigger enumeration.
         context_action start(basic_io_manager& io) noexcept;

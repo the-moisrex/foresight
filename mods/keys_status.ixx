@@ -12,7 +12,6 @@ import fs8.context;
 import fs8.traits;
 import fs8.devices.evdev;
 import :input_manager;
-import fs8.log;
 
 export namespace fs8 {
 

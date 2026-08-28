@@ -3,6 +3,7 @@
 module;
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <deque>
 #include <list>
 #include <optional>
@@ -57,6 +58,10 @@ struct fs8::pimpl_idiom<basic_interceptor>::impl {
     /// re-watched before udev's "remove" event arrives.
     std::array<int, 16> dead_fds{};
     std::size_t         dead_fd_count = 0;
+    /// Last-seen value of input_manager::devices_generation().  When it has
+    /// not changed since the last reconciliation and there are no disconnects,
+    /// do_pop can skip the entire slow path.
+    std::uint32_t last_generation     = 0;
 };
 
 void basic_interceptor::add(evdev&& dev) noexcept {
@@ -161,6 +166,12 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
         return ev;
     }
 
+    // Skip reconciliation when nothing changed: no devices added/removed
+    // and no disconnects detected since the last reconciliation.
+    if (pimpl->disconnect_count == 0 && im.devices_generation() == pimpl->last_generation) [[likely]] {
+        return std::nullopt;
+    }
+
     // Build a flat lookup table of (fd, evdev*) from the linked list once,
     // avoiding repeated O(n) list scans for each watched fd.
     struct fd_entry {
@@ -186,22 +197,33 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
         return nullptr;
     };
 
-    // Reconcile watches: single pass through the table.
-    // Evict dead/gone entries, refresh cached pointers, add new devices.
+    // Reconcile watches: evict dead/gone entries, refresh cached pointers,
+    // and watch new devices in a single combined pass.
     pimpl->dead_fd_count = 0;
-    std::size_t write    = 0;
+
+    // Pass A: for each live watched entry, find it in device_table, mark that
+    // device as tracked, and refresh the cached pointer.  Entries that are
+    // dead or whose device vanished are left unmarked for eviction.
+    std::array<bool, 16> device_tracked{};
+    std::size_t          write = 0;
     for (std::size_t read = 0; read < pimpl->watched_count; ++read) {
-        auto&      entry        = pimpl->watched[read];
-        auto*      live_dev     = find_device(entry.fd);
-        bool const device_alive = live_dev != nullptr;
-        if (entry.dead || !device_alive) {
+        auto&      entry    = pimpl->watched[read];
+        auto*      live_dev = find_device(entry.fd);
+        bool const alive    = live_dev != nullptr && !entry.dead;
+        if (!alive) {
             io.unwatch(entry.fd);
             if (pimpl->dead_fd_count < pimpl->dead_fds.size()) {
                 pimpl->dead_fds[pimpl->dead_fd_count++] = entry.fd;
             }
             continue;
         }
-        // Refresh cached pointer from the flat table (no list iteration).
+        // Mark this device as already tracked.
+        for (std::size_t d = 0; d < device_count; ++d) {
+            if (device_table[d].fd == entry.fd) {
+                device_tracked[d] = true;
+                break;
+            }
+        }
         entry.dev = live_dev;
         if (write != read) {
             pimpl->watched[write] = entry;
@@ -210,28 +232,21 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
     }
     pimpl->watched_count = write;
 
-    // Watch new devices not yet in the table.
+    // Pass B: watch devices not yet tracked.
     for (std::size_t d = 0; d < device_count; ++d) {
-        auto&     dev             = *device_table[d].dev;
-        int const dev_fd          = device_table[d].fd;
-        bool      already_tracked = false;
-        for (std::size_t i = 0; i < pimpl->watched_count; ++i) {
-            if (pimpl->watched[i].fd == dev_fd) {
-                already_tracked = true;
-                break;
-            }
-        }
-        if (already_tracked) {
+        if (device_tracked[d]) {
             continue;
         }
-        // Skip fds that were just evicted as dead in this reconciliation cycle.
+        auto&     dev     = *device_table[d].dev;
+        int const dev_fd  = device_table[d].fd;
+        bool      is_dead = false;
         for (std::size_t i = 0; i < pimpl->dead_fd_count; ++i) {
             if (pimpl->dead_fds[i] == dev_fd) {
-                already_tracked = true;
+                is_dead = true;
                 break;
             }
         }
-        if (already_tracked) {
+        if (is_dead) {
             continue;
         }
         if (pimpl->watched_count >= pimpl->watched.size()) [[unlikely]] {
@@ -242,6 +257,8 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
             log("Device '{}' (re)connected.", dev.device_name());
         }
     }
+
+    pimpl->last_generation = im.devices_generation();
 
     // Log a batch summary for disconnects detected during the last load_event.
     if (pimpl->disconnect_count > 0) [[unlikely]] {

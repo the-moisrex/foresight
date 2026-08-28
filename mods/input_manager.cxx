@@ -26,9 +26,13 @@ using fs8::io_event;
 using fs8::io_fd;
 
 namespace {
+    void next_generation(std::uint32_t& state) noexcept {
+        state ^= state << 13;
+        state ^= state >> 17;
+        state ^= state << 5;
+    }
 
     /// A udev add/bind/change notification can arrive before the device node is
-    /// fully set up (e.g. udev still applying group permissions), so retry a
     /// bounded number of times before giving up on a device.
     [[nodiscard]] fs8::evdev open_device(fs8::device_query const& query, fs8::udev_device const& dev, int const retries = 15) {
         if (dev.devnode().empty()) [[unlikely]] {
@@ -50,9 +54,10 @@ template <>
 struct fs8::pimpl_idiom<basic_input_manager>::impl {
     bool                               started = false;
     udev_monitor                       monitor;
-    std::list<evdev>                   devs;           // stable handles; todo: switch to std::hive once available
+    std::list<evdev>                   devs;                   // stable handles; todo: switch to std::hive once available
     std::vector<query_provider_handle> providers;
-    std::vector<std::string>           owned_sysnames; // uinput devices created by this process
+    std::vector<std::string>           owned_sysnames;         // uinput devices created by this process
+    std::uint32_t                      devices_generation = 1; // must be non-zero for xorshift
 
     /// Devices are identified by their udev sysname (derived from the fd),
     /// which is the last component of their syspath; only nodes with a devnode
@@ -73,6 +78,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         std::erase_if(devs, [&](evdev const& dev) noexcept {
             return device_sysname(dev) == name;
         });
+        next_generation(devices_generation);
     }
 
     /// Whether a sysname belongs to a device this pipeline created itself.
@@ -164,6 +170,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                     continue;
                 }
                 devs.emplace_back(std::move(edev));
+                next_generation(devices_generation);
                 added = true;
             }
         }
@@ -284,6 +291,7 @@ void basic_input_manager::add(evdev&& inp_dev) {
         init_impl();
     }
     pimpl->devs.emplace_back(std::move(inp_dev));
+    next_generation(pimpl->devices_generation);
 }
 
 void basic_input_manager::add_query_provider(query_provider_handle provider) {
@@ -433,6 +441,13 @@ std::ranges::subrange<std::list<fs8::evdev>::iterator> basic_input_manager::devi
         return {};
     }
     return std::ranges::subrange(pimpl->devs.begin(), pimpl->devs.end());
+}
+
+std::uint32_t basic_input_manager::devices_generation() const noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return 0;
+    }
+    return pimpl->devices_generation;
 }
 
 context_action basic_input_manager::operator()(io_fd const& ready_fd) noexcept {
