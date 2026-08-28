@@ -1,12 +1,10 @@
 // Created by moisrex on 6/9/25.
 
 module;
-#include <bits/valarray_after.h>
 #include <charconv>
 #include <cstdint>
 #include <ctime>
 #include <linux/uinput.h>
-#include <math.h>
 #include <span>
 #include <string>
 #include <string_view>
@@ -95,7 +93,15 @@ export namespace fs8 {
         mutable std::string line_buffer;
 
       public:
+        constexpr basic_from_evtest() noexcept = default;
+
         constexpr explicit basic_from_evtest(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
+
+        consteval auto operator[](int const inp_fd) const noexcept {
+            basic_from_evtest from;
+            from.file_descriptor = inp_fd;
+            return from;
+        }
 
         constexpr void set_input(int const inp_fd) noexcept {
             file_descriptor = inp_fd;
@@ -229,8 +235,8 @@ export namespace fs8 {
     template <EvtestFormat Format>
     inline constexpr basic_evtest_output<Format> evtest_output;
 
-    constexpr basic_from_evtest<> from_evtest;
-    constexpr auto                to_evtest = evtest_output<default_evtest_format>;
+    inline basic_from_evtest<> const from_evtest;
+    constexpr auto                   to_evtest = evtest_output<default_evtest_format>;
 
     static_assert(OutputModifier<basic_evtest_output<>>, "Must be a output modifier.");
 
