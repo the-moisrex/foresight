@@ -109,8 +109,12 @@ Collaboration diagram for fs8::basic_from_evtest&lt; Format &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a67f684730c90e6f093f12530c7b17f76" id="r_a67f684730c90e6f093f12530c7b17f76"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__evtest.html#a67f684730c90e6f093f12530c7b17f76">basic_from_evtest</a> () noexcept=default</td></tr>
+<tr class="separator:a67f684730c90e6f093f12530c7b17f76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a907e87c45be6c13cf11d6302ed5fcb68" id="r_a907e87c45be6c13cf11d6302ed5fcb68"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__evtest.html#a907e87c45be6c13cf11d6302ed5fcb68">basic_from_evtest</a> (int const inp_fd) noexcept</td></tr>
 <tr class="separator:a907e87c45be6c13cf11d6302ed5fcb68"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9807c28a45384cc42d694483ee82abd9" id="r_a9807c28a45384cc42d694483ee82abd9"><td class="memItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__evtest.html#a9807c28a45384cc42d694483ee82abd9">operator[]</a> (int const inp_fd) const noexcept</td></tr>
+<tr class="separator:a9807c28a45384cc42d694483ee82abd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa39d82dc8f1fcf1a6501217cb954271" id="r_aaa39d82dc8f1fcf1a6501217cb954271"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__evtest.html#aaa39d82dc8f1fcf1a6501217cb954271">set_input</a> (int const inp_fd) noexcept</td></tr>
 <tr class="separator:aaa39d82dc8f1fcf1a6501217cb954271"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0cda4021ef306eef79f6bf3cfdb7ad3f" id="r_a0cda4021ef306eef79f6bf3cfdb7ad3f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__evtest.html#a0cda4021ef306eef79f6bf3cfdb7ad3f">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>, <a class="el" href="namespacefs8.html#a5386736e5d424ab2371ed366ec820906">load_event_tag</a>) noexcept</td></tr>
@@ -139,8 +143,35 @@ Public Member Functions</h2></td></tr>
 <div class="textblock"><div class="compoundTemplParams">template&lt;EvtestFormat Format = default_evtest_format&gt;<br />
 struct fs8::basic_from_evtest&lt; Format &gt;</div><p>Read evtest-format text from a file descriptor, parse it, and feed events into the pipeline. Silently skips header/preamble lines and SYN_REPORT separators. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a67f684730c90e6f093f12530c7b17f76" name="a67f684730c90e6f093f12530c7b17f76"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67f684730c90e6f093f12530c7b17f76">&#9670;&#160;</a></span>basic_from_evtest() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;EvtestFormat Format = default_evtest_format&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__from__evtest.html">fs8::basic_from_evtest</a>&lt; Format &gt;::basic_from_evtest </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">default</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a907e87c45be6c13cf11d6302ed5fcb68" name="a907e87c45be6c13cf11d6302ed5fcb68"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a907e87c45be6c13cf11d6302ed5fcb68">&#9670;&#160;</a></span>basic_from_evtest()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a907e87c45be6c13cf11d6302ed5fcb68">&#9670;&#160;</a></span>basic_from_evtest() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -278,6 +309,34 @@ template&lt;EvtestFormat Format = default_evtest_format&gt; </div>
           <td></td>
           <td>)</td>
           <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9807c28a45384cc42d694483ee82abd9" name="a9807c28a45384cc42d694483ee82abd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9807c28a45384cc42d694483ee82abd9">&#9670;&#160;</a></span>operator[]()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;EvtestFormat Format = default_evtest_format&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">consteval auto <a class="el" href="structfs8_1_1basic__from__evtest.html">fs8::basic_from_evtest</a>&lt; Format &gt;::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">int const&#160;</td>
+          <td class="paramname"><em>inp_fd</em></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
   </td>

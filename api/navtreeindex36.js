@@ -1,5 +1,13 @@
 var NAVTREEINDEX36 =
 {
+"structmy__libevdev__uinput.html#a55ea7ee64ec1a5d778ef8ecf7996b04c":[3,0,2,1],
+"structmy__libevdev__uinput.html#a67c400935eb5b85e4991a21c638b09db":[3,0,2,4],
+"structmy__libevdev__uinput.html#aa73e83907328cc26d9405a5e0e43e338":[3,0,2,2],
+"systemd_8cxx.html":[4,0,3,12],
+"systemd_8ixx.html":[4,0,3,13],
+"timed__typed_8cxx.html":[4,0,4,54],
+"timed__typed_8ixx.html":[4,0,4,55],
+"timed__typed_8ixx.html#af626de489d69bfdf6e119cd286797b4c":[4,0,4,55,1],
 "traits_8ixx.html":[4,0,5,7],
 "translate_8ixx.html":[4,0,3,14],
 "translate_8ixx.html#a214455071df2edf74af76cb6ff244ea3":[4,0,3,14,0],

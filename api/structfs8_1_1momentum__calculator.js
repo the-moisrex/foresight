@@ -8,7 +8,7 @@ var structfs8_1_1momentum__calculator =
     [ "decay", "structfs8_1_1momentum__calculator.html#a603b3e05b1fa64feda854a5b3df85775", null ],
     [ "duration", "structfs8_1_1momentum__calculator.html#a08f62b978e0f4dd27f7dbb348467cd6e", null ],
     [ "is_linear", "structfs8_1_1momentum__calculator.html#abe18eeacec6e850986afd1d9a006fb50", null ],
-    [ "operator=", "structfs8_1_1momentum__calculator.html#a272a3ae135d841d761944c2378744164", null ],
+    [ "operator=", "structfs8_1_1momentum__calculator.html#a55fd5c0a4af131ad9b0e3d116f9af3a8", null ],
     [ "operator=", "structfs8_1_1momentum__calculator.html#a029073258e07e2389ded1f06ad572862", null ],
     [ "pos_at", "structfs8_1_1momentum__calculator.html#a60dc3611cc7c792483c42d980ef00925", null ],
     [ "pred_dest", "structfs8_1_1momentum__calculator.html#aafaa2aa6868fa214b79d95887b9cc3ef", null ],

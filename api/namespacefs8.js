@@ -692,7 +692,7 @@ var namespacefs8 =
     [ "FNV1A_64_PRIME", "namespacefs8.html#a77b7b83d965eef8d791b76ca0f6a6a85", null ],
     [ "from_chained", "namespacefs8.html#a5b9076bc6086a3d2bcb853dc66273d2a", null ],
     [ "from_device", "namespacefs8.html#a60ce220b375cdeb91af651d5163c4b7a", null ],
-    [ "from_evtest", "namespacefs8.html#a26e27b44ae665701aca3c5a09a765a57", null ],
+    [ "from_evtest", "namespacefs8.html#a30df5434468736c8b2499222eeccda5b", null ],
     [ "from_input", "namespacefs8.html#a117715ccfac2ef6ffb0bb0503db6b2be", null ],
     [ "from_live_view", "namespacefs8.html#ac2387c5430bc4aa06191f9e216382ed2", null ],
     [ "from_stdin", "namespacefs8.html#aa8b48a82fe91e0cf236d5873c3805ba9", null ],
