@@ -37,7 +37,7 @@ var hierarchy =
     [ "fs8::basic_from_device", "structfs8_1_1basic__from__device.html", null ],
     [ "fs8::basic_from_stdin", "structfs8_1_1basic__from__stdin.html", null ],
     [ "fs8::basic_log", "structfs8_1_1basic__log.html", [
-      [ "fs8::basic_log_and_drop_action", "structfs8_1_1basic__log__and__drop__action.html", null ],
+      [ "fs8::basic_log_and_drop", "structfs8_1_1basic__log__and__drop.html", null ],
       [ "fs8::basic_log_diagnostics", "structfs8_1_1basic__log__diagnostics.html", null ]
     ] ],
     [ "fs8::basic_mod_updater< ModT >", "structfs8_1_1basic__mod__updater.html", null ],

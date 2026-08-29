@@ -103,7 +103,7 @@ var annotated_dup =
       [ "basic_limit_mouse_travel", "structfs8_1_1basic__limit__mouse__travel.html", "structfs8_1_1basic__limit__mouse__travel" ],
       [ "basic_live_view_output", "structfs8_1_1basic__live__view__output.html", "structfs8_1_1basic__live__view__output" ],
       [ "basic_log", "structfs8_1_1basic__log.html", "structfs8_1_1basic__log" ],
-      [ "basic_log_and_drop_action", "structfs8_1_1basic__log__and__drop__action.html", "structfs8_1_1basic__log__and__drop__action" ],
+      [ "basic_log_and_drop", "structfs8_1_1basic__log__and__drop.html", "structfs8_1_1basic__log__and__drop" ],
       [ "basic_log_diagnostics", "structfs8_1_1basic__log__diagnostics.html", "structfs8_1_1basic__log__diagnostics" ],
       [ "basic_longtime_released", "structfs8_1_1basic__longtime__released.html", "structfs8_1_1basic__longtime__released" ],
       [ "basic_low_pass_filter", "structfs8_1_1basic__low__pass__filter.html", "structfs8_1_1basic__low__pass__filter" ],

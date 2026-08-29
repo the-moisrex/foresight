@@ -80,7 +80,7 @@ var searchData=
   ['basic_5flimit_5fmouse_5ftravel_77',['basic_limit_mouse_travel',['../structfs8_1_1basic__limit__mouse__travel.html',1,'fs8']]],
   ['basic_5flive_5fview_5foutput_78',['basic_live_view_output',['../structfs8_1_1basic__live__view__output.html',1,'fs8']]],
   ['basic_5flog_79',['basic_log',['../structfs8_1_1basic__log.html',1,'fs8']]],
-  ['basic_5flog_5fand_5fdrop_5faction_80',['basic_log_and_drop_action',['../structfs8_1_1basic__log__and__drop__action.html',1,'fs8']]],
+  ['basic_5flog_5fand_5fdrop_80',['basic_log_and_drop',['../structfs8_1_1basic__log__and__drop.html',1,'fs8']]],
   ['basic_5flog_5fdiagnostics_81',['basic_log_diagnostics',['../structfs8_1_1basic__log__diagnostics.html',1,'fs8']]],
   ['basic_5flongtime_5freleased_82',['basic_longtime_released',['../structfs8_1_1basic__longtime__released.html',1,'fs8']]],
   ['basic_5flow_5fpass_5ffilter_83',['basic_low_pass_filter',['../structfs8_1_1basic__low__pass__filter.html',1,'fs8']]],

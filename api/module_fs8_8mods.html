@@ -284,8 +284,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop.html">fs8::basic_drop</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop-only callback: returns <code>drop_event</code> without any logging.  <a href="structfs8_1_1basic__drop.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__and__drop__action.html">fs8::basic_log_and_drop_action</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop-and-log callback: logs the event and returns <code>drop_event</code>.  <a href="structfs8_1_1basic__log__and__drop__action.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__and__drop.html">fs8::basic_log_and_drop</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop-and-log callback: logs the event and returns <code>drop_event</code>.  <a href="structfs8_1_1basic__log__and__drop.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__always__enable.html">fs8::basic_always_enable</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -475,17 +475,20 @@ Enumerations</h2></td></tr>
 <tr class="memitem:a7275d4de75bd1ef162eb0f4b4d4b015d" id="r_a7275d4de75bd1ef162eb0f4b4d4b015d"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">fs8::sanitizer_issue</a> : std::uint8_t { <br />
 &#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da334c4a4c42fdb79d7ebc3e73b517e6f8">none</a>
 , <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da9a4527d62628879977386e12cbd83eb3">adjacent_syn</a>
+, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da8f070fcfa79b7c10d279ef9767d80b3d">zero_mouse_moves</a>
 , <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da827d6cd79ba12509aa77d451e1a4c758">orphan_release</a>
-, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da8f6e42d7898c186f26f0481a485ba873">orphan_repeat</a>
 , <br />
-&#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da6c3facf0b5487f1e1ef781e77ca007d9">double_press</a>
+&#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da8f6e42d7898c186f26f0481a485ba873">orphan_repeat</a>
+, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da6c3facf0b5487f1e1ef781e77ca007d9">double_press</a>
 , <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da9f68d9085af541f5b85923ba6de5dd83">late_syn</a>
 , <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da20d7e7ee786838bd72d3023856041cf5">out_of_resolution</a>
-, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da78b924fbd8c08b97b279da5b870b8201">big_jump</a>
 , <br />
-&#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015dafe3958e9e78777133e77cec1291082e4">missing_syn_time</a>
+&#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da78b924fbd8c08b97b279da5b870b8201">big_jump</a>
+, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da53af0897a897919e431951e7fd4659bc">missing_syn</a>
+, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015dafe3958e9e78777133e77cec1291082e4">missing_syn_time</a>
 , <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daa492034aaec0b60fe846dcabb3f0bc5b">missing_syn_count</a>
-, <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daf9f8d908da56826ccb9c3f3975f5430f">missing_syn_travel</a>
+, <br />
+&#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015daf9f8d908da56826ccb9c3f3975f5430f">missing_syn_travel</a>
 , <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da902d7a8856f92d11e2fdc9c10966ba6c">orphan_abs</a>
 <br />
  }</td></tr>
@@ -1217,9 +1220,6 @@ requires has_mod&lt;basic_input_manager, CtxT&gt;</td></tr>
 <tr class="separator:a1644555ade9622613d2000f445ce1439"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a049a1650cc8b541c64080937badbfeae" id="r_a049a1650cc8b541c64080937badbfeae"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__abs2rel.html#a049a1650cc8b541c64080937badbfeae">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> &amp;event) noexcept</td></tr>
 <tr class="separator:a049a1650cc8b541c64080937badbfeae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab2514fe5b000ae36678db0b3e800eb38" id="r_ab2514fe5b000ae36678db0b3e800eb38"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
-<tr class="memitem:ab2514fe5b000ae36678db0b3e800eb38"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__abs2rel.html#ab2514fe5b000ae36678db0b3e800eb38">operator()</a> (CtxT &amp;ctx) noexcept</td></tr>
-<tr class="separator:ab2514fe5b000ae36678db0b3e800eb38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6ae729243dbadc6152aea8833e9973d" id="r_af6ae729243dbadc6152aea8833e9973d"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__mouse__to__scroll.html#af6ae729243dbadc6152aea8833e9973d">basic_mouse_to_scroll</a> (value_type const inp_reverse) noexcept</td></tr>
 <tr class="separator:af6ae729243dbadc6152aea8833e9973d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa176d8fe464114d77c346d7877db897b" id="r_aa176d8fe464114d77c346d7877db897b"><td class="memItemLeft" align="right" valign="top">consteval basic_mouse_to_scroll&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__mouse__to__scroll.html#aa176d8fe464114d77c346d7877db897b">operator[]</a> (value_type const inp_reverse) const noexcept</td></tr>
@@ -1237,10 +1237,10 @@ requires has_mod&lt;basic_input_manager, CtxT&gt;</td></tr>
 <tr class="separator:a445ef366e3a0df37a6bd8113bb159a14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3328734bc17cf4cdba1763f840fe84a" id="r_ae3328734bc17cf4cdba1763f840fe84a"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop.html#ae3328734bc17cf4cdba1763f840fe84a">operator()</a> (event_type const &amp;) const noexcept</td></tr>
 <tr class="separator:ae3328734bc17cf4cdba1763f840fe84a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e56ce5efae05acf5d5f9710b8d6a27b" id="r_a1e56ce5efae05acf5d5f9710b8d6a27b"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__and__drop__action.html#a1e56ce5efae05acf5d5f9710b8d6a27b">operator()</a> (event_type const &amp;event) const noexcept</td></tr>
-<tr class="separator:a1e56ce5efae05acf5d5f9710b8d6a27b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e22f939489bc4cd10b844967c27f5bc" id="r_a2e22f939489bc4cd10b844967c27f5bc"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__and__drop__action.html#a2e22f939489bc4cd10b844967c27f5bc">operator()</a> (event_type const &amp;event, sanitizer_issue reason) const noexcept</td></tr>
-<tr class="separator:a2e22f939489bc4cd10b844967c27f5bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6a622a9226f9f3b82aad3ae056cb366" id="r_af6a622a9226f9f3b82aad3ae056cb366"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__and__drop.html#af6a622a9226f9f3b82aad3ae056cb366">operator()</a> (event_type const &amp;event) const noexcept</td></tr>
+<tr class="separator:af6a622a9226f9f3b82aad3ae056cb366"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad177d95b612672c991d75ab761b7873d" id="r_ad177d95b612672c991d75ab761b7873d"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__and__drop.html#ad177d95b612672c991d75ab761b7873d">operator()</a> (event_type const &amp;event, sanitizer_issue reason) const noexcept</td></tr>
+<tr class="separator:ad177d95b612672c991d75ab761b7873d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a8caeeec7476b33f3ef59b5b3b1d35a" id="r_a8a8caeeec7476b33f3ef59b5b3b1d35a"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__always__enable.html#a8a8caeeec7476b33f3ef59b5b3b1d35a">operator()</a> () const noexcept</td></tr>
 <tr class="separator:a8a8caeeec7476b33f3ef59b5b3b1d35a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a742ed1c588fbf504aee9f7b05070c9ff" id="r_a742ed1c588fbf504aee9f7b05070c9ff"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__always__disable.html#a742ed1c588fbf504aee9f7b05070c9ff">operator()</a> () const noexcept</td></tr>
@@ -1866,15 +1866,15 @@ Variables</h2></td></tr>
 <tr class="separator:a47379d914e5466239ddfc73f7ed2a6a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04ebedf1071fae6fd967718e6c3b411a" id="r_a04ebedf1071fae6fd967718e6c3b411a"><td class="memItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a">is_constructible_at_compile_time</a> = constexpr_constructible&lt;T&gt;</td></tr>
 <tr class="separator:a04ebedf1071fae6fd967718e6c3b411a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad98f49071b3a16b626a24b8000940cd4" id="r_ad98f49071b3a16b626a24b8000940cd4"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad98f49071b3a16b626a24b8000940cd4">fs8::event_sanitizer</a></td></tr>
-<tr class="memdesc:ad98f49071b3a16b626a24b8000940cd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">All default sanitizer checks with silent drop (no logging).  <br /></td></tr>
-<tr class="separator:ad98f49071b3a16b626a24b8000940cd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a09874ef1f335b5dce66bcbde9e70ccf6" id="r_a09874ef1f335b5dce66bcbde9e70ccf6"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a09874ef1f335b5dce66bcbde9e70ccf6">fs8::event_diagnostics</a></td></tr>
-<tr class="memdesc:a09874ef1f335b5dce66bcbde9e70ccf6"><td class="mdescLeft">&#160;</td><td class="mdescRight">All default sanitizer checks with diagnostics logging only (no drop).  <br /></td></tr>
-<tr class="separator:a09874ef1f335b5dce66bcbde9e70ccf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af0bd5d16e5ddbc099a3df7543c6c11a2" id="r_af0bd5d16e5ddbc099a3df7543c6c11a2"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af0bd5d16e5ddbc099a3df7543c6c11a2">fs8::event_sieve</a></td></tr>
-<tr class="memdesc:af0bd5d16e5ddbc099a3df7543c6c11a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">All default sanitizer checks: drop bad events and log each one.  <br /></td></tr>
-<tr class="separator:af0bd5d16e5ddbc099a3df7543c6c11a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3892bed80ed840b5261c1162c259df8d" id="r_a3892bed80ed840b5261c1162c259df8d"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3892bed80ed840b5261c1162c259df8d">fs8::sanitizer</a></td></tr>
+<tr class="memdesc:a3892bed80ed840b5261c1162c259df8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">All default sanitizer checks with silent drop (no logging).  <br /></td></tr>
+<tr class="separator:a3892bed80ed840b5261c1162c259df8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40951e043efecd0f98338fb5c169e002" id="r_a40951e043efecd0f98338fb5c169e002"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a40951e043efecd0f98338fb5c169e002">fs8::diagnostics</a></td></tr>
+<tr class="memdesc:a40951e043efecd0f98338fb5c169e002"><td class="mdescLeft">&#160;</td><td class="mdescRight">All default sanitizer checks with diagnostics logging only (no drop).  <br /></td></tr>
+<tr class="separator:a40951e043efecd0f98338fb5c169e002"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c580624bc8aa3a062d5189176ac6cbf" id="r_a1c580624bc8aa3a062d5189176ac6cbf"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a1c580624bc8aa3a062d5189176ac6cbf">fs8::sieve</a></td></tr>
+<tr class="memdesc:a1c580624bc8aa3a062d5189176ac6cbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">All default sanitizer checks: drop bad events and log each one.  <br /></td></tr>
+<tr class="separator:a1c580624bc8aa3a062d5189176ac6cbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af070f16e9d1cd0e0f6e12e36e58c95d9" id="r_af070f16e9d1cd0e0f6e12e36e58c95d9"><td class="memTemplParams" colspan="2">template&lt;typename CtxT &gt; </td></tr>
 <tr class="memitem:af070f16e9d1cd0e0f6e12e36e58c95d9"><td class="memTemplItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on.html#af070f16e9d1cd0e0f6e12e36e58c95d9">can_generate_events</a> = (invokable_mod&lt;Funcs, CtxT, next_event_tag&gt; || ...)</td></tr>
 <tr class="separator:af070f16e9d1cd0e0f6e12e36e58c95d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
