@@ -19,11 +19,11 @@ using fs8::event_type;
 
 // ── basic_output (raw binary) ───────────────────────────────────────────────
 
-bool fs8::basic_output::emit(event_type const& event) const noexcept {
+bool fs8::basic_std_output::emit(event_type const& event) const noexcept {
     return write(file_descriptor, &event.native(), sizeof(input_event)) == sizeof(input_event);
 }
 
-bool fs8::basic_output::operator()(event_type& event) const noexcept {
+bool fs8::basic_std_output::operator()(event_type& event) const noexcept {
     return write(file_descriptor, &event.native(), sizeof(input_event)) == sizeof(input_event);
 }
 

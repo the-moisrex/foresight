@@ -4,7 +4,6 @@ module;
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
-#include <linux/input.h>
 #include <tuple>
 #include <type_traits>
 export module fs8.mods:output_selector;
@@ -103,6 +102,7 @@ namespace fs8 {
                     }
                 } else {
                     static_assert(false, "Output type must accept event_type&.");
+                    return context_action::exit;
                 }
             });
         }
@@ -126,9 +126,9 @@ namespace fs8 {
     ///   1 — basic_uinput (kernel virtual device)
     ///   2 — basic_evtest_output<> (evtest text format)
     ///   3 — basic_live_view_output<> (live view text format)
-    export using output_selector = basic_output_selector<basic_output, basic_uinput, basic_evtest_output<>, basic_live_view_output<>>;
+    export using output_selector = basic_output_selector<basic_std_output, basic_uinput, basic_evtest_output<>, basic_live_view_output<>>;
 
-    export constexpr output_selector output_switch{};
+    export constexpr output_selector output{};
 
     static_assert(OutputModifier<output_selector>, "Must be an output modifier.");
 

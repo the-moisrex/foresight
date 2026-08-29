@@ -16,7 +16,7 @@ namespace {
 
 TEST(OutputSelector, SatisfiesOutputModifierConcept) {
     static_assert(OutputModifier<output_selector>, "output_selector must satisfy OutputModifier");
-    static_assert(OutputModifier<basic_output_selector<basic_output>>, "basic_output_selector<basic_output> must satisfy OutputModifier");
+    static_assert(OutputModifier<basic_output_selector<basic_std_output>>, "basic_output_selector<basic_output> must satisfy OutputModifier");
 }
 
 TEST(OutputSelector, DefaultSelectedIsZero) {
@@ -191,7 +191,7 @@ TEST(OutputSelector, MultipleEventsInOrder) {
 }
 
 TEST(OutputSelector, CustomTemplateParams) {
-    basic_output_selector<basic_output> sel{};
+    basic_output_selector<basic_std_output> sel{};
     sel.set_selected(0);
 
     int pipe_fds[2];
@@ -225,11 +225,11 @@ TEST(OutputSelector, WorksInPipeline) {
         {.type = EV_KEY, .code = KEY_A, .value = 0},
         {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     }]
-      | output_switch
+      | output
       | record[captured_events];
 
     // Modify the pipeline's copy of output_switch after consteval construction
-    auto &sel = pipeline.mod(output_switch);
+    auto &sel = pipeline.mod(output);
     sel.set_selected(0);
     sel.output<0>().set_output(pipe_fds[1]);
 
@@ -259,5 +259,5 @@ TEST(OutputSelector, WorksInPipeline) {
 }
 
 TEST(OutputSelector, OutputSwitchGlobalVariable) {
-    EXPECT_EQ(output_switch.selected(), 0);
+    EXPECT_EQ(output.selected(), 0);
 }

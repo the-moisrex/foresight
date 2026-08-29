@@ -18,14 +18,14 @@ import fs8.log;
 
 export namespace fs8 {
 
-    constexpr struct [[nodiscard]] basic_output : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_std_output : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
         int file_descriptor = STDOUT_FILENO;
 
       public:
-        constexpr explicit basic_output(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
+        constexpr explicit basic_std_output(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
 
         constexpr void set_output(int const inp_fd) noexcept {
             file_descriptor = inp_fd;
@@ -36,9 +36,9 @@ export namespace fs8 {
 
         // NOLINTNEXTLINE(*-use-nodiscard)
         bool operator()(event_type& event) const noexcept;
-    } output;
+    } std_output;
 
-    static_assert(OutputModifier<basic_output>, "Must be a output modifier.");
+    static_assert(OutputModifier<basic_std_output>, "Must be a output modifier.");
 
     constexpr struct [[nodiscard]] basic_from_input : consteval_copyable {
         using consteval_copyable::consteval_copyable;

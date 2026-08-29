@@ -818,7 +818,7 @@ Options:
             }
             case intercept: {
                 static constinit auto pipeline =
-                  fs8::context | fs8::io_manager | fs8::intercept | fs8::input_manager | fs8::stopper | fs8::output;
+                  fs8::context | fs8::io_manager | fs8::intercept | fs8::input_manager | fs8::stopper | fs8::std_output;
 
                 auto& sig_stopper = pipeline.mod(fs8::stopper);
                 auto& inpor       = pipeline.mod(fs8::intercept);
