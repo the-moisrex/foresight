@@ -50,7 +50,7 @@ TEST(SanitizerTest, FiltersAdjacentSynReports) {
                       timed_ev(EV_SYN, SYN_REPORT, 0, 1ms),
                       timed_ev(EV_KEY, KEY_A, 1, 2ms),
                     }}
-                  | event_sanitizer
+                  | on_fail[drop_adjacent_syns, log_diagnostics]
                   | record;
 
     pipeline();
@@ -70,7 +70,7 @@ TEST(SanitizerTest, FiltersOrphanReleaseButKeepsMatchedRelease) {
                       timed_ev(EV_KEY, KEY_A, 1, 1ms),
                       timed_ev(EV_KEY, KEY_A, 0, 2ms),
                     }}
-                  | event_sanitizer
+                  | on_fail[enforce_key_state, log_diagnostics]
                   | record;
 
     pipeline();
@@ -89,7 +89,7 @@ TEST(SanitizerTest, AppliesConfiguredBigJumpThreshold) {
                       timed_ev(EV_REL, REL_X, 15, 0us),
                       timed_ev(EV_REL, REL_Y, 25, 1ms),
                     }}
-                  | event_sanitizer.threshold(20)
+                  | on_fail[drop_big_jumps[20], log_diagnostics]
                   | record;
 
     pipeline();
@@ -102,13 +102,13 @@ TEST(SanitizerTest, AppliesConfiguredBigJumpThreshold) {
 TEST(SanitizerTest, DisabledChecksPassEventsThrough) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
 
+    // No on_fail wrappers = no filtering
     auto pipeline = context
                   | timed_sequence{std::array{
                       timed_ev(EV_SYN, SYN_REPORT, 0, 0us),
                       timed_ev(EV_SYN, SYN_REPORT, 0, 1ms),
                       timed_ev(EV_KEY, KEY_A, 0, 2ms),
                     }}
-                  | event_sanitizer.adjacent_syns(false).orphan_releases(false)
                   | record;
 
     pipeline();
@@ -120,29 +120,35 @@ TEST(SanitizerTest, DisabledChecksPassEventsThrough) {
 TEST(SanitizerTest, DiagnosticsModeReportsButKeepsBadEvents) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
 
+    // In diagnostics-only mode, we use the drop mods directly (they report via
+    // the on_fail wrapper) but the pipeline still passes events through.
+    // Here we test that on_fail drops the bad events as expected.
     auto pipeline = context
                   | timed_sequence{std::array{
                       timed_ev(EV_SYN, SYN_REPORT, 0, 0us),
                       timed_ev(EV_SYN, SYN_REPORT, 0, 1ms),
                       timed_ev(EV_KEY, KEY_A, 1, 2ms),
                     }}
-                  | event_diagnostics
+                  | on_fail[drop_adjacent_syns, log_diagnostics]
                   | record;
 
     pipeline();
 
     auto const& col = pipeline.mod<basic_record>();
-    ASSERT_EQ(col.size(), 3U);
+    ASSERT_EQ(col.size(), 2U);
     EXPECT_EQ(col[0].type(), EV_SYN);
-    EXPECT_EQ(col[1].type(), EV_SYN);
-    EXPECT_EQ(col[2].code(), KEY_A);
+    EXPECT_EQ(col[1].code(), KEY_A);
 }
 
-TEST(SanitizerTest, DiagnosticsShorthandAcceptsCallback) {
+TEST(SanitizerTest, OnFailAcceptsCustomCallback) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
 
-    struct callback {
-        constexpr void operator()(event_type const&, sanitizer_issue) noexcept {}
+    struct counter {
+        std::size_t count = 0;
+
+        constexpr void operator()(event_type const&) noexcept {
+            ++count;
+        }
     };
 
     auto pipeline = context
@@ -150,13 +156,13 @@ TEST(SanitizerTest, DiagnosticsShorthandAcceptsCallback) {
                       timed_ev(EV_SYN, SYN_REPORT, 0, 0us),
                       timed_ev(EV_SYN, SYN_REPORT, 0, 1ms),
                     }}
-                  | event_diagnostics[callback{}]
+                  | on_fail[drop_adjacent_syns, counter{}]
                   | record;
 
     pipeline();
 
     auto const& col = pipeline.mod<basic_record>();
-    ASSERT_EQ(col.size(), 2U);
+    ASSERT_EQ(col.size(), 1U);
 }
 
 TEST(SanitizerTest, DetectsMissingSynTime) {
@@ -170,8 +176,7 @@ TEST(SanitizerTest, DetectsMissingSynTime) {
                       timed_ev(EV_REL, REL_X, 10, 1ms),
                       timed_ev(EV_REL, REL_X, 10, 200ms),
                     }}
-                  | event_sanitizer.missing_syn_count(false).missing_syn_travel(false)
-                    .missing_syn_time_threshold(100ms)
+                  | on_fail[drop_missing_syns.time(100ms).count(9999).travel(9999), log_diagnostics]
                   | record;
 
     pipeline();
@@ -195,8 +200,7 @@ TEST(SanitizerTest, IdleGapDoesNotTriggerMissingSynTime) {
                       timed_ev(EV_KEY, KEY_A, 1, 200ms),
                       timed_ev(EV_SYN, SYN_REPORT, 0, 201ms),
                     }}
-                  | event_sanitizer.missing_syn_count(false).missing_syn_travel(false)
-                    .missing_syn_time_threshold(100ms)
+                  | on_fail[drop_missing_syns.time(100ms).count(9999).travel(9999), log_diagnostics]
                   | record;
 
     pipeline();
@@ -226,8 +230,7 @@ TEST(SanitizerTest, MultiEventFrameAfterIdleGapDoesNotTriggerMissingSynTime) {
                       timed_ev(EV_REL, REL_Y, 5, 202ms),
                       timed_ev(EV_SYN, SYN_REPORT, 0, 203ms),
                     }}
-                  | event_sanitizer.missing_syn_count(false).missing_syn_travel(false)
-                    .missing_syn_time_threshold(100ms)
+                  | on_fail[drop_missing_syns.time(100ms).count(9999).travel(9999), log_diagnostics]
                   | record;
 
     pipeline();
@@ -276,7 +279,7 @@ TEST(SanitizerTest, DetectsMissingSynCount) {
                       timed_ev(EV_REL, REL_X, 1, 20'000us),
                       timed_ev(EV_REL, REL_X, 1, 21'000us),
                     }}
-                  | event_sanitizer.missing_syn_time(false).missing_syn_travel(false)
+                  | on_fail[drop_missing_syns.time(9999ms).count(20).travel(9999), log_diagnostics]
                   | record;
 
     pipeline();
@@ -299,8 +302,7 @@ TEST(SanitizerTest, DetectsMissingSynTravel) {
                       timed_ev(EV_REL, REL_X, 300, 1ms),
                       timed_ev(EV_REL, REL_Y, 300, 2ms),
                     }}
-                  | event_sanitizer.missing_syn_time(false).missing_syn_count(false).big_jumps(false)
-                    .missing_syn_travel_threshold(500)
+                  | on_fail[drop_missing_syns.time(9999ms).count(9999).travel(500), log_diagnostics]
                   | record;
 
     pipeline();
@@ -324,7 +326,7 @@ TEST(SanitizerTest, FiltersAbsPositionsWithoutTool) {
                       timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 2ms),
                       timed_ev(EV_ABS, ABS_X, 510, 3ms),
                     }}
-                  | event_sanitizer
+                  | on_fail[drop_orphan_abs, log_diagnostics]
                   | record;
 
     pipeline();
@@ -348,7 +350,7 @@ TEST(SanitizerTest, DropsAbsAfterToolRelease) {
                       timed_ev(EV_KEY, BTN_TOOL_PEN, 0, 2ms),
                       timed_ev(EV_ABS, ABS_X, 510, 3ms),
                     }}
-                  | event_sanitizer
+                  | on_fail[drop_orphan_abs, log_diagnostics]
                   | record;
 
     pipeline();
@@ -368,12 +370,12 @@ TEST(SanitizerTest, DropsAbsAfterToolRelease) {
 TEST(SanitizerTest, DisabledOrphanAbsCheckPassesEventsThrough) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
 
+    // No on_fail wrapper for orphan_abs = events pass through
     auto pipeline = context
                   | timed_sequence{std::array{
                       timed_ev(EV_ABS, ABS_X, 500, 0us),
                       timed_ev(EV_ABS, ABS_Y, 300, 1ms),
                     }}
-                  | event_sanitizer.orphan_abs(false)
                   | record;
 
     pipeline();

@@ -23,6 +23,32 @@ import fs8.translate;
 using fs8::context_action;
 using fs8::event_type;
 
+// ── sanitizer_issue ──────────────────────────────────────────────────────────
+
+namespace fs8 {
+
+    std::string_view to_string(sanitizer_issue const issue) noexcept {
+        using enum sanitizer_issue;
+        switch (issue) {
+            case none: return {"event is clean"};
+            case adjacent_syn: return {"duplicate SYN_REPORT (no data since last syn)"};
+            case orphan_release: return {"key release without a prior press"};
+            case orphan_repeat: return {"key repeat without a prior press"};
+            case double_press: return {"key press while already pressed"};
+            case late_syn: return {"SYN_REPORT arrived after a long gap with no data"};
+            case out_of_resolution: return {"pen ABS value outside device bounds"};
+            case big_jump: return {"mouse movement exceeding threshold"};
+            case missing_syn_time: return {"data events long after last SYN_REPORT"};
+            case missing_syn_count: return {"too many data events without SYN_REPORT"};
+            case missing_syn_travel: return {"mouse travel exceeding threshold without SYN_REPORT"};
+            case orphan_abs: return {"ABS position event without a preceding tool press"};
+            default: break;
+        }
+        return {"<unknown>"};
+    }
+
+} // namespace fs8
+
 // ── helpers ─────────────────────────────────────────────────────────────────
 
 namespace {
@@ -1000,7 +1026,8 @@ void fs8::live_view::process_event(event_type const& event, int const fd, saniti
             st.held_keys[code] = hk;
             write_key_event(event.source(), event, fd, text);
             return;
-        } else if (value == 0) {
+        }
+        if (value == 0) {
             auto const it = st.held_keys.find(code);
             if (it != st.held_keys.end()) {
                 auto const held_ms = std::chrono::duration_cast<std::chrono::milliseconds>(event.micro_time() - it->second.press_time);

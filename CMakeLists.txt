@@ -98,23 +98,23 @@ target_sources(${LIB_NAME}
         mods/autocomplete.cxx
         mods/benchmark.cxx
         mods/device.cxx
-        mods/emitter.cxx
         mods/drop.cxx
+        mods/emitter.cxx
         mods/inout.cxx
-        mods/live_view.cxx
         mods/input_manager.cxx
         mods/intercept.cxx
         mods/io_manager.cxx
         mods/keys_state.cxx
+        mods/live_view.cxx
         mods/momentum.cxx
         mods/on.cxx
         mods/quantifier.cxx
         mods/record.cxx
-        mods/sanitizer.cxx
         mods/replace.cxx
         mods/router.cxx
-        mods/scheduler.cxx
+        mods/sanitizer.cxx
         mods/scale.cxx
+        mods/scheduler.cxx
         mods/singleton.cxx
         mods/smooth.cxx
         mods/timed_typed.cxx
@@ -151,31 +151,33 @@ target_sources(${LIB_NAME}
         mods/context_vars.ixx
         mods/debounce.ixx
         mods/device.ixx
-        mods/emitter.ixx
         mods/drop.ixx
+        mods/emitter.ixx
+        mods/group.ixx
         mods/inout.ixx
-        mods/live_view.ixx
         mods/input_manager.ixx
         mods/intercept.ixx
         mods/io_manager.ixx
-        mods/startup_key_releases.ixx
         mods/keys_state.ixx
         mods/lambda.ixx
+        mods/live_view.ixx
         mods/modes.ixx
         mods/mods.ixx
         mods/momentum.ixx
         mods/mouse_state.ixx
         mods/mouse_to_scroll.ixx
         mods/on.ixx
+        mods/on_fail.ixx
         mods/quantifier.ixx
         mods/record.ixx
-        mods/sanitizer.ixx
         mods/replace.ixx
         mods/router.ixx
-        mods/scheduler.ixx
+        mods/sanitizer.ixx
         mods/scale.ixx
+        mods/scheduler.ixx
         mods/singleton.ixx
         mods/smooth.ixx
+        mods/startup_key_releases.ixx
         mods/stopper.ixx
         mods/timed_typed.ixx
         mods/typed.ixx

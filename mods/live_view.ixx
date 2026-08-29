@@ -26,6 +26,24 @@ import :sanitizer;
 
 export namespace fs8 {
 
+    /// Describes what kind of problem the sanitizer detected for an event.
+    enum struct [[nodiscard]] sanitizer_issue : std::uint8_t {
+        none,               ///< event is clean
+        adjacent_syn,       ///< duplicate SYN_REPORT (no data since last syn)
+        orphan_release,     ///< key release without a prior press
+        orphan_repeat,      ///< key repeat without a prior press
+        double_press,       ///< key press while already pressed
+        late_syn,           ///< SYN_REPORT arrived after a long gap with no data
+        out_of_resolution,  ///< pen ABS value outside device bounds
+        big_jump,           ///< mouse movement exceeding threshold
+        missing_syn_time,   ///< data events long after last SYN_REPORT
+        missing_syn_count,  ///< too many data events without SYN_REPORT
+        missing_syn_travel, ///< mouse travel exceeding threshold without SYN_REPORT
+        orphan_abs,         ///< ABS position event without a preceding tool press
+    };
+
+    [[nodiscard]] std::string_view to_string(sanitizer_issue issue) noexcept;
+
     /// Format for the live view output: aligned columns with text and hold duration.
     struct [[nodiscard]] live_view_format {
         /// Parse one live-view line. Returns false for non-event lines.
