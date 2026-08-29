@@ -10,6 +10,7 @@ var structfs8_1_1basic__context =
     [ "event", "structfs8_1_1basic__context.html#a3d647efa621fd6580945542b50acadaf", null ],
     [ "fork_emit", "structfs8_1_1basic__context.html#a690692fe204289415a955461f6ae197a", null ],
     [ "get_mods", "structfs8_1_1basic__context.html#ae0eacbfaa1424f62a9f927b256a8e4b5", null ],
+    [ "handle_action", "structfs8_1_1basic__context.html#ad3d22034c873a285717f6be3d635a2eb", null ],
     [ "mod", "structfs8_1_1basic__context.html#aed51e6eec452b94e3f39ca4be4b4073b", null ],
     [ "mod", "structfs8_1_1basic__context.html#a6abb13b86c940509fc9f583e5dd28d06", null ],
     [ "mod", "structfs8_1_1basic__context.html#a55d4e4e6136e94c833167b1b742f9e5b", null ],
@@ -25,7 +26,8 @@ var structfs8_1_1basic__context =
     [ "operator[]", "structfs8_1_1basic__context.html#ac8e84558b5b16d96db7b0b27c303898f", null ],
     [ "operator|", "structfs8_1_1basic__context.html#a2905cb6c9e237829e151567337a5e9f5", null ],
     [ "operator|", "structfs8_1_1basic__context.html#a5e1c2ce7bb3eb1a7b41b0739e7adf7be", null ],
-    [ "restart_if", "structfs8_1_1basic__context.html#acb3532610d67034391673467efa4cff7", null ],
+    [ "process_event", "structfs8_1_1basic__context.html#a7a1a109e493cf5d633a743d01543e54b", null ],
     [ "rmods", "structfs8_1_1basic__context.html#a3f68fcafa3aa11f5fa56a7d7c47b2354", null ],
+    [ "start_pipeline", "structfs8_1_1basic__context.html#aab411602e6cbb6f183c61dd527ae3b7f", null ],
     [ "sub_mods", "structfs8_1_1basic__context.html#a102acb772077e9ff5c0a81086e441d2f", null ]
 ];

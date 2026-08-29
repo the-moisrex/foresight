@@ -165,9 +165,12 @@ requires ((std::same_as&lt;<a class="el" href="structfs8_1_1basic__context.html#
 <tr class="separator:a3f68fcafa3aa11f5fa56a7d7c47b2354"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af4c2f1529c5e9fe18d6fbe8f93553e22" id="r_af4c2f1529c5e9fe18d6fbe8f93553e22"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#af4c2f1529c5e9fe18d6fbe8f93553e22">operator()</a> (<a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>) noexcept</td></tr>
 <tr class="separator:af4c2f1529c5e9fe18d6fbe8f93553e22"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb3532610d67034391673467efa4cff7" id="r_acb3532610d67034391673467efa4cff7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#acb3532610d67034391673467efa4cff7">restart_if</a> (<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const prev_action=<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaec2f993aec2c27fc750119ab17b16cdb">context_action::idle</a>) noexcept</td></tr>
-<tr class="memdesc:acb3532610d67034391673467efa4cff7"><td class="mdescLeft">&#160;</td><td class="mdescRight">returns false if we need to terminate  <br /></td></tr>
-<tr class="separator:acb3532610d67034391673467efa4cff7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab411602e6cbb6f183c61dd527ae3b7f" id="r_aab411602e6cbb6f183c61dd527ae3b7f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#aab411602e6cbb6f183c61dd527ae3b7f">start_pipeline</a> () noexcept</td></tr>
+<tr class="separator:aab411602e6cbb6f183c61dd527ae3b7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a1a109e493cf5d633a743d01543e54b" id="r_a7a1a109e493cf5d633a743d01543e54b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a7a1a109e493cf5d633a743d01543e54b">process_event</a> () noexcept</td></tr>
+<tr class="separator:a7a1a109e493cf5d633a743d01543e54b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3d22034c873a285717f6be3d635a2eb" id="r_ad3d22034c873a285717f6be3d635a2eb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#ad3d22034c873a285717f6be3d635a2eb">handle_action</a> (<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const action) noexcept</td></tr>
+<tr class="separator:ad3d22034c873a285717f6be3d635a2eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62523c3679347b369412a108cd2096e0" id="r_a62523c3679347b369412a108cd2096e0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a62523c3679347b369412a108cd2096e0">operator()</a> () noexcept</td></tr>
 <tr class="separator:a62523c3679347b369412a108cd2096e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acfe8d33f8b17156934f23c3b19a88a3a" id="r_acfe8d33f8b17156934f23c3b19a88a3a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#acfe8d33f8b17156934f23c3b19a88a3a">operator()</a> (auto &amp;&amp;, Tag auto)=delete</td></tr>
@@ -502,6 +505,35 @@ template&lt;typename Self &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="ad3d22034c873a285717f6be3d635a2eb" name="ad3d22034c873a285717f6be3d635a2eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3d22034c873a285717f6be3d635a2eb">&#9670;&#160;</a></span>handle_action()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Modifier... Funcs&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::handle_action </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const&#160;</td>
+          <td class="paramname"><em>action</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Handle an action from event processing or a provider in the loop. idle → restart and continue; exit → stop; next/drop_event → continue. </p>
 
 </div>
 </div>
@@ -991,8 +1023,8 @@ template&lt;Modifier Mod&gt; </div>
 
 </div>
 </div>
-<a id="acb3532610d67034391673467efa4cff7" name="acb3532610d67034391673467efa4cff7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acb3532610d67034391673467efa4cff7">&#9670;&#160;</a></span>restart_if()</h2>
+<a id="a7a1a109e493cf5d633a743d01543e54b" name="a7a1a109e493cf5d633a743d01543e54b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a1a109e493cf5d633a743d01543e54b">&#9670;&#160;</a></span>process_event()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1003,10 +1035,9 @@ template&lt;Modifier... Funcs&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::restart_if </td>
+          <td class="memname">bool <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::process_event </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const&#160;</td>
-          <td class="paramname"><em>prev_action</em> = <code><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaec2f993aec2c27fc750119ab17b16cdb">context_action::idle</a></code></td><td>)</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -1016,8 +1047,7 @@ template&lt;Modifier... Funcs&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>returns false if we need to terminate </p>
+<p>Process the current event through all mods and handle the result. Returns true if the pipeline should continue. </p>
 
 </div>
 </div>
@@ -1050,6 +1080,34 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Enumerate mods matching <code>T</code>, recursing into routers/sub-pipelines. </p>
+
+</div>
+</div>
+<a id="aab411602e6cbb6f183c61dd527ae3b7f" name="aab411602e6cbb6f183c61dd527ae3b7f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab411602e6cbb6f183c61dd527ae3b7f">&#9670;&#160;</a></span>start_pipeline()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Modifier... Funcs&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::start_pipeline </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Start the pipeline for the first time or after idle. Returns true if start succeeded. </p>
 
 </div>
 </div>
