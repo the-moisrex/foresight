@@ -799,25 +799,35 @@ export namespace fs8 {
             return context_action::exit;
         }
 
-        /// returns false if we need to terminate
-        [[nodiscard]] bool restart_if(context_action const prev_action = context_action::idle) noexcept try {
+        /// Start the pipeline for the first time or after idle.
+        /// Returns true if start succeeded.
+        [[nodiscard]] bool start_pipeline() noexcept {
+            auto const action = operator()(start);
+            return action != context_action::exit;
+        }
+
+        /// Process the current event through all mods and handle the result.
+        /// Returns true if the pipeline should continue.
+        [[nodiscard]] bool process_event() noexcept {
+            return handle_action(invoke_mods(*this, mods_));
+        }
+
+        /// Handle an action from event processing or a provider in the loop.
+        /// idle → restart and continue; exit → stop; next/drop_event → continue.
+        [[nodiscard]] bool handle_action(context_action const action) noexcept {
             using enum context_action;
-            if (!prev_action) {
-                if (prev_action == idle) {
-                    log("Restarting pipeline...");
-                }
-                auto const action = operator()(start);
-                // idle is ignored here
-                return action != exit;
+            if (action == idle) {
+                log("Restarting pipeline...");
+                return start_pipeline();
             }
-            return !!prev_action;
-        } catch (...) {
-            // terminate
-            return false;
+            if (action == exit) {
+                return false;
+            }
+            return true;
         }
 
         void operator()() noexcept {
-            if (!restart_if(context_action::exit)) {
+            if (!start_pipeline()) {
                 return;
             }
             operator()(no_init);
@@ -845,9 +855,9 @@ export namespace fs8 {
             for (;;) {
                 // Exhaust the next events until there's no more events.
                 if constexpr (next_event_count > 0) {
-                    switch (invoke_first_mod_of(*this, mods_, next_event)) {
+                    switch (auto const provider = invoke_first_mod_of(*this, mods_, next_event)) {
                         case next:
-                            if (!restart_if(invoke_mods(*this, mods_))) {
+                            if (!handle_action(invoke_mods(*this, mods_))) {
                                 return;
                             }
                             continue;
@@ -855,51 +865,48 @@ export namespace fs8 {
                             break;
                         [[unlikely]] default:
                         [[unlikely]] case idle:
-                            if (!restart_if(idle)) {
+                        [[unlikely]] case exit:
+                            if (!handle_action(provider)) {
                                 return;
                             }
                             break;
-                        [[unlikely]] case exit:
-                            return;
                     }
                     // next_event exhausted -> block in load_event (pure wait; it does
                     // NOT load an event). After it wakes, loop back to next_event.
                     if constexpr (load_event_count > 0) {
-                        switch (invoke_mods(*this, mods_, load_event)) {
+                        switch (auto const load_result = invoke_mods(*this, mods_, load_event)) {
                             [[likely]] case next:
                             case drop_event:
                                 continue; // key change (was `break` -> trailing invoke_mods)
                             [[unlikely]] default:
                             [[unlikely]] case idle:
-                                if (!restart_if(idle)) {
+                            [[unlikely]] case exit:
+                                if (!handle_action(load_result)) {
                                     return;
                                 }
                                 break;
-                            [[unlikely]] case exit:
-                                return;
                         }
                     }
                     // no load_event provider
-                    if (!restart_if(invoke_mods(*this, mods_))) [[unlikely]] {
+                    if (!handle_action(invoke_mods(*this, mods_))) [[unlikely]] {
                         return;
                     }
                 } else if constexpr (load_event_count > 0) {
                     // Legacy: load_event providers load events directly (old intercept).
-                    switch (invoke_mods(*this, mods_, load_event)) {
+                    switch (auto const load_result = invoke_mods(*this, mods_, load_event)) {
                         [[likely]] case next:
                             break;
                         case drop_event:
                             continue;
                         [[unlikely]] default:
                         [[unlikely]] case idle:
-                            if (!restart_if(idle)) {
+                        [[unlikely]] case exit:
+                            if (!handle_action(load_result)) {
                                 return;
                             }
                             break;
-                        [[unlikely]] case exit:
-                            return;
                     }
-                    if (!restart_if(invoke_mods(*this, mods_))) [[unlikely]] {
+                    if (!handle_action(invoke_mods(*this, mods_))) [[unlikely]] {
                         return;
                     }
                 }
