@@ -83,8 +83,8 @@ int main(int const argc, char const* const* argv) try {
       | momentum_scroll
       | update_mod[keys_state]
       | drop_msc_scan
-      | drop_adjacent_syns
       | drop_zero_mouse_moves
+      | drop_adjacent_syns
       | sieve
       | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];
 

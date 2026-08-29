@@ -63,8 +63,8 @@ export namespace fs8 {
                 on_fail[drop_zero_mouse_moves, drop],
                 on_fail[drop_late_syn, drop],
                 on_fail[drop_orphan_abs, drop],
-                on_fail[drop_missing_syns, drop],
-                on_fail[drop_big_jumps, drop]];
+                on_fail[drop_big_jumps, drop],
+                on_fail[drop_missing_syns, drop]];
 
     /// All default sanitizer checks with diagnostics logging only (no drop).
     constexpr auto diagnostics =
@@ -72,16 +72,18 @@ export namespace fs8 {
                 on_fail[drop_zero_mouse_moves, log_diagnostics, sanitizer_issue::zero_mouse_moves],
                 on_fail[drop_late_syn, log_diagnostics, sanitizer_issue::late_syn],
                 on_fail[drop_orphan_abs, log_diagnostics, sanitizer_issue::orphan_abs],
-                on_fail[drop_missing_syns, log_diagnostics, sanitizer_issue::missing_syn],
-                on_fail[drop_big_jumps, log_diagnostics, sanitizer_issue::big_jump]];
+                on_fail[drop_big_jumps, log_diagnostics, sanitizer_issue::big_jump],
+                // missing syns should be the last because others may remove things as well
+                on_fail[drop_missing_syns, log_diagnostics, sanitizer_issue::missing_syn]];
 
     /// All default sanitizer checks: drop bad events and log each one.
     constexpr auto sieve =
       group_mod[on_fail[drop_adjacent_syns, log_and_drop, sanitizer_issue::adjacent_syn],
                 on_fail[drop_zero_mouse_moves, log_and_drop, sanitizer_issue::zero_mouse_moves],
-                on_fail[drop_late_syn, log_and_drop, sanitizer_issue::late_syn],
+                on_fail[drop_late_syn, log_diagnostics, sanitizer_issue::late_syn],
                 on_fail[drop_orphan_abs, log_and_drop, sanitizer_issue::orphan_abs],
-                on_fail[drop_missing_syns, log_and_drop, sanitizer_issue::missing_syn],
-                on_fail[drop_big_jumps, log_and_drop, sanitizer_issue::big_jump]];
+                on_fail[drop_big_jumps, log_and_drop, sanitizer_issue::big_jump],
+                // missing syns should be the last because others may remove things as well
+                on_fail[drop_missing_syns, log_diagnostics, sanitizer_issue::missing_syn]];
 
 } // namespace fs8
