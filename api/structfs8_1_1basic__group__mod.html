@@ -113,12 +113,16 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a884e7ed3da00484c3a6e44cc125d3e76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a680298351a9a7d6570c2651cacbc5c52" id="r_a680298351a9a7d6570c2651cacbc5c52"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#a680298351a9a7d6570c2651cacbc5c52">basic_group_mod</a> (std::tuple&lt; Mods... &gt; mods) noexcept</td></tr>
 <tr class="separator:a680298351a9a7d6570c2651cacbc5c52"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad14644c8e2de8fe9532e1b1be4b46273" id="r_ad14644c8e2de8fe9532e1b1be4b46273"><td class="memTemplParams" colspan="2">template&lt;Tag T&gt; <br />
-requires (!std::same_as&lt;T, <a class="el" href="namespacefs8.html#a5386736e5d424ab2371ed366ec820906">load_event_tag</a>&gt; &amp;&amp; !std::same_as&lt;T, <a class="el" href="namespacefs8.html#acb4f566f578b0d3013871b415c623375">next_event_tag</a>&gt;)</td></tr>
-<tr class="memitem:ad14644c8e2de8fe9532e1b1be4b46273"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#ad14644c8e2de8fe9532e1b1be4b46273">operator()</a> (auto &amp;, T <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
-<tr class="separator:ad14644c8e2de8fe9532e1b1be4b46273"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab84ac8f16363eaa8721bb9e157621e62" id="r_ab84ac8f16363eaa8721bb9e157621e62"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#ab84ac8f16363eaa8721bb9e157621e62">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
-<tr class="separator:ab84ac8f16363eaa8721bb9e157621e62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad07e52b3e93768864f755220a43e0f28" id="r_ad07e52b3e93768864f755220a43e0f28"><td class="memTemplParams" colspan="2">template&lt;typename... T&gt; <br />
+requires ((!std::same_as&lt;T, <a class="el" href="structfs8_1_1get__variables__tag.html">get_variables_tag</a>&gt; &amp;&amp; ...))</td></tr>
+<tr class="memitem:ad07e52b3e93768864f755220a43e0f28"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#ad07e52b3e93768864f755220a43e0f28">operator[]</a> (T... mods) const noexcept</td></tr>
+<tr class="separator:ad07e52b3e93768864f755220a43e0f28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a799c89a6e4dfa8222bc35fd55014576b" id="r_a799c89a6e4dfa8222bc35fd55014576b"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, Tag T&gt; <br />
+requires ((invokable_mod&lt;Mods, CtxT, T&gt; || ...))</td></tr>
+<tr class="memitem:a799c89a6e4dfa8222bc35fd55014576b"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#a799c89a6e4dfa8222bc35fd55014576b">operator()</a> (CtxT &amp;ctx, T <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
+<tr class="separator:a799c89a6e4dfa8222bc35fd55014576b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2405edc9c3c620d9f9e28f8413f2a724" id="r_a2405edc9c3c620d9f9e28f8413f2a724"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#a2405edc9c3c620d9f9e28f8413f2a724">operator()</a> (Context auto &amp;ctx) noexcept</td></tr>
+<tr class="separator:a2405edc9c3c620d9f9e28f8413f2a724"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
 <tr class="separator:aab9e941457bd45b9d6772f6ff421cec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;) noexcept</td></tr>
@@ -284,25 +288,53 @@ template&lt;typename... Mods&gt; </div>
 
 </div>
 </div>
-<a id="ad14644c8e2de8fe9532e1b1be4b46273" name="ad14644c8e2de8fe9532e1b1be4b46273"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad14644c8e2de8fe9532e1b1be4b46273">&#9670;&#160;</a></span>operator()() <span class="overload">[1/2]</span></h2>
+<a id="a2405edc9c3c620d9f9e28f8413f2a724" name="a2405edc9c3c620d9f9e28f8413f2a724"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2405edc9c3c620d9f9e28f8413f2a724">&#9670;&#160;</a></span>operator()() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename... Mods&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> <a class="el" href="structfs8_1_1basic__group__mod.html">fs8::basic_group_mod</a>&lt; Mods &gt;::operator() </td>
+          <td>(</td>
+          <td class="paramtype">Context auto &amp;&#160;</td>
+          <td class="paramname"><em>ctx</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a799c89a6e4dfa8222bc35fd55014576b" name="a799c89a6e4dfa8222bc35fd55014576b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a799c89a6e4dfa8222bc35fd55014576b">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename... Mods&gt; </div>
 <div class="memtemplate">
-template&lt;Tag T&gt; <br />
-requires (!std::same_as&lt;T, <a class="el" href="namespacefs8.html#a5386736e5d424ab2371ed366ec820906">load_event_tag</a>&gt; &amp;&amp; !std::same_as&lt;T, <a class="el" href="namespacefs8.html#acb4f566f578b0d3013871b415c623375">next_event_tag</a>&gt;)</div>
+template&lt;Context CtxT, Tag T&gt; <br />
+requires ((invokable_mod&lt;Mods, CtxT, T&gt; || ...))</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="structfs8_1_1basic__group__mod.html">fs8::basic_group_mod</a>&lt; Mods &gt;::operator() </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> <a class="el" href="structfs8_1_1basic__group__mod.html">fs8::basic_group_mod</a>&lt; Mods &gt;::operator() </td>
           <td>(</td>
-          <td class="paramtype">auto &amp;&#160;</td>
-          <td class="paramname">, </td>
+          <td class="paramtype">CtxT &amp;&#160;</td>
+          <td class="paramname"><em>ctx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -325,23 +357,26 @@ requires (!std::same_as&lt;T, <a class="el" href="namespacefs8.html#a5386736e5d4
 
 </div>
 </div>
-<a id="ab84ac8f16363eaa8721bb9e157621e62" name="ab84ac8f16363eaa8721bb9e157621e62"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab84ac8f16363eaa8721bb9e157621e62">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
+<a id="ad07e52b3e93768864f755220a43e0f28" name="ad07e52b3e93768864f755220a43e0f28"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad07e52b3e93768864f755220a43e0f28">&#9670;&#160;</a></span>operator[]()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename... Mods&gt; </div>
+<div class="memtemplate">
+template&lt;typename... T&gt; <br />
+requires ((!std::same_as&lt;T, <a class="el" href="structfs8_1_1get__variables__tag.html">get_variables_tag</a>&gt; &amp;&amp; ...))</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> <a class="el" href="structfs8_1_1basic__group__mod.html">fs8::basic_group_mod</a>&lt; Mods &gt;::operator() </td>
+          <td class="memname">consteval auto <a class="el" href="structfs8_1_1basic__group__mod.html">fs8::basic_group_mod</a>&lt; Mods &gt;::operator[] </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;&#160;</td>
-          <td class="paramname"><em>event</em></td><td>)</td>
-          <td></td>
+          <td class="paramtype">T...&#160;</td>
+          <td class="paramname"><em>mods</em></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
   </td>

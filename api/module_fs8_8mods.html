@@ -153,9 +153,7 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__mice__quantifier.html">fs8::basic_mice_quantifier</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html">fs8::basic_on_fail&lt; CondT, ActionT &gt;</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail__creater.html">fs8::basic_on_fail_creater</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html">fs8::basic_on_fail&lt; CondT, ActionT, Extra &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__state.html">fs8::basic_keys_state</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -173,9 +171,6 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__timed__typed.html">fs8::basic_timed_typed</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html">fs8::basic_group_mod&lt; Mods &gt;</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod__factory.html">fs8::basic_group_mod_factory</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory: <code>group_mod[mod1, mod2, ...]</code> creates a <code><a class="el" href="structfs8_1_1basic__group__mod.html">basic_group_mod</a></code> from the given mods.  <a href="structfs8_1_1basic__group__mod__factory.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html">fs8::basic_debounce&lt; N &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -286,8 +281,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__diagnostics.html">fs8::basic_log_diagnostics</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop__action.html">fs8::basic_drop_action</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop-only callback: returns <code>drop_event</code> without any logging.  <a href="structfs8_1_1basic__drop__action.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop.html">fs8::basic_drop</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop-only callback: returns <code>drop_event</code> without any logging.  <a href="structfs8_1_1basic__drop.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__and__drop__action.html">fs8::basic_log_and_drop_action</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop-and-log callback: logs the event and returns <code>drop_event</code>.  <a href="structfs8_1_1basic__log__and__drop__action.html#details">More...</a><br /></td></tr>
@@ -477,18 +472,6 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:ad37238ffd12f657195d6e3e8d71292ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2cd2b3bb76585e09b38e12d8981983c" id="r_ac2cd2b3bb76585e09b38e12d8981983c"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983c">fs8::io_event</a> : short { <br />
-&#160;&#160;<a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca334c4a4c42fdb79d7ebc3e73b517e6f8">none</a> = 0
-, <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca13b5bfe96f3e2fe411c9f66f4a582adf">in</a> = POLLIN
-, <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a> = POLLOUT
-, <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cae060bb629c10e1b143614cc1e9ccdc67">pri</a> = POLLPRI
-, <br />
-&#160;&#160;<a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca56bd7107802ebe56c6918992f0608ec6">err</a> = POLLERR
-, <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca2ae5050db8876c01c093d5cfb519f1d0">hup</a> = POLLHUP
-, <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983caa5e0fb6ca915cf212b6528e5ae1786f2">nval</a> = POLLNVAL
-<br />
- }</td></tr>
-<tr class="separator:ac2cd2b3bb76585e09b38e12d8981983c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7275d4de75bd1ef162eb0f4b4d4b015d" id="r_a7275d4de75bd1ef162eb0f4b4d4b015d"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">fs8::sanitizer_issue</a> : std::uint8_t { <br />
 &#160;&#160;<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da334c4a4c42fdb79d7ebc3e73b517e6f8">none</a>
 , <a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015da9a4527d62628879977386e12cbd83eb3">adjacent_syn</a>
@@ -508,6 +491,18 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a7275d4de75bd1ef162eb0f4b4d4b015d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes what kind of problem the sanitizer detected for an event.  <a href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">More...</a><br /></td></tr>
 <tr class="separator:a7275d4de75bd1ef162eb0f4b4d4b015d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2cd2b3bb76585e09b38e12d8981983c" id="r_ac2cd2b3bb76585e09b38e12d8981983c"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983c">fs8::io_event</a> : short { <br />
+&#160;&#160;<a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca334c4a4c42fdb79d7ebc3e73b517e6f8">none</a> = 0
+, <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca13b5bfe96f3e2fe411c9f66f4a582adf">in</a> = POLLIN
+, <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a> = POLLOUT
+, <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cae060bb629c10e1b143614cc1e9ccdc67">pri</a> = POLLPRI
+, <br />
+&#160;&#160;<a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca56bd7107802ebe56c6918992f0608ec6">err</a> = POLLERR
+, <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983ca2ae5050db8876c01c093d5cfb519f1d0">hup</a> = POLLHUP
+, <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983caa5e0fb6ca915cf212b6528e5ae1786f2">nval</a> = POLLNVAL
+<br />
+ }</td></tr>
+<tr class="separator:ac2cd2b3bb76585e09b38e12d8981983c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -655,30 +650,25 @@ Functions</h2></td></tr>
 <tr class="separator:ab8f836796626c65a2c5c8156637cf829"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a282ee85f709b012cf9fcc21feceb64b3" id="r_a282ee85f709b012cf9fcc21feceb64b3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__mice__quantifier.html#a282ee85f709b012cf9fcc21feceb64b3">operator()</a> (event_type const &amp;event) noexcept</td></tr>
 <tr class="separator:a282ee85f709b012cf9fcc21feceb64b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa71acb988065ec75ffae239db5c5826e" id="r_aa71acb988065ec75ffae239db5c5826e"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html#aa71acb988065ec75ffae239db5c5826e">basic_on_fail</a> () noexcept=default</td></tr>
-<tr class="separator:aa71acb988065ec75ffae239db5c5826e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b7450c3d75acd1aa8751d26874a2838" id="r_a2b7450c3d75acd1aa8751d26874a2838"><td class="memItemLeft" align="right" valign="top">consteval&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html#a2b7450c3d75acd1aa8751d26874a2838">basic_on_fail</a> (CondT const &amp;c, ActionT const &amp;a) noexcept</td></tr>
-<tr class="separator:a2b7450c3d75acd1aa8751d26874a2838"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e7efb7bc92b1061e750d13ee8ebbcb3" id="r_a2e7efb7bc92b1061e750d13ee8ebbcb3"><td class="memTemplParams" colspan="2">template&lt;typename C , typename A &gt; </td></tr>
-<tr class="memitem:a2e7efb7bc92b1061e750d13ee8ebbcb3"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html#a2e7efb7bc92b1061e750d13ee8ebbcb3">operator[]</a> (C &amp;&amp;c, A &amp;&amp;a) const noexcept</td></tr>
-<tr class="separator:a2e7efb7bc92b1061e750d13ee8ebbcb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af898bf42e96f470d6be9fa099169d467" id="r_af898bf42e96f470d6be9fa099169d467"><td class="memTemplParams" colspan="2">template&lt;Tag T&gt; <br />
-requires (!std::same_as&lt;T, load_event_tag&gt; &amp;&amp; !std::same_as&lt;T, next_event_tag&gt;)</td></tr>
-<tr class="memitem:af898bf42e96f470d6be9fa099169d467"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html#af898bf42e96f470d6be9fa099169d467">operator()</a> (auto &amp;, T) noexcept</td></tr>
-<tr class="separator:af898bf42e96f470d6be9fa099169d467"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3b62834ba60d92990b52629c2fc8a08d" id="r_a3b62834ba60d92990b52629c2fc8a08d"><td class="memTemplParams" colspan="2">template&lt;typename CtxT &gt; <br />
-requires requires(CtxT&amp; c) { c.event(); { std::declval&lt;CondT&amp;&gt;()(c) }; }</td></tr>
-<tr class="memitem:a3b62834ba60d92990b52629c2fc8a08d"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html#a3b62834ba60d92990b52629c2fc8a08d">operator()</a> (CtxT &amp;ctx) noexcept</td></tr>
-<tr class="separator:a3b62834ba60d92990b52629c2fc8a08d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a83f52d4b7278b694e3d8faccc71ec5" id="r_a6a83f52d4b7278b694e3d8faccc71ec5"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html#a6a83f52d4b7278b694e3d8faccc71ec5">operator()</a> (event_type const &amp;event) noexcept</td></tr>
-<tr class="separator:a6a83f52d4b7278b694e3d8faccc71ec5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae4ead0ba38d3f30ac25c5fd9e41b8bd4" id="r_ae4ead0ba38d3f30ac25c5fd9e41b8bd4"><td class="memTemplParams" colspan="2">template&lt;typename C , typename A &gt; </td></tr>
-<tr class="memitem:ae4ead0ba38d3f30ac25c5fd9e41b8bd4"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae4ead0ba38d3f30ac25c5fd9e41b8bd4">fs8::basic_on_fail</a> (C, A) -&gt; basic_on_fail&lt; C, A &gt;</td></tr>
-<tr class="memdesc:ae4ead0ba38d3f30ac25c5fd9e41b8bd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deduction guide.  <br /></td></tr>
-<tr class="separator:ae4ead0ba38d3f30ac25c5fd9e41b8bd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a875e7d650079549695cf521c68a7dd89" id="r_a875e7d650079549695cf521c68a7dd89"><td class="memTemplParams" colspan="2">template&lt;typename C , typename A &gt; </td></tr>
-<tr class="memitem:a875e7d650079549695cf521c68a7dd89"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail__creater.html#a875e7d650079549695cf521c68a7dd89">operator[]</a> (C &amp;&amp;c, A &amp;&amp;a) const noexcept</td></tr>
-<tr class="separator:a875e7d650079549695cf521c68a7dd89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae94bf883631a3b0a0df378ea71131d64" id="r_ae94bf883631a3b0a0df378ea71131d64"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html#ae94bf883631a3b0a0df378ea71131d64">basic_on_fail</a> () noexcept=default</td></tr>
+<tr class="separator:ae94bf883631a3b0a0df378ea71131d64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2d8ac88673c22df38b404e91541f416" id="r_ab2d8ac88673c22df38b404e91541f416"><td class="memItemLeft" align="right" valign="top">consteval&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html#ab2d8ac88673c22df38b404e91541f416">basic_on_fail</a> (CondT c, ActionT a, Extra... e) noexcept</td></tr>
+<tr class="separator:ab2d8ac88673c22df38b404e91541f416"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d6aec2f7f9f639c1145b7a2e7543072" id="r_a6d6aec2f7f9f639c1145b7a2e7543072"><td class="memTemplParams" colspan="2">template&lt;typename C , typename A , typename... E&gt; </td></tr>
+<tr class="memitem:a6d6aec2f7f9f639c1145b7a2e7543072"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html#a6d6aec2f7f9f639c1145b7a2e7543072">operator[]</a> (C c, A a, E... e) const noexcept</td></tr>
+<tr class="separator:a6d6aec2f7f9f639c1145b7a2e7543072"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca3b3d514e4b51233fd60eba9bdef185" id="r_aca3b3d514e4b51233fd60eba9bdef185"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, Tag T&gt; <br />
+requires (invokable_mod&lt;CondT, CtxT, T&gt; || invokable_mod&lt;ActionT, CtxT, T&gt;)</td></tr>
+<tr class="memitem:aca3b3d514e4b51233fd60eba9bdef185"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html#aca3b3d514e4b51233fd60eba9bdef185">operator()</a> (CtxT &amp;ctx, T tag) noexcept</td></tr>
+<tr class="memdesc:aca3b3d514e4b51233fd60eba9bdef185"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag forwarding (start, toggle_on, toggle_off only)  <br /></td></tr>
+<tr class="separator:aca3b3d514e4b51233fd60eba9bdef185"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1bc63852f2255d7fff572b1de01b3485" id="r_a1bc63852f2255d7fff572b1de01b3485"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
+<tr class="memitem:a1bc63852f2255d7fff572b1de01b3485"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html#a1bc63852f2255d7fff572b1de01b3485">operator()</a> (CtxT &amp;ctx) noexcept</td></tr>
+<tr class="separator:a1bc63852f2255d7fff572b1de01b3485"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe5ba4d11880ca5e4eaf240ab88a8d91" id="r_abe5ba4d11880ca5e4eaf240ab88a8d91"><td class="memTemplParams" colspan="2">template&lt;typename C , typename A , typename... E&gt; </td></tr>
+<tr class="memitem:abe5ba4d11880ca5e4eaf240ab88a8d91"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#abe5ba4d11880ca5e4eaf240ab88a8d91">fs8::basic_on_fail</a> (C, A, E...) -&gt; basic_on_fail&lt; C, A, E... &gt;</td></tr>
+<tr class="memdesc:abe5ba4d11880ca5e4eaf240ab88a8d91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deduction guide.  <br /></td></tr>
+<tr class="separator:abe5ba4d11880ca5e4eaf240ab88a8d91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a320324af149f7c2db873a197b7852196" id="r_a320324af149f7c2db873a197b7852196"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__state.html#a320324af149f7c2db873a197b7852196">is_pressed</a> (std::span&lt; code_type const &gt; key_codes) const noexcept</td></tr>
 <tr class="separator:a320324af149f7c2db873a197b7852196"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5d6669906034cc1395aa969766c1c0fc" id="r_a5d6669906034cc1395aa969766c1c0fc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__state.html#a5d6669906034cc1395aa969766c1c0fc">is_pressed_any</a> (std::span&lt; code_type const &gt; key_codes) const noexcept</td></tr>
@@ -767,19 +757,20 @@ requires (!Context&lt;std::remove_cvref_t&lt;InpModT&gt;&gt; &amp;&amp; !Tag&lt;
 <tr class="separator:a884e7ed3da00484c3a6e44cc125d3e76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a680298351a9a7d6570c2651cacbc5c52" id="r_a680298351a9a7d6570c2651cacbc5c52"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#a680298351a9a7d6570c2651cacbc5c52">basic_group_mod</a> (std::tuple&lt; Mods... &gt; mods) noexcept</td></tr>
 <tr class="separator:a680298351a9a7d6570c2651cacbc5c52"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad14644c8e2de8fe9532e1b1be4b46273" id="r_ad14644c8e2de8fe9532e1b1be4b46273"><td class="memTemplParams" colspan="2">template&lt;Tag T&gt; <br />
-requires (!std::same_as&lt;T, load_event_tag&gt; &amp;&amp; !std::same_as&lt;T, next_event_tag&gt;)</td></tr>
-<tr class="memitem:ad14644c8e2de8fe9532e1b1be4b46273"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#ad14644c8e2de8fe9532e1b1be4b46273">operator()</a> (auto &amp;, T tag) noexcept</td></tr>
-<tr class="separator:ad14644c8e2de8fe9532e1b1be4b46273"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab84ac8f16363eaa8721bb9e157621e62" id="r_ab84ac8f16363eaa8721bb9e157621e62"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#ab84ac8f16363eaa8721bb9e157621e62">operator()</a> (event_type const &amp;event) noexcept</td></tr>
-<tr class="separator:ab84ac8f16363eaa8721bb9e157621e62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad07e52b3e93768864f755220a43e0f28" id="r_ad07e52b3e93768864f755220a43e0f28"><td class="memTemplParams" colspan="2">template&lt;typename... T&gt; <br />
+requires ((!std::same_as&lt;T, get_variables_tag&gt; &amp;&amp; ...))</td></tr>
+<tr class="memitem:ad07e52b3e93768864f755220a43e0f28"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#ad07e52b3e93768864f755220a43e0f28">operator[]</a> (T... mods) const noexcept</td></tr>
+<tr class="separator:ad07e52b3e93768864f755220a43e0f28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a799c89a6e4dfa8222bc35fd55014576b" id="r_a799c89a6e4dfa8222bc35fd55014576b"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, Tag T&gt; <br />
+requires ((invokable_mod&lt;Mods, CtxT, T&gt; || ...))</td></tr>
+<tr class="memitem:a799c89a6e4dfa8222bc35fd55014576b"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#a799c89a6e4dfa8222bc35fd55014576b">operator()</a> (CtxT &amp;ctx, T tag) noexcept</td></tr>
+<tr class="separator:a799c89a6e4dfa8222bc35fd55014576b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2405edc9c3c620d9f9e28f8413f2a724" id="r_a2405edc9c3c620d9f9e28f8413f2a724"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html#a2405edc9c3c620d9f9e28f8413f2a724">operator()</a> (Context auto &amp;ctx) noexcept</td></tr>
+<tr class="separator:a2405edc9c3c620d9f9e28f8413f2a724"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62f2868ca1cc8d35df31dba7e04cb0e4" id="r_a62f2868ca1cc8d35df31dba7e04cb0e4"><td class="memTemplParams" colspan="2">template&lt;typename... Mods&gt; </td></tr>
 <tr class="memitem:a62f2868ca1cc8d35df31dba7e04cb0e4"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a62f2868ca1cc8d35df31dba7e04cb0e4">fs8::basic_group_mod</a> (std::tuple&lt; Mods... &gt;) -&gt; basic_group_mod&lt; Mods... &gt;</td></tr>
 <tr class="memdesc:a62f2868ca1cc8d35df31dba7e04cb0e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deduction guide.  <br /></td></tr>
 <tr class="separator:a62f2868ca1cc8d35df31dba7e04cb0e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5e033cf67f806c3f0d98db8e8ac3852" id="r_aa5e033cf67f806c3f0d98db8e8ac3852"><td class="memTemplParams" colspan="2">template&lt;typename... Mods&gt; </td></tr>
-<tr class="memitem:aa5e033cf67f806c3f0d98db8e8ac3852"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod__factory.html#aa5e033cf67f806c3f0d98db8e8ac3852">operator[]</a> (Mods... mods) const noexcept</td></tr>
-<tr class="separator:aa5e033cf67f806c3f0d98db8e8ac3852"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a230c08f93d33deb2e7a312a9623ad4ce" id="r_a230c08f93d33deb2e7a312a9623ad4ce"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#a230c08f93d33deb2e7a312a9623ad4ce">basic_debounce</a> (std::array&lt; event_code, N &gt; const inp_codes, msec_type const inp_time_threshold=default_time_threshold) noexcept</td></tr>
 <tr class="separator:a230c08f93d33deb2e7a312a9623ad4ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a81953a81b19d96acafcee3fdf392f89f" id="r_a81953a81b19d96acafcee3fdf392f89f"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#a81953a81b19d96acafcee3fdf392f89f">basic_debounce</a> (std::array&lt; event_code, N &gt; const inp_codes, debounce_mode const inp_mode) noexcept</td></tr>
@@ -1236,12 +1227,20 @@ requires has_mod&lt;basic_input_manager, CtxT&gt;</td></tr>
 <tr class="memitem:a8c547a302a2f4852c30185cd4451b301" id="r_a8c547a302a2f4852c30185cd4451b301"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
 <tr class="memitem:a8c547a302a2f4852c30185cd4451b301"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__mouse__to__scroll.html#a8c547a302a2f4852c30185cd4451b301">operator()</a> (CtxT &amp;ctx) noexcept</td></tr>
 <tr class="separator:a8c547a302a2f4852c30185cd4451b301"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8545c3eccc3e82465adae55f7ef7144" id="r_aa8545c3eccc3e82465adae55f7ef7144"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa8545c3eccc3e82465adae55f7ef7144">fs8::to_string</a> (sanitizer_issue const issue) noexcept</td></tr>
+<tr class="separator:aa8545c3eccc3e82465adae55f7ef7144"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac14bae7250ac9ba8429ddd4a327fced8" id="r_ac14bae7250ac9ba8429ddd4a327fced8"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac14bae7250ac9ba8429ddd4a327fced8">fs8::to_string</a> (sanitizer_issue const issue, event_type const &amp;event) noexcept</td></tr>
+<tr class="separator:ac14bae7250ac9ba8429ddd4a327fced8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa93fe45aa31376bcbfe3b855f1fb2589" id="r_aa93fe45aa31376bcbfe3b855f1fb2589"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__diagnostics.html#aa93fe45aa31376bcbfe3b855f1fb2589">operator()</a> (event_type const &amp;event) const noexcept</td></tr>
 <tr class="separator:aa93fe45aa31376bcbfe3b855f1fb2589"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a17421a019406cd89bab81bd9cfb96509" id="r_a17421a019406cd89bab81bd9cfb96509"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop__action.html#a17421a019406cd89bab81bd9cfb96509">operator()</a> (event_type const &amp;) const noexcept</td></tr>
-<tr class="separator:a17421a019406cd89bab81bd9cfb96509"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a445ef366e3a0df37a6bd8113bb159a14" id="r_a445ef366e3a0df37a6bd8113bb159a14"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__diagnostics.html#a445ef366e3a0df37a6bd8113bb159a14">operator()</a> (event_type const &amp;event, sanitizer_issue reason) const noexcept</td></tr>
+<tr class="separator:a445ef366e3a0df37a6bd8113bb159a14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3328734bc17cf4cdba1763f840fe84a" id="r_ae3328734bc17cf4cdba1763f840fe84a"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop.html#ae3328734bc17cf4cdba1763f840fe84a">operator()</a> (event_type const &amp;) const noexcept</td></tr>
+<tr class="separator:ae3328734bc17cf4cdba1763f840fe84a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1e56ce5efae05acf5d5f9710b8d6a27b" id="r_a1e56ce5efae05acf5d5f9710b8d6a27b"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__and__drop__action.html#a1e56ce5efae05acf5d5f9710b8d6a27b">operator()</a> (event_type const &amp;event) const noexcept</td></tr>
 <tr class="separator:a1e56ce5efae05acf5d5f9710b8d6a27b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e22f939489bc4cd10b844967c27f5bc" id="r_a2e22f939489bc4cd10b844967c27f5bc"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log__and__drop__action.html#a2e22f939489bc4cd10b844967c27f5bc">operator()</a> (event_type const &amp;event, sanitizer_issue reason) const noexcept</td></tr>
+<tr class="separator:a2e22f939489bc4cd10b844967c27f5bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a8caeeec7476b33f3ef59b5b3b1d35a" id="r_a8a8caeeec7476b33f3ef59b5b3b1d35a"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__always__enable.html#a8a8caeeec7476b33f3ef59b5b3b1d35a">operator()</a> () const noexcept</td></tr>
 <tr class="separator:a8a8caeeec7476b33f3ef59b5b3b1d35a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a742ed1c588fbf504aee9f7b05070c9ff" id="r_a742ed1c588fbf504aee9f7b05070c9ff"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__always__disable.html#a742ed1c588fbf504aee9f7b05070c9ff">operator()</a> () const noexcept</td></tr>
@@ -1596,8 +1595,6 @@ requires (sizeof...(C) &gt;= 1)</td></tr>
 <tr class="separator:a4fa6a8dcb4cdf0056826b549870bf3d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1e07ab32404b4f027cdcd7c5a4622da4" id="r_a1e07ab32404b4f027cdcd7c5a4622da4"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__scale__move.html#a1e07ab32404b4f027cdcd7c5a4622da4">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> &amp;event) noexcept</td></tr>
 <tr class="separator:a1e07ab32404b4f027cdcd7c5a4622da4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8545c3eccc3e82465adae55f7ef7144" id="r_aa8545c3eccc3e82465adae55f7ef7144"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa8545c3eccc3e82465adae55f7ef7144">fs8::to_string</a> (sanitizer_issue const issue) noexcept</td></tr>
-<tr class="separator:aa8545c3eccc3e82465adae55f7ef7144"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b91c56c9e369b58fc17cccdd0230c5f" id="r_a8b91c56c9e369b58fc17cccdd0230c5f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view__format.html#a8b91c56c9e369b58fc17cccdd0230c5f">parse</a> (std::string_view line, parsed_evtest_event &amp;out) const noexcept</td></tr>
 <tr class="memdesc:a8b91c56c9e369b58fc17cccdd0230c5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse one live-view line. Returns false for non-event lines.  <br /></td></tr>
 <tr class="separator:a8b91c56c9e369b58fc17cccdd0230c5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1782,6 +1779,8 @@ Variables</h2></td></tr>
 <tr class="separator:a7d23a51b0b591c5d3a87b00822c56ef5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9340941b64c4218d5897c73863566827" id="r_a9340941b64c4218d5897c73863566827"><td class="memItemLeft" align="right" valign="top">constexpr basic_search_engine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a9340941b64c4218d5897c73863566827">fs8::search_engine</a></td></tr>
 <tr class="separator:a9340941b64c4218d5897c73863566827"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26e0643e5886e57dea16e6288513f116" id="r_a26e0643e5886e57dea16e6288513f116"><td class="memItemLeft" align="right" valign="top">constexpr basic_on_fail&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">fs8::on_fail</a> {noop, noop}</td></tr>
+<tr class="separator:a26e0643e5886e57dea16e6288513f116"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a002c97d73bca52d16d3a96c603d7f8a5" id="r_a002c97d73bca52d16d3a96c603d7f8a5"><td class="memItemLeft" align="right" valign="top">constexpr basic_mod_updater&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a002c97d73bca52d16d3a96c603d7f8a5">fs8::update_mod</a></td></tr>
 <tr class="separator:a002c97d73bca52d16d3a96c603d7f8a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a52a60bfad4a73fbe84a28fd767a848" id="r_a3a52a60bfad4a73fbe84a28fd767a848"><td class="memItemLeft" align="right" valign="top">constexpr basic_toggle_off&lt; LED_CAPSL, KEY_CAPSLOCK &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3a52a60bfad4a73fbe84a28fd767a848">fs8::capslock_off</a></td></tr>
@@ -1793,6 +1792,9 @@ Variables</h2></td></tr>
 <tr class="memitem:af7bb06634d38168c90334beba205c18b" id="r_af7bb06634d38168c90334beba205c18b"><td class="memItemLeft" align="right" valign="top">constexpr basic_toggle_off&lt; LED_SCROLLL, KEY_SCROLLLOCK &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af7bb06634d38168c90334beba205c18b">fs8::scrolllock_off</a></td></tr>
 <tr class="memdesc:af7bb06634d38168c90334beba205c18b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turn the ScrollLock mode off.  <br /></td></tr>
 <tr class="separator:af7bb06634d38168c90334beba205c18b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2aea3fca3970fc7adb3834020616e81" id="r_ab2aea3fca3970fc7adb3834020616e81"><td class="memItemLeft" align="right" valign="top">constexpr basic_group_mod&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ab2aea3fca3970fc7adb3834020616e81">fs8::group_mod</a></td></tr>
+<tr class="memdesc:ab2aea3fca3970fc7adb3834020616e81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory: <code>group_mod[mod1, mod2, ...]</code> creates a <code><a class="el" href="structfs8_1_1basic__group__mod.html">basic_group_mod</a></code> from the given mods.  <br /></td></tr>
+<tr class="separator:ab2aea3fca3970fc7adb3834020616e81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aadc037e4cd0a1981b9330a5c6318b215" id="r_aadc037e4cd0a1981b9330a5c6318b215"><td class="memItemLeft" align="right" valign="top">static constexpr msec_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#aadc037e4cd0a1981b9330a5c6318b215">default_time_threshold</a> = std::chrono::milliseconds(30)</td></tr>
 <tr class="separator:aadc037e4cd0a1981b9330a5c6318b215"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12b09e4ed6e98761e27825e9dd94b55c" id="r_a12b09e4ed6e98761e27825e9dd94b55c"><td class="memItemLeft" align="right" valign="top">constexpr basic_debounce&lt; 0 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a12b09e4ed6e98761e27825e9dd94b55c">fs8::debounce</a></td></tr>

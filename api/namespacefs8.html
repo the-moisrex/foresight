@@ -172,10 +172,10 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__device__query.html">basic_device_query</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop__abs.html">basic_drop_abs</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop.html">basic_drop</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop-only callback: returns <code>drop_event</code> without any logging.  <a href="structfs8_1_1basic__drop.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop__action.html">basic_drop_action</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop-only callback: returns <code>drop_event</code> without any logging.  <a href="structfs8_1_1basic__drop__action.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop__abs.html">basic_drop_abs</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__drop__adjacent__repeats.html">basic_drop_adjacent_repeats</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -264,9 +264,6 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod.html">basic_group_mod</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__group__mod__factory.html">basic_group_mod_factory</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory: <code>group_mod[mod1, mod2, ...]</code> creates a <code><a class="el" href="structfs8_1_1basic__group__mod.html">basic_group_mod</a></code> from the given mods.  <a href="structfs8_1_1basic__group__mod__factory.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__held.html">basic_held</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__held__gate.html">basic_held_gate</a></td></tr>
@@ -335,8 +332,6 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on.html">basic_on</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail.html">basic_on_fail</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__fail__creater.html">basic_on_fail_creater</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__on__held.html">basic_on_held</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1344,12 +1339,10 @@ requires (std::is_invocable_v&lt;T, <a class="el" href="structfs8_1_1construct__
 <tr class="memitem:a7c8764ffa126fca31a16ae49359b9fba" id="r_a7c8764ffa126fca31a16ae49359b9fba"><td class="memTemplParams" colspan="2">template&lt;typename... Ts&gt; </td></tr>
 <tr class="memitem:a7c8764ffa126fca31a16ae49359b9fba"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7c8764ffa126fca31a16ae49359b9fba">fs8::run</a> (Ts &amp;&amp;...) -&gt; <a class="el" href="structfs8_1_1run.html">run</a>&lt; std::remove_cvref_t&lt; Ts &gt;... &gt;</td></tr>
 <tr class="separator:a7c8764ffa126fca31a16ae49359b9fba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8545c3eccc3e82465adae55f7ef7144" id="r_aa8545c3eccc3e82465adae55f7ef7144"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa8545c3eccc3e82465adae55f7ef7144">fs8::to_string</a> (<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">sanitizer_issue</a> const issue) noexcept</td></tr>
-<tr class="separator:aa8545c3eccc3e82465adae55f7ef7144"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae4ead0ba38d3f30ac25c5fd9e41b8bd4" id="r_ae4ead0ba38d3f30ac25c5fd9e41b8bd4"><td class="memTemplParams" colspan="2">template&lt;typename C , typename A &gt; </td></tr>
-<tr class="memitem:ae4ead0ba38d3f30ac25c5fd9e41b8bd4"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae4ead0ba38d3f30ac25c5fd9e41b8bd4">fs8::basic_on_fail</a> (C, A) -&gt; <a class="el" href="structfs8_1_1basic__on__fail.html">basic_on_fail</a>&lt; C, A &gt;</td></tr>
-<tr class="memdesc:ae4ead0ba38d3f30ac25c5fd9e41b8bd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deduction guide.  <br /></td></tr>
-<tr class="separator:ae4ead0ba38d3f30ac25c5fd9e41b8bd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe5ba4d11880ca5e4eaf240ab88a8d91" id="r_abe5ba4d11880ca5e4eaf240ab88a8d91"><td class="memTemplParams" colspan="2">template&lt;typename C , typename A , typename... E&gt; </td></tr>
+<tr class="memitem:abe5ba4d11880ca5e4eaf240ab88a8d91"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#abe5ba4d11880ca5e4eaf240ab88a8d91">fs8::basic_on_fail</a> (C, A, E...) -&gt; <a class="el" href="structfs8_1_1basic__on__fail.html">basic_on_fail</a>&lt; C, A, E... &gt;</td></tr>
+<tr class="memdesc:abe5ba4d11880ca5e4eaf240ab88a8d91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deduction guide.  <br /></td></tr>
+<tr class="separator:abe5ba4d11880ca5e4eaf240ab88a8d91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64b669309027c5732d33de060628ee86" id="r_a64b669309027c5732d33de060628ee86"><td class="memTemplParams" colspan="2">template&lt;typename F , typename... Ts&gt; </td></tr>
 <tr class="memitem:a64b669309027c5732d33de060628ee86"><td class="memTemplItemLeft" align="right" valign="top">constexpr decltype(auto)&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a64b669309027c5732d33de060628ee86">visit_at</a> (std::tuple&lt; Ts... &gt; const &amp;tup, std::size_t idx, F &amp;&amp;fun) noexcept</td></tr>
 <tr class="separator:a64b669309027c5732d33de060628ee86"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1371,6 +1364,10 @@ requires (std::is_invocable_v&lt;T, <a class="el" href="structfs8_1_1construct__
 <tr class="memitem:ae8da3c7a962ea8e4674c5e7618c679a4" id="r_ae8da3c7a962ea8e4674c5e7618c679a4"><td class="memTemplParams" colspan="2">template&lt;typename R &gt; </td></tr>
 <tr class="memitem:ae8da3c7a962ea8e4674c5e7618c679a4"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae8da3c7a962ea8e4674c5e7618c679a4">fs8::is_ok</a> (R &amp;&amp;vdevs) noexcept</td></tr>
 <tr class="separator:ae8da3c7a962ea8e4674c5e7618c679a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8545c3eccc3e82465adae55f7ef7144" id="r_aa8545c3eccc3e82465adae55f7ef7144"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa8545c3eccc3e82465adae55f7ef7144">fs8::to_string</a> (<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">sanitizer_issue</a> const issue) noexcept</td></tr>
+<tr class="separator:aa8545c3eccc3e82465adae55f7ef7144"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac14bae7250ac9ba8429ddd4a327fced8" id="r_ac14bae7250ac9ba8429ddd4a327fced8"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac14bae7250ac9ba8429ddd4a327fced8">fs8::to_string</a> (<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">sanitizer_issue</a> const issue, <a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="separator:ac14bae7250ac9ba8429ddd4a327fced8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a621d548d40a1829c81c2b84f46ae8ff5" id="r_a621d548d40a1829c81c2b84f46ae8ff5"><td class="memTemplParams" colspan="2">template&lt;typename CharT &gt; </td></tr>
 <tr class="memitem:a621d548d40a1829c81c2b84f46ae8ff5"><td class="memTemplItemLeft" align="right" valign="top">constexpr std::basic_string_view&lt; CharT &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a621d548d40a1829c81c2b84f46ae8ff5">fs8::to_string</a> (std::basic_string_view&lt; CharT &gt; str) noexcept</td></tr>
 <tr class="separator:a621d548d40a1829c81c2b84f46ae8ff5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1730,8 +1727,9 @@ Variables</h2></td></tr>
 <tr class="separator:afa7cdb6e4eeeba6f1bd7bd224a74da59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04d3dcc13f40268343e7c15ecc24f097" id="r_a04d3dcc13f40268343e7c15ecc24f097"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__emit__all.html">basic_emit_all</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a04d3dcc13f40268343e7c15ecc24f097">fs8::emit_all</a></td></tr>
 <tr class="separator:a04d3dcc13f40268343e7c15ecc24f097"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3eae90cad0a483a57b8f623c5f9c9584" id="r_a3eae90cad0a483a57b8f623c5f9c9584"><td class="memItemLeft" align="right" valign="top">constexpr struct <a class="el" href="structfs8_1_1basic__group__mod__factory.html">fs8::basic_group_mod_factory</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3eae90cad0a483a57b8f623c5f9c9584">group_mod</a></td></tr>
-<tr class="separator:a3eae90cad0a483a57b8f623c5f9c9584"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2aea3fca3970fc7adb3834020616e81" id="r_ab2aea3fca3970fc7adb3834020616e81"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__group__mod.html">basic_group_mod</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ab2aea3fca3970fc7adb3834020616e81">fs8::group_mod</a></td></tr>
+<tr class="memdesc:ab2aea3fca3970fc7adb3834020616e81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory: <code>group_mod[mod1, mod2, ...]</code> creates a <code><a class="el" href="structfs8_1_1basic__group__mod.html">basic_group_mod</a></code> from the given mods.  <br /></td></tr>
+<tr class="separator:ab2aea3fca3970fc7adb3834020616e81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac767aa8c1f4499b5712d551263a1a026" id="r_ac767aa8c1f4499b5712d551263a1a026"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__output.html">fs8::basic_output</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac767aa8c1f4499b5712d551263a1a026">output</a></td></tr>
 <tr class="separator:ac767aa8c1f4499b5712d551263a1a026"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a117715ccfac2ef6ffb0bb0503db6b2be" id="r_a117715ccfac2ef6ffb0bb0503db6b2be"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__from__input.html">fs8::basic_from_input</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a117715ccfac2ef6ffb0bb0503db6b2be">from_input</a></td></tr>
@@ -1849,8 +1847,8 @@ Variables</h2></td></tr>
 <tr class="separator:aded10e0e6210d5f74bef6b7c9deb7de6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a332d0d3025ab0d9c651fcac1b34d75b1" id="r_a332d0d3025ab0d9c651fcac1b34d75b1"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__multi__click.html">basic_multi_click</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a332d0d3025ab0d9c651fcac1b34d75b1">fs8::triple_click</a> {<a class="el" href="namespacefs8.html#a308e4534fa90881960db21ee4c33d7f7">left_click</a>, 3}</td></tr>
 <tr class="separator:a332d0d3025ab0d9c651fcac1b34d75b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeca4c8f008bc12fff6fca26f0da75aee" id="r_aeca4c8f008bc12fff6fca26f0da75aee"><td class="memItemLeft" align="right" valign="top">constexpr struct <a class="el" href="structfs8_1_1basic__on__fail__creater.html">fs8::basic_on_fail_creater</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a></td></tr>
-<tr class="separator:aeca4c8f008bc12fff6fca26f0da75aee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26e0643e5886e57dea16e6288513f116" id="r_a26e0643e5886e57dea16e6288513f116"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__on__fail.html">basic_on_fail</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">fs8::on_fail</a> {<a class="el" href="namespacefs8.html#a3d72441ee700519b4be49b186c8afccd">noop</a>, <a class="el" href="namespacefs8.html#a3d72441ee700519b4be49b186c8afccd">noop</a>}</td></tr>
+<tr class="separator:a26e0643e5886e57dea16e6288513f116"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0c3c91fedd1d7164e8bf26938bf43fd5" id="r_a0c3c91fedd1d7164e8bf26938bf43fd5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__quantifier.html">fs8::basic_quantifier</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a0c3c91fedd1d7164e8bf26938bf43fd5">quantifier</a></td></tr>
 <tr class="separator:a0c3c91fedd1d7164e8bf26938bf43fd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5564752db7d809613b5f3ccf3748c260" id="r_a5564752db7d809613b5f3ccf3748c260"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__mice__quantifier.html">fs8::basic_mice_quantifier</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5564752db7d809613b5f3ccf3748c260">mice_quantifier</a></td></tr>
@@ -1865,8 +1863,8 @@ Variables</h2></td></tr>
 <tr class="separator:a3330e413e0f418b95820c4d07833beb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51a2bb7da98bfb72014b626688f89346" id="r_a51a2bb7da98bfb72014b626688f89346"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__log__diagnostics.html">fs8::basic_log_diagnostics</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a></td></tr>
 <tr class="separator:a51a2bb7da98bfb72014b626688f89346"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22365f0cde283b291512741974c98990" id="r_a22365f0cde283b291512741974c98990"><td class="memItemLeft" align="right" valign="top">constexpr struct <a class="el" href="structfs8_1_1basic__drop__action.html">fs8::basic_drop_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a22365f0cde283b291512741974c98990">drop_action</a></td></tr>
-<tr class="separator:a22365f0cde283b291512741974c98990"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1191f352548807fbe249bc4d22c8763" id="r_ad1191f352548807fbe249bc4d22c8763"><td class="memItemLeft" align="right" valign="top">constexpr struct <a class="el" href="structfs8_1_1basic__drop.html">fs8::basic_drop</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad1191f352548807fbe249bc4d22c8763">drop</a></td></tr>
+<tr class="separator:ad1191f352548807fbe249bc4d22c8763"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e44bfa490acf1b350d19ceb09c3a462" id="r_a3e44bfa490acf1b350d19ceb09c3a462"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__log__and__drop__action.html">fs8::basic_log_and_drop_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">log_and_drop_action</a></td></tr>
 <tr class="separator:a3e44bfa490acf1b350d19ceb09c3a462"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad98f49071b3a16b626a24b8000940cd4" id="r_ad98f49071b3a16b626a24b8000940cd4"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad98f49071b3a16b626a24b8000940cd4">fs8::event_sanitizer</a></td></tr>
@@ -2973,13 +2971,13 @@ template&lt;typename... Mods&gt; </div>
 
 </div>
 </div>
-<a id="ae4ead0ba38d3f30ac25c5fd9e41b8bd4" name="ae4ead0ba38d3f30ac25c5fd9e41b8bd4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae4ead0ba38d3f30ac25c5fd9e41b8bd4">&#9670;&#160;</a></span>basic_on_fail()</h2>
+<a id="abe5ba4d11880ca5e4eaf240ab88a8d91" name="abe5ba4d11880ca5e4eaf240ab88a8d91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe5ba4d11880ca5e4eaf240ab88a8d91">&#9670;&#160;</a></span>basic_on_fail()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename C , typename A &gt; </div>
+template&lt;typename C , typename A , typename... E&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -2994,12 +2992,18 @@ template&lt;typename C , typename A &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">A&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">E...&#160;</td>
           <td class="paramname">&#160;</td>
         </tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td> -&gt;  <a class="el" href="structfs8_1_1basic__on__fail.html">basic_on_fail</a>&lt; C, A &gt;</td>
+          <td></td><td> -&gt;  <a class="el" href="structfs8_1_1basic__on__fail.html">basic_on_fail</a>&lt; C, A, E... &gt;</td>
         </tr>
       </table>
   </td>
@@ -10246,7 +10250,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="aebf04814ae9d82a70029373f09ddc2c5" name="aebf04814ae9d82a70029373f09ddc2c5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aebf04814ae9d82a70029373f09ddc2c5">&#9670;&#160;</a></span>to_string() <span class="overload">[1/11]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aebf04814ae9d82a70029373f09ddc2c5">&#9670;&#160;</a></span>to_string() <span class="overload">[1/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10272,7 +10276,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="a4deeb0bf0ec418642b758aaf12e28f4a" name="a4deeb0bf0ec418642b758aaf12e28f4a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4deeb0bf0ec418642b758aaf12e28f4a">&#9670;&#160;</a></span>to_string() <span class="overload">[2/11]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4deeb0bf0ec418642b758aaf12e28f4a">&#9670;&#160;</a></span>to_string() <span class="overload">[2/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10298,7 +10302,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="a74230e7c6877bfafeb34e38f757ffd1a" name="a74230e7c6877bfafeb34e38f757ffd1a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a74230e7c6877bfafeb34e38f757ffd1a">&#9670;&#160;</a></span>to_string() <span class="overload">[3/11]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a74230e7c6877bfafeb34e38f757ffd1a">&#9670;&#160;</a></span>to_string() <span class="overload">[3/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10324,7 +10328,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="afa55c6d36c03969005e4dc314083527a" name="afa55c6d36c03969005e4dc314083527a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa55c6d36c03969005e4dc314083527a">&#9670;&#160;</a></span>to_string() <span class="overload">[4/11]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afa55c6d36c03969005e4dc314083527a">&#9670;&#160;</a></span>to_string() <span class="overload">[4/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10350,7 +10354,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="a1516634fb47e8cfdd14756e407562007" name="a1516634fb47e8cfdd14756e407562007"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1516634fb47e8cfdd14756e407562007">&#9670;&#160;</a></span>to_string() <span class="overload">[5/11]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1516634fb47e8cfdd14756e407562007">&#9670;&#160;</a></span>to_string() <span class="overload">[5/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10376,7 +10380,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="a7cc253bfca76ef6b4cc860e2737abd0b" name="a7cc253bfca76ef6b4cc860e2737abd0b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7cc253bfca76ef6b4cc860e2737abd0b">&#9670;&#160;</a></span>to_string() <span class="overload">[6/11]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7cc253bfca76ef6b4cc860e2737abd0b">&#9670;&#160;</a></span>to_string() <span class="overload">[6/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10402,7 +10406,7 @@ requires Tag&lt;TagT&gt;</div>
 </div>
 </div>
 <a id="aa9d9e721362511575ad3b5de8e4a69d1" name="aa9d9e721362511575ad3b5de8e4a69d1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa9d9e721362511575ad3b5de8e4a69d1">&#9670;&#160;</a></span>to_string() <span class="overload">[7/11]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9d9e721362511575ad3b5de8e4a69d1">&#9670;&#160;</a></span>to_string() <span class="overload">[7/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10431,7 +10435,7 @@ requires (std::invocable&lt;Func&gt;)</div>
 </div>
 </div>
 <a id="a5485f010ed92eaff22042d8a9dc68498" name="a5485f010ed92eaff22042d8a9dc68498"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5485f010ed92eaff22042d8a9dc68498">&#9670;&#160;</a></span>to_string() <span class="overload">[8/11]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5485f010ed92eaff22042d8a9dc68498">&#9670;&#160;</a></span>to_string() <span class="overload">[8/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10457,7 +10461,7 @@ requires (std::invocable&lt;Func&gt;)</div>
 </div>
 </div>
 <a id="aa8545c3eccc3e82465adae55f7ef7144" name="aa8545c3eccc3e82465adae55f7ef7144"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8545c3eccc3e82465adae55f7ef7144">&#9670;&#160;</a></span>to_string() <span class="overload">[9/11]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8545c3eccc3e82465adae55f7ef7144">&#9670;&#160;</a></span>to_string() <span class="overload">[9/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10482,8 +10486,44 @@ requires (std::invocable&lt;Func&gt;)</div>
 
 </div>
 </div>
+<a id="ac14bae7250ac9ba8429ddd4a327fced8" name="ac14bae7250ac9ba8429ddd4a327fced8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac14bae7250ac9ba8429ddd4a327fced8">&#9670;&#160;</a></span>to_string() <span class="overload">[10/12]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string fs8::to_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">sanitizer_issue</a> const&#160;</td>
+          <td class="paramname"><em>issue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;&#160;</td>
+          <td class="paramname"><em>event</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a621d548d40a1829c81c2b84f46ae8ff5" name="a621d548d40a1829c81c2b84f46ae8ff5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a621d548d40a1829c81c2b84f46ae8ff5">&#9670;&#160;</a></span>to_string() <span class="overload">[10/11]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a621d548d40a1829c81c2b84f46ae8ff5">&#9670;&#160;</a></span>to_string() <span class="overload">[11/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10511,7 +10551,7 @@ template&lt;typename CharT &gt; </div>
 </div>
 </div>
 <a id="a18f7254fa63e6bdec71453bfeb061372" name="a18f7254fa63e6bdec71453bfeb061372"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a18f7254fa63e6bdec71453bfeb061372">&#9670;&#160;</a></span>to_string() <span class="overload">[11/11]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a18f7254fa63e6bdec71453bfeb061372">&#9670;&#160;</a></span>to_string() <span class="overload">[12/12]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -11364,6 +11404,20 @@ template&lt;typename F , typename... Ts&gt; </div>
 
 </div>
 </div>
+<a id="ad1191f352548807fbe249bc4d22c8763" name="ad1191f352548807fbe249bc4d22c8763"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad1191f352548807fbe249bc4d22c8763">&#9670;&#160;</a></span>drop</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr struct <a class="el" href="structfs8_1_1basic__drop.html">fs8::basic_drop</a> fs8::drop</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="acb3c2e05b591312c0af90b74465bff71" name="acb3c2e05b591312c0af90b74465bff71"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acb3c2e05b591312c0af90b74465bff71">&#9670;&#160;</a></span>drop_abs</h2>
 
@@ -11372,20 +11426,6 @@ template&lt;typename F , typename... Ts&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">constexpr struct <a class="el" href="structfs8_1_1basic__drop__abs.html">fs8::basic_drop_abs</a> fs8::drop_abs</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a22365f0cde283b291512741974c98990" name="a22365f0cde283b291512741974c98990"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a22365f0cde283b291512741974c98990">&#9670;&#160;</a></span>drop_action</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr struct <a class="el" href="structfs8_1_1basic__drop__action.html">fs8::basic_drop_action</a> fs8::drop_action</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -12051,19 +12091,19 @@ template&lt;typename F , typename... Ts&gt; </div>
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
-<div class="line">      <a class="code hl_variable" href="namespacefs8.html#a3eae90cad0a483a57b8f623c5f9c9584">group_mod</a>[<a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a7b43fc7ff028568718a44aed64ba487e">drop_adjacent_syns</a>, <a class="code hl_variable" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#aba9e2689292766ad3ca3da7c13e8e818">drop_late_syn</a>, <a class="code hl_variable" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#acf24c41750d29d84f397e07a5ba9d49d">drop_orphan_abs</a>, <a class="code hl_variable" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#adf540ff57457d7ecfd67c965c70725b2">drop_missing_syns</a>, <a class="code hl_variable" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a55291a60ec428208cae15ee4e9cfef52">drop_big_jumps</a>, <a class="code hl_variable" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>]]</div>
-<div class="ttc" id="anamespacefs8_html_a3eae90cad0a483a57b8f623c5f9c9584"><div class="ttname"><a href="namespacefs8.html#a3eae90cad0a483a57b8f623c5f9c9584">fs8::group_mod</a></div><div class="ttdeci">constexpr struct fs8::basic_group_mod_factory group_mod</div></div>
+<div class="line">      <a class="code hl_variable" href="namespacefs8.html#ab2aea3fca3970fc7adb3834020616e81">group_mod</a>[<a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a7b43fc7ff028568718a44aed64ba487e">drop_adjacent_syns</a>, <a class="code hl_variable" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#aba9e2689292766ad3ca3da7c13e8e818">drop_late_syn</a>, <a class="code hl_variable" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#acf24c41750d29d84f397e07a5ba9d49d">drop_orphan_abs</a>, <a class="code hl_variable" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#adf540ff57457d7ecfd67c965c70725b2">drop_missing_syns</a>, <a class="code hl_variable" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a55291a60ec428208cae15ee4e9cfef52">drop_big_jumps</a>, <a class="code hl_variable" href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">log_diagnostics</a>]]</div>
+<div class="ttc" id="anamespacefs8_html_a26e0643e5886e57dea16e6288513f116"><div class="ttname"><a href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">fs8::on_fail</a></div><div class="ttdeci">constexpr basic_on_fail on_fail</div><div class="ttdef"><b>Definition</b> on_fail.ixx:103</div></div>
 <div class="ttc" id="anamespacefs8_html_a51a2bb7da98bfb72014b626688f89346"><div class="ttname"><a href="namespacefs8.html#a51a2bb7da98bfb72014b626688f89346">fs8::log_diagnostics</a></div><div class="ttdeci">fs8::basic_log_diagnostics log_diagnostics</div></div>
 <div class="ttc" id="anamespacefs8_html_a55291a60ec428208cae15ee4e9cfef52"><div class="ttname"><a href="namespacefs8.html#a55291a60ec428208cae15ee4e9cfef52">fs8::drop_big_jumps</a></div><div class="ttdeci">fs8::basic_drop_big_jumps drop_big_jumps</div></div>
 <div class="ttc" id="anamespacefs8_html_a7b43fc7ff028568718a44aed64ba487e"><div class="ttname"><a href="namespacefs8.html#a7b43fc7ff028568718a44aed64ba487e">fs8::drop_adjacent_syns</a></div><div class="ttdeci">constexpr basic_drop_adjacent_repeats drop_adjacent_syns</div><div class="ttdef"><b>Definition</b> drop.ixx:297</div></div>
+<div class="ttc" id="anamespacefs8_html_ab2aea3fca3970fc7adb3834020616e81"><div class="ttname"><a href="namespacefs8.html#ab2aea3fca3970fc7adb3834020616e81">fs8::group_mod</a></div><div class="ttdeci">constexpr basic_group_mod group_mod</div><div class="ttdoc">Factory: group_mod[mod1, mod2, ...] creates a basic_group_mod from the given mods.</div><div class="ttdef"><b>Definition</b> group.ixx:99</div></div>
 <div class="ttc" id="anamespacefs8_html_aba9e2689292766ad3ca3da7c13e8e818"><div class="ttname"><a href="namespacefs8.html#aba9e2689292766ad3ca3da7c13e8e818">fs8::drop_late_syn</a></div><div class="ttdeci">fs8::basic_drop_late_syn drop_late_syn</div></div>
 <div class="ttc" id="anamespacefs8_html_acf24c41750d29d84f397e07a5ba9d49d"><div class="ttname"><a href="namespacefs8.html#acf24c41750d29d84f397e07a5ba9d49d">fs8::drop_orphan_abs</a></div><div class="ttdeci">fs8::basic_drop_orphan_abs drop_orphan_abs</div></div>
 <div class="ttc" id="anamespacefs8_html_adf540ff57457d7ecfd67c965c70725b2"><div class="ttname"><a href="namespacefs8.html#adf540ff57457d7ecfd67c965c70725b2">fs8::drop_missing_syns</a></div><div class="ttdeci">fs8::basic_drop_missing_syns drop_missing_syns</div></div>
-<div class="ttc" id="anamespacefs8_html_aeca4c8f008bc12fff6fca26f0da75aee"><div class="ttname"><a href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">fs8::on_fail</a></div><div class="ttdeci">constexpr struct fs8::basic_on_fail_creater on_fail</div></div>
 </div><!-- fragment -->
 <p>All default sanitizer checks with diagnostics logging only (no drop). </p>
 
@@ -12111,12 +12151,12 @@ template&lt;typename F , typename... Ts&gt; </div>
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
-<div class="line">      <a class="code hl_variable" href="namespacefs8.html#a3eae90cad0a483a57b8f623c5f9c9584">group_mod</a>[<a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a7b43fc7ff028568718a44aed64ba487e">drop_adjacent_syns</a>, <a class="code hl_variable" href="namespacefs8.html#a22365f0cde283b291512741974c98990">drop_action</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#aba9e2689292766ad3ca3da7c13e8e818">drop_late_syn</a>, <a class="code hl_variable" href="namespacefs8.html#a22365f0cde283b291512741974c98990">drop_action</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#acf24c41750d29d84f397e07a5ba9d49d">drop_orphan_abs</a>, <a class="code hl_variable" href="namespacefs8.html#a22365f0cde283b291512741974c98990">drop_action</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#adf540ff57457d7ecfd67c965c70725b2">drop_missing_syns</a>, <a class="code hl_variable" href="namespacefs8.html#a22365f0cde283b291512741974c98990">drop_action</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a55291a60ec428208cae15ee4e9cfef52">drop_big_jumps</a>, <a class="code hl_variable" href="namespacefs8.html#a22365f0cde283b291512741974c98990">drop_action</a>]]</div>
-<div class="ttc" id="anamespacefs8_html_a22365f0cde283b291512741974c98990"><div class="ttname"><a href="namespacefs8.html#a22365f0cde283b291512741974c98990">fs8::drop_action</a></div><div class="ttdeci">constexpr struct fs8::basic_drop_action drop_action</div></div>
+<div class="line">      <a class="code hl_variable" href="namespacefs8.html#ab2aea3fca3970fc7adb3834020616e81">group_mod</a>[<a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a7b43fc7ff028568718a44aed64ba487e">drop_adjacent_syns</a>, <a class="code hl_variable" href="namespacefs8.html#ad1191f352548807fbe249bc4d22c8763">drop</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#aba9e2689292766ad3ca3da7c13e8e818">drop_late_syn</a>, <a class="code hl_variable" href="namespacefs8.html#ad1191f352548807fbe249bc4d22c8763">drop</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#acf24c41750d29d84f397e07a5ba9d49d">drop_orphan_abs</a>, <a class="code hl_variable" href="namespacefs8.html#ad1191f352548807fbe249bc4d22c8763">drop</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#adf540ff57457d7ecfd67c965c70725b2">drop_missing_syns</a>, <a class="code hl_variable" href="namespacefs8.html#ad1191f352548807fbe249bc4d22c8763">drop</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a55291a60ec428208cae15ee4e9cfef52">drop_big_jumps</a>, <a class="code hl_variable" href="namespacefs8.html#ad1191f352548807fbe249bc4d22c8763">drop</a>]]</div>
+<div class="ttc" id="anamespacefs8_html_ad1191f352548807fbe249bc4d22c8763"><div class="ttname"><a href="namespacefs8.html#ad1191f352548807fbe249bc4d22c8763">fs8::drop</a></div><div class="ttdeci">constexpr struct fs8::basic_drop drop</div></div>
 </div><!-- fragment -->
 <p>All default sanitizer checks with silent drop (no logging). </p>
 
@@ -12142,11 +12182,11 @@ template&lt;typename F , typename... Ts&gt; </div>
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
-<div class="line">      <a class="code hl_variable" href="namespacefs8.html#a3eae90cad0a483a57b8f623c5f9c9584">group_mod</a>[<a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a7b43fc7ff028568718a44aed64ba487e">drop_adjacent_syns</a>, <a class="code hl_variable" href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">log_and_drop_action</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#aba9e2689292766ad3ca3da7c13e8e818">drop_late_syn</a>, <a class="code hl_variable" href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">log_and_drop_action</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#acf24c41750d29d84f397e07a5ba9d49d">drop_orphan_abs</a>, <a class="code hl_variable" href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">log_and_drop_action</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#adf540ff57457d7ecfd67c965c70725b2">drop_missing_syns</a>, <a class="code hl_variable" href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">log_and_drop_action</a>],</div>
-<div class="line">                <a class="code hl_variable" href="namespacefs8.html#aeca4c8f008bc12fff6fca26f0da75aee">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a55291a60ec428208cae15ee4e9cfef52">drop_big_jumps</a>, <a class="code hl_variable" href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">log_and_drop_action</a>]]</div>
+<div class="line">      <a class="code hl_variable" href="namespacefs8.html#ab2aea3fca3970fc7adb3834020616e81">group_mod</a>[<a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a7b43fc7ff028568718a44aed64ba487e">drop_adjacent_syns</a>, <a class="code hl_variable" href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">log_and_drop_action</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#aba9e2689292766ad3ca3da7c13e8e818">drop_late_syn</a>, <a class="code hl_variable" href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">log_and_drop_action</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#acf24c41750d29d84f397e07a5ba9d49d">drop_orphan_abs</a>, <a class="code hl_variable" href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">log_and_drop_action</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#adf540ff57457d7ecfd67c965c70725b2">drop_missing_syns</a>, <a class="code hl_variable" href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">log_and_drop_action</a>],</div>
+<div class="line">                <a class="code hl_variable" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">on_fail</a>[<a class="code hl_variable" href="namespacefs8.html#a55291a60ec428208cae15ee4e9cfef52">drop_big_jumps</a>, <a class="code hl_variable" href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">log_and_drop_action</a>]]</div>
 <div class="ttc" id="anamespacefs8_html_a3e44bfa490acf1b350d19ceb09c3a462"><div class="ttname"><a href="namespacefs8.html#a3e44bfa490acf1b350d19ceb09c3a462">fs8::log_and_drop_action</a></div><div class="ttdeci">fs8::basic_log_and_drop_action log_and_drop_action</div></div>
 </div><!-- fragment -->
 <p>All default sanitizer checks: drop bad events and log each one. </p>
@@ -12467,17 +12507,27 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
-<a id="a3eae90cad0a483a57b8f623c5f9c9584" name="a3eae90cad0a483a57b8f623c5f9c9584"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3eae90cad0a483a57b8f623c5f9c9584">&#9670;&#160;</a></span>group_mod</h2>
+<a id="ab2aea3fca3970fc7adb3834020616e81" name="ab2aea3fca3970fc7adb3834020616e81"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2aea3fca3970fc7adb3834020616e81">&#9670;&#160;</a></span>group_mod</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr struct <a class="el" href="structfs8_1_1basic__group__mod__factory.html">fs8::basic_group_mod_factory</a> fs8::group_mod</td>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__group__mod.html">basic_group_mod</a> fs8::group_mod</td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
+
+<p>Factory: <code>group_mod[mod1, mod2, ...]</code> creates a <code><a class="el" href="structfs8_1_1basic__group__mod.html">basic_group_mod</a></code> from the given mods. </p>
 
 </div>
 </div>
@@ -13647,16 +13697,24 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
-<a id="aeca4c8f008bc12fff6fca26f0da75aee" name="aeca4c8f008bc12fff6fca26f0da75aee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeca4c8f008bc12fff6fca26f0da75aee">&#9670;&#160;</a></span>on_fail</h2>
+<a id="a26e0643e5886e57dea16e6288513f116" name="a26e0643e5886e57dea16e6288513f116"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26e0643e5886e57dea16e6288513f116">&#9670;&#160;</a></span>on_fail</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr struct <a class="el" href="structfs8_1_1basic__on__fail__creater.html">fs8::basic_on_fail_creater</a> fs8::on_fail</td>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__on__fail.html">basic_on_fail</a> fs8::on_fail {<a class="el" href="namespacefs8.html#a3d72441ee700519b4be49b186c8afccd">noop</a>, <a class="el" href="namespacefs8.html#a3d72441ee700519b4be49b186c8afccd">noop</a>}</td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>

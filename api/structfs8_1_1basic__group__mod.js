@@ -5,6 +5,7 @@ var structfs8_1_1basic__group__mod =
     [ "consteval_copyable", "structfs8_1_1basic__group__mod.html#aab9e941457bd45b9d6772f6ff421cec6", null ],
     [ "consteval_copyable", "structfs8_1_1basic__group__mod.html#a07b6aecf93085d1e8fc982b21f53ed11", null ],
     [ "consteval_copyable", "structfs8_1_1basic__group__mod.html#a23df80b9a3d5bfbc33501da95d583e26", null ],
-    [ "operator()", "structfs8_1_1basic__group__mod.html#ad14644c8e2de8fe9532e1b1be4b46273", null ],
-    [ "operator()", "structfs8_1_1basic__group__mod.html#ab84ac8f16363eaa8721bb9e157621e62", null ]
+    [ "operator()", "structfs8_1_1basic__group__mod.html#a2405edc9c3c620d9f9e28f8413f2a724", null ],
+    [ "operator()", "structfs8_1_1basic__group__mod.html#a799c89a6e4dfa8222bc35fd55014576b", null ],
+    [ "operator[]", "structfs8_1_1basic__group__mod.html#ad07e52b3e93768864f755220a43e0f28", null ]
 ];
