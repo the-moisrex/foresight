@@ -342,8 +342,6 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__only__ok.html">basic_only_ok</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__output.html">basic_output</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__output__selector.html">basic_output_selector</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__parsed__args.html">basic_parsed_args</a></td></tr>
@@ -389,6 +387,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__singleton.html">basic_singleton</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__startup__key__releases.html">basic_startup_key_releases</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__std__output.html">basic_std_output</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__stopper.html">basic_stopper</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -712,8 +712,8 @@ Typedefs</h2></td></tr>
 <tr class="separator:ad0c0182c0bcba062c10b98ba72545d33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a0f43acc4fadf98b4d342f68e3660c4" id="r_a8a0f43acc4fadf98b4d342f68e3660c4"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a8a0f43acc4fadf98b4d342f68e3660c4">fs8::value_type</a> = <a class="el" href="structfs8_1_1event__type.html#a2e849054fba3388fcde2f566a6bcbdb9">event_type::value_type</a></td></tr>
 <tr class="separator:a8a0f43acc4fadf98b4d342f68e3660c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf3e91c00f766f54f7a429283249b9ca" id="r_adf3e91c00f766f54f7a429283249b9ca"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#adf3e91c00f766f54f7a429283249b9ca">fs8::output_selector</a> = <a class="el" href="structfs8_1_1basic__output__selector.html">basic_output_selector</a>&lt; <a class="el" href="structfs8_1_1basic__output.html">basic_output</a>, <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a>, <a class="el" href="structfs8_1_1basic__evtest__output.html">basic_evtest_output</a>&lt;&gt;, <a class="el" href="structfs8_1_1basic__live__view__output.html">basic_live_view_output</a>&lt;&gt; &gt;</td></tr>
-<tr class="separator:adf3e91c00f766f54f7a429283249b9ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a500994f0a2de5896ef74f8ebbd942823" id="r_a500994f0a2de5896ef74f8ebbd942823"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a500994f0a2de5896ef74f8ebbd942823">fs8::output_selector</a> = <a class="el" href="structfs8_1_1basic__output__selector.html">basic_output_selector</a>&lt; <a class="el" href="structfs8_1_1basic__std__output.html">basic_std_output</a>, <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a>, <a class="el" href="structfs8_1_1basic__evtest__output.html">basic_evtest_output</a>&lt;&gt;, <a class="el" href="structfs8_1_1basic__live__view__output.html">basic_live_view_output</a>&lt;&gt; &gt;</td></tr>
+<tr class="separator:a500994f0a2de5896ef74f8ebbd942823"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -1737,8 +1737,8 @@ Variables</h2></td></tr>
 <tr class="memitem:ab2aea3fca3970fc7adb3834020616e81" id="r_ab2aea3fca3970fc7adb3834020616e81"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__group__mod.html">basic_group_mod</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ab2aea3fca3970fc7adb3834020616e81">fs8::group_mod</a></td></tr>
 <tr class="memdesc:ab2aea3fca3970fc7adb3834020616e81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory: <code>group_mod[mod1, mod2, ...]</code> creates a <code><a class="el" href="structfs8_1_1basic__group__mod.html">basic_group_mod</a></code> from the given mods.  <br /></td></tr>
 <tr class="separator:ab2aea3fca3970fc7adb3834020616e81"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac767aa8c1f4499b5712d551263a1a026" id="r_ac767aa8c1f4499b5712d551263a1a026"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__output.html">fs8::basic_output</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac767aa8c1f4499b5712d551263a1a026">output</a></td></tr>
-<tr class="separator:ac767aa8c1f4499b5712d551263a1a026"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f494c20201c7e14ea3393957dd91b66" id="r_a2f494c20201c7e14ea3393957dd91b66"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__std__output.html">fs8::basic_std_output</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2f494c20201c7e14ea3393957dd91b66">std_output</a></td></tr>
+<tr class="separator:a2f494c20201c7e14ea3393957dd91b66"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a117715ccfac2ef6ffb0bb0503db6b2be" id="r_a117715ccfac2ef6ffb0bb0503db6b2be"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__from__input.html">fs8::basic_from_input</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a117715ccfac2ef6ffb0bb0503db6b2be">from_input</a></td></tr>
 <tr class="separator:a117715ccfac2ef6ffb0bb0503db6b2be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4fce3d1270cea3fa64f2d82a4694b01e" id="r_a4fce3d1270cea3fa64f2d82a4694b01e"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a4fce3d1270cea3fa64f2d82a4694b01e">fs8::evtest_format_buf_size</a> = 128</td></tr>
@@ -1856,8 +1856,8 @@ Variables</h2></td></tr>
 <tr class="separator:a332d0d3025ab0d9c651fcac1b34d75b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a26e0643e5886e57dea16e6288513f116" id="r_a26e0643e5886e57dea16e6288513f116"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__on__fail.html">basic_on_fail</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">fs8::on_fail</a> {<a class="el" href="namespacefs8.html#a3d72441ee700519b4be49b186c8afccd">noop</a>, <a class="el" href="namespacefs8.html#a3d72441ee700519b4be49b186c8afccd">noop</a>}</td></tr>
 <tr class="separator:a26e0643e5886e57dea16e6288513f116"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad408d06d8206cb548ed086383f5584da" id="r_ad408d06d8206cb548ed086383f5584da"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#adf3e91c00f766f54f7a429283249b9ca">output_selector</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad408d06d8206cb548ed086383f5584da">fs8::output_switch</a> {}</td></tr>
-<tr class="separator:ad408d06d8206cb548ed086383f5584da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7dc3fe91c5c1e5e25859f5eafbdfcff8" id="r_a7dc3fe91c5c1e5e25859f5eafbdfcff8"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#a500994f0a2de5896ef74f8ebbd942823">output_selector</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7dc3fe91c5c1e5e25859f5eafbdfcff8">fs8::output</a> {}</td></tr>
+<tr class="separator:a7dc3fe91c5c1e5e25859f5eafbdfcff8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0c3c91fedd1d7164e8bf26938bf43fd5" id="r_a0c3c91fedd1d7164e8bf26938bf43fd5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__quantifier.html">fs8::basic_quantifier</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a0c3c91fedd1d7164e8bf26938bf43fd5">quantifier</a></td></tr>
 <tr class="separator:a0c3c91fedd1d7164e8bf26938bf43fd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5564752db7d809613b5f3ccf3748c260" id="r_a5564752db7d809613b5f3ccf3748c260"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__mice__quantifier.html">fs8::basic_mice_quantifier</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5564752db7d809613b5f3ccf3748c260">mice_quantifier</a></td></tr>
@@ -2280,8 +2280,8 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
 
 </div>
 </div>
-<a id="adf3e91c00f766f54f7a429283249b9ca" name="adf3e91c00f766f54f7a429283249b9ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adf3e91c00f766f54f7a429283249b9ca">&#9670;&#160;</a></span>output_selector</h2>
+<a id="a500994f0a2de5896ef74f8ebbd942823" name="a500994f0a2de5896ef74f8ebbd942823"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a500994f0a2de5896ef74f8ebbd942823">&#9670;&#160;</a></span>output_selector</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2290,7 +2290,7 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacefs8.html#adf3e91c00f766f54f7a429283249b9ca">fs8::output_selector</a> = typedef <a class="el" href="structfs8_1_1basic__output__selector.html">basic_output_selector</a>&lt;<a class="el" href="structfs8_1_1basic__output.html">basic_output</a>, <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a>, <a class="el" href="structfs8_1_1basic__evtest__output.html">basic_evtest_output</a>&lt;&gt;, <a class="el" href="structfs8_1_1basic__live__view__output.html">basic_live_view_output</a>&lt;&gt; &gt;</td>
+          <td class="memname">using <a class="el" href="namespacefs8.html#a500994f0a2de5896ef74f8ebbd942823">fs8::output_selector</a> = typedef <a class="el" href="structfs8_1_1basic__output__selector.html">basic_output_selector</a>&lt;<a class="el" href="structfs8_1_1basic__std__output.html">basic_std_output</a>, <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a>, <a class="el" href="structfs8_1_1basic__evtest__output.html">basic_evtest_output</a>&lt;&gt;, <a class="el" href="structfs8_1_1basic__live__view__output.html">basic_live_view_output</a>&lt;&gt; &gt;</td>
         </tr>
       </table>
   </td>
@@ -2300,7 +2300,7 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Default output selector with all built-in output types.</p>
-<p>Index mapping: 0 — <a class="el" href="structfs8_1_1basic__output.html">basic_output</a> (raw stdout) 1 — <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a> (kernel virtual device) 2 — basic_evtest_output&lt;&gt; (evtest text format) 3 — basic_live_view_output&lt;&gt; (live view text format) </p>
+<p>Index mapping: 0 — basic_output (raw stdout) 1 — <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a> (kernel virtual device) 2 — basic_evtest_output&lt;&gt; (evtest text format) 3 — basic_live_view_output&lt;&gt; (live view text format) </p>
 
 </div>
 </div>
@@ -13803,22 +13803,8 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
-<a id="ac767aa8c1f4499b5712d551263a1a026" name="ac767aa8c1f4499b5712d551263a1a026"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac767aa8c1f4499b5712d551263a1a026">&#9670;&#160;</a></span>output</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structfs8_1_1basic__output.html">fs8::basic_output</a> fs8::output</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ad408d06d8206cb548ed086383f5584da" name="ad408d06d8206cb548ed086383f5584da"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad408d06d8206cb548ed086383f5584da">&#9670;&#160;</a></span>output_switch</h2>
+<a id="a7dc3fe91c5c1e5e25859f5eafbdfcff8" name="a7dc3fe91c5c1e5e25859f5eafbdfcff8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7dc3fe91c5c1e5e25859f5eafbdfcff8">&#9670;&#160;</a></span>output</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -13827,7 +13813,7 @@ template&lt;EvtestFormat Format&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#adf3e91c00f766f54f7a429283249b9ca">output_selector</a> fs8::output_switch {}</td>
+          <td class="memname">constexpr <a class="el" href="namespacefs8.html#a500994f0a2de5896ef74f8ebbd942823">output_selector</a> fs8::output {}</td>
         </tr>
       </table>
   </td>
@@ -14410,6 +14396,20 @@ template&lt;EvtestFormat Format&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="structfs8_1_1basic__startup__key__releases.html">fs8::basic_startup_key_releases</a> fs8::startup_key_releases</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a2f494c20201c7e14ea3393957dd91b66" name="a2f494c20201c7e14ea3393957dd91b66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f494c20201c7e14ea3393957dd91b66">&#9670;&#160;</a></span>std_output</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structfs8_1_1basic__std__output.html">fs8::basic_std_output</a> fs8::std_output</td>
         </tr>
       </table>
 </div><div class="memdoc">

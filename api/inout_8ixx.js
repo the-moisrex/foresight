@@ -1,6 +1,6 @@
 var inout_8ixx =
 [
-    [ "fs8::basic_output", "structfs8_1_1basic__output.html", "structfs8_1_1basic__output" ],
+    [ "fs8::basic_std_output", "structfs8_1_1basic__std__output.html", "structfs8_1_1basic__std__output" ],
     [ "fs8::basic_from_input", "structfs8_1_1basic__from__input.html", "structfs8_1_1basic__from__input" ],
     [ "fs8::default_evtest_format", "structfs8_1_1default__evtest__format.html", "structfs8_1_1default__evtest__format" ],
     [ "fs8::basic_from_evtest< Format >", "structfs8_1_1basic__from__evtest.html", "structfs8_1_1basic__from__evtest" ],
@@ -9,6 +9,6 @@ var inout_8ixx =
     [ "evtest_output", "inout_8ixx.html#afa9df52c3767ecdf335b27ae21ce3d40", null ],
     [ "from_evtest", "inout_8ixx.html#a30df5434468736c8b2499222eeccda5b", null ],
     [ "from_input", "inout_8ixx.html#a117715ccfac2ef6ffb0bb0503db6b2be", null ],
-    [ "output", "inout_8ixx.html#ac767aa8c1f4499b5712d551263a1a026", null ],
+    [ "std_output", "inout_8ixx.html#a2f494c20201c7e14ea3393957dd91b66", null ],
     [ "to_evtest", "inout_8ixx.html#ae0711f4e892987aed2fa991e2ee5e314", null ]
 ];
