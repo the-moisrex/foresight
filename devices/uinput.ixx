@@ -75,11 +75,6 @@ export namespace fs8 {
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
-        /// Whether this device was created by the current pipeline (as opposed
-        /// to a foreign/chained process). Only self-created devices are skipped
-        /// by `input_manager` to avoid feedback loops.
-        bool self_created = true;
-
         basic_uinput(evdev const& evdev_dev, std::filesystem::path const& file) noexcept;
         basic_uinput(libevdev const* evdev_dev, std::filesystem::path const& file) noexcept;
         explicit basic_uinput(libevdev const* evdev_dev, int file_descriptor = LIBEVDEV_UINPUT_OPEN_MANAGED) noexcept;
@@ -167,7 +162,7 @@ export namespace fs8 {
         /// this device. Empty when the device is not created yet, or when it is
         /// explicitly marked as foreign (`self_created == false`).
         [[nodiscard]] std::string_view self_devnode() const noexcept {
-            if (!is_ok() || !self_created) [[unlikely]] {
+            if (!is_ok() || !self_created_) [[unlikely]] {
                 return {};
             }
             return devnode();
@@ -188,10 +183,7 @@ export namespace fs8 {
         /// Enable/Disable the caps for this device
         void apply_caps(dev_caps_view) noexcept;
 
-        bool emit(ev_type type, code_type code, value_type value) noexcept;
-        bool emit(input_event const& event) noexcept;
         bool emit(event_type const& event) noexcept;
-        bool emit_syn() noexcept;
 
         bool init(dev_caps_view caps_view) noexcept;
         bool set_device_from(dev_caps_view caps_view) noexcept;
@@ -282,7 +274,21 @@ export namespace fs8 {
 
         context_action operator()(event_type const& event) noexcept;
 
+        /// Whether this device was created by the current pipeline (as opposed
+        /// to a foreign/chained process). Only self-created devices are skipped
+        /// by `input_manager` to avoid feedback loops.
+        [[nodiscard]] constexpr bool is_self_created() const noexcept {
+            return self_created_;
+        }
+
+        constexpr void set_self_created(bool const value) noexcept {
+            self_created_ = value;
+        }
+
         friend bool finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view) noexcept;
+
+      private:
+        bool self_created_ = true;
     } uinput;
 
     static_assert(OutputModifier<basic_uinput>, "Must be an output modifier.");

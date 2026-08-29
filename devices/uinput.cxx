@@ -734,32 +734,17 @@ void basic_uinput::apply_caps(dev_caps_view const inp_caps) noexcept {
     }
 }
 
-bool basic_uinput::emit(ev_type const type, code_type const code, value_type const value) noexcept {
+bool basic_uinput::emit(event_type const& event) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return false;
     }
     assert(is_ok());
-    if (auto const ret = libevdev_uinput_write_event(pimpl->dev, type, code, value); ret < 0) [[unlikely]] {
+    auto const& native = event.native();
+    if (auto const ret = libevdev_uinput_write_event(pimpl->dev, native.type, native.code, native.value); ret < 0) [[unlikely]] {
         pimpl->err_code = -ret;
         return false;
     }
     return true;
-}
-
-bool basic_uinput::emit(input_event const& event) noexcept {
-    if (pimpl.get() == nullptr) [[unlikely]] {
-        return false;
-    }
-    assert(is_ok());
-    return emit(event.type, event.code, event.value);
-}
-
-bool basic_uinput::emit(event_type const& event) noexcept {
-    return emit(event.native());
-}
-
-bool basic_uinput::emit_syn() noexcept {
-    return emit(EV_SYN, SYN_REPORT, 0);
 }
 
 bool basic_uinput::init(dev_caps_view const caps_view) noexcept {

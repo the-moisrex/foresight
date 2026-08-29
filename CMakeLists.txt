@@ -168,6 +168,7 @@ target_sources(${LIB_NAME}
         mods/mouse_to_scroll.ixx
         mods/on.ixx
         mods/on_fail.ixx
+        mods/output_selector.ixx
         mods/quantifier.ixx
         mods/record.ixx
         mods/replace.ixx

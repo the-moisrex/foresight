@@ -197,10 +197,6 @@ export namespace fs8 {
     struct [[nodiscard]] basic_live_view_output : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
-        using ev_type    = event_type::type_type;
-        using code_type  = event_type::code_type;
-        using value_type = event_type::value_type;
-
       private:
         int    file_descriptor = STDOUT_FILENO;
         Format format{};
@@ -220,21 +216,6 @@ export namespace fs8 {
                 return false;
             }
             return write(file_descriptor, text.data(), text.size()) == static_cast<ssize_t>(text.size());
-        }
-
-        // NOLINTNEXTLINE(*-use-nodiscard)
-        bool emit(input_event const& event) const noexcept {
-            return emit(event_type{event});
-        }
-
-        // NOLINTNEXTLINE(*-use-nodiscard)
-        bool emit(ev_type const type, code_type const code, value_type const value) const noexcept {
-            return emit(event_type{type, code, value});
-        }
-
-        // NOLINTNEXTLINE(*-use-nodiscard)
-        bool emit_syn() const noexcept {
-            return emit(event_type{EV_SYN, SYN_REPORT, 0});
         }
 
         // NOLINTNEXTLINE(*-use-nodiscard)

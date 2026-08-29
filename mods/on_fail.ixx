@@ -78,20 +78,23 @@ export namespace fs8 {
 
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
+            using enum context_action;
             if constexpr (sizeof...(Extra) >= 1) {
                 return std::apply(
                   [&](auto&... args) noexcept {
                       if (!invoke_cond(cond, ctx, args...)) [[unlikely]] {
-                          return invoke_mod(action, ctx, args...);
+                          auto const res = invoke_mod(action, ctx, args...);
+                          return res == next ? drop_event : res;
                       }
-                      return context_action::next;
+                      return next;
                   },
                   extra_);
             } else {
                 if (!invoke_cond(cond, ctx)) [[unlikely]] {
-                    return invoke_mod(action, ctx);
+                    auto const res = invoke_mod(action, ctx);
+                    return res == next ? drop_event : res;
                 }
-                return context_action::next;
+                return next;
             }
         }
     };

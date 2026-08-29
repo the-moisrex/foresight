@@ -23,23 +23,6 @@ bool fs8::basic_output::emit(event_type const& event) const noexcept {
     return write(file_descriptor, &event.native(), sizeof(input_event)) == sizeof(input_event);
 }
 
-bool fs8::basic_output::emit(input_event const& event) const noexcept {
-    return write(file_descriptor, &event, sizeof(input_event)) == sizeof(input_event);
-}
-
-bool fs8::basic_output::emit(ev_type const type, code_type const code, value_type const value) const noexcept {
-    input_event event{};
-    gettimeofday(&event.time, nullptr);
-    event.type  = type;
-    event.code  = code;
-    event.value = value;
-    return write(file_descriptor, &event, sizeof(input_event)) == sizeof(input_event);
-}
-
-bool fs8::basic_output::emit_syn() const noexcept {
-    return emit(EV_SYN, SYN_REPORT, 0);
-}
-
 bool fs8::basic_output::operator()(event_type& event) const noexcept {
     return write(file_descriptor, &event.native(), sizeof(input_event)) == sizeof(input_event);
 }

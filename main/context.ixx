@@ -96,13 +96,9 @@ export namespace fs8 {
     concept Modifier = std::copyable<std::remove_cvref_t<T>> && std::movable<std::remove_cvref_t<T>>;
 
     template <typename T>
-    concept OutputModifier =
-      Modifier<T>
-      && requires(T out, event_type event, event_type::code_type code, event_type::type_type type, event_type::value_type value) {
-             { out.emit(event) } noexcept -> std::same_as<bool>;
-             { out.emit(type, code, value) } noexcept -> std::same_as<bool>;
-             { out.emit_syn() } noexcept -> std::same_as<bool>;
-         };
+    concept OutputModifier = Modifier<T> && requires(T out, event_type event) {
+        { out.emit(event) } noexcept -> std::same_as<bool>;
+    };
 
     template <typename Mod, typename CtxT>
     concept has_mod =

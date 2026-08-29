@@ -56,10 +56,10 @@ TEST(Uinput, SelfDevnodeHonorsSelfCreated) {
     EXPECT_FALSE(vdev.self_devnode().empty());
 
     // Marked foreign: input_manager must treat it as a real (chained) device.
-    vdev.self_created = false;
+    vdev.set_self_created(false);
     EXPECT_TRUE(vdev.self_devnode().empty());
 
-    vdev.self_created = true;
+    vdev.set_self_created(true);
     EXPECT_EQ(vdev.self_devnode(), vdev.devnode());
     vdev.close();
 }

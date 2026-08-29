@@ -29,6 +29,7 @@ export import :mouse_state;
 export import :mouse_to_scroll;
 export import :on;
 export import :on_fail;
+export import :output_selector;
 export import :quantifier;
 export import :record;
 export import :replace;

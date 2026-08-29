@@ -112,10 +112,6 @@ export namespace fs8 {
     struct [[nodiscard]] basic_router : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
-        using ev_type    = event_type::type_type;
-        using code_type  = event_type::code_type;
-        using value_type = event_type::value_type;
-
         static_assert((Modifier<Routes> && ...), "Bad routes");
 
       private:
@@ -164,20 +160,8 @@ export namespace fs8 {
             return basic_router<std::remove_cvref_t<C>...>{std::move(inp_routes)...};
         }
 
-        bool emit(ev_type const type, code_type const code, value_type const value) noexcept {
-            return emit(event_type{type, code, value});
-        }
-
-        bool emit(input_event const& event) noexcept {
-            return emit(event_type{event});
-        }
-
         bool emit(event_type const& event) noexcept {
             return operator()(event) == context_action::next;
-        }
-
-        bool emit_syn() noexcept {
-            return emit(syn());
         }
 
         // template <typename RouteType>
