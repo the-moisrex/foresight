@@ -120,15 +120,12 @@ namespace fs8 {
     /**
      * Prevent multiple instances of the same pipeline from running concurrently.
      *
-     * On `start` the mod acquires an exclusive `flock(2)` on a lock file
-     * whose path is derived from a hash of the *solution*.  If another
-     * process already holds the lock, the pipeline exits immediately.
-     *
-     * Two lock locations are tried: the system-wide `/run/lock/foresight`
-     * and the user-wide `$XDG_RUNTIME_DIR/foresight`.  Both are attempted
-     * so that a root process and a user process prevent each other from
-     * running duplicates.  If both locks succeed, the user-wide one is
-     * released immediately in favour of the system-wide one.
+     * On `start` the mod binds a Linux abstract Unix domain socket whose
+     * name is derived from a hash of the *solution*.  The abstract
+     * namespace lives purely in kernel memory: no filesystem permissions
+     * are needed and the kernel automatically frees the socket when the
+     * process terminates (exit, crash, or SIGKILL).  If another process
+     * already holds the socket, the pipeline exits immediately.
      *
      * Usage:
      *   singleton                              // hash /proc/self/exe basename
