@@ -3,12 +3,13 @@ module;
 #include <linux/input-event-codes.h>
 #include <utility>
 export module fs8.mods:abs2rel;
-import fs8.context;
-import fs8.devices.evdev;
-import :input_manager;
-import fs8.devices.capabilities;
 import :drop;
+import :input_manager;
 import :keys_state;
+import :sanitizer;
+import fs8.context;
+import fs8.devices.capabilities;
+import fs8.devices.evdev;
 import fs8.traits;
 
 export namespace fs8 {
@@ -177,11 +178,11 @@ export namespace fs8 {
 
         context_action operator()(event_type& event) noexcept;
 
-        template <Context CtxT>
-        context_action operator()(CtxT& ctx) noexcept {
-            static_assert(has_mod<basic_drop_adjacent_repeats, CtxT>, "You need to drop syn repeats.");
-            return operator()(ctx.event());
-        }
+        // template <Context CtxT>
+        // context_action operator()(CtxT& ctx) noexcept {
+        //     static_assert(has_mod<basic_drop_adjacent_repeats, CtxT>, "You need to drop syn repeats.");
+        //     return operator()(ctx.event());
+        // }
 
     } abs2rel;
 

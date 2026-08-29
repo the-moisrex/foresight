@@ -14,12 +14,14 @@ namespace fs8 {
         switch (issue) {
             case none: return {"event is clean"};
             case adjacent_syn: return {"duplicate SYN_REPORT (no data since last syn)"};
+            case zero_mouse_moves: return {"mouse move events that move nowhere"};
             case orphan_release: return {"key release without a prior press"};
             case orphan_repeat: return {"key repeat without a prior press"};
             case double_press: return {"key press while already pressed"};
             case late_syn: return {"SYN_REPORT arrived after a long gap with no data"};
             case out_of_resolution: return {"pen ABS value outside device bounds"};
             case big_jump: return {"mouse movement exceeding threshold"};
+            case missing_syn: return {"SYN_REPORT framing broken (time, count, or travel threshold)"};
             case missing_syn_time: return {"data events long after last SYN_REPORT"};
             case missing_syn_count: return {"too many data events without SYN_REPORT"};
             case missing_syn_travel: return {"mouse travel exceeding threshold without SYN_REPORT"};
@@ -39,17 +41,17 @@ namespace fs8 {
     }
 
     context_action basic_log_diagnostics::operator()(event_type const& event, sanitizer_issue const reason) const noexcept {
-        log("[{}] {}", to_string(reason), to_string(reason, event));
+        log("[{}] {} {} {}", to_string(reason), event.type_name(), event.code_name(), event.value());
         return context_action::next;
     }
 
-    context_action basic_log_and_drop_action::operator()(event_type const& event) const noexcept {
+    context_action basic_log_and_drop::operator()(event_type const& event) const noexcept {
         log("{} {} {}", event.type_name(), event.code_name(), event.value());
         return context_action::drop_event;
     }
 
-    context_action basic_log_and_drop_action::operator()(event_type const& event, sanitizer_issue const reason) const noexcept {
-        log("[{}] {}", to_string(reason), to_string(reason, event));
+    context_action basic_log_and_drop::operator()(event_type const& event, sanitizer_issue const reason) const noexcept {
+        log("[{}] {} {} {}", to_string(reason), event.type_name(), event.code_name(), event.value());
         return context_action::drop_event;
     }
 

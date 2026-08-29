@@ -279,6 +279,13 @@ export namespace fs8 {
             return invoke_cond_inorder(cond, event, args...);
         } else if constexpr (std::invocable<CondT, Args...>) {
             return invoke_cond_inorder(cond, args...);
+        } else if constexpr (std::invocable<CondT, CtxT &>) {
+            return invoke_cond_inorder(cond, ctx);
+        } else if constexpr (std::invocable<CondT, event_type &>) {
+            auto &event = ctx.event();
+            return invoke_cond_inorder(cond, event);
+        } else if constexpr (std::invocable<CondT>) {
+            return invoke_cond_inorder(cond);
         } else {
             // static_assert(false, "We're not able to run this function.");
             return false;

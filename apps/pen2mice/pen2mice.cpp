@@ -82,11 +82,10 @@ int main(int const argc, char const* const* argv) try {
       | on[held[KEY_LEFTCTRL], low_pass_filter]
       | momentum_scroll
       | update_mod[keys_state]
-      | drop_zero_mouse_moves
       | drop_msc_scan
-      | drop_orphan_abs
       | drop_adjacent_syns
-      | event_diagnostics
+      | drop_zero_mouse_moves
+      | sieve
       | router[mouse >> uinput, keyboard >> keyboard_pipeline, tablet >> uinput];
 
     auto const parsed = args(argc, argv);
