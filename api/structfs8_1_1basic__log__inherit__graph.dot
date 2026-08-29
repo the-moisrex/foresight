@@ -6,5 +6,7 @@ digraph "fs8::basic_log"
   node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
   Node1 [id="Node000001",label="fs8::basic_log",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip=" "];
   Node1 -> Node2 [id="edge1_Node000001_Node000002",dir="back",color="steelblue1",style="solid",tooltip=" "];
-  Node2 [id="Node000002",label="fs8::basic_log_diagnostics",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__log__diagnostics.html",tooltip=" "];
+  Node2 [id="Node000002",label="fs8::basic_log_and\l_drop_action",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__log__and__drop__action.html",tooltip="Drop-and-log callback: logs the event and returns drop_event."];
+  Node1 -> Node3 [id="edge2_Node000001_Node000003",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node3 [id="Node000003",label="fs8::basic_log_diagnostics",height=0.2,width=0.4,color="gray40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__log__diagnostics.html",tooltip=" "];
 }

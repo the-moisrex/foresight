@@ -13,8 +13,7 @@ var searchData=
   ['unmatch_10',['unmatch',['../namespacefs8.html#a0d840097e2936ed9bf9b32b42ed7e993',1,'fs8::unmatch(query_term const &amp;field) noexcept'],['../namespacefs8.html#a2b38fa933c7d379ee7f578e78d0edaa1',1,'fs8::unmatch(query_target const action)']]],
   ['unwatch_11',['unwatch',['../structfs8_1_1basic__io__manager.html#aced63c41a88655e798d9d0e778018784',1,'fs8::basic_io_manager']]],
   ['up_12',['up',['../namespacefs8.html#a5cbe27612afffd4c3186546c0c26659e',1,'fs8']]],
-  ['update_13',['update',['../structfs8_1_1event__sanitizer__state.html#accef3162024322590417d25c264bb54a',1,'fs8::event_sanitizer_state']]],
-  ['update_5fmouse_5fdistance_14',['update_mouse_distance',['../structfs8_1_1basic__momentum__base.html#acfa91bc0e52f6efb3e1d0cd687d9055d',1,'fs8::basic_momentum_base']]],
-  ['usec_5fsince_5finitialized_15',['usec_since_initialized',['../structfs8_1_1udev__device.html#ad602907b5e528162cb7179704ac0e174',1,'fs8::udev_device']]],
-  ['utf8_5fnext_5fcode_5fpoint_16',['utf8_next_code_point',['../namespacefs8.html#a30030578279ece6dd002f2cd47275142',1,'fs8']]]
+  ['update_5fmouse_5fdistance_13',['update_mouse_distance',['../structfs8_1_1basic__momentum__base.html#acfa91bc0e52f6efb3e1d0cd687d9055d',1,'fs8::basic_momentum_base']]],
+  ['usec_5fsince_5finitialized_14',['usec_since_initialized',['../structfs8_1_1udev__device.html#ad602907b5e528162cb7179704ac0e174',1,'fs8::udev_device']]],
+  ['utf8_5fnext_5fcode_5fpoint_15',['utf8_next_code_point',['../namespacefs8.html#a30030578279ece6dd002f2cd47275142',1,'fs8']]]
 ];

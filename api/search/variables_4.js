@@ -13,10 +13,11 @@ var searchData=
   ['event_5fcount_10',['event_count',['../structfs8_1_1mouse__accum.html#a8eee2524b658792cec7edbdb3fe32e27',1,'fs8::mouse_accum']]],
   ['event_5fdiagnostics_11',['event_diagnostics',['../namespacefs8.html#a09874ef1f335b5dce66bcbde9e70ccf6',1,'fs8']]],
   ['event_5fencoded_5fcode32_5ft_12',['event_encoded_code32_t',['../namespacefs8.html#a1e350d4085bfa720db9bf09af7749194',1,'fs8']]],
-  ['event_5fsanitizer_13',['event_sanitizer',['../namespacefs8.html#aeab1ae1fb368cf9f7605a348e0bb4607',1,'fs8']]],
-  ['event_5fsysname_14',['event_sysname',['../namespacefs8_1_1attr.html#a3700ab5666116ff6496ee60c010a5eb7',1,'fs8::attr']]],
-  ['events_15',['events',['../structfs8_1_1io__fd.html#a0688d25610d8b192986a33e09c7365c5',1,'fs8::io_fd::events'],['../structfs8_1_1pimpl__idiom_1_1impl.html#a1998b457b63614cd8d8bc1b5b030d7c6',1,'fs8::pimpl_idiom::impl::events'],['../structfs8_1_1basic__scheduler_1_1tick__result.html#aab42c159ca5a607838efa49540c8bec6',1,'fs8::basic_scheduler::tick_result::events'],['../structfs8_1_1plain__pimpl__idiom_1_1impl.html#a18b9925761edd563d1f36a1565e2b1b0',1,'fs8::plain_pimpl_idiom::impl::events']]],
-  ['evtest_5fformat_5fbuf_5fsize_16',['evtest_format_buf_size',['../namespacefs8.html#a4fce3d1270cea3fa64f2d82a4694b01e',1,'fs8']]],
-  ['evtest_5foutput_17',['evtest_output',['../namespacefs8.html#afa9df52c3767ecdf335b27ae21ce3d40',1,'fs8']]],
-  ['exit_5fpipeline_18',['exit_pipeline',['../namespacefs8.html#a1d701f96dc69129488fc6e15f1f95880',1,'fs8']]]
+  ['event_5fsanitizer_13',['event_sanitizer',['../namespacefs8.html#ad98f49071b3a16b626a24b8000940cd4',1,'fs8']]],
+  ['event_5fsieve_14',['event_sieve',['../namespacefs8.html#af0bd5d16e5ddbc099a3df7543c6c11a2',1,'fs8']]],
+  ['event_5fsysname_15',['event_sysname',['../namespacefs8_1_1attr.html#a3700ab5666116ff6496ee60c010a5eb7',1,'fs8::attr']]],
+  ['events_16',['events',['../structfs8_1_1pimpl__idiom_1_1impl.html#a1998b457b63614cd8d8bc1b5b030d7c6',1,'fs8::pimpl_idiom::impl::events'],['../structfs8_1_1plain__pimpl__idiom_1_1impl.html#a18b9925761edd563d1f36a1565e2b1b0',1,'fs8::plain_pimpl_idiom::impl::events'],['../structfs8_1_1basic__scheduler_1_1tick__result.html#aab42c159ca5a607838efa49540c8bec6',1,'fs8::basic_scheduler::tick_result::events'],['../structfs8_1_1io__fd.html#a0688d25610d8b192986a33e09c7365c5',1,'fs8::io_fd::events']]],
+  ['evtest_5fformat_5fbuf_5fsize_17',['evtest_format_buf_size',['../namespacefs8.html#a4fce3d1270cea3fa64f2d82a4694b01e',1,'fs8']]],
+  ['evtest_5foutput_18',['evtest_output',['../namespacefs8.html#afa9df52c3767ecdf335b27ae21ce3d40',1,'fs8']]],
+  ['exit_5fpipeline_19',['exit_pipeline',['../namespacefs8.html#a1d701f96dc69129488fc6e15f1f95880',1,'fs8']]]
 ];

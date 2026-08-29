@@ -5,5 +5,5 @@ digraph "Graphical Class Hierarchy"
   edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
   node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
   rankdir="LR";
-  Node0 [id="Node000000",label="fs8::operator_adaptor\l\< basic_on_held\< N, basic\l_noop \> \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1operator__adaptor.html",tooltip=" "];
+  Node0 [id="Node000000",label="fs8::op_not\< Func \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1op__not.html",tooltip=" "];
 }

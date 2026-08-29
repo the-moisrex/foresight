@@ -20,6 +20,7 @@ var hierarchy =
     [ "fs8::basic_device_is", "structfs8_1_1basic__device__is.html", null ],
     [ "fs8::basic_device_query< N >", "structfs8_1_1basic__device__query.html", null ],
     [ "fs8::basic_drop_abs", "structfs8_1_1basic__drop__abs.html", null ],
+    [ "fs8::basic_drop_action", "structfs8_1_1basic__drop__action.html", null ],
     [ "fs8::basic_drop_emitted", "structfs8_1_1basic__drop__emitted.html", null ],
     [ "fs8::basic_drop_event", "structfs8_1_1basic__drop__event.html", null ],
     [ "fs8::basic_drop_mouse_clicks", "structfs8_1_1basic__drop__mouse__clicks.html", null ],
@@ -35,11 +36,14 @@ var hierarchy =
     [ "fs8::basic_from_chained", "structfs8_1_1basic__from__chained.html", null ],
     [ "fs8::basic_from_device", "structfs8_1_1basic__from__device.html", null ],
     [ "fs8::basic_from_stdin", "structfs8_1_1basic__from__stdin.html", null ],
+    [ "fs8::basic_group_mod_factory", "structfs8_1_1basic__group__mod__factory.html", null ],
     [ "fs8::basic_log", "structfs8_1_1basic__log.html", [
+      [ "fs8::basic_log_and_drop_action", "structfs8_1_1basic__log__and__drop__action.html", null ],
       [ "fs8::basic_log_diagnostics", "structfs8_1_1basic__log__diagnostics.html", null ]
     ] ],
     [ "fs8::basic_mod_updater< ModT >", "structfs8_1_1basic__mod__updater.html", null ],
     [ "fs8::basic_noop", "structfs8_1_1basic__noop.html", null ],
+    [ "fs8::basic_on_fail_creater", "structfs8_1_1basic__on__fail__creater.html", null ],
     [ "fs8::basic_parsed_args< MaxPositionals, MaxFlags, MaxNames >", "structfs8_1_1basic__parsed__args.html", null ],
     [ "fs8::basic_pass_trigger_tag", "structfs8_1_1basic__pass__trigger__tag.html", null ],
     [ "fs8::basic_pen2touch", "structfs8_1_1basic__pen2touch.html", null ],
@@ -47,7 +51,6 @@ var hierarchy =
     [ "fs8::xkb::basic_state", "structfs8_1_1xkb_1_1basic__state.html", null ],
     [ "fs8::basic_tag< ID >", "structfs8_1_1basic__tag.html", null ],
     [ "fs8::benchmark_stats", "structfs8_1_1benchmark__stats.html", null ],
-    [ "fs8::event_sanitizer_state::config", "structfs8_1_1event__sanitizer__state_1_1config.html", null ],
     [ "fs8::consteval_copyable", "structfs8_1_1consteval__copyable.html", [
       [ "fs8::basic_code_adaptor< basic_pressed, N >", "structfs8_1_1basic__code__adaptor.html", [
         [ "fs8::basic_pressed< N >", "structfs8_1_1basic__pressed.html", null ]
@@ -102,9 +105,6 @@ var hierarchy =
       [ "fs8::pimpl_idiom< basic_uinput >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_uinput", "structfs8_1_1basic__uinput.html", null ]
       ] ],
-      [ "fs8::pimpl_idiom< event_sanitizer_state >", "structfs8_1_1pimpl__idiom.html", [
-        [ "fs8::event_sanitizer_state", "structfs8_1_1event__sanitizer__state.html", null ]
-      ] ],
       [ "fs8::and_op< Funcs >", "structfs8_1_1and__op.html", null ],
       [ "fs8::basic_abs2rel", "structfs8_1_1basic__abs2rel.html", null ],
       [ "fs8::basic_benchmark< Funcs >", "structfs8_1_1basic__benchmark.html", null ],
@@ -129,11 +129,11 @@ var hierarchy =
       [ "fs8::basic_emit< N >", "structfs8_1_1basic__emit.html", null ],
       [ "fs8::basic_emit_all< N >", "structfs8_1_1basic__emit__all.html", null ],
       [ "fs8::basic_enforce_key_state", "structfs8_1_1basic__enforce__key__state.html", null ],
-      [ "fs8::basic_event_sanitizer< Callback >", "structfs8_1_1basic__event__sanitizer.html", null ],
       [ "fs8::basic_evtest_output< Format >", "structfs8_1_1basic__evtest__output.html", null ],
       [ "fs8::basic_from_evtest< Format >", "structfs8_1_1basic__from__evtest.html", null ],
       [ "fs8::basic_from_input", "structfs8_1_1basic__from__input.html", null ],
       [ "fs8::basic_from_live_view< Format >", "structfs8_1_1basic__from__live__view.html", null ],
+      [ "fs8::basic_group_mod< Mods >", "structfs8_1_1basic__group__mod.html", null ],
       [ "fs8::basic_held", "structfs8_1_1basic__held.html", null ],
       [ "fs8::basic_held_gate< CondT >", "structfs8_1_1basic__held__gate.html", null ],
       [ "fs8::basic_key", "structfs8_1_1basic__key.html", null ],
@@ -153,6 +153,7 @@ var hierarchy =
       [ "fs8::basic_mouse_to_scroll", "structfs8_1_1basic__mouse__to__scroll.html", null ],
       [ "fs8::basic_multi_click", "structfs8_1_1basic__multi__click.html", null ],
       [ "fs8::basic_on< CondT, Funcs >", "structfs8_1_1basic__on.html", null ],
+      [ "fs8::basic_on_fail< CondT, ActionT >", "structfs8_1_1basic__on__fail.html", null ],
       [ "fs8::basic_on_held< N, ModT >", "structfs8_1_1basic__on__held.html", null ],
       [ "fs8::basic_once< CondT, Funcs >", "structfs8_1_1basic__once.html", null ],
       [ "fs8::basic_only_device< N >", "structfs8_1_1basic__only__device.html", null ],
