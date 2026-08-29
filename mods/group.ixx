@@ -36,51 +36,58 @@ export namespace fs8 {
 
         constexpr explicit basic_group_mod(std::tuple<Mods...> mods) noexcept : mods_{std::move(mods)} {}
 
+        template <typename... T>
+            requires((!std::same_as<T, get_variables_tag> && ...))
+        consteval auto operator[](T... mods) const noexcept {
+            return basic_group_mod<std::remove_cvref_t<T>...>{std::tuple{std::move(mods)...}};
+        }
+
         // --- Tag forwarding (start, toggle_on, toggle_off) ---
 
-        template <Tag T>
-            requires(!std::same_as<T, load_event_tag> && !std::same_as<T, next_event_tag>)
-        void operator()(auto&, T tag) noexcept {
-            forward_tag(tag, std::make_index_sequence<sizeof...(Mods)>{});
-        }
-
-        // --- Main handler: receives event directly from pipeline ---
-
-        context_action operator()(event_type const& event) noexcept {
-            return evaluate(event, std::make_index_sequence<sizeof...(Mods)>{});
-        }
-
-      private:
-        template <typename T, std::size_t... Is>
-        void forward_tag(T tag, std::index_sequence<Is...>) noexcept {
-            (invoke_tag(std::get<Is>(mods_), tag), ...);
-        }
-
-        template <std::size_t... Is>
-        context_action evaluate(event_type const& event, std::index_sequence<Is...>) noexcept {
-            bool should_drop = false;
-            ((should_drop |= run_mod(std::get<Is>(mods_), event)), ...);
-            return should_drop ? context_action::drop_event : context_action::next;
-        }
-
-        template <typename Mod>
-        static bool run_mod(Mod& m, event_type const& event) noexcept {
-            using result_t = std::invoke_result_t<Mod&, event_type const&>;
-            if constexpr (std::same_as<result_t, context_action>) {
-                return m(event) == context_action::drop_event;
-            } else if constexpr (std::same_as<result_t, bool>) {
-                return !m(event); // false = drop
-            } else {
-                static_cast<void>(m(event));
-                return false;
+        template <Context CtxT, Tag T>
+            requires((invokable_mod<Mods, CtxT, T> || ...))
+        context_action operator()(CtxT& ctx, T tag) noexcept {
+            using enum context_action;
+            // clang-format off
+#if __cpp_expansion_statements < 202506L
+            // clang-format on
+            context_action result = next;
+            std::apply(
+              [&](auto&... mods) {
+                  std::ignore = ((result = invoke_mod(mods, ctx, tag), result == next) && ...);
+              },
+              mods_);
+            return result;
+#else
+            template for (auto& mod : mods_) {
+                if (auto const res = invoke_mod(mod, ctx, tag); res != next) [[unlikely]] {
+                    return res;
+                }
             }
+            return next;
+#endif
         }
 
-        template <typename Mod, typename T>
-        static void invoke_tag(Mod& m, T tag) noexcept {
-            if constexpr (std::invocable<Mod&, T>) {
-                m(tag);
+        context_action operator()(Context auto& ctx) noexcept {
+            using enum context_action;
+            // clang-format off
+#if __cpp_expansion_statements < 202506L
+            // clang-format on
+            context_action result = next;
+            std::apply(
+              [&](auto&... mods) {
+                  std::ignore = ((result = invoke_mod(mods, ctx), result == next) && ...);
+              },
+              mods_);
+            return result;
+#else
+            template for (auto& mod : mods_) {
+                if (auto const res = invoke_mod(mod, ctx); res != next) [[unlikely]] {
+                    return res;
+                }
             }
+            return next;
+#endif
         }
     };
 
@@ -89,11 +96,6 @@ export namespace fs8 {
     basic_group_mod(std::tuple<Mods...>) -> basic_group_mod<Mods...>;
 
     /// Factory: `group_mod[mod1, mod2, ...]` creates a `basic_group_mod` from the given mods.
-    constexpr struct [[nodiscard]] basic_group_mod_factory {
-        template <typename... Mods>
-        consteval auto operator[](Mods... mods) const noexcept {
-            return basic_group_mod<std::remove_cvref_t<Mods>...>{std::tuple{std::move(mods)...}};
-        }
-    } group_mod;
+    constexpr basic_group_mod<> group_mod;
 
 } // namespace fs8
