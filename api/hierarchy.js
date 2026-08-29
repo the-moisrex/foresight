@@ -156,6 +156,7 @@ var hierarchy =
       [ "fs8::basic_once< CondT, Funcs >", "structfs8_1_1basic__once.html", null ],
       [ "fs8::basic_only_device< N >", "structfs8_1_1basic__only__device.html", null ],
       [ "fs8::basic_output", "structfs8_1_1basic__output.html", null ],
+      [ "fs8::basic_output_selector< Outputs >", "structfs8_1_1basic__output__selector.html", null ],
       [ "fs8::basic_pen2mice", "structfs8_1_1basic__pen2mice.html", null ],
       [ "fs8::basic_pressure2mouse_clicks", "structfs8_1_1basic__pressure2mouse__clicks.html", null ],
       [ "fs8::basic_put< EventType >", "structfs8_1_1basic__put.html", null ],
@@ -280,6 +281,8 @@ var hierarchy =
     [ "fs8::operator_adaptor< basic_swipe_detector >", "structfs8_1_1operator__adaptor.html", [
       [ "fs8::basic_swipe_detector", "structfs8_1_1basic__swipe__detector.html", null ]
     ] ],
+    [ "fs8::detail::os_visit_impl< I >", "structfs8_1_1detail_1_1os__visit__impl.html", null ],
+    [ "fs8::detail::os_visit_impl< 0 >", "structfs8_1_1detail_1_1os__visit__impl_3_010_01_4.html", null ],
     [ "fs8::owned_query", "structfs8_1_1owned__query.html", null ],
     [ "fs8::parsed_evtest_event", "structfs8_1_1parsed__evtest__event.html", null ],
     [ "fs8::pipeline_hash_solution", "structfs8_1_1pipeline__hash__solution.html", null ],

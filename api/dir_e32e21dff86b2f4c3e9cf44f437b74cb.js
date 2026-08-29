@@ -37,6 +37,7 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "on.cxx", "on_8cxx.html", null ],
     [ "on.ixx", "on_8ixx.html", "on_8ixx" ],
     [ "on_fail.ixx", "on__fail_8ixx.html", "on__fail_8ixx" ],
+    [ "output_selector.ixx", "output__selector_8ixx.html", "output__selector_8ixx" ],
     [ "quantifier.cxx", "quantifier_8cxx.html", null ],
     [ "quantifier.ixx", "quantifier_8ixx.html", "quantifier_8ixx" ],
     [ "record.cxx", "record_8cxx.html", "record_8cxx" ],

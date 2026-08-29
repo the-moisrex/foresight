@@ -18,5 +18,7 @@ var searchData=
   ['operator_5fadaptor_3c_20basic_5fswipe_20_3e_15',['operator_adaptor&lt; basic_swipe &gt;',['../structfs8_1_1operator__adaptor.html',1,'fs8']]],
   ['operator_5fadaptor_3c_20basic_5fswipe_5fdetector_20_3e_16',['operator_adaptor&lt; basic_swipe_detector &gt;',['../structfs8_1_1operator__adaptor.html',1,'fs8']]],
   ['or_5fop_17',['or_op',['../structfs8_1_1or__op.html',1,'fs8']]],
-  ['owned_5fquery_18',['owned_query',['../structfs8_1_1owned__query.html',1,'fs8']]]
+  ['os_5fvisit_5fimpl_18',['os_visit_impl',['../structfs8_1_1detail_1_1os__visit__impl.html',1,'fs8::detail']]],
+  ['os_5fvisit_5fimpl_3c_200_20_3e_19',['os_visit_impl&lt; 0 &gt;',['../structfs8_1_1detail_1_1os__visit__impl_3_010_01_4.html',1,'fs8::detail']]],
+  ['owned_5fquery_20',['owned_query',['../structfs8_1_1owned__query.html',1,'fs8']]]
 ];
