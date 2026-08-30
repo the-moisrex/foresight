@@ -281,8 +281,6 @@ var hierarchy =
     [ "fs8::operator_adaptor< basic_swipe_detector >", "structfs8_1_1operator__adaptor.html", [
       [ "fs8::basic_swipe_detector", "structfs8_1_1basic__swipe__detector.html", null ]
     ] ],
-    [ "fs8::detail::os_visit_impl< I >", "structfs8_1_1detail_1_1os__visit__impl.html", null ],
-    [ "fs8::detail::os_visit_impl< 0 >", "structfs8_1_1detail_1_1os__visit__impl_3_010_01_4.html", null ],
     [ "fs8::owned_query", "structfs8_1_1owned__query.html", null ],
     [ "fs8::parsed_evtest_event", "structfs8_1_1parsed__evtest__event.html", null ],
     [ "fs8::pipeline_hash_solution", "structfs8_1_1pipeline__hash__solution.html", null ],

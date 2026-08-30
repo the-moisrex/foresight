@@ -101,15 +101,15 @@ var NAVTREEINDEX =
 "structfs8_1_1basic__scheduled__emitter.html#ac7be70a7e57c72bb3203a4280712ed74",
 "structfs8_1_1basic__switch__mode.html#abca6ae5665a0371c038b62548574a2b6",
 "structfs8_1_1basic__uinput.html#add530f1de8851d7260ebcc4b0618aeb0",
-"structfs8_1_1evdev.html#a17ca24593b49d2972269d7e9dcf0820d",
-"structfs8_1_1event__type.html#a894a503521319257055012ed41c6abdb",
-"structfs8_1_1keyboard__runner.html#ac999c503c6d1777c60cc3704de6bba5c",
-"structfs8_1_1nullable__indirect.html#a259a64e9d1fc5d08c6568728228ef7f6",
-"structfs8_1_1pimpl__idiom_1_1impl.html#a47026de60d3015ac534d46901f8f43ba",
-"structfs8_1_1plain__pimpl__idiom_1_1impl.html#a18b9925761edd563d1f36a1565e2b1b0",
-"structfs8_1_1udev__device.html#a5e499c11802820ba6f31b101a7c66197",
-"structfs8_1_1udev__monitor.html#add0b38c7f3a0a1bd31932064aaec5097",
-"structfs8_1_1xkb_1_1key__position.html#a02b5ad02665462b4fadf9c782e1d2445"
+"structfs8_1_1evdev.html#a21e27b603c13c8c9e7838ac79e428cfa",
+"structfs8_1_1event__type.html#a963f585b2fc2b634667ffeecf96c603b",
+"structfs8_1_1keynames__type.html#aadda817d884a4a2379acf976e116c2ec",
+"structfs8_1_1nullable__indirect.html#a5fbc433fee7fa5b6afbd95ec9d835408",
+"structfs8_1_1pimpl__idiom_1_1impl.html#a56523b20aceab4b719dd15b5617ada3d",
+"structfs8_1_1plain__pimpl__idiom_1_1impl.html#a4d8a8d2ab3eb1b777c29112409cc4b49",
+"structfs8_1_1udev__device.html#a6f7a7884b1fd018380f5d303019bfcb9",
+"structfs8_1_1udev__monitor.html#af47dce0fd7091eff048a7e92e68c0e16",
+"structfs8_1_1xkb_1_1key__position.html#a8476ee9c4360ece4e4cda8595d698a37"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

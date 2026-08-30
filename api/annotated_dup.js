@@ -9,8 +9,6 @@ var annotated_dup =
     ] ],
     [ "fs8", "namespacefs8.html", [
       [ "detail", "namespacefs8_1_1detail.html", [
-        [ "os_visit_impl", "structfs8_1_1detail_1_1os__visit__impl.html", "structfs8_1_1detail_1_1os__visit__impl" ],
-        [ "os_visit_impl< 0 >", "structfs8_1_1detail_1_1os__visit__impl_3_010_01_4.html", "structfs8_1_1detail_1_1os__visit__impl_3_010_01_4" ],
         [ "router_state", "structfs8_1_1detail_1_1router__state.html", "structfs8_1_1detail_1_1router__state" ]
       ] ],
       [ "xkb", "namespacefs8_1_1xkb.html", [

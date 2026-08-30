@@ -102,9 +102,10 @@ $(document).ready(function(){initNavTree('output__selector_8ixx.html',''); initR
 <div class="textblock"><code>#include &lt;cassert&gt;</code><br />
 <code>#include &lt;cstddef&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
-<code>#include &lt;tuple&gt;</code><br />
+<code>#include &lt;limits&gt;</code><br />
+<code>#include &lt;variant&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
-<code>import <a class="el" href="mods_8ixx.html">fs8.mods:inout</a>;</code><br />
+<code>import <a class="el" href="mods_8ixx.html">fs8.mods:live_view</a>;</code><br />
 <code>import <a class="el" href="traits_8ixx.html">fs8.traits</a>;</code><br />
 <code>import <a class="el" href="event_8ixx.html">fs8.event</a>;</code><br />
 <code>import <a class="el" href="context_8ixx.html">fs8.context</a>;</code><br />
@@ -116,10 +117,6 @@ Include dependency graph for output_selector.ixx:</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1detail_1_1os__visit__impl.html">fs8::detail::os_visit_impl&lt; I &gt;</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1detail_1_1os__visit__impl_3_010_01_4.html">fs8::detail::os_visit_impl&lt; 0 &gt;</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__output__selector.html">fs8::basic_output_selector&lt; Outputs &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -137,12 +134,12 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aafa6e9a7bbdca5368f180663d487efa7" id="r_aafa6e9a7bbdca5368f180663d487efa7"><td class="memTemplParams" colspan="2">template&lt;typename F , typename... Ts&gt; </td></tr>
-<tr class="memitem:aafa6e9a7bbdca5368f180663d487efa7"><td class="memTemplItemLeft" align="right" valign="top">constexpr decltype(auto)&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#aafa6e9a7bbdca5368f180663d487efa7">fs8::detail::visit_at</a> (std::tuple&lt; Ts... &gt; &amp;tup, std::size_t idx, F &amp;&amp;fun) noexcept</td></tr>
-<tr class="separator:aafa6e9a7bbdca5368f180663d487efa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e7d39b88c0752370e680c127eb26287" id="r_a2e7d39b88c0752370e680c127eb26287"><td class="memTemplParams" colspan="2">template&lt;typename Out , typename CtxT &gt; </td></tr>
 <tr class="memitem:a2e7d39b88c0752370e680c127eb26287"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#a2e7d39b88c0752370e680c127eb26287">fs8::detail::start_output</a> (Out &amp;<a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a>, CtxT &amp;ctx) noexcept</td></tr>
 <tr class="separator:a2e7d39b88c0752370e680c127eb26287"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e201052ae8adf7ad05ef9141eb9cb54" id="r_a7e201052ae8adf7ad05ef9141eb9cb54"><td class="memTemplParams" colspan="2">template&lt;typename... Ts, std::size_t... Is&gt; </td></tr>
+<tr class="memitem:a7e201052ae8adf7ad05ef9141eb9cb54"><td class="memTemplItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#a7e201052ae8adf7ad05ef9141eb9cb54">fs8::detail::emplace_at</a> (std::variant&lt; Ts... &gt; &amp;var, std::size_t const idx, std::index_sequence&lt; Is... &gt;) noexcept</td></tr>
+<tr class="separator:a7e201052ae8adf7ad05ef9141eb9cb54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
