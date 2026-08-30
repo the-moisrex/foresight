@@ -4,7 +4,8 @@ module;
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
-#include <tuple>
+#include <limits>
+#include <variant>
 #include <type_traits>
 export module fs8.mods:output_selector;
 import fs8.context;
@@ -17,31 +18,6 @@ import :live_view;
 namespace fs8 {
 
     namespace detail {
-        template <std::size_t I>
-        struct os_visit_impl {
-            template <typename T, typename F>
-            static constexpr decltype(auto) visit(T& tup, std::size_t idx, F&& fun) noexcept {
-                if (idx == I - 1) {
-                    return std::forward<F>(fun)(std::get<I - 1>(tup));
-                }
-                return os_visit_impl<I - 1>::visit(tup, idx, fun);
-            }
-        };
-
-        template <>
-        struct os_visit_impl<0> {
-            template <typename T, typename F>
-            static constexpr decltype(auto)
-            visit([[maybe_unused]] T& tup, [[maybe_unused]] std::size_t, [[maybe_unused]] F&& fun) noexcept {
-                assert(false);
-                return std::forward<F>(fun)(std::get<0>(tup));
-            }
-        };
-
-        template <typename F, typename... Ts>
-        constexpr decltype(auto) visit_at(std::tuple<Ts...>& tup, std::size_t idx, F&& fun) noexcept {
-            return os_visit_impl<sizeof...(Ts)>::visit(tup, idx, std::forward<F>(fun));
-        }
 
         template <typename Out, typename CtxT>
         context_action start_output(Out& out, CtxT& ctx) noexcept {
@@ -51,6 +27,19 @@ namespace fs8 {
                 return context_action::next;
             }
         }
+
+        template <typename... Ts, std::size_t... Is>
+        constexpr void emplace_at(std::variant<Ts...>& var, std::size_t const idx, std::index_sequence<Is...>) noexcept {
+            // NOLINTNEXTLINE(*-unused-result)
+            ([&] {
+                if (idx == Is) {
+                    var.template emplace<Is>();
+                    return true;
+                }
+                return false;
+            }() || ...);
+        }
+
     } // namespace detail
 
     export template <OutputModifier... Outputs>
@@ -60,16 +49,15 @@ namespace fs8 {
         static_assert(sizeof...(Outputs) <= std::numeric_limits<std::uint8_t>::max(), "Too many output types.");
 
       private:
-        std::uint8_t           selected_ = 0;
-        std::tuple<Outputs...> outputs_{};
+        std::variant<Outputs...> outputs_{};
 
       public:
         [[nodiscard]] constexpr std::uint8_t selected() const noexcept {
-            return selected_;
+            return static_cast<std::uint8_t>(outputs_.index());
         }
 
-        constexpr void set_selected(std::uint8_t const index) noexcept {
-            selected_ = index;
+        constexpr void set_selected(std::size_t const index) noexcept {
+            detail::emplace_at(outputs_, index, std::index_sequence_for<Outputs...>{});
         }
 
         template <std::size_t N>
@@ -84,14 +72,14 @@ namespace fs8 {
 
         // NOLINTNEXTLINE(*-use-nodiscard)
         bool emit(event_type const& event) noexcept {
-            return detail::visit_at(outputs_, selected_, [&](auto& out) -> bool {
+            return std::visit([&](auto& out) -> bool {
                 return out.emit(event);
-            });
+            }, outputs_);
         }
 
         // NOLINTNEXTLINE(*-use-nodiscard)
         context_action operator()(event_type& event) noexcept {
-            return detail::visit_at(outputs_, selected_, [&]<typename T>(T& out) -> context_action {
+            return std::visit([&]<typename T>(T& out) -> context_action {
                 using Out = std::remove_cvref_t<T>;
                 if constexpr (std::is_nothrow_invocable_v<Out, event_type&>) {
                     using R = std::invoke_result_t<Out, event_type&>;
@@ -104,15 +92,15 @@ namespace fs8 {
                     static_assert(false, "Output type must accept event_type&.");
                     return context_action::exit;
                 }
-            });
+            }, outputs_);
         }
 
         /// Forward start_tag to the selected output if it accepts (CtxT&, start_tag).
         template <typename CtxT>
         context_action operator()(CtxT& ctx, start_tag) noexcept {
-            return detail::visit_at(outputs_, selected_, [&](auto& out) -> context_action {
+            return std::visit([&](auto& out) -> context_action {
                 return detail::start_output(out, ctx);
-            });
+            }, outputs_);
         }
 
         void operator()(auto&&, Tag auto) = delete;

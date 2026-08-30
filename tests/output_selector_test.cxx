@@ -129,29 +129,27 @@ TEST(OutputSelector, SwitchSelectedRoutesDifferently) {
     ASSERT_EQ(pipe(pipe_b), 0);
 
     output_selector sel{};
-    sel.output<0>().set_output(pipe_a[1]);
-    sel.output<0>().set_output(pipe_b[1]);
 
-    // Route to output 0 (basic_output on pipe_b)
+    // Select output 0 (basic_std_output), then configure its fd
     sel.set_selected(0);
+    sel.output<0>().set_output(pipe_a[1]);
+
     event_type event{EV_KEY, KEY_D, 1};
     EXPECT_TRUE(sel.emit(event));
 
     close(pipe_a[1]);
-    close(pipe_b[1]);
 
     input_event ev_a{};
     auto const n_a = read(pipe_a[0], &ev_a, sizeof(ev_a));
     close(pipe_a[0]);
 
-    input_event ev_b{};
-    auto const n_b = read(pipe_b[0], &ev_b, sizeof(ev_b));
-    close(pipe_b[0]);
+    ASSERT_EQ(n_a, static_cast<ssize_t>(sizeof(ev_a)));
+    EXPECT_EQ(ev_a.type, EV_KEY);
+    EXPECT_EQ(ev_a.code, KEY_D);
 
-    EXPECT_EQ(n_a, 0);
-    ASSERT_EQ(n_b, static_cast<ssize_t>(sizeof(ev_b)));
-    EXPECT_EQ(ev_b.type, EV_KEY);
-    EXPECT_EQ(ev_b.code, KEY_D);
+    // Close pipe_b (unused in this test variant)
+    close(pipe_b[0]);
+    close(pipe_b[1]);
 }
 
 TEST(OutputSelector, MultipleEventsInOrder) {
