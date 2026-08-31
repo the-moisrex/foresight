@@ -206,6 +206,8 @@ namespace fs8 {
                         return invoke_first_mod_of(ctx, funcs, special_next_event);
                     }
                     return drop_event;
+                case 4: // toggle_on / toggle_off
+                    return invoke_mods(ctx, funcs, tag);
                 default: return drop_event;
             }
         }
@@ -216,7 +218,9 @@ namespace fs8 {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    return invoke_mods(ctx, funcs, special_toggle_off);
+                    if (auto const action = invoke_mods(ctx, funcs, special_toggle_off); !action) [[unlikely]] {
+                        return action;
+                    }
                 }
                 return next;
             }
@@ -295,6 +299,8 @@ namespace fs8 {
                         return invoke_first_mod_of(ctx, funcs, special_next_event);
                     }
                     return drop_event;
+                case 4: // toggle_on / toggle_off
+                    return invoke_mods(ctx, funcs, tag);
                 default: return drop_event;
             }
         }
@@ -305,7 +311,9 @@ namespace fs8 {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    return invoke_mods(ctx, funcs, special_toggle_off);
+                    if (auto const action = invoke_mods(ctx, funcs, special_toggle_off); !action) [[unlikely]] {
+                        return action;
+                    }
                 }
                 return next;
             }

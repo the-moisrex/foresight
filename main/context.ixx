@@ -365,10 +365,14 @@ export namespace fs8 {
                 // keep the last "interesting" result (next, idle, exit).
                 // Use drop_event as the default so non-invocable mods don't leak through as "handled".
                 return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
-                    auto action = drop_event;
                     auto result = drop_event;
-                    std::ignore =
-                      (((action = fork_mod<I>(ctx, mods, drop_event, args...)), (action == drop_event || (result = action, false))), ...);
+                    (([&]() noexcept {
+                         auto action = fork_mod<I>(ctx, mods, drop_event, args...);
+                         if (action != drop_event) {
+                             result = action;
+                         }
+                     })(),
+                     ...);
                     return result;
                 }(std::make_index_sequence<sizeof...(Mods)>{});
             } else {
