@@ -92,7 +92,6 @@ $(document).ready(function(){initNavTree('module_fs8_8event.html',''); initResiz
 <div class="header">
   <div class="summary">
 <a href="#classes">Classes</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a> &#124;
@@ -115,15 +114,6 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html">fs8::special_event</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:ae866c9f657ce20c4be67ff6c37074ea0" id="r_ae866c9f657ce20c4be67ff6c37074ea0"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">fs8::device_id</a> : std::uint32_t { <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8">none</a> = 0
-, <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a3c6c257ed29622500badf6cc7741375c">stdin</a> = 1
-, <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a> = 2
-, <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a499f31e79c00c9e8f61bdaadc5e82f45">scheduler</a> = 3
- }</td></tr>
-<tr class="separator:ae866c9f657ce20c4be67ff6c37074ea0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -188,10 +178,21 @@ Functions</h2></td></tr>
 <tr class="separator:a49eacdffe91d7730081c2f51016943be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9a57064d23f117022d7d4580c1b9ee4" id="r_af9a57064d23f117022d7d4580c1b9ee4"><td class="memItemLeft" align="right" valign="top">constexpr std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af9a57064d23f117022d7d4580c1b9ee4">fs8::hashed</a> (event_code::type_type const type, event_code::code_type const code) noexcept</td></tr>
 <tr class="separator:af9a57064d23f117022d7d4580c1b9ee4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a136b3e03f26c6f1e08c82936d634aebd" id="r_a136b3e03f26c6f1e08c82936d634aebd"><td class="memItemLeft" align="right" valign="top">constexpr device_id&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a136b3e03f26c6f1e08c82936d634aebd">fs8::hashed_device</a> (std::string_view const sysname) noexcept</td></tr>
-<tr class="separator:a136b3e03f26c6f1e08c82936d634aebd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa55c6d36c03969005e4dc314083527a" id="r_afa55c6d36c03969005e4dc314083527a"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afa55c6d36c03969005e4dc314083527a">fs8::to_string</a> (device_id id) noexcept</td></tr>
-<tr class="separator:afa55c6d36c03969005e4dc314083527a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7dc752468dbe4eabf83c2ef6bc4bd233" id="r_a7dc752468dbe4eabf83c2ef6bc4bd233"><td class="memItemLeft" align="right" valign="top">constexpr std::uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7dc752468dbe4eabf83c2ef6bc4bd233">fs8::mod_id</a> (std::uint32_t const src) noexcept</td></tr>
+<tr class="memdesc:a7dc752468dbe4eabf83c2ef6bc4bd233"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract the mod_id (high 16 bits) from a source_id.  <br /></td></tr>
+<tr class="separator:a7dc752468dbe4eabf83c2ef6bc4bd233"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3f2753852c54e646b31704beb6d1d4f" id="r_ab3f2753852c54e646b31704beb6d1d4f"><td class="memItemLeft" align="right" valign="top">constexpr std::uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ab3f2753852c54e646b31704beb6d1d4f">fs8::source_index</a> (std::uint32_t const src) noexcept</td></tr>
+<tr class="memdesc:ab3f2753852c54e646b31704beb6d1d4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract the source_index (low 16 bits) from a source_id.  <br /></td></tr>
+<tr class="separator:ab3f2753852c54e646b31704beb6d1d4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7bd703cc8459a226986a70d2e02671e" id="r_ac7bd703cc8459a226986a70d2e02671e"><td class="memItemLeft" align="right" valign="top">constexpr std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac7bd703cc8459a226986a70d2e02671e">fs8::make_source_id</a> (std::uint16_t const m, std::uint16_t const idx) noexcept</td></tr>
+<tr class="memdesc:ac7bd703cc8459a226986a70d2e02671e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pack a mod_id and source_index into a single source_id.  <br /></td></tr>
+<tr class="separator:ac7bd703cc8459a226986a70d2e02671e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af332d73410add28af6db91d2bc9d66ef" id="r_af332d73410add28af6db91d2bc9d66ef"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:af332d73410add28af6db91d2bc9d66ef"><td class="memTemplItemLeft" align="right" valign="top">consteval std::uint16_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af332d73410add28af6db91d2bc9d66ef">fs8::mod_id_of</a> () noexcept</td></tr>
+<tr class="separator:af332d73410add28af6db91d2bc9d66ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b1a16f96702f325cff9977e6d6a121a" id="r_a6b1a16f96702f325cff9977e6d6a121a"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6b1a16f96702f325cff9977e6d6a121a">fs8::to_source_string</a> (std::uint32_t source_id) noexcept</td></tr>
+<tr class="memdesc:a6b1a16f96702f325cff9977e6d6a121a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a source_id to a human-readable string (for diagnostics).  <br /></td></tr>
+<tr class="separator:a6b1a16f96702f325cff9977e6d6a121a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13150dbf8df145a7cebb8d1eec356d35" id="r_a13150dbf8df145a7cebb8d1eec356d35"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__type.html#a13150dbf8df145a7cebb8d1eec356d35">event_type</a> () noexcept=default</td></tr>
 <tr class="separator:a13150dbf8df145a7cebb8d1eec356d35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b3d8445a5dd9628031c21531e93c322" id="r_a5b3d8445a5dd9628031c21531e93c322"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__type.html#a5b3d8445a5dd9628031c21531e93c322">event_type</a> (input_event const &amp;inp_ev) noexcept</td></tr>
@@ -294,10 +295,10 @@ Functions</h2></td></tr>
 <tr class="separator:a1152198872825cca211f0f5376301e84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a48a8b6fa7cde40a77a1d13122d59bf32" id="r_a48a8b6fa7cde40a77a1d13122d59bf32"><td class="memItemLeft" align="right" valign="top">constexpr event_type &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__type.html#a48a8b6fa7cde40a77a1d13122d59bf32">operator|=</a> (event_type const &amp;rhs) noexcept</td></tr>
 <tr class="separator:a48a8b6fa7cde40a77a1d13122d59bf32"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95b644f58d63fc793ef07cb074662f63" id="r_a95b644f58d63fc793ef07cb074662f63"><td class="memItemLeft" align="right" valign="top">constexpr device_id&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__type.html#a95b644f58d63fc793ef07cb074662f63">source</a> () const noexcept</td></tr>
-<tr class="separator:a95b644f58d63fc793ef07cb074662f63"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a854de767a9fa16f91b76b148599a72e5" id="r_a854de767a9fa16f91b76b148599a72e5"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__type.html#a854de767a9fa16f91b76b148599a72e5">source</a> (device_id const inp_source) noexcept</td></tr>
-<tr class="separator:a854de767a9fa16f91b76b148599a72e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdb07548ba9805d871b3138a68726719" id="r_abdb07548ba9805d871b3138a68726719"><td class="memItemLeft" align="right" valign="top">constexpr std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__type.html#abdb07548ba9805d871b3138a68726719">source</a> () const noexcept</td></tr>
+<tr class="separator:abdb07548ba9805d871b3138a68726719"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39af3d016dda404ab5ef18940892c144" id="r_a39af3d016dda404ab5ef18940892c144"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__type.html#a39af3d016dda404ab5ef18940892c144">source</a> (std::uint32_t const inp_source) noexcept</td></tr>
+<tr class="separator:a39af3d016dda404ab5ef18940892c144"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6addf1acd18387473baeb0fb7b074371" id="r_a6addf1acd18387473baeb0fb7b074371"><td class="memItemLeft" align="right" valign="top">constexpr std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__type.html#a6addf1acd18387473baeb0fb7b074371">hash</a> () const noexcept</td></tr>
 <tr class="separator:a6addf1acd18387473baeb0fb7b074371"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a266fcad2b4c49218e11e63b7fe183613" id="r_a266fcad2b4c49218e11e63b7fe183613"><td class="memItemLeft" align="right" valign="top">consteval event_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a266fcad2b4c49218e11e63b7fe183613">fs8::syn</a> () noexcept</td></tr>
@@ -340,6 +341,9 @@ Variables</h2></td></tr>
 <tr class="separator:a74223899f9187f0ec920ff91553d660a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a088c04f979954d1200c04a9afbf0e9" id="r_a4a088c04f979954d1200c04a9afbf0e9"><td class="memItemLeft" align="right" valign="top">value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1key__event.html#a4a088c04f979954d1200c04a9afbf0e9">value</a> = 1</td></tr>
 <tr class="separator:a4a088c04f979954d1200c04a9afbf0e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae63667ba0d1d1518574a65693d119528" id="r_ae63667ba0d1d1518574a65693d119528"><td class="memItemLeft" align="right" valign="top">constexpr std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae63667ba0d1d1518574a65693d119528">fs8::source_id_none</a> = 0</td></tr>
+<tr class="memdesc:ae63667ba0d1d1518574a65693d119528"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sentinel value meaning "unknown / unset source".  <br /></td></tr>
+<tr class="separator:ae63667ba0d1d1518574a65693d119528"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aebfae41765e190531e19dd41a27cde2d" id="r_aebfae41765e190531e19dd41a27cde2d"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">fs8::special_event_type</a> = static_cast&lt;event_type::type_type&gt;(EV_MAX + 1)</td></tr>
 <tr class="memdesc:aebfae41765e190531e19dd41a27cde2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sentinel type value used by all lifecycle events.  <br /></td></tr>
 <tr class="separator:aebfae41765e190531e19dd41a27cde2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -351,8 +355,8 @@ Variables</h2></td></tr>
 <tr class="separator:a82861155e886a0062f58ad3a78d94fd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aacafb985ac4d57293c9fbc90b8f6ee3d" id="r_aacafb985ac4d57293c9fbc90b8f6ee3d"><td class="memItemLeft" align="right" valign="top">value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#aacafb985ac4d57293c9fbc90b8f6ee3d">value</a> = 0</td></tr>
 <tr class="separator:aacafb985ac4d57293c9fbc90b8f6ee3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac70c27603999fee627897f1a6e6f65a9" id="r_ac70c27603999fee627897f1a6e6f65a9"><td class="memItemLeft" align="right" valign="top">device_id&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#ac70c27603999fee627897f1a6e6f65a9">from</a> = device_id::none</td></tr>
-<tr class="separator:ac70c27603999fee627897f1a6e6f65a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a343cccb6086e3efa3cc7b48a2a9d875f" id="r_a343cccb6086e3efa3cc7b48a2a9d875f"><td class="memItemLeft" align="right" valign="top">std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#a343cccb6086e3efa3cc7b48a2a9d875f">from</a> = source_id_none</td></tr>
+<tr class="separator:a343cccb6086e3efa3cc7b48a2a9d875f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9eb7165a2c2c4361f54dc84efb7cdcf3" id="r_a9eb7165a2c2c4361f54dc84efb7cdcf3"><td class="memItemLeft" align="right" valign="top">constexpr special_event&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a9eb7165a2c2c4361f54dc84efb7cdcf3">fs8::special_start</a> {.type = special_event_type, .code = 0}</td></tr>
 <tr class="separator:a9eb7165a2c2c4361f54dc84efb7cdcf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a20818d1a063564d065f75cb25778a04b" id="r_a20818d1a063564d065f75cb25778a04b"><td class="memItemLeft" align="right" valign="top">constexpr special_event&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a20818d1a063564d065f75cb25778a04b">fs8::special_no_init</a> {.type = special_event_type, .code = 1}</td></tr>

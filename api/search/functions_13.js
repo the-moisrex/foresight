@@ -11,9 +11,10 @@ var searchData=
   ['unicode_5fencoded_5fevent_8',['unicode_encoded_event',['../namespacefs8.html#a46dec9cd8ca13fbda2fbf8b3969295de',1,'fs8']]],
   ['unique_5fidentifier_9',['unique_identifier',['../structfs8_1_1evdev.html#a6a3ffd4e3c13827b47798d159cf2c685',1,'fs8::evdev::unique_identifier() const noexcept'],['../structfs8_1_1evdev.html#a828d9620827b83138fd478c76d449818',1,'fs8::evdev::unique_identifier(std::string_view) noexcept']]],
   ['unmatch_10',['unmatch',['../namespacefs8.html#a0d840097e2936ed9bf9b32b42ed7e993',1,'fs8::unmatch(query_term const &amp;field) noexcept'],['../namespacefs8.html#a2b38fa933c7d379ee7f578e78d0edaa1',1,'fs8::unmatch(query_target const action)']]],
-  ['unwatch_11',['unwatch',['../structfs8_1_1basic__io__manager.html#aced63c41a88655e798d9d0e778018784',1,'fs8::basic_io_manager']]],
-  ['up_12',['up',['../namespacefs8.html#a5cbe27612afffd4c3186546c0c26659e',1,'fs8']]],
-  ['update_5fmouse_5fdistance_13',['update_mouse_distance',['../structfs8_1_1basic__momentum__base.html#acfa91bc0e52f6efb3e1d0cd687d9055d',1,'fs8::basic_momentum_base']]],
-  ['usec_5fsince_5finitialized_14',['usec_since_initialized',['../structfs8_1_1udev__device.html#ad602907b5e528162cb7179704ac0e174',1,'fs8::udev_device']]],
-  ['utf8_5fnext_5fcode_5fpoint_15',['utf8_next_code_point',['../namespacefs8.html#a30030578279ece6dd002f2cd47275142',1,'fs8']]]
+  ['unregister_5fsource_11',['unregister_source',['../structfs8_1_1basic__input__manager.html#a58bd42baa6d49066e874dd55305ab6a3',1,'fs8::basic_input_manager']]],
+  ['unwatch_12',['unwatch',['../structfs8_1_1basic__io__manager.html#aced63c41a88655e798d9d0e778018784',1,'fs8::basic_io_manager']]],
+  ['up_13',['up',['../namespacefs8.html#a5cbe27612afffd4c3186546c0c26659e',1,'fs8']]],
+  ['update_5fmouse_5fdistance_14',['update_mouse_distance',['../structfs8_1_1basic__momentum__base.html#acfa91bc0e52f6efb3e1d0cd687d9055d',1,'fs8::basic_momentum_base']]],
+  ['usec_5fsince_5finitialized_15',['usec_since_initialized',['../structfs8_1_1udev__device.html#ad602907b5e528162cb7179704ac0e174',1,'fs8::udev_device']]],
+  ['utf8_5fnext_5fcode_5fpoint_16',['utf8_next_code_point',['../namespacefs8.html#a30030578279ece6dd002f2cd47275142',1,'fs8']]]
 ];

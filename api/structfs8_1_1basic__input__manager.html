@@ -127,26 +127,31 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afb5793dd034b307dbea820a2e50f221f" id="r_afb5793dd034b307dbea820a2e50f221f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#afb5793dd034b307dbea820a2e50f221f">is_owned_sysname</a> (std::string_view <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1a42c0989cb33b3c3eee722eb0eed72706">sysname</a>) const noexcept</td></tr>
 <tr class="memdesc:afb5793dd034b307dbea820a2e50f221f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the sysname (e.g. "event9") belongs to one of our devices.  <br /></td></tr>
 <tr class="separator:afb5793dd034b307dbea820a2e50f221f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42f398603960288f0d002e4c3653ffc7" id="r_a42f398603960288f0d002e4c3653ffc7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a42f398603960288f0d002e4c3653ffc7">device_id_of</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;dev) const noexcept</td></tr>
-<tr class="separator:a42f398603960288f0d002e4c3653ffc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5c20c782b2926e41c4a50a6463233b0f" id="r_a5c20c782b2926e41c4a50a6463233b0f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1evdev.html">evdev</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a5c20c782b2926e41c4a50a6463233b0f">device_of</a> (<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a> id) noexcept</td></tr>
-<tr class="separator:a5c20c782b2926e41c4a50a6463233b0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a47cba82267484195ae6250b5e9a028dc" id="r_a47cba82267484195ae6250b5e9a028dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1evdev.html">evdev</a> const *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a47cba82267484195ae6250b5e9a028dc">device_of</a> (<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a> id) const noexcept</td></tr>
-<tr class="separator:a47cba82267484195ae6250b5e9a028dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ee3f22a868789fa7356af8cdbcf845d" id="r_a8ee3f22a868789fa7356af8cdbcf845d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a8ee3f22a868789fa7356af8cdbcf845d">fd_of</a> (<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a> id) const noexcept</td></tr>
-<tr class="memdesc:a8ee3f22a868789fa7356af8cdbcf845d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The open file descriptor of the device, or -1 if unknown.  <br /></td></tr>
-<tr class="separator:a8ee3f22a868789fa7356af8cdbcf845d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab113c63f309c4fdc51d5bb15ec3283c5" id="r_ab113c63f309c4fdc51d5bb15ec3283c5"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#ab113c63f309c4fdc51d5bb15ec3283c5">sysname_of</a> (<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a> id) const noexcept</td></tr>
-<tr class="memdesc:ab113c63f309c4fdc51d5bb15ec3283c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">The sysname of the device (e.g. "event9"), or empty if unknown.  <br /></td></tr>
-<tr class="separator:ab113c63f309c4fdc51d5bb15ec3283c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e19868c5d4878170621ea264db565c8" id="r_a0e19868c5d4878170621ea264db565c8"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a0e19868c5d4878170621ea264db565c8">name_of</a> (<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a> id) const noexcept</td></tr>
-<tr class="memdesc:a0e19868c5d4878170621ea264db565c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">The device name, or empty if unknown.  <br /></td></tr>
-<tr class="separator:a0e19868c5d4878170621ea264db565c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc11d4370dd13c31b2ac7e1ed97e2b37" id="r_afc11d4370dd13c31b2ac7e1ed97e2b37"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#afc11d4370dd13c31b2ac7e1ed97e2b37">is_owned</a> (<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a> id) const noexcept</td></tr>
-<tr class="memdesc:afc11d4370dd13c31b2ac7e1ed97e2b37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether <code>id</code> belongs to a uinput device this process created.  <br /></td></tr>
-<tr class="separator:afc11d4370dd13c31b2ac7e1ed97e2b37"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a85bd19e1804e53a186d8e6ab5aedf4b0" id="r_a85bd19e1804e53a186d8e6ab5aedf4b0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a85bd19e1804e53a186d8e6ab5aedf4b0">is_chained</a> (<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a> id) const noexcept</td></tr>
-<tr class="separator:a85bd19e1804e53a186d8e6ab5aedf4b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a834f85674ddc56771c1d5b159c79aa65" id="r_a834f85674ddc56771c1d5b159c79aa65"><td class="memItemLeft" align="right" valign="top">std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a834f85674ddc56771c1d5b159c79aa65">source_id_of</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;dev) const noexcept</td></tr>
+<tr class="separator:a834f85674ddc56771c1d5b159c79aa65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b8e6cfbcbf08c90e8dba88e63b888c4" id="r_a0b8e6cfbcbf08c90e8dba88e63b888c4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a0b8e6cfbcbf08c90e8dba88e63b888c4">register_source</a> (std::uint32_t source_id, <a class="el" href="structfs8_1_1evdev.html">evdev</a> &amp;dev) noexcept</td></tr>
+<tr class="separator:a0b8e6cfbcbf08c90e8dba88e63b888c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58bd42baa6d49066e874dd55305ab6a3" id="r_a58bd42baa6d49066e874dd55305ab6a3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a58bd42baa6d49066e874dd55305ab6a3">unregister_source</a> (std::uint32_t source_id) noexcept</td></tr>
+<tr class="memdesc:a58bd42baa6d49066e874dd55305ab6a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister a previously registered source_id.  <br /></td></tr>
+<tr class="separator:a58bd42baa6d49066e874dd55305ab6a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6cbfeebdfb8d57651af89eb09ce72b4" id="r_af6cbfeebdfb8d57651af89eb09ce72b4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1evdev.html">evdev</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#af6cbfeebdfb8d57651af89eb09ce72b4">device_of</a> (std::uint32_t id) noexcept</td></tr>
+<tr class="separator:af6cbfeebdfb8d57651af89eb09ce72b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5b3748574ecd34a147930e2452ebd0b" id="r_ab5b3748574ecd34a147930e2452ebd0b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1evdev.html">evdev</a> const *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#ab5b3748574ecd34a147930e2452ebd0b">device_of</a> (std::uint32_t id) const noexcept</td></tr>
+<tr class="separator:ab5b3748574ecd34a147930e2452ebd0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad17dd88792376a6896b44bd58ee2e813" id="r_ad17dd88792376a6896b44bd58ee2e813"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#ad17dd88792376a6896b44bd58ee2e813">fd_of</a> (std::uint32_t id) const noexcept</td></tr>
+<tr class="memdesc:ad17dd88792376a6896b44bd58ee2e813"><td class="mdescLeft">&#160;</td><td class="mdescRight">The open file descriptor of the device, or -1 if unknown.  <br /></td></tr>
+<tr class="separator:ad17dd88792376a6896b44bd58ee2e813"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68e49e6df00b3df083b98833de7d4efa" id="r_a68e49e6df00b3df083b98833de7d4efa"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a68e49e6df00b3df083b98833de7d4efa">sysname_of</a> (std::uint32_t id) const noexcept</td></tr>
+<tr class="memdesc:a68e49e6df00b3df083b98833de7d4efa"><td class="mdescLeft">&#160;</td><td class="mdescRight">The sysname of the device (e.g. "event9"), or empty if unknown.  <br /></td></tr>
+<tr class="separator:a68e49e6df00b3df083b98833de7d4efa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d265e04251a52f710143f0190ed52aa" id="r_a8d265e04251a52f710143f0190ed52aa"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a8d265e04251a52f710143f0190ed52aa">name_of</a> (std::uint32_t id) const noexcept</td></tr>
+<tr class="memdesc:a8d265e04251a52f710143f0190ed52aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">The device name, or empty if unknown.  <br /></td></tr>
+<tr class="separator:a8d265e04251a52f710143f0190ed52aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae959228ea2c8e133b75178b839020bd7" id="r_ae959228ea2c8e133b75178b839020bd7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#ae959228ea2c8e133b75178b839020bd7">is_owned</a> (std::uint32_t id) const noexcept</td></tr>
+<tr class="memdesc:ae959228ea2c8e133b75178b839020bd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether <code>id</code> belongs to a uinput device this process created.  <br /></td></tr>
+<tr class="separator:ae959228ea2c8e133b75178b839020bd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0937e11624336c47b439e4568606a2fa" id="r_a0937e11624336c47b439e4568606a2fa"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a0937e11624336c47b439e4568606a2fa">is_chained</a> (std::uint32_t id) const noexcept</td></tr>
+<tr class="separator:a0937e11624336c47b439e4568606a2fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae726b26ee8351b04b9140d7b2c2ceaf2" id="r_ae726b26ee8351b04b9140d7b2c2ceaf2"><td class="memItemLeft" align="right" valign="top">std::ranges::subrange&lt; std::list&lt; <a class="el" href="structfs8_1_1evdev.html">evdev</a> &gt;::const_iterator &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#ae726b26ee8351b04b9140d7b2c2ceaf2">devices</a> () const noexcept</td></tr>
 <tr class="separator:ae726b26ee8351b04b9140d7b2c2ceaf2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13c8ba44a791628acf1ccade504ac84a" id="r_a13c8ba44a791628acf1ccade504ac84a"><td class="memItemLeft" align="right" valign="top">std::ranges::subrange&lt; std::list&lt; <a class="el" href="structfs8_1_1evdev.html">evdev</a> &gt;::iterator &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a13c8ba44a791628acf1ccade504ac84a">devices</a> () noexcept</td></tr>
@@ -281,35 +286,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a42f398603960288f0d002e4c3653ffc7" name="a42f398603960288f0d002e4c3653ffc7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a42f398603960288f0d002e4c3653ffc7">&#9670;&#160;</a></span>device_id_of()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">fs8::device_id</a> basic_input_manager::device_id_of </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;&#160;</td>
-          <td class="paramname"><em>dev</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>The opaque id of a device (a hash of its sysname), or <code>none</code> if the device has no usable sysname. </p>
-
-</div>
-</div>
-<a id="a47cba82267484195ae6250b5e9a028dc" name="a47cba82267484195ae6250b5e9a028dc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a47cba82267484195ae6250b5e9a028dc">&#9670;&#160;</a></span>device_of() <span class="overload">[1/2]</span></h2>
+<a id="ab5b3748574ecd34a147930e2452ebd0b" name="ab5b3748574ecd34a147930e2452ebd0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5b3748574ecd34a147930e2452ebd0b">&#9670;&#160;</a></span>device_of() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -320,7 +298,7 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structfs8_1_1evdev.html">fs8::evdev</a> const  * basic_input_manager::device_of </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td>
+          <td class="paramtype">std::uint32_t&#160;</td>
           <td class="paramname"><em>id</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -334,8 +312,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a5c20c782b2926e41c4a50a6463233b0f" name="a5c20c782b2926e41c4a50a6463233b0f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5c20c782b2926e41c4a50a6463233b0f">&#9670;&#160;</a></span>device_of() <span class="overload">[2/2]</span></h2>
+<a id="af6cbfeebdfb8d57651af89eb09ce72b4" name="af6cbfeebdfb8d57651af89eb09ce72b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6cbfeebdfb8d57651af89eb09ce72b4">&#9670;&#160;</a></span>device_of() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -346,7 +324,7 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structfs8_1_1evdev.html">fs8::evdev</a> * basic_input_manager::device_of </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td>
+          <td class="paramtype">std::uint32_t&#160;</td>
           <td class="paramname"><em>id</em></td><td>)</td>
           <td></td>
         </tr>
@@ -357,7 +335,7 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Resolve a device id back to the live device, or nullptr if it is a special id (<code>stdin</code>/<code>self</code>/<code>none</code>) or the device has been removed. </p>
+<p>Resolve a source_id back to the live device, or nullptr if it is unknown or the device has been removed. First checks the source_id map (populated by provider mods), then falls back to a sysname-hash lookup for backward compatibility with device-change listeners. </p>
 
 </div>
 </div>
@@ -438,8 +416,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a8ee3f22a868789fa7356af8cdbcf845d" name="a8ee3f22a868789fa7356af8cdbcf845d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8ee3f22a868789fa7356af8cdbcf845d">&#9670;&#160;</a></span>fd_of()</h2>
+<a id="ad17dd88792376a6896b44bd58ee2e813" name="ad17dd88792376a6896b44bd58ee2e813"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad17dd88792376a6896b44bd58ee2e813">&#9670;&#160;</a></span>fd_of()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -450,7 +428,7 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">int basic_input_manager::fd_of </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td>
+          <td class="paramtype">std::uint32_t&#160;</td>
           <td class="paramname"><em>id</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -466,8 +444,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a85bd19e1804e53a186d8e6ab5aedf4b0" name="a85bd19e1804e53a186d8e6ab5aedf4b0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a85bd19e1804e53a186d8e6ab5aedf4b0">&#9670;&#160;</a></span>is_chained()</h2>
+<a id="a0937e11624336c47b439e4568606a2fa" name="a0937e11624336c47b439e4568606a2fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0937e11624336c47b439e4568606a2fa">&#9670;&#160;</a></span>is_chained()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -478,7 +456,7 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">bool basic_input_manager::is_chained </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td>
+          <td class="paramtype">std::uint32_t&#160;</td>
           <td class="paramname"><em>id</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -493,36 +471,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="afc11d4370dd13c31b2ac7e1ed97e2b37" name="afc11d4370dd13c31b2ac7e1ed97e2b37"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afc11d4370dd13c31b2ac7e1ed97e2b37">&#9670;&#160;</a></span>is_owned() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool basic_input_manager::is_owned </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td>
-          <td class="paramname"><em>id</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Whether <code>id</code> belongs to a uinput device this process created. </p>
-
-</div>
-</div>
 <a id="a10fe2cb7f6c3e41622a6145e702e7a67" name="a10fe2cb7f6c3e41622a6145e702e7a67"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a10fe2cb7f6c3e41622a6145e702e7a67">&#9670;&#160;</a></span>is_owned() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a10fe2cb7f6c3e41622a6145e702e7a67">&#9670;&#160;</a></span>is_owned() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -546,6 +496,34 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Whether <code>dev</code> is a uinput device created by this process. </p>
+
+</div>
+</div>
+<a id="ae959228ea2c8e133b75178b839020bd7" name="ae959228ea2c8e133b75178b839020bd7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae959228ea2c8e133b75178b839020bd7">&#9670;&#160;</a></span>is_owned() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool basic_input_manager::is_owned </td>
+          <td>(</td>
+          <td class="paramtype">std::uint32_t&#160;</td>
+          <td class="paramname"><em>id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether <code>id</code> belongs to a uinput device this process created. </p>
 
 </div>
 </div>
@@ -577,8 +555,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a0e19868c5d4878170621ea264db565c8" name="a0e19868c5d4878170621ea264db565c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0e19868c5d4878170621ea264db565c8">&#9670;&#160;</a></span>name_of()</h2>
+<a id="a8d265e04251a52f710143f0190ed52aa" name="a8d265e04251a52f710143f0190ed52aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d265e04251a52f710143f0190ed52aa">&#9670;&#160;</a></span>name_of()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -589,7 +567,7 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">std::string_view basic_input_manager::name_of </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td>
+          <td class="paramtype">std::uint32_t&#160;</td>
           <td class="paramname"><em>id</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -725,6 +703,43 @@ template&lt;Context ContextT&gt; </div>
 
 </div>
 </div>
+<a id="a0b8e6cfbcbf08c90e8dba88e63b888c4" name="a0b8e6cfbcbf08c90e8dba88e63b888c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b8e6cfbcbf08c90e8dba88e63b888c4">&#9670;&#160;</a></span>register_source()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void basic_input_manager::register_source </td>
+          <td>(</td>
+          <td class="paramtype">std::uint32_t&#160;</td>
+          <td class="paramname"><em>source_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1evdev.html">evdev</a> &amp;&#160;</td>
+          <td class="paramname"><em>dev</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Register a source_id → device mapping. Called by provider mods (e.g. intercept) that create mod_id-prefixed source_ids so that <code>device_of(source_id)</code> can resolve them back to live devices. </p>
+
+</div>
+</div>
 <a id="ae92ae2c2e2fce6fcc080448e9a75c3b9" name="ae92ae2c2e2fce6fcc080448e9a75c3b9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae92ae2c2e2fce6fcc080448e9a75c3b9">&#9670;&#160;</a></span>requery()</h2>
 
@@ -748,6 +763,33 @@ template&lt;Context ContextT&gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Re-ask every registered provider for its queries, then re-run enumeration and rebuild the udev monitor filter so hotplug continues to match the fresh set. </p>
+
+</div>
+</div>
+<a id="a834f85674ddc56771c1d5b159c79aa65" name="a834f85674ddc56771c1d5b159c79aa65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a834f85674ddc56771c1d5b159c79aa65">&#9670;&#160;</a></span>source_id_of()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint32_t basic_input_manager::source_id_of </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;&#160;</td>
+          <td class="paramname"><em>dev</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The legacy sysname hash of a device, used only for device-change listener callbacks. New code should use the mod_id-prefixed source_id from events and resolve via <code><a class="el" href="structfs8_1_1basic__input__manager.html#af6cbfeebdfb8d57651af89eb09ce72b4">device_of()</a></code>. </p>
 
 </div>
 </div>
@@ -779,8 +821,8 @@ template&lt;Context ContextT&gt; </div>
 
 </div>
 </div>
-<a id="ab113c63f309c4fdc51d5bb15ec3283c5" name="ab113c63f309c4fdc51d5bb15ec3283c5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab113c63f309c4fdc51d5bb15ec3283c5">&#9670;&#160;</a></span>sysname_of()</h2>
+<a id="a68e49e6df00b3df083b98833de7d4efa" name="a68e49e6df00b3df083b98833de7d4efa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68e49e6df00b3df083b98833de7d4efa">&#9670;&#160;</a></span>sysname_of()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -791,7 +833,7 @@ template&lt;Context ContextT&gt; </div>
         <tr>
           <td class="memname">std::string basic_input_manager::sysname_of </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td>
+          <td class="paramtype">std::uint32_t&#160;</td>
           <td class="paramname"><em>id</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -804,6 +846,34 @@ template&lt;Context ContextT&gt; </div>
 </div><div class="memdoc">
 
 <p>The sysname of the device (e.g. "event9"), or empty if unknown. </p>
+
+</div>
+</div>
+<a id="a58bd42baa6d49066e874dd55305ab6a3" name="a58bd42baa6d49066e874dd55305ab6a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58bd42baa6d49066e874dd55305ab6a3">&#9670;&#160;</a></span>unregister_source()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void basic_input_manager::unregister_source </td>
+          <td>(</td>
+          <td class="paramtype">std::uint32_t&#160;</td>
+          <td class="paramname"><em>source_id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Unregister a previously registered source_id. </p>
 
 </div>
 </div>

@@ -119,8 +119,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a82861155e886a0062f58ad3a78d94fd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aacafb985ac4d57293c9fbc90b8f6ee3d" id="r_aacafb985ac4d57293c9fbc90b8f6ee3d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1special__event.html#a230fea9028a61e1f6b6c263415bc45da">value_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#aacafb985ac4d57293c9fbc90b8f6ee3d">value</a> = 0</td></tr>
 <tr class="separator:aacafb985ac4d57293c9fbc90b8f6ee3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac70c27603999fee627897f1a6e6f65a9" id="r_ac70c27603999fee627897f1a6e6f65a9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#ac70c27603999fee627897f1a6e6f65a9">from</a> = <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8">device_id::none</a></td></tr>
-<tr class="separator:ac70c27603999fee627897f1a6e6f65a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a343cccb6086e3efa3cc7b48a2a9d875f" id="r_a343cccb6086e3efa3cc7b48a2a9d875f"><td class="memItemLeft" align="right" valign="top">std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#a343cccb6086e3efa3cc7b48a2a9d875f">from</a> = <a class="el" href="namespacefs8.html#ae63667ba0d1d1518574a65693d119528">source_id_none</a></td></tr>
+<tr class="separator:a343cccb6086e3efa3cc7b48a2a9d875f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A lifecycle event (tag replacement) that shares the same field layout as <code><a class="el" href="structfs8_1_1event__type.html">event_type</a></code> so mods can handle both regular events and lifecycle events in a single overload if desired. The <code>type</code> field is set to <code>EV_MAX + 1</code> (a value no real kernel event will ever use) so callers can distinguish lifecycle events from real input events. </p>
@@ -236,8 +236,8 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="ac70c27603999fee627897f1a6e6f65a9" name="ac70c27603999fee627897f1a6e6f65a9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac70c27603999fee627897f1a6e6f65a9">&#9670;&#160;</a></span>from</h2>
+<a id="a343cccb6086e3efa3cc7b48a2a9d875f" name="a343cccb6086e3efa3cc7b48a2a9d875f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a343cccb6086e3efa3cc7b48a2a9d875f">&#9670;&#160;</a></span>from</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -246,7 +246,7 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a> fs8::special_event::from = <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8">device_id::none</a></td>
+          <td class="memname">std::uint32_t fs8::special_event::from = <a class="el" href="namespacefs8.html#ae63667ba0d1d1518574a65693d119528">source_id_none</a></td>
         </tr>
       </table>
   </td>

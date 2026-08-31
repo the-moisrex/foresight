@@ -120,9 +120,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac7fcbe3377bfc69f4d75935f9766cbea" id="r_ac7fcbe3377bfc69f4d75935f9766cbea"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view.html#ac7fcbe3377bfc69f4d75935f9766cbea">flush</a> (<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">int</a> fd)</td></tr>
 <tr class="memdesc:ac7fcbe3377bfc69f4d75935f9766cbea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flush any accumulated state (e.g. on timeout).  <br /></td></tr>
 <tr class="separator:ac7fcbe3377bfc69f4d75935f9766cbea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf85a209831e17651592af2389ca4df9" id="r_abf85a209831e17651592af2389ca4df9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1device__live__state.html">device_live_state</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view.html#abf85a209831e17651592af2389ca4df9">state_for</a> (<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a> id)</td></tr>
-<tr class="memdesc:abf85a209831e17651592af2389ca4df9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get per-device state, creating if needed.  <br /></td></tr>
-<tr class="separator:abf85a209831e17651592af2389ca4df9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a716721bbc391e54268e3ae1a6ad80668" id="r_a716721bbc391e54268e3ae1a6ad80668"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1device__live__state.html">device_live_state</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view.html#a716721bbc391e54268e3ae1a6ad80668">state_for</a> (std::uint32_t id)</td></tr>
+<tr class="memdesc:a716721bbc391e54268e3ae1a6ad80668"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get per-device state, creating if needed.  <br /></td></tr>
+<tr class="separator:a716721bbc391e54268e3ae1a6ad80668"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Stateful event processor for the live view. Accumulates mouse movements by direction, tracks keyboard hold durations, and formats output for terminal display. </p>
@@ -339,8 +339,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="abf85a209831e17651592af2389ca4df9" name="abf85a209831e17651592af2389ca4df9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abf85a209831e17651592af2389ca4df9">&#9670;&#160;</a></span>state_for()</h2>
+<a id="a716721bbc391e54268e3ae1a6ad80668" name="a716721bbc391e54268e3ae1a6ad80668"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a716721bbc391e54268e3ae1a6ad80668">&#9670;&#160;</a></span>state_for()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -351,7 +351,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="structfs8_1_1device__live__state.html">fs8::device_live_state</a> &amp; fs8::live_view::state_for </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td>
+          <td class="paramtype">std::uint32_t&#160;</td>
           <td class="paramname"><em>id</em></td><td>)</td>
           <td></td>
         </tr>

@@ -486,7 +486,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format for the live view output: aligned columns with text and hold duration.  <a href="structfs8_1_1live__view__format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view__parse__result.html">live_view_parse_result</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse result extended with device_id.  <a href="structfs8_1_1live__view__parse__result.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse result extended with source_id.  <a href="structfs8_1_1live__view__parse__result.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1low__threshold__tag.html">low_threshold_tag</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -786,12 +786,6 @@ Enumerations</h2></td></tr>
 , <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b">exit</a>
  }</td></tr>
 <tr class="separator:ac5160ee6707deaad4917cbf8bd1e99bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae866c9f657ce20c4be67ff6c37074ea0" id="r_ae866c9f657ce20c4be67ff6c37074ea0"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">fs8::device_id</a> : std::uint32_t { <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8">none</a> = 0
-, <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a3c6c257ed29622500badf6cc7741375c">stdin</a> = 1
-, <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a> = 2
-, <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a499f31e79c00c9e8f61bdaadc5e82f45">scheduler</a> = 3
- }</td></tr>
-<tr class="separator:ae866c9f657ce20c4be67ff6c37074ea0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2008ba272c641df21f53c054eacdf257" id="r_a2008ba272c641df21f53c054eacdf257"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257">fs8::debounce_mode</a> : std::uint8_t { <a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257aa8affc088cbca89fa20dbd98c91362e4">click</a>
 , <a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>
  }</td></tr>
@@ -1087,7 +1081,7 @@ requires (std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#adcd5f
 <tr class="separator:a925df7ee1aac9d6cf75918ee02624b59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18f7254fa63e6bdec71453bfeb061372" id="r_a18f7254fa63e6bdec71453bfeb061372"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a18f7254fa63e6bdec71453bfeb061372">fs8::to_string</a> (<a class="el" href="namespacefs8.html#ad37238ffd12f657195d6e3e8d71292ac">uinput_access_result</a>) noexcept</td></tr>
 <tr class="separator:a18f7254fa63e6bdec71453bfeb061372"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adee1a80366c18034df5097aa668dd38c" id="r_adee1a80366c18034df5097aa668dd38c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#adee1a80366c18034df5097aa668dd38c">fs8::finalize_device</a> (<a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a> &amp;<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a>, <a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;best, <a class="el" href="namespacefs8.html#a6765bed97fe4ab722b67e29633e8f7e3">dev_caps_view</a> caps_view) noexcept</td></tr>
+<tr class="memitem:adee1a80366c18034df5097aa668dd38c" id="r_adee1a80366c18034df5097aa668dd38c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#adee1a80366c18034df5097aa668dd38c">fs8::finalize_device</a> (<a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a> &amp;self, <a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;best, <a class="el" href="namespacefs8.html#a6765bed97fe4ab722b67e29633e8f7e3">dev_caps_view</a> caps_view) noexcept</td></tr>
 <tr class="separator:adee1a80366c18034df5097aa668dd38c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc243b8d2bfaae3fc1b762f5a53aeecb" id="r_adc243b8d2bfaae3fc1b762f5a53aeecb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#adc243b8d2bfaae3fc1b762f5a53aeecb">fs8::parse_evtest_line</a> (std::string_view line, <a class="el" href="structfs8_1_1parsed__evtest__event.html">parsed_evtest_event</a> &amp;<a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a>) noexcept</td></tr>
 <tr class="separator:adc243b8d2bfaae3fc1b762f5a53aeecb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1236,10 +1230,21 @@ requires (std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#adcd5f
 <tr class="separator:a49eacdffe91d7730081c2f51016943be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9a57064d23f117022d7d4580c1b9ee4" id="r_af9a57064d23f117022d7d4580c1b9ee4"><td class="memItemLeft" align="right" valign="top">constexpr std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af9a57064d23f117022d7d4580c1b9ee4">fs8::hashed</a> (<a class="el" href="structfs8_1_1event__code.html#af005e77806bacf87eca89463fff9e15c">event_code::type_type</a> const <a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a>, <a class="el" href="structfs8_1_1event__code.html#ac13a25ab072b20d577ddf35b0c2f0d87">event_code::code_type</a> const <a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a>) noexcept</td></tr>
 <tr class="separator:af9a57064d23f117022d7d4580c1b9ee4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a136b3e03f26c6f1e08c82936d634aebd" id="r_a136b3e03f26c6f1e08c82936d634aebd"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a136b3e03f26c6f1e08c82936d634aebd">fs8::hashed_device</a> (std::string_view const <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1a42c0989cb33b3c3eee722eb0eed72706">sysname</a>) noexcept</td></tr>
-<tr class="separator:a136b3e03f26c6f1e08c82936d634aebd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa55c6d36c03969005e4dc314083527a" id="r_afa55c6d36c03969005e4dc314083527a"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afa55c6d36c03969005e4dc314083527a">fs8::to_string</a> (<a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a> id) noexcept</td></tr>
-<tr class="separator:afa55c6d36c03969005e4dc314083527a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7dc752468dbe4eabf83c2ef6bc4bd233" id="r_a7dc752468dbe4eabf83c2ef6bc4bd233"><td class="memItemLeft" align="right" valign="top">constexpr std::uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7dc752468dbe4eabf83c2ef6bc4bd233">fs8::mod_id</a> (std::uint32_t const src) noexcept</td></tr>
+<tr class="memdesc:a7dc752468dbe4eabf83c2ef6bc4bd233"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract the mod_id (high 16 bits) from a source_id.  <br /></td></tr>
+<tr class="separator:a7dc752468dbe4eabf83c2ef6bc4bd233"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3f2753852c54e646b31704beb6d1d4f" id="r_ab3f2753852c54e646b31704beb6d1d4f"><td class="memItemLeft" align="right" valign="top">constexpr std::uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ab3f2753852c54e646b31704beb6d1d4f">fs8::source_index</a> (std::uint32_t const src) noexcept</td></tr>
+<tr class="memdesc:ab3f2753852c54e646b31704beb6d1d4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract the source_index (low 16 bits) from a source_id.  <br /></td></tr>
+<tr class="separator:ab3f2753852c54e646b31704beb6d1d4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7bd703cc8459a226986a70d2e02671e" id="r_ac7bd703cc8459a226986a70d2e02671e"><td class="memItemLeft" align="right" valign="top">constexpr std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac7bd703cc8459a226986a70d2e02671e">fs8::make_source_id</a> (std::uint16_t const m, std::uint16_t const idx) noexcept</td></tr>
+<tr class="memdesc:ac7bd703cc8459a226986a70d2e02671e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pack a mod_id and source_index into a single source_id.  <br /></td></tr>
+<tr class="separator:ac7bd703cc8459a226986a70d2e02671e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af332d73410add28af6db91d2bc9d66ef" id="r_af332d73410add28af6db91d2bc9d66ef"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:af332d73410add28af6db91d2bc9d66ef"><td class="memTemplItemLeft" align="right" valign="top">consteval std::uint16_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af332d73410add28af6db91d2bc9d66ef">fs8::mod_id_of</a> () noexcept</td></tr>
+<tr class="separator:af332d73410add28af6db91d2bc9d66ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b1a16f96702f325cff9977e6d6a121a" id="r_a6b1a16f96702f325cff9977e6d6a121a"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6b1a16f96702f325cff9977e6d6a121a">fs8::to_source_string</a> (std::uint32_t source_id) noexcept</td></tr>
+<tr class="memdesc:a6b1a16f96702f325cff9977e6d6a121a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a source_id to a human-readable string (for diagnostics).  <br /></td></tr>
+<tr class="separator:a6b1a16f96702f325cff9977e6d6a121a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a266fcad2b4c49218e11e63b7fe183613" id="r_a266fcad2b4c49218e11e63b7fe183613"><td class="memItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1event__type.html">event_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a266fcad2b4c49218e11e63b7fe183613">fs8::syn</a> () noexcept</td></tr>
 <tr class="separator:a266fcad2b4c49218e11e63b7fe183613"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23bdc0e0cf884a92b1a95580caebe6bd" id="r_a23bdc0e0cf884a92b1a95580caebe6bd"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a23bdc0e0cf884a92b1a95580caebe6bd">fs8::is_mouse_movement</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
@@ -1573,6 +1578,9 @@ Variables</h2></td></tr>
 <tr class="separator:a876ea8752da38c4c015857f01ee24e5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d35b5bb608db37a858ce51e52952a52" id="r_a6d35b5bb608db37a858ce51e52952a52"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1user__event.html">user_event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6d35b5bb608db37a858ce51e52952a52">fs8::syn_user_event</a> {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = EV_SYN, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = SYN_REPORT, .<a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">value</a> = 0}</td></tr>
 <tr class="separator:a6d35b5bb608db37a858ce51e52952a52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae63667ba0d1d1518574a65693d119528" id="r_ae63667ba0d1d1518574a65693d119528"><td class="memItemLeft" align="right" valign="top">constexpr std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae63667ba0d1d1518574a65693d119528">fs8::source_id_none</a> = 0</td></tr>
+<tr class="memdesc:ae63667ba0d1d1518574a65693d119528"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sentinel value meaning "unknown / unset source".  <br /></td></tr>
+<tr class="separator:ae63667ba0d1d1518574a65693d119528"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aebfae41765e190531e19dd41a27cde2d" id="r_aebfae41765e190531e19dd41a27cde2d"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">fs8::special_event_type</a> = static_cast&lt;<a class="el" href="structfs8_1_1event__type.html#a0eeb8ce1b7e307cf64a2d6c540ea7564">event_type::type_type</a>&gt;(EV_MAX + 1)</td></tr>
 <tr class="memdesc:aebfae41765e190531e19dd41a27cde2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sentinel type value used by all lifecycle events.  <br /></td></tr>
 <tr class="separator:aebfae41765e190531e19dd41a27cde2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2628,35 +2636,6 @@ template&lt;template&lt; typename... &gt; typename Templ, typename... ModsT&gt; 
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a5a20a1a79bbb5147ba7a0db2bb301c63a06aa6fa8bdc2078e7e1bd903e70c8f6a" name="a5a20a1a79bbb5147ba7a0db2bb301c63a06aa6fa8bdc2078e7e1bd903e70c8f6a"></a>connected&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a5a20a1a79bbb5147ba7a0db2bb301c63a3a561116f0c9675a3c83d21fa365050d" name="a5a20a1a79bbb5147ba7a0db2bb301c63a3a561116f0c9675a3c83d21fa365050d"></a>disconnected&#160;</td><td class="fielddoc"></td></tr>
-</table>
-
-</div>
-</div>
-<a id="ae866c9f657ce20c4be67ff6c37074ea0" name="ae866c9f657ce20c4be67ff6c37074ea0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae866c9f657ce20c4be67ff6c37074ea0">&#9670;&#160;</a></span>device_id</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum struct <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">fs8::device_id</a> : std::uint32_t</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">strong</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Where an event came from. <code>none</code> means it was read straight from a kernel <code>input_event</code> without classification; <code>stdin</code> is redirect mode; <code>self</code> is an event synthesized by this pipeline (an emitter or a fork). Every other value is a hash of the source device's sysname (e.g. "event9"); the device can be resolved and classified (real device / our own uinput device / another process's foresight virtual device) through <code>input_manager</code>. The value never crosses a process boundary: only the raw <code>input_event</code> is serialized through stdin/stdout. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8" name="ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8"></a>none&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae866c9f657ce20c4be67ff6c37074ea0a3c6c257ed29622500badf6cc7741375c" name="ae866c9f657ce20c4be67ff6c37074ea0a3c6c257ed29622500badf6cc7741375c"></a>stdin&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63" name="ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63"></a>self&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae866c9f657ce20c4be67ff6c37074ea0a499f31e79c00c9e8f61bdaadc5e82f45" name="ae866c9f657ce20c4be67ff6c37074ea0a499f31e79c00c9e8f61bdaadc5e82f45"></a>scheduler&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -5473,33 +5452,6 @@ template&lt;std::size_t Index, Context CtxT, typename... Funcs, typename... Args
 
 </div>
 </div>
-<a id="a136b3e03f26c6f1e08c82936d634aebd" name="a136b3e03f26c6f1e08c82936d634aebd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a136b3e03f26c6f1e08c82936d634aebd">&#9670;&#160;</a></span>hashed_device()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a> fs8::hashed_device </td>
-          <td>(</td>
-          <td class="paramtype">std::string_view const&#160;</td>
-          <td class="paramname"><em>sysname</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Derive the device id for a device whose sysname is <code>sysname</code> (e.g. "event9"). Use with <code>device_is</code>, <code>only_device</code>, <code>drop_device</code>, ... </p>
-
-</div>
-</div>
 <a id="af09228b108cada750b70aa0d2e5cb19c" name="af09228b108cada750b70aa0d2e5cb19c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af09228b108cada750b70aa0d2e5cb19c">&#9670;&#160;</a></span>iequals()</h2>
 
@@ -7173,6 +7125,44 @@ template&lt;floating_point T&gt; </div>
 
 </div>
 </div>
+<a id="ac7bd703cc8459a226986a70d2e02671e" name="ac7bd703cc8459a226986a70d2e02671e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7bd703cc8459a226986a70d2e02671e">&#9670;&#160;</a></span>make_source_id()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr std::uint32_t fs8::make_source_id </td>
+          <td>(</td>
+          <td class="paramtype">std::uint16_t const&#160;</td>
+          <td class="paramname"><em>m</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::uint16_t const&#160;</td>
+          <td class="paramname"><em>idx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Pack a mod_id and source_index into a single source_id. </p>
+
+</div>
+</div>
 <a id="acfbf0fe543bc80b3e9bac3c5521d7b5e" name="acfbf0fe543bc80b3e9bac3c5521d7b5e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acfbf0fe543bc80b3e9bac3c5521d7b5e">&#9670;&#160;</a></span>match() <span class="overload">[1/2]</span></h2>
 
@@ -7487,6 +7477,63 @@ template&lt;floating_point T&gt; </div>
 <p>Fully match an <code>evdev</code> against a query: reconstructs the underlying udev device from the open evdev and verifies every query field against it (including properties/tags/arbitrary sysattrs), then re-checks the fields expressible through evdev plus capabilities.</p>
 <p>Unlike <code>matches(evdev, ...)</code>, this does not assume the device already went through udev-level filtering; it is safe to use on a device that was opened directly (e.g. from a path).</p>
 <p>Returns <code>false</code> if the evdev is invalid or its udev device cannot be found. </p>
+
+</div>
+</div>
+<a id="a7dc752468dbe4eabf83c2ef6bc4bd233" name="a7dc752468dbe4eabf83c2ef6bc4bd233"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7dc752468dbe4eabf83c2ef6bc4bd233">&#9670;&#160;</a></span>mod_id()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr std::uint16_t fs8::mod_id </td>
+          <td>(</td>
+          <td class="paramtype">std::uint32_t const&#160;</td>
+          <td class="paramname"><em>src</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Extract the mod_id (high 16 bits) from a source_id. </p>
+
+</div>
+</div>
+<a id="af332d73410add28af6db91d2bc9d66ef" name="af332d73410add28af6db91d2bc9d66ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af332d73410add28af6db91d2bc9d66ef">&#9670;&#160;</a></span>mod_id_of()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">consteval std::uint16_t fs8::mod_id_of </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Derive a compile-time mod_id for a type T. If T defines a static constexpr <code>mod_id</code> member, use it; otherwise hash <b>PRETTY_FUNCTION</b> (which includes the type name) at compile time via ci_hash.</p>
+<p>Only provider mods (intercept, from_input, scheduler, …) need a mod_id; the hash fallback gives them a unique value without manual registration. </p>
 
 </div>
 </div>
@@ -9776,6 +9823,34 @@ template&lt;typename... Ts&gt; </div>
 
 </div>
 </div>
+<a id="ab3f2753852c54e646b31704beb6d1d4f" name="ab3f2753852c54e646b31704beb6d1d4f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3f2753852c54e646b31704beb6d1d4f">&#9670;&#160;</a></span>source_index()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr std::uint16_t fs8::source_index </td>
+          <td>(</td>
+          <td class="paramtype">std::uint32_t const&#160;</td>
+          <td class="paramname"><em>src</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Extract the source_index (low 16 bits) from a source_id. </p>
+
+</div>
+</div>
 <a id="ae78f15fbb5034e3b910b9030851bc462" name="ae78f15fbb5034e3b910b9030851bc462"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae78f15fbb5034e3b910b9030851bc462">&#9670;&#160;</a></span>subsystem()</h2>
 
@@ -10084,8 +10159,36 @@ template&lt;std::size_t N&gt; </div>
 
 </div>
 </div>
+<a id="a6b1a16f96702f325cff9977e6d6a121a" name="a6b1a16f96702f325cff9977e6d6a121a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6b1a16f96702f325cff9977e6d6a121a">&#9670;&#160;</a></span>to_source_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string_view fs8::to_source_string </td>
+          <td>(</td>
+          <td class="paramtype">std::uint32_t&#160;</td>
+          <td class="paramname"><em>source_id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Convert a source_id to a human-readable string (for diagnostics). </p>
+
+</div>
+</div>
 <a id="aebf04814ae9d82a70029373f09ddc2c5" name="aebf04814ae9d82a70029373f09ddc2c5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aebf04814ae9d82a70029373f09ddc2c5">&#9670;&#160;</a></span>to_string() <span class="overload">[1/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aebf04814ae9d82a70029373f09ddc2c5">&#9670;&#160;</a></span>to_string() <span class="overload">[1/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10111,7 +10214,7 @@ template&lt;std::size_t N&gt; </div>
 </div>
 </div>
 <a id="a4deeb0bf0ec418642b758aaf12e28f4a" name="a4deeb0bf0ec418642b758aaf12e28f4a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4deeb0bf0ec418642b758aaf12e28f4a">&#9670;&#160;</a></span>to_string() <span class="overload">[2/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4deeb0bf0ec418642b758aaf12e28f4a">&#9670;&#160;</a></span>to_string() <span class="overload">[2/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10137,7 +10240,7 @@ template&lt;std::size_t N&gt; </div>
 </div>
 </div>
 <a id="a74230e7c6877bfafeb34e38f757ffd1a" name="a74230e7c6877bfafeb34e38f757ffd1a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a74230e7c6877bfafeb34e38f757ffd1a">&#9670;&#160;</a></span>to_string() <span class="overload">[3/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a74230e7c6877bfafeb34e38f757ffd1a">&#9670;&#160;</a></span>to_string() <span class="overload">[3/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10162,34 +10265,8 @@ template&lt;std::size_t N&gt; </div>
 
 </div>
 </div>
-<a id="afa55c6d36c03969005e4dc314083527a" name="afa55c6d36c03969005e4dc314083527a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa55c6d36c03969005e4dc314083527a">&#9670;&#160;</a></span>to_string() <span class="overload">[4/12]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::string_view fs8::to_string </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">device_id</a>&#160;</td>
-          <td class="paramname"><em>id</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a1516634fb47e8cfdd14756e407562007" name="a1516634fb47e8cfdd14756e407562007"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1516634fb47e8cfdd14756e407562007">&#9670;&#160;</a></span>to_string() <span class="overload">[5/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a1516634fb47e8cfdd14756e407562007">&#9670;&#160;</a></span>to_string() <span class="overload">[4/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10215,7 +10292,7 @@ template&lt;std::size_t N&gt; </div>
 </div>
 </div>
 <a id="a7cc253bfca76ef6b4cc860e2737abd0b" name="a7cc253bfca76ef6b4cc860e2737abd0b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7cc253bfca76ef6b4cc860e2737abd0b">&#9670;&#160;</a></span>to_string() <span class="overload">[6/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7cc253bfca76ef6b4cc860e2737abd0b">&#9670;&#160;</a></span>to_string() <span class="overload">[5/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10241,7 +10318,7 @@ template&lt;std::size_t N&gt; </div>
 </div>
 </div>
 <a id="aa9d9e721362511575ad3b5de8e4a69d1" name="aa9d9e721362511575ad3b5de8e4a69d1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa9d9e721362511575ad3b5de8e4a69d1">&#9670;&#160;</a></span>to_string() <span class="overload">[7/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9d9e721362511575ad3b5de8e4a69d1">&#9670;&#160;</a></span>to_string() <span class="overload">[6/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10270,7 +10347,7 @@ requires (std::invocable&lt;Func&gt;)</div>
 </div>
 </div>
 <a id="a5485f010ed92eaff22042d8a9dc68498" name="a5485f010ed92eaff22042d8a9dc68498"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5485f010ed92eaff22042d8a9dc68498">&#9670;&#160;</a></span>to_string() <span class="overload">[8/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5485f010ed92eaff22042d8a9dc68498">&#9670;&#160;</a></span>to_string() <span class="overload">[7/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10296,7 +10373,7 @@ requires (std::invocable&lt;Func&gt;)</div>
 </div>
 </div>
 <a id="aa8545c3eccc3e82465adae55f7ef7144" name="aa8545c3eccc3e82465adae55f7ef7144"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8545c3eccc3e82465adae55f7ef7144">&#9670;&#160;</a></span>to_string() <span class="overload">[9/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8545c3eccc3e82465adae55f7ef7144">&#9670;&#160;</a></span>to_string() <span class="overload">[8/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10322,7 +10399,7 @@ requires (std::invocable&lt;Func&gt;)</div>
 </div>
 </div>
 <a id="ac14bae7250ac9ba8429ddd4a327fced8" name="ac14bae7250ac9ba8429ddd4a327fced8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac14bae7250ac9ba8429ddd4a327fced8">&#9670;&#160;</a></span>to_string() <span class="overload">[10/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac14bae7250ac9ba8429ddd4a327fced8">&#9670;&#160;</a></span>to_string() <span class="overload">[9/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10358,7 +10435,7 @@ requires (std::invocable&lt;Func&gt;)</div>
 </div>
 </div>
 <a id="a621d548d40a1829c81c2b84f46ae8ff5" name="a621d548d40a1829c81c2b84f46ae8ff5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a621d548d40a1829c81c2b84f46ae8ff5">&#9670;&#160;</a></span>to_string() <span class="overload">[11/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a621d548d40a1829c81c2b84f46ae8ff5">&#9670;&#160;</a></span>to_string() <span class="overload">[10/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -10386,7 +10463,7 @@ template&lt;typename CharT &gt; </div>
 </div>
 </div>
 <a id="a18f7254fa63e6bdec71453bfeb061372" name="a18f7254fa63e6bdec71453bfeb061372"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a18f7254fa63e6bdec71453bfeb061372">&#9670;&#160;</a></span>to_string() <span class="overload">[12/12]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a18f7254fa63e6bdec71453bfeb061372">&#9670;&#160;</a></span>to_string() <span class="overload">[11/11]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -14156,6 +14233,30 @@ template&lt;EvtestFormat Format&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae63667ba0d1d1518574a65693d119528" name="ae63667ba0d1d1518574a65693d119528"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae63667ba0d1d1518574a65693d119528">&#9670;&#160;</a></span>source_id_none</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr std::uint32_t fs8::source_id_none = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sentinel value meaning "unknown / unset source". </p>
 
 </div>
 </div>
