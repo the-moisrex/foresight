@@ -113,6 +113,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__type.html">fs8::event_type</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html">fs8::special_event</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -156,6 +158,14 @@ Typedefs</h2></td></tr>
 <tr class="separator:a2e849054fba3388fcde2f566a6bcbdb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af7acbf89b644cfa5655043ce35dd3174" id="r_af7acbf89b644cfa5655043ce35dd3174"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__type.html#af7acbf89b644cfa5655043ce35dd3174">time_type</a> = decltype(input_event::time)</td></tr>
 <tr class="separator:af7acbf89b644cfa5655043ce35dd3174"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00f63d08e9175eb067aa43f252153601" id="r_a00f63d08e9175eb067aa43f252153601"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#a00f63d08e9175eb067aa43f252153601">type_type</a> = event_type::type_type</td></tr>
+<tr class="separator:a00f63d08e9175eb067aa43f252153601"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0d3c7614e1ab618aeafb447aa76f763" id="r_ab0d3c7614e1ab618aeafb447aa76f763"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#ab0d3c7614e1ab618aeafb447aa76f763">code_type</a> = event_type::code_type</td></tr>
+<tr class="separator:ab0d3c7614e1ab618aeafb447aa76f763"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a230fea9028a61e1f6b6c263415bc45da" id="r_a230fea9028a61e1f6b6c263415bc45da"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#a230fea9028a61e1f6b6c263415bc45da">value_type</a> = event_type::value_type</td></tr>
+<tr class="separator:a230fea9028a61e1f6b6c263415bc45da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcdce388af77f7ffc7f2183289c0dd4d" id="r_abcdce388af77f7ffc7f2183289c0dd4d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#abcdce388af77f7ffc7f2183289c0dd4d">time_type</a> = event_type::time_type</td></tr>
+<tr class="separator:abcdce388af77f7ffc7f2183289c0dd4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -304,6 +314,11 @@ Functions</h2></td></tr>
 <tr class="separator:a2ef80f285619af3478b43d49a9234d88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea211e19ffdede51989600ba22d0879e" id="r_aea211e19ffdede51989600ba22d0879e"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aea211e19ffdede51989600ba22d0879e">fs8::is_syn</a> (user_event const &amp;event) noexcept</td></tr>
 <tr class="separator:aea211e19ffdede51989600ba22d0879e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0871b2cb5f74feeb3f4f7743ad34952" id="r_ac0871b2cb5f74feeb3f4f7743ad34952"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac0871b2cb5f74feeb3f4f7743ad34952">fs8::is_special</a> (special_event const &amp;ev, special_event::code_type const code) noexcept</td></tr>
+<tr class="memdesc:ac0871b2cb5f74feeb3f4f7743ad34952"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether a <code><a class="el" href="structfs8_1_1special__event.html">special_event</a></code> matches a given lifecycle code.  <br /></td></tr>
+<tr class="separator:ac0871b2cb5f74feeb3f4f7743ad34952"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03c7b3838ea02b03c17f9daf9f0f1934" id="r_a03c7b3838ea02b03c17f9daf9f0f1934"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a03c7b3838ea02b03c17f9daf9f0f1934">fs8::is_special</a> (event_type const &amp;ev) noexcept</td></tr>
+<tr class="separator:a03c7b3838ea02b03c17f9daf9f0f1934"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -325,6 +340,31 @@ Variables</h2></td></tr>
 <tr class="separator:a74223899f9187f0ec920ff91553d660a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a088c04f979954d1200c04a9afbf0e9" id="r_a4a088c04f979954d1200c04a9afbf0e9"><td class="memItemLeft" align="right" valign="top">value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1key__event.html#a4a088c04f979954d1200c04a9afbf0e9">value</a> = 1</td></tr>
 <tr class="separator:a4a088c04f979954d1200c04a9afbf0e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aebfae41765e190531e19dd41a27cde2d" id="r_aebfae41765e190531e19dd41a27cde2d"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">fs8::special_event_type</a> = static_cast&lt;event_type::type_type&gt;(EV_MAX + 1)</td></tr>
+<tr class="memdesc:aebfae41765e190531e19dd41a27cde2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sentinel type value used by all lifecycle events.  <br /></td></tr>
+<tr class="separator:aebfae41765e190531e19dd41a27cde2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9aefe2be07e0e52ffbb4b20ac58a7c77" id="r_a9aefe2be07e0e52ffbb4b20ac58a7c77"><td class="memItemLeft" align="right" valign="top">time_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#a9aefe2be07e0e52ffbb4b20ac58a7c77">time</a> = {}</td></tr>
+<tr class="separator:a9aefe2be07e0e52ffbb4b20ac58a7c77"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdb27196a2c621be76624ed61d837f01" id="r_abdb27196a2c621be76624ed61d837f01"><td class="memItemLeft" align="right" valign="top">type_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#abdb27196a2c621be76624ed61d837f01">type</a> = special_event_type</td></tr>
+<tr class="separator:abdb27196a2c621be76624ed61d837f01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82861155e886a0062f58ad3a78d94fd1" id="r_a82861155e886a0062f58ad3a78d94fd1"><td class="memItemLeft" align="right" valign="top">code_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#a82861155e886a0062f58ad3a78d94fd1">code</a> = 0</td></tr>
+<tr class="separator:a82861155e886a0062f58ad3a78d94fd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacafb985ac4d57293c9fbc90b8f6ee3d" id="r_aacafb985ac4d57293c9fbc90b8f6ee3d"><td class="memItemLeft" align="right" valign="top">value_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#aacafb985ac4d57293c9fbc90b8f6ee3d">value</a> = 0</td></tr>
+<tr class="separator:aacafb985ac4d57293c9fbc90b8f6ee3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac70c27603999fee627897f1a6e6f65a9" id="r_ac70c27603999fee627897f1a6e6f65a9"><td class="memItemLeft" align="right" valign="top">device_id&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html#ac70c27603999fee627897f1a6e6f65a9">from</a> = device_id::none</td></tr>
+<tr class="separator:ac70c27603999fee627897f1a6e6f65a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9eb7165a2c2c4361f54dc84efb7cdcf3" id="r_a9eb7165a2c2c4361f54dc84efb7cdcf3"><td class="memItemLeft" align="right" valign="top">constexpr special_event&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a9eb7165a2c2c4361f54dc84efb7cdcf3">fs8::special_start</a> {.type = special_event_type, .code = 0}</td></tr>
+<tr class="separator:a9eb7165a2c2c4361f54dc84efb7cdcf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20818d1a063564d065f75cb25778a04b" id="r_a20818d1a063564d065f75cb25778a04b"><td class="memItemLeft" align="right" valign="top">constexpr special_event&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a20818d1a063564d065f75cb25778a04b">fs8::special_no_init</a> {.type = special_event_type, .code = 1}</td></tr>
+<tr class="separator:a20818d1a063564d065f75cb25778a04b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa4964db7e08c450c4ed97903cd99b06" id="r_afa4964db7e08c450c4ed97903cd99b06"><td class="memItemLeft" align="right" valign="top">constexpr special_event&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afa4964db7e08c450c4ed97903cd99b06">fs8::special_load_event</a> {.type = special_event_type, .code = 2}</td></tr>
+<tr class="separator:afa4964db7e08c450c4ed97903cd99b06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0a32e23d59ec85a5941b70a9194741f" id="r_ac0a32e23d59ec85a5941b70a9194741f"><td class="memItemLeft" align="right" valign="top">constexpr special_event&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac0a32e23d59ec85a5941b70a9194741f">fs8::special_next_event</a> {.type = special_event_type, .code = 3}</td></tr>
+<tr class="separator:ac0a32e23d59ec85a5941b70a9194741f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39891ed210baa092ddda7c012f1109a9" id="r_a39891ed210baa092ddda7c012f1109a9"><td class="memItemLeft" align="right" valign="top">constexpr special_event&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a39891ed210baa092ddda7c012f1109a9">fs8::special_toggle_on</a> {.type = special_event_type, .code = 4, .value = 1}</td></tr>
+<tr class="separator:a39891ed210baa092ddda7c012f1109a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0118957bf388f3753e66090ea47de519" id="r_a0118957bf388f3753e66090ea47de519"><td class="memItemLeft" align="right" valign="top">constexpr special_event&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a0118957bf388f3753e66090ea47de519">fs8::special_toggle_off</a> {.type = special_event_type, .code = 4, .value = 0}</td></tr>
+<tr class="separator:a0118957bf388f3753e66090ea47de519"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>

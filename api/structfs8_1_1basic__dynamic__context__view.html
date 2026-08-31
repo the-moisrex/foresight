@@ -118,11 +118,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a047c82cf50531adb880e05ccbb77b1de" id="r_a047c82cf50531adb880e05ccbb77b1de"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__dynamic__context__view.html#a047c82cf50531adb880e05ccbb77b1de">operator()</a> () noexcept</td></tr>
 <tr class="memdesc:a047c82cf50531adb880e05ccbb77b1de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invoke the mod at NIndex directly (no tag).  <br /></td></tr>
 <tr class="separator:a047c82cf50531adb880e05ccbb77b1de"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c2e7ff7c5c6a179da013f5dc79e2cc1" id="r_a8c2e7ff7c5c6a179da013f5dc79e2cc1"><td class="memTemplParams" colspan="2">template&lt;typename TagT &gt; <br />
-requires Tag&lt;TagT&gt;</td></tr>
-<tr class="memitem:a8c2e7ff7c5c6a179da013f5dc79e2cc1"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__dynamic__context__view.html#a8c2e7ff7c5c6a179da013f5dc79e2cc1">operator()</a> (TagT <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
-<tr class="memdesc:a8c2e7ff7c5c6a179da013f5dc79e2cc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invoke the mod at NIndex with the given tag.  <br /></td></tr>
-<tr class="separator:a8c2e7ff7c5c6a179da013f5dc79e2cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb3ab9d9816f9c2903451a627c155189" id="r_adb3ab9d9816f9c2903451a627c155189"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__dynamic__context__view.html#adb3ab9d9816f9c2903451a627c155189">operator()</a> (<a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
+<tr class="memdesc:adb3ab9d9816f9c2903451a627c155189"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invoke the mod at NIndex with the given <a class="el" href="structfs8_1_1special__event.html">special_event</a>.  <br /></td></tr>
+<tr class="separator:adb3ab9d9816f9c2903451a627c155189"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;std::size_t NIndex&gt;<br />
@@ -395,16 +393,13 @@ template&lt;std::size_t NIndex&gt; </div>
 
 </div>
 </div>
-<a id="a8c2e7ff7c5c6a179da013f5dc79e2cc1" name="a8c2e7ff7c5c6a179da013f5dc79e2cc1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8c2e7ff7c5c6a179da013f5dc79e2cc1">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
+<a id="adb3ab9d9816f9c2903451a627c155189" name="adb3ab9d9816f9c2903451a627c155189"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb3ab9d9816f9c2903451a627c155189">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;std::size_t NIndex&gt; </div>
-<div class="memtemplate">
-template&lt;typename TagT &gt; <br />
-requires Tag&lt;TagT&gt;</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -412,7 +407,7 @@ requires Tag&lt;TagT&gt;</div>
         <tr>
           <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> <a class="el" href="structfs8_1_1basic__dynamic__context__view.html">fs8::basic_dynamic_context_view</a>&lt; NIndex &gt;::operator() </td>
           <td>(</td>
-          <td class="paramtype">TagT&#160;</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;&#160;</td>
           <td class="paramname"><em>tag</em></td><td>)</td>
           <td></td>
         </tr>
@@ -424,7 +419,7 @@ requires Tag&lt;TagT&gt;</div>
 </table>
 </div><div class="memdoc">
 
-<p>Invoke the mod at NIndex with the given tag. </p>
+<p>Invoke the mod at NIndex with the given <a class="el" href="structfs8_1_1special__event.html">special_event</a>. </p>
 
 </div>
 </div>

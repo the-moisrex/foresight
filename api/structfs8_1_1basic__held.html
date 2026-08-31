@@ -124,19 +124,19 @@ requires (N &lt;= <a class="el" href="structfs8_1_1basic__held.html#af375a2f19a9
 requires ((std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#a96bf794b46a81f366a1910b738966cf2">code_type</a>&gt; &amp;&amp; ...))</td></tr>
 <tr class="memitem:a26cc03857d45eaa0f718c52afe6d265d"><td class="memTemplItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1basic__held.html">basic_held</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__held.html#a26cc03857d45eaa0f718c52afe6d265d">operator[]</a> (T... inp_codes) const noexcept</td></tr>
 <tr class="separator:a26cc03857d45eaa0f718c52afe6d265d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac29316a2733bbd1c6306f24809b6c358" id="r_ac29316a2733bbd1c6306f24809b6c358"><td class="memTemplParams" colspan="2">template&lt;typename CondT &gt; <br />
-requires (!std::convertible_to&lt;CondT, <a class="el" href="namespacefs8.html#a96bf794b46a81f366a1910b738966cf2">code_type</a>&gt; &amp;&amp; !Tag&lt;CondT&gt; &amp;&amp; !Context&lt;CondT&gt;)</td></tr>
-<tr class="memitem:ac29316a2733bbd1c6306f24809b6c358"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__held.html#ac29316a2733bbd1c6306f24809b6c358">operator[]</a> (std::string_view const inp_pattern, CondT const &amp;inp_cond) const noexcept</td></tr>
-<tr class="memdesc:ac29316a2733bbd1c6306f24809b6c358"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gate form: a decider decides whether the tracked <a class="el" href="namespacefs8.html#a7360bdf7c0054ee4648141e1c3b3c8a2">key(s)</a> are emitted or dropped.  <br /></td></tr>
-<tr class="separator:ac29316a2733bbd1c6306f24809b6c358"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8436b89891f2186d1ccfb01be3226003" id="r_a8436b89891f2186d1ccfb01be3226003"><td class="memTemplParams" colspan="2">template&lt;typename CondT &gt; <br />
+requires (!std::convertible_to&lt;CondT, <a class="el" href="namespacefs8.html#a96bf794b46a81f366a1910b738966cf2">code_type</a>&gt; &amp;&amp; !<a class="el" href="namespacefs8_1_1detail.html#a78191c65d0f7563de2ee3f4e82886592">detail::is_tag_type</a>&lt;CondT&gt; &amp;&amp; !Context&lt;CondT&gt;)</td></tr>
+<tr class="memitem:a8436b89891f2186d1ccfb01be3226003"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__held.html#a8436b89891f2186d1ccfb01be3226003">operator[]</a> (std::string_view const inp_pattern, CondT const &amp;inp_cond) const noexcept</td></tr>
+<tr class="memdesc:a8436b89891f2186d1ccfb01be3226003"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gate form: a decider decides whether the tracked <a class="el" href="namespacefs8.html#a7360bdf7c0054ee4648141e1c3b3c8a2">key(s)</a> are emitted or dropped.  <br /></td></tr>
+<tr class="separator:a8436b89891f2186d1ccfb01be3226003"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a424a85cc2510944e56ab8a174824140b" id="r_a424a85cc2510944e56ab8a174824140b"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; <br />
 requires (sizeof...(Args) &gt;= 2 &amp;&amp; std::convertible_to&lt;std::tuple_element_t&lt;0, std::tuple&lt;Args...&gt;&gt;, <a class="el" href="namespacefs8.html#a96bf794b46a81f366a1910b738966cf2">code_type</a>&gt; &amp;&amp; !std::convertible_to&lt;std::tuple_element_t&lt;sizeof...(Args) - 1, std::tuple&lt;Args...&gt;&gt;, <a class="el" href="namespacefs8.html#a96bf794b46a81f366a1910b738966cf2">code_type</a>&gt;)</td></tr>
 <tr class="memitem:a424a85cc2510944e56ab8a174824140b"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__held.html#a424a85cc2510944e56ab8a174824140b">operator[]</a> (Args &amp;&amp;... args) const noexcept</td></tr>
 <tr class="memdesc:a424a85cc2510944e56ab8a174824140b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gate form (code form): last argument is the decider, the rest are key codes.  <br /></td></tr>
 <tr class="separator:a424a85cc2510944e56ab8a174824140b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaae42c6c847d65e1b6be39806558ebb5" id="r_aaae42c6c847d65e1b6be39806558ebb5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__held.html#aaae42c6c847d65e1b6be39806558ebb5">operator()</a> (<a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>) noexcept</td></tr>
-<tr class="memdesc:aaae42c6c847d65e1b6be39806558ebb5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resolve the pattern string into key codes when the pipeline starts.  <br /></td></tr>
-<tr class="separator:aaae42c6c847d65e1b6be39806558ebb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad02507bf925a1fda271f300e94585c7e" id="r_ad02507bf925a1fda271f300e94585c7e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__held.html#ad02507bf925a1fda271f300e94585c7e">operator()</a> (<a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
+<tr class="memdesc:ad02507bf925a1fda271f300e94585c7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resolve the pattern string into key codes when the pipeline starts.  <br /></td></tr>
+<tr class="separator:ad02507bf925a1fda271f300e94585c7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a951f20d698f92ad2556622784e4a5271" id="r_a951f20d698f92ad2556622784e4a5271"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__held.html#a951f20d698f92ad2556622784e4a5271">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
 <tr class="separator:a951f20d698f92ad2556622784e4a5271"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__held.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
@@ -335,8 +335,8 @@ requires (N &lt;= <a class="el" href="structfs8_1_1basic__held.html#af375a2f19a9
 
 </div>
 </div>
-<a id="aaae42c6c847d65e1b6be39806558ebb5" name="aaae42c6c847d65e1b6be39806558ebb5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaae42c6c847d65e1b6be39806558ebb5">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
+<a id="ad02507bf925a1fda271f300e94585c7e" name="ad02507bf925a1fda271f300e94585c7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad02507bf925a1fda271f300e94585c7e">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -345,16 +345,16 @@ requires (N &lt;= <a class="el" href="structfs8_1_1basic__held.html#af375a2f19a9
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">fs8::context_action</a> fs8::basic_held::operator() </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::basic_held::operator() </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>&#160;</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;&#160;</td>
+          <td class="paramname"><em>tag</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -420,14 +420,14 @@ requires (sizeof...(Args) &gt;= 2 &amp;&amp; std::convertible_to&lt;std::tuple_e
 
 </div>
 </div>
-<a id="ac29316a2733bbd1c6306f24809b6c358" name="ac29316a2733bbd1c6306f24809b6c358"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac29316a2733bbd1c6306f24809b6c358">&#9670;&#160;</a></span>operator[]() <span class="overload">[3/4]</span></h2>
+<a id="a8436b89891f2186d1ccfb01be3226003" name="a8436b89891f2186d1ccfb01be3226003"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8436b89891f2186d1ccfb01be3226003">&#9670;&#160;</a></span>operator[]() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename CondT &gt; <br />
-requires (!std::convertible_to&lt;CondT, <a class="el" href="namespacefs8.html#a96bf794b46a81f366a1910b738966cf2">code_type</a>&gt; &amp;&amp; !Tag&lt;CondT&gt; &amp;&amp; !Context&lt;CondT&gt;)</div>
+requires (!std::convertible_to&lt;CondT, <a class="el" href="namespacefs8.html#a96bf794b46a81f366a1910b738966cf2">code_type</a>&gt; &amp;&amp; !<a class="el" href="namespacefs8_1_1detail.html#a78191c65d0f7563de2ee3f4e82886592">detail::is_tag_type</a>&lt;CondT&gt; &amp;&amp; !Context&lt;CondT&gt;)</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">

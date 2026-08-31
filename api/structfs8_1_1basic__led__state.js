@@ -8,7 +8,7 @@ var structfs8_1_1basic__led__state =
     [ "is_off", "structfs8_1_1basic__led__state.html#ad335544ced0521ea72419abe52bfeb41", null ],
     [ "is_on", "structfs8_1_1basic__led__state.html#aa10b061496c8770c0bf667722a65156c", null ],
     [ "is_on", "structfs8_1_1basic__led__state.html#a344f373953b69ca5d513e06a9224a7e6", null ],
-    [ "operator()", "structfs8_1_1basic__led__state.html#acbf56bfcbc55fd4899a11b1314965496", null ],
+    [ "operator()", "structfs8_1_1basic__led__state.html#a84f93a63946b6ca6eb8271475805112f", null ],
     [ "operator()", "structfs8_1_1basic__led__state.html#aec2f9746d81ee303060c4263b1200ace", null ],
     [ "seed", "structfs8_1_1basic__led__state.html#a0e0ad7b9cebe5f19da104aa96d2c0eb4", null ],
     [ "set_capslock", "structfs8_1_1basic__led__state.html#ab2d556b841ff53b349e205bf4040116a", null ],

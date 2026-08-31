@@ -122,10 +122,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3f46e7ee950ceeddbfca705b6084344f" id="r_a3f46e7ee950ceeddbfca705b6084344f"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
 <tr class="memitem:a3f46e7ee950ceeddbfca705b6084344f"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a3f46e7ee950ceeddbfca705b6084344f">operator()</a> (CtxT &amp;ctx) noexcept</td></tr>
 <tr class="separator:a3f46e7ee950ceeddbfca705b6084344f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5af05ccbaa3ad4cf0a57e32e8801e3ba" id="r_a5af05ccbaa3ad4cf0a57e32e8801e3ba"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, Tag TagT&gt; <br />
-requires (!std::same_as&lt;std::remove_cvref_t&lt;TagT&gt;, <a class="el" href="namespacefs8.html#a5386736e5d424ab2371ed366ec820906">load_event_tag</a>&gt; &amp;&amp; !std::same_as&lt;std::remove_cvref_t&lt;TagT&gt;, <a class="el" href="namespacefs8.html#acb4f566f578b0d3013871b415c623375">next_event_tag</a>&gt;)</td></tr>
-<tr class="memitem:a5af05ccbaa3ad4cf0a57e32e8801e3ba"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a5af05ccbaa3ad4cf0a57e32e8801e3ba">operator()</a> (CtxT &amp;ctx, TagT <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
-<tr class="separator:a5af05ccbaa3ad4cf0a57e32e8801e3ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70204a6ff8e4dc4e9630c0c7dd392ba9" id="r_a70204a6ff8e4dc4e9630c0c7dd392ba9"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... TagTs&gt; <br />
+requires (sizeof...(TagTs) == 1 &amp;&amp; (std::same_as&lt;std::remove_cvref_t&lt;TagTs&gt;, <a class="el" href="structfs8_1_1special__event.html">special_event</a>&gt; &amp;&amp; ...))</td></tr>
+<tr class="memitem:a70204a6ff8e4dc4e9630c0c7dd392ba9"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a70204a6ff8e4dc4e9630c0c7dd392ba9">operator()</a> (CtxT &amp;ctx, TagTs... tags) noexcept</td></tr>
+<tr class="separator:a70204a6ff8e4dc4e9630c0c7dd392ba9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a84bfdfde553d5d6db9afef9e45e14c25" id="r_a84bfdfde553d5d6db9afef9e45e14c25"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Args&gt; <br />
 requires (sizeof...(Args) &gt;= 2)</td></tr>
 <tr class="memitem:a84bfdfde553d5d6db9afef9e45e14c25"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a84bfdfde553d5d6db9afef9e45e14c25">operator()</a> (CtxT &amp;ctx, Args const &amp;... args) noexcept</td></tr>
@@ -401,16 +401,16 @@ requires (sizeof...(Args) &gt;= 2)</div>
 
 </div>
 </div>
-<a id="a5af05ccbaa3ad4cf0a57e32e8801e3ba" name="a5af05ccbaa3ad4cf0a57e32e8801e3ba"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5af05ccbaa3ad4cf0a57e32e8801e3ba">&#9670;&#160;</a></span>operator()() <span class="overload">[3/3]</span></h2>
+<a id="a70204a6ff8e4dc4e9630c0c7dd392ba9" name="a70204a6ff8e4dc4e9630c0c7dd392ba9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70204a6ff8e4dc4e9630c0c7dd392ba9">&#9670;&#160;</a></span>operator()() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;Modifier... Funcs&gt; </div>
 <div class="memtemplate">
-template&lt;Context CtxT, Tag TagT&gt; <br />
-requires (!std::same_as&lt;std::remove_cvref_t&lt;TagT&gt;, <a class="el" href="namespacefs8.html#a5386736e5d424ab2371ed366ec820906">load_event_tag</a>&gt; &amp;&amp; !std::same_as&lt;std::remove_cvref_t&lt;TagT&gt;, <a class="el" href="namespacefs8.html#acb4f566f578b0d3013871b415c623375">next_event_tag</a>&gt;)</div>
+template&lt;Context CtxT, typename... TagTs&gt; <br />
+requires (sizeof...(TagTs) == 1 &amp;&amp; (std::same_as&lt;std::remove_cvref_t&lt;TagTs&gt;, <a class="el" href="structfs8_1_1special__event.html">special_event</a>&gt; &amp;&amp; ...))</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -424,8 +424,8 @@ requires (!std::same_as&lt;std::remove_cvref_t&lt;TagT&gt;, <a class="el" href="
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">TagT&#160;</td>
-          <td class="paramname"><em>tag</em>&#160;</td>
+          <td class="paramtype">TagTs...&#160;</td>
+          <td class="paramname"><em>tags</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

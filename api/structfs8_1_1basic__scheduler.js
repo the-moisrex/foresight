@@ -8,8 +8,8 @@ var structfs8_1_1basic__scheduler =
     [ "cancel_all", "structfs8_1_1basic__scheduler.html#ac2dc1fe75adc9ee1ac55aa060b02f199", null ],
     [ "has_pending", "structfs8_1_1basic__scheduler.html#a220a0538dddf07946df4ef1058e4f5e2", null ],
     [ "operator()", "structfs8_1_1basic__scheduler.html#a88e5205ed77ea267e71ec7edbdcce9ca", null ],
-    [ "operator()", "structfs8_1_1basic__scheduler.html#a2df1eff15543db2d9ad8520604e03cbb", null ],
-    [ "operator()", "structfs8_1_1basic__scheduler.html#ab572e508126d96b59a2e6c4ed832f0af", null ],
+    [ "operator()", "structfs8_1_1basic__scheduler.html#aa9d1e7fc13e57d8286f0c127d205933e", null ],
+    [ "operator()", "structfs8_1_1basic__scheduler.html#a060aad81417771993904b434fbae24c2", null ],
     [ "operator()", "structfs8_1_1basic__scheduler.html#aa433c24a7c01d92dacf23466569cda0a", null ],
     [ "schedule", "structfs8_1_1basic__scheduler.html#a3a220ed0b8d3e257db019e733fb217e7", null ],
     [ "cancel_tick", "structfs8_1_1basic__scheduler.html#a1b7f48bcee9cd39f350a0dc02c7caf14", null ]

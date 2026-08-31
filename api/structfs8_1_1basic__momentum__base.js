@@ -8,7 +8,7 @@ var structfs8_1_1basic__momentum__base =
     [ "is_active", "structfs8_1_1basic__momentum__base.html#a66a3e7e51a0582ce07ab88a62bd10321", null ],
     [ "is_animating", "structfs8_1_1basic__momentum__base.html#ac3b19d0ed6346a720ea53ce89c1380a7", null ],
     [ "mouse_distance_scale", "structfs8_1_1basic__momentum__base.html#a327fac8cf810333466f15647b89ace6a", null ],
-    [ "operator()", "structfs8_1_1basic__momentum__base.html#a4e7548ec479068bac357e6a74fbb3b9f", null ],
+    [ "operator()", "structfs8_1_1basic__momentum__base.html#ac9b60dde0950e1b9d8d4adfe735d5e55", null ],
     [ "set_animating", "structfs8_1_1basic__momentum__base.html#a9890e6ce887a2456e4277afe79d516c1", null ],
     [ "set_max_mouse_distance", "structfs8_1_1basic__momentum__base.html#a349c73ae15462bac60baadd2259577f0", null ],
     [ "set_mouse_origin", "structfs8_1_1basic__momentum__base.html#a49d95e025eb52cbc7c5ba1fd24bf8da4", null ],

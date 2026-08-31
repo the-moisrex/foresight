@@ -20,12 +20,13 @@ var searchData=
   ['fnv1a_5f64_5finit_17',['FNV1A_64_INIT',['../namespacefs8.html#adb4521f62446cd1bd757afac5f084827',1,'fs8']]],
   ['fnv1a_5f64_5fprime_18',['FNV1A_64_PRIME',['../namespacefs8.html#a77b7b83d965eef8d791b76ca0f6a6a85',1,'fs8']]],
   ['frame_5fms_19',['frame_ms',['../structfs8_1_1momentum__config.html#adefb7b32229ea6c0b6721c5c5441aec9',1,'fs8::momentum_config']]],
-  ['from_5fchained_20',['from_chained',['../namespacefs8.html#a5b9076bc6086a3d2bcb853dc66273d2a',1,'fs8']]],
-  ['from_5fchild_21',['from_child',['../structfs8_1_1plain__pimpl__idiom_1_1impl.html#a500138701ee3b0bfbcd8eb3ec1bb391e',1,'fs8::plain_pimpl_idiom::impl']]],
-  ['from_5fdevice_22',['from_device',['../namespacefs8.html#a60ce220b375cdeb91af651d5163c4b7a',1,'fs8']]],
-  ['from_5fevtest_23',['from_evtest',['../namespacefs8.html#a30df5434468736c8b2499222eeccda5b',1,'fs8']]],
-  ['from_5finput_24',['from_input',['../namespacefs8.html#a117715ccfac2ef6ffb0bb0503db6b2be',1,'fs8']]],
-  ['from_5flive_5fview_25',['from_live_view',['../namespacefs8.html#ac2387c5430bc4aa06191f9e216382ed2',1,'fs8']]],
-  ['from_5fstdin_26',['from_stdin',['../namespacefs8.html#aa8b48a82fe91e0cf236d5873c3805ba9',1,'fs8']]],
-  ['func_27',['func',['../structfs8_1_1op__not.html#a68d673d111658f048236bd118d592c2c',1,'fs8::op_not']]]
+  ['from_20',['from',['../structfs8_1_1special__event.html#ac70c27603999fee627897f1a6e6f65a9',1,'fs8::special_event']]],
+  ['from_5fchained_21',['from_chained',['../namespacefs8.html#a5b9076bc6086a3d2bcb853dc66273d2a',1,'fs8']]],
+  ['from_5fchild_22',['from_child',['../structfs8_1_1plain__pimpl__idiom_1_1impl.html#a500138701ee3b0bfbcd8eb3ec1bb391e',1,'fs8::plain_pimpl_idiom::impl']]],
+  ['from_5fdevice_23',['from_device',['../namespacefs8.html#a60ce220b375cdeb91af651d5163c4b7a',1,'fs8']]],
+  ['from_5fevtest_24',['from_evtest',['../namespacefs8.html#a30df5434468736c8b2499222eeccda5b',1,'fs8']]],
+  ['from_5finput_25',['from_input',['../namespacefs8.html#a117715ccfac2ef6ffb0bb0503db6b2be',1,'fs8']]],
+  ['from_5flive_5fview_26',['from_live_view',['../namespacefs8.html#ac2387c5430bc4aa06191f9e216382ed2',1,'fs8']]],
+  ['from_5fstdin_27',['from_stdin',['../namespacefs8.html#aa8b48a82fe91e0cf236d5873c3805ba9',1,'fs8']]],
+  ['func_28',['func',['../structfs8_1_1op__not.html#a68d673d111658f048236bd118d592c2c',1,'fs8::op_not']]]
 ];

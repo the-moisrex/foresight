@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['id_0',['id',['../structfs8_1_1basic__device__is.html#aed16a6c6c373f0962a6c709d80307efc',1,'fs8::basic_device_is::id'],['../structfs8_1_1basic__tag.html#a64f1a9b6fae7b704b4317bf092f65afc',1,'fs8::basic_tag::id']]],
+  ['id_0',['id',['../structfs8_1_1basic__device__is.html#aed16a6c6c373f0962a6c709d80307efc',1,'fs8::basic_device_is']]],
   ['identity_1',['identity',['../structfs8_1_1query__provider__handle.html#a3ed1c85c05ca41785cc0c7077b8c2c4c',1,'fs8::query_provider_handle::identity'],['../structfs8_1_1device__change__handle.html#aa22b7e1f21b8054589cf2a87d313dd83',1,'fs8::device_change_handle::identity']]],
   ['im_2',['im',['../structfs8_1_1pimpl__idiom_1_1impl.html#a46592a850317412383f824fa4198826f',1,'fs8::pimpl_idiom::impl']]],
   ['index_3',['index',['../structfs8_1_1variable__pointer.html#a1ddc5dfcb3ba9d27e908c05e55fc955a',1,'fs8::variable_pointer::index'],['../structfs8_1_1basic__scheduler_1_1tick__handle.html#a78f27d541808a33d74d62913db206af8',1,'fs8::basic_scheduler::tick_handle::index']]],
@@ -31,5 +31,7 @@ var searchData=
   ['is_5fconstructible_5fat_5fcompile_5ftime_28',['is_constructible_at_compile_time',['../structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a',1,'fs8::var_type']]],
   ['is_5fquery_29',['is_query',['../namespacefs8.html#aadc64fc1f9d5543954acb8c8ee2cfce7',1,'fs8']]],
   ['is_5fquery_3c_20basic_5fdevice_5fquery_3c_20n_20_3e_20_3e_30',['is_query&lt; basic_device_query&lt; N &gt; &gt;',['../namespacefs8.html#af27f94630addc25ede7b41f43544cdad',1,'fs8']]],
-  ['is_5ftag_31',['is_tag',['../structfs8_1_1get__variables__tag.html#aafb7e269771441446c32174571d22068',1,'fs8::get_variables_tag::is_tag'],['../structfs8_1_1basic__pass__trigger__tag.html#a93a831f44d5ae7942683bbed86f1736d',1,'fs8::basic_pass_trigger_tag::is_tag'],['../structfs8_1_1basic__auto__mode__tag.html#a179809a5e6c77bfaf557b487f615a4b1',1,'fs8::basic_auto_mode_tag::is_tag'],['../structfs8_1_1basic__tag.html#ac64f5b47d98b6d7838149609d6aea3e8',1,'fs8::basic_tag::is_tag']]]
+  ['is_5ftag_31',['is_tag',['../structfs8_1_1get__variables__tag.html#aafb7e269771441446c32174571d22068',1,'fs8::get_variables_tag::is_tag'],['../structfs8_1_1basic__pass__trigger__tag.html#a93a831f44d5ae7942683bbed86f1736d',1,'fs8::basic_pass_trigger_tag::is_tag'],['../structfs8_1_1basic__auto__mode__tag.html#a179809a5e6c77bfaf557b487f615a4b1',1,'fs8::basic_auto_mode_tag::is_tag']]],
+  ['is_5ftag_5ftype_32',['is_tag_type',['../namespacefs8_1_1detail.html#a78191c65d0f7563de2ee3f4e82886592',1,'fs8::detail']]],
+  ['is_5ftag_5ftype_3c_20special_5fevent_2c_20void_20_3e_33',['is_tag_type&lt; special_event, void &gt;',['../namespacefs8_1_1detail.html#adb43e00e6140916bd4b24c07bf52fc34',1,'fs8::detail']]]
 ];

@@ -10,7 +10,7 @@ var concepts =
       [ "has_mod", "conceptfs8_1_1has__mod.html", null ],
       [ "ContextWith", "conceptfs8_1_1ContextWith.html", null ],
       [ "invokable_mod", "conceptfs8_1_1invokable__mod.html", null ],
-      [ "Tag", "conceptfs8_1_1Tag.html", null ],
+      [ "PipelineTag", "conceptfs8_1_1PipelineTag.html", null ],
       [ "constexpr_constructible", "conceptfs8_1_1constexpr__constructible.html", null ],
       [ "has_variables", "conceptfs8_1_1has__variables.html", null ],
       [ "query_provider", "conceptfs8_1_1query__provider.html", null ],

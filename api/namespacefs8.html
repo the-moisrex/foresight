@@ -398,9 +398,6 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__switch__mode.html">basic_switch_mode</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A tag; carries its runtime <code>dynamic_tag</code> id so type-erased contexts can dispatch on it.  <a href="structfs8_1_1basic__tag.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__timed__typed.html">basic_timed_typed</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__to__evdev.html">basic_to_evdev</a></td></tr>
@@ -542,6 +539,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1run.html">run</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1special__event.html">special_event</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1systemd__service.html">systemd_service</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1template__file.html">template_file</a></td></tr>
@@ -631,7 +630,7 @@ Concepts</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptfs8_1_1invokable__mod.html">invokable_mod</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptfs8_1_1Tag.html">Tag</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptfs8_1_1PipelineTag.html">PipelineTag</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptfs8_1_1constexpr__constructible.html">constexpr_constructible</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -679,18 +678,19 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a6fa3325ef98e63b115b46887f8ec56a3" id="r_a6fa3325ef98e63b115b46887f8ec56a3"><td class="memTemplParams" colspan="2">template&lt;typename ModConcept , typename... Funcs&gt; </td></tr>
 <tr class="memitem:a6fa3325ef98e63b115b46887f8ec56a3"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6fa3325ef98e63b115b46887f8ec56a3">fs8::mod_of</a> = <a class="el" href="structfs8_1_1mod__of__t.html">mod_of_t</a>&lt; ModConcept, Funcs... &gt;<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">::type</a></td></tr>
 <tr class="separator:a6fa3325ef98e63b115b46887f8ec56a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab84137f2702017ad1cbc02ad8d4c99e" id="r_aab84137f2702017ad1cbc02ad8d4c99e"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aab84137f2702017ad1cbc02ad8d4c99e">fs8::no_init_tag</a> = <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt; <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a912d24f9f704f948ac27ede3dd271fbe">dynamic_tag::no_init</a> &gt;</td></tr>
-<tr class="separator:aab84137f2702017ad1cbc02ad8d4c99e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3be7afbe5991ab3ba3ecf1f3cc4f4845" id="r_a3be7afbe5991ab3ba3ecf1f3cc4f4845"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">fs8::start_tag</a> = <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt; <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135aea2b2676c28c0db26d39331a336c6b92">dynamic_tag::start</a> &gt;</td></tr>
-<tr class="separator:a3be7afbe5991ab3ba3ecf1f3cc4f4845"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa144854134e052cdbcee5fbbbbe943e9" id="r_aa144854134e052cdbcee5fbbbbe943e9"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa144854134e052cdbcee5fbbbbe943e9">fs8::toggle_on_tag</a> = <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt; <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a217d9a463e8371e8542d2bf45502d087">dynamic_tag::toggle_on</a> &gt;</td></tr>
-<tr class="separator:aa144854134e052cdbcee5fbbbbe943e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad841e1b902056b8b2b164e7cf68cfcd" id="r_aad841e1b902056b8b2b164e7cf68cfcd"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aad841e1b902056b8b2b164e7cf68cfcd">fs8::toggle_off_tag</a> = <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt; <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a07c3d5edb39467335c7e5ac5e3f68c69">dynamic_tag::toggle_off</a> &gt;</td></tr>
-<tr class="separator:aad841e1b902056b8b2b164e7cf68cfcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb4f566f578b0d3013871b415c623375" id="r_acb4f566f578b0d3013871b415c623375"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#acb4f566f578b0d3013871b415c623375">fs8::next_event_tag</a> = <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt; <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a0e86c3193b7f4403f122471fe17674d8">dynamic_tag::next_event</a> &gt;</td></tr>
-<tr class="separator:acb4f566f578b0d3013871b415c623375"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5386736e5d424ab2371ed366ec820906" id="r_a5386736e5d424ab2371ed366ec820906"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5386736e5d424ab2371ed366ec820906">fs8::load_event_tag</a> = <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt; <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a56e0519d8a4c2a7dc40744400f7d85cb">dynamic_tag::load_event</a> &gt;</td></tr>
-<tr class="separator:a5386736e5d424ab2371ed366ec820906"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a790b2faeaa769b2d1989fb8191a6a64b" id="r_a790b2faeaa769b2d1989fb8191a6a64b"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a790b2faeaa769b2d1989fb8191a6a64b">fs8::no_init_tag</a> = <a class="el" href="structfs8_1_1special__event.html">special_event</a></td></tr>
+<tr class="memdesc:a790b2faeaa769b2d1989fb8191a6a64b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Legacy tag type aliases — all resolve to <code><a class="el" href="structfs8_1_1special__event.html">special_event</a></code>.  <br /></td></tr>
+<tr class="separator:a790b2faeaa769b2d1989fb8191a6a64b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50ee90e40f99278941966cce3a109246" id="r_a50ee90e40f99278941966cce3a109246"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a50ee90e40f99278941966cce3a109246">fs8::start_tag</a> = <a class="el" href="structfs8_1_1special__event.html">special_event</a></td></tr>
+<tr class="separator:a50ee90e40f99278941966cce3a109246"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a797f4ef8dbff3b9e52d97e3f3c884f63" id="r_a797f4ef8dbff3b9e52d97e3f3c884f63"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a797f4ef8dbff3b9e52d97e3f3c884f63">fs8::toggle_on_tag</a> = <a class="el" href="structfs8_1_1special__event.html">special_event</a></td></tr>
+<tr class="separator:a797f4ef8dbff3b9e52d97e3f3c884f63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89108c4346dfc603d98a92843f759dca" id="r_a89108c4346dfc603d98a92843f759dca"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a89108c4346dfc603d98a92843f759dca">fs8::toggle_off_tag</a> = <a class="el" href="structfs8_1_1special__event.html">special_event</a></td></tr>
+<tr class="separator:a89108c4346dfc603d98a92843f759dca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c82b0018829cae305a2f136b8c8feb7" id="r_a0c82b0018829cae305a2f136b8c8feb7"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a0c82b0018829cae305a2f136b8c8feb7">fs8::next_event_tag</a> = <a class="el" href="structfs8_1_1special__event.html">special_event</a></td></tr>
+<tr class="separator:a0c82b0018829cae305a2f136b8c8feb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a887f17e8cd7825d0174e02df8f67fb" id="r_a1a887f17e8cd7825d0174e02df8f67fb"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a1a887f17e8cd7825d0174e02df8f67fb">fs8::load_event_tag</a> = <a class="el" href="structfs8_1_1special__event.html">special_event</a></td></tr>
+<tr class="separator:a1a887f17e8cd7825d0174e02df8f67fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36f9afa22818cbdb40e74b37064a3cc0" id="r_a36f9afa22818cbdb40e74b37064a3cc0"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a36f9afa22818cbdb40e74b37064a3cc0">fs8::user_event_callback</a> = std::function_ref&lt; void(<a class="el" href="structfs8_1_1user__event.html">user_event</a> const  &amp;)&gt;</td></tr>
 <tr class="separator:a36f9afa22818cbdb40e74b37064a3cc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac40afdfe02441d7e68726b7840378ed7" id="r_ac40afdfe02441d7e68726b7840378ed7"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac40afdfe02441d7e68726b7840378ed7">fs8::user_events_iterator</a> = <a class="el" href="structfs8_1_1user__events.html">user_events</a>&lt; 0 &gt;::iterator</td></tr>
@@ -786,19 +786,6 @@ Enumerations</h2></td></tr>
 , <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b">exit</a>
  }</td></tr>
 <tr class="separator:ac5160ee6707deaad4917cbf8bd1e99bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac98cdd53c93b8f950475ef4a02b87135" id="r_ac98cdd53c93b8f950475ef4a02b87135"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">fs8::dynamic_tag</a> : std::uint8_t { <br />
-&#160;&#160;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a334c4a4c42fdb79d7ebc3e73b517e6f8">none</a>
-, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135aea2b2676c28c0db26d39331a336c6b92">start</a>
-, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a912d24f9f704f948ac27ede3dd271fbe">no_init</a>
-, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a56e0519d8a4c2a7dc40744400f7d85cb">load_event</a>
-, <br />
-&#160;&#160;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a0e86c3193b7f4403f122471fe17674d8">next_event</a>
-, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a217d9a463e8371e8542d2bf45502d087">toggle_on</a>
-, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a07c3d5edb39467335c7e5ac5e3f68c69">toggle_off</a>
-<br />
- }</td></tr>
-<tr class="memdesc:ac98cdd53c93b8f950475ef4a02b87135"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runtime tag identifiers for dispatching tags through the type-erased interface.  <a href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">More...</a><br /></td></tr>
-<tr class="separator:ac98cdd53c93b8f950475ef4a02b87135"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae866c9f657ce20c4be67ff6c37074ea0" id="r_ae866c9f657ce20c4be67ff6c37074ea0"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0">fs8::device_id</a> : std::uint32_t { <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a334c4a4c42fdb79d7ebc3e73b517e6f8">none</a> = 0
 , <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a3c6c257ed29622500badf6cc7741375c">stdin</a> = 1
 , <a class="el" href="namespacefs8.html#ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63">self</a> = 2
@@ -1174,15 +1161,15 @@ requires (std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#adcd5f
 <tr class="separator:a77b74a57f7e2e0944475fdc75e7a11b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4633b2b802fd39caa76db32121ee3c21" id="r_a4633b2b802fd39caa76db32121ee3c21"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a4633b2b802fd39caa76db32121ee3c21">fs8::operator!</a> (<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const action) noexcept</td></tr>
 <tr class="separator:a4633b2b802fd39caa76db32121ee3c21"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f8ac0dfce54c0e2123a88f1df687a50" id="r_a4f8ac0dfce54c0e2123a88f1df687a50"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename... Args&gt; </td></tr>
-<tr class="memitem:a4f8ac0dfce54c0e2123a88f1df687a50"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a4f8ac0dfce54c0e2123a88f1df687a50">fs8::invoke_mod_inorder</a> (ModT &amp;mod, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action, Args &amp;&amp;...args) noexcept</td></tr>
-<tr class="separator:a4f8ac0dfce54c0e2123a88f1df687a50"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6562e7b1db33840fcb69918f5339211f" id="r_a6562e7b1db33840fcb69918f5339211f"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename CtxT , typename... Args&gt; </td></tr>
-<tr class="memitem:a6562e7b1db33840fcb69918f5339211f"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6562e7b1db33840fcb69918f5339211f">fs8::invoke_mod</a> (ModT &amp;mod, CtxT &amp;ctx, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action, Args... args) noexcept</td></tr>
-<tr class="separator:a6562e7b1db33840fcb69918f5339211f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7494547610bf9b747838d9b51a18264e" id="r_a7494547610bf9b747838d9b51a18264e"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename CtxT , typename... Args&gt; </td></tr>
-<tr class="memitem:a7494547610bf9b747838d9b51a18264e"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7494547610bf9b747838d9b51a18264e">fs8::invoke_mod</a> (ModT &amp;mod, CtxT &amp;ctx, Args... args) noexcept</td></tr>
-<tr class="separator:a7494547610bf9b747838d9b51a18264e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1938e7fb03e8ef2b2db54a433d99ab00" id="r_a1938e7fb03e8ef2b2db54a433d99ab00"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename... Args&gt; </td></tr>
+<tr class="memitem:a1938e7fb03e8ef2b2db54a433d99ab00"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a1938e7fb03e8ef2b2db54a433d99ab00">fs8::invoke_mod_inorder</a> (ModT &amp;mod, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action, Args &amp;&amp;...args) noexcept</td></tr>
+<tr class="separator:a1938e7fb03e8ef2b2db54a433d99ab00"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26491f5c77e23ebcc8389db2907743b3" id="r_a26491f5c77e23ebcc8389db2907743b3"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename CtxT , typename... Args&gt; </td></tr>
+<tr class="memitem:a26491f5c77e23ebcc8389db2907743b3"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a26491f5c77e23ebcc8389db2907743b3">fs8::invoke_mod</a> (ModT &amp;mod, CtxT &amp;ctx, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action, Args... args) noexcept</td></tr>
+<tr class="separator:a26491f5c77e23ebcc8389db2907743b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36136e669c1e93ff18f748a135cb8bef" id="r_a36136e669c1e93ff18f748a135cb8bef"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename CtxT , typename... Args&gt; </td></tr>
+<tr class="memitem:a36136e669c1e93ff18f748a135cb8bef"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a36136e669c1e93ff18f748a135cb8bef">fs8::invoke_mod</a> (ModT &amp;mod, CtxT &amp;ctx, Args... args) noexcept</td></tr>
+<tr class="separator:a36136e669c1e93ff18f748a135cb8bef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afd2bd8fbf808021c38a46e76fbf00349" id="r_afd2bd8fbf808021c38a46e76fbf00349"><td class="memTemplParams" colspan="2">template&lt;typename CondT , typename... Args&gt; </td></tr>
 <tr class="memitem:afd2bd8fbf808021c38a46e76fbf00349"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afd2bd8fbf808021c38a46e76fbf00349">fs8::invoke_cond_inorder</a> (CondT &amp;cond, Args &amp;&amp;...args) noexcept</td></tr>
 <tr class="separator:afd2bd8fbf808021c38a46e76fbf00349"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1190,39 +1177,24 @@ requires (std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#adcd5f
 <tr class="memitem:accc596373db79fdb43142cc0354957ce"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#accc596373db79fdb43142cc0354957ce">fs8::invoke_cond</a> (CondT &amp;cond, CtxT &amp;ctx, Args... args) noexcept</td></tr>
 <tr class="memdesc:accc596373db79fdb43142cc0354957ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invoke Condition.  <br /></td></tr>
 <tr class="separator:accc596373db79fdb43142cc0354957ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2d93e3c1cf1ce439ef9e1369d0ef0513" id="r_a2d93e3c1cf1ce439ef9e1369d0ef0513"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename CtxT &gt; </td></tr>
-<tr class="memitem:a2d93e3c1cf1ce439ef9e1369d0ef0513"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2d93e3c1cf1ce439ef9e1369d0ef0513">fs8::invoke_start</a> (ModT &amp;mod, CtxT &amp;ctx) noexcept</td></tr>
-<tr class="separator:a2d93e3c1cf1ce439ef9e1369d0ef0513"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a56255f54979b6886ed7104491cc497" id="r_a4a56255f54979b6886ed7104491cc497"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename CtxT &gt; </td></tr>
-<tr class="memitem:a4a56255f54979b6886ed7104491cc497"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a4a56255f54979b6886ed7104491cc497">fs8::invoke_toggle_on</a> (ModT &amp;mod, CtxT &amp;ctx) noexcept</td></tr>
-<tr class="separator:a4a56255f54979b6886ed7104491cc497"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08e9031a6338f06fddb520d0e429f193" id="r_a08e9031a6338f06fddb520d0e429f193"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename CtxT &gt; </td></tr>
-<tr class="memitem:a08e9031a6338f06fddb520d0e429f193"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a08e9031a6338f06fddb520d0e429f193">fs8::invoke_toggle_off</a> (ModT &amp;mod, CtxT &amp;ctx) noexcept</td></tr>
-<tr class="separator:a08e9031a6338f06fddb520d0e429f193"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a091125221f6b3a5c5fc78aa5f63850ae" id="r_a091125221f6b3a5c5fc78aa5f63850ae"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename CtxT &gt; </td></tr>
-<tr class="memitem:a091125221f6b3a5c5fc78aa5f63850ae"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a091125221f6b3a5c5fc78aa5f63850ae">fs8::invoke_set_event</a> (ModT &amp;mod, CtxT &amp;ctx) noexcept</td></tr>
-<tr class="separator:a091125221f6b3a5c5fc78aa5f63850ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5d653a123f8948182a1473d66a143435" id="r_a5d653a123f8948182a1473d66a143435"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename CtxT &gt; </td></tr>
-<tr class="memitem:a5d653a123f8948182a1473d66a143435"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5d653a123f8948182a1473d66a143435">fs8::invoke_load_event</a> (ModT &amp;mod, CtxT &amp;ctx) noexcept</td></tr>
-<tr class="separator:a5d653a123f8948182a1473d66a143435"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4218f2ea87f0207f0910f6755707c8f9" id="r_a4218f2ea87f0207f0910f6755707c8f9"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Funcs&gt; </td></tr>
-<tr class="memitem:a4218f2ea87f0207f0910f6755707c8f9"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a4218f2ea87f0207f0910f6755707c8f9">fs8::invoke_mods_from</a> (CtxT &amp;ctx, std::tuple&lt; Funcs... &gt; &amp;funcs, std::size_t const start_index, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action) noexcept</td></tr>
-<tr class="memdesc:a4218f2ea87f0207f0910f6755707c8f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the mods starting at a runtime <code>start_index</code>, stopping early on a non-<code>next</code> action.  <br /></td></tr>
-<tr class="separator:a4218f2ea87f0207f0910f6755707c8f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aabc346c15044035c1a6e892ef9964a05" id="r_aabc346c15044035c1a6e892ef9964a05"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Funcs&gt; </td></tr>
-<tr class="memitem:aabc346c15044035c1a6e892ef9964a05"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aabc346c15044035c1a6e892ef9964a05">fs8::invoke_mod_at</a> (CtxT &amp;ctx, std::tuple&lt; Funcs... &gt; &amp;funcs, std::size_t const index) noexcept</td></tr>
-<tr class="separator:aabc346c15044035c1a6e892ef9964a05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ed5c131cbd0dee0f4fdba2cff47caa0" id="r_a2ed5c131cbd0dee0f4fdba2cff47caa0"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Funcs&gt; </td></tr>
+<tr class="memitem:a2ed5c131cbd0dee0f4fdba2cff47caa0"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2ed5c131cbd0dee0f4fdba2cff47caa0">fs8::invoke_mods_from</a> (CtxT &amp;ctx, std::tuple&lt; Funcs... &gt; &amp;funcs, std::size_t const start_index, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action) noexcept</td></tr>
+<tr class="memdesc:a2ed5c131cbd0dee0f4fdba2cff47caa0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the mods starting at a runtime <code>start_index</code>, stopping early on a non-<code>next</code> action.  <br /></td></tr>
+<tr class="separator:a2ed5c131cbd0dee0f4fdba2cff47caa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac11f99e197bbe0adbf9ddf040365bb05" id="r_ac11f99e197bbe0adbf9ddf040365bb05"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Funcs&gt; </td></tr>
+<tr class="memitem:ac11f99e197bbe0adbf9ddf040365bb05"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac11f99e197bbe0adbf9ddf040365bb05">fs8::invoke_mod_at</a> (CtxT &amp;ctx, std::tuple&lt; Funcs... &gt; &amp;funcs, std::size_t const index) noexcept</td></tr>
+<tr class="separator:ac11f99e197bbe0adbf9ddf040365bb05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68564c15979579d5049927f0e641f866" id="r_a68564c15979579d5049927f0e641f866"><td class="memTemplParams" colspan="2">template&lt;std::size_t Index, Context CtxT, typename... Funcs, typename... Args&gt; </td></tr>
 <tr class="memitem:a68564c15979579d5049927f0e641f866"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a68564c15979579d5049927f0e641f866">fs8::fork_mod</a> (CtxT &amp;ctx, std::tuple&lt; Funcs... &gt; &amp;funcs, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> default_action, Args... args) noexcept</td></tr>
 <tr class="separator:a68564c15979579d5049927f0e641f866"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a008043dbca2302dd9a007cb52dec4063" id="r_a008043dbca2302dd9a007cb52dec4063"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Mods, typename... Args&gt; </td></tr>
-<tr class="memitem:a008043dbca2302dd9a007cb52dec4063"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a008043dbca2302dd9a007cb52dec4063">fs8::invoke_mods</a> (CtxT &amp;ctx, std::tuple&lt; Mods... &gt; &amp;mods, Args... args) noexcept</td></tr>
-<tr class="memdesc:a008043dbca2302dd9a007cb52dec4063"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the functions and give them the specified context and arguments (optionally)  <br /></td></tr>
-<tr class="separator:a008043dbca2302dd9a007cb52dec4063"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad84b48d74655fa65e248d28f43fcf041" id="r_ad84b48d74655fa65e248d28f43fcf041"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Funcs, typename... Args&gt; </td></tr>
-<tr class="memitem:ad84b48d74655fa65e248d28f43fcf041"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad84b48d74655fa65e248d28f43fcf041">fs8::invoke_first_mod_of</a> (CtxT &amp;ctx, std::tuple&lt; Funcs... &gt; &amp;funcs, Args... args) noexcept</td></tr>
-<tr class="memdesc:ad84b48d74655fa65e248d28f43fcf041"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run functions until one of them return "context_action::next".  <br /></td></tr>
-<tr class="separator:ad84b48d74655fa65e248d28f43fcf041"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae256e43d48cfcda4ac96646e81b34aab" id="r_ae256e43d48cfcda4ac96646e81b34aab"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Mods, typename... Args&gt; </td></tr>
+<tr class="memitem:ae256e43d48cfcda4ac96646e81b34aab"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae256e43d48cfcda4ac96646e81b34aab">fs8::invoke_mods</a> (CtxT &amp;ctx, std::tuple&lt; Mods... &gt; &amp;mods, Args... args) noexcept</td></tr>
+<tr class="memdesc:ae256e43d48cfcda4ac96646e81b34aab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the functions and give them the specified context and arguments (optionally)  <br /></td></tr>
+<tr class="separator:ae256e43d48cfcda4ac96646e81b34aab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53d41645c39e7f51086c87cd284c1a72" id="r_a53d41645c39e7f51086c87cd284c1a72"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Funcs, typename... Args&gt; </td></tr>
+<tr class="memitem:a53d41645c39e7f51086c87cd284c1a72"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a53d41645c39e7f51086c87cd284c1a72">fs8::invoke_first_mod_of</a> (CtxT &amp;ctx, std::tuple&lt; Funcs... &gt; &amp;funcs, Args... args) noexcept</td></tr>
+<tr class="memdesc:a53d41645c39e7f51086c87cd284c1a72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run functions until one of them return "context_action::next".  <br /></td></tr>
+<tr class="separator:a53d41645c39e7f51086c87cd284c1a72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a910bdbe1244dfd8998b4e5faee6e1b3b" id="r_a910bdbe1244dfd8998b4e5faee6e1b3b"><td class="memTemplParams" colspan="2">template&lt;typename Mod &gt; </td></tr>
 <tr class="memitem:a910bdbe1244dfd8998b4e5faee6e1b3b"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a910bdbe1244dfd8998b4e5faee6e1b3b">fs8::collect_mods_of_impl</a> (Mod &amp;mod, void const *token, std::function_ref&lt; void(void *)&gt; <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a>, bool const recursive) noexcept</td></tr>
 <tr class="separator:a910bdbe1244dfd8998b4e5faee6e1b3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1241,15 +1213,10 @@ requires (std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#adcd5f
 <tr class="separator:a77f733d4cfe0e6560ac2768e838fc6ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a174bdbde5061f4bbd7985525c50e7748" id="r_a174bdbde5061f4bbd7985525c50e7748"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1event__type.html#a2e849054fba3388fcde2f566a6bcbdb9">event_type::value_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">fs8::value</a> (Context auto const &amp;ctx) noexcept</td></tr>
 <tr class="separator:a174bdbde5061f4bbd7985525c50e7748"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a239922b66df2aa4bc0c3d5f1833fc21f" id="r_a239922b66df2aa4bc0c3d5f1833fc21f"><td class="memTemplParams" colspan="2">template&lt;typename TagT &gt; <br />
-requires Tag&lt;TagT&gt;</td></tr>
-<tr class="memitem:a239922b66df2aa4bc0c3d5f1833fc21f"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a239922b66df2aa4bc0c3d5f1833fc21f">fs8::to_dynamic_tag</a> (TagT) noexcept</td></tr>
-<tr class="memdesc:a239922b66df2aa4bc0c3d5f1833fc21f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translate a compile-time tag into its runtime <code>dynamic_tag</code> id.  <br /></td></tr>
-<tr class="separator:a239922b66df2aa4bc0c3d5f1833fc21f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a126ca1fc3cdcbfd969089d3f621d595f" id="r_a126ca1fc3cdcbfd969089d3f621d595f"><td class="memTemplParams" colspan="2">template&lt;std::size_t Index, Context CtxT&gt; </td></tr>
-<tr class="memitem:a126ca1fc3cdcbfd969089d3f621d595f"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a126ca1fc3cdcbfd969089d3f621d595f">fs8::invoke_dynamic_tagged_mod</a> (CtxT &amp;ctx, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> const <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action) noexcept</td></tr>
-<tr class="memdesc:a126ca1fc3cdcbfd969089d3f621d595f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the mod at a runtime <code>Index</code> (compile-time dispatch) with the given tag.  <br /></td></tr>
-<tr class="separator:a126ca1fc3cdcbfd969089d3f621d595f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2af32ff3507cfede924a991b6233f543" id="r_a2af32ff3507cfede924a991b6233f543"><td class="memTemplParams" colspan="2">template&lt;std::size_t Index, Context CtxT&gt; </td></tr>
+<tr class="memitem:a2af32ff3507cfede924a991b6233f543"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2af32ff3507cfede924a991b6233f543">fs8::invoke_mod_with_special</a> (CtxT &amp;ctx, <a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action) noexcept</td></tr>
+<tr class="memdesc:a2af32ff3507cfede924a991b6233f543"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the mod at a runtime <code>Index</code> (compile-time dispatch) with the given <a class="el" href="structfs8_1_1special__event.html">special_event</a>.  <br /></td></tr>
+<tr class="separator:a2af32ff3507cfede924a991b6233f543"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f19402142417d98c5b54c87111661c6" id="r_a5f19402142417d98c5b54c87111661c6"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5f19402142417d98c5b54c87111661c6">fs8::operator==</a> (<a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;lhs, <a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;rhs) noexcept</td></tr>
 <tr class="separator:a5f19402142417d98c5b54c87111661c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a821846ec9588a6613cba5e2070b49da8" id="r_a821846ec9588a6613cba5e2070b49da8"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a821846ec9588a6613cba5e2070b49da8">fs8::is_invalid</a> (<a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
@@ -1287,6 +1254,11 @@ requires Tag&lt;TagT&gt;</td></tr>
 <tr class="separator:a2ef80f285619af3478b43d49a9234d88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea211e19ffdede51989600ba22d0879e" id="r_aea211e19ffdede51989600ba22d0879e"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aea211e19ffdede51989600ba22d0879e">fs8::is_syn</a> (<a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
 <tr class="separator:aea211e19ffdede51989600ba22d0879e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0871b2cb5f74feeb3f4f7743ad34952" id="r_ac0871b2cb5f74feeb3f4f7743ad34952"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac0871b2cb5f74feeb3f4f7743ad34952">fs8::is_special</a> (<a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;ev, <a class="el" href="structfs8_1_1special__event.html#ab0d3c7614e1ab618aeafb447aa76f763">special_event::code_type</a> const <a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a>) noexcept</td></tr>
+<tr class="memdesc:ac0871b2cb5f74feeb3f4f7743ad34952"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether a <code><a class="el" href="structfs8_1_1special__event.html">special_event</a></code> matches a given lifecycle code.  <br /></td></tr>
+<tr class="separator:ac0871b2cb5f74feeb3f4f7743ad34952"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03c7b3838ea02b03c17f9daf9f0f1934" id="r_a03c7b3838ea02b03c17f9daf9f0f1934"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a03c7b3838ea02b03c17f9daf9f0f1934">fs8::is_special</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;ev) noexcept</td></tr>
+<tr class="separator:a03c7b3838ea02b03c17f9daf9f0f1934"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcc7e78003f79e6f251f4f055250bfbc" id="r_afcc7e78003f79e6f251f4f055250bfbc"><td class="memItemLeft" align="right" valign="top">std::span&lt; <a class="el" href="structfs8_1_1app__template.html">app_template</a> const &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afcc7e78003f79e6f251f4f055250bfbc">fs8::available_templates</a> () noexcept</td></tr>
 <tr class="memdesc:afcc7e78003f79e6f251f4f055250bfbc"><td class="mdescLeft">&#160;</td><td class="mdescRight">All the templates embedded into this binary.  <br /></td></tr>
 <tr class="separator:afcc7e78003f79e6f251f4f055250bfbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1577,21 +1549,19 @@ Variables</h2></td></tr>
 <tr class="memitem:abc10474c1556cb2213d2b9aafc23f305" id="r_abc10474c1556cb2213d2b9aafc23f305"><td class="memTemplParams" colspan="2">template&lt;typename F , typename... Ts&gt; </td></tr>
 <tr class="memitem:abc10474c1556cb2213d2b9aafc23f305"><td class="memTemplItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#abc10474c1556cb2213d2b9aafc23f305">fs8::index_at</a> = <a class="el" href="structfs8_1_1index__at__impl.html">index_at_impl</a>&lt;0, std::remove_cvref_t&lt;F&gt;, std::remove_cvref_t&lt;Ts&gt;...&gt;<a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">::value</a></td></tr>
 <tr class="separator:abc10474c1556cb2213d2b9aafc23f305"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa352c226afd79681e7dad06596f872c0" id="r_aa352c226afd79681e7dad06596f872c0"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#aab84137f2702017ad1cbc02ad8d4c99e">no_init_tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa352c226afd79681e7dad06596f872c0">fs8::no_init</a> {}</td></tr>
-<tr class="memdesc:aa352c226afd79681e7dad06596f872c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the context mods, don't run the initialization and other setup actions of the mods.  <br /></td></tr>
-<tr class="separator:aa352c226afd79681e7dad06596f872c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2ced73ed4fe9ffa5daceb921b45a0911" id="r_a2ced73ed4fe9ffa5daceb921b45a0911"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2ced73ed4fe9ffa5daceb921b45a0911">fs8::start</a> {}</td></tr>
-<tr class="memdesc:a2ced73ed4fe9ffa5daceb921b45a0911"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialization and the setup parts of the mods will happen in actions using this tag.  <br /></td></tr>
-<tr class="separator:a2ced73ed4fe9ffa5daceb921b45a0911"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95c7c0cee8577c8e5455dc7433a0b2ee" id="r_a95c7c0cee8577c8e5455dc7433a0b2ee"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#aa144854134e052cdbcee5fbbbbe943e9">toggle_on_tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a95c7c0cee8577c8e5455dc7433a0b2ee">fs8::toggle_on</a> {}</td></tr>
-<tr class="separator:a95c7c0cee8577c8e5455dc7433a0b2ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c8a1a1e9a1f9de597281f2ed6ce590b" id="r_a1c8a1a1e9a1f9de597281f2ed6ce590b"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#aad841e1b902056b8b2b164e7cf68cfcd">toggle_off_tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a1c8a1a1e9a1f9de597281f2ed6ce590b">fs8::toggle_off</a> {}</td></tr>
-<tr class="separator:a1c8a1a1e9a1f9de597281f2ed6ce590b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac8b9c23b303b417318abe245c286a4f4" id="r_ac8b9c23b303b417318abe245c286a4f4"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#acb4f566f578b0d3013871b415c623375">next_event_tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac8b9c23b303b417318abe245c286a4f4">fs8::next_event</a> {}</td></tr>
-<tr class="memdesc:ac8b9c23b303b417318abe245c286a4f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">This will let the mods set an event to the context, and send them through the whole pipeline.  <br /></td></tr>
-<tr class="separator:ac8b9c23b303b417318abe245c286a4f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23534d83336f1e5cac4e0c0b81cc6401" id="r_a23534d83336f1e5cac4e0c0b81cc6401"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#a5386736e5d424ab2371ed366ec820906">load_event_tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a23534d83336f1e5cac4e0c0b81cc6401">fs8::load_event</a> {}</td></tr>
-<tr class="separator:a23534d83336f1e5cac4e0c0b81cc6401"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8598026050cf7816c156504be8834cee" id="r_a8598026050cf7816c156504be8834cee"><td class="memItemLeft" align="right" valign="top">constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a8598026050cf7816c156504be8834cee">fs8::no_init</a> = <a class="el" href="namespacefs8.html#a20818d1a063564d065f75cb25778a04b">special_no_init</a></td></tr>
+<tr class="memdesc:a8598026050cf7816c156504be8834cee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Legacy tag constant aliases — all resolve to <code><a class="el" href="structfs8_1_1special__event.html">special_event</a></code> values.  <br /></td></tr>
+<tr class="separator:a8598026050cf7816c156504be8834cee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28338c312083faa091ac6235ea4d3d79" id="r_a28338c312083faa091ac6235ea4d3d79"><td class="memItemLeft" align="right" valign="top">constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a28338c312083faa091ac6235ea4d3d79">fs8::start</a> = <a class="el" href="namespacefs8.html#a9eb7165a2c2c4361f54dc84efb7cdcf3">special_start</a></td></tr>
+<tr class="separator:a28338c312083faa091ac6235ea4d3d79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0207eb70821908ccd4e85d76f3e6bbc1" id="r_a0207eb70821908ccd4e85d76f3e6bbc1"><td class="memItemLeft" align="right" valign="top">constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a0207eb70821908ccd4e85d76f3e6bbc1">fs8::toggle_on</a> = <a class="el" href="namespacefs8.html#a39891ed210baa092ddda7c012f1109a9">special_toggle_on</a></td></tr>
+<tr class="separator:a0207eb70821908ccd4e85d76f3e6bbc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4530f441f26543ed8064c44c61a3305f" id="r_a4530f441f26543ed8064c44c61a3305f"><td class="memItemLeft" align="right" valign="top">constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a4530f441f26543ed8064c44c61a3305f">fs8::toggle_off</a> = <a class="el" href="namespacefs8.html#a0118957bf388f3753e66090ea47de519">special_toggle_off</a></td></tr>
+<tr class="separator:a4530f441f26543ed8064c44c61a3305f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfc79363658045bb8486ab145eaeed8b" id="r_acfc79363658045bb8486ab145eaeed8b"><td class="memItemLeft" align="right" valign="top">constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#acfc79363658045bb8486ab145eaeed8b">fs8::next_event</a> = <a class="el" href="namespacefs8.html#ac0a32e23d59ec85a5941b70a9194741f">special_next_event</a></td></tr>
+<tr class="separator:acfc79363658045bb8486ab145eaeed8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32f14983c1f1a3b8431c86c90752ba0a" id="r_a32f14983c1f1a3b8431c86c90752ba0a"><td class="memItemLeft" align="right" valign="top">constexpr auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a32f14983c1f1a3b8431c86c90752ba0a">fs8::load_event</a> = <a class="el" href="namespacefs8.html#afa4964db7e08c450c4ed97903cd99b06">special_load_event</a></td></tr>
+<tr class="separator:a32f14983c1f1a3b8431c86c90752ba0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad376cac94b7703cbbacd7a324e8e905e" id="r_ad376cac94b7703cbbacd7a324e8e905e"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:ad376cac94b7703cbbacd7a324e8e905e"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1type__id__t.html">type_id_t</a>&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad376cac94b7703cbbacd7a324e8e905e">fs8::type_id</a> {}</td></tr>
 <tr class="separator:ad376cac94b7703cbbacd7a324e8e905e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1603,6 +1573,21 @@ Variables</h2></td></tr>
 <tr class="separator:a876ea8752da38c4c015857f01ee24e5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d35b5bb608db37a858ce51e52952a52" id="r_a6d35b5bb608db37a858ce51e52952a52"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1user__event.html">user_event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6d35b5bb608db37a858ce51e52952a52">fs8::syn_user_event</a> {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = EV_SYN, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = SYN_REPORT, .<a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">value</a> = 0}</td></tr>
 <tr class="separator:a6d35b5bb608db37a858ce51e52952a52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aebfae41765e190531e19dd41a27cde2d" id="r_aebfae41765e190531e19dd41a27cde2d"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">fs8::special_event_type</a> = static_cast&lt;<a class="el" href="structfs8_1_1event__type.html#a0eeb8ce1b7e307cf64a2d6c540ea7564">event_type::type_type</a>&gt;(EV_MAX + 1)</td></tr>
+<tr class="memdesc:aebfae41765e190531e19dd41a27cde2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sentinel type value used by all lifecycle events.  <br /></td></tr>
+<tr class="separator:aebfae41765e190531e19dd41a27cde2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9eb7165a2c2c4361f54dc84efb7cdcf3" id="r_a9eb7165a2c2c4361f54dc84efb7cdcf3"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a9eb7165a2c2c4361f54dc84efb7cdcf3">fs8::special_start</a> {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 0}</td></tr>
+<tr class="separator:a9eb7165a2c2c4361f54dc84efb7cdcf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20818d1a063564d065f75cb25778a04b" id="r_a20818d1a063564d065f75cb25778a04b"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a20818d1a063564d065f75cb25778a04b">fs8::special_no_init</a> {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 1}</td></tr>
+<tr class="separator:a20818d1a063564d065f75cb25778a04b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa4964db7e08c450c4ed97903cd99b06" id="r_afa4964db7e08c450c4ed97903cd99b06"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#afa4964db7e08c450c4ed97903cd99b06">fs8::special_load_event</a> {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 2}</td></tr>
+<tr class="separator:afa4964db7e08c450c4ed97903cd99b06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0a32e23d59ec85a5941b70a9194741f" id="r_ac0a32e23d59ec85a5941b70a9194741f"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac0a32e23d59ec85a5941b70a9194741f">fs8::special_next_event</a> {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 3}</td></tr>
+<tr class="separator:ac0a32e23d59ec85a5941b70a9194741f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39891ed210baa092ddda7c012f1109a9" id="r_a39891ed210baa092ddda7c012f1109a9"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a39891ed210baa092ddda7c012f1109a9">fs8::special_toggle_on</a> {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 4, .<a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">value</a> = 1}</td></tr>
+<tr class="separator:a39891ed210baa092ddda7c012f1109a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0118957bf388f3753e66090ea47de519" id="r_a0118957bf388f3753e66090ea47de519"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a0118957bf388f3753e66090ea47de519">fs8::special_toggle_off</a> {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 4, .<a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">value</a> = 0}</td></tr>
+<tr class="separator:a0118957bf388f3753e66090ea47de519"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aabd9f422b68eac2268d748396aa94a88" id="r_aabd9f422b68eac2268d748396aa94a88"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aabd9f422b68eac2268d748396aa94a88">fs8::give_up_limit</a> = 5</td></tr>
 <tr class="separator:aabd9f422b68eac2268d748396aa94a88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a976dc73ef435c645b097a7fa36ecfaaf" id="r_a976dc73ef435c645b097a7fa36ecfaaf"><td class="memItemLeft" align="right" valign="top">constexpr struct <a class="el" href="structfs8_1_1basic__log.html">fs8::basic_log</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a976dc73ef435c645b097a7fa36ecfaaf">log</a></td></tr>
@@ -2168,8 +2153,8 @@ template&lt;std::size_t N&gt; </div>
 
 </div>
 </div>
-<a id="a5386736e5d424ab2371ed366ec820906" name="a5386736e5d424ab2371ed366ec820906"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5386736e5d424ab2371ed366ec820906">&#9670;&#160;</a></span>load_event_tag</h2>
+<a id="a1a887f17e8cd7825d0174e02df8f67fb" name="a1a887f17e8cd7825d0174e02df8f67fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a887f17e8cd7825d0174e02df8f67fb">&#9670;&#160;</a></span>load_event_tag</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2178,7 +2163,7 @@ template&lt;std::size_t N&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacefs8.html#a5386736e5d424ab2371ed366ec820906">fs8::load_event_tag</a> = typedef <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a56e0519d8a4c2a7dc40744400f7d85cb">dynamic_tag::load_event</a>&gt;</td>
+          <td class="memname">using <a class="el" href="namespacefs8.html#a1a887f17e8cd7825d0174e02df8f67fb">fs8::load_event_tag</a> = typedef <a class="el" href="structfs8_1_1special__event.html">special_event</a></td>
         </tr>
       </table>
   </td>
@@ -2236,8 +2221,8 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
 
 </div>
 </div>
-<a id="acb4f566f578b0d3013871b415c623375" name="acb4f566f578b0d3013871b415c623375"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acb4f566f578b0d3013871b415c623375">&#9670;&#160;</a></span>next_event_tag</h2>
+<a id="a0c82b0018829cae305a2f136b8c8feb7" name="a0c82b0018829cae305a2f136b8c8feb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c82b0018829cae305a2f136b8c8feb7">&#9670;&#160;</a></span>next_event_tag</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2246,7 +2231,7 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacefs8.html#acb4f566f578b0d3013871b415c623375">fs8::next_event_tag</a> = typedef <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a0e86c3193b7f4403f122471fe17674d8">dynamic_tag::next_event</a>&gt;</td>
+          <td class="memname">using <a class="el" href="namespacefs8.html#a0c82b0018829cae305a2f136b8c8feb7">fs8::next_event_tag</a> = typedef <a class="el" href="structfs8_1_1special__event.html">special_event</a></td>
         </tr>
       </table>
   </td>
@@ -2258,8 +2243,8 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
 
 </div>
 </div>
-<a id="aab84137f2702017ad1cbc02ad8d4c99e" name="aab84137f2702017ad1cbc02ad8d4c99e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aab84137f2702017ad1cbc02ad8d4c99e">&#9670;&#160;</a></span>no_init_tag</h2>
+<a id="a790b2faeaa769b2d1989fb8191a6a64b" name="a790b2faeaa769b2d1989fb8191a6a64b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a790b2faeaa769b2d1989fb8191a6a64b">&#9670;&#160;</a></span>no_init_tag</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2268,7 +2253,7 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacefs8.html#aab84137f2702017ad1cbc02ad8d4c99e">fs8::no_init_tag</a> = typedef <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a912d24f9f704f948ac27ede3dd271fbe">dynamic_tag::no_init</a>&gt;</td>
+          <td class="memname">using <a class="el" href="namespacefs8.html#a790b2faeaa769b2d1989fb8191a6a64b">fs8::no_init_tag</a> = typedef <a class="el" href="structfs8_1_1special__event.html">special_event</a></td>
         </tr>
       </table>
   </td>
@@ -2277,6 +2262,8 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Legacy tag type aliases — all resolve to <code><a class="el" href="structfs8_1_1special__event.html">special_event</a></code>. </p>
 
 </div>
 </div>
@@ -2304,8 +2291,8 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
 
 </div>
 </div>
-<a id="a3be7afbe5991ab3ba3ecf1f3cc4f4845" name="a3be7afbe5991ab3ba3ecf1f3cc4f4845"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3be7afbe5991ab3ba3ecf1f3cc4f4845">&#9670;&#160;</a></span>start_tag</h2>
+<a id="a50ee90e40f99278941966cce3a109246" name="a50ee90e40f99278941966cce3a109246"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50ee90e40f99278941966cce3a109246">&#9670;&#160;</a></span>start_tag</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2314,7 +2301,7 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">fs8::start_tag</a> = typedef <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135aea2b2676c28c0db26d39331a336c6b92">dynamic_tag::start</a>&gt;</td>
+          <td class="memname">using <a class="el" href="namespacefs8.html#a50ee90e40f99278941966cce3a109246">fs8::start_tag</a> = typedef <a class="el" href="structfs8_1_1special__event.html">special_event</a></td>
         </tr>
       </table>
   </td>
@@ -2326,8 +2313,8 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
 
 </div>
 </div>
-<a id="aad841e1b902056b8b2b164e7cf68cfcd" name="aad841e1b902056b8b2b164e7cf68cfcd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aad841e1b902056b8b2b164e7cf68cfcd">&#9670;&#160;</a></span>toggle_off_tag</h2>
+<a id="a89108c4346dfc603d98a92843f759dca" name="a89108c4346dfc603d98a92843f759dca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89108c4346dfc603d98a92843f759dca">&#9670;&#160;</a></span>toggle_off_tag</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2336,7 +2323,7 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacefs8.html#aad841e1b902056b8b2b164e7cf68cfcd">fs8::toggle_off_tag</a> = typedef <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a07c3d5edb39467335c7e5ac5e3f68c69">dynamic_tag::toggle_off</a>&gt;</td>
+          <td class="memname">using <a class="el" href="namespacefs8.html#a89108c4346dfc603d98a92843f759dca">fs8::toggle_off_tag</a> = typedef <a class="el" href="structfs8_1_1special__event.html">special_event</a></td>
         </tr>
       </table>
   </td>
@@ -2348,8 +2335,8 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
 
 </div>
 </div>
-<a id="aa144854134e052cdbcee5fbbbbe943e9" name="aa144854134e052cdbcee5fbbbbe943e9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa144854134e052cdbcee5fbbbbe943e9">&#9670;&#160;</a></span>toggle_on_tag</h2>
+<a id="a797f4ef8dbff3b9e52d97e3f3c884f63" name="a797f4ef8dbff3b9e52d97e3f3c884f63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a797f4ef8dbff3b9e52d97e3f3c884f63">&#9670;&#160;</a></span>toggle_on_tag</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2358,7 +2345,7 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacefs8.html#aa144854134e052cdbcee5fbbbbe943e9">fs8::toggle_on_tag</a> = typedef <a class="el" href="structfs8_1_1basic__tag.html">basic_tag</a>&lt;<a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135a217d9a463e8371e8542d2bf45502d087">dynamic_tag::toggle_on</a>&gt;</td>
+          <td class="memname">using <a class="el" href="namespacefs8.html#a797f4ef8dbff3b9e52d97e3f3c884f63">fs8::toggle_on_tag</a> = typedef <a class="el" href="structfs8_1_1special__event.html">special_event</a></td>
         </tr>
       </table>
   </td>
@@ -2670,39 +2657,6 @@ template&lt;template&lt; typename... &gt; typename Templ, typename... ModsT&gt; 
 <tr><td class="fieldname"><a id="ae866c9f657ce20c4be67ff6c37074ea0a3c6c257ed29622500badf6cc7741375c" name="ae866c9f657ce20c4be67ff6c37074ea0a3c6c257ed29622500badf6cc7741375c"></a>stdin&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63" name="ae866c9f657ce20c4be67ff6c37074ea0a590f53e8699817c6fa498cc11a4cbe63"></a>self&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="ae866c9f657ce20c4be67ff6c37074ea0a499f31e79c00c9e8f61bdaadc5e82f45" name="ae866c9f657ce20c4be67ff6c37074ea0a499f31e79c00c9e8f61bdaadc5e82f45"></a>scheduler&#160;</td><td class="fielddoc"></td></tr>
-</table>
-
-</div>
-</div>
-<a id="ac98cdd53c93b8f950475ef4a02b87135" name="ac98cdd53c93b8f950475ef4a02b87135"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac98cdd53c93b8f950475ef4a02b87135">&#9670;&#160;</a></span>dynamic_tag</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum struct <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">fs8::dynamic_tag</a> : std::uint8_t</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">strong</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Runtime tag identifiers for dispatching tags through the type-erased interface. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a334c4a4c42fdb79d7ebc3e73b517e6f8" name="ac98cdd53c93b8f950475ef4a02b87135a334c4a4c42fdb79d7ebc3e73b517e6f8"></a>none&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135aea2b2676c28c0db26d39331a336c6b92" name="ac98cdd53c93b8f950475ef4a02b87135aea2b2676c28c0db26d39331a336c6b92"></a>start&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a912d24f9f704f948ac27ede3dd271fbe" name="ac98cdd53c93b8f950475ef4a02b87135a912d24f9f704f948ac27ede3dd271fbe"></a>no_init&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a56e0519d8a4c2a7dc40744400f7d85cb" name="ac98cdd53c93b8f950475ef4a02b87135a56e0519d8a4c2a7dc40744400f7d85cb"></a>load_event&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a0e86c3193b7f4403f122471fe17674d8" name="ac98cdd53c93b8f950475ef4a02b87135a0e86c3193b7f4403f122471fe17674d8"></a>next_event&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a217d9a463e8371e8542d2bf45502d087" name="ac98cdd53c93b8f950475ef4a02b87135a217d9a463e8371e8542d2bf45502d087"></a>toggle_on&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ac98cdd53c93b8f950475ef4a02b87135a07c3d5edb39467335c7e5ac5e3f68c69" name="ac98cdd53c93b8f950475ef4a02b87135a07c3d5edb39467335c7e5ac5e3f68c69"></a>toggle_off&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -5771,54 +5725,8 @@ template&lt;typename CondT , typename... Args&gt; </div>
 
 </div>
 </div>
-<a id="a126ca1fc3cdcbfd969089d3f621d595f" name="a126ca1fc3cdcbfd969089d3f621d595f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a126ca1fc3cdcbfd969089d3f621d595f">&#9670;&#160;</a></span>invoke_dynamic_tagged_mod()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;std::size_t Index, Context CtxT&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_dynamic_tagged_mod </td>
-          <td>(</td>
-          <td class="paramtype">CtxT &amp;&#160;</td>
-          <td class="paramname"><em>ctx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> const&#160;</td>
-          <td class="paramname"><em>tag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const&#160;</td>
-          <td class="paramname"><em>default_action</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Run the mod at a runtime <code>Index</code> (compile-time dispatch) with the given tag. </p>
-
-</div>
-</div>
-<a id="ad84b48d74655fa65e248d28f43fcf041" name="ad84b48d74655fa65e248d28f43fcf041"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad84b48d74655fa65e248d28f43fcf041">&#9670;&#160;</a></span>invoke_first_mod_of()</h2>
+<a id="a53d41645c39e7f51086c87cd284c1a72" name="a53d41645c39e7f51086c87cd284c1a72"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53d41645c39e7f51086c87cd284c1a72">&#9670;&#160;</a></span>invoke_first_mod_of()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -5829,7 +5737,7 @@ template&lt;Context CtxT, typename... Funcs, typename... Args&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_first_mod_of </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_first_mod_of </td>
           <td>(</td>
           <td class="paramtype">CtxT &amp;&#160;</td>
           <td class="paramname"><em>ctx</em>, </td>
@@ -5854,7 +5762,7 @@ template&lt;Context CtxT, typename... Funcs, typename... Args&gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -5863,46 +5771,8 @@ template&lt;Context CtxT, typename... Funcs, typename... Args&gt; </div>
 
 </div>
 </div>
-<a id="a5d653a123f8948182a1473d66a143435" name="a5d653a123f8948182a1473d66a143435"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5d653a123f8948182a1473d66a143435">&#9670;&#160;</a></span>invoke_load_event()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename ModT , typename CtxT &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_load_event </td>
-          <td>(</td>
-          <td class="paramtype">ModT &amp;&#160;</td>
-          <td class="paramname"><em>mod</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">CtxT &amp;&#160;</td>
-          <td class="paramname"><em>ctx</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a7494547610bf9b747838d9b51a18264e" name="a7494547610bf9b747838d9b51a18264e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7494547610bf9b747838d9b51a18264e">&#9670;&#160;</a></span>invoke_mod() <span class="overload">[1/2]</span></h2>
+<a id="a36136e669c1e93ff18f748a135cb8bef" name="a36136e669c1e93ff18f748a135cb8bef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36136e669c1e93ff18f748a135cb8bef">&#9670;&#160;</a></span>invoke_mod() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -5913,7 +5783,7 @@ template&lt;typename ModT , typename CtxT , typename... Args&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mod </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mod </td>
           <td>(</td>
           <td class="paramtype">ModT &amp;&#160;</td>
           <td class="paramname"><em>mod</em>, </td>
@@ -5938,15 +5808,15 @@ template&lt;typename ModT , typename CtxT , typename... Args&gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a6562e7b1db33840fcb69918f5339211f" name="a6562e7b1db33840fcb69918f5339211f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6562e7b1db33840fcb69918f5339211f">&#9670;&#160;</a></span>invoke_mod() <span class="overload">[2/2]</span></h2>
+<a id="a26491f5c77e23ebcc8389db2907743b3" name="a26491f5c77e23ebcc8389db2907743b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26491f5c77e23ebcc8389db2907743b3">&#9670;&#160;</a></span>invoke_mod() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -5957,7 +5827,7 @@ template&lt;typename ModT , typename CtxT , typename... Args&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mod </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mod </td>
           <td>(</td>
           <td class="paramtype">ModT &amp;&#160;</td>
           <td class="paramname"><em>mod</em>, </td>
@@ -5988,15 +5858,15 @@ template&lt;typename ModT , typename CtxT , typename... Args&gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="aabc346c15044035c1a6e892ef9964a05" name="aabc346c15044035c1a6e892ef9964a05"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aabc346c15044035c1a6e892ef9964a05">&#9670;&#160;</a></span>invoke_mod_at()</h2>
+<a id="ac11f99e197bbe0adbf9ddf040365bb05" name="ac11f99e197bbe0adbf9ddf040365bb05"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac11f99e197bbe0adbf9ddf040365bb05">&#9670;&#160;</a></span>invoke_mod_at()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -6007,7 +5877,7 @@ template&lt;Context CtxT, typename... Funcs&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mod_at </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mod_at </td>
           <td>(</td>
           <td class="paramtype">CtxT &amp;&#160;</td>
           <td class="paramname"><em>ctx</em>, </td>
@@ -6032,15 +5902,15 @@ template&lt;Context CtxT, typename... Funcs&gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a4f8ac0dfce54c0e2123a88f1df687a50" name="a4f8ac0dfce54c0e2123a88f1df687a50"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4f8ac0dfce54c0e2123a88f1df687a50">&#9670;&#160;</a></span>invoke_mod_inorder()</h2>
+<a id="a1938e7fb03e8ef2b2db54a433d99ab00" name="a1938e7fb03e8ef2b2db54a433d99ab00"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1938e7fb03e8ef2b2db54a433d99ab00">&#9670;&#160;</a></span>invoke_mod_inorder()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -6051,7 +5921,7 @@ template&lt;typename ModT , typename... Args&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mod_inorder </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mod_inorder </td>
           <td>(</td>
           <td class="paramtype">ModT &amp;&#160;</td>
           <td class="paramname"><em>mod</em>, </td>
@@ -6076,15 +5946,61 @@ template&lt;typename ModT , typename... Args&gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a008043dbca2302dd9a007cb52dec4063" name="a008043dbca2302dd9a007cb52dec4063"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a008043dbca2302dd9a007cb52dec4063">&#9670;&#160;</a></span>invoke_mods()</h2>
+<a id="a2af32ff3507cfede924a991b6233f543" name="a2af32ff3507cfede924a991b6233f543"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2af32ff3507cfede924a991b6233f543">&#9670;&#160;</a></span>invoke_mod_with_special()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;std::size_t Index, Context CtxT&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mod_with_special </td>
+          <td>(</td>
+          <td class="paramtype">CtxT &amp;&#160;</td>
+          <td class="paramname"><em>ctx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const&#160;</td>
+          <td class="paramname"><em>default_action</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Run the mod at a runtime <code>Index</code> (compile-time dispatch) with the given <a class="el" href="structfs8_1_1special__event.html">special_event</a>. </p>
+
+</div>
+</div>
+<a id="ae256e43d48cfcda4ac96646e81b34aab" name="ae256e43d48cfcda4ac96646e81b34aab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae256e43d48cfcda4ac96646e81b34aab">&#9670;&#160;</a></span>invoke_mods()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -6095,7 +6011,7 @@ template&lt;Context CtxT, typename... Mods, typename... Args&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mods </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mods </td>
           <td>(</td>
           <td class="paramtype">CtxT &amp;&#160;</td>
           <td class="paramname"><em>ctx</em>, </td>
@@ -6120,7 +6036,7 @@ template&lt;Context CtxT, typename... Mods, typename... Args&gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -6129,8 +6045,8 @@ template&lt;Context CtxT, typename... Mods, typename... Args&gt; </div>
 
 </div>
 </div>
-<a id="a4218f2ea87f0207f0910f6755707c8f9" name="a4218f2ea87f0207f0910f6755707c8f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4218f2ea87f0207f0910f6755707c8f9">&#9670;&#160;</a></span>invoke_mods_from()</h2>
+<a id="a2ed5c131cbd0dee0f4fdba2cff47caa0" name="a2ed5c131cbd0dee0f4fdba2cff47caa0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ed5c131cbd0dee0f4fdba2cff47caa0">&#9670;&#160;</a></span>invoke_mods_from()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -6141,7 +6057,7 @@ template&lt;Context CtxT, typename... Funcs&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mods_from </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_mods_from </td>
           <td>(</td>
           <td class="paramtype">CtxT &amp;&#160;</td>
           <td class="paramname"><em>ctx</em>, </td>
@@ -6172,164 +6088,12 @@ template&lt;Context CtxT, typename... Funcs&gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Run the mods starting at a runtime <code>start_index</code>, stopping early on a non-<code>next</code> action. </p>
-
-</div>
-</div>
-<a id="a091125221f6b3a5c5fc78aa5f63850ae" name="a091125221f6b3a5c5fc78aa5f63850ae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a091125221f6b3a5c5fc78aa5f63850ae">&#9670;&#160;</a></span>invoke_set_event()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename ModT , typename CtxT &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_set_event </td>
-          <td>(</td>
-          <td class="paramtype">ModT &amp;&#160;</td>
-          <td class="paramname"><em>mod</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">CtxT &amp;&#160;</td>
-          <td class="paramname"><em>ctx</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a2d93e3c1cf1ce439ef9e1369d0ef0513" name="a2d93e3c1cf1ce439ef9e1369d0ef0513"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2d93e3c1cf1ce439ef9e1369d0ef0513">&#9670;&#160;</a></span>invoke_start()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename ModT , typename CtxT &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_start </td>
-          <td>(</td>
-          <td class="paramtype">ModT &amp;&#160;</td>
-          <td class="paramname"><em>mod</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">CtxT &amp;&#160;</td>
-          <td class="paramname"><em>ctx</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-</div>
-</div>
-<a id="a08e9031a6338f06fddb520d0e429f193" name="a08e9031a6338f06fddb520d0e429f193"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a08e9031a6338f06fddb520d0e429f193">&#9670;&#160;</a></span>invoke_toggle_off()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename ModT , typename CtxT &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_toggle_off </td>
-          <td>(</td>
-          <td class="paramtype">ModT &amp;&#160;</td>
-          <td class="paramname"><em>mod</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">CtxT &amp;&#160;</td>
-          <td class="paramname"><em>ctx</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a4a56255f54979b6886ed7104491cc497" name="a4a56255f54979b6886ed7104491cc497"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4a56255f54979b6886ed7104491cc497">&#9670;&#160;</a></span>invoke_toggle_on()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename ModT , typename CtxT &gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> fs8::invoke_toggle_on </td>
-          <td>(</td>
-          <td class="paramtype">ModT &amp;&#160;</td>
-          <td class="paramname"><em>mod</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">CtxT &amp;&#160;</td>
-          <td class="paramname"><em>ctx</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
+<p>Run the mods starting at a runtime <code>start_index</code>, stopping early on a non-<code>next</code> action. </p>
 
 </div>
 </div>
@@ -6818,6 +6582,71 @@ template&lt;typename R &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a03c7b3838ea02b03c17f9daf9f0f1934" name="a03c7b3838ea02b03c17f9daf9f0f1934"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a03c7b3838ea02b03c17f9daf9f0f1934">&#9670;&#160;</a></span>is_special() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr bool fs8::is_special </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;&#160;</td>
+          <td class="paramname"><em>ev</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Check whether an <code><a class="el" href="structfs8_1_1event__type.html">event_type</a></code> is actually a lifecycle event (shouldn't happen in practice, but guards against data corruption). </p>
+
+</div>
+</div>
+<a id="ac0871b2cb5f74feeb3f4f7743ad34952" name="ac0871b2cb5f74feeb3f4f7743ad34952"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0871b2cb5f74feeb3f4f7743ad34952">&#9670;&#160;</a></span>is_special() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr bool fs8::is_special </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;&#160;</td>
+          <td class="paramname"><em>ev</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1special__event.html#ab0d3c7614e1ab618aeafb447aa76f763">special_event::code_type</a> const&#160;</td>
+          <td class="paramname"><em>code</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check whether a <code><a class="el" href="structfs8_1_1special__event.html">special_event</a></code> matches a given lifecycle code. </p>
 
 </div>
 </div>
@@ -10255,37 +10084,6 @@ template&lt;std::size_t N&gt; </div>
 
 </div>
 </div>
-<a id="a239922b66df2aa4bc0c3d5f1833fc21f" name="a239922b66df2aa4bc0c3d5f1833fc21f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a239922b66df2aa4bc0c3d5f1833fc21f">&#9670;&#160;</a></span>to_dynamic_tag()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename TagT &gt; <br />
-requires Tag&lt;TagT&gt;</div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> fs8::to_dynamic_tag </td>
-          <td>(</td>
-          <td class="paramtype">TagT&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Translate a compile-time tag into its runtime <code>dynamic_tag</code> id. </p>
-
-</div>
-</div>
 <a id="aebf04814ae9d82a70029373f09ddc2c5" name="aebf04814ae9d82a70029373f09ddc2c5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aebf04814ae9d82a70029373f09ddc2c5">&#9670;&#160;</a></span>to_string() <span class="overload">[1/12]</span></h2>
 
@@ -13247,8 +13045,8 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
-<a id="a23534d83336f1e5cac4e0c0b81cc6401" name="a23534d83336f1e5cac4e0c0b81cc6401"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a23534d83336f1e5cac4e0c0b81cc6401">&#9670;&#160;</a></span>load_event</h2>
+<a id="a32f14983c1f1a3b8431c86c90752ba0a" name="a32f14983c1f1a3b8431c86c90752ba0a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32f14983c1f1a3b8431c86c90752ba0a">&#9670;&#160;</a></span>load_event</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -13257,7 +13055,7 @@ template&lt;EvtestFormat Format&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#a5386736e5d424ab2371ed366ec820906">load_event_tag</a> fs8::load_event {}</td>
+          <td class="memname">constexpr auto&amp; fs8::load_event = <a class="el" href="namespacefs8.html#afa4964db7e08c450c4ed97903cd99b06">special_load_event</a></td>
         </tr>
       </table>
   </td>
@@ -13266,7 +13064,6 @@ template&lt;EvtestFormat Format&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This will wait for an event to be loaded, so this is blocking, and shall be called after the set_events are done. </p>
 
 </div>
 </div>
@@ -13521,8 +13318,8 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
-<a id="ac8b9c23b303b417318abe245c286a4f4" name="ac8b9c23b303b417318abe245c286a4f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac8b9c23b303b417318abe245c286a4f4">&#9670;&#160;</a></span>next_event</h2>
+<a id="acfc79363658045bb8486ab145eaeed8b" name="acfc79363658045bb8486ab145eaeed8b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfc79363658045bb8486ab145eaeed8b">&#9670;&#160;</a></span>next_event</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -13531,7 +13328,7 @@ template&lt;EvtestFormat Format&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#acb4f566f578b0d3013871b415c623375">next_event_tag</a> fs8::next_event {}</td>
+          <td class="memname">constexpr auto&amp; fs8::next_event = <a class="el" href="namespacefs8.html#ac0a32e23d59ec85a5941b70a9194741f">special_next_event</a></td>
         </tr>
       </table>
   </td>
@@ -13540,8 +13337,6 @@ template&lt;EvtestFormat Format&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>This will let the mods set an event to the context, and send them through the whole pipeline. </p>
 
 </div>
 </div>
@@ -13567,8 +13362,8 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
-<a id="aa352c226afd79681e7dad06596f872c0" name="aa352c226afd79681e7dad06596f872c0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa352c226afd79681e7dad06596f872c0">&#9670;&#160;</a></span>no_init</h2>
+<a id="a8598026050cf7816c156504be8834cee" name="a8598026050cf7816c156504be8834cee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8598026050cf7816c156504be8834cee">&#9670;&#160;</a></span>no_init</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -13577,7 +13372,7 @@ template&lt;EvtestFormat Format&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#aab84137f2702017ad1cbc02ad8d4c99e">no_init_tag</a> fs8::no_init {}</td>
+          <td class="memname">constexpr auto&amp; fs8::no_init = <a class="el" href="namespacefs8.html#a20818d1a063564d065f75cb25778a04b">special_no_init</a></td>
         </tr>
       </table>
   </td>
@@ -13587,7 +13382,7 @@ template&lt;EvtestFormat Format&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Run the context mods, don't run the initialization and other setup actions of the mods. </p>
+<p>Legacy tag constant aliases — all resolve to <code><a class="el" href="structfs8_1_1special__event.html">special_event</a></code> values. </p>
 
 </div>
 </div>
@@ -14364,8 +14159,8 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
-<a id="a2ced73ed4fe9ffa5daceb921b45a0911" name="a2ced73ed4fe9ffa5daceb921b45a0911"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2ced73ed4fe9ffa5daceb921b45a0911">&#9670;&#160;</a></span>start</h2>
+<a id="aebfae41765e190531e19dd41a27cde2d" name="aebfae41765e190531e19dd41a27cde2d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aebfae41765e190531e19dd41a27cde2d">&#9670;&#160;</a></span>special_event_type</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -14374,7 +14169,7 @@ template&lt;EvtestFormat Format&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#a3be7afbe5991ab3ba3ecf1f3cc4f4845">start_tag</a> fs8::start {}</td>
+          <td class="memname">constexpr auto fs8::special_event_type = static_cast&lt;<a class="el" href="structfs8_1_1event__type.html#a0eeb8ce1b7e307cf64a2d6c540ea7564">event_type::type_type</a>&gt;(EV_MAX + 1)</td>
         </tr>
       </table>
   </td>
@@ -14384,7 +14179,162 @@ template&lt;EvtestFormat Format&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Initialization and the setup parts of the mods will happen in actions using this tag. </p>
+<p>Sentinel type value used by all lifecycle events. </p>
+
+</div>
+</div>
+<a id="afa4964db7e08c450c4ed97903cd99b06" name="afa4964db7e08c450c4ed97903cd99b06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa4964db7e08c450c4ed97903cd99b06">&#9670;&#160;</a></span>special_load_event</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a> fs8::special_load_event {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 2}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac0a32e23d59ec85a5941b70a9194741f" name="ac0a32e23d59ec85a5941b70a9194741f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0a32e23d59ec85a5941b70a9194741f">&#9670;&#160;</a></span>special_next_event</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a> fs8::special_next_event {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 3}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a20818d1a063564d065f75cb25778a04b" name="a20818d1a063564d065f75cb25778a04b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20818d1a063564d065f75cb25778a04b">&#9670;&#160;</a></span>special_no_init</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a> fs8::special_no_init {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 1}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9eb7165a2c2c4361f54dc84efb7cdcf3" name="a9eb7165a2c2c4361f54dc84efb7cdcf3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9eb7165a2c2c4361f54dc84efb7cdcf3">&#9670;&#160;</a></span>special_start</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a> fs8::special_start {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 0}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Lifecycle event constants. Each uses a unique <code>code</code> value; toggle events encode their state in the <code>value</code> field (1 = on, 0 = off). </p>
+
+</div>
+</div>
+<a id="a0118957bf388f3753e66090ea47de519" name="a0118957bf388f3753e66090ea47de519"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0118957bf388f3753e66090ea47de519">&#9670;&#160;</a></span>special_toggle_off</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a> fs8::special_toggle_off {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 4, .<a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">value</a> = 0}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a39891ed210baa092ddda7c012f1109a9" name="a39891ed210baa092ddda7c012f1109a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39891ed210baa092ddda7c012f1109a9">&#9670;&#160;</a></span>special_toggle_on</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1special__event.html">special_event</a> fs8::special_toggle_on {.<a class="el" href="namespacefs8.html#aae8069288a60ff7eade06c09f9ebcdf1">type</a> = <a class="el" href="namespacefs8.html#aebfae41765e190531e19dd41a27cde2d">special_event_type</a>, .<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a> = 4, .<a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">value</a> = 1}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a28338c312083faa091ac6235ea4d3d79" name="a28338c312083faa091ac6235ea4d3d79"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28338c312083faa091ac6235ea4d3d79">&#9670;&#160;</a></span>start</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr auto&amp; fs8::start = <a class="el" href="namespacefs8.html#a9eb7165a2c2c4361f54dc84efb7cdcf3">special_start</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -14676,8 +14626,8 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
-<a id="a1c8a1a1e9a1f9de597281f2ed6ce590b" name="a1c8a1a1e9a1f9de597281f2ed6ce590b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c8a1a1e9a1f9de597281f2ed6ce590b">&#9670;&#160;</a></span>toggle_off</h2>
+<a id="a4530f441f26543ed8064c44c61a3305f" name="a4530f441f26543ed8064c44c61a3305f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4530f441f26543ed8064c44c61a3305f">&#9670;&#160;</a></span>toggle_off</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -14686,7 +14636,7 @@ template&lt;EvtestFormat Format&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#aad841e1b902056b8b2b164e7cf68cfcd">toggle_off_tag</a> fs8::toggle_off {}</td>
+          <td class="memname">constexpr auto&amp; fs8::toggle_off = <a class="el" href="namespacefs8.html#a0118957bf388f3753e66090ea47de519">special_toggle_off</a></td>
         </tr>
       </table>
   </td>
@@ -14698,8 +14648,8 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
-<a id="a95c7c0cee8577c8e5455dc7433a0b2ee" name="a95c7c0cee8577c8e5455dc7433a0b2ee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a95c7c0cee8577c8e5455dc7433a0b2ee">&#9670;&#160;</a></span>toggle_on</h2>
+<a id="a0207eb70821908ccd4e85d76f3e6bbc1" name="a0207eb70821908ccd4e85d76f3e6bbc1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0207eb70821908ccd4e85d76f3e6bbc1">&#9670;&#160;</a></span>toggle_on</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -14708,7 +14658,7 @@ template&lt;EvtestFormat Format&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#aa144854134e052cdbcee5fbbbbe943e9">toggle_on_tag</a> fs8::toggle_on {}</td>
+          <td class="memname">constexpr auto&amp; fs8::toggle_on = <a class="el" href="namespacefs8.html#a39891ed210baa092ddda7c012f1109a9">special_toggle_on</a></td>
         </tr>
       </table>
   </td>

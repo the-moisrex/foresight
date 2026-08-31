@@ -47,7 +47,6 @@ var hierarchy =
     [ "fs8::basic_pen2touch", "structfs8_1_1basic__pen2touch.html", null ],
     [ "fs8::basic_self_emitted", "structfs8_1_1basic__self__emitted.html", null ],
     [ "fs8::xkb::basic_state", "structfs8_1_1xkb_1_1basic__state.html", null ],
-    [ "fs8::basic_tag< ID >", "structfs8_1_1basic__tag.html", null ],
     [ "fs8::benchmark_stats", "structfs8_1_1benchmark__stats.html", null ],
     [ "fs8::consteval_copyable", "structfs8_1_1consteval__copyable.html", [
       [ "fs8::basic_code_adaptor< basic_pressed, N >", "structfs8_1_1basic__code__adaptor.html", [
@@ -312,6 +311,7 @@ var hierarchy =
     ] ],
     [ "fs8::basic_kalman_filter::smoothed", "structfs8_1_1basic__kalman__filter_1_1smoothed.html", null ],
     [ "fs8::basic_low_pass_filter::smoothed", "structfs8_1_1basic__low__pass__filter_1_1smoothed.html", null ],
+    [ "fs8::special_event", "structfs8_1_1special__event.html", null ],
     [ "fs8::template_file", "structfs8_1_1template__file.html", null ],
     [ "fs8::thread_binding< T, ID >", "structfs8_1_1thread__binding.html", null ],
     [ "fs8::thread_binding< any_dynamic_context >", "structfs8_1_1thread__binding.html", [

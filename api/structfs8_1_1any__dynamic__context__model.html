@@ -132,9 +132,12 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a7e141049ca40df3856e8dd10adf094f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6ba645158e8b2b59874e7017f60ada3" id="r_ad6ba645158e8b2b59874e7017f60ada3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context__model.html#ad6ba645158e8b2b59874e7017f60ada3">event</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;inp_event) noexcept override</td></tr>
 <tr class="separator:ad6ba645158e8b2b59874e7017f60ada3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c0f118e38f0b16d746b7f5fe04f50f4" id="r_a1c0f118e38f0b16d746b7f5fe04f50f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context__model.html#a1c0f118e38f0b16d746b7f5fe04f50f4">invoke_mod</a> (std::size_t const index, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action, <a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> const <a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept override</td></tr>
-<tr class="memdesc:a1c0f118e38f0b16d746b7f5fe04f50f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invoke the mod at <code>index</code> with the given default action and optional tag.  <br /></td></tr>
-<tr class="separator:a1c0f118e38f0b16d746b7f5fe04f50f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca87741c204bc30fea77029aa96f7826" id="r_aca87741c204bc30fea77029aa96f7826"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context__model.html#aca87741c204bc30fea77029aa96f7826">invoke_mod</a> (std::size_t const index, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action, <a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept override</td></tr>
+<tr class="memdesc:aca87741c204bc30fea77029aa96f7826"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invoke the mod at <code>index</code> with the given default action and optional special event.  <br /></td></tr>
+<tr class="separator:aca87741c204bc30fea77029aa96f7826"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50c25fc4aade503c4331e20a9f426c4d" id="r_a50c25fc4aade503c4331e20a9f426c4d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context__model.html#a50c25fc4aade503c4331e20a9f426c4d">invoke_mod</a> (std::size_t const index, <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const default_action) noexcept override</td></tr>
+<tr class="memdesc:a50c25fc4aade503c4331e20a9f426c4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invoke the mod at <code>index</code> with the given default action (no special event — plain call).  <br /></td></tr>
+<tr class="separator:a50c25fc4aade503c4331e20a9f426c4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a187f18325de31f348a0b121820bf2ff0" id="r_a187f18325de31f348a0b121820bf2ff0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1any__dynamic__context__model.html#a187f18325de31f348a0b121820bf2ff0">reemit</a> (std::size_t const from_index) noexcept override</td></tr>
 <tr class="memdesc:a187f18325de31f348a0b121820bf2ff0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Re-emit the current event through the mods starting at <code>from_index</code>.  <br /></td></tr>
 <tr class="separator:a187f18325de31f348a0b121820bf2ff0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -469,8 +472,50 @@ template&lt;typename CtxT &gt; </div>
 
 </div>
 </div>
-<a id="a1c0f118e38f0b16d746b7f5fe04f50f4" name="a1c0f118e38f0b16d746b7f5fe04f50f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c0f118e38f0b16d746b7f5fe04f50f4">&#9670;&#160;</a></span>invoke_mod()</h2>
+<a id="a50c25fc4aade503c4331e20a9f426c4d" name="a50c25fc4aade503c4331e20a9f426c4d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50c25fc4aade503c4331e20a9f426c4d">&#9670;&#160;</a></span>invoke_mod() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename CtxT &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> <a class="el" href="structfs8_1_1any__dynamic__context__model.html">fs8::any_dynamic_context_model</a>&lt; CtxT &gt;::invoke_mod </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t const&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const&#160;</td>
+          <td class="paramname"><em>default_action</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">override</span><span class="mlabel">export</span><span class="mlabel">virtual</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Invoke the mod at <code>index</code> with the given default action (no special event — plain call). </p>
+
+<p>Implements <a class="el" href="structfs8_1_1any__dynamic__context.html#a93c103dfccbd55df6080db4a67ac93db">fs8::any_dynamic_context</a>.</p>
+
+</div>
+</div>
+<a id="aca87741c204bc30fea77029aa96f7826" name="aca87741c204bc30fea77029aa96f7826"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca87741c204bc30fea77029aa96f7826">&#9670;&#160;</a></span>invoke_mod() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -495,7 +540,7 @@ template&lt;typename CtxT &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#ac98cdd53c93b8f950475ef4a02b87135">dynamic_tag</a> const&#160;</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;&#160;</td>
           <td class="paramname"><em>tag</em>&#160;</td>
         </tr>
         <tr>
@@ -511,9 +556,9 @@ template&lt;typename CtxT &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Invoke the mod at <code>index</code> with the given default action and optional tag. </p>
+<p>Invoke the mod at <code>index</code> with the given default action and optional special event. </p>
 
-<p>Implements <a class="el" href="structfs8_1_1any__dynamic__context.html#af015887c397cf605cf1f2ec97a0d7ed9">fs8::any_dynamic_context</a>.</p>
+<p>Implements <a class="el" href="structfs8_1_1any__dynamic__context.html#a1015f054370f26c366c488b95d9ef568">fs8::any_dynamic_context</a>.</p>
 
 </div>
 </div>
