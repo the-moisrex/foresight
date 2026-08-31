@@ -148,7 +148,7 @@ static void feed_no_init(std::array<event_type, N> const& events) {
     auto& feeder   = pipeline.mod<scroll_feeder>();
     feeder.events  = std::span<event_type const>{events};
     feeder.index   = 0;
-    pipeline(no_init);
+    std::ignore    = pipeline(no_init);
 }
 
 // ── Tests: mouse_to_scroll (basic pipeline, no scheduler) ───────────────────

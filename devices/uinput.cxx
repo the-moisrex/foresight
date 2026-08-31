@@ -783,11 +783,11 @@ bool basic_uinput::init(device_query const& inp_query) noexcept {
     return set_device_from(inp_query);
 }
 
-bool basic_uinput::operator()(dev_caps_view const caps_view, special_event const& tag) noexcept {
+bool basic_uinput::operator()(dev_caps_view const caps_view, [[maybe_unused]] special_event const& tag) noexcept {
     return init(caps_view);
 }
 
-bool basic_uinput::operator()(device_query const& inp_query, special_event const& tag) noexcept {
+bool basic_uinput::operator()(device_query const& inp_query, [[maybe_unused]] special_event const& tag) noexcept {
     return init(inp_query);
 }
 

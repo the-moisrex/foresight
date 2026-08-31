@@ -63,8 +63,8 @@ void basic_keys_state::seed_from_device(evdev const& dev) noexcept {
         if (b == 0) {
             continue;
         }
-        for (int bit = 0; bit < 8; ++bit) {
-            if (b & (1 << bit)) {
+        for (std::size_t bit = 0; bit < 8; ++bit) {
+            if (b & (std::size_t{1} << bit)) {
                 btns.set(byte * 8 + bit);
             }
         }

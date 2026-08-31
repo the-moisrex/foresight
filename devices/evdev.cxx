@@ -613,7 +613,7 @@ void fs8::release_all_keys(evdev& dev) noexcept {
         if (bitmap[i] == 0) [[likely]] {
             continue;
         }
-        for (int bit = 0; bit < 8; ++bit) {
+        for (std::size_t bit = 0; bit < 8; ++bit) {
             if (bitmap[i] & (1u << bit)) {
                 auto const       code = static_cast<std::uint16_t>(i * 8 + bit);
                 event_type const event{EV_KEY, code, 0};

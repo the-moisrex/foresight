@@ -195,7 +195,7 @@ export namespace fs8 {
         bool operator()(dev_caps_view caps_view, special_event const& tag) noexcept;
 
         /// Set the device on start
-        bool operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, special_event const& tag) noexcept {
+        bool operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, [[maybe_unused]] special_event const& tag) noexcept {
             return operator()(caps_view, special_start);
         }
 

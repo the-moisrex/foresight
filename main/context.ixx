@@ -367,7 +367,8 @@ export namespace fs8 {
                 return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
                     auto action = drop_event;
                     auto result = drop_event;
-                    (((action = fork_mod<I>(ctx, mods, drop_event, args...)), (action != drop_event && (result = action, true))), ...);
+                    std::ignore =
+                      (((action = fork_mod<I>(ctx, mods, drop_event, args...)), action != drop_event && (result = action, true)), ...);
                     return result;
                 }(std::make_index_sequence<sizeof...(Mods)>{});
             } else {
@@ -538,7 +539,7 @@ export namespace fs8 {
             }(std::make_index_sequence<std::tuple_size_v<typename CtxT::mods_type>>{});
         }
 
-        context_action invoke_mod(std::size_t const index, context_action const default_action) noexcept override {
+        context_action invoke_mod(std::size_t const index, context_action const /*default_action*/) noexcept override {
             return invoke_mod_at(*ctx, ctx->get_mods(), index);
         }
 
@@ -850,7 +851,7 @@ export namespace fs8 {
             if (!start_pipeline()) {
                 return;
             }
-            run_loop();
+            std::ignore = run_loop();
         }
 
       private:
