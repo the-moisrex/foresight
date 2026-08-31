@@ -105,30 +105,58 @@ export namespace fs8 {
         return hashed(event_code{.type = type, .code = code});
     }
 
-    /// Where an event came from. `none` means it was read straight from a
-    /// kernel `input_event` without classification; `stdin` is redirect mode;
-    /// `self` is an event synthesized by this pipeline (an emitter or a fork).
-    /// Every other value is a hash of the source device's sysname (e.g.
-    /// "event9"); the device can be resolved and classified (real device / our
-    /// own uinput device / another process's foresight virtual device) through
-    /// `input_manager`. The value never crosses a process boundary: only the
-    /// raw `input_event` is serialized through stdin/stdout.
-    enum struct [[nodiscard]] device_id : std::uint32_t {
-        none      = 0, // unset / raw input_event
-        stdin     = 1, // read from stdin (redirect mode)
-        self      = 2, // synthesized by this pipeline
-        scheduler = 3, // emitted by the scheduler mod (timed events)
-        // values >= 4: ci_hash(sysname) of the source device
-    };
+    // ── source_id ───────────────────────────────────────────────────────────
+    //
+    // A source_id is a std::uint32_t that encodes the origin of an event:
+    //
+    //   High 16 bits — mod_id: identifies which pipeline mod generated the
+    //                  event (intercept, from_input, scheduler, etc.).
+    //   Low  16 bits — source_index: a mod-private identifier (e.g. device
+    //                  index for intercept, tick index for scheduler).
+    //
+    // A value of 0 (source_id_none) means "unknown / unset" — the default
+    // for newly constructed events.  Mods that synthesise events (emit,
+    // fork_emit) leave it at 0; provider mods set it to their own mod_id
+    // combined with a mod-specific source index.
 
-    /// Derive the device id for a device whose sysname is `sysname` (e.g.
-    /// "event9"). Use with `device_is`, `only_device`, `drop_device`, ...
-    [[nodiscard]] constexpr device_id hashed_device(std::string_view const sysname) noexcept {
-        return static_cast<device_id>(ci_hash(sysname));
+    /// Sentinel value meaning "unknown / unset source".
+    constexpr std::uint32_t source_id_none = 0;
+
+    /// Extract the mod_id (high 16 bits) from a source_id.
+    [[nodiscard]] constexpr std::uint16_t mod_id(std::uint32_t const src) noexcept {
+        return static_cast<std::uint16_t>(src >> 16);
     }
 
-    [[nodiscard]] std::string_view to_string(device_id id) noexcept;
+    /// Extract the source_index (low 16 bits) from a source_id.
+    [[nodiscard]] constexpr std::uint16_t source_index(std::uint32_t const src) noexcept {
+        return static_cast<std::uint16_t>(src & 0xFFFFu);
+    }
 
+    /// Pack a mod_id and source_index into a single source_id.
+    [[nodiscard]] constexpr std::uint32_t make_source_id(std::uint16_t const m, std::uint16_t const idx) noexcept {
+        return (static_cast<std::uint32_t>(m) << 16) | idx;
+    }
+
+    /// Derive a compile-time mod_id for a type T.  If T defines a static
+    /// constexpr `mod_id` member, use it; otherwise hash __PRETTY_FUNCTION__
+    /// (which includes the type name) at compile time via ci_hash.
+    ///
+    /// Only provider mods (intercept, from_input, scheduler, …) need a mod_id;
+    /// the hash fallback gives them a unique value without manual registration.
+    template <typename T>
+    [[nodiscard]] consteval std::uint16_t mod_id_of() noexcept {
+        if constexpr (requires { T::mod_id; }) {
+            return T::mod_id;
+        } else {
+            constexpr std::string_view name = __PRETTY_FUNCTION__;
+            return static_cast<std::uint16_t>(ci_hash(name));
+        }
+    }
+
+    /// Convert a source_id to a human-readable string (for diagnostics).
+    [[nodiscard]] std::string_view to_source_string(std::uint32_t source_id) noexcept;
+
+    // ── end source_id ───────────────────────────────────────────────────────
     struct [[nodiscard]] event_type {
         using type_type  = decltype(input_event::type);
         using code_type  = decltype(input_event::code);
@@ -141,8 +169,7 @@ export namespace fs8 {
 
         constexpr explicit event_type(user_event const& inp_ev) noexcept : event_type{inp_ev.type, inp_ev.code, inp_ev.value} {}
 
-        constexpr event_type(type_type const inp_type, code_type const inp_code, value_type const inp_val) noexcept
-          : from{device_id::self} {
+        constexpr event_type(type_type const inp_type, code_type const inp_code, value_type const inp_val) noexcept : from{source_id_none} {
             reset_time();
             ev.type  = inp_type;
             ev.code  = inp_code;
@@ -163,7 +190,7 @@ export namespace fs8 {
         constexpr event_type& operator=(event_code const& inp_code) noexcept {
             ev.type = inp_code.type;
             ev.code = inp_code.code;
-            from    = device_id::self;
+            from    = source_id_none;
             return *this;
         }
 
@@ -171,7 +198,7 @@ export namespace fs8 {
             ev.type  = inp_code.type;
             ev.code  = inp_code.code;
             ev.value = inp_code.value;
-            from     = device_id::self;
+            from     = source_id_none;
             return *this;
         }
 
@@ -355,11 +382,11 @@ export namespace fs8 {
             return *this;
         }
 
-        [[nodiscard]] constexpr device_id source() const noexcept {
+        [[nodiscard]] constexpr std::uint32_t source() const noexcept {
             return from;
         }
 
-        constexpr void source(device_id const inp_source) noexcept {
+        constexpr void source(std::uint32_t const inp_source) noexcept {
             from = inp_source;
         }
 
@@ -368,8 +395,8 @@ export namespace fs8 {
         }
 
       private:
-        input_event ev{};
-        device_id   from = device_id::none;
+        input_event   ev{};
+        std::uint32_t from = source_id_none;
     };
 
     [[nodiscard]] consteval event_type syn() noexcept {
@@ -418,11 +445,11 @@ export namespace fs8 {
         using value_type = event_type::value_type;
         using time_type  = event_type::time_type;
 
-        time_type  time  = {};
-        type_type  type  = special_event_type;
-        code_type  code  = 0;
-        value_type value = 0;
-        device_id  from  = device_id::none;
+        time_type     time  = {};
+        type_type     type  = special_event_type;
+        code_type     code  = 0;
+        value_type    value = 0;
+        std::uint32_t from  = source_id_none;
     };
 
     /// Lifecycle event constants. Each uses a unique `code` value; toggle

@@ -42,13 +42,13 @@ export namespace fs8 {
     };
 
     /// A type-erased listener that is notified when a device is connected or
-    /// disconnected.  The listener receives the device_id and the change type.
+    /// disconnected.  The listener receives the source_id and the change type.
     /// For connect events the device can be resolved via
     /// `input_manager::device_of(id)`; for disconnect events the device has
     /// already been removed.
     struct [[nodiscard]] device_change_handle {
-        void const*                                                      identity = nullptr;
-        std::move_only_function<void(device_id, device_change) noexcept> invoke;
+        void const*                                                          identity = nullptr;
+        std::move_only_function<void(std::uint32_t, device_change) noexcept> invoke;
     };
 
     /// Type-erase a provider object into a `query_provider_handle`. May throw
@@ -100,30 +100,41 @@ export namespace fs8 {
         /// Whether the sysname (e.g. "event9") belongs to one of our devices.
         [[nodiscard]] bool is_owned_sysname(std::string_view sysname) const noexcept;
 
-        /// The opaque id of a device (a hash of its sysname), or `none` if the
-        /// device has no usable sysname.
-        [[nodiscard]] device_id device_id_of(evdev const& dev) const noexcept;
+        /// The legacy sysname hash of a device, used only for device-change
+        /// listener callbacks.  New code should use the mod_id-prefixed
+        /// source_id from events and resolve via `device_of()`.
+        std::uint32_t source_id_of(evdev const& dev) const noexcept;
 
-        /// Resolve a device id back to the live device, or nullptr if it is a
-        /// special id (`stdin`/`self`/`none`) or the device has been removed.
-        [[nodiscard]] evdev*       device_of(device_id id) noexcept;
-        [[nodiscard]] evdev const* device_of(device_id id) const noexcept;
+        /// Register a source_id → device mapping.  Called by provider mods
+        /// (e.g. intercept) that create mod_id-prefixed source_ids so that
+        /// `device_of(source_id)` can resolve them back to live devices.
+        void register_source(std::uint32_t source_id, evdev& dev) noexcept;
+
+        /// Unregister a previously registered source_id.
+        void unregister_source(std::uint32_t source_id) noexcept;
+
+        /// Resolve a source_id back to the live device, or nullptr if it is
+        /// unknown or the device has been removed.  First checks the source_id
+        /// map (populated by provider mods), then falls back to a sysname-hash
+        /// lookup for backward compatibility with device-change listeners.
+        evdev*       device_of(std::uint32_t id) noexcept;
+        evdev const* device_of(std::uint32_t id) const noexcept;
 
         /// The open file descriptor of the device, or -1 if unknown.
-        [[nodiscard]] int fd_of(device_id id) const noexcept;
+        int fd_of(std::uint32_t id) const noexcept;
 
         /// The sysname of the device (e.g. "event9"), or empty if unknown.
-        [[nodiscard]] std::string sysname_of(device_id id) const noexcept;
+        std::string sysname_of(std::uint32_t id) const noexcept;
 
         /// The device name, or empty if unknown.
-        [[nodiscard]] std::string_view name_of(device_id id) const noexcept;
+        std::string_view name_of(std::uint32_t id) const noexcept;
 
         /// Whether `id` belongs to a uinput device this process created.
-        [[nodiscard]] bool is_owned(device_id id) const noexcept;
+        bool is_owned(std::uint32_t id) const noexcept;
 
         /// Whether `id` belongs to another process's foresight virtual device
         /// (its phys starts with "foresight:").
-        [[nodiscard]] bool is_chained(device_id id) const noexcept;
+        bool is_chained(std::uint32_t id) const noexcept;
 
         /// A range view over the owned devices (stable handles: the storage is a
         /// `std::list`, so adds/removes never invalidate existing devices).

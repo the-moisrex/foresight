@@ -793,7 +793,7 @@ Options:
                 }
 
                 fs8::event_type event{*ev};
-                event.source(fs8::hashed_device(fs8::device_sysname(dev)));
+                event.source(fs8::make_source_id(fs8::mod_id_of<fs8::basic_interceptor>(), 0));
                 lv.process_event(event, STDOUT_FILENO);
             }
         }

@@ -226,7 +226,7 @@ fs8::live_view::live_view(bool const force_terminal) noexcept
   : terminal_mode_{force_terminal || isatty(STDOUT_FILENO) == 1},
     use_ansi_{terminal_mode_} {}
 
-fs8::device_live_state& fs8::live_view::state_for(device_id const id) {
+fs8::device_live_state& fs8::live_view::state_for(std::uint32_t const id) {
     return devices_[id];
 }
 
@@ -267,8 +267,8 @@ bool fs8::live_view::direction_changed(mouse_accum const& m, int const dx, int c
     return cos_angle < direction_epsilon_;
 }
 
-std::string_view fs8::live_view::format_device_id(device_id const id, std::span<char> /*buf*/) noexcept {
-    return fs8::to_string(id);
+std::string_view fs8::live_view::format_device_id(std::uint32_t const id, std::span<char> /*buf*/) noexcept {
+    return fs8::to_source_string(id);
 }
 
 std::string_view fs8::live_view::format_time(event_type const& event, std::span<char> const buf) noexcept {
@@ -307,7 +307,7 @@ void fs8::live_view::write_line(std::string_view const line, int const fd, bool 
     }
 }
 
-void fs8::live_view::write_mouse_summary(device_id const id, mouse_accum const& m, int const fd) {
+void fs8::live_view::write_mouse_summary(std::uint32_t const id, mouse_accum const& m, int const fd) {
     char  line_buf[256];
     auto  span = as_span(line_buf);
     auto* pos  = line_buf;
@@ -511,7 +511,7 @@ void fs8::live_view::write_mouse_summary(device_id const id, mouse_accum const& 
     write_line(line, fd, false); // Use \n so mouse history persists in scroll
 }
 
-void fs8::live_view::write_diagnostic(device_id const id, sanitizer_issue const issue, event_type const& event, int const fd) {
+void fs8::live_view::write_diagnostic(std::uint32_t const id, sanitizer_issue const issue, event_type const& event, int const fd) {
     char  line_buf[256];
     auto  span = as_span(line_buf);
     auto* pos  = line_buf;
@@ -617,7 +617,7 @@ void fs8::live_view::write_diagnostic(device_id const id, sanitizer_issue const 
     write_line(line, fd, false);
 }
 
-void fs8::live_view::write_key_event(device_id const id, event_type const& event, int const fd, char32_t const text) {
+void fs8::live_view::write_key_event(std::uint32_t const id, event_type const& event, int const fd, char32_t const text) {
     char       time_buf[32];
     auto const time_str = format_time(event, as_span(time_buf));
 
@@ -768,7 +768,7 @@ void fs8::live_view::write_key_event(device_id const id, event_type const& event
     write_line(line, fd, false);
 }
 
-void fs8::live_view::write_generic_event(device_id const id, event_type const& event, int const fd) {
+void fs8::live_view::write_generic_event(std::uint32_t const id, event_type const& event, int const fd) {
     char             fmt_buf[live_view_format_buf_size];
     live_view_format fmt;
     auto const       text = fmt.format(event, fmt_buf);
@@ -905,7 +905,7 @@ void fs8::live_view::write_generic_event(device_id const id, event_type const& e
     }
 }
 
-void fs8::live_view::flush_mouse(device_id const id, device_live_state& st, int const fd) {
+void fs8::live_view::flush_mouse(std::uint32_t const id, device_live_state& st, int const fd) {
     if (st.mouse.event_count == 0) {
         return;
     }
@@ -913,7 +913,7 @@ void fs8::live_view::flush_mouse(device_id const id, device_live_state& st, int 
     st.mouse = mouse_accum{};
 }
 
-void fs8::live_view::flush_keyboard(device_id const /*id*/, device_live_state& /*st*/, int const /*fd*/) {}
+void fs8::live_view::flush_keyboard(std::uint32_t const /*id*/, device_live_state& /*st*/, int const /*fd*/) {}
 
 void fs8::live_view::flush(int const fd) {
     for (auto& [id, st] : devices_) {
@@ -1230,7 +1230,7 @@ fs8::context_action fs8::basic_from_live_view<Format>::operator()(event_type& ev
                 if (format.parse(line_buffer, parsed)) {
                     line_buffer.clear();
                     event = event_type{parsed.event};
-                    event.source(device_id::stdin);
+                    event.source(make_source_id(mod_id_of<basic_from_input>(), 0));
                     return next;
                 }
                 line_buffer.clear();
@@ -1249,7 +1249,7 @@ fs8::context_action fs8::basic_from_live_view<Format>::operator()(event_type& ev
             if (format.parse(line, parsed)) {
                 line_buffer.erase(0, nl + 1);
                 event = event_type{parsed.event};
-                event.source(device_id::stdin);
+                event.source(make_source_id(mod_id_of<basic_from_input>(), 0));
                 return next;
             }
             line_buffer.erase(0, nl + 1);

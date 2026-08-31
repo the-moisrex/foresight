@@ -20,26 +20,28 @@ import :input_manager;
 
 using fs8::basic_interceptor;
 using fs8::context_action;
-using fs8::device_id;
 using fs8::device_query;
 using fs8::event_type;
 using fs8::io_event;
 using fs8::io_fd;
+using fs8::make_source_id;
+using fs8::mod_id_of;
 using fs8::provider_handle;
+using fs8::source_id_none;
 
 namespace {
-    /// A tracked fd entry: caches the device_id and evdev pointer so the hot path
-    /// never calls device_id_of() (which does a readlink syscall) or iterates
+    /// A tracked fd entry: caches the source_id and evdev pointer so the hot path
+    /// never calls source_id_of() (which does a readlink syscall) or iterates
     /// im.devices() (a linked-list scan).
     struct watched_fd {
-        int            fd   = -1;
-        fs8::device_id id   = fs8::device_id::none;
-        fs8::evdev*    dev  = nullptr;
-        bool           dead = false;
+        int           fd   = -1;
+        std::uint32_t id   = source_id_none;
+        fs8::evdev*   dev  = nullptr;
+        bool          dead = false;
 
         constexpr watched_fd() noexcept = default;
 
-        constexpr watched_fd(int f, fs8::device_id i, fs8::evdev* d, bool ddd = false) noexcept : fd{f}, id{i}, dev{d}, dead{ddd} {}
+        constexpr watched_fd(int f, std::uint32_t i, fs8::evdev* d, bool ddd = false) noexcept : fd{f}, id{i}, dev{d}, dead{ddd} {}
     };
 } // namespace
 
@@ -142,7 +144,7 @@ context_action basic_interceptor::operator()(io_fd& fd) noexcept try {
             fd.unwatch = true;
             return next;
         }
-        // Drain events using cached device_id — no readlink syscall.
+        // Drain events using cached source_id — no readlink syscall.
         auto const id = entry.id;
         while (auto const ev = entry.dev->next()) {
             pimpl->pending.emplace_back(*ev).source(id);
@@ -212,6 +214,7 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
         bool const alive    = live_dev != nullptr && !entry.dead;
         if (!alive) {
             io.unwatch(entry.fd);
+            pimpl->im->unregister_source(entry.id);
             if (pimpl->dead_fd_count < pimpl->dead_fds.size()) {
                 pimpl->dead_fds[pimpl->dead_fd_count++] = entry.fd;
             }
@@ -253,7 +256,9 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
             break;
         }
         if (io.watch(io_fd{.fd = dev_fd, .events = io_event::in}, *this)) {
-            pimpl->watched[pimpl->watched_count++] = watched_fd{dev_fd, im.device_id_of(dev), &dev};
+            auto const src_id = make_source_id(mod_id_of<basic_interceptor>(), static_cast<std::uint16_t>(pimpl->watched_count));
+            pimpl->watched[pimpl->watched_count++] = watched_fd{dev_fd, src_id, &dev};
+            im.register_source(src_id, dev);
             log("Device '{}' (re)connected.", dev.device_name());
         }
     }

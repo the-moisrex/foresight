@@ -3,12 +3,15 @@
 module;
 #include <array>
 #include <concepts>
+#include <cstdint>
 #include <utility>
 export module fs8.mods:device;
 import fs8.context;
 import fs8.event;
 import fs8.traits;
 import :input_manager;
+import :inout;
+import :scheduler;
 
 export namespace fs8 {
 
@@ -16,16 +19,20 @@ export namespace fs8 {
     /// own uinput device, or another process's foresight virtual device).
     constexpr struct [[nodiscard]] basic_from_device {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            using enum device_id;
             auto const src = event.source();
-            return src != none && src != stdin && src != self;
+            return src
+                   != source_id_none
+                   && src
+                   != make_source_id(mod_id_of<basic_from_input>(), 0)
+                   && src
+                   != make_source_id(mod_id_of<basic_scheduler>(), 0);
         }
     } from_device;
 
     /// True when the event was read from stdin (redirect mode).
     constexpr struct [[nodiscard]] basic_from_stdin {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return event.source() == device_id::stdin;
+            return event.source() == make_source_id(mod_id_of<basic_from_input>(), 0);
         }
     } from_stdin;
 
@@ -34,7 +41,7 @@ export namespace fs8 {
     /// device id instead; check `input_manager::is_owned` for those.
     constexpr struct [[nodiscard]] basic_self_emitted {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return event.source() == device_id::self;
+            return event.source() == source_id_none;
         }
     } self_emitted;
 
@@ -49,7 +56,7 @@ export namespace fs8 {
 
     /// Predicate: `device_is(id)(event)` is true when `event` came from `id`.
     struct [[nodiscard]] basic_device_is {
-        device_id id = device_id::none;
+        std::uint32_t id = source_id_none;
 
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
             return event.source() == id;
@@ -57,7 +64,7 @@ export namespace fs8 {
     };
 
     constexpr struct [[nodiscard]] basic_device_id_of {
-        [[nodiscard]] constexpr basic_device_is operator()(device_id const id) const noexcept {
+        [[nodiscard]] constexpr basic_device_is operator()(std::uint32_t const id) const noexcept {
             return basic_device_is{id};
         }
     } device_is;
@@ -68,30 +75,30 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
       private:
-        std::array<device_id, N> origins{};
+        std::array<std::uint32_t, N> origins{};
 
       public:
-        explicit constexpr basic_drop_origin(std::array<device_id, N> const inp_origins) noexcept : origins{inp_origins} {}
+        explicit constexpr basic_drop_origin(std::array<std::uint32_t, N> const inp_origins) noexcept : origins{inp_origins} {}
 
         template <std::size_t NN>
-        consteval basic_drop_origin operator[](std::array<device_id, NN> const inp_origins) const noexcept {
+        consteval basic_drop_origin operator[](std::array<std::uint32_t, NN> const inp_origins) const noexcept {
             return basic_drop_origin<NN>{inp_origins};
         }
 
         template <std::size_t NN>
-        consteval auto operator[](device_id (&&inp_origins)[NN]) const noexcept {
+        consteval auto operator[](std::uint32_t (&&inp_origins)[NN]) const noexcept {
             return basic_drop_origin<NN>{std::to_array(std::move(inp_origins))};
         }
 
         template <typename... T>
-            requires((std::convertible_to<T, device_id> && ...))
+            requires((std::convertible_to<T, std::uint32_t> && ...))
         consteval auto operator[](T... inp_origins) const noexcept {
-            return basic_drop_origin<sizeof...(T)>{std::array<device_id, sizeof...(T)>{static_cast<device_id>(inp_origins)...}};
+            return basic_drop_origin<sizeof...(T)>{std::array<std::uint32_t, sizeof...(T)>{static_cast<std::uint32_t>(inp_origins)...}};
         }
 
         context_action operator()(event_type const& event) const noexcept {
             using enum context_action;
-            for (device_id const origin : origins) {
+            for (std::uint32_t const origin : origins) {
                 if (event.source() == origin) {
                     return drop_event;
                 }
@@ -102,13 +109,13 @@ export namespace fs8 {
 
     constexpr basic_drop_origin<0> drop_origin;
 
-    /// Convenience: drop synthesized events (`device_id::self`) and events read
+    /// Convenience: drop synthesized events (`source_id_none`) and events read
     /// back from this process's own uinput devices.
     constexpr struct [[nodiscard]] basic_drop_self {
         context_action operator()(Context auto& ctx) const noexcept {
             using enum context_action;
             auto const& event = ctx.event();
-            if (event.source() == device_id::self) [[unlikely]] {
+            if (event.source() == source_id_none) [[unlikely]] {
                 return drop_event;
             }
             if (ctx.mod(input_manager).is_owned(event.source())) [[unlikely]] {
@@ -120,7 +127,7 @@ export namespace fs8 {
 
     /// Drop events from devices created by this pipeline's own uinput mods.
     /// Unlike `drop_self`, this does NOT drop events synthesized by emit/fork
-    /// (`device_id::self`).
+    /// (`source_id_none`).
     constexpr struct [[nodiscard]] basic_drop_owned {
         context_action operator()(Context auto& ctx) const noexcept {
             using enum context_action;
@@ -136,7 +143,7 @@ export namespace fs8 {
     /// devices.
     constexpr struct [[nodiscard]] basic_drop_emitted {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return event.source() != device_id::self;
+            return event.source() != source_id_none;
         }
     } drop_emitted;
 
@@ -146,25 +153,25 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
       private:
-        std::array<device_id, N> devices{};
+        std::array<std::uint32_t, N> devices{};
 
       public:
-        explicit constexpr basic_drop_device(std::array<device_id, N> const inp_devices) noexcept : devices{inp_devices} {}
+        explicit constexpr basic_drop_device(std::array<std::uint32_t, N> const inp_devices) noexcept : devices{inp_devices} {}
 
         template <std::size_t NN>
-        consteval auto operator[](device_id (&&inp_devices)[NN]) const noexcept {
+        consteval auto operator[](std::uint32_t (&&inp_devices)[NN]) const noexcept {
             return basic_drop_device<NN>{std::to_array(std::move(inp_devices))};
         }
 
         template <typename... T>
-            requires((std::convertible_to<T, device_id> && ...))
+            requires((std::convertible_to<T, std::uint32_t> && ...))
         consteval auto operator[](T... inp_devices) const noexcept {
-            return basic_drop_device<sizeof...(T)>{std::array<device_id, sizeof...(T)>{static_cast<device_id>(inp_devices)...}};
+            return basic_drop_device<sizeof...(T)>{std::array<std::uint32_t, sizeof...(T)>{static_cast<std::uint32_t>(inp_devices)...}};
         }
 
         context_action operator()(event_type const& event) const noexcept {
             using enum context_action;
-            for (device_id const device : devices) {
+            for (std::uint32_t const device : devices) {
                 if (event.source() == device) {
                     return drop_event;
                 }
@@ -181,25 +188,25 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
       private:
-        std::array<device_id, N> devices{};
+        std::array<std::uint32_t, N> devices{};
 
       public:
-        explicit constexpr basic_only_device(std::array<device_id, N> const inp_devices) noexcept : devices{inp_devices} {}
+        explicit constexpr basic_only_device(std::array<std::uint32_t, N> const inp_devices) noexcept : devices{inp_devices} {}
 
         template <std::size_t NN>
-        consteval auto operator[](device_id (&&inp_devices)[NN]) const noexcept {
+        consteval auto operator[](std::uint32_t (&&inp_devices)[NN]) const noexcept {
             return basic_only_device<NN>{std::to_array(std::move(inp_devices))};
         }
 
         template <typename... T>
-            requires((std::convertible_to<T, device_id> && ...))
+            requires((std::convertible_to<T, std::uint32_t> && ...))
         consteval auto operator[](T... inp_devices) const noexcept {
-            return basic_only_device<sizeof...(T)>{std::array<device_id, sizeof...(T)>{static_cast<device_id>(inp_devices)...}};
+            return basic_only_device<sizeof...(T)>{std::array<std::uint32_t, sizeof...(T)>{static_cast<std::uint32_t>(inp_devices)...}};
         }
 
         context_action operator()(event_type const& event) const noexcept {
             using enum context_action;
-            for (device_id const device : devices) {
+            for (std::uint32_t const device : devices) {
                 if (event.source() == device) {
                     return next;
                 }

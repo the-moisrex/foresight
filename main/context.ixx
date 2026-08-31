@@ -368,7 +368,7 @@ export namespace fs8 {
                     auto action = drop_event;
                     auto result = drop_event;
                     std::ignore =
-                      (((action = fork_mod<I>(ctx, mods, drop_event, args...)), action != drop_event && (result = action, true)), ...);
+                      (((action = fork_mod<I>(ctx, mods, drop_event, args...)), (action == drop_event || (result = action, false))), ...);
                     return result;
                 }(std::make_index_sequence<sizeof...(Mods)>{});
             } else {

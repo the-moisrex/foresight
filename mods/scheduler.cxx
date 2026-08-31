@@ -136,6 +136,7 @@ context_action basic_scheduler::operator()(event_type& event, special_event cons
 
     auto const now = steady_clock::now();
 
+    std::size_t tick_idx = 0;
     for (auto& tick : pimpl->ticks) {
         // Emit buffered events from the last callback call.
         // This must come before the callback == nullptr check so that
@@ -143,16 +144,18 @@ context_action basic_scheduler::operator()(event_type& event, special_event cons
         if (!tick.remaining.empty()) {
             event          = tick.remaining.front();
             tick.remaining = tick.remaining.subspan(1);
-            event.source(fs8::device_id::scheduler);
+            event.source(make_source_id(mod_id_of<basic_scheduler>(), static_cast<std::uint16_t>(tick_idx)));
             return next;
         }
 
         if (tick.callback == nullptr) {
+            ++tick_idx;
             continue;
         }
 
         // Check if this tick is due.
         if (now < tick.next_fire) {
+            ++tick_idx;
             continue;
         }
 
@@ -188,8 +191,9 @@ context_action basic_scheduler::operator()(event_type& event, special_event cons
             tick.next_fire = now + result.next_timeout;
         }
 
-        event.source(fs8::device_id::scheduler);
+        event.source(make_source_id(mod_id_of<basic_scheduler>(), static_cast<std::uint16_t>(tick_idx)));
         pimpl->rearm_timer();
+        ++tick_idx;
         return next;
     }
 

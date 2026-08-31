@@ -237,7 +237,7 @@ TEST(MomentumPipeline, MomentumTickProducesScrollEvents) {
     ASSERT_GT(momentum_events.size(), 0u) << "momentum should produce events";
 
     for (auto const& e : momentum_events) {
-        EXPECT_EQ(e.source(), device_id::scheduler);
+        EXPECT_EQ(e.source(), make_source_id(mod_id_of<basic_scheduler>(), 0));
         EXPECT_TRUE(e.type() == EV_REL || e.type() == EV_SYN)
           << "momentum events should be EV_REL or EV_SYN (SYN_REPORT), got type="
           << e.type();
@@ -320,7 +320,7 @@ TEST(MomentumPipeline, SchedulerEmittedEventsPassThrough) {
 
     event_type event;
     if (sched(event, next_event) == context_action::next) {
-        EXPECT_EQ(event.source(), device_id::scheduler);
+        EXPECT_EQ(event.source(), make_source_id(mod_id_of<basic_scheduler>(), 0));
         EXPECT_EQ(event.type(), EV_REL);
     }
 

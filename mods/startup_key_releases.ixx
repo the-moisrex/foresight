@@ -1,6 +1,7 @@
 // Created by moisrex on 8/28/26.
 
 module;
+#include <cstdint>
 #include <linux/input-event-codes.h>
 export module fs8.mods:startup_key_releases;
 import fs8.event;
@@ -41,7 +42,7 @@ export namespace fs8 {
             mgr.add_device_change_listener({
               .identity = this,
               .invoke =
-                [&mgr](device_id const id, device_change const change) noexcept {
+                [&mgr](std::uint32_t const id, device_change const change) noexcept {
                     if (change != device_change::connected) {
                         return;
                     }

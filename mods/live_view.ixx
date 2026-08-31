@@ -23,6 +23,7 @@ import fs8.lib.xkb.event2unicode;
 import fs8.traits;
 import fs8.translate;
 import :sanitizer;
+import :inout;
 
 export namespace fs8 {
 
@@ -39,11 +40,11 @@ export namespace fs8 {
 
     inline constexpr std::size_t live_view_format_buf_size = 256;
 
-    /// Parse result extended with device_id.
+    /// Parse result extended with source_id.
     struct [[nodiscard]] live_view_parse_result {
-        user_event event;
-        double     time   = 0;
-        device_id  source = device_id::none;
+        user_event    event;
+        double        time   = 0;
+        std::uint32_t source = source_id_none;
     };
 
     // ── State structs for live_view ──────────────────────────────────────────
@@ -87,13 +88,13 @@ export namespace fs8 {
     /// terminal display.
     struct [[nodiscard]] live_view {
       private:
-        bool                                             terminal_mode_     = false;
-        bool                                             use_ansi_          = false;
-        float                                            direction_epsilon_ = 0.0f;
-        std::chrono::microseconds                        flush_timeout_{16'000}; // 16ms (~60fps)
-        std::unordered_map<device_id, device_live_state> devices_;
-        xkb::context                                     xkb_ctx_;
-        std::optional<xkb::keymap>                       xkb_keymap_;
+        bool                                                 terminal_mode_     = false;
+        bool                                                 use_ansi_          = false;
+        float                                                direction_epsilon_ = 0.0f;
+        std::chrono::microseconds                            flush_timeout_{16'000}; // 16ms (~60fps)
+        std::unordered_map<std::uint32_t, device_live_state> devices_;
+        xkb::context                                         xkb_ctx_;
+        std::optional<xkb::keymap>                           xkb_keymap_;
 
       public:
         /// Construct a live view. Detects terminal mode if term_fd is a TTY.
@@ -126,29 +127,29 @@ export namespace fs8 {
         void flush(int fd);
 
         /// Get per-device state, creating if needed.
-        [[nodiscard]] device_live_state& state_for(device_id id);
+        [[nodiscard]] device_live_state& state_for(std::uint32_t id);
 
       private:
         /// Flush accumulated mouse movement for one device.
-        void flush_mouse(device_id id, device_live_state& st, int fd);
+        void flush_mouse(std::uint32_t id, device_live_state& st, int fd);
 
         /// Flush keyboard buffer for one device.
-        void flush_keyboard(device_id id, device_live_state& st, int fd);
+        void flush_keyboard(std::uint32_t id, device_live_state& st, int fd);
 
         /// Write a formatted line to fd, with optional \r for terminal live update.
         void write_line(std::string_view line, int fd, bool is_live_status = false);
 
         /// Format and write a mouse accumulation summary.
-        void write_mouse_summary(device_id id, mouse_accum const& m, int fd);
+        void write_mouse_summary(std::uint32_t id, mouse_accum const& m, int fd);
 
         /// Format and write a diagnostic annotation.
-        void write_diagnostic(device_id id, sanitizer_issue issue, event_type const& event, int fd);
+        void write_diagnostic(std::uint32_t id, sanitizer_issue issue, event_type const& event, int fd);
 
         /// Format and write a key event with text column.
-        void write_key_event(device_id id, event_type const& event, int fd, char32_t text = U'\0');
+        void write_key_event(std::uint32_t id, event_type const& event, int fd, char32_t text = U'\0');
 
         /// Format and write a generic (non-key, non-mouse) event.
-        void write_generic_event(device_id id, event_type const& event, int fd);
+        void write_generic_event(std::uint32_t id, event_type const& event, int fd);
 
         /// Check if a mouse direction change occurred.
         [[nodiscard]] bool direction_changed(mouse_accum const& m, int dx, int dy) const noexcept;
@@ -160,7 +161,7 @@ export namespace fs8 {
         [[nodiscard]] char32_t key_to_text(device_live_state& st, event_type const& event);
 
         /// Format a device-id prefix like "dev3a".
-        [[nodiscard]] static std::string_view format_device_id(device_id id, std::span<char> buf) noexcept;
+        [[nodiscard]] static std::string_view format_device_id(std::uint32_t id, std::span<char> buf) noexcept;
 
         /// Format a timestamp.
         [[nodiscard]] static std::string_view format_time(event_type const& event, std::span<char> buf) noexcept;
@@ -255,7 +256,7 @@ export namespace fs8 {
                 if (format.parse(line, parsed)) {
                     line_buffer.erase(0, newline + 1);
                     event = event_type{parsed.event};
-                    event.source(device_id::stdin);
+                    event.source(make_source_id(mod_id_of<basic_from_input>(), 0));
                     return true;
                 }
                 line_buffer.erase(0, newline + 1);

@@ -203,12 +203,12 @@ TEST(LiveView, MouseAccumulation) {
     // Feed several mouse events
     for (int i = 0; i < 5; ++i) {
         event_type ev{EV_REL, REL_X, 10};
-        ev.source(fs8::hashed_device("event5"));
+        ev.source(fs8::make_source_id(fs8::mod_id_of<fs8::basic_interceptor>(), 5));
         lv.process_event(ev, pipe_fds[1]);
     }
 
     // Check accumulated state
-    auto& st = lv.state_for(fs8::hashed_device("event5"));
+    auto& st = lv.state_for(fs8::make_source_id(fs8::mod_id_of<fs8::basic_interceptor>(), 5));
     EXPECT_EQ(st.mouse.delta_x, 50);
     EXPECT_EQ(st.mouse.delta_y, 0);
     EXPECT_EQ(st.mouse.event_count, 5u);
@@ -229,7 +229,7 @@ TEST(LiveView, DirectionChangeFlushes) {
     int pipe_fds[2];
     EXPECT_EQ(pipe(pipe_fds), 0);
 
-    auto const dev = fs8::hashed_device("event5");
+    auto const dev = fs8::make_source_id(fs8::mod_id_of<fs8::basic_interceptor>(), 5);
 
     // Move right
     event_type ev1{EV_REL, REL_X, 10};
@@ -256,7 +256,7 @@ TEST(LiveView, KeyTracking) {
     int pipe_fds[2];
     EXPECT_EQ(pipe(pipe_fds), 0);
 
-    auto const dev = fs8::hashed_device("event5");
+    auto const dev = fs8::make_source_id(fs8::mod_id_of<fs8::basic_interceptor>(), 5);
 
     // Press A
     event_type press{EV_KEY, KEY_A, 1};

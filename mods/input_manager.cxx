@@ -10,6 +10,7 @@ module;
 #include <string>
 #include <string_view>
 #include <thread>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 module fs8.mods;
@@ -19,6 +20,7 @@ import fs8.devices.queries;
 import :io_manager;
 import fs8.context;
 import fs8.log;
+import fs8.hash;
 
 using fs8::basic_input_manager;
 using fs8::context_action;
@@ -52,13 +54,14 @@ namespace {
 
 template <>
 struct fs8::pimpl_idiom<basic_input_manager>::impl {
-    bool                               started = false;
-    udev_monitor                       monitor;
-    std::list<evdev>                   devs;                   // stable handles; todo: switch to std::hive once available
-    std::vector<query_provider_handle> providers;
-    std::vector<device_change_handle>  listeners;
-    std::vector<std::string>           owned_sysnames;         // uinput devices created by this process
-    std::uint32_t                      devices_generation = 1; // must be non-zero for xorshift
+    bool                                           started = false;
+    udev_monitor                                   monitor;
+    std::list<evdev>                               devs;                   // stable handles; todo: switch to std::hive once available
+    std::vector<query_provider_handle>             providers;
+    std::vector<device_change_handle>              listeners;
+    std::vector<std::string>                       owned_sysnames;         // uinput devices created by this process
+    std::uint32_t                                  devices_generation = 1; // must be non-zero for xorshift
+    std::unordered_map<std::uint32_t, fs8::evdev*> source_map;             // source_id → device (set by provider mods)
 
     /// Devices are identified by their udev sysname (derived from the fd),
     /// which is the last component of their syspath; only nodes with a devnode
@@ -136,9 +139,9 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         //     event_dev.property("ID_INPUT_KEYBOARD"));
 
         if (action == "remove" || action == "unbind") {
-            // Compute the device_id before erasing so listeners can identify it.
+            // Compute the source_id before erasing so listeners can identify it.
             if (!name.empty()) {
-                auto const id = hashed_device(name);
+                auto const id = ci_hash(std::string_view{name});
                 erase_by_sysname(name);
                 notify_listeners(id, fs8::device_change::disconnected);
             } else {
@@ -180,7 +183,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 devs.emplace_back(std::move(edev));
                 next_generation(devices_generation);
                 added         = true;
-                auto const id = fs8::hashed_device(fs8::device_sysname(devs.back()));
+                auto const id = fs8::ci_hash(std::string_view{fs8::device_sysname(devs.back())});
                 notify_listeners(id, fs8::device_change::connected);
             }
         }
@@ -192,7 +195,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         }
     }
 
-    void notify_listeners(fs8::device_id const id, fs8::device_change const change) noexcept {
+    void notify_listeners(std::uint32_t const id, fs8::device_change const change) noexcept {
         for (auto& listener : listeners) {
             if (listener.invoke) {
                 listener.invoke(id, change);
@@ -298,7 +301,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 break;
             }
             devs.emplace_back(std::move(edev));
-            auto const id = fs8::hashed_device(fs8::device_sysname(devs.back()));
+            auto const id = fs8::ci_hash(std::string_view{fs8::device_sysname(devs.back())});
             notify_listeners(id, fs8::device_change::connected);
             --remaining;
         }
@@ -387,50 +390,54 @@ bool basic_input_manager::is_owned_sysname(std::string_view const sysname) const
     });
 }
 
-fs8::device_id basic_input_manager::device_id_of(evdev const& dev) const noexcept {
+std::uint32_t basic_input_manager::source_id_of(evdev const& dev) const noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
-        return device_id::none;
+        return source_id_none;
     }
     auto const sysname = device_sysname(dev);
     if (sysname.empty()) [[unlikely]] {
-        return device_id::none;
+        return source_id_none;
     }
-    return hashed_device(sysname);
+    return ci_hash(std::string_view{sysname});
 }
 
-fs8::evdev const* basic_input_manager::device_of(device_id const id) const noexcept {
-    using enum device_id;
-    if (id == none || id == stdin || id == self) [[unlikely]] {
+fs8::evdev const* basic_input_manager::device_of(std::uint32_t const id) const noexcept {
+    if (id == source_id_none) [[unlikely]] {
         return nullptr;
     }
+    // Fast path: check the source_id map (set by provider mods like intercept).
+    if (auto const it = pimpl->source_map.find(id); it != pimpl->source_map.end()) {
+        return it->second;
+    }
+    // Fallback: check by ci_hash(sysname) — used by device change listeners.
     for (evdev const& dev : pimpl->devs) {
-        if (device_id_of(dev) == id) {
+        if (source_id_of(dev) == id) {
             return &dev;
         }
     }
     return nullptr;
 }
 
-fs8::evdev* basic_input_manager::device_of(device_id const id) noexcept {
+fs8::evdev* basic_input_manager::device_of(std::uint32_t const id) noexcept {
     return const_cast<evdev*>(std::as_const(*this).device_of(id));
 }
 
-int basic_input_manager::fd_of(device_id const id) const noexcept {
+int basic_input_manager::fd_of(std::uint32_t const id) const noexcept {
     auto const* const dev = device_of(id);
     return dev != nullptr ? dev->native_handle() : -1;
 }
 
-std::string basic_input_manager::sysname_of(device_id const id) const noexcept {
+std::string basic_input_manager::sysname_of(std::uint32_t const id) const noexcept {
     auto const* const dev = device_of(id);
     return dev != nullptr ? device_sysname(*dev) : std::string{};
 }
 
-std::string_view basic_input_manager::name_of(device_id const id) const noexcept {
+std::string_view basic_input_manager::name_of(std::uint32_t const id) const noexcept {
     auto const* const dev = device_of(id);
     return dev != nullptr ? dev->device_name() : std::string_view{};
 }
 
-bool basic_input_manager::is_owned(device_id const id) const noexcept {
+bool basic_input_manager::is_owned(std::uint32_t const id) const noexcept {
     auto const* const dev = device_of(id);
     if (dev == nullptr) [[unlikely]] {
         return false;
@@ -438,12 +445,26 @@ bool basic_input_manager::is_owned(device_id const id) const noexcept {
     return is_owned(*dev);
 }
 
-bool basic_input_manager::is_chained(device_id const id) const noexcept {
+bool basic_input_manager::is_chained(std::uint32_t const id) const noexcept {
     auto const* const dev = device_of(id);
     if (dev == nullptr) [[unlikely]] {
         return false;
     }
     return dev->physical_location().starts_with("foresight:");
+}
+
+void basic_input_manager::register_source(std::uint32_t const source_id, evdev& dev) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return;
+    }
+    pimpl->source_map[source_id] = &dev;
+}
+
+void basic_input_manager::unregister_source(std::uint32_t const source_id) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return;
+    }
+    pimpl->source_map.erase(source_id);
 }
 
 void basic_input_manager::requery() {

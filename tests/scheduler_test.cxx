@@ -253,7 +253,7 @@ TEST(SchedulerApi, CancelTickEmitsEventThenRemoves) {
     auto const result = sched(event, next_event);
     EXPECT_EQ(result, context_action::next);
     EXPECT_EQ(event.value(), 77);
-    EXPECT_EQ(event.source(), device_id::scheduler);
+    EXPECT_EQ(event.source(), make_source_id(mod_id_of<basic_scheduler>(), 0));
 
     // Next call finds no ticks.
     auto const result2 = sched(event, next_event);

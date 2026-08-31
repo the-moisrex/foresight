@@ -4,6 +4,7 @@ module;
 #include <array>
 #include <bitset>
 #include <cassert>
+#include <cstdint>
 #include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
 #include <span>
@@ -96,7 +97,7 @@ export namespace fs8 {
               .add_device_change_listener({
                 .identity = this,
                 .invoke =
-                  [this, &input_manager = ctx.mod(input_manager)](device_id const id, device_change const change) noexcept {
+                  [this, &input_manager = ctx.mod(input_manager)](std::uint32_t const id, device_change const change) noexcept {
                       if (change != device_change::connected) {
                           return;
                       }

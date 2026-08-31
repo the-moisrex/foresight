@@ -176,7 +176,7 @@ TEST(FromEvtest, ReadsEventLines) {
     EXPECT_EQ(event.type(), EV_KEY);
     EXPECT_EQ(event.code(), KEY_A);
     EXPECT_EQ(event.value(), 1);
-    EXPECT_EQ(event.source(), fs8::device_id::stdin);
+    EXPECT_EQ(event.source(), fs8::make_source_id(fs8::mod_id_of<fs8::basic_from_input>(), 0));
 
     auto const action2 = reader(event, fs8::load_event);
     EXPECT_EQ(action2, fs8::context_action::next);

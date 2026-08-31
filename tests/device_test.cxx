@@ -84,8 +84,8 @@ TEST(DeviceTest, EmitterEventsAreSelf) {
     pipeline();
 
     ASSERT_EQ(col.size(), 2U);
-    EXPECT_EQ(col.at(0).source(), device_id::self);
-    EXPECT_EQ(col.at(1).source(), device_id::self);
+    EXPECT_EQ(col.at(0).source(), source_id_none);
+    EXPECT_EQ(col.at(1).source(), source_id_none);
 }
 
 TEST(DeviceTest, EmitForksAreSelf) {
@@ -96,9 +96,9 @@ TEST(DeviceTest, EmitForksAreSelf) {
 
     // The provider's SYN plus the emitted key down + SYN.
     ASSERT_EQ(col.size(), 3U);
-    EXPECT_EQ(col.at(0).source(), device_id::self);
-    EXPECT_EQ(col.at(1).source(), device_id::self);
-    EXPECT_EQ(col.at(2).source(), device_id::self);
+    EXPECT_EQ(col.at(0).source(), source_id_none);
+    EXPECT_EQ(col.at(1).source(), source_id_none);
+    EXPECT_EQ(col.at(2).source(), source_id_none);
 }
 
 TEST(DeviceTest, ForkEmitPreservesSource) {
@@ -107,7 +107,7 @@ TEST(DeviceTest, ForkEmitPreservesSource) {
       | emit_all[{syn_user_event}]
       | run{[](auto& ctx) noexcept -> void {
             event_type ev{EV_KEY, KEY_C, 1};
-            ev.source(hashed_device("event42")); // pretend it came from a device
+            ev.source(make_source_id(mod_id_of<basic_interceptor>(), 42)); // pretend it came from a device
             std::ignore = ctx.fork_emit(ev);
         }}
       | record;
@@ -119,9 +119,9 @@ TEST(DeviceTest, ForkEmitPreservesSource) {
     // the provider's SYN reaches record. The forked event must keep its source.
     ASSERT_EQ(col.size(), 2U);
     EXPECT_EQ(col.at(0).code(), KEY_C);
-    EXPECT_EQ(col.at(0).source(), hashed_device("event42"));
+    EXPECT_EQ(col.at(0).source(), make_source_id(mod_id_of<basic_interceptor>(), 42));
     EXPECT_EQ(col.at(1).type(), EV_SYN);
-    EXPECT_EQ(col.at(1).source(), device_id::self);
+    EXPECT_EQ(col.at(1).source(), source_id_none);
 }
 
 TEST(DeviceTest, IgnoreOriginDropsSelf) {
@@ -131,7 +131,7 @@ TEST(DeviceTest, IgnoreOriginDropsSelf) {
         {.type = EV_KEY,      .code = KEY_A, .value = 1},
         {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     }]
-      | drop_origin[device_id::self]
+      | drop_origin[source_id_none]
       | record;
     auto& col = pipeline.mod<basic_record>();
 
@@ -147,14 +147,14 @@ TEST(DeviceTest, IgnoreOriginKeepsOthers) {
         {.type = EV_KEY,      .code = KEY_A, .value = 1},
         {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     }]
-      | drop_origin[device_id::stdin]
+      | drop_origin[make_source_id(mod_id_of<basic_from_input>(), 0)]
       | record;
     auto& col = pipeline.mod<basic_record>();
 
     pipeline();
 
     ASSERT_EQ(col.size(), 2U);
-    EXPECT_EQ(col.at(0).source(), device_id::self);
+    EXPECT_EQ(col.at(0).source(), source_id_none);
 }
 
 TEST(DeviceTest, Conditions) {
@@ -187,7 +187,7 @@ TEST(DeviceTest, DeviceIsPredicate) {
       context
       | emit_all[{syn_user_event}]
       | run{[](auto& ctx) noexcept {
-            saw_device_is = saw_device_is || device_is(device_id::self)(ctx.event());
+            saw_device_is = saw_device_is || device_is(source_id_none)(ctx.event());
         }}
       | record;
 
@@ -197,21 +197,21 @@ TEST(DeviceTest, DeviceIsPredicate) {
 }
 
 TEST(DeviceTest, OnlyDeviceAndIgnoreDevice) {
-    // only_device[device_id::self] lets synthesized events through.
-    auto  keep = context | emit_all[{syn_user_event}] | only_device[device_id::self] | record;
+    // only_device[source_id_none] lets synthesized events through.
+    auto  keep = context | emit_all[{syn_user_event}] | only_device[source_id_none] | record;
     auto& col  = keep.mod<basic_record>();
     keep();
     ASSERT_EQ(col.size(), 1U);
-    EXPECT_EQ(col.front().source(), device_id::self);
+    EXPECT_EQ(col.front().source(), source_id_none);
 
     // only_device for a different device drops them.
-    auto  drop = context | emit_all[{syn_user_event}] | only_device[hashed_device("event123")] | record;
+    auto  drop = context | emit_all[{syn_user_event}] | only_device[make_source_id(mod_id_of<basic_interceptor>(), 123)] | record;
     auto& cold = drop.mod<basic_record>();
     drop();
     EXPECT_TRUE(cold.empty());
 
-    // drop_device[device_id::self] drops them.
-    auto  drop2 = context | emit_all[{syn_user_event}] | drop_device[device_id::self] | record;
+    // drop_device[source_id_none] drops them.
+    auto  drop2 = context | emit_all[{syn_user_event}] | drop_device[source_id_none] | record;
     auto& cold2 = drop2.mod<basic_record>();
     drop2();
     EXPECT_TRUE(cold2.empty());
@@ -244,8 +244,8 @@ TEST(DeviceTest, FromInputMarksStdin) {
     ::close(fds[0]);
 
     ASSERT_EQ(captured_events.size(), 2U);
-    EXPECT_EQ(captured_events.at(0).source(), device_id::stdin);
-    EXPECT_EQ(captured_events.at(1).source(), device_id::stdin);
+    EXPECT_EQ(captured_events.at(0).source(), make_source_id(mod_id_of<basic_from_input>(), 0));
+    EXPECT_EQ(captured_events.at(1).source(), make_source_id(mod_id_of<basic_from_input>(), 0));
 }
 
 TEST(DeviceTest, InterceptMarksDeviceSource) {
@@ -309,9 +309,9 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
     EXPECT_EQ(col.front().type(), EV_KEY);
     EXPECT_EQ(col.front().code(), KEY_A);
     // A plain device is neither stdin/self nor owned/chained.
-    EXPECT_NE(source, device_id::none);
-    EXPECT_NE(source, device_id::stdin);
-    EXPECT_NE(source, device_id::self);
+    EXPECT_NE(source, source_id_none);
+    EXPECT_NE(source, make_source_id(mod_id_of<basic_from_input>(), 0));
+    EXPECT_NE(source, source_id_none);
     EXPECT_NE(im.device_of(source), nullptr);
     EXPECT_EQ(im.fd_of(source), expected_fd);
     EXPECT_FALSE(im.is_owned(source));
@@ -421,13 +421,13 @@ TEST(DeviceTest, DropEmittedLetsOwnedThrough) {
     inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
-    // `drop_emitted` only drops device_id::self, not owned device events.
+    // `drop_emitted` only drops source_id_none, not owned device events.
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
 
     ASSERT_FALSE(col.empty());
     EXPECT_EQ(col.front().code(), KEY_A);
-    // Owned device events are not device_id::self.
-    EXPECT_NE(col.front().source(), device_id::self);
+    // Owned device events are not source_id_none.
+    EXPECT_NE(col.front().source(), source_id_none);
 
     uin.close();
 }
@@ -480,7 +480,7 @@ TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
     ASSERT_FALSE(col.empty());
     auto const source = col.front().source();
     EXPECT_EQ(col.front().code(), KEY_A);
-    EXPECT_NE(source, device_id::self); // it's the device id, not the synthesized marker
+    EXPECT_NE(source, source_id_none); // it's the device id, not the synthesized marker
     EXPECT_EQ(im.fd_of(source), expected_fd);
     EXPECT_TRUE(im.is_owned(source));
 
@@ -552,7 +552,7 @@ TEST(DeviceTest, ChainedDeviceIsChained) {
     ASSERT_FALSE(col.empty());
     auto const source = col.front().source();
     EXPECT_EQ(col.front().code(), KEY_A);
-    EXPECT_NE(source, device_id::none);
+    EXPECT_NE(source, source_id_none);
     EXPECT_NE(im.device_of(source), nullptr);
     EXPECT_FALSE(im.is_owned(source));
     EXPECT_TRUE(im.is_chained(source));
