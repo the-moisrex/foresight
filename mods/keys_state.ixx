@@ -111,9 +111,6 @@ export namespace fs8 {
 
     template <typename ModT = void>
     struct [[nodiscard]] basic_mod_updater {
-        void operator()(auto&&, special_event const&) = delete;
-        void operator()(special_event const&)         = delete;
-
         template <typename InpModT>
             requires(!Context<std::remove_cvref_t<InpModT>> && !detail::is_tag_type<std::remove_cvref_t<InpModT>>)
         consteval auto operator[]([[maybe_unused]] InpModT&&) const noexcept {

@@ -49,8 +49,6 @@ export namespace fs8 {
             return basic_scale_pen{factor};
         }
 
-        void operator()(auto&&, special_event const&) = delete;
-
         context_action operator()(event_type& event) noexcept;
     } scale_pen;
 
@@ -86,8 +84,6 @@ export namespace fs8 {
         consteval basic_scale_move operator[](float const factor) const noexcept {
             return basic_scale_move{factor};
         }
-
-        void operator()(auto&&, special_event const&) = delete;
 
         context_action operator()(event_type& event) noexcept;
     } scale_move;

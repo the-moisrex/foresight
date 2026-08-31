@@ -27,9 +27,6 @@ namespace fs8 {
       public:
         explicit consteval basic_modes(CondT inp_cond, Mods... inp_mods) noexcept : cond{inp_cond}, mods{inp_mods...} {}
 
-        void operator()(auto&&, special_event const&) = delete;
-        void operator()(special_event const&)         = delete;
-
         template <typename InpCondT, typename... InpMods>
             requires(sizeof...(InpMods) >= 1)
         consteval auto operator[](InpCondT inp_cond, InpMods... inp_mods) const noexcept {

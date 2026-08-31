@@ -35,8 +35,6 @@ export namespace fs8 {
             return res;
         }
 
-        void           operator()(auto&&, special_event const&) = delete;
-        void           operator()(special_event const&)         = delete;
         context_action operator()(event_type& event) noexcept;
 
         template <Context CtxT>
