@@ -6,8 +6,11 @@ module fs8.mods;
 using fs8::basic_replace_code;
 using fs8::event_type;
 
-fs8::context_action fs8::basic_scheduled_emitter::operator()(event_type& event, next_event_tag) noexcept {
+fs8::context_action fs8::basic_scheduled_emitter::operator()(event_type& event, special_event const& tag) noexcept {
     using enum context_action;
+    if (tag.code != special_next_event.code) {
+        return drop_event;
+    }
     if (events.empty()) {
         return drop_event;
     }

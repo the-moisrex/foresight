@@ -5,8 +5,8 @@ module;
 #include <cstddef>
 #include <cstdint>
 #include <limits>
-#include <variant>
 #include <type_traits>
+#include <variant>
 export module fs8.mods:output_selector;
 import fs8.context;
 import fs8.event;
@@ -37,7 +37,8 @@ namespace fs8 {
                     return true;
                 }
                 return false;
-            }() || ...);
+            }()
+             || ...);
         }
 
     } // namespace detail
@@ -72,39 +73,45 @@ namespace fs8 {
 
         // NOLINTNEXTLINE(*-use-nodiscard)
         bool emit(event_type const& event) noexcept {
-            return std::visit([&](auto& out) -> bool {
-                return out.emit(event);
-            }, outputs_);
+            return std::visit(
+              [&](auto& out) -> bool {
+                  return out.emit(event);
+              },
+              outputs_);
         }
 
         // NOLINTNEXTLINE(*-use-nodiscard)
         context_action operator()(event_type& event) noexcept {
-            return std::visit([&]<typename T>(T& out) -> context_action {
-                using Out = std::remove_cvref_t<T>;
-                if constexpr (std::is_nothrow_invocable_v<Out, event_type&>) {
-                    using R = std::invoke_result_t<Out, event_type&>;
-                    if constexpr (std::same_as<R, bool>) {
-                        return out(event) ? context_action::next : context_action::drop_event;
-                    } else {
-                        return out(event);
-                    }
-                } else {
-                    static_assert(false, "Output type must accept event_type&.");
-                    return context_action::exit;
-                }
-            }, outputs_);
+            return std::visit(
+              [&]<typename T>(T& out) -> context_action {
+                  using Out = std::remove_cvref_t<T>;
+                  if constexpr (std::is_nothrow_invocable_v<Out, event_type&>) {
+                      using R = std::invoke_result_t<Out, event_type&>;
+                      if constexpr (std::same_as<R, bool>) {
+                          return out(event) ? context_action::next : context_action::drop_event;
+                      } else {
+                          return out(event);
+                      }
+                  } else {
+                      static_assert(false, "Output type must accept event_type&.");
+                      return context_action::exit;
+                  }
+              },
+              outputs_);
         }
 
         /// Forward start_tag to the selected output if it accepts (CtxT&, start_tag).
         template <typename CtxT>
-        context_action operator()(CtxT& ctx, start_tag) noexcept {
-            return std::visit([&](auto& out) -> context_action {
-                return detail::start_output(out, ctx);
-            }, outputs_);
+        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
+            return std::visit(
+              [&](auto& out) -> context_action {
+                  return detail::start_output(out, ctx);
+              },
+              outputs_);
         }
-
-        void operator()(auto&&, Tag auto) = delete;
-        void operator()(Tag auto)         = delete;
     };
 
     /// Default output selector with all built-in output types.

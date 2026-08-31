@@ -72,8 +72,7 @@ export namespace fs8 {
         [[nodiscard]] bool        empty() const noexcept;
         [[nodiscard]] std::size_t size() const noexcept;
 
-        context_action operator()(start_tag) noexcept;
-        context_action operator()(load_event_tag) noexcept;
+        context_action operator()(special_event const& tag) noexcept;
 
       private:
         [[nodiscard]] bool watch(io_fd const& fd, io_callback const& cb) noexcept;

@@ -124,8 +124,11 @@ context_action basic_scheduler::operator()(io_fd const& fd) noexcept try {
     return context_action::next;
 }
 
-context_action basic_scheduler::operator()(event_type& event, next_event_tag) noexcept {
+context_action basic_scheduler::operator()(event_type& event, special_event const& tag) noexcept {
     using enum context_action;
+    if (tag.code != special_next_event.code) {
+        return drop_event;
+    }
 
     if (pimpl.get() == nullptr) [[unlikely]] {
         return drop_event;

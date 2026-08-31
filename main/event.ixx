@@ -403,4 +403,45 @@ export namespace fs8 {
     [[nodiscard]] constexpr bool is_syn(user_event const& event) noexcept {
         return event.type == EV_SYN;
     }
+
+    /// Sentinel type value used by all lifecycle events.
+    constexpr auto special_event_type = static_cast<event_type::type_type>(EV_MAX + 1);
+
+    /// A lifecycle event (tag replacement) that shares the same field layout
+    /// as `event_type` so mods can handle both regular events and lifecycle
+    /// events in a single overload if desired. The `type` field is set to
+    /// `EV_MAX + 1` (a value no real kernel event will ever use) so callers
+    /// can distinguish lifecycle events from real input events.
+    struct [[nodiscard]] special_event {
+        using type_type  = event_type::type_type;
+        using code_type  = event_type::code_type;
+        using value_type = event_type::value_type;
+        using time_type  = event_type::time_type;
+
+        time_type  time  = {};
+        type_type  type  = special_event_type;
+        code_type  code  = 0;
+        value_type value = 0;
+        device_id  from  = device_id::none;
+    };
+
+    /// Lifecycle event constants. Each uses a unique `code` value; toggle
+    /// events encode their state in the `value` field (1 = on, 0 = off).
+    constexpr special_event special_start{.type = special_event_type, .code = 0};
+    constexpr special_event special_no_init{.type = special_event_type, .code = 1};
+    constexpr special_event special_load_event{.type = special_event_type, .code = 2};
+    constexpr special_event special_next_event{.type = special_event_type, .code = 3};
+    constexpr special_event special_toggle_on{.type = special_event_type, .code = 4, .value = 1};
+    constexpr special_event special_toggle_off{.type = special_event_type, .code = 4, .value = 0};
+
+    /// Check whether a `special_event` matches a given lifecycle code.
+    [[nodiscard]] constexpr bool is_special(special_event const& ev, special_event::code_type const code) noexcept {
+        return ev.type == special_event_type && ev.code == code;
+    }
+
+    /// Check whether an `event_type` is actually a lifecycle event (shouldn't
+    /// happen in practice, but guards against data corruption).
+    [[nodiscard]] constexpr bool is_special(event_type const& ev) noexcept {
+        return ev.type() == special_event_type;
+    }
 } // namespace fs8

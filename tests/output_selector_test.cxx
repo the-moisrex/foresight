@@ -16,7 +16,8 @@ namespace {
 
 TEST(OutputSelector, SatisfiesOutputModifierConcept) {
     static_assert(OutputModifier<output_selector>, "output_selector must satisfy OutputModifier");
-    static_assert(OutputModifier<basic_output_selector<basic_std_output>>, "basic_output_selector<basic_output> must satisfy OutputModifier");
+    static_assert(OutputModifier<basic_output_selector<basic_std_output>>,
+                  "basic_output_selector<basic_output> must satisfy OutputModifier");
 }
 
 TEST(OutputSelector, DefaultSelectedIsZero) {
@@ -44,7 +45,7 @@ TEST(OutputSelector, EmitToRawStdoutViaPipe) {
     close(pipe_fds[1]);
 
     input_event buf[3];
-    auto const n = read(pipe_fds[0], buf, sizeof(buf));
+    auto const  n = read(pipe_fds[0], buf, sizeof(buf));
     close(pipe_fds[0]);
 
     ASSERT_EQ(n, static_cast<ssize_t>(sizeof(buf)));
@@ -69,7 +70,7 @@ TEST(OutputSelector, EmitSynViaPipe) {
     close(pipe_fds[1]);
 
     input_event ev{};
-    auto const n = read(pipe_fds[0], &ev, sizeof(ev));
+    auto const  n = read(pipe_fds[0], &ev, sizeof(ev));
     close(pipe_fds[0]);
 
     ASSERT_EQ(n, static_cast<ssize_t>(sizeof(ev)));
@@ -91,7 +92,7 @@ TEST(OutputSelector, EmitTypeCodeValueViaPipe) {
     close(pipe_fds[1]);
 
     input_event ev{};
-    auto const n = read(pipe_fds[0], &ev, sizeof(ev));
+    auto const  n = read(pipe_fds[0], &ev, sizeof(ev));
     close(pipe_fds[0]);
 
     ASSERT_EQ(n, static_cast<ssize_t>(sizeof(ev)));
@@ -115,7 +116,7 @@ TEST(OutputSelector, OperatorPassesEventsToSelectedOutput) {
     close(pipe_fds[1]);
 
     input_event ev{};
-    auto const n = read(pipe_fds[0], &ev, sizeof(ev));
+    auto const  n = read(pipe_fds[0], &ev, sizeof(ev));
     close(pipe_fds[0]);
 
     ASSERT_EQ(n, static_cast<ssize_t>(sizeof(ev)));
@@ -140,7 +141,7 @@ TEST(OutputSelector, SwitchSelectedRoutesDifferently) {
     close(pipe_a[1]);
 
     input_event ev_a{};
-    auto const n_a = read(pipe_a[0], &ev_a, sizeof(ev_a));
+    auto const  n_a = read(pipe_a[0], &ev_a, sizeof(ev_a));
     close(pipe_a[0]);
 
     ASSERT_EQ(n_a, static_cast<ssize_t>(sizeof(ev_a)));
@@ -170,7 +171,7 @@ TEST(OutputSelector, MultipleEventsInOrder) {
     close(pipe_fds[1]);
 
     input_event buf[6];
-    auto const n = read(pipe_fds[0], buf, sizeof(buf));
+    auto const  n = read(pipe_fds[0], buf, sizeof(buf));
     close(pipe_fds[0]);
 
     ASSERT_EQ(n, static_cast<ssize_t>(sizeof(buf)));
@@ -201,7 +202,7 @@ TEST(OutputSelector, CustomTemplateParams) {
     close(pipe_fds[1]);
 
     input_event ev{};
-    auto const n = read(pipe_fds[0], &ev, sizeof(ev));
+    auto const  n = read(pipe_fds[0], &ev, sizeof(ev));
     close(pipe_fds[0]);
 
     ASSERT_EQ(n, static_cast<ssize_t>(sizeof(ev)));
@@ -218,9 +219,9 @@ TEST(OutputSelector, WorksInPipeline) {
     auto pipeline =
       context
       | emit_all[{
-        {.type = EV_KEY, .code = KEY_A, .value = 1},
+        {.type = EV_KEY,      .code = KEY_A, .value = 1},
         {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
-        {.type = EV_KEY, .code = KEY_A, .value = 0},
+        {.type = EV_KEY,      .code = KEY_A, .value = 0},
         {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     }]
       | output
@@ -247,7 +248,7 @@ TEST(OutputSelector, WorksInPipeline) {
 
     // The pipe should also have the raw events
     input_event buf[4];
-    auto const n = read(pipe_fds[0], buf, sizeof(buf));
+    auto const  n = read(pipe_fds[0], buf, sizeof(buf));
     close(pipe_fds[0]);
 
     ASSERT_EQ(n, static_cast<ssize_t>(sizeof(buf)));

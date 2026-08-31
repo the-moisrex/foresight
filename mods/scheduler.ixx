@@ -81,11 +81,14 @@ namespace fs8 {
         context_action operator()(io_fd const& fd) noexcept;
 
         /// next_event provider: call the first due callback, emit its events.
-        context_action operator()(event_type& event, next_event_tag) noexcept;
+        context_action operator()(event_type& event, special_event const& tag) noexcept;
 
         /// Register the timer fd with io_manager.
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, start_tag) noexcept {
+        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
             if constexpr (has_mod<basic_io_manager, CtxT>) {
                 return do_start(ctx.mod(io_manager));
             } else {

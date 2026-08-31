@@ -270,7 +270,7 @@ export namespace fs8 {
             file_descriptor = inp_fd;
         }
 
-        context_action operator()(event_type& event, load_event_tag) noexcept;
+        context_action operator()(event_type& event, special_event const& tag) noexcept;
     };
 
     inline constinit basic_from_live_view<> from_live_view;

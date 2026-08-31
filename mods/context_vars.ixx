@@ -49,6 +49,8 @@ export namespace fs8 {
 
     /// Get the variable names from mods
     constexpr struct [[nodiscard]] get_variables_tag {
+        /// Sentinel marker — prevents this type from being consumed by
+        /// generic `operator[]` overloads (e.g. on[], typer[], keys_state[]).
         static constexpr bool is_tag = true;
     } get_variables;
 

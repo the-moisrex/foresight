@@ -139,7 +139,10 @@ export namespace fs8 {
         context_action start(basic_io_manager& io) noexcept;
 
         template <Context ContextT>
-        context_action operator()(ContextT& ctx, start_tag) noexcept {
+        context_action operator()(ContextT& ctx, special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
             return start(ctx.mod(io_manager));
         }
 

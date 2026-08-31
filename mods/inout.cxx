@@ -29,8 +29,11 @@ bool fs8::basic_std_output::operator()(event_type& event) const noexcept {
 
 // ── basic_from_input (raw binary) ───────────────────────────────────────────
 
-context_action fs8::basic_from_input::operator()(event_type& event, load_event_tag) const noexcept {
+context_action fs8::basic_from_input::operator()(event_type& event, special_event const& tag) const noexcept {
     using enum context_action;
+    if (tag.code != special_load_event.code) {
+        return drop_event;
+    }
     auto const res = read(file_descriptor, &event.native(), sizeof(input_event));
     if (res == 0) [[unlikely]] {
         return exit;

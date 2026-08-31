@@ -145,7 +145,7 @@ namespace fs8 {
         [[nodiscard]] bool matches(std::uint32_t state, std::uint16_t trigger_id) const noexcept;
 
         /// Initialize empty
-        context_action operator()(start_tag) noexcept;
+        context_action operator()(special_event const& tag) noexcept;
 
         /// Handling events
         void operator()() const noexcept {
@@ -199,7 +199,10 @@ namespace fs8 {
         }
 
         /// Register the pattern into the search engine
-        context_action operator()(Context auto& ctx, start_tag) noexcept {
+        context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
             keyboard_state.initialize(xkb::get_default_keymap());
             return on_start(ctx.mod(search_engine));
         }

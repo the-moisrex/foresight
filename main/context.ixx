@@ -148,62 +148,52 @@ export namespace fs8 {
         return is_exiting(action);
     }
 
-    /// Runtime tag identifiers for dispatching tags through the type-erased interface.
-    enum struct [[nodiscard]] dynamic_tag : std::uint8_t {
-        none,
-        start,
-        no_init,
-        load_event,
-        next_event,
-        toggle_on,
-        toggle_off,
-    };
-
-    /// A tag; carries its runtime `dynamic_tag` id so type-erased contexts can dispatch on it.
-    template <dynamic_tag ID>
-    struct [[nodiscard]] basic_tag {
-        static constexpr bool        is_tag = true;
-        static constexpr dynamic_tag id     = ID;
-    };
-
-    using no_init_tag    = basic_tag<dynamic_tag::no_init>;
-    using start_tag      = basic_tag<dynamic_tag::start>;
-    using toggle_on_tag  = basic_tag<dynamic_tag::toggle_on>;
-    using toggle_off_tag = basic_tag<dynamic_tag::toggle_off>;
-    using next_event_tag = basic_tag<dynamic_tag::next_event>;
-    using load_event_tag = basic_tag<dynamic_tag::load_event>;
-
-    /// Run the context mods, don't run the initialization and other setup actions of the mods.
-    constexpr no_init_tag no_init{};
-
-    /// Initialization and the setup parts of the mods will happen in actions using this tag.
-    constexpr start_tag start{};
-
-    constexpr toggle_on_tag toggle_on{};
-
-    constexpr toggle_off_tag toggle_off{};
-
-    /// This will let the mods set an event to the context, and send them through the whole pipeline.
-    constexpr next_event_tag next_event{};
-
-    /// This will wait for an event to be loaded, so this is blocking, and shall be called after the
-    /// set_events are done.
-    constexpr load_event_tag load_event{};
-
     template <typename ModT, typename CtxT, typename... Args>
     concept invokable_mod =
       std::is_nothrow_invocable_v<ModT, CtxT &, Args...>
       || std::is_nothrow_invocable_v<ModT, event_type &, Args...>
       || std::is_nothrow_invocable_v<ModT, Args...>;
 
+    namespace detail {
+        template <typename... Args>
+        constexpr bool args_contain_special_event = (std::same_as<std::remove_cvref_t<Args>, special_event> || ...);
+
+        /// True if T has a `static constexpr bool is_tag = true` member, or is `special_event`.
+        /// Used to exclude sentinel types (get_variables_tag, auto_mode_tag,
+        /// pass_trigger_tag) and `special_event` from generic operator[] overloads.
+        template <typename T, typename = void>
+        inline constexpr bool is_tag_type = false;
+
+        template <typename T>
+        inline constexpr bool is_tag_type<T, std::void_t<decltype(std::remove_cvref_t<T>::is_tag)>> = std::remove_cvref_t<T>::is_tag;
+
+        template <>
+        inline constexpr bool is_tag_type<special_event, void> = true;
+    } // namespace detail
+
+    /// Concept for pipeline lifecycle tags. All lifecycle events are
+    /// `special_event`; this replaces the old `Tag` concept.
     template <typename T>
-    concept Tag = requires {
-        std::remove_cvref_t<T>::is_tag;
-        requires std::remove_cvref_t<T>::is_tag;
-    } && std::is_trivially_copy_constructible_v<std::remove_cvref_t<T>>;
+    concept PipelineTag = std::same_as<std::remove_cvref_t<T>, special_event>;
+
+    /// Legacy tag type aliases — all resolve to `special_event`.
+    using no_init_tag    = special_event;
+    using start_tag      = special_event;
+    using toggle_on_tag  = special_event;
+    using toggle_off_tag = special_event;
+    using next_event_tag = special_event;
+    using load_event_tag = special_event;
+
+    /// Legacy tag constant aliases — all resolve to `special_event` values.
+    constexpr auto &no_init    = special_no_init;
+    constexpr auto &start      = special_start;
+    constexpr auto &toggle_on  = special_toggle_on;
+    constexpr auto &toggle_off = special_toggle_off;
+    constexpr auto &next_event = special_next_event;
+    constexpr auto &load_event = special_load_event;
 
     template <typename ModT, typename... Args>
-    constexpr context_action invoke_mod_inorder(ModT &mod, context_action const default_action, Args &&...args) noexcept {
+    context_action invoke_mod_inorder(ModT &mod, context_action const default_action, Args &&...args) noexcept {
         using enum context_action;
         using result = std::invoke_result_t<ModT, Args...>;
         static_assert(std::is_nothrow_invocable_v<ModT, Args...>, "Mark the mod as nothrow.");
@@ -213,24 +203,50 @@ export namespace fs8 {
             return mod(std::forward<Args>(args)...);
         } else {
             static_cast<void>(mod(std::forward<Args>(args)...));
-            return default_action;
+            if constexpr (detail::args_contain_special_event<Args...>) {
+                // Mods that return void for special_event signals are
+                // transparent — they don't claim to have handled the event.
+                return drop_event;
+            } else {
+                return default_action;
+            }
         }
     }
 
     template <typename ModT, typename CtxT, typename... Args>
-    constexpr context_action invoke_mod(ModT &mod, CtxT &ctx, context_action const default_action, Args... args) noexcept {
+    context_action invoke_mod(ModT &mod, CtxT &ctx, context_action const default_action, Args... args) noexcept {
         using enum context_action;
-        if constexpr (std::invocable<ModT, CtxT &, Args...>) {
+        if constexpr (sizeof...(Args) == 0) {
+            // No extra args: try (ctx), then (event&), then ().
+            if constexpr (std::invocable<ModT, CtxT &>) {
+                return invoke_mod_inorder(mod, default_action, ctx);
+            } else if constexpr (std::invocable<ModT, event_type &>) {
+                auto &event = ctx.event();
+                return invoke_mod_inorder(mod, default_action, event);
+            } else if constexpr (std::invocable<ModT>) {
+                return invoke_mod_inorder(mod, default_action);
+            } else {
+                return default_action;
+            }
+        } else if constexpr (std::invocable<ModT, CtxT &, Args...>) {
             return invoke_mod_inorder(mod, default_action, ctx, args...);
+        } else if constexpr (
+          sizeof...(Args) == 1 && std::same_as<std::remove_cvref_t<type_at<0, Args...>>, special_event> && std::invocable<ModT, Args...>)
+        {
+            // When the single arg is a special_event, try it as a standalone calling convention.
+            // This allows mods to accept `(special_event)` or `(special_event const&)` directly.
+            return invoke_mod_inorder(mod, default_action, args...);
         } else if constexpr (std::invocable<ModT, event_type &, Args...>) {
             auto &event = ctx.event();
             return invoke_mod_inorder(mod, default_action, event, args...);
         } else if constexpr (std::invocable<ModT, Args...>) {
             return invoke_mod_inorder(mod, default_action, args...);
         } else if constexpr (sizeof...(Args) >= 2) {
-            // Some mods don't accept the tag-specific arguments (e.g. the device_query the router
+            // Some mods don't accept the first argument (e.g. the device_query the router
             // pushes down a pipeline); drop the leading non-tag argument and retry with fewer args.
-            if constexpr (!Tag<type_at<0, Args...>> && Tag<type_at<sizeof...(Args) - 1, Args...>>) {
+            if constexpr (!std::same_as<std::remove_cvref_t<type_at<0, Args...>>, special_event>
+                          && std::same_as<std::remove_cvref_t<type_at<sizeof...(Args) - 1, Args...>>, special_event>)
+            {
                 return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
                     auto const args_tuple = std::tuple{args...};
                     return invoke_mod(mod, ctx, default_action, std::get<I + 1>(args_tuple)...);
@@ -239,13 +255,12 @@ export namespace fs8 {
                 return default_action;
             }
         } else {
-            // static_assert(false, "We're not able to run this function.");
             return default_action;
         }
     }
 
     template <typename ModT, typename CtxT, typename... Args>
-    constexpr context_action invoke_mod(ModT &mod, CtxT &ctx, Args... args) noexcept {
+    context_action invoke_mod(ModT &mod, CtxT &ctx, Args... args) noexcept {
         return invoke_mod(mod, ctx, context_action::next, args...);
     }
 
@@ -288,47 +303,22 @@ export namespace fs8 {
         }
     }
 
-    template <typename ModT, typename CtxT>
-    context_action invoke_start(ModT &mod, CtxT &ctx) noexcept {
-        return invoke_mod(mod, ctx, start);
-    }
-
-    template <typename ModT, typename CtxT>
-    constexpr context_action invoke_toggle_on(ModT &mod, CtxT &ctx) noexcept {
-        return invoke_mod(mod, ctx, toggle_on);
-    }
-
-    template <typename ModT, typename CtxT>
-    constexpr context_action invoke_toggle_off(ModT &mod, CtxT &ctx) noexcept {
-        return invoke_mod(mod, ctx, toggle_off);
-    }
-
-    template <typename ModT, typename CtxT>
-    constexpr context_action invoke_set_event(ModT &mod, CtxT &ctx) noexcept {
-        return invoke_mod(mod, ctx, next_event);
-    }
-
-    template <typename ModT, typename CtxT>
-    context_action invoke_load_event(ModT &mod, CtxT &ctx) noexcept {
-        return invoke_mod(mod, ctx, load_event);
-    }
-
     template <typename ParentT, Modifier... Funcs>
     struct [[nodiscard]] basic_context_view;
 
     template <Context CtxT, typename... Funcs>
-    constexpr context_action invoke_mods_from(
+    context_action invoke_mods_from(
       CtxT                 &ctx,
       std::tuple<Funcs...> &funcs,
       std::size_t           start_index,
       context_action        default_action = context_action::next) noexcept;
 
     template <Context CtxT, typename... Funcs>
-    constexpr context_action invoke_mod_at(CtxT &ctx, std::tuple<Funcs...> &funcs, std::size_t const index) noexcept {
+    context_action invoke_mod_at(CtxT &ctx, std::tuple<Funcs...> &funcs, std::size_t const index) noexcept {
         using enum context_action;
-        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+        return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
             auto action = next;
-            std::ignore = (([&]<std::size_t K>() constexpr noexcept {
+            std::ignore = (([&]<std::size_t K>() noexcept {
                                if (K == index) {
                                    // Entries are alternatives: a forked event skips the rest of this tuple.
                                    basic_context_view<CtxT, Funcs...> view{ctx, funcs, sizeof...(Funcs)};
@@ -351,7 +341,9 @@ export namespace fs8 {
             return invoke_mod(get<Index>(funcs), view, default_action, args...);
         } else if constexpr (sizeof...(Args) >= 2) {
             // Let invoke_mod's drop fallback try calling this mod with fewer args.
-            if constexpr (!Tag<type_at<0, Args...>> && Tag<type_at<sizeof...(Args) - 1, Args...>>) {
+            if constexpr (!std::same_as<std::remove_cvref_t<type_at<0, Args...>>, special_event>
+                          && std::same_as<std::remove_cvref_t<type_at<sizeof...(Args) - 1, Args...>>, special_event>)
+            {
                 basic_context_view<CtxT, Funcs...> view{ctx, funcs, Index + 1U};
                 return invoke_mod(get<Index>(funcs), view, default_action, args...);
             } else {
@@ -364,20 +356,41 @@ export namespace fs8 {
 
     /// Run the functions and give them the specified context and arguments (optionally)
     template <Context CtxT, typename... Mods, typename... Args>
-    constexpr context_action invoke_mods(CtxT &ctx, std::tuple<Mods...> &mods, Args... args) noexcept {
+    context_action invoke_mods(CtxT &ctx, std::tuple<Mods...> &mods, Args... args) noexcept {
         using enum context_action;
-        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
-            auto action = next;
-            std::ignore = (((action = fork_mod<I>(ctx, mods, next, args...)) == next) && ...);
-            return action;
-        }(std::make_index_sequence<sizeof...(Mods)>{});
+        if constexpr (sizeof...(Args) == 1) {
+            if constexpr (std::same_as<std::remove_cvref_t<type_at<0, Args...>>, special_event>) {
+                // Special events (start, load_event, etc.) should be delivered to ALL mods.
+                // Mods that don't handle a code return drop_event — we ignore those and
+                // keep the last "interesting" result (next, idle, exit).
+                // Use drop_event as the default so non-invocable mods don't leak through as "handled".
+                return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
+                    auto action = drop_event;
+                    auto result = drop_event;
+                    (((action = fork_mod<I>(ctx, mods, drop_event, args...)), (action != drop_event && (result = action, true))), ...);
+                    return result;
+                }(std::make_index_sequence<sizeof...(Mods)>{});
+            } else {
+                return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
+                    auto action = next;
+                    std::ignore = (((action = fork_mod<I>(ctx, mods, next, args...)) == next) && ...);
+                    return action;
+                }(std::make_index_sequence<sizeof...(Mods)>{});
+            }
+        } else {
+            return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
+                auto action = next;
+                std::ignore = (((action = fork_mod<I>(ctx, mods, next, args...)) == next) && ...);
+                return action;
+            }(std::make_index_sequence<sizeof...(Mods)>{});
+        }
     }
 
     /// Run functions until one of them return "context_action::next"
     template <Context CtxT, typename... Funcs, typename... Args>
-    constexpr context_action invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept {
+    context_action invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept {
         using enum context_action;
-        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+        return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
             auto action = drop_event;
             std::ignore = (((action = fork_mod<I>(ctx, funcs, drop_event, args...)) != next) && ...);
             return action;
@@ -462,8 +475,11 @@ export namespace fs8 {
         [[nodiscard]] virtual event_type       &event() noexcept                   = 0;
         virtual void                            event(event_type const &) noexcept = 0;
 
-        /// Invoke the mod at `index` with the given default action and optional tag.
-        virtual context_action invoke_mod(std::size_t index, context_action default_action, dynamic_tag tag) noexcept = 0;
+        /// Invoke the mod at `index` with the given default action and optional special event.
+        virtual context_action invoke_mod(std::size_t index, context_action default_action, special_event const &tag) noexcept = 0;
+
+        /// Invoke the mod at `index` with the given default action (no special event — plain call).
+        virtual context_action invoke_mod(std::size_t index, context_action default_action) noexcept = 0;
 
         /// Re-emit the current event through the mods starting at `from_index`.
         virtual context_action reemit(std::size_t from_index) noexcept = 0;
@@ -513,12 +529,17 @@ export namespace fs8 {
             ctx->event(inp_event);
         }
 
-        context_action invoke_mod(std::size_t const index, context_action const default_action, dynamic_tag const tag) noexcept override {
+        context_action
+        invoke_mod(std::size_t const index, context_action const default_action, special_event const &tag) noexcept override {
             return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
                 context_action action = default_action;
-                std::ignore = (((I == index) ? (action = invoke_dynamic_tagged_mod<I>(*ctx, tag, default_action), true) : false) || ...);
+                std::ignore = (((I == index) ? (action = invoke_mod_with_special<I>(*ctx, tag, default_action), true) : false) || ...);
                 return action;
             }(std::make_index_sequence<std::tuple_size_v<typename CtxT::mods_type>>{});
+        }
+
+        context_action invoke_mod(std::size_t const index, context_action const default_action) noexcept override {
+            return invoke_mod_at(*ctx, ctx->get_mods(), index);
         }
 
         context_action reemit(std::size_t const from_index) noexcept override {
@@ -583,14 +604,12 @@ export namespace fs8 {
 
         /// Invoke the mod at NIndex directly (no tag).
         context_action operator()() noexcept {
-            return ctx->invoke_mod(NIndex, context_action::next, dynamic_tag::none);
+            return ctx->invoke_mod(NIndex, context_action::next);
         }
 
-        /// Invoke the mod at NIndex with the given tag.
-        template <typename TagT>
-            requires Tag<TagT>
-        context_action operator()(TagT tag) noexcept {
-            return ctx->invoke_mod(NIndex, context_action::next, to_dynamic_tag(tag));
+        /// Invoke the mod at NIndex with the given special_event.
+        context_action operator()(special_event const &tag) noexcept {
+            return ctx->invoke_mod(NIndex, context_action::next, tag);
         }
     };
 
@@ -785,20 +804,25 @@ export namespace fs8 {
             return out;
         }
 
-        context_action operator()(start_tag) noexcept try {
-            // Make the dynamic context point at this pipeline for the whole start phase.
-            dynamic_scope scope{dynamic_context, *this};
-            // invoke the mods
-            return invoke_mods(*this, mods_, start);
-        } catch (...) {
-            // We don't know how to handle this.
-            return context_action::exit;
+        context_action operator()(special_event const &tag) noexcept {
+            switch (tag.code) {
+                case 0: // start
+                    return start_mods();
+                case 1: // no_init
+                    return run_loop();
+                case 2: // load_event
+                case 3: // next_event
+                case 4: // toggle_on / toggle_off (distinguished by value)
+                    // Forward to the mods directly.
+                    return invoke_mods(*this, mods_, tag);
+                default: return context_action::next;
+            }
         }
 
         /// Start the pipeline for the first time or after idle.
         /// Returns true if start succeeded.
         [[nodiscard]] bool start_pipeline() noexcept {
-            auto const action = operator()(start);
+            auto const action = operator()(special_start);
             return action != context_action::exit;
         }
 
@@ -826,101 +850,75 @@ export namespace fs8 {
             if (!start_pipeline()) {
                 return;
             }
-            operator()(no_init);
+            run_loop();
         }
 
-        void operator()(auto &&, Tag auto) = delete;
-        void operator()(Tag auto)          = delete;
+      private:
+        context_action start_mods() noexcept try {
+            dynamic_scope scope{dynamic_context, *this};
+            return invoke_mods(*this, mods_, special_start);
+        } catch (...) {
+            return context_action::exit;
+        }
 
-        void operator()([[maybe_unused]] no_init_tag) noexcept {
-            // Make the dynamic context point at this pipeline for the whole run loop
-            // so mods reached from event callbacks (e.g. input_manager hotplug) can
-            // introspect the active pipeline.
+        context_action run_loop() noexcept {
             dynamic_scope scope{dynamic_context, *this};
             using enum context_action;
             using ctx_view = basic_context_view<basic_context<std::remove_cvref_t<Funcs>...>, std::remove_cvref_t<Funcs>...>;
-            static_assert(((invokable_mod<Funcs, ctx_view>
-                            || invokable_mod<Funcs, ctx_view, load_event_tag>
-                            || invokable_mod<Funcs, ctx_view, next_event_tag>)
-                           && ...),
+            static_assert(((invokable_mod<Funcs, ctx_view> || invokable_mod<Funcs, ctx_view, special_event>) && ...),
                           "At least one of the mods are not callable");
-            static constexpr auto load_event_count = (0 + ... + (invokable_mod<Funcs, ctx_view, load_event_tag> ? 1 : 0));
-            static constexpr auto next_event_count = (0 + ... + (invokable_mod<Funcs, ctx_view, next_event_tag> ? 1 : 0));
-            static_assert(load_event_count <= 1, "There should only be one single load_event in the mods");
-            static_assert(load_event_count + next_event_count >= 1, "Someone needs to provide the events.");
             for (;;) {
-                // Exhaust the next events until there's no more events.
-                if constexpr (next_event_count > 0) {
-                    switch (auto const provider = invoke_first_mod_of(*this, mods_, next_event)) {
-                        case next:
-                            if (!handle_action(invoke_mods(*this, mods_))) {
-                                return;
-                            }
-                            continue;
-                        [[likely]] case drop_event:
-                            break;
-                        [[unlikely]] default:
-                        [[unlikely]] case idle:
-                        [[unlikely]] case exit:
-                            if (!handle_action(provider)) {
-                                return;
-                            }
-                            break;
-                    }
-                    // next_event exhausted -> block in load_event (pure wait; it does
-                    // NOT load an event). After it wakes, loop back to next_event.
-                    if constexpr (load_event_count > 0) {
-                        switch (auto const load_result = invoke_mods(*this, mods_, load_event)) {
-                            [[likely]] case next:
-                            case drop_event:
-                                continue; // key change (was `break` -> trailing invoke_mods)
-                            [[unlikely]] default:
-                            [[unlikely]] case idle:
-                            [[unlikely]] case exit:
-                                if (!handle_action(load_result)) {
-                                    return;
-                                }
-                                break;
+                // Try next_event providers (non-blocking event pull).
+                switch (auto const provider = invoke_first_mod_of(*this, mods_, special_next_event)) {
+                    case next:
+                        if (!handle_action(invoke_mods(*this, mods_))) {
+                            return {};
                         }
-                    }
-                    // no load_event provider
-                    if (!handle_action(invoke_mods(*this, mods_))) [[unlikely]] {
-                        return;
-                    }
-                } else if constexpr (load_event_count > 0) {
-                    // Legacy: load_event providers load events directly (old intercept).
-                    switch (auto const load_result = invoke_mods(*this, mods_, load_event)) {
-                        [[likely]] case next:
-                            break;
-                        case drop_event:
-                            continue;
-                        [[unlikely]] default:
-                        [[unlikely]] case idle:
-                        [[unlikely]] case exit:
-                            if (!handle_action(load_result)) {
-                                return;
-                            }
-                            break;
-                    }
-                    if (!handle_action(invoke_mods(*this, mods_))) [[unlikely]] {
-                        return;
-                    }
+                        continue;
+                    [[likely]] case drop_event:
+                        break;
+                    [[unlikely]] default:
+                    [[unlikely]] case idle:
+                    [[unlikely]] case exit:
+                        if (!handle_action(provider)) {
+                            return {};
+                        }
+                        break;
+                }
+                // next_event exhausted -> block in load_event (pure wait; it does
+                // NOT load an event). After it wakes, loop back to next_event.
+                switch (auto const load_result = invoke_mods(*this, mods_, special_load_event)) {
+                    case next:
+                        // Event was loaded — process it through the pipeline.
+                        if (!handle_action(invoke_mods(*this, mods_))) {
+                            return {};
+                        }
+                        continue;
+                    [[likely]] case drop_event:
+                        continue;
+                    [[unlikely]] default:
+                    [[unlikely]] case idle:
+                    [[unlikely]] case exit:
+                        if (!handle_action(load_result)) {
+                            return {};
+                        }
+                        break;
                 }
             }
         }
 
+      public:
         /// Pass-through
         context_action operator()(Context auto &ctx) noexcept {
             return invoke_mods(ctx, mods_);
         }
 
-        /// Pass-through a plain start to the mods.
-        context_action operator()(Context auto &ctx, start_tag) noexcept {
-            return invoke_mods(ctx, mods_, start);
+        /// Pass-through a special_event to the mods.
+        context_action operator()(Context auto &ctx, special_event const &tag) noexcept {
+            return invoke_mods(ctx, mods_, tag);
         }
 
         /// Pass-through with extra arguments (e.g. a device_query pushed by the router on start).
-        /// The trailing argument is expected to be a tag.
         template <typename... Args>
             requires(sizeof...(Args) >= 2)
         context_action operator()(Context auto &ctx, Args const &...args) noexcept {
@@ -1056,33 +1054,18 @@ export namespace fs8 {
         return ctx.event().value();
     }
 
-    /// Translate a compile-time tag into its runtime `dynamic_tag` id.
-    template <typename TagT>
-        requires Tag<TagT>
-    [[nodiscard]] constexpr dynamic_tag to_dynamic_tag(TagT) noexcept {
-        return std::remove_cvref_t<TagT>::id;
-    }
-
-    /// Run the mod at a runtime `Index` (compile-time dispatch) with the given tag.
+    /// Run the mod at a runtime `Index` (compile-time dispatch) with the given special_event.
     template <std::size_t Index, Context CtxT>
-    constexpr context_action invoke_dynamic_tagged_mod(CtxT &ctx, dynamic_tag const tag, context_action const default_action) noexcept {
-        switch (tag) {
-            case dynamic_tag::start: return fork_mod<Index>(ctx, ctx.get_mods(), default_action, start);
-            case dynamic_tag::no_init: return fork_mod<Index>(ctx, ctx.get_mods(), default_action);
-            case dynamic_tag::load_event: return fork_mod<Index>(ctx, ctx.get_mods(), default_action, load_event);
-            case dynamic_tag::next_event: return fork_mod<Index>(ctx, ctx.get_mods(), default_action, next_event);
-            case dynamic_tag::toggle_on: return fork_mod<Index>(ctx, ctx.get_mods(), default_action, toggle_on);
-            case dynamic_tag::toggle_off: return fork_mod<Index>(ctx, ctx.get_mods(), default_action, toggle_off);
-            default: return fork_mod<Index>(ctx, ctx.get_mods(), default_action);
-        }
+    constexpr context_action invoke_mod_with_special(CtxT &ctx, special_event const &tag, context_action const default_action) noexcept {
+        return fork_mod<Index>(ctx, ctx.get_mods(), default_action, tag);
     }
 
     /// Run the mods starting at a runtime `start_index`, stopping early on a non-`next` action.
     template <Context CtxT, typename... Funcs>
-    constexpr context_action
+    context_action
     invoke_mods_from(CtxT &ctx, std::tuple<Funcs...> &funcs, std::size_t const start_index, context_action const default_action) noexcept {
         using enum context_action;
-        return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
+        return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
             context_action action = default_action;
             std::ignore =
               ((((I >= start_index) ? (action = fork_mod<I>(ctx, funcs, default_action), true) : true) && (action == next)) && ...);

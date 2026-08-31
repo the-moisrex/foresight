@@ -54,23 +54,23 @@ export namespace fs8 {
 
         /// Forward queries/devices to input_manager; ensure it started.
         template <Context ContextT>
-        context_action operator()(ContextT& ctx, start_tag) noexcept {
-            return do_start(ctx.mod(input_manager), ctx.mod(io_manager));
+        context_action operator()(ContextT& ctx, special_event const& tag) noexcept {
+            using enum context_action;
+            switch (tag.code) {
+                case 0: // start
+                    return do_start(ctx.mod(input_manager), ctx.mod(io_manager));
+                case 3: // next_event
+                    if (auto const ev = do_pop(ctx.mod(input_manager), ctx.mod(io_manager)); ev.has_value()) [[unlikely]] {
+                        ctx.event(*ev);
+                        return next;
+                    }
+                    return drop_event;
+                default: return drop_event;
+            }
         }
 
         /// io_manager handler: drain a readable device fd into the pending queue.
         context_action operator()(io_fd& fd) noexcept;
-
-        /// next_event provider: reconcile watches, pop one event, else drop_event.
-        template <Context ContextT>
-        context_action operator()(ContextT& ctx, next_event_tag) noexcept {
-            using enum context_action;
-            if (auto const ev = do_pop(ctx.mod(input_manager), ctx.mod(io_manager)); ev.has_value()) [[unlikely]] {
-                ctx.event(*ev);
-                return next;
-            }
-            return drop_event;
-        }
 
       private:
         template <typename... Qs>

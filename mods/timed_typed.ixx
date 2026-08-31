@@ -56,7 +56,10 @@ namespace fs8 {
         }
 
         /// Register the pattern into the search engine
-        context_action operator()(Context auto& ctx, start_tag) noexcept {
+        context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
             keyboard_state.initialize(xkb::get_default_keymap());
             return on_start(ctx.mod(search_engine));
         }

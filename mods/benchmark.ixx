@@ -55,10 +55,11 @@ namespace fs8 {
             return action;
         }
 
-        template <Context CtxT, Tag TagT>
-            requires(!std::same_as<std::remove_cvref_t<TagT>, load_event_tag> && !std::same_as<std::remove_cvref_t<TagT>, next_event_tag>)
-        context_action operator()(CtxT& ctx, TagT tag) noexcept {
-            return invoke_mods(ctx, funcs, tag);
+        template <Context CtxT, typename... TagTs>
+            requires(sizeof...(TagTs) == 1 && (std::same_as<std::remove_cvref_t<TagTs>, special_event> && ...))
+        context_action operator()(CtxT& ctx, TagTs... tags) noexcept {
+            // Only forward non-lifecycle special_events (start, load_event, next_event are handled above)
+            return invoke_mods(ctx, funcs, tags...);
         }
 
         template <Context CtxT, typename... Args>

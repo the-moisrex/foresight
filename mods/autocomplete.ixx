@@ -16,12 +16,16 @@ namespace fs8 {
     /// Option: in auto mode, the trigger tag in the pattern is treated as a pure separator
     /// and the completion is emitted as soon as the prefix is typed (no key press needed).
     export struct [[nodiscard]] basic_auto_mode_tag {
+        /// Sentinel marker — prevents this type from being consumed by
+        /// generic `operator[]` overloads.
         static constexpr bool is_tag = true;
     } auto_mode;
 
     /// Option: when the trigger key fires the completion, also let the trigger keypress
     /// through to the application instead of swallowing it.
     export struct [[nodiscard]] basic_pass_trigger_tag {
+        /// Sentinel marker — prevents this type from being consumed by
+        /// generic `operator[]` overloads.
         static constexpr bool is_tag = true;
     } pass_trigger;
 
@@ -79,7 +83,10 @@ namespace fs8 {
         }
 
         /// Initialize the keyboard state and parse the pattern.
-        context_action operator()([[maybe_unused]] Context auto& ctx, start_tag) noexcept {
+        context_action operator()([[maybe_unused]] Context auto& ctx, special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
             keyboard_state.initialize(xkb::get_default_keymap());
             return on_start();
         }

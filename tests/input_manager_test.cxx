@@ -87,7 +87,7 @@ TEST(InputManager, StartupRegistersOnlyTheUdevMonitorFd) {
 
     // No event queue, no next_event_tag support: the mod can only be started or
     // driven as an io_manager handler.
-    static_assert(!std::is_invocable_v<basic_input_manager, next_event_tag const&>);
+    static_assert(!std::is_invocable_v<basic_input_manager, special_event const&>);
     static_assert(!std::is_invocable_v<basic_input_manager, event_type&>);
 }
 

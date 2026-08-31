@@ -1204,8 +1204,11 @@ void fs8::live_view::process_event(event_type const& event, int const fd, saniti
 // ── basic_from_live_view ────────────────────────────────────────────────────
 
 template <fs8::EvtestFormat Format>
-fs8::context_action fs8::basic_from_live_view<Format>::operator()(event_type& event, load_event_tag) noexcept {
+fs8::context_action fs8::basic_from_live_view<Format>::operator()(event_type& event, special_event const& tag) noexcept {
     using enum context_action;
+    if (tag.code != special_load_event.code) {
+        return drop_event;
+    }
 
     // 1. Try to parse lines already in the buffer.
     if (try_parse_buffered(event)) {

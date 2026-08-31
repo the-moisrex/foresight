@@ -49,7 +49,7 @@ export namespace fs8 {
       public:
         constexpr explicit basic_from_input(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
 
-        context_action operator()(event_type& event, load_event_tag) const noexcept;
+        context_action operator()(event_type& event, special_event const& tag) const noexcept;
     } from_input;
 
     /// Default evtest format: standard evtest text with libevdev annotations.
@@ -94,8 +94,11 @@ export namespace fs8 {
             file_descriptor = inp_fd;
         }
 
-        context_action operator()(event_type& event, load_event_tag) noexcept try {
+        context_action operator()(event_type& event, special_event const& tag) noexcept try {
             using enum context_action;
+            if (tag.code != special_load_event.code) {
+                return drop_event;
+            }
             // Try to parse existing lines in the buffer first.
             while (true) {
                 auto const newline = line_buffer.find('\n');

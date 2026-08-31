@@ -192,21 +192,24 @@ export namespace fs8 {
         bool set_device_from(device_query const& inp_query) noexcept;
 
         /// Set the caps on start
-        bool operator()(dev_caps_view caps_view, start_tag) noexcept;
+        bool operator()(dev_caps_view caps_view, special_event const& tag) noexcept;
 
         /// Set the device on start
-        bool operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, start_tag) noexcept {
-            return operator()(caps_view, start);
+        bool operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, special_event const& tag) noexcept {
+            return operator()(caps_view, special_start);
         }
 
         /// Set the device based on the query on start
-        bool operator()(device_query const& inp_query, start_tag) noexcept;
+        bool operator()(device_query const& inp_query, special_event const& tag) noexcept;
 
         /// Set the device based on the query on start, preferring the devices
         /// known to the input_manager when it's available in the pipeline.
         template <typename CtxT>
             requires requires(CtxT& ctx) { ctx.mod(fs8::input_manager).devices(); }
-        bool operator()(CtxT& ctx, device_query const& inp_query, start_tag) noexcept {
+        bool operator()(CtxT& ctx, device_query const& inp_query, special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return true;
+            }
             if (is_ok()) {
                 return true;
             }
@@ -234,7 +237,10 @@ export namespace fs8 {
         /// The first device in the input_manager, we automatically find it, and use that one
         template <std::ranges::range R>
             requires std::convertible_to<std::ranges::range_value_t<R>, evdev>
-        bool operator()(R&& devs, start_tag) noexcept {
+        bool operator()(R&& devs, special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return true;
+            }
             if (is_ok()) {
                 return true;
             }
@@ -256,8 +262,11 @@ export namespace fs8 {
         /// Find the device if possible on start
         /// The first device in the input_manager, we automatically find it, and use that one
         template <ContextWith<basic_input_manager> CtxT>
-        context_action operator()(CtxT& ctx, start_tag) noexcept {
+        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
             using enum context_action;
+            if (tag.code != special_start.code) {
+                return drop_event;
+            }
             if (is_ok()) {
                 return next;
             }

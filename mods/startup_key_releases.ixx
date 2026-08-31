@@ -25,8 +25,11 @@ export namespace fs8 {
 
         /// Register a device-change listener and check already-enumerated devices.
         template <ContextWith<basic_input_manager> CtxT>
-        context_action operator()(CtxT& ctx, start_tag) noexcept {
+        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
             using enum context_action;
+            if (tag.code != special_start.code) {
+                return drop_event;
+            }
             basic_input_manager& mgr = ctx.mod(input_manager);
 
             for (evdev& dev : mgr.devices()) {

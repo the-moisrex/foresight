@@ -87,8 +87,11 @@ export namespace fs8 {
 
         /// Register a device-change listener to seed key state on connect.
         template <ContextWith<basic_input_manager> CtxT>
-        context_action operator()(CtxT& ctx, start_tag) noexcept {
+        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
             using enum context_action;
+            if (tag.code != special_start.code) {
+                return drop_event;
+            }
             ctx.mod(input_manager)
               .add_device_change_listener({
                 .identity = this,
@@ -108,11 +111,11 @@ export namespace fs8 {
 
     template <typename ModT = void>
     struct [[nodiscard]] basic_mod_updater {
-        void operator()(auto&&, Tag auto) = delete;
-        void operator()(Tag auto)         = delete;
+        void operator()(auto&&, special_event const&) = delete;
+        void operator()(special_event const&)         = delete;
 
         template <typename InpModT>
-            requires(!Context<std::remove_cvref_t<InpModT>> && !Tag<std::remove_cvref_t<InpModT>>)
+            requires(!Context<std::remove_cvref_t<InpModT>> && !detail::is_tag_type<std::remove_cvref_t<InpModT>>)
         consteval auto operator[]([[maybe_unused]] InpModT&&) const noexcept {
             return basic_mod_updater<InpModT>{};
         }
@@ -154,7 +157,10 @@ export namespace fs8 {
         /// current CapsLock LED) so the mode indicator is correct at startup.
         /// Must run after the devices are open (i.e. after `input_manager`).
         template <ContextWith<basic_input_manager> CtxT>
-        context_action operator()(CtxT& ctx, start_tag) noexcept {
+        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
             return seed(ctx);
         }
 

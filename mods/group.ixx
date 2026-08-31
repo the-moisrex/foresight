@@ -44,9 +44,9 @@ export namespace fs8 {
 
         // --- Tag forwarding (start, toggle_on, toggle_off) ---
 
-        template <Context CtxT, Tag T>
-            requires((invokable_mod<Mods, CtxT, T> || ...))
-        context_action operator()(CtxT& ctx, T tag) noexcept {
+        template <Context CtxT>
+            requires((invokable_mod<Mods, CtxT, special_event> || ...))
+        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
             using enum context_action;
             // clang-format off
 #if __cpp_expansion_statements < 202506L

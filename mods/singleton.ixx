@@ -174,7 +174,10 @@ namespace fs8 {
 
         /// Start: try to acquire the exclusive lock.
         template <Context CtxT>
-        context_action operator()(CtxT &ctx, start_tag) noexcept {
+        context_action operator()(CtxT &ctx, special_event const &tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
             if (lock_fd >= 0) {
                 return context_action::next;
             }

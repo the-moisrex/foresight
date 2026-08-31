@@ -100,21 +100,27 @@ bool basic_io_manager::watch(io_fd const& fd, io_callback const& cb) noexcept tr
     return false;
 }
 
-context_action basic_io_manager::operator()(start_tag) noexcept try {
+context_action basic_io_manager::operator()(special_event const& tag) noexcept {
     using enum context_action;
-    // Drop stale registrations from a previous pipeline run before the mods
-    // re-register their handlers.
-    clear();
-    if (pimpl.get() == nullptr) {
-        init_impl();
+    switch (tag.code) {
+        case 0: // start
+            try {
+                // Drop stale registrations from a previous pipeline run before the mods
+                // re-register their handlers.
+                clear();
+                if (pimpl.get() == nullptr) {
+                    init_impl();
+                }
+                return next;
+            } catch (...) {
+                return context_action::exit;
+            }
+        case 2:    // load_event
+            break; // fall through to load_event logic below
+        default: return drop_event;
     }
-    return next;
-} catch (...) {
-    return context_action::exit;
-}
 
-context_action basic_io_manager::operator()(load_event_tag) noexcept {
-    using enum context_action;
+    // load_event logic
     // Nothing watched is not fatal: the mods may not have re-registered their
     // fds yet after a restart, so fall through and let the pipeline re-poll.
     if (pimpl.get() == nullptr || pimpl->fds.empty()) [[unlikely]] {

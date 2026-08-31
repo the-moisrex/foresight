@@ -91,13 +91,6 @@ bool fs8::basic_multi_click::operator()(event_type const& event) noexcept {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-fs8::context_action fs8::basic_held::operator()(start_tag) noexcept {
-    if (!pattern.empty()) {
-        count = fs8::parse_key_tags(pattern, codes);
-    }
-    return context_action::next;
-}
-
 bool fs8::basic_held::operator()(event_type const& event) noexcept {
     bool is_repeat_of_held = false;
     for (std::size_t i = 0; i < count; ++i) {

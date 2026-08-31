@@ -152,7 +152,10 @@ void basic_abs2rel::init(evdev const& dev, float const scale) noexcept {
     log("Init abs2rel: ({}, {}) with resolution ({}, {})", x_scale_factor, y_scale_factor, x_absinfo->resolution, y_absinfo->resolution);
 }
 
-void basic_abs2rel::operator()(start_tag) noexcept {
+void basic_abs2rel::operator()(special_event const& tag) noexcept {
+    if (tag.code != special_start.code) {
+        return;
+    }
     last_abs_x |= x_init_state;
     last_abs_y |= y_init_state;
     x_epsilon   = 0.F;

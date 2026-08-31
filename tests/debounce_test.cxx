@@ -34,7 +34,10 @@ namespace {
         explicit constexpr timed_sequence(std::array<fs8::event_type, N> evs) noexcept : events{evs} {}
 
         template <fs8::Context CtxT>
-        fs8::context_action operator()(CtxT& ctx, fs8::load_event_tag) noexcept {
+        fs8::context_action operator()(CtxT& ctx, fs8::special_event const& tag) noexcept {
+            if (tag.code != fs8::special_load_event.code) {
+                return fs8::context_action::drop_event;
+            }
             if (index == N) {
                 return fs8::context_action::exit;
             }

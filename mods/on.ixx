@@ -168,18 +168,19 @@ namespace fs8 {
           : cond{std::forward<InpCond>(inp_cond)},
             funcs{inp_funcs} {}
 
-        // todo: should we propagate these to sub-on conditions as well?
-        void operator()(auto&&, Tag auto) = delete;
-
         template <typename NCondT, typename... NFuncs>
-            requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && !Tag<NCondT> && ((!Context<NFuncs> && !Tag<NFuncs>) && ...))
+            requires(sizeof...(NFuncs)
+                     >= 1
+                     && !Context<NCondT>
+                     && !detail::is_tag_type<NCondT>
+                     && ((!Context<NFuncs> && !detail::is_tag_type<NFuncs>) && ...))
         consteval auto operator[](NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
             return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{std::forward<NCondT>(n_cond),
                                                                                          std::forward<NFuncs>(n_funcs)...};
         }
 
         template <typename NCondT, Context CtxT>
-            requires(!Context<NCondT> && !Tag<NCondT>)
+            requires(!Context<NCondT> && !detail::is_tag_type<NCondT>)
         consteval auto operator[](NCondT&& n_cond, CtxT&& ctx) const noexcept {
             return std::apply(
               [&]<typename... ModT>(ModT&... mods) constexpr noexcept {
@@ -188,21 +189,25 @@ namespace fs8 {
               ctx.get_mods());
         }
 
-        /// Pass-through the starts
-        context_action operator()(Context auto& ctx, start_tag) noexcept {
+        /// Handle special events (start, next_event, etc.)
+        context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
             using enum context_action;
-            if (auto const action = invoke_start(cond, ctx); !action) [[unlikely]] {
-                return action;
+            switch (tag.code) {
+                case 0: // start
+                    if (auto const action = invoke_mod(cond, ctx, special_start); !action) [[unlikely]] {
+                        return action;
+                    }
+                    if (auto const sub_action = invoke_mods(ctx, funcs, special_start); !sub_action) [[unlikely]] {
+                        return sub_action;
+                    }
+                    return next;
+                case 3: // next_event
+                    if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
+                        return invoke_first_mod_of(ctx, funcs, special_next_event);
+                    }
+                    return drop_event;
+                default: return drop_event;
             }
-            return invoke_mods(ctx, funcs, start);
-        }
-
-        /// Pass-Through event generator
-        template <Context CtxT>
-        context_action operator()(CtxT& ctx, next_event_tag) noexcept
-            requires(can_generate_events<CtxT>)
-        {
-            return invoke_first_mod_of(ctx, funcs, next_event);
         }
 
         context_action operator()(Context auto& ctx) noexcept {
@@ -211,12 +216,12 @@ namespace fs8 {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    return invoke_mods(ctx, funcs, toggle_off);
+                    return invoke_mods(ctx, funcs, special_toggle_off);
                 }
                 return next;
             }
             if (is_switched) {
-                if (auto const action = invoke_mods(ctx, funcs, toggle_on); !action) [[unlikely]] {
+                if (auto const action = invoke_mods(ctx, funcs, special_toggle_on); !action) [[unlikely]] {
                     return action;
                 }
             }
@@ -255,9 +260,6 @@ namespace fs8 {
           : cond{std::forward<InpCond>(inp_cond)},
             funcs{inp_funcs} {}
 
-        // todo: should we propagate these to sub-on conditions as well?
-        void operator()(auto&&, Tag auto) = delete;
-
         template <typename NCondT, typename... NFuncs>
             requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && (!Context<NFuncs> && ...))
         consteval auto operator[](NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
@@ -276,21 +278,25 @@ namespace fs8 {
               ctx.get_mods());
         }
 
-        /// Pass-through the starts
-        context_action operator()(Context auto& ctx, start_tag) noexcept {
+        /// Handle special events (start, next_event, etc.)
+        context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
             using enum context_action;
-            if (auto const action = invoke_start(cond, ctx); !action) [[unlikely]] {
-                return action;
+            switch (tag.code) {
+                case 0: // start
+                    if (auto const action = invoke_mod(cond, ctx, special_start); !action) [[unlikely]] {
+                        return action;
+                    }
+                    if (auto const sub_action = invoke_mods(ctx, funcs, special_start); !sub_action) [[unlikely]] {
+                        return sub_action;
+                    }
+                    return next;
+                case 3: // next_event
+                    if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
+                        return invoke_first_mod_of(ctx, funcs, special_next_event);
+                    }
+                    return drop_event;
+                default: return drop_event;
             }
-            return invoke_mods(ctx, funcs, start);
-        }
-
-        /// Pass-Through event generator
-        template <Context CtxT>
-        context_action operator()(CtxT& ctx, next_event_tag) noexcept
-            requires(can_generate_events<CtxT>)
-        {
-            return invoke_first_mod_of(ctx, funcs, next_event);
         }
 
         context_action operator()(Context auto& ctx) noexcept {
@@ -299,7 +305,7 @@ namespace fs8 {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    return invoke_mods(ctx, funcs, toggle_off);
+                    return invoke_mods(ctx, funcs, special_toggle_off);
                 }
                 return next;
             }
@@ -464,7 +470,7 @@ namespace fs8 {
 
         /// Gate form: a decider decides whether the tracked key(s) are emitted or dropped.
         template <typename CondT>
-            requires(!std::convertible_to<CondT, code_type> && !Tag<CondT> && !Context<CondT>)
+            requires(!std::convertible_to<CondT, code_type> && !detail::is_tag_type<CondT> && !Context<CondT>)
         consteval auto operator[](std::string_view const inp_pattern, CondT const& inp_cond) const noexcept {
             return basic_held_gate<std::remove_cvref_t<CondT>>{inp_pattern, inp_cond};
         }
@@ -489,7 +495,15 @@ namespace fs8 {
         }
 
         /// Resolve the pattern string into key codes when the pipeline starts.
-        context_action operator()(start_tag) noexcept;
+        context_action operator()(special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
+            if (!pattern.empty()) {
+                count = fs8::parse_key_tags(pattern, codes);
+            }
+            return context_action::next;
+        }
 
         [[nodiscard]] bool operator()(event_type const& event) noexcept;
     };
@@ -539,7 +553,10 @@ namespace fs8 {
         }
 
         /// Resolve the pattern string into key codes when the pipeline starts.
-        context_action operator()(start_tag) noexcept {
+        context_action operator()(special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
             if (!pattern.empty()) {
                 count = fs8::parse_key_tags(pattern, codes);
             }
@@ -829,7 +846,7 @@ namespace fs8 {
         // todo: initialize the dur with repetition delay of the keyboard
 
         template <typename InpFuncT>
-            requires(!Context<InpFuncT> && !Tag<InpFuncT>)
+            requires(!Context<InpFuncT> && !detail::is_tag_type<InpFuncT>)
         consteval auto operator[](InpFuncT&& inp_func, std::chrono::microseconds const inp_dur = default_delay) const noexcept {
             return basic_longtime_released<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func), inp_dur};
         }

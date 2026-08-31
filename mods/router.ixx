@@ -151,9 +151,6 @@ export namespace fs8 {
               routes);
         }
 
-        void operator()(auto&&, Tag auto) = delete;
-        void operator()(Tag auto)         = delete;
-
         template <typename... C>
             requires(sizeof...(C) >= 1)
         consteval auto operator[](route<C>... inp_routes) const noexcept {
@@ -234,7 +231,10 @@ export namespace fs8 {
 
         /// Pass-through the init
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, start_tag) noexcept {
+        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
             set_caps();
             bool        is_init = true;
             std::size_t index   = 0;
@@ -242,18 +242,18 @@ export namespace fs8 {
                 device_query const& cur_query  = queries[index];
                 bool                init_valid = false;
 
-                if constexpr (requires { route(ctx, cur_query, start); }) {
-                    init_valid = invoke_bool(route, ctx, cur_query, start);
-                } else if constexpr (requires { route(cur_query, start); }) {
-                    init_valid = invoke_bool(route, cur_query, start);
-                } else if constexpr (requires(dev_caps_view caps_view) { route(ctx, caps_view, start); }) {
-                    init_valid = invoke_bool(route, ctx, cur_query.caps, start);
-                } else if constexpr (requires(dev_caps_view caps_view) { route(caps_view, start); }) {
-                    init_valid = invoke_bool(route, cur_query.caps, start);
-                } else if constexpr (requires { route(ctx, start); }) {
-                    init_valid = invoke_bool(route, ctx, start);
+                if constexpr (requires { route(ctx, cur_query, special_start); }) {
+                    init_valid = invoke_bool(route, ctx, cur_query, special_start);
+                } else if constexpr (requires { route(cur_query, special_start); }) {
+                    init_valid = invoke_bool(route, cur_query, special_start);
+                } else if constexpr (requires(dev_caps_view caps_view) { route(ctx, caps_view, special_start); }) {
+                    init_valid = invoke_bool(route, ctx, cur_query.caps, special_start);
+                } else if constexpr (requires(dev_caps_view caps_view) { route(caps_view, special_start); }) {
+                    init_valid = invoke_bool(route, cur_query.caps, special_start);
+                } else if constexpr (requires { route(ctx, special_start); }) {
+                    init_valid = invoke_bool(route, ctx, special_start);
                 } else if constexpr (requires { route.init(); }) {
-                    init_valid = invoke_bool(route, start);
+                    init_valid = invoke_bool(route, special_start);
                 } else {
                     // Intentionally Ignored since most mods don't need init.
                     init_valid = true;

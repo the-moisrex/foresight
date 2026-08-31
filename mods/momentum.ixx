@@ -168,7 +168,7 @@ namespace fs8 {
         /// Cancel the pending momentum tick.
         void cancel_momentum_tick() noexcept;
 
-        context_action operator()(start_tag) noexcept;
+        context_action operator()(special_event const& tag) noexcept;
     };
 
     // ── Momentum mod ─────────────────────────────────────────────────────
@@ -256,9 +256,12 @@ namespace fs8 {
         }
 
         template <Context CtxT>
-        context_action operator()(CtxT& /*ctx*/, start_tag) noexcept {
+        context_action operator()(CtxT& /*ctx*/, special_event const& tag) noexcept {
+            if (tag.code != special_start.code) {
+                return context_action::drop_event;
+            }
             static_assert(has_mod<basic_scheduler, CtxT>, "Add scheduler for the animations.");
-            auto const result = this->basic_momentum_base::operator()(start_tag{});
+            auto const result = this->basic_momentum_base::operator()(special_start);
             set_max_mouse_distance(config.max_mouse_distance);
             return result;
         }
