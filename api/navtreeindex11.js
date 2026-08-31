@@ -1,11 +1,5 @@
 var NAVTREEINDEX11 =
 {
-"namespacefs8.html#afa52b24805b56d0030017db4cdde0340":[1,0,1,402],
-"namespacefs8.html#afa55c6d36c03969005e4dc314083527a":[1,0,1,504],
-"namespacefs8.html#afa7cdb6e4eeeba6f1bd7bd224a74da59":[1,0,1,684],
-"namespacefs8.html#afa9df52c3767ecdf335b27ae21ce3d40":[1,0,1,587],
-"namespacefs8.html#afb0165af2697e37972769e52344db5a3":[1,0,1,478],
-"namespacefs8.html#afb26a239748eb1c62481a801edcec14b":[1,0,1,656],
 "namespacefs8.html#afb63722226d19a7c943ca71f10a2ba11":[1,0,1,549],
 "namespacefs8.html#afcc7e78003f79e6f251f4f055250bfbc":[1,0,1,288],
 "namespacefs8.html#afce98c75abad678593079062353796f1":[1,0,1,648],
@@ -100,8 +94,8 @@ var NAVTREEINDEX11 =
 "namespacefs8_1_1xkb_1_1how2type.html#ab611797961c3ca7086d6bf2baa4c9b86":[1,0,1,4,0,3],
 "namespacefs8_1_1xkb_1_1how2type.html#ae167fb0ca081816181df68835abc2f0c":[1,0,1,4,0,4],
 "namespacefs8_1_1xkb_1_1how2type.html#ae61c7f3184886fbbfc9e0395e4795bce":[1,0,1,4,0,2],
-"namespacemembers.html":[1,1,0,0],
 "namespacemembers.html":[1,1,0],
+"namespacemembers.html":[1,1,0,0],
 "namespacemembers_b.html":[1,1,0,1],
 "namespacemembers_c.html":[1,1,0,2],
 "namespacemembers_d.html":[1,1,0,3],
@@ -147,8 +141,8 @@ var NAVTREEINDEX11 =
 "namespacemembers_type.html":[1,1,3],
 "namespacemembers_u.html":[1,1,0,20],
 "namespacemembers_v.html":[1,1,0,21],
-"namespacemembers_vars.html":[1,1,2],
 "namespacemembers_vars.html":[1,1,2,0],
+"namespacemembers_vars.html":[1,1,2],
 "namespacemembers_vars_b.html":[1,1,2,1],
 "namespacemembers_vars_c.html":[1,1,2,2],
 "namespacemembers_vars_d.html":[1,1,2,3],
@@ -249,5 +243,11 @@ var NAVTREEINDEX11 =
 "queries_8ixx.html#a2b38fa933c7d379ee7f578e78d0edaa1":[4,0,1,8,74],
 "queries_8ixx.html#a2cc4d1b04a5240205d88194cc3b9cadd":[4,0,1,8,90],
 "queries_8ixx.html#a2cea37fc14721e2394e7c1eabb773fb3":[4,0,1,8,46],
-"queries_8ixx.html#a3700ab5666116ff6496ee60c010a5eb7":[4,0,1,8,77]
+"queries_8ixx.html#a3700ab5666116ff6496ee60c010a5eb7":[4,0,1,8,77],
+"queries_8ixx.html#a37b0b72ae40a45cdcecd6d0b553b7984":[4,0,1,8,87],
+"queries_8ixx.html#a3c3307ea21f5b386ebb264b50f98d9dc":[4,0,1,8,26],
+"queries_8ixx.html#a4046057288914509f4cde1246de75cf3":[4,0,1,8,96],
+"queries_8ixx.html#a4124ae022b95ae28e20b323aa6d4caf0":[4,0,1,8,65],
+"queries_8ixx.html#a41708e03b106e92738f9198921d7907b":[4,0,1,8,69],
+"queries_8ixx.html#a43ab340c8bb082beace78d897922aee1":[4,0,1,8,78]
 };
