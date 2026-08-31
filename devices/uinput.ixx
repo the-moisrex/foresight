@@ -211,6 +211,7 @@ export namespace fs8 {
                 return true;
             }
             if (is_ok()) {
+                log("uinput: already initialized");
                 return true;
             }
             // Prefer the devices the input_manager already knows about (they're
@@ -220,16 +221,19 @@ export namespace fs8 {
                 if (!fs8::matches(cur_dev, inp_query) || !fs8::is_usable(cur_dev)) {
                     continue;
                 }
+                log("uinput: matched device '{}', finalizing...", cur_dev.device_name());
                 auto const ok = fs8::finalize_device(*this, cur_dev, inp_query.caps);
                 if (ok) {
                     ctx.mod(fs8::input_manager).own_device(devnode());
                 }
                 return ok;
             }
+            log("uinput: no matching device in input_manager, trying set_device_from");
             if (set_device_from(inp_query)) {
                 ctx.mod(fs8::input_manager).own_device(devnode());
                 return true;
             }
+            log("uinput: set_device_from failed");
             return false;
         }
 

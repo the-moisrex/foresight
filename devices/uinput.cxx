@@ -735,9 +735,6 @@ void basic_uinput::apply_caps(dev_caps_view const inp_caps) noexcept {
 }
 
 bool basic_uinput::emit(event_type const& event) noexcept {
-    if (pimpl.get() == nullptr) [[unlikely]] {
-        return false;
-    }
     assert(is_ok());
     auto const& native = event.native();
     if (auto const ret = libevdev_uinput_write_event(pimpl->dev, native.type, native.code, native.value); ret < 0) [[unlikely]] {

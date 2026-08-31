@@ -382,6 +382,22 @@ export namespace fs8 {
                     return action;
                 }(std::make_index_sequence<sizeof...(Mods)>{});
             }
+        } else if constexpr (detail::args_contain_special_event<Args...>) {
+            // Special events with extra args (e.g. device_query + special_event
+            // pushed by the router) should be delivered to ALL mods, same as
+            // single-arg special events.  Void handlers return drop_event which
+            // we skip — we keep the last "interesting" result (next, idle, exit).
+            return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
+                auto result = drop_event;
+                (([&]() noexcept {
+                     auto action = fork_mod<I>(ctx, mods, drop_event, args...);
+                     if (action != drop_event) {
+                         result = action;
+                     }
+                 })(),
+                 ...);
+                return result;
+            }(std::make_index_sequence<sizeof...(Mods)>{});
         } else {
             return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
                 auto action = next;
