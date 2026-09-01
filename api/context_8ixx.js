@@ -25,13 +25,7 @@ var context_8ixx =
     [ "fs8::ContextWith", "conceptfs8_1_1ContextWith.html", null ],
     [ "fs8::invokable_mod", "conceptfs8_1_1invokable__mod.html", null ],
     [ "fs8::PipelineTag", "conceptfs8_1_1PipelineTag.html", null ],
-    [ "load_event_tag", "context_8ixx.html#a1a887f17e8cd7825d0174e02df8f67fb", null ],
     [ "mod_of", "context_8ixx.html#a6fa3325ef98e63b115b46887f8ec56a3", null ],
-    [ "next_event_tag", "context_8ixx.html#a0c82b0018829cae305a2f136b8c8feb7", null ],
-    [ "no_init_tag", "context_8ixx.html#a790b2faeaa769b2d1989fb8191a6a64b", null ],
-    [ "start_tag", "context_8ixx.html#a50ee90e40f99278941966cce3a109246", null ],
-    [ "toggle_off_tag", "context_8ixx.html#a89108c4346dfc603d98a92843f759dca", null ],
-    [ "toggle_on_tag", "context_8ixx.html#a797f4ef8dbff3b9e52d97e3f3c884f63", null ],
     [ "type_at", "context_8ixx.html#a83f96f34d94aaa7f361dead74176a2bf", null ],
     [ "context_action", "context_8ixx.html#ac5160ee6707deaad4917cbf8bd1e99bd", [
       [ "next", "context_8ixx.html#ac5160ee6707deaad4917cbf8bd1e99bdad0cab90d8d20d57e2f2b9be52f7dd25d", null ],
@@ -70,11 +64,5 @@ var context_8ixx =
     [ "index_at", "context_8ixx.html#abc10474c1556cb2213d2b9aafc23f305", null ],
     [ "is_tag_type", "context_8ixx.html#a78191c65d0f7563de2ee3f4e82886592", null ],
     [ "is_tag_type< special_event, void >", "context_8ixx.html#adb43e00e6140916bd4b24c07bf52fc34", null ],
-    [ "load_event", "context_8ixx.html#a32f14983c1f1a3b8431c86c90752ba0a", null ],
-    [ "next_event", "context_8ixx.html#acfc79363658045bb8486ab145eaeed8b", null ],
-    [ "no_init", "context_8ixx.html#a8598026050cf7816c156504be8834cee", null ],
-    [ "start", "context_8ixx.html#a28338c312083faa091ac6235ea4d3d79", null ],
-    [ "toggle_off", "context_8ixx.html#a4530f441f26543ed8064c44c61a3305f", null ],
-    [ "toggle_on", "context_8ixx.html#a0207eb70821908ccd4e85d76f3e6bbc1", null ],
     [ "type_id", "context_8ixx.html#ad376cac94b7703cbbacd7a324e8e905e", null ]
 ];

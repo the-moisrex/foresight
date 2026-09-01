@@ -1,10 +1,5 @@
 var searchData=
 [
-  ['mod_5fof_0',['mod_of',['../namespacefs8.html#a6fa3325ef98e63b115b46887f8ec56a3',1,'fs8']]],
-  ['mod_5ftype_1',['mod_type',['../structfs8_1_1basic__context.html#a1f9f9b26f1c56c9b7ea2391c0b12caea',1,'fs8::basic_context']]],
-  ['model_5ftype_2',['model_type',['../structfs8_1_1basic__dynamic__context.html#a268d3cf6233fcef7998f12853e3896c1',1,'fs8::basic_dynamic_context::model_type'],['../structfs8_1_1dynamic__scope_3_01T_00_01ConcreteT_01_4.html#acd7460e3eba96d7f94a0288cdfedcf42',1,'fs8::dynamic_scope&lt; T, ConcreteT &gt;::model_type']]],
-  ['mods_5ftype_3',['mods_type',['../structfs8_1_1basic__context.html#a95212865301c7830bf29cf444e7be219',1,'fs8::basic_context::mods_type'],['../structfs8_1_1basic__benchmark.html#ac8f2155f2c24fb901b1d10fe7117882c',1,'fs8::basic_benchmark::mods_type'],['../structfs8_1_1basic__modes.html#a2560bc4adb67ee4dbe238210fe551a52',1,'fs8::basic_modes::mods_type']]],
-  ['msec_4',['msec',['../structfs8_1_1basic__multi__click.html#afb9c491944651e37906d9b66ded947c8',1,'fs8::basic_multi_click']]],
-  ['msec_5ftype_5',['msec_type',['../structfs8_1_1basic__debounce.html#a439b80b173bd442a3972c1cfb501cf7b',1,'fs8::basic_debounce::msec_type'],['../structfs8_1_1basic__drop__init__moves.html#af879abf7717e3dd9ec11ab0188399e9e',1,'fs8::basic_drop_init_moves::msec_type'],['../structfs8_1_1basic__drop__fast__repeats.html#a03230e99a163bb122e9572b60b6a398d',1,'fs8::basic_drop_fast_repeats::msec_type'],['../structfs8_1_1basic__drop__late__syn.html#a5430752784554fdc510e8477aba3bba3',1,'fs8::basic_drop_late_syn::msec_type'],['../structfs8_1_1basic__drop__missing__syns.html#a2a550f5a11dc5cba8f339b8256d77edf',1,'fs8::basic_drop_missing_syns::msec_type']]],
-  ['msecs_6',['msecs',['../namespacefs8.html#ae1d3b62f16d4bc6ce85de47b9f9ef008',1,'fs8']]]
+  ['output_5flink_5ftype_0',['output_link_type',['../structfs8_1_1basic__search__engine.html#a9641bb39c149db9ec81754c5532a1ede',1,'fs8::basic_search_engine']]],
+  ['output_5fselector_1',['output_selector',['../namespacefs8.html#a500994f0a2de5896ef74f8ebbd942823',1,'fs8']]]
 ];

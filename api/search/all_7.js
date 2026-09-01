@@ -26,7 +26,7 @@ var searchData=
   ['hash_23',['hash',['../structfs8_1_1variable__pointer.html#abadccb373330d569708051174b54f2b4',1,'fs8::variable_pointer::hash'],['../structfs8_1_1event__type.html#a6addf1acd18387473baeb0fb7b074371',1,'fs8::event_type::hash()']]],
   ['hash_2ecxx_24',['hash.cxx',['../hash_8cxx.html',1,'']]],
   ['hash_2eixx_25',['hash.ixx',['../hash_8ixx.html',1,'']]],
-  ['hashed_26',['hashed',['../namespacefs8.html#acef00bf97bc1f9ccf3675d1a36edf2f3',1,'fs8::hashed(event_code const &amp;code) noexcept'],['../namespacefs8.html#af9a57064d23f117022d7d4580c1b9ee4',1,'fs8::hashed(event_code::type_type const type, event_code::code_type const code) noexcept'],['../namespacefs8.html#ad5c0c1f60ca36b6331e0b76a71028073',1,'fs8::hashed(key_event const &amp;code) noexcept']]],
+  ['hashed_26',['hashed',['../namespacefs8.html#ad5c0c1f60ca36b6331e0b76a71028073',1,'fs8::hashed(key_event const &amp;code) noexcept'],['../namespacefs8.html#acef00bf97bc1f9ccf3675d1a36edf2f3',1,'fs8::hashed(event_code const &amp;code) noexcept'],['../namespacefs8.html#af9a57064d23f117022d7d4580c1b9ee4',1,'fs8::hashed(event_code::type_type const type, event_code::code_type const code) noexcept'],['../namespacefs8.html#a25240b25db742903a8cf5a58d07a2fb5',1,'fs8::hashed(special_event::code_type const code, special_event::value_type const value=0) noexcept'],['../namespacefs8.html#a9cc5f177778f28e2a7668b7021f1cf57',1,'fs8::hashed(special_event const &amp;ev) noexcept']]],
   ['hashes_27',['hashes',['../structfs8_1_1detail_1_1router__state.html#a651c6acee65fb6a13424165bbd10e381',1,'fs8::detail::router_state']]],
   ['held_28',['held',['../namespacefs8.html#a23e4dde2a6f758bd281fe6916fdfb715',1,'fs8']]],
   ['held_5fkey_29',['held_key',['../structfs8_1_1held__key.html',1,'fs8']]],
