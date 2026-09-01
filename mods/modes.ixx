@@ -10,6 +10,18 @@ import fs8.traits;
 
 namespace fs8 {
 
+    namespace detail {
+        struct modes_caller_info {
+            void* instance                         = nullptr;
+            void (*switch_fn)(void*, std::uint8_t) = nullptr;
+        };
+
+        modes_caller_info& current_modes_caller() noexcept {
+            static thread_local modes_caller_info info{};
+            return info;
+        }
+    } // namespace detail
+
     export template <typename CondT = basic_noop, typename... Mods>
     struct [[nodiscard]] basic_modes : consteval_copyable {
         using consteval_copyable::consteval_copyable;
@@ -45,7 +57,13 @@ namespace fs8 {
                 // log("Mode Changed to {}", mode);
             }
             assert(mode < sizeof...(Mods));
-            return invoke_mod_at(ctx, mods, mode);
+            auto prev                    = detail::current_modes_caller();
+            detail::current_modes_caller() = {this, [](void* p, std::uint8_t m) {
+                                                  static_cast<basic_modes*>(p)->switch_mode(m);
+                                              }};
+            auto const result            = invoke_mod_at(ctx, mods, mode);
+            detail::current_modes_caller() = prev;
+            return result;
         }
     };
 
@@ -64,8 +82,11 @@ namespace fs8 {
             return basic_switch_mode{in_mode};
         }
 
-        void operator()(Context auto& ctx) const noexcept {
-            ctx.mod(modes).switch_mode(mode);
+        void operator()(Context auto& /*ctx*/) const noexcept {
+            auto& caller = detail::current_modes_caller();
+            if (caller.instance && caller.switch_fn) {
+                caller.switch_fn(caller.instance, mode);
+            }
         }
 
     } switch_mode;

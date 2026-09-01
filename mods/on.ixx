@@ -193,21 +193,33 @@ namespace fs8 {
         context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
             using enum context_action;
             switch (tag.code) {
-                case 0: // start
+                case 0: { // start
                     if (auto const action = invoke_mod(cond, ctx, special_start); !action) [[unlikely]] {
                         return action;
                     }
-                    if (auto const sub_action = invoke_mods(ctx, funcs, special_start); !sub_action) [[unlikely]] {
+                    ctx.enter_sub_pipeline(funcs);
+                    auto const sub_action = invoke_mods(ctx, funcs, special_start);
+                    ctx.exit_sub_pipeline();
+                    if (!sub_action) [[unlikely]] {
                         return sub_action;
                     }
                     return next;
-                case 3: // next_event
+                }
+                case 3: { // next_event
                     if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
-                        return invoke_first_mod_of(ctx, funcs, special_next_event);
+                        ctx.enter_sub_pipeline(funcs);
+                        auto const result = invoke_first_mod_of(ctx, funcs, special_next_event);
+                        ctx.exit_sub_pipeline();
+                        return result;
                     }
                     return drop_event;
-                case 4: // toggle_on / toggle_off
-                    return invoke_mods(ctx, funcs, tag);
+                }
+                case 4: { // toggle_on / toggle_off
+                    ctx.enter_sub_pipeline(funcs);
+                    auto const toggle_result = invoke_mods(ctx, funcs, tag);
+                    ctx.exit_sub_pipeline();
+                    return toggle_result;
+                }
                 default: return drop_event;
             }
         }
@@ -218,18 +230,27 @@ namespace fs8 {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    if (auto const action = invoke_mods(ctx, funcs, special_toggle_off); !action) [[unlikely]] {
+                    ctx.enter_sub_pipeline(funcs);
+                    auto const action = invoke_mods(ctx, funcs, special_toggle_off);
+                    ctx.exit_sub_pipeline();
+                    if (!action) [[unlikely]] {
                         return action;
                     }
                 }
                 return next;
             }
             if (is_switched) {
-                if (auto const action = invoke_mods(ctx, funcs, special_toggle_on); !action) [[unlikely]] {
+                ctx.enter_sub_pipeline(funcs);
+                auto const action = invoke_mods(ctx, funcs, special_toggle_on);
+                ctx.exit_sub_pipeline();
+                if (!action) [[unlikely]] {
                     return action;
                 }
             }
-            return invoke_mods(ctx, funcs);
+            ctx.enter_sub_pipeline(funcs);
+            auto const result = invoke_mods(ctx, funcs);
+            ctx.exit_sub_pipeline();
+            return result;
         }
     };
 
@@ -286,21 +307,33 @@ namespace fs8 {
         context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
             using enum context_action;
             switch (tag.code) {
-                case 0: // start
+                case 0: { // start
                     if (auto const action = invoke_mod(cond, ctx, special_start); !action) [[unlikely]] {
                         return action;
                     }
-                    if (auto const sub_action = invoke_mods(ctx, funcs, special_start); !sub_action) [[unlikely]] {
+                    ctx.enter_sub_pipeline(funcs);
+                    auto const sub_action = invoke_mods(ctx, funcs, special_start);
+                    ctx.exit_sub_pipeline();
+                    if (!sub_action) [[unlikely]] {
                         return sub_action;
                     }
                     return next;
-                case 3: // next_event
+                }
+                case 3: { // next_event
                     if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
-                        return invoke_first_mod_of(ctx, funcs, special_next_event);
+                        ctx.enter_sub_pipeline(funcs);
+                        auto const result = invoke_first_mod_of(ctx, funcs, special_next_event);
+                        ctx.exit_sub_pipeline();
+                        return result;
                     }
                     return drop_event;
-                case 4: // toggle_on / toggle_off
-                    return invoke_mods(ctx, funcs, tag);
+                }
+                case 4: { // toggle_on / toggle_off
+                    ctx.enter_sub_pipeline(funcs);
+                    auto const toggle_result = invoke_mods(ctx, funcs, tag);
+                    ctx.exit_sub_pipeline();
+                    return toggle_result;
+                }
                 default: return drop_event;
             }
         }
@@ -311,14 +344,20 @@ namespace fs8 {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    if (auto const action = invoke_mods(ctx, funcs, special_toggle_off); !action) [[unlikely]] {
+                    ctx.enter_sub_pipeline(funcs);
+                    auto const action = invoke_mods(ctx, funcs, special_toggle_off);
+                    ctx.exit_sub_pipeline();
+                    if (!action) [[unlikely]] {
                         return action;
                     }
                 }
                 return next;
             }
             if (is_switched) {
-                if (auto const action = invoke_mods(ctx, funcs); !action) {
+                ctx.enter_sub_pipeline(funcs);
+                auto const action = invoke_mods(ctx, funcs);
+                ctx.exit_sub_pipeline();
+                if (!action) {
                     return action;
                 }
             }
@@ -683,15 +722,15 @@ namespace fs8 {
         using duration_type = std::chrono::microseconds;
 
       private:
-        std::array<code_type, N>     codes{};
-        std::array<event_type, N>    pending{};
-        std::array<bool, N>          held{};
-        std::array<bool, N>          used{};
-        std::array<bool, N>          led_on{};
-        std::array<bool, N>          led_before{};
-        std::array<duration_type, N> press_time{};
-        duration_type                hold_threshold = std::chrono::milliseconds(200);
-        [[no_unique_address]] ModT   mod{};
+        std::array<code_type, N>               codes{};
+        std::array<event_type, N>              pending{};
+        std::array<bool, N>                    held{};
+        std::array<bool, N>                    used{};
+        std::array<bool, N>                    led_on{};
+        std::array<bool, N>                    led_before{};
+        std::array<duration_type, N>           press_time{};
+        duration_type                          hold_threshold = std::chrono::milliseconds(200);
+        [[no_unique_address]] std::tuple<ModT> mod{};
 
         /// The LED that mirrors a toggle-mode key (CapsLock/NumLock/ScrollLock),
         /// or -1 for keys that don't have an associated mode.
@@ -811,7 +850,13 @@ namespace fs8 {
             }
 
             // While a modifier key is held, run the gated mod on every event.
-            if (auto const action = invoke_mod(mod, ctx); action != next) {
+            // Use enter_sub_pipeline so that fork_emit() calls from the gated
+            // mod (e.g. mouse_to_scroll) see the sub-pipeline frame and
+            // correctly continue into the parent pipeline.
+            ctx.enter_sub_pipeline(mod);
+            auto const action = invoke_mods(ctx, mod);
+            ctx.exit_sub_pipeline();
+            if (action != next) {
                 for (std::size_t i = 0; i < N; ++i) {
                     if (held[i]) {
                         used[i] = true;

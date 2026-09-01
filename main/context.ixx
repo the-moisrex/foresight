@@ -90,6 +90,7 @@ export namespace fs8 {
         typename T::mods_type;
         ctx.event();
         ctx.get_mods();
+        ctx.fork_emit();
     };
 
     template <typename T>
@@ -303,9 +304,6 @@ export namespace fs8 {
         }
     }
 
-    template <typename ParentT, Modifier... Funcs>
-    struct [[nodiscard]] basic_context_view;
-
     template <Context CtxT, typename... Funcs>
     context_action invoke_mods_from(
       CtxT                 &ctx,
@@ -321,8 +319,11 @@ export namespace fs8 {
             std::ignore = (([&]<std::size_t K>() noexcept {
                                if (K == index) {
                                    // Entries are alternatives: a forked event skips the rest of this tuple.
-                                   basic_context_view<CtxT, Funcs...> view{ctx, funcs, sizeof...(Funcs)};
-                                   action = invoke_mod(get<K>(funcs), view);
+                                   auto &frame    = ctx.current_frame();
+                                   auto const old = frame.fork_index;
+                                   frame.fork_index = sizeof...(Funcs);
+                                   action = invoke_mod(get<K>(funcs), ctx);
+                                   frame.fork_index = old;
                                }
                                return action == next;
                            }).template operator()<I>()
@@ -337,15 +338,23 @@ export namespace fs8 {
         using tuple_type = std::tuple<Funcs...>;
         using mod_type   = std::tuple_element_t<Index, tuple_type>;
         if constexpr (invokable_mod<mod_type, CtxT, Args...>) {
-            basic_context_view<CtxT, Funcs...> view{ctx, funcs, Index + 1U};
-            return invoke_mod(get<Index>(funcs), view, default_action, args...);
+            auto &frame      = ctx.current_frame();
+            auto const old   = frame.fork_index;
+            frame.fork_index = Index + 1U;
+            auto const result = invoke_mod(get<Index>(funcs), ctx, default_action, args...);
+            frame.fork_index = old;
+            return result;
         } else if constexpr (sizeof...(Args) >= 2) {
             // Let invoke_mod's drop fallback try calling this mod with fewer args.
             if constexpr (!std::same_as<std::remove_cvref_t<type_at<0, Args...>>, special_event>
                           && std::same_as<std::remove_cvref_t<type_at<sizeof...(Args) - 1, Args...>>, special_event>)
             {
-                basic_context_view<CtxT, Funcs...> view{ctx, funcs, Index + 1U};
-                return invoke_mod(get<Index>(funcs), view, default_action, args...);
+                auto &frame      = ctx.current_frame();
+                auto const old   = frame.fork_index;
+                frame.fork_index = Index + 1U;
+                auto const result = invoke_mod(get<Index>(funcs), ctx, default_action, args...);
+                frame.fork_index = old;
+                return result;
             } else {
                 return default_action;
             }
@@ -583,7 +592,7 @@ export namespace fs8 {
         }
     };
 
-    /// Type-erased analog of `basic_context_view`: a handle to the mod at a
+    /// Type-erased analog of the fork stack: a handle to the mod at a
     /// compile-time index of the currently bound dynamic context.
     template <std::size_t NIndex>
     struct [[nodiscard]] basic_dynamic_context_view {
@@ -695,9 +704,6 @@ export namespace fs8 {
         }
     } dynamic_context;
 
-    template <typename ParentT, Modifier... Funcs>
-    struct [[nodiscard]] basic_context_view;
-
     /**
      * This is the main context object that holds all the mods in it, and runs them all, and also holds the event.
      * @tparam Funcs Modules or event Modifiers
@@ -713,12 +719,49 @@ export namespace fs8 {
         template <typename T>
         using mod_type = mod_of<T, Funcs...>;
 
+        /// Type-erased function pointer for invoking active mods from a given index.
+        using invoke_active_fn_t = context_action (*)(basic_context &, void *, std::size_t);
+
+        /// A frame on the fork stack: tracks which mods tuple to iterate and where to start.
+        struct fork_frame {
+            void *              active_mods = nullptr;  ///< pointer to the mods tuple (mods_type* or sub-mods tuple*)
+            invoke_active_fn_t  invoke_fn  = nullptr;   ///< static function that invokes mods from the tuple
+            std::size_t         fork_index = 0;          ///< starting index for fork_emit within this frame
+        };
+
+        static constexpr std::size_t max_fork_depth = 8;
+
       private:
         event_type                                              ev{};
         mods_type                                               mods_{};
         std::array<variable_pointer, variable_size_v<Funcs...>> variables = extract_variables(mods_);
 
+        /// Fork stack: tracks nested sub-pipeline contexts for fork_emit delegation.
+        std::array<fork_frame, max_fork_depth> fork_stack_{};
+        std::size_t                            fork_depth_ = 0;
+
       public:
+        /// Access the current fork frame (used by fork_mod and invoke_mod_at).
+        [[nodiscard]] fork_frame &current_frame() noexcept {
+            return fork_stack_[fork_depth_];
+        }
+
+      private:
+
+        /// Static helper for invoking root mods (used as invoke_fn in the root frame).
+        static context_action invoke_root_mods(basic_context &ctx, void *ptr, std::size_t const idx) noexcept {
+            return invoke_mods_from(ctx, *static_cast<mods_type *>(ptr), idx);
+        }
+
+        /// Static helper for invoking sub-pipeline mods (used as invoke_fn in sub-pipeline frames).
+        template <typename... SubFuncs>
+        static context_action invoke_sub_mods(basic_context &ctx, void *ptr, std::size_t const idx) noexcept {
+            return invoke_mods_from(ctx, *static_cast<std::tuple<SubFuncs...> *>(ptr), idx);
+        }
+
+      public:
+        constexpr basic_context() noexcept = default;
+
         consteval explicit basic_context(event_type const &inp_ev, std::remove_cvref_t<Funcs>... inp_funcs) noexcept
           : ev{inp_ev},
             mods_{inp_funcs...} {}
@@ -786,9 +829,59 @@ export namespace fs8 {
               mods_);
         }
 
-        /// Terminal continuation for the parent chain: the pipeline ends here.
+        /// Run the remaining mods from the current fork stack frame, then delegate to the parent frame.
         context_action fork_emit() noexcept {
-            return context_action::next;
+            auto &frame     = current_frame();
+            auto  saved_idx = frame.fork_index;
+            context_action res;
+            if (frame.active_mods) {
+                res = frame.invoke_fn(*this, frame.active_mods, frame.fork_index);
+            } else {
+                // Root frame: active_mods is null; use mods_ directly.
+                res = invoke_mods_from(*this, mods_, frame.fork_index);
+            }
+            frame.fork_index = saved_idx;
+            if (res != context_action::next || fork_depth_ == 0) {
+                return res;
+            }
+            // Temporarily pop this frame to delegate to the parent, then restore
+            // so that the caller's exit_sub_pipeline() sees the correct depth.
+            --fork_depth_;
+            auto const parent_res = fork_emit();
+            ++fork_depth_;
+            return parent_res;
+        }
+
+        context_action fork_emit(event_type const &inp_event) noexcept {
+            auto const cur = event();
+            event(inp_event);
+            auto const res = fork_emit();
+            event(cur);
+            return res;
+        }
+
+        context_action fork_emit(user_event const &inp_ev) noexcept {
+            return fork_emit(event_type{inp_ev});
+        }
+
+        context_action fork_emit(event_type::type_type const  inp_type,
+                                 event_type::code_type const  inp_code,
+                                 event_type::value_type const inp_val) noexcept {
+            auto ev = event();
+            ev.set(inp_type, inp_code, inp_val);
+            return fork_emit(ev);
+        }
+
+        /// Enter a sub-pipeline: push a new fork frame for the given sub-mods tuple.
+        template <typename... SubFuncs>
+        void enter_sub_pipeline(std::tuple<SubFuncs...> &sub_mods) noexcept {
+            ++fork_depth_;
+            current_frame() = fork_frame{&sub_mods, &invoke_sub_mods<SubFuncs...>, 0};
+        }
+
+        /// Exit a sub-pipeline: pop the current fork frame.
+        void exit_sub_pipeline() noexcept {
+            --fork_depth_;
         }
 
         /// The mods of this context, exposed for recursion into sub-pipelines.
@@ -885,9 +978,10 @@ export namespace fs8 {
         context_action run_loop() noexcept {
             dynamic_scope scope{dynamic_context, *this};
             using enum context_action;
-            using ctx_view = basic_context_view<basic_context<std::remove_cvref_t<Funcs>...>, std::remove_cvref_t<Funcs>...>;
-            static_assert(((invokable_mod<Funcs, ctx_view> || invokable_mod<Funcs, ctx_view, special_event>) && ...),
-                          "At least one of the mods are not callable");
+            using self_type = basic_context<std::remove_cvref_t<Funcs>...>;
+            static_assert(
+              ((invokable_mod<Funcs, self_type> || invokable_mod<Funcs, self_type, special_event>) && ...),
+              "At least one of the mods are not callable");
             for (;;) {
                 // Try next_event providers (non-blocking event pull).
                 switch (auto const provider = invoke_first_mod_of(*this, mods_, special_next_event)) {
@@ -929,135 +1023,32 @@ export namespace fs8 {
         }
 
       public:
-        /// Pass-through
+        /// Pass-through: invoke our mods as a sub-pipeline so that fork_emit()
+        /// from within a child sees the correct frame (our mods tuple + index)
+        /// and then falls through to the parent frame.
         context_action operator()(Context auto &ctx) noexcept {
-            return invoke_mods(ctx, mods_);
+            ctx.enter_sub_pipeline(mods_);
+            auto const result = invoke_mods(ctx, mods_);
+            ctx.exit_sub_pipeline();
+            return result;
         }
 
         /// Pass-through a special_event to the mods.
         context_action operator()(Context auto &ctx, special_event const &tag) noexcept {
-            return invoke_mods(ctx, mods_, tag);
+            ctx.enter_sub_pipeline(mods_);
+            auto const result = invoke_mods(ctx, mods_, tag);
+            ctx.exit_sub_pipeline();
+            return result;
         }
 
         /// Pass-through with extra arguments (e.g. a device_query pushed by the router on start).
         template <typename... Args>
             requires(sizeof...(Args) >= 2)
         context_action operator()(Context auto &ctx, Args const &...args) noexcept {
-            return invoke_mods(ctx, mods_, args...);
-        }
-    };
-
-    /**
-     * A lightweight view over a (sub-)tuple of mods, chained to its enclosing
-     * continuation. `fork_emit` re-runs the remaining mods of this tuple and
-     * then continues through the parent chain up to the root context. All
-     * event/state accessors delegate up the parent chain to the root.
-     */
-    template <typename ParentT, Modifier... SubFuncs>
-    struct [[nodiscard]] basic_context_view {
-        using type_type  = event_type::type_type;
-        using code_type  = event_type::code_type;
-        using value_type = event_type::value_type;
-        using mods_type  = std::tuple<std::remove_cvref_t<SubFuncs>...>;
-
-      private:
-        ParentT    &parent;
-        mods_type  &subs;
-        std::size_t index;
-
-      public:
-        constexpr basic_context_view(ParentT &inp_parent, mods_type &inp_subs, std::size_t const inp_index) noexcept
-          : parent{inp_parent},
-            subs{inp_subs},
-            index{inp_index} {}
-
-        constexpr basic_context_view(basic_context_view const &)                = default;
-        constexpr basic_context_view(basic_context_view &&) noexcept            = default;
-        constexpr basic_context_view &operator=(basic_context_view const &)     = default;
-        constexpr basic_context_view &operator=(basic_context_view &&) noexcept = default;
-        constexpr ~basic_context_view() noexcept                                = default;
-
-        template <typename Self>
-        [[nodiscard]] constexpr decltype(auto) context(this Self &&self) noexcept {
-            if constexpr (requires { self.parent.context(); }) {
-                return std::forward_like<Self>(self.parent.context());
-            } else {
-                return std::forward_like<Self>(self.parent);
-            }
-        }
-
-        context_action fork_emit() noexcept {
-            auto const res = invoke_mods_from(parent, subs, index);
-            return res == context_action::next ? parent.fork_emit() : res;
-        }
-
-        context_action fork_emit(event_type const &inp_event) noexcept {
-            auto const cur = event();
-            event(inp_event);
-            auto const res = fork_emit();
-            event(cur);
-            return res;
-        }
-
-        context_action fork_emit(user_event const &inp_ev) noexcept {
-            return fork_emit(event_type{inp_ev});
-        }
-
-        context_action fork_emit(type_type const inp_type, code_type const inp_code, value_type const inp_val) noexcept {
-            auto ev = event();
-            ev.set(inp_type, inp_code, inp_val);
-            return fork_emit(ev);
-        }
-
-        template <typename Self>
-        [[nodiscard]] constexpr auto &&event(this Self &&self) noexcept {
-            return std::forward_like<Self>(self.parent.event());
-        }
-
-        constexpr void event(event_type const &inp_event) noexcept {
-            parent.event(inp_event);
-        }
-
-        template <typename Self>
-        [[nodiscard]] constexpr auto &&get_mods(this Self &&self) noexcept {
-            return std::forward_like<Self>(self.parent.get_mods());
-        }
-
-        template <typename Func, typename Self>
-            requires((std::same_as<mod_of<Func, SubFuncs...>, SubFuncs> || ...) || requires(ParentT &p) { p.template mod<Func>(); })
-        [[nodiscard]] constexpr decltype(auto) mod(this Self &&self) noexcept {
-            if constexpr ((std::same_as<mod_of<Func, SubFuncs...>, SubFuncs> || ...)) {
-                return std::forward_like<Self>(get<index_at<mod_of<Func, SubFuncs...>, SubFuncs...>>(self.subs));
-            } else {
-                return std::forward_like<Self>(self.parent.template mod<Func>());
-            }
-        }
-
-        template <typename Func, typename Self>
-            requires((std::same_as<mod_of<Func, SubFuncs...>, SubFuncs> || ...) || requires(ParentT &p) { p.template mod<Func>(); })
-        [[nodiscard]] constexpr decltype(auto) mod(this Self &&self, [[maybe_unused]] Func const &) noexcept {
-            if constexpr ((std::same_as<mod_of<Func, SubFuncs...>, SubFuncs> || ...)) {
-                return std::forward_like<Self>(get<index_at<mod_of<Func, SubFuncs...>, SubFuncs...>>(self.subs));
-            } else {
-                return std::forward_like<Self>(self.parent.template mod<Func>());
-            }
-        }
-
-        template <std::size_t NIndex, typename Self>
-        [[nodiscard]] constexpr decltype(auto) mod(this Self &&self) noexcept {
-            return std::forward_like<Self>(self.parent.template mod<NIndex>());
-        }
-
-        /// Enumerate the top-level mods of the underlying context whose type matches `T`.
-        template <typename T>
-        [[nodiscard]] std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> mods(T const & = {}) noexcept {
-            return context().template mods<T>();
-        }
-
-        /// Enumerate mods matching `T`, recursing into routers/sub-pipelines.
-        template <typename T>
-        [[nodiscard]] std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> rmods(T const & = {}) noexcept {
-            return context().template rmods<T>();
+            ctx.enter_sub_pipeline(mods_);
+            auto const result = invoke_mods(ctx, mods_, args...);
+            ctx.exit_sub_pipeline();
+            return result;
         }
     };
 
