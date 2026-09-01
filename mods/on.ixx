@@ -197,28 +197,16 @@ namespace fs8 {
                     if (auto const action = invoke_mod(cond, ctx, special_start); !action) [[unlikely]] {
                         return action;
                     }
-                    ctx.enter_sub_pipeline(funcs);
-                    auto const sub_action = invoke_mods(ctx, funcs, special_start);
-                    ctx.exit_sub_pipeline();
-                    if (!sub_action) [[unlikely]] {
-                        return sub_action;
-                    }
-                    return next;
+                    return invoke_sub_pipeline(ctx, funcs, special_start);
                 }
                 case special_next_event.code: { // next_event
                     if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
-                        ctx.enter_sub_pipeline(funcs);
-                        auto const result = invoke_first_mod_of(ctx, funcs, special_next_event);
-                        ctx.exit_sub_pipeline();
-                        return result;
+                        return invoke_first_mod_of_sub_pipeline(ctx, funcs, special_next_event);
                     }
                     return drop_event;
                 }
                 case special_toggle_on.code: { // toggle_on / toggle_off
-                    ctx.enter_sub_pipeline(funcs);
-                    auto const toggle_result = invoke_mods(ctx, funcs, tag);
-                    ctx.exit_sub_pipeline();
-                    return toggle_result;
+                    return invoke_sub_pipeline(ctx, funcs, tag);
                 }
                 default: return drop_event;
             }
@@ -230,27 +218,18 @@ namespace fs8 {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    ctx.enter_sub_pipeline(funcs);
-                    auto const action = invoke_mods(ctx, funcs, special_toggle_off);
-                    ctx.exit_sub_pipeline();
-                    if (!action) [[unlikely]] {
+                    if (auto const action = invoke_sub_pipeline(ctx, funcs, special_toggle_off); !action) [[unlikely]] {
                         return action;
                     }
                 }
                 return next;
             }
             if (is_switched) {
-                ctx.enter_sub_pipeline(funcs);
-                auto const action = invoke_mods(ctx, funcs, special_toggle_on);
-                ctx.exit_sub_pipeline();
-                if (!action) [[unlikely]] {
+                if (auto const action = invoke_sub_pipeline(ctx, funcs, special_toggle_on); !action) [[unlikely]] {
                     return action;
                 }
             }
-            ctx.enter_sub_pipeline(funcs);
-            auto const result = invoke_mods(ctx, funcs);
-            ctx.exit_sub_pipeline();
-            return result;
+            return invoke_sub_pipeline(ctx, funcs);
         }
     };
 
@@ -311,28 +290,16 @@ namespace fs8 {
                     if (auto const action = invoke_mod(cond, ctx, special_start); !action) [[unlikely]] {
                         return action;
                     }
-                    ctx.enter_sub_pipeline(funcs);
-                    auto const sub_action = invoke_mods(ctx, funcs, special_start);
-                    ctx.exit_sub_pipeline();
-                    if (!sub_action) [[unlikely]] {
-                        return sub_action;
-                    }
-                    return next;
+                    return invoke_sub_pipeline(ctx, funcs, special_start);
                 }
                 case special_next_event.code: { // next_event
                     if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
-                        ctx.enter_sub_pipeline(funcs);
-                        auto const result = invoke_first_mod_of(ctx, funcs, special_next_event);
-                        ctx.exit_sub_pipeline();
-                        return result;
+                        return invoke_first_mod_of_sub_pipeline(ctx, funcs, special_next_event);
                     }
                     return drop_event;
                 }
                 case special_toggle_on.code: { // toggle_on / toggle_off
-                    ctx.enter_sub_pipeline(funcs);
-                    auto const toggle_result = invoke_mods(ctx, funcs, tag);
-                    ctx.exit_sub_pipeline();
-                    return toggle_result;
+                    return invoke_sub_pipeline(ctx, funcs, tag);
                 }
                 default: return drop_event;
             }
@@ -344,20 +311,14 @@ namespace fs8 {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    ctx.enter_sub_pipeline(funcs);
-                    auto const action = invoke_mods(ctx, funcs, special_toggle_off);
-                    ctx.exit_sub_pipeline();
-                    if (!action) [[unlikely]] {
+                    if (auto const action = invoke_sub_pipeline(ctx, funcs, special_toggle_off); !action) [[unlikely]] {
                         return action;
                     }
                 }
                 return next;
             }
             if (is_switched) {
-                ctx.enter_sub_pipeline(funcs);
-                auto const action = invoke_mods(ctx, funcs);
-                ctx.exit_sub_pipeline();
-                if (!action) {
+                if (auto const action = invoke_sub_pipeline(ctx, funcs); !action) {
                     return action;
                 }
             }
@@ -850,12 +811,10 @@ namespace fs8 {
             }
 
             // While a modifier key is held, run the gated mod on every event.
-            // Use enter_sub_pipeline so that fork_emit() calls from the gated
-            // mod (e.g. mouse_to_scroll) see the sub-pipeline frame and
+            // Use a sub-pipeline so that fork_emit() calls from the gated mod
+            // (e.g. mouse_to_scroll) see the sub-pipeline frame and
             // correctly continue into the parent pipeline.
-            ctx.enter_sub_pipeline(mod);
-            auto const action = invoke_mods(ctx, mod);
-            ctx.exit_sub_pipeline();
+            auto const action = invoke_sub_pipeline(ctx, mod);
             if (action != next) {
                 for (std::size_t i = 0; i < N; ++i) {
                     if (held[i]) {
