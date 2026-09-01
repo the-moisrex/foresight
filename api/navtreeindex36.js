@@ -1,5 +1,14 @@
 var NAVTREEINDEX36 =
 {
+"typer_8ixx.html#aa9d9e721362511575ad3b5de8e4a69d1":[4,0,4,63,4],
+"udev_8cxx.html":[4,0,1,9],
+"udev_8ixx.html":[4,0,1,10],
+"udev_8ixx.html#a0168639e1d9b5cdf52521312b9d501e9":[4,0,1,10,11],
+"udev_8ixx.html#a2d10795021a7a5b0b402171e6fb5532c":[4,0,1,10,13],
+"udev_8ixx.html#a4667f0626d2df478035cb0a9afb4596a":[4,0,1,10,10],
+"udev_8ixx.html#a84dc8f2ec0c7b904517c56e6ac1d638c":[4,0,1,10,8],
+"udev_8ixx.html#a9a248b81fc537499fd6172d660584575":[4,0,1,10,9],
+"udev_8ixx.html#ada9fb1cae3a16f44f5bfe1972c522b47":[4,0,1,10,12],
 "uinput_8cxx.html":[4,0,1,11],
 "uinput_8cxx.html#a81f4e5a0468c8040953b6372c9dd5712":[4,0,1,11,2],
 "uinput_8cxx.html#aac0d6122fd87c8f92170a7310c6b67cd":[4,0,1,11,4],
