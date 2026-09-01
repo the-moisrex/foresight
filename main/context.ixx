@@ -920,13 +920,13 @@ export namespace fs8 {
 
         context_action operator()(special_event const &tag) noexcept {
             switch (tag.code) {
-                case 0: // start
+                case special_start.code: // start
                     return start_mods();
-                case 1: // no_init
+                case special_no_init.code: // no_init
                     return run_loop();
-                case 2: // load_event
-                case 3: // next_event
-                case 4: // toggle_on / toggle_off (distinguished by value)
+                case special_load_event.code: // load_event
+                case special_next_event.code: // next_event
+                case special_toggle_on.code: // toggle_on / toggle_off (distinguished by value)
                     // Forward to the mods directly.
                     return invoke_mods(*this, mods_, tag);
                 default: return context_action::next;

@@ -193,7 +193,7 @@ namespace fs8 {
         context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
             using enum context_action;
             switch (tag.code) {
-                case 0: { // start
+                case special_start.code: { // start
                     if (auto const action = invoke_mod(cond, ctx, special_start); !action) [[unlikely]] {
                         return action;
                     }
@@ -205,7 +205,7 @@ namespace fs8 {
                     }
                     return next;
                 }
-                case 3: { // next_event
+                case special_next_event.code: { // next_event
                     if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
                         ctx.enter_sub_pipeline(funcs);
                         auto const result = invoke_first_mod_of(ctx, funcs, special_next_event);
@@ -214,7 +214,7 @@ namespace fs8 {
                     }
                     return drop_event;
                 }
-                case 4: { // toggle_on / toggle_off
+                case special_toggle_on.code: { // toggle_on / toggle_off
                     ctx.enter_sub_pipeline(funcs);
                     auto const toggle_result = invoke_mods(ctx, funcs, tag);
                     ctx.exit_sub_pipeline();
@@ -307,7 +307,7 @@ namespace fs8 {
         context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
             using enum context_action;
             switch (tag.code) {
-                case 0: { // start
+                case special_start.code: { // start
                     if (auto const action = invoke_mod(cond, ctx, special_start); !action) [[unlikely]] {
                         return action;
                     }
@@ -319,7 +319,7 @@ namespace fs8 {
                     }
                     return next;
                 }
-                case 3: { // next_event
+                case special_next_event.code: { // next_event
                     if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
                         ctx.enter_sub_pipeline(funcs);
                         auto const result = invoke_first_mod_of(ctx, funcs, special_next_event);
@@ -328,7 +328,7 @@ namespace fs8 {
                     }
                     return drop_event;
                 }
-                case 4: { // toggle_on / toggle_off
+                case special_toggle_on.code: { // toggle_on / toggle_off
                     ctx.enter_sub_pipeline(funcs);
                     auto const toggle_result = invoke_mods(ctx, funcs, tag);
                     ctx.exit_sub_pipeline();

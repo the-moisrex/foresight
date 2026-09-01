@@ -17,7 +17,7 @@ namespace fs8 {
         };
 
         modes_caller_info& current_modes_caller() noexcept {
-            static thread_local modes_caller_info info{};
+            thread_local modes_caller_info info{};
             return info;
         }
     } // namespace detail
@@ -57,11 +57,12 @@ namespace fs8 {
                 // log("Mode Changed to {}", mode);
             }
             assert(mode < sizeof...(Mods));
-            auto prev                    = detail::current_modes_caller();
-            detail::current_modes_caller() = {this, [](void* p, std::uint8_t m) {
-                                                  static_cast<basic_modes*>(p)->switch_mode(m);
-                                              }};
-            auto const result            = invoke_mod_at(ctx, mods, mode);
+            auto prev = detail::current_modes_caller();
+            detail::current_modes_caller() =
+              detail::modes_caller_info{.instance = this, .switch_fn = [](void* p, std::uint8_t const m) noexcept {
+                                            static_cast<basic_modes*>(p)->switch_mode(m);
+                                        }};
+            auto const result              = invoke_mod_at(ctx, mods, mode);
             detail::current_modes_caller() = prev;
             return result;
         }
@@ -83,9 +84,9 @@ namespace fs8 {
         }
 
         void operator()(Context auto& /*ctx*/) const noexcept {
-            auto& caller = detail::current_modes_caller();
-            if (caller.instance && caller.switch_fn) {
-                caller.switch_fn(caller.instance, mode);
+            auto& [instance, switch_fn] = detail::current_modes_caller();
+            if (instance != nullptr && switch_fn != nullptr) {
+                switch_fn(instance, mode);
             }
         }
 
