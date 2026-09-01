@@ -11,13 +11,13 @@ using namespace fs8;
 
 namespace {
 
-    /// A mod that only accepts `start_tag` and the plain context, so the router has to drop the
+    /// A mod that only accepts `special_event` and the plain context, so the router has to drop the
     /// device_query it pushes down the pipeline before the mod can be started.
     struct counting_mod {
         int* counter;
 
         context_action operator()(special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return context_action::drop_event;
             }
             ++*counter;
@@ -53,7 +53,7 @@ namespace {
         query_record* record;
 
         context_action operator()(Context auto&, device_query const& inp_query, special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return context_action::drop_event;
             }
             record->received_query = inp_query;

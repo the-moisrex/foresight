@@ -96,7 +96,7 @@ export namespace fs8 {
 
         context_action operator()(event_type& event, special_event const& tag) noexcept try {
             using enum context_action;
-            if (tag.code != special_load_event.code) {
+            if (tag.code != load_event.code) {
                 return drop_event;
             }
             // Try to parse existing lines in the buffer first.

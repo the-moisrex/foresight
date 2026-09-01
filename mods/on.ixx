@@ -148,7 +148,7 @@ namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
         template <typename CtxT>
-        static constexpr bool can_generate_events = (invokable_mod<Funcs, CtxT, next_event_tag> || ...);
+        static constexpr bool can_generate_events = (invokable_mod<Funcs, CtxT, special_event> || ...);
 
       private:
         [[no_unique_address]] CondT                cond;
@@ -193,19 +193,19 @@ namespace fs8 {
         context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
             using enum context_action;
             switch (tag.code) {
-                case special_start.code: { // start
-                    if (auto const action = invoke_mod(cond, ctx, special_start); !action) [[unlikely]] {
+                case start.code: { // start
+                    if (auto const action = invoke_mod(cond, ctx, start); !action) [[unlikely]] {
                         return action;
                     }
-                    return invoke_sub_pipeline(ctx, funcs, special_start);
+                    return invoke_sub_pipeline(ctx, funcs, start);
                 }
-                case special_next_event.code: { // next_event
+                case next_event.code: { // next_event
                     if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
-                        return invoke_first_mod_of_sub_pipeline(ctx, funcs, special_next_event);
+                        return invoke_first_mod_of_sub_pipeline(ctx, funcs, next_event);
                     }
                     return drop_event;
                 }
-                case special_toggle_on.code: { // toggle_on / toggle_off
+                case toggle_on.code: { // toggle_on / toggle_off
                     return invoke_sub_pipeline(ctx, funcs, tag);
                 }
                 default: return drop_event;
@@ -218,14 +218,14 @@ namespace fs8 {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    if (auto const action = invoke_sub_pipeline(ctx, funcs, special_toggle_off); !action) [[unlikely]] {
+                    if (auto const action = invoke_sub_pipeline(ctx, funcs, toggle_off); !action) [[unlikely]] {
                         return action;
                     }
                 }
                 return next;
             }
             if (is_switched) {
-                if (auto const action = invoke_sub_pipeline(ctx, funcs, special_toggle_on); !action) [[unlikely]] {
+                if (auto const action = invoke_sub_pipeline(ctx, funcs, toggle_on); !action) [[unlikely]] {
                     return action;
                 }
             }
@@ -244,7 +244,7 @@ namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
         template <typename CtxT>
-        static constexpr bool can_generate_events = (invokable_mod<Funcs, CtxT, next_event_tag> || ...);
+        static constexpr bool can_generate_events = (invokable_mod<Funcs, CtxT, special_event> || ...);
 
       private:
         [[no_unique_address]] CondT                cond;
@@ -286,19 +286,19 @@ namespace fs8 {
         context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
             using enum context_action;
             switch (tag.code) {
-                case special_start.code: { // start
-                    if (auto const action = invoke_mod(cond, ctx, special_start); !action) [[unlikely]] {
+                case start.code: { // start
+                    if (auto const action = invoke_mod(cond, ctx, start); !action) [[unlikely]] {
                         return action;
                     }
-                    return invoke_sub_pipeline(ctx, funcs, special_start);
+                    return invoke_sub_pipeline(ctx, funcs, start);
                 }
-                case special_next_event.code: { // next_event
+                case next_event.code: { // next_event
                     if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
-                        return invoke_first_mod_of_sub_pipeline(ctx, funcs, special_next_event);
+                        return invoke_first_mod_of_sub_pipeline(ctx, funcs, next_event);
                     }
                     return drop_event;
                 }
-                case special_toggle_on.code: { // toggle_on / toggle_off
+                case toggle_on.code: { // toggle_on / toggle_off
                     return invoke_sub_pipeline(ctx, funcs, tag);
                 }
                 default: return drop_event;
@@ -311,7 +311,7 @@ namespace fs8 {
             bool const is_switched = is_active != std::exchange(was_active, is_active);
             if (!is_active) {
                 if (is_switched) {
-                    if (auto const action = invoke_sub_pipeline(ctx, funcs, special_toggle_off); !action) [[unlikely]] {
+                    if (auto const action = invoke_sub_pipeline(ctx, funcs, toggle_off); !action) [[unlikely]] {
                         return action;
                     }
                 }
@@ -504,7 +504,7 @@ namespace fs8 {
 
         /// Resolve the pattern string into key codes when the pipeline starts.
         context_action operator()(special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return context_action::drop_event;
             }
             if (!pattern.empty()) {
@@ -562,7 +562,7 @@ namespace fs8 {
 
         /// Resolve the pattern string into key codes when the pipeline starts.
         context_action operator()(special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return context_action::drop_event;
             }
             if (!pattern.empty()) {

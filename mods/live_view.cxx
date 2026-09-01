@@ -1206,7 +1206,7 @@ void fs8::live_view::process_event(event_type const& event, int const fd, saniti
 template <fs8::EvtestFormat Format>
 fs8::context_action fs8::basic_from_live_view<Format>::operator()(event_type& event, special_event const& tag) noexcept {
     using enum context_action;
-    if (tag.code != special_load_event.code) {
+    if (tag.code != load_event.code) {
         return drop_event;
     }
 

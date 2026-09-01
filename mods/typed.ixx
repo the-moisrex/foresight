@@ -200,7 +200,7 @@ namespace fs8 {
 
         /// Register the pattern into the search engine
         context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return context_action::drop_event;
             }
             keyboard_state.initialize(xkb::get_default_keymap());

@@ -151,7 +151,7 @@ export namespace fs8 {
 
         template <Context ContextT>
         context_action operator()(ContextT& ctx, special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != fs8::start.code) {
                 return context_action::drop_event;
             }
             return start(ctx.mod(io_manager));

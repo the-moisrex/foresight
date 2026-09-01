@@ -86,7 +86,7 @@ namespace fs8 {
         /// Register the timer fd with io_manager.
         template <Context CtxT>
         context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return context_action::drop_event;
             }
             if constexpr (has_mod<basic_io_manager, CtxT>) {

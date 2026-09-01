@@ -196,7 +196,7 @@ export namespace fs8 {
 
         /// Set the device on start
         bool operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, [[maybe_unused]] special_event const& tag) noexcept {
-            return operator()(caps_view, special_start);
+            return operator()(caps_view, start);
         }
 
         /// Set the device based on the query on start
@@ -207,7 +207,7 @@ export namespace fs8 {
         template <typename CtxT>
             requires requires(CtxT& ctx) { ctx.mod(fs8::input_manager).devices(); }
         bool operator()(CtxT& ctx, device_query const& inp_query, special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return true;
             }
             if (is_ok()) {
@@ -242,7 +242,7 @@ export namespace fs8 {
         template <std::ranges::range R>
             requires std::convertible_to<std::ranges::range_value_t<R>, evdev>
         bool operator()(R&& devs, special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return true;
             }
             if (is_ok()) {
@@ -268,7 +268,7 @@ export namespace fs8 {
         template <ContextWith<basic_input_manager> CtxT>
         context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
             using enum context_action;
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return drop_event;
             }
             if (is_ok()) {

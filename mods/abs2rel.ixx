@@ -49,7 +49,7 @@ export namespace fs8 {
 
         template <Context CtxT>
         void operator()(CtxT& ctx, special_event const& tag) const noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return;
             }
             if constexpr (has_mod<basic_keys_state, CtxT>) {
@@ -135,7 +135,7 @@ export namespace fs8 {
         }
 
         // template <Context CtxT>
-        // void operator()(CtxT& ctx, start_tag) noexcept {
+        // void operator()(CtxT& ctx, special_event) noexcept {
         //     init(ctx);
         // }
 
@@ -148,7 +148,7 @@ export namespace fs8 {
         /// this fixes flickering of the pen after we switched while the pen (in mouse mode) is still active.
         template <Context CtxT>
         void operator()(CtxT& ctx, special_event const& tag) noexcept {
-            if (tag.code != special_toggle_off.code) {
+            if (tag.code != toggle_off.code) {
                 return;
             }
             if constexpr (has_mod<basic_keys_state, CtxT>) {

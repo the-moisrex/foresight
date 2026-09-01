@@ -470,12 +470,12 @@ export namespace fs8 {
 
     /// Lifecycle event constants. Each uses a unique `code` value; toggle
     /// events encode their state in the `value` field (1 = on, 0 = off).
-    constexpr special_event special_start{.type = special_event_type, .code = 0};
-    constexpr special_event special_no_init{.type = special_event_type, .code = 1};
-    constexpr special_event special_load_event{.type = special_event_type, .code = 2};
-    constexpr special_event special_next_event{.type = special_event_type, .code = 3};
-    constexpr special_event special_toggle_on{.type = special_event_type, .code = 4, .value = 1};
-    constexpr special_event special_toggle_off{.type = special_event_type, .code = 4, .value = 0};
+    constexpr special_event start{.type = special_event_type, .code = 0};
+    constexpr special_event no_init{.type = special_event_type, .code = 1};
+    constexpr special_event load_event{.type = special_event_type, .code = 2};
+    constexpr special_event next_event{.type = special_event_type, .code = 3};
+    constexpr special_event toggle_on{.type = special_event_type, .code = 4, .value = 1};
+    constexpr special_event toggle_off{.type = special_event_type, .code = 4, .value = 0};
 
     /// Check whether a `special_event` matches a given lifecycle code.
     [[nodiscard]] constexpr bool is_special(special_event const& ev, special_event::code_type const code) noexcept {
@@ -487,4 +487,47 @@ export namespace fs8 {
     [[nodiscard]] constexpr bool is_special(event_type const& ev) noexcept {
         return ev.type() == special_event_type;
     }
+
+    /// Hash a `special_event` into a `std::uint32_t` for use in `switch`/`case` and
+    /// comparison.  The hash encodes both `code` and `value` so that `toggle_on`
+    /// and `toggle_off` (which share the same `code`) produce different hashes.
+    [[nodiscard]] constexpr std::uint32_t hashed(special_event const& ev) noexcept {
+        static constexpr std::uint32_t shift  = 6;
+        std::uint32_t                  hash   = 0;
+        hash                                 |= static_cast<std::uint32_t>(ev.code) << shift;
+        hash                                 |= static_cast<std::uint32_t>(ev.value) & 0x3Fu;
+        return hash;
+    }
+
+    /// Convenience: hash from code + value.
+    [[nodiscard]] constexpr std::uint32_t hashed(special_event::code_type const code, special_event::value_type const value = 0) noexcept {
+        return hashed(special_event{.code = code, .value = value});
+    }
+
+    /// Unhash: recover the `code` from a hash produced by `hashed(special_event)`.
+    [[nodiscard]] constexpr special_event::code_type unhashed_special(std::uint32_t const hash) noexcept {
+        static constexpr std::uint32_t shift = 6;
+        return static_cast<special_event::code_type>(hash >> shift);
+    }
+
+    /// `operator+` returns the hash of a `special_event`, enabling
+    /// `switch (tag + start)` patterns.
+    [[nodiscard]] constexpr std::uint32_t operator+(special_event const& ev) noexcept {
+        return hashed(ev);
+    }
+
+    /// Two `special_event`s are equal iff they carry the same `code` and `value`.
+    [[nodiscard]] constexpr bool operator==(special_event const& lhs, special_event const& rhs) noexcept {
+        return lhs.code == rhs.code && lhs.value == rhs.value;
+    }
+
+    /// Check whether an `event_type` matches a `special_event` by code.
+    [[nodiscard]] constexpr bool operator==(event_type const& lhs, special_event const& rhs) noexcept {
+        return lhs.type() == special_event_type && lhs.code() == rhs.code;
+    }
+
+    [[nodiscard]] constexpr bool operator==(special_event const& lhs, event_type const& rhs) noexcept {
+        return rhs == lhs;
+    }
+
 } // namespace fs8

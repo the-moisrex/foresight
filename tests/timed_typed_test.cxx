@@ -37,7 +37,7 @@ namespace {
 
         template <fs8::Context CtxT>
         fs8::context_action operator()(CtxT& ctx, fs8::special_event const& tag) noexcept {
-            if (tag.code != fs8::special_load_event.code) {
+            if (tag.code != fs8::load_event.code) {
                 return fs8::context_action::drop_event;
             }
             if (index == N) {

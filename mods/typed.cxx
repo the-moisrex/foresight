@@ -247,7 +247,7 @@ bool basic_search_engine::matches(std::uint32_t const state, std::uint16_t const
 }
 
 fs8::context_action basic_search_engine::operator()(special_event const &tag) noexcept try {
-    if (tag.code != special_start.code) {
+    if (tag.code != start.code) {
         return fs8::context_action::drop_event;
     }
     if (pimpl.get() == nullptr) [[unlikely]] {

@@ -177,22 +177,6 @@ export namespace fs8 {
     template <typename T>
     concept PipelineTag = std::same_as<std::remove_cvref_t<T>, special_event>;
 
-    /// Legacy tag type aliases — all resolve to `special_event`.
-    using no_init_tag    = special_event;
-    using start_tag      = special_event;
-    using toggle_on_tag  = special_event;
-    using toggle_off_tag = special_event;
-    using next_event_tag = special_event;
-    using load_event_tag = special_event;
-
-    /// Legacy tag constant aliases — all resolve to `special_event` values.
-    constexpr auto &no_init    = special_no_init;
-    constexpr auto &start      = special_start;
-    constexpr auto &toggle_on  = special_toggle_on;
-    constexpr auto &toggle_off = special_toggle_off;
-    constexpr auto &next_event = special_next_event;
-    constexpr auto &load_event = special_load_event;
-
     template <typename ModT, typename... Args>
     context_action invoke_mod_inorder(ModT &mod, context_action const default_action, Args &&...args) noexcept {
         using enum context_action;
@@ -313,7 +297,7 @@ export namespace fs8 {
 
     /// RAII guard that saves and restores a std::size_t value (e.g. fork_index).
     struct [[nodiscard]] fork_index_guard {
-        explicit fork_index_guard(std::size_t &idx, std::size_t new_val) noexcept : target_(idx), saved_(idx) {
+        explicit fork_index_guard(std::size_t &idx, std::size_t const new_val) noexcept : target_(idx), saved_(idx) {
             target_ = new_val;
         }
 
@@ -968,13 +952,13 @@ export namespace fs8 {
 
         context_action operator()(special_event const &tag) noexcept {
             switch (tag.code) {
-                case special_start.code:      // start
+                case start.code:      // start
                     return start_mods();
-                case special_no_init.code:    // no_init
+                case no_init.code:    // no_init
                     return run_loop();
-                case special_load_event.code: // load_event
-                case special_next_event.code: // next_event
-                case special_toggle_on.code:  // toggle_on / toggle_off (distinguished by value)
+                case load_event.code: // load_event
+                case next_event.code: // next_event
+                case toggle_on.code:  // toggle_on / toggle_off (distinguished by value)
                     // Forward to the mods directly.
                     return invoke_mods(*this, mods_, tag);
                 default: return context_action::next;
@@ -984,7 +968,7 @@ export namespace fs8 {
         /// Start the pipeline for the first time or after idle.
         /// Returns true if start succeeded.
         [[nodiscard]] bool start_pipeline() noexcept {
-            auto const action = operator()(special_start);
+            auto const action = operator()(start);
             return action != context_action::exit;
         }
 
@@ -1018,7 +1002,7 @@ export namespace fs8 {
       private:
         context_action start_mods() noexcept try {
             dynamic_scope scope{dynamic_context, *this};
-            return invoke_mods(*this, mods_, special_start);
+            return invoke_mods(*this, mods_, start);
         } catch (...) {
             return context_action::exit;
         }
@@ -1031,7 +1015,7 @@ export namespace fs8 {
                           "At least one of the mods are not callable");
             for (;;) {
                 // Try next_event providers (non-blocking event pull).
-                switch (auto const provider = invoke_first_mod_of(*this, mods_, special_next_event)) {
+                switch (auto const provider = invoke_first_mod_of(*this, mods_, next_event)) {
                     case next:
                         if (!handle_action(invoke_mods(*this, mods_))) {
                             return {};
@@ -1049,7 +1033,7 @@ export namespace fs8 {
                 }
                 // next_event exhausted -> block in load_event (pure wait; it does
                 // NOT load an event). After it wakes, loop back to next_event.
-                switch (auto const load_result = invoke_mods(*this, mods_, special_load_event)) {
+                switch (auto const load_result = invoke_mods(*this, mods_, load_event)) {
                     case next:
                         // Event was loaded — process it through the pipeline.
                         if (!handle_action(invoke_mods(*this, mods_))) {

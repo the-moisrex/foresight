@@ -237,7 +237,7 @@ namespace fs8 {
         template <Context CtxT>
         context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
             using enum context_action;
-            if (tag.code != special_load_event.code) {
+            if (tag.code != load_event.code) {
                 return drop_event;
             }
             if (index == N) [[unlikely]] {

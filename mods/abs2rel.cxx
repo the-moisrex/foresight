@@ -153,7 +153,7 @@ void basic_abs2rel::init(evdev const& dev, float const scale) noexcept {
 }
 
 void basic_abs2rel::operator()(special_event const& tag) noexcept {
-    if (tag.code != special_start.code) {
+    if (tag.code != start.code) {
         return;
     }
     last_abs_x |= x_init_state;

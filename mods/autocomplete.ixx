@@ -84,7 +84,7 @@ namespace fs8 {
 
         /// Initialize the keyboard state and parse the pattern.
         context_action operator()([[maybe_unused]] Context auto& ctx, special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return context_action::drop_event;
             }
             keyboard_state.initialize(xkb::get_default_keymap());

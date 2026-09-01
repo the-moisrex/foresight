@@ -119,7 +119,7 @@ context_action fs8::basic_drop_caps::operator()(event_type const& event) const n
 }
 
 void fs8::basic_drop_start_moves::operator()(special_event const& tag) noexcept {
-    if (tag.code == special_toggle_on.code && tag.value == 1) {
+    if (tag.code == toggle_on.code && tag.value == 1) {
         emitted_count = 0;
     }
 }

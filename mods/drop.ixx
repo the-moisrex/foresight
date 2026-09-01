@@ -332,7 +332,7 @@ export namespace fs8 {
 
       public:
         constexpr void operator()(special_event const& tag) noexcept {
-            if (tag.code == special_start.code) {
+            if (tag.code == start.code) {
                 pressed = {};
             }
         }
@@ -372,7 +372,7 @@ export namespace fs8 {
 
     /// Ignore pen ABS values that fall outside the device-reported bounds.
     ///
-    /// Pen bounds are seeded from `input_manager` on `start_tag`.  Only
+    /// Pen bounds are seeded from `input_manager` on `special_event`.  Only
     /// `ABS_X` and `ABS_Y` events are checked.
     constexpr struct [[nodiscard]] basic_drop_pen_out_of_bounds : consteval_copyable {
         using consteval_copyable::consteval_copyable;
@@ -399,7 +399,7 @@ export namespace fs8 {
         template <typename CtxT>
             requires has_mod<basic_input_manager, CtxT>
         context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return context_action::drop_event;
             }
             for (auto const& dev : ctx.mod(input_manager).devices()) {
@@ -427,7 +427,7 @@ export namespace fs8 {
 
       public:
         constexpr void operator()(special_event const& tag) noexcept {
-            if (tag.code == special_start.code) {
+            if (tag.code == start.code) {
                 tool_active = false;
             }
         }

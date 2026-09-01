@@ -90,7 +90,7 @@ export namespace fs8 {
         template <ContextWith<basic_input_manager> CtxT>
         context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
             using enum context_action;
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return drop_event;
             }
             ctx.mod(input_manager)
@@ -156,7 +156,7 @@ export namespace fs8 {
         /// Must run after the devices are open (i.e. after `input_manager`).
         template <ContextWith<basic_input_manager> CtxT>
         context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
-            if (tag.code != special_start.code) {
+            if (tag.code != start.code) {
                 return context_action::drop_event;
             }
             return seed(ctx);
