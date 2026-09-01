@@ -9,9 +9,7 @@ module;
 #include <thread>
 #include <vector>
 module fs8.keyboard;
-import fs8.translate;
 import fs8.log;
-import fs8.pimpl;
 
 using fs8::keyboard_runner;
 

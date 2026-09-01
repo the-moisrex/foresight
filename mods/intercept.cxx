@@ -12,11 +12,7 @@ module;
 #include <sys/poll.h>
 #include <utility>
 module fs8.mods;
-import fs8.devices.evdev;
-import fs8.context;
 import fs8.log;
-import :io_manager;
-import :input_manager;
 
 using fs8::basic_interceptor;
 using fs8::context_action;

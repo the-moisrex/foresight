@@ -1,11 +1,8 @@
 // Created by moisrex on 8/21/26.
 
 module;
-#include <linux/input-event-codes.h>
 #include <string>
 module fs8.mods;
-
-import fs8.event;
 
 namespace fs8 {
 

@@ -3,7 +3,6 @@ module;
 #include <cstdint>
 #include <linux/input-event-codes.h>
 module fs8.mods;
-import fs8.pimpl;
 
 using fs8::basic_kalman_filter;
 using fs8::basic_lerp;

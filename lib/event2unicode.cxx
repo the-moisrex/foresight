@@ -7,8 +7,6 @@ module;
 #include <string>
 #include <xkbcommon/xkbcommon.h>
 module fs8.lib.xkb.event2unicode;
-import fs8.event;
-import fs8.lib.xkb;
 
 namespace {
     constexpr int           evdev_offset      = 8;

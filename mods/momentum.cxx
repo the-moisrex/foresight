@@ -9,7 +9,6 @@ module;
 #include <linux/input-event-codes.h>
 #include <span>
 module fs8.mods;
-import fs8.event;
 
 using fs8::basic_momentum_base;
 using fs8::basic_momentum_scroll;

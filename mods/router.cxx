@@ -8,8 +8,6 @@ module;
 #include <linux/input-event-codes.h>
 #include <linux/uinput.h>
 module fs8.mods;
-import fs8.nullable_indirect;
-import fs8.devices.queries;
 import fs8.devices.capabilities;
 
 namespace fs8::detail {

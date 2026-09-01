@@ -7,7 +7,6 @@ module;
 #include <string_view>
 #include <system_error>
 module fs8.lib.evtest;
-import fs8.event;
 
 using fs8::parsed_evtest_event;
 using fs8::user_event;

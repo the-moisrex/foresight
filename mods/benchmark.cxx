@@ -3,7 +3,6 @@
 module;
 #include <chrono>
 module fs8.mods;
-import fs8.pimpl;
 
 using fs8::basic_benchmark_counter;
 using fs8::benchmark_stats;

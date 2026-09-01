@@ -22,7 +22,6 @@ module;
 #include <utility>
 #include <vector>
 module fs8.devices.evdev;
-import fs8.devices.capabilities;
 import fs8.log;
 
 using fs8::evdev;

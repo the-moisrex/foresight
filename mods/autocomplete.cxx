@@ -7,7 +7,6 @@ module;
 #include <string>
 #include <string_view>
 module fs8.mods;
-import fs8.lib.mod_parser;
 import fs8.log;
 
 namespace {

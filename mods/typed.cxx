@@ -5,7 +5,6 @@ module;
 #include <chrono>
 #include <climits>
 #include <cstdint>
-#include <cstring>
 #include <functional>
 #include <linux/input-event-codes.h>
 #include <queue>
@@ -16,8 +15,6 @@ module;
 module fs8.mods;
 import fs8.lib.xkb.how2type;
 import fs8.event;
-import fs8.lib.mod_parser;
-import fs8.pimpl;
 
 using fs8::basic_search_engine;
 using fs8::basic_typed;

@@ -14,11 +14,7 @@ module;
 #include <utility>
 #include <vector>
 module fs8.mods;
-import fs8.devices.evdev;
 import fs8.devices.udev;
-import fs8.devices.queries;
-import :io_manager;
-import fs8.context;
 import fs8.log;
 import fs8.hash;
 

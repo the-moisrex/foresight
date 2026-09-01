@@ -12,7 +12,6 @@ module;
 #include <string>
 #include <utility>
 module fs8.devices.queries;
-import fs8.devices.capabilities;
 
 namespace {
 

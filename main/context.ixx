@@ -11,7 +11,6 @@ module;
 export module fs8.context;
 export import fs8.event;
 export import :vars;
-import fs8.event;
 import fs8.log;
 import fs8.traits;
 import dynamic_scoping;
@@ -899,9 +898,9 @@ export namespace fs8 {
         context_action fork_emit(event_type::type_type const  inp_type,
                                  event_type::code_type const  inp_code,
                                  event_type::value_type const inp_val) noexcept {
-            auto ev = event();
-            ev.set(inp_type, inp_code, inp_val);
-            return fork_emit(ev);
+            auto cur_rv = event();
+            cur_rv.set(inp_type, inp_code, inp_val);
+            return fork_emit(cur_rv);
         }
 
         /// Enter a sub-pipeline: push a new fork frame for the given sub-mods tuple.

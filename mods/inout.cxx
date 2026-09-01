@@ -10,9 +10,6 @@ module;
 #include <string_view>
 #include <unistd.h>
 module fs8.mods;
-import fs8.event;
-import fs8.context;
-import fs8.lib.evtest;
 
 using fs8::context_action;
 using fs8::event_type;

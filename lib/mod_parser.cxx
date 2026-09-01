@@ -11,7 +11,6 @@ module;
 #include <ranges>
 #include <stdexcept>
 module fs8.lib.mod_parser;
-import fs8.event;
 import fs8.devices.key_codes;
 import fs8.hash;
 import fs8.lib.xkb.event2unicode;

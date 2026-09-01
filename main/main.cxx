@@ -17,15 +17,10 @@
 #include <unistd.h>
 #include <vector>
 import fs8;
-import fs8.mods;
-import fs8.devices.evdev;
 import fs8.devices.udev;
-import fs8.devices.queries;
-import fs8.context;
 import fs8.lib.evtest;
 import fs8.lib.xkb.how2type;
 import fs8.lib.xkb;
-import fs8.utils;
 import fs8.systemd;
 import fs8.scaffold;
 

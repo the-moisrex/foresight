@@ -17,13 +17,6 @@ module;
 #include <system_error>
 #include <unistd.h>
 module fs8.mods;
-import fs8.event;
-import fs8.log;
-import fs8.context;
-import fs8.devices.queries;
-import fs8.devices.udev;
-import :input_manager;
-import fs8.pimpl;
 
 using fs8::basic_uinput;
 using fs8::uinput_access_result;
