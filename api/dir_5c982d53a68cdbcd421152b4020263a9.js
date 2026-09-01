@@ -1,7 +1,6 @@
 var dir_5c982d53a68cdbcd421152b4020263a9 =
 [
     [ "cli.ixx", "cli_8ixx.html", "cli_8ixx" ],
-    [ "context.cxx", "context_8cxx.html", null ],
     [ "context.ixx", "context_8ixx.html", "context_8ixx" ],
     [ "event.cxx", "event_8cxx.html", null ],
     [ "event.ixx", "event_8ixx.html", "event_8ixx" ],

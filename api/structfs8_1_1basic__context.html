@@ -165,7 +165,7 @@ requires ((std::same_as&lt;<a class="el" href="structfs8_1_1basic__context.html#
 <tr class="memitem:a5e1c2ce7bb3eb1a7b41b0739e7adf7be"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a5e1c2ce7bb3eb1a7b41b0739e7adf7be">operator|</a> (Mod &amp;&amp;inp_mod) const noexcept</td></tr>
 <tr class="separator:a5e1c2ce7bb3eb1a7b41b0739e7adf7be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a690692fe204289415a955461f6ae197a" id="r_a690692fe204289415a955461f6ae197a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a690692fe204289415a955461f6ae197a">fork_emit</a> () noexcept</td></tr>
-<tr class="memdesc:a690692fe204289415a955461f6ae197a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the remaining mods from the current fork stack frame, then delegate to the parent frame.  <br /></td></tr>
+<tr class="memdesc:a690692fe204289415a955461f6ae197a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the remaining mods from each fork stack frame, walking up to the root.  <br /></td></tr>
 <tr class="separator:a690692fe204289415a955461f6ae197a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aceefbca2bbc7295fbc9692a66eabe2f8" id="r_aceefbca2bbc7295fbc9692a66eabe2f8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#aceefbca2bbc7295fbc9692a66eabe2f8">fork_emit</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;inp_event) noexcept</td></tr>
 <tr class="separator:aceefbca2bbc7295fbc9692a66eabe2f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -207,11 +207,11 @@ requires ((std::same_as&lt;<a class="el" href="structfs8_1_1basic__context.html#
 <tr class="memitem:a86cb29b43266d22bd69b016349a2c221" id="r_a86cb29b43266d22bd69b016349a2c221"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a86cb29b43266d22bd69b016349a2c221">operator()</a> (Context auto &amp;ctx, <a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
 <tr class="memdesc:a86cb29b43266d22bd69b016349a2c221"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pass-through a <a class="el" href="structfs8_1_1special__event.html">special_event</a> to the mods.  <br /></td></tr>
 <tr class="separator:a86cb29b43266d22bd69b016349a2c221"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ab31e9cd171d2a5d07a0c623b64a732" id="r_a3ab31e9cd171d2a5d07a0c623b64a732"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; <br />
+<tr class="memitem:ab8a0a28ff8e452f36ba69474268bd528" id="r_ab8a0a28ff8e452f36ba69474268bd528"><td class="memTemplParams" colspan="2">template&lt;Context CtxT, typename... Args&gt; <br />
 requires (sizeof...(Args) &gt;= 2)</td></tr>
-<tr class="memitem:a3ab31e9cd171d2a5d07a0c623b64a732"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a3ab31e9cd171d2a5d07a0c623b64a732">operator()</a> (Context auto &amp;ctx, Args const &amp;...args) noexcept</td></tr>
-<tr class="memdesc:a3ab31e9cd171d2a5d07a0c623b64a732"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pass-through with extra arguments (e.g. a device_query pushed by the router on start).  <br /></td></tr>
-<tr class="separator:a3ab31e9cd171d2a5d07a0c623b64a732"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8a0a28ff8e452f36ba69474268bd528"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#ab8a0a28ff8e452f36ba69474268bd528">operator()</a> (CtxT &amp;ctx, Args const &amp;...args) noexcept</td></tr>
+<tr class="memdesc:ab8a0a28ff8e452f36ba69474268bd528"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pass-through with extra arguments (e.g. a device_query pushed by the router on start).  <br /></td></tr>
+<tr class="separator:ab8a0a28ff8e452f36ba69474268bd528"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
 <tr class="separator:aab9e941457bd45b9d6772f6ff421cec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;) noexcept</td></tr>
@@ -645,7 +645,7 @@ template&lt;Modifier... Funcs&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Run the remaining mods from the current fork stack frame, then delegate to the parent frame. </p>
+<p>Run the remaining mods from each fork stack frame, walking up to the root. </p>
 
 </div>
 </div>
@@ -994,55 +994,12 @@ template&lt;Modifier... Funcs&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Pass-through: invoke our mods as a sub-pipeline so that <a class="el" href="structfs8_1_1basic__context.html#a690692fe204289415a955461f6ae197a" title="Run the remaining mods from the current fork stack frame, then delegate to the parent frame.">fork_emit()</a> from within a child sees the correct frame (our mods tuple + index) and then falls through to the parent frame. </p>
-
-</div>
-</div>
-<a id="a3ab31e9cd171d2a5d07a0c623b64a732" name="a3ab31e9cd171d2a5d07a0c623b64a732"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3ab31e9cd171d2a5d07a0c623b64a732">&#9670;&#160;</a></span>operator()() <span class="overload">[3/5]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;Modifier... Funcs&gt; </div>
-<div class="memtemplate">
-template&lt;typename... Args&gt; <br />
-requires (sizeof...(Args) &gt;= 2)</div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::operator() </td>
-          <td>(</td>
-          <td class="paramtype">Context auto &amp;&#160;</td>
-          <td class="paramname"><em>ctx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Args const &amp;...&#160;</td>
-          <td class="paramname"><em>args</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Pass-through with extra arguments (e.g. a device_query pushed by the router on start). </p>
+<p>Pass-through: invoke our mods as a sub-pipeline so that <a class="el" href="structfs8_1_1basic__context.html#a690692fe204289415a955461f6ae197a" title="Run the remaining mods from each fork stack frame, walking up to the root.">fork_emit()</a> from within a child sees the correct frame (our mods tuple + index) and then falls through to the parent frame. </p>
 
 </div>
 </div>
 <a id="a86cb29b43266d22bd69b016349a2c221" name="a86cb29b43266d22bd69b016349a2c221"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a86cb29b43266d22bd69b016349a2c221">&#9670;&#160;</a></span>operator()() <span class="overload">[4/5]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a86cb29b43266d22bd69b016349a2c221">&#9670;&#160;</a></span>operator()() <span class="overload">[3/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1078,6 +1035,49 @@ template&lt;Modifier... Funcs&gt; </div>
 </div><div class="memdoc">
 
 <p>Pass-through a <a class="el" href="structfs8_1_1special__event.html">special_event</a> to the mods. </p>
+
+</div>
+</div>
+<a id="ab8a0a28ff8e452f36ba69474268bd528" name="ab8a0a28ff8e452f36ba69474268bd528"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab8a0a28ff8e452f36ba69474268bd528">&#9670;&#160;</a></span>operator()() <span class="overload">[4/5]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Modifier... Funcs&gt; </div>
+<div class="memtemplate">
+template&lt;Context CtxT, typename... Args&gt; <br />
+requires (sizeof...(Args) &gt;= 2)</div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::operator() </td>
+          <td>(</td>
+          <td class="paramtype">CtxT &amp;&#160;</td>
+          <td class="paramname"><em>ctx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Args const &amp;...&#160;</td>
+          <td class="paramname"><em>args</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Pass-through with extra arguments (e.g. a device_query pushed by the router on start). </p>
 
 </div>
 </div>

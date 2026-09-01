@@ -198,6 +198,7 @@ var hierarchy =
     [ "fs8::exe_hash_solution", "structfs8_1_1exe__hash__solution.html", null ],
     [ "fs8::fail_on_no_match_tag", "structfs8_1_1fail__on__no__match__tag.html", null ],
     [ "fs8::basic_context< Funcs >::fork_frame", "structfs8_1_1basic__context_1_1fork__frame.html", null ],
+    [ "fs8::fork_index_guard", "structfs8_1_1fork__index__guard.html", null ],
     [ "fs8::get_variables_tag", "structfs8_1_1get__variables__tag.html", null ],
     [ "fs8::global_binding< T, ID >", "structfs8_1_1global__binding.html", null ],
     [ "fs8::grab_tag", "structfs8_1_1grab__tag.html", null ],
@@ -313,6 +314,7 @@ var hierarchy =
     [ "fs8::basic_kalman_filter::smoothed", "structfs8_1_1basic__kalman__filter_1_1smoothed.html", null ],
     [ "fs8::basic_low_pass_filter::smoothed", "structfs8_1_1basic__low__pass__filter_1_1smoothed.html", null ],
     [ "fs8::special_event", "structfs8_1_1special__event.html", null ],
+    [ "fs8::sub_pipeline_guard< CtxT, SubFuncs >", "structfs8_1_1sub__pipeline__guard.html", null ],
     [ "fs8::template_file", "structfs8_1_1template__file.html", null ],
     [ "fs8::thread_binding< T, ID >", "structfs8_1_1thread__binding.html", null ],
     [ "fs8::thread_binding< any_dynamic_context >", "structfs8_1_1thread__binding.html", [

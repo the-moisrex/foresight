@@ -9,6 +9,8 @@ var context_8ixx =
     [ "fs8::mod_of_t< TT< T... >, TT< U... >, Funcs... >", "structfs8_1_1mod__of__t_3_01TT_3_01T_8_8_8_01_4_00_01TT_3_01U_8_8_8_01_4_00_01Funcs_8_8_8_01_4.html", "structfs8_1_1mod__of__t_3_01TT_3_01T_8_8_8_01_4_00_01TT_3_01U_8_8_8_01_4_00_01Funcs_8_8_8_01_4" ],
     [ "fs8::context_with_impl<>", "structfs8_1_1context__with__impl_3_4.html", "structfs8_1_1context__with__impl_3_4" ],
     [ "fs8::context_with_impl< CtxT, Mods... >", "structfs8_1_1context__with__impl_3_01CtxT_00_01Mods_8_8_8_01_4.html", "structfs8_1_1context__with__impl_3_01CtxT_00_01Mods_8_8_8_01_4" ],
+    [ "fs8::fork_index_guard", "structfs8_1_1fork__index__guard.html", "structfs8_1_1fork__index__guard" ],
+    [ "fs8::sub_pipeline_guard< CtxT, SubFuncs >", "structfs8_1_1sub__pipeline__guard.html", "structfs8_1_1sub__pipeline__guard" ],
     [ "fs8::type_id_t< T >", "structfs8_1_1type__id__t.html", null ],
     [ "fs8::any_dynamic_context", "structfs8_1_1any__dynamic__context.html", "structfs8_1_1any__dynamic__context" ],
     [ "fs8::any_dynamic_context_model< CtxT >", "structfs8_1_1any__dynamic__context__model.html", "structfs8_1_1any__dynamic__context__model" ],
