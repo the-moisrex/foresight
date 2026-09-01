@@ -9,6 +9,7 @@ var annotated_dup =
     ] ],
     [ "fs8", "namespacefs8.html", [
       [ "detail", "namespacefs8_1_1detail.html", [
+        [ "modes_caller_info", "structfs8_1_1detail_1_1modes__caller__info.html", "structfs8_1_1detail_1_1modes__caller__info" ],
         [ "router_state", "structfs8_1_1detail_1_1router__state.html", "structfs8_1_1detail_1_1router__state" ]
       ] ],
       [ "xkb", "namespacefs8_1_1xkb.html", [
@@ -39,7 +40,6 @@ var annotated_dup =
       [ "basic_benchmark_result_factory", "structfs8_1_1basic__benchmark__result__factory.html", "structfs8_1_1basic__benchmark__result__factory" ],
       [ "basic_code_adaptor", "structfs8_1_1basic__code__adaptor.html", "structfs8_1_1basic__code__adaptor" ],
       [ "basic_context", "structfs8_1_1basic__context.html", "structfs8_1_1basic__context" ],
-      [ "basic_context_view", "structfs8_1_1basic__context__view.html", "structfs8_1_1basic__context__view" ],
       [ "basic_debounce", "structfs8_1_1basic__debounce.html", "structfs8_1_1basic__debounce" ],
       [ "basic_device_id_of", "structfs8_1_1basic__device__id__of.html", "structfs8_1_1basic__device__id__of" ],
       [ "basic_device_is", "structfs8_1_1basic__device__is.html", "structfs8_1_1basic__device__is" ],

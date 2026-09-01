@@ -84,7 +84,6 @@ var namespacefs8 =
     [ "basic_benchmark_result_factory", "structfs8_1_1basic__benchmark__result__factory.html", "structfs8_1_1basic__benchmark__result__factory" ],
     [ "basic_code_adaptor", "structfs8_1_1basic__code__adaptor.html", "structfs8_1_1basic__code__adaptor" ],
     [ "basic_context", "structfs8_1_1basic__context.html", "structfs8_1_1basic__context" ],
-    [ "basic_context_view", "structfs8_1_1basic__context__view.html", "structfs8_1_1basic__context__view" ],
     [ "basic_debounce", "structfs8_1_1basic__debounce.html", "structfs8_1_1basic__debounce" ],
     [ "basic_device_id_of", "structfs8_1_1basic__device__id__of.html", "structfs8_1_1basic__device__id__of" ],
     [ "basic_device_is", "structfs8_1_1basic__device__is.html", "structfs8_1_1basic__device__is" ],

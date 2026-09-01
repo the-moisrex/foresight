@@ -15,7 +15,7 @@ var context_8ixx =
     [ "fs8::basic_dynamic_context_view< NIndex >", "structfs8_1_1basic__dynamic__context__view.html", "structfs8_1_1basic__dynamic__context__view" ],
     [ "fs8::basic_dynamic_context", "structfs8_1_1basic__dynamic__context.html", "structfs8_1_1basic__dynamic__context" ],
     [ "fs8::basic_context< Funcs >", "structfs8_1_1basic__context.html", "structfs8_1_1basic__context" ],
-    [ "fs8::basic_context_view< ParentT, SubFuncs >", "structfs8_1_1basic__context__view.html", "structfs8_1_1basic__context__view" ],
+    [ "fs8::basic_context< Funcs >::fork_frame", "structfs8_1_1basic__context_1_1fork__frame.html", "structfs8_1_1basic__context_1_1fork__frame" ],
     [ "fs8::Context", "conceptfs8_1_1Context.html", null ],
     [ "fs8::Modifier", "conceptfs8_1_1Modifier.html", null ],
     [ "fs8::OutputModifier", "conceptfs8_1_1OutputModifier.html", null ],

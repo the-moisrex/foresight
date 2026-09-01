@@ -1,6 +1,8 @@
 var namespacefs8_1_1detail =
 [
+    [ "modes_caller_info", "structfs8_1_1detail_1_1modes__caller__info.html", "structfs8_1_1detail_1_1modes__caller__info" ],
     [ "router_state", "structfs8_1_1detail_1_1router__state.html", "structfs8_1_1detail_1_1router__state" ],
+    [ "current_modes_caller", "namespacefs8_1_1detail.html#a9779fd07e2605ff2061f92ffba7f8b6c", null ],
     [ "emplace_at", "namespacefs8_1_1detail.html#a7e201052ae8adf7ad05ef9141eb9cb54", null ],
     [ "router_hash", "namespacefs8_1_1detail.html#a1d7fee2af746b7353fa247fde9ac81af", null ],
     [ "router_lookup", "namespacefs8_1_1detail.html#a52b6e0204fa095b01ef694f611f04c37", null ],

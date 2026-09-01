@@ -15,7 +15,6 @@ var hierarchy =
     [ "fs8::basic_auto_mode_tag", "structfs8_1_1basic__auto__mode__tag.html", null ],
     [ "fs8::basic_benchmark_factory", "structfs8_1_1basic__benchmark__factory.html", null ],
     [ "fs8::basic_benchmark_result_factory", "structfs8_1_1basic__benchmark__result__factory.html", null ],
-    [ "fs8::basic_context_view< ParentT, SubFuncs >", "structfs8_1_1basic__context__view.html", null ],
     [ "fs8::basic_device_id_of", "structfs8_1_1basic__device__id__of.html", null ],
     [ "fs8::basic_device_is", "structfs8_1_1basic__device__is.html", null ],
     [ "fs8::basic_device_query< N >", "structfs8_1_1basic__device__query.html", null ],
@@ -198,6 +197,7 @@ var hierarchy =
     [ "fs8::event_type", "structfs8_1_1event__type.html", null ],
     [ "fs8::exe_hash_solution", "structfs8_1_1exe__hash__solution.html", null ],
     [ "fs8::fail_on_no_match_tag", "structfs8_1_1fail__on__no__match__tag.html", null ],
+    [ "fs8::basic_context< Funcs >::fork_frame", "structfs8_1_1basic__context_1_1fork__frame.html", null ],
     [ "fs8::get_variables_tag", "structfs8_1_1get__variables__tag.html", null ],
     [ "fs8::global_binding< T, ID >", "structfs8_1_1global__binding.html", null ],
     [ "fs8::grab_tag", "structfs8_1_1grab__tag.html", null ],
@@ -225,6 +225,7 @@ var hierarchy =
       [ "fs8::mod_of_t< ModConcept, Func, Funcs... >", "structfs8_1_1mod__of__t_3_01ModConcept_00_01Func_00_01Funcs_8_8_8_01_4.html", null ]
     ] ],
     [ "fs8::mod_of_t< TT< T... >, TT< U... >, Funcs... >", "structfs8_1_1mod__of__t_3_01TT_3_01T_8_8_8_01_4_00_01TT_3_01U_8_8_8_01_4_00_01Funcs_8_8_8_01_4.html", null ],
+    [ "fs8::detail::modes_caller_info", "structfs8_1_1detail_1_1modes__caller__info.html", null ],
     [ "fs8::momentum_calculator", "structfs8_1_1momentum__calculator.html", null ],
     [ "fs8::momentum_config", "structfs8_1_1momentum__config.html", null ],
     [ "fs8::mouse_accum", "structfs8_1_1mouse__accum.html", null ],
