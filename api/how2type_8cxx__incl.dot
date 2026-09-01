@@ -68,9 +68,8 @@ digraph "lib/how2type.cxx"
   Node29 [id="Node000029",label="fs8.hash",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$hash_8ixx.html",tooltip=" "];
   Node29 -> Node17 [id="edge34_Node000029_Node000017",color="steelblue1",style="solid",tooltip=" "];
   Node29 -> Node21 [id="edge35_Node000029_Node000021",color="steelblue1",style="solid",tooltip=" "];
-  Node1 -> Node24 [id="edge36_Node000001_Node000024",color="steelblue1",style="solid",tooltip=" "];
-  Node1 -> Node30 [id="edge37_Node000001_Node000030",color="steelblue1",style="solid",tooltip=" "];
+  Node1 -> Node30 [id="edge36_Node000001_Node000030",color="steelblue1",style="solid",tooltip=" "];
   Node30 [id="Node000030",label="fs8.log",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$log_8ixx.html",tooltip=" "];
-  Node30 -> Node8 [id="edge38_Node000030_Node000008",color="steelblue1",style="solid",tooltip=" "];
-  Node30 -> Node24 [id="edge39_Node000030_Node000024",color="steelblue1",style="solid",tooltip=" "];
+  Node30 -> Node8 [id="edge37_Node000030_Node000008",color="steelblue1",style="solid",tooltip=" "];
+  Node30 -> Node24 [id="edge38_Node000030_Node000024",color="steelblue1",style="solid",tooltip=" "];
 }

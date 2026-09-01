@@ -37,23 +37,4 @@ digraph "mods/autocomplete.cxx"
   Node15 [id="Node000015",label="fs8.hash",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$hash_8ixx.html",tooltip=" "];
   Node15 -> Node2 [id="edge17_Node000015_Node000002",color="steelblue1",style="solid",tooltip=" "];
   Node15 -> Node6 [id="edge18_Node000015_Node000006",color="steelblue1",style="solid",tooltip=" "];
-  Node1 -> Node16 [id="edge19_Node000001_Node000016",color="steelblue1",style="solid",tooltip=" "];
-  Node16 [id="Node000016",label="fs8.lib.mod_parser",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$mod__parser_8ixx.html",tooltip=" "];
-  Node16 -> Node17 [id="edge20_Node000016_Node000017",color="steelblue1",style="solid",tooltip=" "];
-  Node17 [id="Node000017",label="array",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
-  Node16 -> Node2 [id="edge21_Node000016_Node000002",color="steelblue1",style="solid",tooltip=" "];
-  Node16 -> Node3 [id="edge22_Node000016_Node000003",color="steelblue1",style="solid",tooltip=" "];
-  Node16 -> Node4 [id="edge23_Node000016_Node000004",color="steelblue1",style="solid",tooltip=" "];
-  Node16 -> Node18 [id="edge24_Node000016_Node000018",color="steelblue1",style="solid",tooltip=" "];
-  Node18 [id="Node000018",label="span",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
-  Node16 -> Node6 [id="edge25_Node000016_Node000006",color="steelblue1",style="solid",tooltip=" "];
-  Node16 -> Node19 [id="edge26_Node000016_Node000019",color="steelblue1",style="solid",tooltip=" "];
-  Node19 [id="Node000019",label="fs8.lib.xkb",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$xkb_8ixx.html",tooltip=" "];
-  Node19 -> Node20 [id="edge27_Node000019_Node000020",color="steelblue1",style="solid",tooltip=" "];
-  Node20 [id="Node000020",label="memory",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
-  Node19 -> Node21 [id="edge28_Node000019_Node000021",color="steelblue1",style="solid",tooltip=" "];
-  Node21 [id="Node000021",label="stdexcept",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
-  Node19 -> Node22 [id="edge29_Node000019_Node000022",color="steelblue1",style="solid",tooltip=" "];
-  Node22 [id="Node000022",label="xkbcommon/xkbcommon.h",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
-  Node16 -> Node9 [id="edge30_Node000016_Node000009",color="steelblue1",style="solid",tooltip=" "];
 }
