@@ -237,7 +237,7 @@ namespace fs8 {
             using enum context_action;
             auto const& event = ctx.event();
 
-            if (mod_id(event.source()) == mod_id_of<basic_scheduler>()) {
+            if (sid(event.source()) == sid(scheduler)) {
                 return next;
             }
 

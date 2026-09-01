@@ -1230,7 +1230,7 @@ fs8::context_action fs8::basic_from_live_view<Format>::operator()(event_type& ev
                 if (format.parse(line_buffer, parsed)) {
                     line_buffer.clear();
                     event = event_type{parsed.event};
-                    event.source(make_source_id(mod_id_of<basic_from_input>(), 0));
+                    event.source(sid(from_input));
                     return next;
                 }
                 line_buffer.clear();
@@ -1249,7 +1249,7 @@ fs8::context_action fs8::basic_from_live_view<Format>::operator()(event_type& ev
             if (format.parse(line, parsed)) {
                 line_buffer.erase(0, nl + 1);
                 event = event_type{parsed.event};
-                event.source(make_source_id(mod_id_of<basic_from_input>(), 0));
+                event.source(sid(from_input));
                 return next;
             }
             line_buffer.erase(0, nl + 1);

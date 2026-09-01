@@ -41,7 +41,7 @@ context_action fs8::basic_from_input::operator()(event_type& event, special_even
     if (res != sizeof(input_event)) [[unlikely]] {
         return drop_event;
     }
-    event.source(make_source_id(mod_id_of<basic_from_input>(), 0));
+    event.source(sid(from_input));
     return next;
 }
 

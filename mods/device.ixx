@@ -20,19 +20,14 @@ export namespace fs8 {
     constexpr struct [[nodiscard]] basic_from_device {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
             auto const src = event.source();
-            return src
-                   != source_id_none
-                   && src
-                   != make_source_id(mod_id_of<basic_from_input>(), 0)
-                   && src
-                   != make_source_id(mod_id_of<basic_scheduler>(), 0);
+            return src != source_id_none && src != sid(from_input) && src != sid(scheduler);
         }
     } from_device;
 
     /// True when the event was read from stdin (redirect mode).
     constexpr struct [[nodiscard]] basic_from_stdin {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return event.source() == make_source_id(mod_id_of<basic_from_input>(), 0);
+            return event.source() == sid(from_input);
         }
     } from_stdin;
 

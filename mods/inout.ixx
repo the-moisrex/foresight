@@ -110,7 +110,7 @@ export namespace fs8 {
                 if (format.parse(line, parsed)) {
                     line_buffer.erase(0, newline + 1);
                     event = event_type{parsed.event};
-                    event.source(make_source_id(mod_id_of<basic_from_input>(), 0));
+                    event.source(sid(from_input));
                     return next;
                 }
                 // Not an event line (header / junk) — skip it and try the next.
@@ -132,7 +132,7 @@ export namespace fs8 {
                         if (format.parse(line_buffer, parsed)) {
                             line_buffer.clear();
                             event = event_type{parsed.event};
-                            event.source(make_source_id(mod_id_of<basic_from_input>(), 0));
+                            event.source(sid(from_input));
                             return next;
                         }
                         line_buffer.clear();
@@ -151,7 +151,7 @@ export namespace fs8 {
                     if (format.parse(line, parsed)) {
                         line_buffer.erase(0, nl + 1);
                         event = event_type{parsed.event};
-                        event.source(make_source_id(mod_id_of<basic_from_input>(), 0));
+                        event.source(sid(from_input));
                         return next;
                     }
                     line_buffer.erase(0, nl + 1);

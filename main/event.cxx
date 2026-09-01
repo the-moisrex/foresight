@@ -17,7 +17,7 @@ module fs8.event;
 
     // Format: "mod:XXXX,idx:XXXX"
     auto const mid = std::copy(std::begin("mod:"), std::end("mod:") - 1, first);
-    auto [ptr, ec] = std::to_chars(mid, buf.data() + buf.size() - 1, mod_id(source_id), 16);
+    auto [ptr, ec] = std::to_chars(mid, buf.data() + buf.size() - 1, sid(source_id), 16);
     if (ec != std::errc{}) [[unlikely]] {
         return {"<unknown>"};
     }

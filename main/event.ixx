@@ -153,6 +153,22 @@ export namespace fs8 {
         }
     }
 
+    /// Shorthand: make_source_id(mod_id_of<decltype(mod)>(), idx).
+    template <typename ModT>
+    [[nodiscard]] constexpr std::uint32_t sid(ModT const&, std::uint16_t const idx) noexcept {
+        return make_source_id(mod_id_of<ModT>(), idx);
+    }
+
+    /// Shorthand: sid(mod, 0).
+    [[nodiscard]] constexpr std::uint32_t sid(auto const& mod) noexcept {
+        return sid(mod, std::uint16_t{0});
+    }
+
+    /// Extract the mod_id (high 16 bits) from a source_id.
+    [[nodiscard]] constexpr std::uint16_t sid(std::uint32_t const src) noexcept {
+        return static_cast<std::uint16_t>(src >> 16u);
+    }
+
     /// Convert a source_id to a human-readable string (for diagnostics).
     [[nodiscard]] std::string_view to_source_string(std::uint32_t source_id) noexcept;
 

@@ -24,9 +24,8 @@ using fs8::device_query;
 using fs8::event_type;
 using fs8::io_event;
 using fs8::io_fd;
-using fs8::make_source_id;
-using fs8::mod_id_of;
 using fs8::provider_handle;
+using fs8::sid;
 using fs8::source_id_none;
 
 namespace {
@@ -256,7 +255,7 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
             break;
         }
         if (io.watch(io_fd{.fd = dev_fd, .events = io_event::in}, *this)) {
-            auto const src_id = make_source_id(mod_id_of<basic_interceptor>(), static_cast<std::uint16_t>(pimpl->watched_count));
+            auto const src_id                      = sid(intercept, static_cast<std::uint16_t>(pimpl->watched_count));
             pimpl->watched[pimpl->watched_count++] = watched_fd{dev_fd, src_id, &dev};
             im.register_source(src_id, dev);
             log("Device '{}' (re)connected.", dev.device_name());

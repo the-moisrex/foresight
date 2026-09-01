@@ -107,7 +107,7 @@ TEST(DeviceTest, ForkEmitPreservesSource) {
       | emit_all[{syn_user_event}]
       | run{[](auto& ctx) noexcept -> void {
             event_type ev{EV_KEY, KEY_C, 1};
-            ev.source(make_source_id(mod_id_of<basic_interceptor>(), 42)); // pretend it came from a device
+            ev.source(sid(intercept, 42)); // pretend it came from a device
             std::ignore = ctx.fork_emit(ev);
         }}
       | record;
@@ -119,7 +119,7 @@ TEST(DeviceTest, ForkEmitPreservesSource) {
     // the provider's SYN reaches record. The forked event must keep its source.
     ASSERT_EQ(col.size(), 2U);
     EXPECT_EQ(col.at(0).code(), KEY_C);
-    EXPECT_EQ(col.at(0).source(), make_source_id(mod_id_of<basic_interceptor>(), 42));
+    EXPECT_EQ(col.at(0).source(), sid(intercept, 42));
     EXPECT_EQ(col.at(1).type(), EV_SYN);
     EXPECT_EQ(col.at(1).source(), source_id_none);
 }
@@ -147,7 +147,7 @@ TEST(DeviceTest, IgnoreOriginKeepsOthers) {
         {.type = EV_KEY,      .code = KEY_A, .value = 1},
         {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
     }]
-      | drop_origin[make_source_id(mod_id_of<basic_from_input>(), 0)]
+      | drop_origin[sid(from_input)]
       | record;
     auto& col = pipeline.mod<basic_record>();
 
@@ -205,7 +205,7 @@ TEST(DeviceTest, OnlyDeviceAndIgnoreDevice) {
     EXPECT_EQ(col.front().source(), source_id_none);
 
     // only_device for a different device drops them.
-    auto  drop = context | emit_all[{syn_user_event}] | only_device[make_source_id(mod_id_of<basic_interceptor>(), 123)] | record;
+    auto  drop = context | emit_all[{syn_user_event}] | only_device[sid(intercept, 123)] | record;
     auto& cold = drop.mod<basic_record>();
     drop();
     EXPECT_TRUE(cold.empty());
@@ -244,8 +244,8 @@ TEST(DeviceTest, FromInputMarksStdin) {
     ::close(fds[0]);
 
     ASSERT_EQ(captured_events.size(), 2U);
-    EXPECT_EQ(captured_events.at(0).source(), make_source_id(mod_id_of<basic_from_input>(), 0));
-    EXPECT_EQ(captured_events.at(1).source(), make_source_id(mod_id_of<basic_from_input>(), 0));
+    EXPECT_EQ(captured_events.at(0).source(), sid(from_input));
+    EXPECT_EQ(captured_events.at(1).source(), sid(from_input));
 }
 
 TEST(DeviceTest, InterceptMarksDeviceSource) {
@@ -310,7 +310,7 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
     EXPECT_EQ(col.front().code(), KEY_A);
     // A plain device is neither stdin/self nor owned/chained.
     EXPECT_NE(source, source_id_none);
-    EXPECT_NE(source, make_source_id(mod_id_of<basic_from_input>(), 0));
+    EXPECT_NE(source, sid(from_input));
     EXPECT_NE(source, source_id_none);
     EXPECT_NE(im.device_of(source), nullptr);
     EXPECT_EQ(im.fd_of(source), expected_fd);

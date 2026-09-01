@@ -144,7 +144,7 @@ context_action basic_scheduler::operator()(event_type& event, special_event cons
         if (!tick.remaining.empty()) {
             event          = tick.remaining.front();
             tick.remaining = tick.remaining.subspan(1);
-            event.source(make_source_id(mod_id_of<basic_scheduler>(), static_cast<std::uint16_t>(tick_idx)));
+            event.source(sid(scheduler, static_cast<std::uint16_t>(tick_idx)));
             return next;
         }
 
@@ -191,7 +191,7 @@ context_action basic_scheduler::operator()(event_type& event, special_event cons
             tick.next_fire = now + result.next_timeout;
         }
 
-        event.source(make_source_id(mod_id_of<basic_scheduler>(), static_cast<std::uint16_t>(tick_idx)));
+        event.source(sid(scheduler, static_cast<std::uint16_t>(tick_idx)));
         pimpl->rearm_timer();
         ++tick_idx;
         return next;
