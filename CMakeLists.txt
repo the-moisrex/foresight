@@ -89,7 +89,6 @@ target_sources(${LIB_NAME}
         lib/how2type.cxx
         lib/mod_parser.cxx
         lib/xkb.cxx
-        main/context.cxx
         main/event.cxx
         main/keyboard.cxx
         main/new.cxx
