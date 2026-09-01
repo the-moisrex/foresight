@@ -190,6 +190,16 @@ Functions</h2></td></tr>
 <tr class="memitem:af332d73410add28af6db91d2bc9d66ef" id="r_af332d73410add28af6db91d2bc9d66ef"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:af332d73410add28af6db91d2bc9d66ef"><td class="memTemplItemLeft" align="right" valign="top">consteval std::uint16_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af332d73410add28af6db91d2bc9d66ef">fs8::mod_id_of</a> () noexcept</td></tr>
 <tr class="separator:af332d73410add28af6db91d2bc9d66ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a601850b77443140d821d53b449251fb5" id="r_a601850b77443140d821d53b449251fb5"><td class="memTemplParams" colspan="2">template&lt;typename ModT &gt; </td></tr>
+<tr class="memitem:a601850b77443140d821d53b449251fb5"><td class="memTemplItemLeft" align="right" valign="top">constexpr std::uint32_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a601850b77443140d821d53b449251fb5">fs8::sid</a> (ModT const &amp;, std::uint16_t const idx) noexcept</td></tr>
+<tr class="memdesc:a601850b77443140d821d53b449251fb5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shorthand: make_source_id(mod_id_of&lt;decltype(mod)&gt;(), idx).  <br /></td></tr>
+<tr class="separator:a601850b77443140d821d53b449251fb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad46e27365094f4b86ca86bf6eecc4b73" id="r_ad46e27365094f4b86ca86bf6eecc4b73"><td class="memItemLeft" align="right" valign="top">constexpr std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad46e27365094f4b86ca86bf6eecc4b73">fs8::sid</a> (auto const &amp;mod) noexcept</td></tr>
+<tr class="memdesc:ad46e27365094f4b86ca86bf6eecc4b73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shorthand: sid(mod, 0).  <br /></td></tr>
+<tr class="separator:ad46e27365094f4b86ca86bf6eecc4b73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6481ac42a6d838583ebbd92fe9680127" id="r_a6481ac42a6d838583ebbd92fe9680127"><td class="memItemLeft" align="right" valign="top">constexpr std::uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6481ac42a6d838583ebbd92fe9680127">fs8::sid</a> (std::uint32_t const src) noexcept</td></tr>
+<tr class="memdesc:a6481ac42a6d838583ebbd92fe9680127"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract the mod_id (high 16 bits) from a source_id.  <br /></td></tr>
+<tr class="separator:a6481ac42a6d838583ebbd92fe9680127"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b1a16f96702f325cff9977e6d6a121a" id="r_a6b1a16f96702f325cff9977e6d6a121a"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6b1a16f96702f325cff9977e6d6a121a">fs8::to_source_string</a> (std::uint32_t source_id) noexcept</td></tr>
 <tr class="memdesc:a6b1a16f96702f325cff9977e6d6a121a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a source_id to a human-readable string (for diagnostics).  <br /></td></tr>
 <tr class="separator:a6b1a16f96702f325cff9977e6d6a121a"><td class="memSeparator" colspan="2">&#160;</td></tr>
