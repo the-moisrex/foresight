@@ -337,7 +337,7 @@ var namespacefs8 =
     [ "context_action", "namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd", [
       [ "next", "namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdad0cab90d8d20d57e2f2b9be52f7dd25d", null ],
       [ "drop_event", "namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdada9272a324969f72f7a666f130249238", null ],
-      [ "idle", "namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaec2f993aec2c27fc750119ab17b16cdb", null ],
+      [ "recovery", "namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bda6ccf929934691710135f3f0df7cc43c5", null ],
       [ "exit", "namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b", null ]
     ] ],
     [ "debounce_mode", "namespacefs8.html#a2008ba272c641df21f53c054eacdf257", [

@@ -30,7 +30,7 @@ var context_8ixx =
     [ "context_action", "context_8ixx.html#ac5160ee6707deaad4917cbf8bd1e99bd", [
       [ "next", "context_8ixx.html#ac5160ee6707deaad4917cbf8bd1e99bdad0cab90d8d20d57e2f2b9be52f7dd25d", null ],
       [ "drop_event", "context_8ixx.html#ac5160ee6707deaad4917cbf8bd1e99bdada9272a324969f72f7a666f130249238", null ],
-      [ "idle", "context_8ixx.html#ac5160ee6707deaad4917cbf8bd1e99bdaec2f993aec2c27fc750119ab17b16cdb", null ],
+      [ "recovery", "context_8ixx.html#ac5160ee6707deaad4917cbf8bd1e99bda6ccf929934691710135f3f0df7cc43c5", null ],
       [ "exit", "context_8ixx.html#ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b", null ]
     ] ],
     [ "blowup_if", "context_8ixx.html#a60bae359abb2a65c97674f784edc4002", null ],

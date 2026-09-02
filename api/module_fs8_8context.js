@@ -38,7 +38,7 @@ var module_fs8_8context =
     [ "fs8::context_action", "module_fs8_8context.html#ac5160ee6707deaad4917cbf8bd1e99bd", [
       [ "next", "module_fs8_8context.html#ac5160ee6707deaad4917cbf8bd1e99bdad0cab90d8d20d57e2f2b9be52f7dd25d", null ],
       [ "drop_event", "module_fs8_8context.html#ac5160ee6707deaad4917cbf8bd1e99bdada9272a324969f72f7a666f130249238", null ],
-      [ "idle", "module_fs8_8context.html#ac5160ee6707deaad4917cbf8bd1e99bdaec2f993aec2c27fc750119ab17b16cdb", null ],
+      [ "recovery", "module_fs8_8context.html#ac5160ee6707deaad4917cbf8bd1e99bda6ccf929934691710135f3f0df7cc43c5", null ],
       [ "exit", "module_fs8_8context.html#ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b", null ]
     ] ],
     [ "fs8::type_at_impl::type", "module_fs8_8context.html#a6f150609e7b9e296c2f81d2ba8feec54", null ],
