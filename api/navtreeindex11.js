@@ -1,5 +1,6 @@
 var NAVTREEINDEX11 =
 {
+"namespacefs8.html#af91fe56ddc8f7d8127f96558a4560a62":[1,0,1,504],
 "namespacefs8.html#af98fba0a3446b72f2853d6c049f79f63":[1,0,1,730],
 "namespacefs8.html#af9a57064d23f117022d7d4580c1b9ee4":[1,0,1,353],
 "namespacefs8.html#af9e8c86f3cf111983ed27198be150cd0":[1,0,1,393],
@@ -26,7 +27,8 @@ var NAVTREEINDEX11 =
 "namespacefs8_1_1attr.html#ab3f4b28d8081b87a18cfd8daef44dbf7":[1,0,1,0,6],
 "namespacefs8_1_1attr.html#ae283e888b0f9053de683f77f7cd8bb6a":[1,0,1,0,2],
 "namespacefs8_1_1benchmark__detail.html":[1,0,1,1],
-"namespacefs8_1_1benchmark__detail.html#a40ac73320e7d1ed8b0bd982d6b6356f0":[1,0,1,1,1],
+"namespacefs8_1_1benchmark__detail.html#a40ac73320e7d1ed8b0bd982d6b6356f0":[1,0,1,1,2],
+"namespacefs8_1_1benchmark__detail.html#a4a4c689fd3c9a0d4be6a633a2e9b7675":[1,0,1,1,1],
 "namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html":[1,0,1,1,0],
 "namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html#a5b6966d3d44a1553719789e8c1bacb3a":[1,0,1,1,0,3],
 "namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html#a9190ce1b91e9b51ff19177bb70e863c5":[1,0,1,1,0,2],
@@ -119,8 +121,8 @@ var NAVTREEINDEX11 =
 "namespacemembers_e.html":[1,1,0,4],
 "namespacemembers_enum.html":[1,1,4],
 "namespacemembers_f.html":[1,1,0,5],
-"namespacemembers_func.html":[1,1,1],
 "namespacemembers_func.html":[1,1,1,0],
+"namespacemembers_func.html":[1,1,1],
 "namespacemembers_func_b.html":[1,1,1,1],
 "namespacemembers_func_c.html":[1,1,1,2],
 "namespacemembers_func_d.html":[1,1,1,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX11 =
 "queries_8ixx.html#a0ae24548c09ed73e64de87f6f5f589a0":[4,0,1,8,51],
 "queries_8ixx.html#a0b9a4631134f1a964b6f8327172454cc":[4,0,1,8,92],
 "queries_8ixx.html#a0c0f6665ba53682ffb2bbd044b0fdcaf":[4,0,1,8,22],
-"queries_8ixx.html#a0d840097e2936ed9bf9b32b42ed7e993":[4,0,1,8,75],
-"queries_8ixx.html#a0ee911e9ef5a3e8f61a03e3857cd75af":[4,0,1,8,32],
-"queries_8ixx.html#a10f19220072eeaae5f7295d681ef8bbb":[4,0,1,8,24]
+"queries_8ixx.html#a0d840097e2936ed9bf9b32b42ed7e993":[4,0,1,8,75]
 };

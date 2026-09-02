@@ -1,5 +1,6 @@
 var NAVTREEINDEX1 =
 {
+"drop_8ixx.html#a55291a60ec428208cae15ee4e9cfef52":[4,0,4,11,25],
 "drop_8ixx.html#a553957ca169666d1ea99684ab41b471a":[4,0,4,11,34],
 "drop_8ixx.html#a56b2acd8167a61a6585d80393cf23e8e":[4,0,4,11,41],
 "drop_8ixx.html#a59408af032207ae865f793a7e0bc569c":[4,0,4,11,43],
@@ -156,8 +157,8 @@ var NAVTREEINDEX1 =
 "functions_d.html":[3,3,0,3],
 "functions_e.html":[3,3,0,4],
 "functions_f.html":[3,3,0,5],
-"functions_func.html":[3,3,1,0],
 "functions_func.html":[3,3,1],
+"functions_func.html":[3,3,1,0],
 "functions_func_b.html":[3,3,1,1],
 "functions_func_c.html":[3,3,1,2],
 "functions_func_d.html":[3,3,1,3],
@@ -248,6 +249,5 @@ var NAVTREEINDEX1 =
 "hash_8ixx.html#adb4521f62446cd1bd757afac5f084827":[4,0,5,3,7],
 "hash_8ixx.html#af30016478cdce3cd36c5ca3845fc6d8c":[4,0,5,3,4],
 "hierarchy.html":[3,2],
-"how2type_8cxx.html":[4,0,2,4],
-"how2type_8cxx.html#a9b55382ea7880c0d74001abfd73e9aec":[4,0,2,4,0]
+"how2type_8cxx.html":[4,0,2,4]
 };

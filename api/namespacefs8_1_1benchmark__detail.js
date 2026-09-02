@@ -7,5 +7,6 @@ var namespacefs8_1_1benchmark__detail =
       [ "type_token", "namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html#a5b6966d3d44a1553719789e8c1bacb3a", null ],
       [ "unqualified", "namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html#af9890a5571e5af08d8e304cfd681f0e2", null ]
     ] ],
+    [ "is_lifecycle_event", "namespacefs8_1_1benchmark__detail.html#a4a4c689fd3c9a0d4be6a633a2e9b7675", null ],
     [ "pretty_type_name", "namespacefs8_1_1benchmark__detail.html#a40ac73320e7d1ed8b0bd982d6b6356f0", null ]
 ];
