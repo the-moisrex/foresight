@@ -13,6 +13,7 @@ var hierarchy =
     [ "fs8::basic_always_enable", "structfs8_1_1basic__always__enable.html", null ],
     [ "fs8::basic_arguments< DefaultsN, MaxPositionals, MaxFlags, MaxNames >", "structfs8_1_1basic__arguments.html", null ],
     [ "fs8::basic_auto_mode_tag", "structfs8_1_1basic__auto__mode__tag.html", null ],
+    [ "fs8::basic_benchmark_all_factory", "structfs8_1_1basic__benchmark__all__factory.html", null ],
     [ "fs8::basic_benchmark_factory", "structfs8_1_1basic__benchmark__factory.html", null ],
     [ "fs8::basic_benchmark_result_factory", "structfs8_1_1basic__benchmark__result__factory.html", null ],
     [ "fs8::basic_device_id_of", "structfs8_1_1basic__device__id__of.html", null ],

@@ -10,9 +10,7 @@ var namespacefs8 =
       [ "tablet", "namespacefs8_1_1attr.html#ab3f4b28d8081b87a18cfd8daef44dbf7", null ],
       [ "via_usb", "namespacefs8_1_1attr.html#a62c3302b38720e65b6eb52ea38e17e81", null ]
     ] ],
-    [ "benchmark_detail", "namespacefs8_1_1benchmark__detail.html", [
-      [ "for_each_benchmark", "namespacefs8_1_1benchmark__detail.html#a692e4eb31f8eec67ac8a0c91f9635513", null ]
-    ] ],
+    [ "benchmark_detail", "namespacefs8_1_1benchmark__detail.html", "namespacefs8_1_1benchmark__detail" ],
     [ "caps", "namespacefs8_1_1caps.html", [
       [ "all_misc", "namespacefs8_1_1caps.html#a273b95517bba042747b68430687b5b4d", null ],
       [ "alphabets", "namespacefs8_1_1caps.html#a3346464e6ab2ba1502f8e168ea247dd9", null ],
@@ -78,6 +76,7 @@ var namespacefs8 =
     [ "basic_auto_mode_tag", "structfs8_1_1basic__auto__mode__tag.html", "structfs8_1_1basic__auto__mode__tag" ],
     [ "basic_autocomplete", "structfs8_1_1basic__autocomplete.html", "structfs8_1_1basic__autocomplete" ],
     [ "basic_benchmark", "structfs8_1_1basic__benchmark.html", "structfs8_1_1basic__benchmark" ],
+    [ "basic_benchmark_all_factory", "structfs8_1_1basic__benchmark__all__factory.html", "structfs8_1_1basic__benchmark__all__factory" ],
     [ "basic_benchmark_counter", "structfs8_1_1basic__benchmark__counter.html", "structfs8_1_1basic__benchmark__counter" ],
     [ "basic_benchmark_factory", "structfs8_1_1basic__benchmark__factory.html", "structfs8_1_1basic__benchmark__factory" ],
     [ "basic_benchmark_result", "structfs8_1_1basic__benchmark__result.html", "structfs8_1_1basic__benchmark__result" ],
@@ -490,7 +489,6 @@ var namespacefs8 =
     [ "hashed", "namespacefs8.html#af9a57064d23f117022d7d4580c1b9ee4", null ],
     [ "hashed", "namespacefs8.html#ad5c0c1f60ca36b6331e0b76a71028073", null ],
     [ "hashed", "namespacefs8.html#a9cc5f177778f28e2a7668b7021f1cf57", null ],
-    [ "hashed", "namespacefs8.html#a25240b25db742903a8cf5a58d07a2fb5", null ],
     [ "iequals", "namespacefs8.html#af09228b108cada750b70aa0d2e5cb19c", null ],
     [ "initialize", "namespacefs8.html#a4903c94447069cae35f8d6c0a06a444d", null ],
     [ "into", "namespacefs8.html#a29f21cb42184030dd602d93404ae4b8c", null ],
@@ -683,6 +681,7 @@ var namespacefs8 =
     [ "auto_mode", "namespacefs8.html#aec29c6495d216e26330438ce589fbe08", null ],
     [ "autocomplete", "namespacefs8.html#a8c056bbf138ebd63d8bffabcf0b816c4", null ],
     [ "benchmark", "namespacefs8.html#a82f71575a7aeb8e2345edd94f8766e5d", null ],
+    [ "benchmark_all", "namespacefs8.html#a3ea4e7f481cac1c732d5d8ba0270dcd4", null ],
     [ "benchmark_result", "namespacefs8.html#a35a77bd94fa3290fcbbf3ee42464f9d3", null ],
     [ "capslock_off", "namespacefs8.html#a3a52a60bfad4a73fbe84a28fd767a848", null ],
     [ "context", "namespacefs8.html#a1f84efa1ecc04f2041d05aab1244b770", null ],

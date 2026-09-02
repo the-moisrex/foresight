@@ -9,5 +9,6 @@ var structfs8_1_1basic__once =
     [ "operator()", "structfs8_1_1basic__once.html#abcd36b45b5b795602b0046e1d2cff21b", null ],
     [ "operator[]", "structfs8_1_1basic__once.html#ab656d8d2a784ad218d11e81591284f55", null ],
     [ "operator[]", "structfs8_1_1basic__once.html#ae44b590f21fbf4f3f18f185dad0d6466", null ],
+    [ "sub_mods", "structfs8_1_1basic__once.html#afd6b69761437539f57b12c5eba792402", null ],
     [ "can_generate_events", "structfs8_1_1basic__once.html#a7e1abf03d281c1cd0ea57ea5401b42e3", null ]
 ];

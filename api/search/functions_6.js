@@ -7,11 +7,12 @@ var searchData=
   ['get_5fdefault_5fkeymap_4',['get_default_keymap',['../namespacefs8_1_1xkb.html#aeb3075967e3a840e1bc2993b9941cf49',1,'fs8::xkb']]],
   ['get_5ffunctions_5',['get_functions',['../structfs8_1_1bash__runner.html#a0b96216bc8308d736c24f7acf11f5994',1,'fs8::bash_runner']]],
   ['get_5fmods_6',['get_mods',['../structfs8_1_1basic__context.html#ae0eacbfaa1424f62a9f927b256a8e4b5',1,'fs8::basic_context']]],
-  ['get_5fproperties_7',['get_properties',['../structfs8_1_1udev__hwdb.html#ae6a9300cdb5c156a3e0cbb0427730ceb',1,'fs8::udev_hwdb']]],
-  ['get_5frecent_5fdelta_8',['get_recent_delta',['../structfs8_1_1velocity__tracker.html#acf6ab6df16dcefa8816955e8059693d7',1,'fs8::velocity_tracker']]],
-  ['get_5fstatus_9',['get_status',['../structfs8_1_1evdev.html#aeeeebaac4a044771b9d09f04151cb39d',1,'fs8::evdev']]],
-  ['get_5fvariable_10',['get_variable',['../structfs8_1_1bash__runner.html#a085a8c4dffeff4b9d0338ab2727104bf',1,'fs8::bash_runner']]],
-  ['get_5fvariables_11',['get_variables',['../structfs8_1_1bash__runner.html#a458a4f002ed7f55dda1486468d669e1a',1,'fs8::bash_runner']]],
-  ['grab_12',['grab',['../structfs8_1_1evdev.html#aff3f5508338ee7e882c509b4402d216e',1,'fs8::evdev']]],
-  ['grab_5finput_13',['grab_input',['../structfs8_1_1evdev.html#a90145204c0ebce77bc9f212806c472d7',1,'fs8::evdev']]]
+  ['get_5fname_7',['get_name',['../structfs8_1_1basic__benchmark.html#a548fc1830c5a9ee768a4e0020fa431b5',1,'fs8::basic_benchmark']]],
+  ['get_5fproperties_8',['get_properties',['../structfs8_1_1udev__hwdb.html#ae6a9300cdb5c156a3e0cbb0427730ceb',1,'fs8::udev_hwdb']]],
+  ['get_5frecent_5fdelta_9',['get_recent_delta',['../structfs8_1_1velocity__tracker.html#acf6ab6df16dcefa8816955e8059693d7',1,'fs8::velocity_tracker']]],
+  ['get_5fstatus_10',['get_status',['../structfs8_1_1evdev.html#aeeeebaac4a044771b9d09f04151cb39d',1,'fs8::evdev']]],
+  ['get_5fvariable_11',['get_variable',['../structfs8_1_1bash__runner.html#a085a8c4dffeff4b9d0338ab2727104bf',1,'fs8::bash_runner']]],
+  ['get_5fvariables_12',['get_variables',['../structfs8_1_1bash__runner.html#a458a4f002ed7f55dda1486468d669e1a',1,'fs8::bash_runner']]],
+  ['grab_13',['grab',['../structfs8_1_1evdev.html#aff3f5508338ee7e882c509b4402d216e',1,'fs8::evdev']]],
+  ['grab_5finput_14',['grab_input',['../structfs8_1_1evdev.html#a90145204c0ebce77bc9f212806c472d7',1,'fs8::evdev']]]
 ];

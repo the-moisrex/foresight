@@ -119,6 +119,8 @@ Public Types</h2></td></tr>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a9c90e3dca5b6cd0a0ca89f092fa5adc8" id="r_a9c90e3dca5b6cd0a0ca89f092fa5adc8"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a9c90e3dca5b6cd0a0ca89f092fa5adc8">basic_benchmark</a> (std::remove_cvref_t&lt; Funcs &gt;... inp_funcs) noexcept</td></tr>
 <tr class="separator:a9c90e3dca5b6cd0a0ca89f092fa5adc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e518e8f2c733907d0158764898d58d5" id="r_a9e518e8f2c733907d0158764898d58d5"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a9e518e8f2c733907d0158764898d58d5">basic_benchmark</a> (std::string_view inp_name, std::remove_cvref_t&lt; Funcs &gt;... inp_funcs) noexcept</td></tr>
+<tr class="separator:a9e518e8f2c733907d0158764898d58d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f46e7ee950ceeddbfca705b6084344f" id="r_a3f46e7ee950ceeddbfca705b6084344f"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
 <tr class="memitem:a3f46e7ee950ceeddbfca705b6084344f"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a3f46e7ee950ceeddbfca705b6084344f">operator()</a> (CtxT &amp;ctx) noexcept</td></tr>
 <tr class="separator:a3f46e7ee950ceeddbfca705b6084344f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -133,6 +135,8 @@ requires (sizeof...(Args) &gt;= 2)</td></tr>
 <tr class="memitem:a0ba050e29005bec19eb9c63f1e77a606" id="r_a0ba050e29005bec19eb9c63f1e77a606"><td class="memTemplParams" colspan="2">template&lt;typename Self &gt; </td></tr>
 <tr class="memitem:a0ba050e29005bec19eb9c63f1e77a606"><td class="memTemplItemLeft" align="right" valign="top">constexpr decltype(auto)&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a0ba050e29005bec19eb9c63f1e77a606">sub_mods</a> (this Self &amp;&amp;self) noexcept</td></tr>
 <tr class="separator:a0ba050e29005bec19eb9c63f1e77a606"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a548fc1830c5a9ee768a4e0020fa431b5" id="r_a548fc1830c5a9ee768a4e0020fa431b5"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a548fc1830c5a9ee768a4e0020fa431b5">get_name</a> () const noexcept</td></tr>
+<tr class="separator:a548fc1830c5a9ee768a4e0020fa431b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22e4746148181cec0e963949423edb72" id="r_a22e4746148181cec0e963949423edb72"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1benchmark__stats.html">benchmark_stats</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a22e4746148181cec0e963949423edb72">result</a> () const noexcept</td></tr>
 <tr class="separator:a22e4746148181cec0e963949423edb72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4ad2f9ab98905fe933c02d7939744adc" id="r_a4ad2f9ab98905fe933c02d7939744adc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a4ad2f9ab98905fe933c02d7939744adc">clear</a> () noexcept</td></tr>
@@ -192,7 +196,7 @@ template&lt;Modifier... Funcs&gt; </div>
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a9c90e3dca5b6cd0a0ca89f092fa5adc8" name="a9c90e3dca5b6cd0a0ca89f092fa5adc8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9c90e3dca5b6cd0a0ca89f092fa5adc8">&#9670;&#160;</a></span>basic_benchmark()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c90e3dca5b6cd0a0ca89f092fa5adc8">&#9670;&#160;</a></span>basic_benchmark() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -213,6 +217,44 @@ template&lt;Modifier... Funcs&gt; </div>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9e518e8f2c733907d0158764898d58d5" name="a9e518e8f2c733907d0158764898d58d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e518e8f2c733907d0158764898d58d5">&#9670;&#160;</a></span>basic_benchmark() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Modifier... Funcs&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__benchmark.html">fs8::basic_benchmark</a>&lt; Funcs &gt;::basic_benchmark </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>inp_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::remove_cvref_t&lt; Funcs &gt;...&#160;</td>
+          <td class="paramname"><em>inp_funcs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -324,6 +366,33 @@ template&lt;Modifier... Funcs&gt; </div>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a548fc1830c5a9ee768a4e0020fa431b5" name="a548fc1830c5a9ee768a4e0020fa431b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a548fc1830c5a9ee768a4e0020fa431b5">&#9670;&#160;</a></span>get_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Modifier... Funcs&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string_view <a class="el" href="structfs8_1_1basic__benchmark.html">fs8::basic_benchmark</a>&lt; Funcs &gt;::get_name </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

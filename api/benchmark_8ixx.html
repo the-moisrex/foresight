@@ -100,7 +100,7 @@ $(document).ready(function(){initNavTree('benchmark_8ixx.html',''); initResizabl
 <div class="contents">
 <div class="textblock"><code>#include &lt;chrono&gt;</code><br />
 <code>#include &lt;cstdint&gt;</code><br />
-<code>#include &lt;limits&gt;</code><br />
+<code>#include &lt;string_view&gt;</code><br />
 <code>#include &lt;tuple&gt;</code><br />
 <code>#include &lt;utility&gt;</code><br />
 <code>import <a class="el" href="traits_8ixx.html">fs8.traits</a>;</code><br />
@@ -122,6 +122,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__factory.html">fs8::basic_benchmark_factory</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__all__factory.html">fs8::basic_benchmark_all_factory</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html">fs8::basic_benchmark_result&lt; SinkT &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result__factory.html">fs8::basic_benchmark_result_factory</a></td></tr>
@@ -133,17 +135,32 @@ Namespaces</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacefs8_1_1benchmark__detail" id="r_namespacefs8_1_1benchmark__detail"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail.html">fs8::benchmark_detail</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl" id="r_namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html">fs8::benchmark_detail::pretty_type_name_impl</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a692e4eb31f8eec67ac8a0c91f9635513" id="r_a692e4eb31f8eec67ac8a0c91f9635513"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename FnT &gt; </td></tr>
-<tr class="memitem:a692e4eb31f8eec67ac8a0c91f9635513"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail.html#a692e4eb31f8eec67ac8a0c91f9635513">fs8::benchmark_detail::for_each_benchmark</a> (ModT &amp;mod, FnT &amp;fn) noexcept</td></tr>
-<tr class="separator:a692e4eb31f8eec67ac8a0c91f9635513"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9190ce1b91e9b51ff19177bb70e863c5" id="r_a9190ce1b91e9b51ff19177bb70e863c5"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html#a9190ce1b91e9b51ff19177bb70e863c5">fs8::benchmark_detail::pretty_type_name_impl::trim</a> (std::string_view s) noexcept</td></tr>
+<tr class="separator:a9190ce1b91e9b51ff19177bb70e863c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b6966d3d44a1553719789e8c1bacb3a" id="r_a5b6966d3d44a1553719789e8c1bacb3a"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html#a5b6966d3d44a1553719789e8c1bacb3a">fs8::benchmark_detail::pretty_type_name_impl::type_token</a> (std::string_view s) noexcept</td></tr>
+<tr class="memdesc:a5b6966d3d44a1553719789e8c1bacb3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Slice the type token, keeping nested &lt;...&gt; and (...).  <br /></td></tr>
+<tr class="separator:a5b6966d3d44a1553719789e8c1bacb3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af06cb8f88ae2f074200fd990a9ed83a1" id="r_af06cb8f88ae2f074200fd990a9ed83a1"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html#af06cb8f88ae2f074200fd990a9ed83a1">fs8::benchmark_detail::pretty_type_name_impl::extract_type</a> (std::string_view pretty) noexcept</td></tr>
+<tr class="separator:af06cb8f88ae2f074200fd990a9ed83a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9890a5571e5af08d8e304cfd681f0e2" id="r_af9890a5571e5af08d8e304cfd681f0e2"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html#af9890a5571e5af08d8e304cfd681f0e2">fs8::benchmark_detail::pretty_type_name_impl::unqualified</a> (std::string_view <a class="el" href="namespacefs8.html#a05a903cf46bc0d209f5172a60d221b80">name</a>) noexcept</td></tr>
+<tr class="separator:af9890a5571e5af08d8e304cfd681f0e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a990479d160f11c3a2c3764a916eca830" id="r_a990479d160f11c3a2c3764a916eca830"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html#a990479d160f11c3a2c3764a916eca830">fs8::benchmark_detail::pretty_type_name_impl::short_name</a> (std::string_view pretty) noexcept</td></tr>
+<tr class="separator:a990479d160f11c3a2c3764a916eca830"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40ac73320e7d1ed8b0bd982d6b6356f0" id="r_a40ac73320e7d1ed8b0bd982d6b6356f0"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a40ac73320e7d1ed8b0bd982d6b6356f0"><td class="memTemplItemLeft" align="right" valign="top">consteval std::string_view&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail.html#a40ac73320e7d1ed8b0bd982d6b6356f0">fs8::benchmark_detail::pretty_type_name</a> () noexcept</td></tr>
+<tr class="separator:a40ac73320e7d1ed8b0bd982d6b6356f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:a82f71575a7aeb8e2345edd94f8766e5d" id="r_a82f71575a7aeb8e2345edd94f8766e5d"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__benchmark__factory.html">basic_benchmark_factory</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a82f71575a7aeb8e2345edd94f8766e5d">fs8::benchmark</a></td></tr>
 <tr class="separator:a82f71575a7aeb8e2345edd94f8766e5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ea4e7f481cac1c732d5d8ba0270dcd4" id="r_a3ea4e7f481cac1c732d5d8ba0270dcd4"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__benchmark__all__factory.html">basic_benchmark_all_factory</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3ea4e7f481cac1c732d5d8ba0270dcd4">fs8::benchmark_all</a></td></tr>
+<tr class="separator:a3ea4e7f481cac1c732d5d8ba0270dcd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35a77bd94fa3290fcbbf3ee42464f9d3" id="r_a35a77bd94fa3290fcbbf3ee42464f9d3"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__benchmark__result__factory.html">basic_benchmark_result_factory</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a35a77bd94fa3290fcbbf3ee42464f9d3">fs8::benchmark_result</a></td></tr>
 <tr class="separator:a35a77bd94fa3290fcbbf3ee42464f9d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
