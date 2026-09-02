@@ -201,7 +201,7 @@ export namespace fs8 {
               routes);
             if (!is_init) [[unlikely]] {
                 log("Router failed to start at least one of the routes.");
-                return context_action::idle;
+                return context_action::recovery;
             }
             return context_action::next;
         }

@@ -49,7 +49,7 @@ Mods return a `context_action`:
 |----------------|----------------------------------------------------|
 | `next`         | Pass the event to the next mod.                    |
 | `drop_event` | Drop this event.                                   |
-| `idle`         | Restart/enter watch mode.                          |
+| `recovery`     | Restart/enter watch mode.                          |
 | `exit`         | Exit the pipeline.                                 |
 
 A mod that returns `bool` is interpreted as `true` → `next`, `false` →

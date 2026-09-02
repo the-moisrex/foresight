@@ -276,13 +276,13 @@ export namespace fs8 {
             }
             if (auto const res = verify_access_to_uinput(); res != uinput_access_result::available) [[unlikely]] {
                 log("Uinput init error: {}", to_string(res));
-                return idle;
+                return recovery;
             }
             if (operator()(ctx.mod(input_manager).devices(), start)) {
                 ctx.mod(input_manager).own_device(devnode());
                 return next;
             }
-            return idle;
+            return recovery;
         }
 
         context_action operator()(event_type const& event) noexcept;

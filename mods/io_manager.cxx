@@ -185,8 +185,8 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
         if (result == exit) [[unlikely]] {
             return exit;
         }
-        if (result == idle) [[unlikely]] {
-            action = idle;
+        if (result == recovery) [[unlikely]] {
+            action = recovery;
         }
     }
     return action;

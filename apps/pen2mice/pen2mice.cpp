@@ -51,19 +51,17 @@ int main(int const argc, char const* const* argv) try {
       | scheduled_emitter
       | scheduler
       | led_state
-      | keys_state // Save key presses
+      | keys_state                               // Save key presses
       | mouse_history
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
-           benchmark_all[context               // Convert Drawing Tablet absolute moves into mouse moves
-                         | abs2rel
-                         | pen2mice              // Convert the buttons
-                         | drop_tablet
-                         | drop_big_jumps
-                         | drop_fast_left_clicks // Ignore fast left clicks
-                         | update_mod[keys_state]
-                         | update_mod[mouse_history]]]
-      | on[pressed[KEY_CAPSLOCK] & keydown[KEY_B], benchmark_result[fs8::log, true]]
-
+           context                               // Convert Drawing Tablet absolute moves into mouse moves
+             | abs2rel
+             | pen2mice                          // Convert the buttons
+             | drop_tablet
+             | drop_big_jumps
+             | drop_fast_left_clicks             // Ignore fast left clicks
+             | update_mod[keys_state]
+             | update_mod[mouse_history]]
       | swipe_detector                           // Detects swipes
       | on[pressed[BTN_RIGHT], drop_start_moves] // fix right-click jumps
       | once[pressed[BTN_MIDDLE] & triple_click, emit[press(KEY_LEFTMETA, KEY_TAB)]]

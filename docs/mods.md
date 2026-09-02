@@ -78,7 +78,7 @@ Mods communicate their intent by returning a `context_action`:
 |----------------|----------------------------------------------------|
 | `next`         | Pass the event to the next mod.                    |
 | `drop_event` | Drop this event.                                   |
-| `idle`         | Restart / enter watch mode.                        |
+| `recovery`     | Restart / enter watch mode.                        |
 | `exit`         | Exit the pipeline.                                 |
 
 For the definitive list and signatures, see the [API Reference](api-reference.md),

@@ -85,7 +85,7 @@ Mods return a `context_action`; a mod returning `bool` means `true` → `next`,
 |----------------|----------------------------------------------------|
 | `next`         | Pass the event to the next mod.                    |
 | `drop_event` | Drop this event.                                   |
-| `idle`         | Restart / enter watch mode.                        |
+| `recovery`     | Restart / enter watch mode.                        |
 | `exit`         | Exit the pipeline.                                 |
 
 Tags are constexpr sentinels passed as the last argument:

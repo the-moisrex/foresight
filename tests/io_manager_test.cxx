@@ -53,9 +53,9 @@ namespace {
         }
     };
 
-    struct idle_handler {
+    struct recovery_handler {
         context_action operator()(io_fd&) noexcept {
-            return context_action::idle;
+            return context_action::recovery;
         }
     };
 
@@ -64,7 +64,7 @@ namespace {
     static_assert(io_handler<read_handler>);
     static_assert(io_handler<self_unwatch_handler>);
     static_assert(io_handler<exit_handler>);
-    static_assert(io_handler<idle_handler>);
+    static_assert(io_handler<recovery_handler>);
 
     static_assert((io_event::in | io_event::out) != io_event::in);
     static_assert(has(io_event::in | io_event::err, io_event::err));
@@ -299,11 +299,11 @@ TEST(IOManager, HandlerIdlePropagates) {
     int fds[2];
     ASSERT_EQ(pipe(fds), 0);
 
-    idle_handler handler;
+    recovery_handler handler;
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0]}, handler));
 
     ASSERT_EQ(write(fds[1], "x", 1), 1);
-    ASSERT_EQ(mgr(load_event), context_action::idle);
+    ASSERT_EQ(mgr(load_event), context_action::recovery);
 
     mgr.clear();
     close(fds[0]);

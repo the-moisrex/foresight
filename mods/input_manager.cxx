@@ -564,5 +564,5 @@ context_action basic_input_manager::start(basic_io_manager& io) noexcept try {
 
     return next;
 } catch (...) {
-    return context_action::idle;
+    return context_action::recovery;
 }

@@ -133,7 +133,7 @@ export namespace fs8 {
     enum struct [[nodiscard]] context_action : std::uint8_t {
         next,       // pass it to the next mod
         drop_event, // drop this event
-        idle,       // idle mode, or watching mode, or restart mode
+        recovery,   // recovery mode, or watching mode, or restart mode
         exit,       // exit the software
     };
 
@@ -141,7 +141,7 @@ export namespace fs8 {
 
     [[nodiscard]] constexpr bool is_exiting(context_action const action) noexcept {
         using enum context_action;
-        return action == idle || action == exit;
+        return action == recovery || action == exit;
     }
 
     [[nodiscard]] constexpr bool operator!(context_action const action) noexcept {
@@ -383,7 +383,7 @@ export namespace fs8 {
             if constexpr (std::same_as<std::remove_cvref_t<type_at<0, Args...>>, special_event>) {
                 // Special events (start, load_event, etc.) should be delivered to ALL mods.
                 // Mods that don't handle a code return drop_event — we ignore those and
-                // keep the last "interesting" result (next, idle, exit).
+                // keep the last "interesting" result (next, recovery, exit).
                 // Use drop_event as the default so non-invocable mods don't leak through as "handled".
                 return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
                     auto result = drop_event;
@@ -407,7 +407,7 @@ export namespace fs8 {
             // Special events with extra args (e.g. device_query + special_event
             // pushed by the router) should be delivered to ALL mods, same as
             // single-arg special events.  Void handlers return drop_event which
-            // we skip — we keep the last "interesting" result (next, idle, exit).
+            // we skip — we keep the last "interesting" result (next, recovery, exit).
             return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
                 auto result = drop_event;
                 (([&]() noexcept {
@@ -964,7 +964,7 @@ export namespace fs8 {
             }
         }
 
-        /// Start the pipeline for the first time or after idle.
+        /// Start the pipeline for the first time or after recovery.
         /// Returns true if start succeeded.
         [[nodiscard]] bool start_pipeline() noexcept {
             auto const action = operator()(start);
@@ -978,10 +978,10 @@ export namespace fs8 {
         }
 
         /// Handle an action from event processing or a provider in the loop.
-        /// idle → restart and continue; exit → stop; next/drop_event → continue.
+        /// recovery → restart and continue; exit → stop; next/drop_event → continue.
         [[nodiscard]] bool handle_action(context_action const action) noexcept {
             using enum context_action;
-            if (action == idle) {
+            if (action == recovery) {
                 log("Restarting pipeline...");
                 return start_pipeline();
             }
@@ -1023,7 +1023,7 @@ export namespace fs8 {
                     [[likely]] case drop_event:
                         break;
                     [[unlikely]] default:
-                    [[unlikely]] case idle:
+                    [[unlikely]] case recovery:
                     [[unlikely]] case exit:
                         if (!handle_action(provider)) {
                             return {};
@@ -1042,7 +1042,7 @@ export namespace fs8 {
                     [[likely]] case drop_event:
                         continue;
                     [[unlikely]] default:
-                    [[unlikely]] case idle:
+                    [[unlikely]] case recovery:
                     [[unlikely]] case exit:
                         if (!handle_action(load_result)) {
                             return {};

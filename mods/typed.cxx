@@ -258,7 +258,7 @@ fs8::context_action basic_search_engine::operator()(special_event const &tag) no
 } catch (...) {
     // clear the trie in case of a failed build; keep the pipeline running in a degraded state
     pimpl->trie.clear();
-    return fs8::context_action::idle;
+    return fs8::context_action::recovery;
 }
 
 bool basic_search_engine::search(
@@ -327,7 +327,7 @@ fs8::context_action basic_typed::on_start(basic_search_engine &engine) noexcept 
 } catch (...) {
     // Keep the mod disabled instead of terminating the whole pipeline.
     pimpl->trigger_id = invalid_trigger_id;
-    return fs8::context_action::idle;
+    return fs8::context_action::recovery;
 }
 
 bool basic_typed::on_search(event_type const &event, basic_search_engine const &engine) noexcept {

@@ -44,7 +44,7 @@ These are far-fetched goals, but we can't get there if we don't try.
 | \> Add Scrollbar            | Convert mouse movements into scroll wheel (conditionally)                | ✅      |
 | \> Replace events           | Convert events into other events.                                        | ✅      |
 | \> Route events             | Route events into different output devices                               | ✅      |
-| Device Info                 | List kernel event devices (like evtest)                                  | ❌      |
+| Device Info                 | List kernel event devices (like evtest)                                  | ✅      |
 | String Matching             | Figure out what the using is typing/editing right now                    | ❌      |
 | Regular Expression          | Use RegExp to find and replace selected/typing strings                   | ❌      |
 | Auto-complete               | Auto complete the user input                                             | ❌      |

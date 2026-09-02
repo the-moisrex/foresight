@@ -24,7 +24,7 @@ fs8::context_action fs8::basic_timed_typed::on_start(fs8::basic_search_engine& e
 } catch (...) {
     // Keep the mod disabled instead of terminating the whole pipeline.
     pimpl->trigger_id = invalid_trigger_id;
-    return fs8::context_action::idle;
+    return fs8::context_action::recovery;
 }
 
 bool fs8::basic_timed_typed::on_search(event_type const& event, basic_search_engine const& engine) noexcept {
