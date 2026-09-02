@@ -541,8 +541,8 @@ TEST(BenchmarkTest, BenchmarkAllAutoNamesAreDistinctForDifferentTypes) {
 // benchmark_result factory: operator[](sink) and operator[](sink, clear)
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, BenchmarkResultFactory) {
-    constexpr auto r1 = basic_benchmark_result_factory{}[capture_benchmark];
-    constexpr auto r2 = basic_benchmark_result_factory{}[capture_benchmark, true];
+    constexpr auto r1 = benchmark_result[capture_benchmark];
+    constexpr auto r2 = benchmark_result[capture_benchmark, true];
 
     // Both should compile and produce valid benchmark_result instances.
     // r1 has clear_after=false, r2 has clear_after=true — we can't inspect
@@ -570,7 +570,7 @@ TEST(BenchmarkTest, BenchmarkResultFactory) {
 // benchmark_factory: operator[] creates benchmark from context
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, BenchmarkFactoryCreatesFromContext) {
-    constexpr auto b = basic_benchmark_factory{}[context | record];
+    constexpr auto b = benchmark[context | record];
     // The factory should produce a basic_benchmark<basic_record>.
     static_assert(std::same_as<std::remove_cvref_t<decltype(b)>, basic_benchmark<basic_record>>);
 }
@@ -579,7 +579,7 @@ TEST(BenchmarkTest, BenchmarkFactoryCreatesFromContext) {
 // benchmark_all_factory: operator[] creates per-mod benchmarks from context
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, BenchmarkAllFactoryCreatesFromContext) {
-    constexpr auto mods = basic_benchmark_all_factory{}[context | record];
+    constexpr auto mods = benchmark_all[context | record];
     // Should produce a context containing a single basic_benchmark<basic_record>.
     // We can verify by running it and checking via benchmark_result.
     reset_reports();

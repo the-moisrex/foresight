@@ -120,6 +120,16 @@ namespace fs8 {
           : name{inp_name},
             funcs{inp_funcs...} {}
 
+        /// benchmark[context | mod1 | mod2]: wrap all mods into a single benchmark.
+        template <Context CtxT>
+        [[nodiscard]] consteval auto operator[](CtxT const& ctx) const noexcept {
+            return std::apply(
+              []<typename... ModT>(ModT const&... mods) constexpr noexcept {
+                  return basic_benchmark<std::remove_cvref_t<ModT>...>{mods...};
+              },
+              ctx.get_mods());
+        }
+
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
             auto const started = clock::now();
@@ -167,33 +177,22 @@ namespace fs8 {
         }
     };
 
-    export struct [[nodiscard]] basic_benchmark_factory {
-        template <Context CtxT>
-        [[nodiscard]] consteval auto operator[](CtxT const& ctx) const noexcept {
-            return std::apply(
-              []<typename... ModT>(ModT const&... mods) constexpr noexcept {
-                  return basic_benchmark<std::remove_cvref_t<ModT>...>{mods...};
-              },
-              ctx.get_mods());
-        }
-    };
-
-    /// Wraps each mod in its own benchmark with an auto-generated name.
-    /// Usage: benchmark_all[context | mod1 | mod2 | ...]
-    export struct [[nodiscard]] basic_benchmark_all_factory {
-        template <Context CtxT>
-        [[nodiscard]] consteval auto operator[](CtxT const& ctx) const noexcept {
-            return std::apply(
-              []<typename... ModT>(ModT const&... mods) constexpr noexcept {
-                  return (context | ... | make_benchmark<ModT>(mods));
-              },
-              ctx.get_mods());
-        }
-
-      private:
+    namespace benchmark_detail {
         template <typename ModT>
-        [[nodiscard]] static consteval auto make_benchmark(ModT const& mod) noexcept {
-            return basic_benchmark<ModT>{benchmark_detail::pretty_type_name<ModT>(), mod};
+        [[nodiscard]] consteval auto benchmark_all_create(ModT const& mod) noexcept {
+            return basic_benchmark<ModT>{pretty_type_name<ModT>(), mod};
+        }
+    } // namespace benchmark_detail
+
+    /// Factory type: benchmark_all[context | mod1 | mod2] wraps each mod in its own benchmark.
+    export struct [[nodiscard]] basic_benchmark_all {
+        template <Context CtxT>
+        [[nodiscard]] consteval auto operator[](CtxT const& ctx) const noexcept {
+            return std::apply(
+              []<typename... ModT>(ModT const&... mods) constexpr noexcept {
+                  return (context | ... | benchmark_detail::benchmark_all_create(mods));
+              },
+              ctx.get_mods());
         }
     };
 
@@ -222,6 +221,8 @@ namespace fs8 {
         bool                        clear_after = false;
 
       public:
+        constexpr basic_benchmark_result() noexcept = default;
+
         explicit constexpr basic_benchmark_result(SinkT inp_sink) noexcept : sink{std::move(inp_sink)} {}
 
         constexpr basic_benchmark_result(SinkT inp_sink, bool inp_clear) noexcept : sink{std::move(inp_sink)}, clear_after{inp_clear} {}
@@ -263,18 +264,17 @@ namespace fs8 {
               ctx.get_mods());
             return drop_event;
         }
-    };
 
-    export struct [[nodiscard]] basic_benchmark_result_factory {
-        template <typename SinkT>
-        [[nodiscard]] consteval auto operator[](SinkT sink, bool clear = false) const noexcept {
-            return basic_benchmark_result<std::remove_cvref_t<SinkT>>{std::move(sink), clear};
+        /// benchmark_result[sink] / benchmark_result[sink, true]: create a result reporter.
+        template <typename InpSinkT>
+        [[nodiscard]] consteval auto operator[](InpSinkT sink, bool clear = false) const noexcept {
+            return basic_benchmark_result<std::remove_cvref_t<InpSinkT>>{std::move(sink), clear};
         }
     };
 
-    export constexpr basic_benchmark_factory        benchmark;
-    export constexpr basic_benchmark_all_factory    benchmark_all;
-    export constexpr basic_benchmark_result_factory benchmark_result;
+    export constexpr basic_benchmark<>       benchmark;
+    export constexpr basic_benchmark_all     benchmark_all;
+    export basic_benchmark_result<nullptr_t> benchmark_result;
 
     static_assert(Modifier<basic_benchmark<>>);
 
