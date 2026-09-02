@@ -12,6 +12,7 @@ var structfs8_1_1basic__benchmark =
     [ "operator()", "structfs8_1_1basic__benchmark.html#a3f46e7ee950ceeddbfca705b6084344f", null ],
     [ "operator()", "structfs8_1_1basic__benchmark.html#a84bfdfde553d5d6db9afef9e45e14c25", null ],
     [ "operator()", "structfs8_1_1basic__benchmark.html#a70204a6ff8e4dc4e9630c0c7dd392ba9", null ],
+    [ "operator[]", "structfs8_1_1basic__benchmark.html#a4841cd9d9ce0f5baa610f6877a8e1fb1", null ],
     [ "result", "structfs8_1_1basic__benchmark.html#a22e4746148181cec0e963949423edb72", null ],
     [ "sub_mods", "structfs8_1_1basic__benchmark.html#a0ba050e29005bec19eb9c63f1e77a606", null ]
 ];

@@ -120,13 +120,10 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html">fs8::basic_benchmark&lt; Funcs &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__factory.html">fs8::basic_benchmark_factory</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__all__factory.html">fs8::basic_benchmark_all_factory</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__all.html">fs8::basic_benchmark_all</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory type: benchmark_all[context | mod1 | mod2] wraps each mod in its own benchmark.  <a href="structfs8_1_1basic__benchmark__all.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html">fs8::basic_benchmark_result&lt; SinkT &gt;</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result__factory.html">fs8::basic_benchmark_result_factory</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -156,15 +153,21 @@ Functions</h2></td></tr>
 <tr class="memitem:a40ac73320e7d1ed8b0bd982d6b6356f0" id="r_a40ac73320e7d1ed8b0bd982d6b6356f0"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a40ac73320e7d1ed8b0bd982d6b6356f0"><td class="memTemplItemLeft" align="right" valign="top">consteval std::string_view&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail.html#a40ac73320e7d1ed8b0bd982d6b6356f0">fs8::benchmark_detail::pretty_type_name</a> () noexcept</td></tr>
 <tr class="separator:a40ac73320e7d1ed8b0bd982d6b6356f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab37a3e1fec7313c70425636c528f85b7" id="r_ab37a3e1fec7313c70425636c528f85b7"><td class="memTemplParams" colspan="2">template&lt;typename ModT &gt; </td></tr>
+<tr class="memitem:ab37a3e1fec7313c70425636c528f85b7"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail.html#ab37a3e1fec7313c70425636c528f85b7">fs8::benchmark_detail::benchmark_all_create</a> (ModT const &amp;mod) noexcept</td></tr>
+<tr class="separator:ab37a3e1fec7313c70425636c528f85b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a692e4eb31f8eec67ac8a0c91f9635513" id="r_a692e4eb31f8eec67ac8a0c91f9635513"><td class="memTemplParams" colspan="2">template&lt;typename ModT , typename FnT &gt; </td></tr>
+<tr class="memitem:a692e4eb31f8eec67ac8a0c91f9635513"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1benchmark__detail.html#a692e4eb31f8eec67ac8a0c91f9635513">fs8::benchmark_detail::for_each_benchmark</a> (ModT &amp;mod, FnT &amp;fn) noexcept</td></tr>
+<tr class="separator:a692e4eb31f8eec67ac8a0c91f9635513"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a82f71575a7aeb8e2345edd94f8766e5d" id="r_a82f71575a7aeb8e2345edd94f8766e5d"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__benchmark__factory.html">basic_benchmark_factory</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a82f71575a7aeb8e2345edd94f8766e5d">fs8::benchmark</a></td></tr>
-<tr class="separator:a82f71575a7aeb8e2345edd94f8766e5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ea4e7f481cac1c732d5d8ba0270dcd4" id="r_a3ea4e7f481cac1c732d5d8ba0270dcd4"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__benchmark__all__factory.html">basic_benchmark_all_factory</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3ea4e7f481cac1c732d5d8ba0270dcd4">fs8::benchmark_all</a></td></tr>
-<tr class="separator:a3ea4e7f481cac1c732d5d8ba0270dcd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a35a77bd94fa3290fcbbf3ee42464f9d3" id="r_a35a77bd94fa3290fcbbf3ee42464f9d3"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__benchmark__result__factory.html">basic_benchmark_result_factory</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a35a77bd94fa3290fcbbf3ee42464f9d3">fs8::benchmark_result</a></td></tr>
-<tr class="separator:a35a77bd94fa3290fcbbf3ee42464f9d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaac6ec7de2ca1f652e55d90a2eba0ea2" id="r_aaac6ec7de2ca1f652e55d90a2eba0ea2"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__benchmark.html">basic_benchmark</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aaac6ec7de2ca1f652e55d90a2eba0ea2">fs8::benchmark</a></td></tr>
+<tr class="separator:aaac6ec7de2ca1f652e55d90a2eba0ea2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e9552f81df145fc196323af172e4664" id="r_a3e9552f81df145fc196323af172e4664"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__benchmark__all.html">basic_benchmark_all</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3e9552f81df145fc196323af172e4664">fs8::benchmark_all</a></td></tr>
+<tr class="separator:a3e9552f81df145fc196323af172e4664"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f6ebde2e945dea4bc48beb35acfc5d3" id="r_a8f6ebde2e945dea4bc48beb35acfc5d3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__benchmark__result.html">basic_benchmark_result</a>&lt; nullptr_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a8f6ebde2e945dea4bc48beb35acfc5d3">fs8::benchmark_result</a></td></tr>
+<tr class="separator:a8f6ebde2e945dea4bc48beb35acfc5d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

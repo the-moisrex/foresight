@@ -109,6 +109,8 @@ Collaboration diagram for fs8::basic_benchmark_result&lt; SinkT &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:ac0a07f21c700c7d7093b27ed034ab3b8" id="r_ac0a07f21c700c7d7093b27ed034ab3b8"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#ac0a07f21c700c7d7093b27ed034ab3b8">basic_benchmark_result</a> () noexcept=default</td></tr>
+<tr class="separator:ac0a07f21c700c7d7093b27ed034ab3b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82f7d6dc548fa6a99568f338d21f23eb" id="r_a82f7d6dc548fa6a99568f338d21f23eb"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a82f7d6dc548fa6a99568f338d21f23eb">basic_benchmark_result</a> (SinkT inp_sink) noexcept</td></tr>
 <tr class="separator:a82f7d6dc548fa6a99568f338d21f23eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b0f454258071b9124155d33f82b3500" id="r_a6b0f454258071b9124155d33f82b3500"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a6b0f454258071b9124155d33f82b3500">basic_benchmark_result</a> (SinkT inp_sink, bool inp_clear) noexcept</td></tr>
@@ -117,6 +119,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a1532073d32af43cbb58a1f6a152ca0cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61f9f388c3e20dd19a8acd0ea13e988b" id="r_a61f9f388c3e20dd19a8acd0ea13e988b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a61f9f388c3e20dd19a8acd0ea13e988b">operator()</a> (Context auto &amp;ctx) noexcept</td></tr>
 <tr class="separator:a61f9f388c3e20dd19a8acd0ea13e988b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f9fe1f2b6f5ed89ce34903035a7c981" id="r_a5f9fe1f2b6f5ed89ce34903035a7c981"><td class="memTemplParams" colspan="2">template&lt;typename InpSinkT &gt; </td></tr>
+<tr class="memitem:a5f9fe1f2b6f5ed89ce34903035a7c981"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a5f9fe1f2b6f5ed89ce34903035a7c981">operator[]</a> (InpSinkT sink, bool clear=false) const noexcept</td></tr>
+<tr class="memdesc:a5f9fe1f2b6f5ed89ce34903035a7c981"><td class="mdescLeft">&#160;</td><td class="mdescRight">benchmark_result[sink] / benchmark_result[sink, true]: create a result reporter.  <br /></td></tr>
+<tr class="separator:a5f9fe1f2b6f5ed89ce34903035a7c981"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
 <tr class="separator:aab9e941457bd45b9d6772f6ff421cec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;) noexcept</td></tr>
@@ -138,8 +144,35 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a2386bd2adcb8954302b8616d81d4456f inherit pub_methods_structfs8_1_1consteval__copyable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="ac0a07f21c700c7d7093b27ed034ab3b8" name="ac0a07f21c700c7d7093b27ed034ab3b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0a07f21c700c7d7093b27ed034ab3b8">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename SinkT &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__benchmark__result.html">fs8::basic_benchmark_result</a>&lt; SinkT &gt;::basic_benchmark_result </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">default</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a82f7d6dc548fa6a99568f338d21f23eb" name="a82f7d6dc548fa6a99568f338d21f23eb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a82f7d6dc548fa6a99568f338d21f23eb">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a82f7d6dc548fa6a99568f338d21f23eb">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -167,7 +200,7 @@ template&lt;typename SinkT &gt; </div>
 </div>
 </div>
 <a id="a6b0f454258071b9124155d33f82b3500" name="a6b0f454258071b9124155d33f82b3500"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6b0f454258071b9124155d33f82b3500">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a6b0f454258071b9124155d33f82b3500">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -342,6 +375,48 @@ template&lt;typename SinkT &gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Handle lifecycle events (toggle_on / toggle_off) transparently. The <code>on</code> block sends toggle_on when its condition first becomes true and toggle_off when it becomes false. We must return <code>next</code> so the on block's lifecycle proceeds normally; returning drop_event would cause the on block to abort before running our actual operator(). </p>
+
+</div>
+</div>
+<a id="a5f9fe1f2b6f5ed89ce34903035a7c981" name="a5f9fe1f2b6f5ed89ce34903035a7c981"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f9fe1f2b6f5ed89ce34903035a7c981">&#9670;&#160;</a></span>operator[]()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename SinkT &gt; </div>
+<div class="memtemplate">
+template&lt;typename InpSinkT &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">consteval auto <a class="el" href="structfs8_1_1basic__benchmark__result.html">fs8::basic_benchmark_result</a>&lt; SinkT &gt;::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">InpSinkT&#160;</td>
+          <td class="paramname"><em>sink</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>clear</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>benchmark_result[sink] / benchmark_result[sink, true]: create a result reporter. </p>
 
 </div>
 </div>

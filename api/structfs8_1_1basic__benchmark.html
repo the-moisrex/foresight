@@ -121,6 +121,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a9c90e3dca5b6cd0a0ca89f092fa5adc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9e518e8f2c733907d0158764898d58d5" id="r_a9e518e8f2c733907d0158764898d58d5"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a9e518e8f2c733907d0158764898d58d5">basic_benchmark</a> (std::string_view inp_name, std::remove_cvref_t&lt; Funcs &gt;... inp_funcs) noexcept</td></tr>
 <tr class="separator:a9e518e8f2c733907d0158764898d58d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4841cd9d9ce0f5baa610f6877a8e1fb1" id="r_a4841cd9d9ce0f5baa610f6877a8e1fb1"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
+<tr class="memitem:a4841cd9d9ce0f5baa610f6877a8e1fb1"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a4841cd9d9ce0f5baa610f6877a8e1fb1">operator[]</a> (CtxT const &amp;ctx) const noexcept</td></tr>
+<tr class="memdesc:a4841cd9d9ce0f5baa610f6877a8e1fb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">benchmark[context | mod1 | mod2]: wrap all mods into a single benchmark.  <br /></td></tr>
+<tr class="separator:a4841cd9d9ce0f5baa610f6877a8e1fb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f46e7ee950ceeddbfca705b6084344f" id="r_a3f46e7ee950ceeddbfca705b6084344f"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
 <tr class="memitem:a3f46e7ee950ceeddbfca705b6084344f"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html#a3f46e7ee950ceeddbfca705b6084344f">operator()</a> (CtxT &amp;ctx) noexcept</td></tr>
 <tr class="separator:a3f46e7ee950ceeddbfca705b6084344f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -508,6 +512,38 @@ requires (sizeof...(TagTs) == 1 &amp;&amp; (std::same_as&lt;std::remove_cvref_t&
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4841cd9d9ce0f5baa610f6877a8e1fb1" name="a4841cd9d9ce0f5baa610f6877a8e1fb1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4841cd9d9ce0f5baa610f6877a8e1fb1">&#9670;&#160;</a></span>operator[]()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Modifier... Funcs&gt; </div>
+<div class="memtemplate">
+template&lt;Context CtxT&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">consteval auto <a class="el" href="structfs8_1_1basic__benchmark.html">fs8::basic_benchmark</a>&lt; Funcs &gt;::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">CtxT const &amp;&#160;</td>
+          <td class="paramname"><em>ctx</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>benchmark[context | mod1 | mod2]: wrap all mods into a single benchmark. </p>
 
 </div>
 </div>

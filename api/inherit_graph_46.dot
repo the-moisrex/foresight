@@ -5,5 +5,5 @@ digraph "Graphical Class Hierarchy"
   edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
   node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
   rankdir="LR";
-  Node0 [id="Node000000",label="fs8::basic_pen2touch",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__pen2touch.html",tooltip=" "];
+  Node0 [id="Node000000",label="fs8::basic_scheduler\l::tick_result",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__scheduler_1_1tick__result.html",tooltip="Result returned by a tick callback."];
 }

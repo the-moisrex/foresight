@@ -135,10 +135,8 @@ var module_fs8_8mods =
     [ "benchmark_stats", "structfs8_1_1benchmark__stats.html", "structfs8_1_1benchmark__stats" ],
     [ "basic_benchmark_counter", "structfs8_1_1basic__benchmark__counter.html", "structfs8_1_1basic__benchmark__counter" ],
     [ "basic_benchmark", "structfs8_1_1basic__benchmark.html", "structfs8_1_1basic__benchmark" ],
-    [ "basic_benchmark_factory", "structfs8_1_1basic__benchmark__factory.html", "structfs8_1_1basic__benchmark__factory" ],
-    [ "basic_benchmark_all_factory", "structfs8_1_1basic__benchmark__all__factory.html", "structfs8_1_1basic__benchmark__all__factory" ],
+    [ "basic_benchmark_all", "structfs8_1_1basic__benchmark__all.html", "structfs8_1_1basic__benchmark__all" ],
     [ "basic_benchmark_result", "structfs8_1_1basic__benchmark__result.html", "structfs8_1_1basic__benchmark__result" ],
-    [ "basic_benchmark_result_factory", "structfs8_1_1basic__benchmark__result__factory.html", "structfs8_1_1basic__benchmark__result__factory" ],
     [ "velocity_tracker", "structfs8_1_1velocity__tracker.html", "structfs8_1_1velocity__tracker" ],
     [ "momentum_calculator", "structfs8_1_1momentum__calculator.html", "structfs8_1_1momentum__calculator" ],
     [ "momentum_config", "structfs8_1_1momentum__config.html", "structfs8_1_1momentum__config" ],
@@ -793,8 +791,8 @@ var module_fs8_8mods =
     [ "fs8::basic_mouse_history::position::x", "module_fs8_8mods.html#ab28963bd0b1fb714dcbceed739f2a3fb", null ],
     [ "fs8::basic_mouse_history::position::y", "module_fs8_8mods.html#a9d82b0eb79759ed4e66fbf99b65d709f", null ],
     [ "fs8::mouse_history", "module_fs8_8mods.html#aaa8e58604e1cb96172ab1e4abc48f95a", null ],
-    [ "fs8::benchmark", "module_fs8_8mods.html#a82f71575a7aeb8e2345edd94f8766e5d", null ],
-    [ "fs8::benchmark_all", "module_fs8_8mods.html#a3ea4e7f481cac1c732d5d8ba0270dcd4", null ],
-    [ "fs8::benchmark_result", "module_fs8_8mods.html#a35a77bd94fa3290fcbbf3ee42464f9d3", null ],
+    [ "fs8::benchmark", "module_fs8_8mods.html#aaac6ec7de2ca1f652e55d90a2eba0ea2", null ],
+    [ "fs8::benchmark_all", "module_fs8_8mods.html#a3e9552f81df145fc196323af172e4664", null ],
+    [ "fs8::benchmark_result", "module_fs8_8mods.html#a8f6ebde2e945dea4bc48beb35acfc5d3", null ],
     [ "fs8::momentum_scroll", "module_fs8_8mods.html#abcd0c204753b4cf5e3302ad649516d91", null ]
 ];
