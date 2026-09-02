@@ -35,6 +35,10 @@ namespace fs8 {
     };
 
     namespace benchmark_detail {
+        [[nodiscard]] constexpr bool is_lifecycle_event(special_event const& tag) noexcept {
+            return tag.code == toggle_on.code || tag.code == toggle_off.code;
+        }
+
         namespace pretty_type_name_impl {
 
             constexpr std::string_view trim(std::string_view s) noexcept {
@@ -132,7 +136,7 @@ namespace fs8 {
             // benchmarked mods.  Forwarding them would cause inner mods (which don't
             // handle special events) to return drop_event, making the on block abort.
             return [&]<typename Tag>(Tag const& tag) noexcept -> context_action {
-                if (tag.code == toggle_on.code || tag.code == toggle_off.code) {
+                if (benchmark_detail::is_lifecycle_event(tag)) {
                     return next;
                 }
                 return invoke_mods(ctx, funcs, tag);
@@ -197,26 +201,12 @@ namespace fs8 {
         template <typename ModT, typename FnT>
         void for_each_benchmark(ModT& mod, FnT& fn) noexcept {
             if constexpr (requires { mod.result(); }) {
-                fn(mod.get_name(), mod.result());
+                fn(mod);
             }
             if constexpr (requires { mod.sub_mods(); }) {
                 std::apply(
                   [&](auto&... sub) noexcept {
                       (for_each_benchmark(sub, fn), ...);
-                  },
-                  mod.sub_mods());
-            }
-        }
-
-        template <typename ModT>
-        void for_each_benchmark_clear(ModT& mod) noexcept {
-            if constexpr (requires { mod.clear(); }) {
-                mod.clear();
-            }
-            if constexpr (requires { mod.sub_mods(); }) {
-                std::apply(
-                  [&](auto&... sub) noexcept {
-                      (for_each_benchmark_clear(sub), ...);
                   },
                   mod.sub_mods());
             }
@@ -243,47 +233,41 @@ namespace fs8 {
         /// cause the on block to abort before running our actual operator().
         context_action operator()(special_event const& tag) noexcept {
             using enum context_action;
-            if (tag.code == toggle_on.code || tag.code == toggle_off.code) {
-                return next;
-            }
-            return drop_event;
+            return benchmark_detail::is_lifecycle_event(tag) ? next : drop_event;
         }
 
         context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
-            auto emit = [&](std::string_view const bname, benchmark_stats const& stats) noexcept {
-                sink("{}: calls={} total={}ns average={}ns min={}ns max={}ns",
-                     bname.empty() ? "benchmark" : bname,
-                     stats.calls,
-                     stats.total.count(),
-                     stats.average().count(),
-                     stats.calls == 0 ? 0 : stats.min.count(),
-                     stats.max.count());
+            auto visit = [&](auto& mod) noexcept {
+                if constexpr (requires { mod.result(); }) {
+                    auto const& stats = mod.result();
+                    auto const  bname = mod.get_name();
+                    sink("{}: calls={} total={}ns average={}ns min={}ns max={}ns",
+                         bname.empty() ? "benchmark" : bname,
+                         stats.calls,
+                         stats.total.count(),
+                         stats.average().count(),
+                         stats.calls == 0 ? 0 : stats.min.count(),
+                         stats.max.count());
+                }
+                if constexpr (requires { mod.clear(); }) {
+                    if (clear_after) {
+                        mod.clear();
+                    }
+                }
             };
             std::apply(
               [&](auto&... mod) noexcept {
-                  (benchmark_detail::for_each_benchmark(mod, emit), ...);
+                  (benchmark_detail::for_each_benchmark(mod, visit), ...);
               },
               ctx.get_mods());
-            if (clear_after) {
-                std::apply(
-                  [&](auto&... mod) noexcept {
-                      (benchmark_detail::for_each_benchmark_clear(mod), ...);
-                  },
-                  ctx.get_mods());
-            }
             return drop_event;
         }
     };
 
     export struct [[nodiscard]] basic_benchmark_result_factory {
         template <typename SinkT>
-        [[nodiscard]] consteval auto operator[](SinkT sink) const noexcept {
-            return basic_benchmark_result<std::remove_cvref_t<SinkT>>{std::move(sink)};
-        }
-
-        template <typename SinkT>
-        [[nodiscard]] consteval auto operator[](SinkT sink, bool clear) const noexcept {
+        [[nodiscard]] consteval auto operator[](SinkT sink, bool clear = false) const noexcept {
             return basic_benchmark_result<std::remove_cvref_t<SinkT>>{std::move(sink), clear};
         }
     };
