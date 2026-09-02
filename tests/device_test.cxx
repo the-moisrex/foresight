@@ -206,7 +206,7 @@ TEST(DeviceTest, OnlyDeviceAndIgnoreDevice) {
 
     // only_device for a different device drops them.
     auto  drop_pipe = context | emit_all[{syn_user_event}] | only_device[sid(intercept, 123)] | record;
-    auto& cold = drop_pipe.mod<basic_record>();
+    auto& cold      = drop_pipe.mod<basic_record>();
     drop_pipe();
     EXPECT_TRUE(cold.empty());
 

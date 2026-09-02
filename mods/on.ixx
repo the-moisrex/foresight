@@ -231,6 +231,11 @@ namespace fs8 {
             }
             return invoke_sub_pipeline(ctx, funcs);
         }
+
+        template <typename Self>
+        [[nodiscard]] constexpr decltype(auto) sub_mods(this Self&& self) noexcept {
+            return std::forward_like<Self>(self.funcs);
+        }
     };
 
     /**
@@ -323,6 +328,11 @@ namespace fs8 {
                 }
             }
             return next;
+        }
+
+        template <typename Self>
+        [[nodiscard]] constexpr decltype(auto) sub_mods(this Self&& self) noexcept {
+            return std::forward_like<Self>(self.funcs);
         }
     };
 

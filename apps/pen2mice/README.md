@@ -58,4 +58,5 @@ Activate Express Mode by holding **Caps Lock**. In this mode:
 - **Right Click Jump Fix**: Prevents cursor jumps during right-click drag
 - **Scroll Enhancement**: When holding middle button or Caps Lock, button up emits scroll events
 - **Mouse Travel Limit**: With Caps Lock, limits mouse travel distance; long release triggers button up
+- **Benchmark**: Press **Caps Lock + B** to print pipeline performance stats to stderr (calls, total/average/min/max time in nanoseconds)
 

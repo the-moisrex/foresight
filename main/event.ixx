@@ -499,11 +499,6 @@ export namespace fs8 {
         return hash;
     }
 
-    /// Convenience: hash from code + value.
-    [[nodiscard]] constexpr std::uint32_t hashed(special_event::code_type const code, special_event::value_type const value = 0) noexcept {
-        return hashed(special_event{.code = code, .value = value});
-    }
-
     /// Unhash: recover the `code` from a hash produced by `hashed(special_event)`.
     [[nodiscard]] constexpr special_event::code_type unhashed_special(std::uint32_t const hash) noexcept {
         static constexpr std::uint32_t shift = 6;
