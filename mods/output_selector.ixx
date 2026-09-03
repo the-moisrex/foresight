@@ -1,11 +1,9 @@
 // Created by moisrex on 8/29/26.
 
 module;
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
-#include <type_traits>
 #include <variant>
 export module fs8.mods:output_selector;
 import fs8.context;
@@ -18,15 +16,6 @@ import :live_view;
 namespace fs8 {
 
     namespace detail {
-
-        template <typename Out, typename CtxT>
-        context_action start_output(Out& out, CtxT& ctx) noexcept {
-            if constexpr (requires { out(ctx, start); }) {
-                return out(ctx, start);
-            } else {
-                return context_action::next;
-            }
-        }
 
         template <typename... Ts, std::size_t... Is>
         constexpr void emplace_at(std::variant<Ts...>& var, std::size_t const idx, std::index_sequence<Is...>) noexcept {
@@ -83,19 +72,8 @@ namespace fs8 {
         // NOLINTNEXTLINE(*-use-nodiscard)
         context_action operator()(event_type& event) noexcept {
             return std::visit(
-              [&]<typename T>(T& out) -> context_action {
-                  using Out = std::remove_cvref_t<T>;
-                  if constexpr (std::is_nothrow_invocable_v<Out, event_type&>) {
-                      using R = std::invoke_result_t<Out, event_type&>;
-                      if constexpr (std::same_as<R, bool>) {
-                          return out(event) ? context_action::next : context_action::drop_event;
-                      } else {
-                          return out(event);
-                      }
-                  } else {
-                      static_assert(false, "Output type must accept event_type&.");
-                      return context_action::exit;
-                  }
+              [&](auto& out) -> context_action {
+                  return out.emit(event) ? context_action::next : context_action::drop_event;
               },
               outputs_);
         }
@@ -108,7 +86,11 @@ namespace fs8 {
             }
             return std::visit(
               [&](auto& out) -> context_action {
-                  return detail::start_output(out, ctx);
+                  if constexpr (requires { out(ctx, start); }) {
+                      return out(ctx, start);
+                  } else {
+                      return context_action::next;
+                  }
               },
               outputs_);
         }
