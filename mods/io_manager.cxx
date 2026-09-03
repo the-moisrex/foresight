@@ -26,10 +26,11 @@ struct fs8::pimpl_idiom<basic_io_manager>::impl {
     std::vector<pollfd>                                    fds;
     std::vector<std::function_ref<context_action(io_fd&)>> callbacks;
 
-    /// Idle timeout: when no fd is ready for this duration, set idle_flag.
-    std::chrono::microseconds idle_timeout{0};
-    steady_clock::time_point  last_event_time{};
-    bool                      idle_flag = false;
+    /// Idle timeout: when no fd is ready for this duration, fire the callback.
+    std::chrono::microseconds       idle_timeout{0};
+    steady_clock::time_point        last_event_time{};
+    basic_io_manager::idle_callback on_idle;
+    bool has_idle_callback = false;
 };
 
 void basic_io_manager::clear() noexcept {
@@ -63,7 +64,6 @@ void basic_io_manager::set_idle_timeout(std::chrono::microseconds const timeout)
     }
     pimpl->idle_timeout    = timeout;
     pimpl->last_event_time = steady_clock::now();
-    pimpl->idle_flag       = false;
 }
 
 void basic_io_manager::clear_idle_timeout() noexcept {
@@ -73,15 +73,24 @@ void basic_io_manager::clear_idle_timeout() noexcept {
     pimpl->idle_timeout = std::chrono::microseconds{0};
 }
 
-bool basic_io_manager::is_idle() const noexcept {
-    return pimpl.get() != nullptr && pimpl->idle_flag;
+void basic_io_manager::set_idle_callback(idle_callback cb) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+    try {
+        pimpl->on_idle          = std::move(cb);
+        pimpl->has_idle_callback = true;
+    } catch (...) {
+        // Allocation failure: leave callback unset.
+    }
 }
 
-void basic_io_manager::clear_idle() noexcept {
+void basic_io_manager::clear_idle_callback() noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;
     }
-    pimpl->idle_flag = false;
+    pimpl->on_idle          = idle_callback{};
+    pimpl->has_idle_callback = false;
 }
 
 void basic_io_manager::unwatch(int const fd) noexcept {
@@ -146,8 +155,9 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
                 if (pimpl.get() == nullptr) {
                     init_impl();
                 }
-                pimpl->idle_flag       = false;
-                pimpl->last_event_time = steady_clock::now();
+                pimpl->on_idle          = idle_callback{};
+                pimpl->has_idle_callback = false;
+                pimpl->last_event_time  = steady_clock::now();
                 return next;
             } catch (...) {
                 return context_action::exit;
@@ -185,7 +195,9 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
 
     // poll timed out with no ready fds — idle threshold reached.
     if (ready == 0 && pimpl->idle_timeout.count() > 0) {
-        pimpl->idle_flag = true;
+        if (pimpl->has_idle_callback) {
+            pimpl->on_idle(pimpl->idle_timeout);
+        }
         return next;
     }
 

@@ -484,6 +484,12 @@ export namespace fs8 {
         }
     }
 
+    /// True if tag is a lifecycle event (toggle_on or toggle_off).
+    /// Both share the same code; they are distinguished by value.
+    [[nodiscard]] constexpr bool is_lifecycle_event(special_event const& tag) noexcept {
+        return tag.code == toggle_on.code;
+    }
+
     /// Recurse into a mod's `sub_mods()` (if any) and report the mod to `out`
     /// when its type matches `token`. Used by the typed `mods<T>`/`rmods<T>`.
     template <typename Mod>

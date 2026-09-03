@@ -41,10 +41,6 @@ namespace fs8 {
     };
 
     namespace benchmark_detail {
-        [[nodiscard]] constexpr bool is_lifecycle_event(special_event const& tag) noexcept {
-            return tag.code == toggle_on.code || tag.code == toggle_off.code;
-        }
-
         namespace pretty_type_name_impl {
 
             constexpr std::string_view trim(std::string_view s) noexcept {
@@ -115,7 +111,7 @@ namespace fs8 {
         using clock     = std::chrono::steady_clock;
 
       private:
-        std::string_view        name{};
+        std::string_view        name;
         mods_type               funcs{};
         basic_benchmark_counter counter{};
 
@@ -152,7 +148,7 @@ namespace fs8 {
             // benchmarked mods.  Forwarding them would cause inner mods (which don't
             // handle special events) to return drop_event, making the on block abort.
             return [&]<typename Tag>(Tag const& tag) noexcept -> context_action {
-                if (benchmark_detail::is_lifecycle_event(tag)) {
+                if (is_lifecycle_event(tag)) {
                     return next;
                 }
                 return invoke_mods(ctx, funcs, tag);
@@ -188,19 +184,18 @@ namespace fs8 {
         [[nodiscard]] consteval auto benchmark_all_create(ModT const& mod) noexcept {
             return basic_benchmark<ModT>{pretty_type_name<ModT>(), mod};
         }
-    } // namespace benchmark_detail
 
-    /// Factory type: benchmark_all[context | mod1 | mod2] wraps each mod in its own benchmark.
-    export struct [[nodiscard]] basic_benchmark_all {
-        template <Context CtxT>
-        [[nodiscard]] consteval auto operator[](CtxT const& ctx) const noexcept {
-            return std::apply(
-              []<typename... ModT>(ModT const&... mods) constexpr noexcept {
-                  return (context | ... | benchmark_detail::benchmark_all_create(mods));
-              },
-              ctx.get_mods());
-        }
-    };
+        struct [[nodiscard]] benchmark_all_factory {
+            template <Context CtxT>
+            [[nodiscard]] consteval auto operator[](CtxT const& ctx) const noexcept {
+                return std::apply(
+                  []<typename... ModT>(ModT const&... mods) constexpr noexcept {
+                      return (context | ... | benchmark_all_create(mods));
+                  },
+                  ctx.get_mods());
+            }
+        };
+    } // namespace benchmark_detail
 
     export template <typename SinkT>
     struct [[nodiscard]] basic_benchmark_result : consteval_copyable {
@@ -220,7 +215,7 @@ namespace fs8 {
         /// Handle lifecycle events (toggle_on / toggle_off) transparently.
         context_action operator()(special_event const& tag) noexcept {
             using enum context_action;
-            return benchmark_detail::is_lifecycle_event(tag) ? next : drop_event;
+            return is_lifecycle_event(tag) ? next : drop_event;
         }
 
         context_action operator()(Context auto& ctx) noexcept {
@@ -258,9 +253,9 @@ namespace fs8 {
         }
     };
 
-    export constexpr basic_benchmark<>       benchmark;
-    export constexpr basic_benchmark_all     benchmark_all;
-    export basic_benchmark_result<nullptr_t> benchmark_result;
+    export constexpr basic_benchmark<>                       benchmark;
+    export constexpr benchmark_detail::benchmark_all_factory benchmark_all;
+    export basic_benchmark_result<nullptr_t>                 benchmark_result;
 
     static_assert(Modifier<basic_benchmark<>>);
 

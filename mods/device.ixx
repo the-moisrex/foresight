@@ -22,7 +22,7 @@ export namespace fs8 {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
             auto const src = event.source();
             // todo: this is not a clean implemenation:
-            return src != source_id_none && src != sid(from_input) && src != sid(scheduler) && src != sid(idle_detector);
+            return src != source_id_none && src != sid(from_input) && src != sid(scheduler);
         }
     } from_device;
 

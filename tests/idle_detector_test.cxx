@@ -71,9 +71,9 @@ TEST(IdleDetectorApi, CompileTimeConfiguration) {
     static_assert(det.idle_period() == 250ms);
 }
 
-// ── Tests: io_manager idle timeout ─────────────────────────────────────────
+// ── Tests: io_manager idle callback ────────────────────────────────────────
 
-TEST(IOManagerIdle, SetIdleTimeoutConfiguresPoll) {
+TEST(IOManagerIdle, CallbackFiresOnTimeout) {
     static constinit auto idle_pipeline = context | io_manager | idle_detector;
     auto&                 mgr           = idle_pipeline.mod<basic_io_manager>();
     mgr.clear();
@@ -91,31 +91,92 @@ TEST(IOManagerIdle, SetIdleTimeoutConfiguresPoll) {
     noop_handler handler;
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
 
+    bool callback_fired = false;
+    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept {
+        callback_fired = true;
+    });
     mgr.set_idle_timeout(50ms);
-    EXPECT_FALSE(mgr.is_idle());
 
-    // poll() should block for ~50ms then time out, setting idle_flag.
+    // poll() should block for ~50ms then time out, firing the callback.
     auto const result = mgr(load_event);
     EXPECT_EQ(result, context_action::next);
-    EXPECT_TRUE(mgr.is_idle());
+    EXPECT_TRUE(callback_fired);
 
-    mgr.clear_idle();
+    mgr.clear_idle_callback();
     mgr.clear();
     close(fds[0]);
     close(fds[1]);
 }
 
-TEST(IOManagerIdle, ClearIdleTimeoutDisablesPollTimeout) {
+TEST(IOManagerIdle, ClearCallbackStopsFiring) {
     static constinit auto idle_pipeline = context | io_manager | idle_detector;
     auto&                 mgr           = idle_pipeline.mod<basic_io_manager>();
     mgr.clear();
+
+    int fds[2];
+    ASSERT_EQ(pipe(fds), 0);
+
+    struct noop_handler {
+        context_action operator()([[maybe_unused]] io_fd& fd) noexcept {
+            return context_action::next;
+        }
+    };
+
+    noop_handler handler;
+    ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
+
+    bool callback_fired = false;
+    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept {
+        callback_fired = true;
+    });
+    mgr.set_idle_timeout(50ms);
+    mgr.clear_idle_callback();
+
+    // After clearing callback, poll should time out but callback should not fire.
+    auto const result = mgr(load_event);
+    EXPECT_EQ(result, context_action::next);
+    EXPECT_FALSE(callback_fired);
+
+    mgr.clear();
+    close(fds[0]);
+    close(fds[1]);
+}
+
+TEST(IOManagerIdle, ClearIdleTimeoutStopsFiring) {
+    static constinit auto idle_pipeline = context | io_manager | idle_detector;
+    auto&                 mgr           = idle_pipeline.mod<basic_io_manager>();
+    mgr.clear();
+
+    int fds[2];
+    ASSERT_EQ(pipe(fds), 0);
+
+    struct noop_handler {
+        context_action operator()([[maybe_unused]] io_fd& fd) noexcept {
+            return context_action::next;
+        }
+    };
+
+    noop_handler handler;
+    ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
+
+    bool callback_fired = false;
+    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept {
+        callback_fired = true;
+    });
     mgr.set_idle_timeout(50ms);
     mgr.clear_idle_timeout();
 
-    // After clearing, with no fds watched, load_event returns next immediately.
+    // After clearing timeout, poll blocks indefinitely (no timeout = -1).
+    // With no data written, load_event would block forever, so write to unblock.
+    ASSERT_EQ(write(fds[1], "x", 1), 1);
     auto const result = mgr(load_event);
     EXPECT_EQ(result, context_action::next);
-    EXPECT_FALSE(mgr.is_idle());
+    EXPECT_FALSE(callback_fired);
+
+    mgr.clear_idle_callback();
+    mgr.clear();
+    close(fds[0]);
+    close(fds[1]);
 }
 
 TEST(IOManagerIdle, ActivityResetsIdleClock) {
@@ -140,22 +201,28 @@ TEST(IOManagerIdle, ActivityResetsIdleClock) {
 
     noop_handler handler;
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
+
+    bool callback_fired = false;
+    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept {
+        callback_fired = true;
+    });
+
     auto const result = mgr(load_event);
     EXPECT_EQ(result, context_action::next);
-    // Activity happened, so idle should NOT be flagged.
-    EXPECT_FALSE(mgr.is_idle());
+    // Activity happened, so callback should NOT have fired.
+    EXPECT_FALSE(callback_fired);
 
+    mgr.clear_idle_callback();
     mgr.clear();
     close(fds[0]);
     close(fds[1]);
 }
 
-TEST(IOManagerIdle, IdleDetectedAfterTimeout) {
+TEST(IOManagerIdle, CallbackReceivesIdleDuration) {
     static constinit auto idle_pipeline = context | io_manager | idle_detector;
     auto&                 mgr           = idle_pipeline.mod<basic_io_manager>();
     mgr.clear();
 
-    // Need at least one fd watched for poll() to actually block.
     int fds[2];
     ASSERT_EQ(pipe(fds), 0);
 
@@ -168,25 +235,27 @@ TEST(IOManagerIdle, IdleDetectedAfterTimeout) {
     noop_handler handler;
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
 
-    // Set a very short idle timeout; poll should time out.
-    mgr.set_idle_timeout(10ms);
+    std::chrono::microseconds received_duration{0};
+    mgr.set_idle_callback([&](std::chrono::microseconds duration) noexcept {
+        received_duration = duration;
+    });
+    mgr.set_idle_timeout(75ms);
+
     auto const result = mgr(load_event);
     EXPECT_EQ(result, context_action::next);
-    EXPECT_TRUE(mgr.is_idle());
+    EXPECT_EQ(received_duration.count(), 75'000);
 
-    mgr.clear_idle();
-    mgr.clear_idle_timeout();
+    mgr.clear_idle_callback();
     mgr.clear();
     close(fds[0]);
     close(fds[1]);
 }
 
-TEST(IOManagerIdle, StartResetsIdleFlag) {
+TEST(IOManagerIdle, StartClearsIdleCallback) {
     static constinit auto idle_pipeline = context | io_manager | idle_detector;
     auto&                 mgr           = idle_pipeline.mod<basic_io_manager>();
     mgr.clear();
 
-    // Need at least one fd watched for poll() to actually block.
     int fds[2];
     ASSERT_EQ(pipe(fds), 0);
 
@@ -199,18 +268,20 @@ TEST(IOManagerIdle, StartResetsIdleFlag) {
     noop_handler handler;
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
 
+    bool callback_fired = false;
+    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept {
+        callback_fired = true;
+    });
     mgr.set_idle_timeout(10ms);
 
-    // Trigger idle via poll timeout.
-    static_cast<void>(mgr(load_event));
-    EXPECT_TRUE(mgr.is_idle());
-
-    // start should reset the idle flag.
+    // start should clear the idle callback.
     auto const result = mgr(start);
     EXPECT_EQ(result, context_action::next);
-    EXPECT_FALSE(mgr.is_idle());
 
-    mgr.clear_idle_timeout();
+    // Trigger poll timeout — callback should NOT fire (was cleared by start).
+    static_cast<void>(mgr(load_event));
+    EXPECT_FALSE(callback_fired);
+
     mgr.clear();
     close(fds[0]);
     close(fds[1]);

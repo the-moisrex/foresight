@@ -106,7 +106,7 @@ export namespace fs8 {
 
         // ── Pipeline mod interface ───────────────────────────────────────────
 
-        /// Handle start and next_event special events.
+        /// Handle start: configure io_manager timeout and register idle callback.
         template <ContextWith<basic_io_manager> CtxT>
         context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
             using enum context_action;
@@ -115,23 +115,16 @@ export namespace fs8 {
             switch (tag.code) {
                 case start.code: {
                     io.set_idle_timeout(idle_period_);
+                    io.set_idle_callback([&](std::chrono::microseconds) noexcept {
+                        ctx.broadcast(idle);
+
+                        // Re-arm for the next idle cycle unless the pattern is fire-once.
+                        auto const next_timeout = repeat_(idle_period_);
+                        if (next_timeout.count() > 0) {
+                            io.set_idle_timeout(next_timeout);
+                        }
+                    });
                     return next;
-                }
-                case next_event.code: {
-                    if (!io.is_idle()) {
-                        break;
-                    }
-                    io.clear_idle();
-
-                    // Broadcast idle event to ALL mods via the special event path.
-                    ctx.broadcast(idle);
-
-                    // Re-arm for the next idle cycle unless the pattern is fire-once.
-                    auto const next_timeout = repeat_(idle_period_);
-                    if (next_timeout.count() > 0) {
-                        io.set_idle_timeout(next_timeout);
-                    }
-                    break;
                 }
                 default: break;
             }

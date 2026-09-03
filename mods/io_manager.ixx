@@ -60,7 +60,8 @@ export namespace fs8 {
      * manager's (e.g. mods living in the same pipeline).
      */
     constexpr struct [[nodiscard]] basic_io_manager : pimpl_idiom<basic_io_manager> {
-        using io_callback = std::function_ref<context_action(io_fd&)>;
+        using io_callback   = std::function_ref<context_action(io_fd&)>;
+        using idle_callback = std::function<void(std::chrono::microseconds)>;
 
         template <io_handler HandlerT>
         [[nodiscard]] bool watch(io_fd const& fd, HandlerT& handler) noexcept {
@@ -74,17 +75,18 @@ export namespace fs8 {
         [[nodiscard]] std::size_t size() const noexcept;
 
         /// Configure an idle timeout.  When no fd is ready for `timeout` microseconds,
-        /// `is_idle()` returns true.  Pass `0` to disable.
+        /// the registered idle callback is invoked.  Pass `0` to disable.
         void set_idle_timeout(std::chrono::microseconds timeout) noexcept;
 
         /// Disable the idle timeout.
         void clear_idle_timeout() noexcept;
 
-        /// Whether the idle timeout has fired since the last `clear_idle()` call.
-        [[nodiscard]] bool is_idle() const noexcept;
+        /// Register a callback invoked when the idle timeout fires.
+        /// The callback receives the idle timeout duration.
+        void set_idle_callback(idle_callback cb) noexcept;
 
-        /// Consume the idle flag (called by the idle_detector after producing an event).
-        void clear_idle() noexcept;
+        /// Unregister the idle callback.
+        void clear_idle_callback() noexcept;
 
         context_action operator()(special_event const& tag) noexcept;
 
