@@ -811,5 +811,5 @@ var module_fs8_8mods =
     [ "fs8::mouse_history", "module_fs8_8mods.html#aaa8e58604e1cb96172ab1e4abc48f95a", null ],
     [ "fs8::benchmark", "module_fs8_8mods.html#aaac6ec7de2ca1f652e55d90a2eba0ea2", null ],
     [ "fs8::benchmark_all", "module_fs8_8mods.html#a53e94787fdce8a7f6cfb59d8eb6371bd", null ],
-    [ "fs8::benchmark_result", "module_fs8_8mods.html#a8f6ebde2e945dea4bc48beb35acfc5d3", null ]
+    [ "fs8::benchmark_result", "module_fs8_8mods.html#aebc85e1cddf32571bcce710f817ada92", null ]
 ];

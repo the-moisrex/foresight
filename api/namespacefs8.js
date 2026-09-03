@@ -682,7 +682,7 @@ var namespacefs8 =
     [ "autocomplete", "namespacefs8.html#a8c056bbf138ebd63d8bffabcf0b816c4", null ],
     [ "benchmark", "namespacefs8.html#aaac6ec7de2ca1f652e55d90a2eba0ea2", null ],
     [ "benchmark_all", "namespacefs8.html#a53e94787fdce8a7f6cfb59d8eb6371bd", null ],
-    [ "benchmark_result", "namespacefs8.html#a8f6ebde2e945dea4bc48beb35acfc5d3", null ],
+    [ "benchmark_result", "namespacefs8.html#aebc85e1cddf32571bcce710f817ada92", null ],
     [ "capslock_off", "namespacefs8.html#a3a52a60bfad4a73fbe84a28fd767a848", null ],
     [ "context", "namespacefs8.html#a1f84efa1ecc04f2041d05aab1244b770", null ],
     [ "debounce", "namespacefs8.html#a12b09e4ed6e98761e27825e9dd94b55c", null ],

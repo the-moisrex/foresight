@@ -7,5 +7,5 @@ var benchmark_8ixx =
     [ "benchmark_all_create", "benchmark_8ixx.html#ab37a3e1fec7313c70425636c528f85b7", null ],
     [ "benchmark", "benchmark_8ixx.html#aaac6ec7de2ca1f652e55d90a2eba0ea2", null ],
     [ "benchmark_all", "benchmark_8ixx.html#a53e94787fdce8a7f6cfb59d8eb6371bd", null ],
-    [ "benchmark_result", "benchmark_8ixx.html#a8f6ebde2e945dea4bc48beb35acfc5d3", null ]
+    [ "benchmark_result", "benchmark_8ixx.html#aebc85e1cddf32571bcce710f817ada92", null ]
 ];
