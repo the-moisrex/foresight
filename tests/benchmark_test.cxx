@@ -62,7 +62,7 @@ TEST(BenchmarkTest, RecordsWrappedPipelineInvocations) {
 // Counter: average() with 0 calls returns 0
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, CounterAverageZeroCalls) {
-    basic_benchmark_counter counter{};
+    basic_benchmark<>::counter counter{};
     EXPECT_EQ(counter.calls, 0U);
     EXPECT_EQ(counter.average().count(), 0);
 }
@@ -71,7 +71,7 @@ TEST(BenchmarkTest, CounterAverageZeroCalls) {
 // Counter: average() is total / calls
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, CounterAverageCalculation) {
-    basic_benchmark_counter counter{};
+    basic_benchmark<>::counter counter{};
     counter.record(std::chrono::nanoseconds{100});
     counter.record(std::chrono::nanoseconds{200});
     counter.record(std::chrono::nanoseconds{300});
@@ -87,7 +87,7 @@ TEST(BenchmarkTest, CounterAverageCalculation) {
 // Counter: clear() resets all fields
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, CounterClearResetsStats) {
-    basic_benchmark_counter counter{};
+    basic_benchmark<>::counter counter{};
     counter.record(std::chrono::nanoseconds{42});
     counter.record(std::chrono::nanoseconds{99});
 
@@ -104,7 +104,7 @@ TEST(BenchmarkTest, CounterClearResetsStats) {
 // Counter: record a single event
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, CounterRecordSingleEvent) {
-    basic_benchmark_counter counter{};
+    basic_benchmark<>::counter counter{};
     counter.record(std::chrono::nanoseconds{777});
 
     EXPECT_EQ(counter.calls, 1U);
@@ -118,7 +118,7 @@ TEST(BenchmarkTest, CounterRecordSingleEvent) {
 // Counter: clear after multiple records, then record again
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, CounterClearThenRecord) {
-    basic_benchmark_counter counter{};
+    basic_benchmark<>::counter counter{};
     counter.record(std::chrono::nanoseconds{10});
     counter.record(std::chrono::nanoseconds{20});
     counter.clear();
@@ -134,7 +134,7 @@ TEST(BenchmarkTest, CounterClearThenRecord) {
 // Counter: min/max track correctly across many records
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, CounterMinMaxTracking) {
-    basic_benchmark_counter counter{};
+    basic_benchmark<>::counter counter{};
     counter.record(std::chrono::nanoseconds{50});
     counter.record(std::chrono::nanoseconds{10});
     counter.record(std::chrono::nanoseconds{100});
@@ -150,7 +150,7 @@ TEST(BenchmarkTest, CounterMinMaxTracking) {
 // Counter: total is sum of all recorded durations
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, CounterTotalIsSumOfDurations) {
-    basic_benchmark_counter counter{};
+    basic_benchmark<>::counter counter{};
     counter.record(std::chrono::nanoseconds{1});
     counter.record(std::chrono::nanoseconds{2});
     counter.record(std::chrono::nanoseconds{3});
@@ -165,8 +165,8 @@ TEST(BenchmarkTest, CounterTotalIsSumOfDurations) {
 // Counter: multiple counters are independent
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, IndependentCounters) {
-    basic_benchmark_counter a{};
-    basic_benchmark_counter b{};
+    basic_benchmark<>::counter a{};
+    basic_benchmark<>::counter b{};
 
     a.record(std::chrono::nanoseconds{10});
     a.record(std::chrono::nanoseconds{20});
@@ -187,8 +187,8 @@ TEST(BenchmarkTest, IndependentCounters) {
 // Counter: clear only affects the target, not siblings
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, ClearOnlyAffectsTarget) {
-    basic_benchmark_counter target{};
-    basic_benchmark_counter other{};
+    basic_benchmark<>::counter target{};
+    basic_benchmark<>::counter other{};
 
     target.record(std::chrono::nanoseconds{10});
     other.record(std::chrono::nanoseconds{20});

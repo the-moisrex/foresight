@@ -12,34 +12,6 @@ import fs8.traits;
 
 namespace fs8 {
 
-    export struct [[nodiscard]] basic_benchmark_counter {
-        using duration = std::chrono::nanoseconds;
-
-        std::uint64_t calls = 0;
-        duration      total{};
-        duration      min{duration::max()};
-        duration      max{};
-
-        [[nodiscard]] constexpr duration average() const noexcept {
-            return calls == 0 ? duration{} : total / static_cast<std::int64_t>(calls);
-        }
-
-        constexpr void record(duration elapsed) noexcept {
-            ++calls;
-            total += elapsed;
-            if (elapsed < min) {
-                min = elapsed;
-            }
-            if (elapsed > max) {
-                max = elapsed;
-            }
-        }
-
-        constexpr void clear() noexcept {
-            *this = {};
-        }
-    };
-
     namespace benchmark_detail {
         namespace pretty_type_name_impl {
 
@@ -110,10 +82,38 @@ namespace fs8 {
         using mods_type = std::tuple<std::remove_cvref_t<Funcs>...>;
         using clock     = std::chrono::steady_clock;
 
+        struct [[nodiscard]] counter {
+            using duration = std::chrono::nanoseconds;
+
+            std::uint64_t calls = 0;
+            duration      total{};
+            duration      min{duration::max()};
+            duration      max{};
+
+            [[nodiscard]] constexpr duration average() const noexcept {
+                return calls == 0 ? duration{} : total / static_cast<std::int64_t>(calls);
+            }
+
+            constexpr void record(duration elapsed) noexcept {
+                ++calls;
+                total += elapsed;
+                if (elapsed < min) {
+                    min = elapsed;
+                }
+                if (elapsed > max) {
+                    max = elapsed;
+                }
+            }
+
+            constexpr void clear() noexcept {
+                *this = {};
+            }
+        };
+
       private:
-        std::string_view        name;
-        mods_type               funcs{};
-        basic_benchmark_counter counter{};
+        std::string_view name;
+        mods_type        funcs{};
+        counter          counter_{};
 
       public:
         explicit constexpr basic_benchmark(std::remove_cvref_t<Funcs>... inp_funcs) noexcept : funcs{inp_funcs...} {}
@@ -136,7 +136,7 @@ namespace fs8 {
         context_action operator()(CtxT& ctx) noexcept {
             auto const started = clock::now();
             auto const action  = invoke_mods(ctx, funcs);
-            counter.record(std::chrono::duration_cast<basic_benchmark_counter::duration>(clock::now() - started));
+            counter_.record(std::chrono::duration_cast<typename counter::duration>(clock::now() - started));
             return action;
         }
 
@@ -170,12 +170,12 @@ namespace fs8 {
             return name;
         }
 
-        [[nodiscard]] basic_benchmark_counter const& result() const noexcept {
-            return counter;
+        [[nodiscard]] counter const& result() const noexcept {
+            return counter_;
         }
 
         void clear() noexcept {
-            counter.clear();
+            counter_.clear();
         }
     };
 
