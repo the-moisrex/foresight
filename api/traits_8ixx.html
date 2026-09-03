@@ -92,12 +92,15 @@ $(document).ready(function(){initNavTree('traits_8ixx.html',''); initResizable()
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a>  </div>
+<a href="#namespaces">Namespaces</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">traits.ixx File Reference<div class="ingroups">module <a class="el" href="module_fs8_8traits.html">fs8.traits</a></div></div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;cstdio&gt;</code><br />
+<div class="textblock"><code>#include &lt;cstddef&gt;</code><br />
+<code>#include &lt;cstdio&gt;</code><br />
 <code>#include &lt;cstdlib&gt;</code><br />
+<code>#include &lt;string_view&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for traits.ixx:</div>
 <div class="dyncontent">
@@ -113,6 +116,25 @@ Classes</h2></td></tr>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacefs8" id="r_namespacefs8"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html">fs8</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacefs8_1_1detail" id="r_namespacefs8_1_1detail"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html">fs8::detail</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a7a6306c881a2bc1cda50a8042e097b8a" id="r_a7a6306c881a2bc1cda50a8042e097b8a"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#a7a6306c881a2bc1cda50a8042e097b8a">fs8::detail::trim</a> (std::string_view s) noexcept</td></tr>
+<tr class="separator:a7a6306c881a2bc1cda50a8042e097b8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a965f237d0db4af1ded33a2b772ee0615" id="r_a965f237d0db4af1ded33a2b772ee0615"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#a965f237d0db4af1ded33a2b772ee0615">fs8::detail::type_token</a> (std::string_view s) noexcept</td></tr>
+<tr class="memdesc:a965f237d0db4af1ded33a2b772ee0615"><td class="mdescLeft">&#160;</td><td class="mdescRight">Slice the type token, keeping nested &lt;...&gt; and (...).  <br /></td></tr>
+<tr class="separator:a965f237d0db4af1ded33a2b772ee0615"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20b2e9465db846ba2f4a77bd306db29b" id="r_a20b2e9465db846ba2f4a77bd306db29b"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#a20b2e9465db846ba2f4a77bd306db29b">fs8::detail::extract_type</a> (std::string_view pretty) noexcept</td></tr>
+<tr class="separator:a20b2e9465db846ba2f4a77bd306db29b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbf75b64a69502824b10f27a32e8086c" id="r_adbf75b64a69502824b10f27a32e8086c"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#adbf75b64a69502824b10f27a32e8086c">fs8::detail::unqualified</a> (std::string_view <a class="el" href="namespacefs8.html#a05a903cf46bc0d209f5172a60d221b80">name</a>) noexcept</td></tr>
+<tr class="separator:adbf75b64a69502824b10f27a32e8086c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9054aec8fc457f20173ec176253de3e2" id="r_a9054aec8fc457f20173ec176253de3e2"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#a9054aec8fc457f20173ec176253de3e2">fs8::detail::short_name</a> (std::string_view pretty) noexcept</td></tr>
+<tr class="separator:a9054aec8fc457f20173ec176253de3e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabd79e2db894868cf254195ff2bdc075" id="r_aabd79e2db894868cf254195ff2bdc075"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aabd79e2db894868cf254195ff2bdc075"><td class="memTemplItemLeft" align="right" valign="top">consteval std::string_view&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aabd79e2db894868cf254195ff2bdc075">fs8::pretty_type_name</a> () noexcept</td></tr>
+<tr class="separator:aabd79e2db894868cf254195ff2bdc075"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

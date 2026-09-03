@@ -1509,6 +1509,9 @@ requires (std::invocable&lt;Func&gt;)</td></tr>
 <tr class="memitem:af09228b108cada750b70aa0d2e5cb19c" id="r_af09228b108cada750b70aa0d2e5cb19c"><td class="memTemplParams" colspan="2">template&lt;typename CharT , typename CharT2 &gt; </td></tr>
 <tr class="memitem:af09228b108cada750b70aa0d2e5cb19c"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af09228b108cada750b70aa0d2e5cb19c">fs8::iequals</a> (std::basic_string_view&lt; CharT &gt; const lhs, std::basic_string_view&lt; CharT2 &gt; const rhs) noexcept</td></tr>
 <tr class="separator:af09228b108cada750b70aa0d2e5cb19c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabd79e2db894868cf254195ff2bdc075" id="r_aabd79e2db894868cf254195ff2bdc075"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aabd79e2db894868cf254195ff2bdc075"><td class="memTemplItemLeft" align="right" valign="top">consteval std::string_view&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aabd79e2db894868cf254195ff2bdc075">fs8::pretty_type_name</a> () noexcept</td></tr>
+<tr class="separator:aabd79e2db894868cf254195ff2bdc075"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -9710,6 +9713,34 @@ template&lt;typename... CT&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="aabd79e2db894868cf254195ff2bdc075" name="aabd79e2db894868cf254195ff2bdc075"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aabd79e2db894868cf254195ff2bdc075">&#9670;&#160;</a></span>pretty_type_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">consteval std::string_view fs8::pretty_type_name </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Extract a short readable name from <b>PRETTY_FUNCTION</b>. Turns "...pretty_type_name() [T = fs8::basic_abs2rel]" into "basic_abs2rel". </p>
 
 </div>
 </div>

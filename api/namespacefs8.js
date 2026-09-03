@@ -617,6 +617,7 @@ var namespacefs8 =
     [ "parse_query_term", "namespacefs8.html#afb0165af2697e37972769e52344db5a3", null ],
     [ "positive", "namespacefs8.html#a64b7cf91b955c18641f361af3c421c08", null ],
     [ "press", "namespacefs8.html#a3356d68a6055db3e3ea8a6a0c586c5b6", null ],
+    [ "pretty_type_name", "namespacefs8.html#aabd79e2db894868cf254195ff2bdc075", null ],
     [ "properties", "namespacefs8.html#a4124ae022b95ae28e20b323aa6d4caf0", null ],
     [ "property", "namespacefs8.html#a7735f946e8cfa7ddc5796e7db34bed1f", null ],
     [ "property", "namespacefs8.html#ada9fb1cae3a16f44f5bfe1972c522b47", null ],

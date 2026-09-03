@@ -56,7 +56,7 @@ var searchData=
   ['set_5ftarget_53',['set_target',['../structfs8_1_1momentum__calculator.html#ad9b6aacdbd33439c33daed0a34cd8d92',1,'fs8::momentum_calculator']]],
   ['set_5ftime_5fthreshold_54',['set_time_threshold',['../structfs8_1_1basic__debounce.html#abe3d9f1c9cfc1454ff3753532e097b48',1,'fs8::basic_debounce']]],
   ['set_5fvariable_55',['set_variable',['../structfs8_1_1bash__runner.html#a65b0040b33f57be744d7b94531433a50',1,'fs8::bash_runner']]],
-  ['short_5fname_56',['short_name',['../namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html#a990479d160f11c3a2c3764a916eca830',1,'fs8::benchmark_detail::pretty_type_name_impl']]],
+  ['short_5fname_56',['short_name',['../namespacefs8_1_1detail.html#a9054aec8fc457f20173ec176253de3e2',1,'fs8::detail']]],
   ['sid_57',['sid',['../namespacefs8.html#a601850b77443140d821d53b449251fb5',1,'fs8::sid(ModT const &amp;, std::uint16_t const idx) noexcept'],['../namespacefs8.html#ad46e27365094f4b86ca86bf6eecc4b73',1,'fs8::sid(auto const &amp;mod) noexcept'],['../namespacefs8.html#a6481ac42a6d838583ebbd92fe9680127',1,'fs8::sid(std::uint32_t const src) noexcept']]],
   ['sieve_58',['sieve',['../namespacefs8.html#a1c580624bc8aa3a062d5189176ac6cbf',1,'fs8']]],
   ['signals_59',['signals',['../namespacesignals.html',1,'']]],

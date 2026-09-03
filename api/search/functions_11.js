@@ -39,7 +39,7 @@ var searchData=
   ['set_5ftarget_36',['set_target',['../structfs8_1_1momentum__calculator.html#ad9b6aacdbd33439c33daed0a34cd8d92',1,'fs8::momentum_calculator']]],
   ['set_5ftime_5fthreshold_37',['set_time_threshold',['../structfs8_1_1basic__debounce.html#abe3d9f1c9cfc1454ff3753532e097b48',1,'fs8::basic_debounce']]],
   ['set_5fvariable_38',['set_variable',['../structfs8_1_1bash__runner.html#a65b0040b33f57be744d7b94531433a50',1,'fs8::bash_runner']]],
-  ['short_5fname_39',['short_name',['../namespacefs8_1_1benchmark__detail_1_1pretty__type__name__impl.html#a990479d160f11c3a2c3764a916eca830',1,'fs8::benchmark_detail::pretty_type_name_impl']]],
+  ['short_5fname_39',['short_name',['../namespacefs8_1_1detail.html#a9054aec8fc457f20173ec176253de3e2',1,'fs8::detail']]],
   ['sid_40',['sid',['../namespacefs8.html#a6481ac42a6d838583ebbd92fe9680127',1,'fs8::sid(std::uint32_t const src) noexcept'],['../namespacefs8.html#ad46e27365094f4b86ca86bf6eecc4b73',1,'fs8::sid(auto const &amp;mod) noexcept'],['../namespacefs8.html#a601850b77443140d821d53b449251fb5',1,'fs8::sid(ModT const &amp;, std::uint16_t const idx) noexcept']]],
   ['size_41',['size',['../structfs8_1_1basic__record.html#ac553e159f07b04c46e1daf74e7f7897e',1,'fs8::basic_record::size()'],['../structfs8_1_1basic__parsed__args.html#af32cfe6256fcb8c31a6f4d5cd47361c0',1,'fs8::basic_parsed_args::size()'],['../structfs8_1_1basic__io__manager.html#ad9674dc4e993036b516a65a4aa431658',1,'fs8::basic_io_manager::size()']]],
   ['source_42',['source',['../structfs8_1_1event__type.html#a39af3d016dda404ab5ef18940892c144',1,'fs8::event_type::source(std::uint32_t const inp_source) noexcept'],['../structfs8_1_1event__type.html#abdb07548ba9805d871b3138a68726719',1,'fs8::event_type::source() const noexcept']]],

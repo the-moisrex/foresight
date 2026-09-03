@@ -17,7 +17,7 @@ var searchData=
   ['positive_14',['positive',['../namespacefs8.html#a64b7cf91b955c18641f361af3c421c08',1,'fs8']]],
   ['pred_5fdest_15',['pred_dest',['../structfs8_1_1momentum__calculator.html#aafaa2aa6868fa214b79d95887b9cc3ef',1,'fs8::momentum_calculator']]],
   ['press_16',['press',['../namespacefs8.html#a3356d68a6055db3e3ea8a6a0c586c5b6',1,'fs8']]],
-  ['pretty_5ftype_5fname_17',['pretty_type_name',['../namespacefs8_1_1benchmark__detail.html#a40ac73320e7d1ed8b0bd982d6b6356f0',1,'fs8::benchmark_detail']]],
+  ['pretty_5ftype_5fname_17',['pretty_type_name',['../namespacefs8.html#aabd79e2db894868cf254195ff2bdc075',1,'fs8']]],
   ['prev_18',['prev',['../structfs8_1_1basic__mouse__history.html#a266204c34e42b3e85f355b9ddb4e0e65',1,'fs8::basic_mouse_history']]],
   ['print_19',['print',['../namespacefs8_1_1xkb_1_1how2type.html#ab3398033562ea1870166a5a43856c692',1,'fs8::xkb::how2type::print(keymap const &amp;map, std::string_view, output_syntax)'],['../namespacefs8_1_1xkb_1_1how2type.html#a3e2ed67e8330c0f5764aef2c02488b85',1,'fs8::xkb::how2type::print(std::string_view, output_syntax syntax=output_syntax::evtest)']]],
   ['print_5fhelp_20',['print_help',['../structfs8_1_1basic__parsed__args.html#ad874b756a80827294ccd4831789321b4',1,'fs8::basic_parsed_args']]],
