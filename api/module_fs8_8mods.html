@@ -455,9 +455,6 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html">fs8::basic_benchmark&lt; Funcs &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__all.html">fs8::basic_benchmark_all</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory type: benchmark_all[context | mod1 | mod2] wraps each mod in its own benchmark.  <a href="structfs8_1_1basic__benchmark__all.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html">fs8::basic_benchmark_result&lt; SinkT &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -584,6 +581,8 @@ Typedefs</h2></td></tr>
 <tr class="separator:af1f79c25b77e40080bd74dd919ec7872"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:addabcc3e40ddef24d8822a7eb66ecc2f" id="r_addabcc3e40ddef24d8822a7eb66ecc2f"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__io__manager.html#addabcc3e40ddef24d8822a7eb66ecc2f">io_callback</a> = std::function_ref&lt; context_action(io_fd &amp;)&gt;</td></tr>
 <tr class="separator:addabcc3e40ddef24d8822a7eb66ecc2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d76202bfffc6597f88a8c6ea2080116" id="r_a1d76202bfffc6597f88a8c6ea2080116"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__io__manager.html#a1d76202bfffc6597f88a8c6ea2080116">idle_callback</a> = std::function&lt; void(std::chrono::microseconds)&gt;</td></tr>
+<tr class="separator:a1d76202bfffc6597f88a8c6ea2080116"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae948c6f9bb7ef75fa384dd3a8d6cac9f" id="r_ae948c6f9bb7ef75fa384dd3a8d6cac9f"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__state.html#ae948c6f9bb7ef75fa384dd3a8d6cac9f">code_type</a> = event_type::code_type</td></tr>
 <tr class="separator:ae948c6f9bb7ef75fa384dd3a8d6cac9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76ecfb265726792e4f40e51f0e99386c" id="r_a76ecfb265726792e4f40e51f0e99386c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__state.html#a76ecfb265726792e4f40e51f0e99386c">value_type</a> = event_type::value_type</td></tr>
@@ -661,7 +660,7 @@ Functions</h2></td></tr>
 <tr class="separator:a286bb2549ee192845b17f98296811476"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:accaa8db0b5cbfbcc31377d3e66a5035a" id="r_accaa8db0b5cbfbcc31377d3e66a5035a"><td class="memTemplParams" colspan="2">template&lt;ContextWith&lt; basic_io_manager &gt; CtxT&gt; </td></tr>
 <tr class="memitem:accaa8db0b5cbfbcc31377d3e66a5035a"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__idle__detector.html#accaa8db0b5cbfbcc31377d3e66a5035a">operator()</a> (CtxT &amp;ctx, special_event const &amp;tag) noexcept</td></tr>
-<tr class="memdesc:accaa8db0b5cbfbcc31377d3e66a5035a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle start and next_event special events.  <br /></td></tr>
+<tr class="memdesc:accaa8db0b5cbfbcc31377d3e66a5035a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle start: configure io_manager timeout and register idle callback.  <br /></td></tr>
 <tr class="separator:accaa8db0b5cbfbcc31377d3e66a5035a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6705dc625e40c903c3aaa7faf71e2f57" id="r_a6705dc625e40c903c3aaa7faf71e2f57"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__idle__detector.html#a6705dc625e40c903c3aaa7faf71e2f57">operator()</a> () noexcept</td></tr>
 <tr class="memdesc:a6705dc625e40c903c3aaa7faf71e2f57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pass through regular events (no-op).  <br /></td></tr>
@@ -1453,12 +1452,11 @@ requires (sizeof...(C) &gt;= 1)</td></tr>
 <tr class="memitem:a32c5e4f9e0e5fa48f61b45cea0bea327" id="r_a32c5e4f9e0e5fa48f61b45cea0bea327"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__io__manager.html#a32c5e4f9e0e5fa48f61b45cea0bea327">clear_idle_timeout</a> () noexcept</td></tr>
 <tr class="memdesc:a32c5e4f9e0e5fa48f61b45cea0bea327"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable the idle timeout.  <br /></td></tr>
 <tr class="separator:a32c5e4f9e0e5fa48f61b45cea0bea327"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d38b1030ce7b4cd0abe5485354ab74b" id="r_a3d38b1030ce7b4cd0abe5485354ab74b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__io__manager.html#a3d38b1030ce7b4cd0abe5485354ab74b">is_idle</a> () const noexcept</td></tr>
-<tr class="memdesc:a3d38b1030ce7b4cd0abe5485354ab74b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the idle timeout has fired since the last <code><a class="el" href="structfs8_1_1basic__io__manager.html#a0685b27967ab63ec3281514cd27a06c4" title="Consume the idle flag (called by the idle_detector after producing an event).">clear_idle()</a></code> call.  <br /></td></tr>
-<tr class="separator:a3d38b1030ce7b4cd0abe5485354ab74b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0685b27967ab63ec3281514cd27a06c4" id="r_a0685b27967ab63ec3281514cd27a06c4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__io__manager.html#a0685b27967ab63ec3281514cd27a06c4">clear_idle</a> () noexcept</td></tr>
-<tr class="memdesc:a0685b27967ab63ec3281514cd27a06c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume the idle flag (called by the idle_detector after producing an event).  <br /></td></tr>
-<tr class="separator:a0685b27967ab63ec3281514cd27a06c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47860c9d1e6cda429b1068445a2baec6" id="r_a47860c9d1e6cda429b1068445a2baec6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__io__manager.html#a47860c9d1e6cda429b1068445a2baec6">set_idle_callback</a> (idle_callback cb) noexcept</td></tr>
+<tr class="separator:a47860c9d1e6cda429b1068445a2baec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab87e1d00d69ccea201a143d47aee9dfb" id="r_ab87e1d00d69ccea201a143d47aee9dfb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__io__manager.html#ab87e1d00d69ccea201a143d47aee9dfb">clear_idle_callback</a> () noexcept</td></tr>
+<tr class="memdesc:ab87e1d00d69ccea201a143d47aee9dfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unregister the idle callback.  <br /></td></tr>
+<tr class="separator:ab87e1d00d69ccea201a143d47aee9dfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa30afd1158633c5fc45c676faeb9972" id="r_afa30afd1158633c5fc45c676faeb9972"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__io__manager.html#afa30afd1158633c5fc45c676faeb9972">operator()</a> (special_event const &amp;tag) noexcept</td></tr>
 <tr class="separator:afa30afd1158633c5fc45c676faeb9972"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a320324af149f7c2db873a197b7852196" id="r_a320324af149f7c2db873a197b7852196"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__keys__state.html#a320324af149f7c2db873a197b7852196">is_pressed</a> (std::span&lt; code_type const &gt; key_codes) const noexcept</td></tr>
@@ -2009,8 +2007,8 @@ Variables</h2></td></tr>
 <tr class="separator:aaa8e58604e1cb96172ab1e4abc48f95a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaac6ec7de2ca1f652e55d90a2eba0ea2" id="r_aaac6ec7de2ca1f652e55d90a2eba0ea2"><td class="memItemLeft" align="right" valign="top">constexpr basic_benchmark&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aaac6ec7de2ca1f652e55d90a2eba0ea2">fs8::benchmark</a></td></tr>
 <tr class="separator:aaac6ec7de2ca1f652e55d90a2eba0ea2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e9552f81df145fc196323af172e4664" id="r_a3e9552f81df145fc196323af172e4664"><td class="memItemLeft" align="right" valign="top">constexpr basic_benchmark_all&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3e9552f81df145fc196323af172e4664">fs8::benchmark_all</a></td></tr>
-<tr class="separator:a3e9552f81df145fc196323af172e4664"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53e94787fdce8a7f6cfb59d8eb6371bd" id="r_a53e94787fdce8a7f6cfb59d8eb6371bd"><td class="memItemLeft" align="right" valign="top">constexpr benchmark_detail::benchmark_all_factory&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a53e94787fdce8a7f6cfb59d8eb6371bd">fs8::benchmark_all</a></td></tr>
+<tr class="separator:a53e94787fdce8a7f6cfb59d8eb6371bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8f6ebde2e945dea4bc48beb35acfc5d3" id="r_a8f6ebde2e945dea4bc48beb35acfc5d3"><td class="memItemLeft" align="right" valign="top">basic_benchmark_result&lt; nullptr_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a8f6ebde2e945dea4bc48beb35acfc5d3">fs8::benchmark_result</a></td></tr>
 <tr class="separator:a8f6ebde2e945dea4bc48beb35acfc5d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>

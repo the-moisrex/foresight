@@ -54,6 +54,7 @@ var context_8ixx =
     [ "invoke_sub_pipeline", "context_8ixx.html#a36dcea7eeb43984c61cee59a52decf19", null ],
     [ "invoke_sub_pipeline", "context_8ixx.html#a11d0b7eda30ceb9c51614e3311d45705", null ],
     [ "is_exiting", "context_8ixx.html#a77b74a57f7e2e0944475fdc75e7a11b2", null ],
+    [ "is_lifecycle_event", "context_8ixx.html#a5871a3c039b921a19b53af87e040f2f2", null ],
     [ "operator!", "context_8ixx.html#a4633b2b802fd39caa76db32121ee3c21", null ],
     [ "to_string", "context_8ixx.html#aebf04814ae9d82a70029373f09ddc2c5", null ],
     [ "type", "context_8ixx.html#aae8069288a60ff7eade06c09f9ebcdf1", null ],

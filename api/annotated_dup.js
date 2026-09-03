@@ -8,6 +8,9 @@ var annotated_dup =
       [ "unique_types< TupleT<> >", "structdetails_1_1unique__types_3_01TupleT_3_4_01_4.html", "structdetails_1_1unique__types_3_01TupleT_3_4_01_4" ]
     ] ],
     [ "fs8", "namespacefs8.html", [
+      [ "benchmark_detail", "namespacefs8_1_1benchmark__detail.html", [
+        [ "benchmark_all_factory", "structfs8_1_1benchmark__detail_1_1benchmark__all__factory.html", "structfs8_1_1benchmark__detail_1_1benchmark__all__factory" ]
+      ] ],
       [ "detail", "namespacefs8_1_1detail.html", [
         [ "modes_caller_info", "structfs8_1_1detail_1_1modes__caller__info.html", "structfs8_1_1detail_1_1modes__caller__info" ],
         [ "router_state", "structfs8_1_1detail_1_1router__state.html", "structfs8_1_1detail_1_1router__state" ]
@@ -39,7 +42,6 @@ var annotated_dup =
       [ "basic_auto_mode_tag", "structfs8_1_1basic__auto__mode__tag.html", "structfs8_1_1basic__auto__mode__tag" ],
       [ "basic_autocomplete", "structfs8_1_1basic__autocomplete.html", "structfs8_1_1basic__autocomplete" ],
       [ "basic_benchmark", "structfs8_1_1basic__benchmark.html", "structfs8_1_1basic__benchmark" ],
-      [ "basic_benchmark_all", "structfs8_1_1basic__benchmark__all.html", "structfs8_1_1basic__benchmark__all" ],
       [ "basic_benchmark_counter", "structfs8_1_1basic__benchmark__counter.html", "structfs8_1_1basic__benchmark__counter" ],
       [ "basic_benchmark_result", "structfs8_1_1basic__benchmark__result.html", "structfs8_1_1basic__benchmark__result" ],
       [ "basic_code_adaptor", "structfs8_1_1basic__code__adaptor.html", "structfs8_1_1basic__code__adaptor" ],

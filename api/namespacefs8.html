@@ -151,9 +151,6 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark.html">basic_benchmark</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__all.html">basic_benchmark_all</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory type: benchmark_all[context | mod1 | mod2] wraps each mod in its own benchmark.  <a href="structfs8_1_1basic__benchmark__all.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__counter.html">basic_benchmark_counter</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html">basic_benchmark_result</a></td></tr>
@@ -1196,6 +1193,8 @@ requires (std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#adcd5f
 <tr class="memitem:ac23b458b3d9a91fbb0306b9e9ff9c37b" id="r_ac23b458b3d9a91fbb0306b9e9ff9c37b"><td class="memTemplParams" colspan="2">template&lt;typename Mod , typename Fn &gt; </td></tr>
 <tr class="memitem:ac23b458b3d9a91fbb0306b9e9ff9c37b"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac23b458b3d9a91fbb0306b9e9ff9c37b">fs8::walk_mod_tree</a> (Mod &amp;mod, Fn &amp;&amp;fn) noexcept</td></tr>
 <tr class="separator:ac23b458b3d9a91fbb0306b9e9ff9c37b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5871a3c039b921a19b53af87e040f2f2" id="r_a5871a3c039b921a19b53af87e040f2f2"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5871a3c039b921a19b53af87e040f2f2">fs8::is_lifecycle_event</a> (<a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
+<tr class="separator:a5871a3c039b921a19b53af87e040f2f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a910bdbe1244dfd8998b4e5faee6e1b3b" id="r_a910bdbe1244dfd8998b4e5faee6e1b3b"><td class="memTemplParams" colspan="2">template&lt;typename Mod &gt; </td></tr>
 <tr class="memitem:a910bdbe1244dfd8998b4e5faee6e1b3b"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a910bdbe1244dfd8998b4e5faee6e1b3b">fs8::collect_mods_of_impl</a> (Mod &amp;mod, void const *token, std::function_ref&lt; void(void *)&gt; <a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a>, bool const recursive) noexcept</td></tr>
 <tr class="separator:a910bdbe1244dfd8998b4e5faee6e1b3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1649,8 +1648,8 @@ Variables</h2></td></tr>
 <tr class="separator:a8c056bbf138ebd63d8bffabcf0b816c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaac6ec7de2ca1f652e55d90a2eba0ea2" id="r_aaac6ec7de2ca1f652e55d90a2eba0ea2"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__benchmark.html">basic_benchmark</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aaac6ec7de2ca1f652e55d90a2eba0ea2">fs8::benchmark</a></td></tr>
 <tr class="separator:aaac6ec7de2ca1f652e55d90a2eba0ea2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e9552f81df145fc196323af172e4664" id="r_a3e9552f81df145fc196323af172e4664"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__benchmark__all.html">basic_benchmark_all</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a3e9552f81df145fc196323af172e4664">fs8::benchmark_all</a></td></tr>
-<tr class="separator:a3e9552f81df145fc196323af172e4664"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53e94787fdce8a7f6cfb59d8eb6371bd" id="r_a53e94787fdce8a7f6cfb59d8eb6371bd"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1benchmark__detail_1_1benchmark__all__factory.html">benchmark_detail::benchmark_all_factory</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a53e94787fdce8a7f6cfb59d8eb6371bd">fs8::benchmark_all</a></td></tr>
+<tr class="separator:a53e94787fdce8a7f6cfb59d8eb6371bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8f6ebde2e945dea4bc48beb35acfc5d3" id="r_a8f6ebde2e945dea4bc48beb35acfc5d3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__benchmark__result.html">basic_benchmark_result</a>&lt; nullptr_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a8f6ebde2e945dea4bc48beb35acfc5d3">fs8::benchmark_result</a></td></tr>
 <tr class="separator:a8f6ebde2e945dea4bc48beb35acfc5d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f787cdfdd8dadd61885e398d7320029" id="r_a4f787cdfdd8dadd61885e398d7320029"><td class="memItemLeft" align="right" valign="top">constexpr struct <a class="el" href="structfs8_1_1get__variables__tag.html">fs8::get_variables_tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a4f787cdfdd8dadd61885e398d7320029">get_variables</a></td></tr>
@@ -6279,6 +6278,33 @@ template&lt;Context CtxT, typename... Funcs&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5871a3c039b921a19b53af87e040f2f2" name="a5871a3c039b921a19b53af87e040f2f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5871a3c039b921a19b53af87e040f2f2">&#9670;&#160;</a></span>is_lifecycle_event()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr bool fs8::is_lifecycle_event </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;&#160;</td>
+          <td class="paramname"><em>tag</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>True if tag is a lifecycle event (toggle_on or toggle_off). Both share the same code; they are distinguished by value. </p>
 
 </div>
 </div>
@@ -11499,8 +11525,8 @@ template&lt;typename Mod , typename Fn &gt; </div>
 
 </div>
 </div>
-<a id="a3e9552f81df145fc196323af172e4664" name="a3e9552f81df145fc196323af172e4664"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3e9552f81df145fc196323af172e4664">&#9670;&#160;</a></span>benchmark_all</h2>
+<a id="a53e94787fdce8a7f6cfb59d8eb6371bd" name="a53e94787fdce8a7f6cfb59d8eb6371bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53e94787fdce8a7f6cfb59d8eb6371bd">&#9670;&#160;</a></span>benchmark_all</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -11509,7 +11535,7 @@ template&lt;typename Mod , typename Fn &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__benchmark__all.html">basic_benchmark_all</a> fs8::benchmark_all</td>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1benchmark__detail_1_1benchmark__all__factory.html">benchmark_detail::benchmark_all_factory</a> fs8::benchmark_all</td>
         </tr>
       </table>
   </td>

@@ -13,7 +13,7 @@ var searchData=
   ['ci_5fhash_10',['ci_hash',['../namespacefs8.html#a011eb55d314bb09e2b44b99630f79d8d',1,'fs8']]],
   ['clear_11',['clear',['../structfs8_1_1basic__benchmark__counter.html#af58459b46101ce6fd6732f22fa2d36df',1,'fs8::basic_benchmark_counter::clear()'],['../structfs8_1_1basic__benchmark.html#a4ad2f9ab98905fe933c02d7939744adc',1,'fs8::basic_benchmark::clear()'],['../structfs8_1_1basic__io__manager.html#a4eb5e376092aec20f69dc867e9159d2c',1,'fs8::basic_io_manager::clear()'],['../structfs8_1_1basic__record.html#ae7532c924ec82ddc5b426b77ca32aa97',1,'fs8::basic_record::clear()']]],
   ['clear_5fanimating_12',['clear_animating',['../structfs8_1_1basic__momentum__base.html#a7b4b35c2ee992ae34609ab218b3ca0de',1,'fs8::basic_momentum_base']]],
-  ['clear_5fidle_13',['clear_idle',['../structfs8_1_1basic__io__manager.html#a0685b27967ab63ec3281514cd27a06c4',1,'fs8::basic_io_manager']]],
+  ['clear_5fidle_5fcallback_13',['clear_idle_callback',['../structfs8_1_1basic__io__manager.html#ab87e1d00d69ccea201a143d47aee9dfb',1,'fs8::basic_io_manager']]],
   ['clear_5fidle_5ftimeout_14',['clear_idle_timeout',['../structfs8_1_1basic__io__manager.html#a32c5e4f9e0e5fa48f61b45cea0bea327',1,'fs8::basic_io_manager']]],
   ['click_15',['click',['../structfs8_1_1basic__debounce.html#a556b8e453bfa00a6742b1d24e21f580f',1,'fs8::basic_debounce']]],
   ['clone_5fdevice_16',['clone_device',['../namespacefs8.html#a996246e0d2b1df88f4a847d03cf0ff90',1,'fs8']]],

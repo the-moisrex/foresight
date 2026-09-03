@@ -13,7 +13,6 @@ var hierarchy =
     [ "fs8::basic_always_enable", "structfs8_1_1basic__always__enable.html", null ],
     [ "fs8::basic_arguments< DefaultsN, MaxPositionals, MaxFlags, MaxNames >", "structfs8_1_1basic__arguments.html", null ],
     [ "fs8::basic_auto_mode_tag", "structfs8_1_1basic__auto__mode__tag.html", null ],
-    [ "fs8::basic_benchmark_all", "structfs8_1_1basic__benchmark__all.html", null ],
     [ "fs8::basic_benchmark_counter", "structfs8_1_1basic__benchmark__counter.html", null ],
     [ "fs8::basic_device_id_of", "structfs8_1_1basic__device__id__of.html", null ],
     [ "fs8::basic_device_is", "structfs8_1_1basic__device__is.html", null ],
@@ -46,6 +45,7 @@ var hierarchy =
     [ "fs8::basic_pen2touch", "structfs8_1_1basic__pen2touch.html", null ],
     [ "fs8::basic_self_emitted", "structfs8_1_1basic__self__emitted.html", null ],
     [ "fs8::xkb::basic_state", "structfs8_1_1xkb_1_1basic__state.html", null ],
+    [ "fs8::benchmark_detail::benchmark_all_factory", "structfs8_1_1benchmark__detail_1_1benchmark__all__factory.html", null ],
     [ "fs8::idle_repeat::consistent< PeriodUs >", "structfs8_1_1idle__repeat_1_1consistent.html", null ],
     [ "fs8::consteval_copyable", "structfs8_1_1consteval__copyable.html", [
       [ "fs8::basic_code_adaptor< basic_pressed, N >", "structfs8_1_1basic__code__adaptor.html", [

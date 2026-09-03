@@ -122,7 +122,7 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a286bb2549ee192845b17f98296811476"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:accaa8db0b5cbfbcc31377d3e66a5035a" id="r_accaa8db0b5cbfbcc31377d3e66a5035a"><td class="memTemplParams" colspan="2">template&lt;ContextWith&lt; <a class="el" href="structfs8_1_1basic__io__manager.html">basic_io_manager</a> &gt; CtxT&gt; </td></tr>
 <tr class="memitem:accaa8db0b5cbfbcc31377d3e66a5035a"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__idle__detector.html#accaa8db0b5cbfbcc31377d3e66a5035a">operator()</a> (CtxT &amp;ctx, <a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
-<tr class="memdesc:accaa8db0b5cbfbcc31377d3e66a5035a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle start and next_event special events.  <br /></td></tr>
+<tr class="memdesc:accaa8db0b5cbfbcc31377d3e66a5035a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle start: configure io_manager timeout and register idle callback.  <br /></td></tr>
 <tr class="separator:accaa8db0b5cbfbcc31377d3e66a5035a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6705dc625e40c903c3aaa7faf71e2f57" id="r_a6705dc625e40c903c3aaa7faf71e2f57"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__idle__detector.html#a6705dc625e40c903c3aaa7faf71e2f57">operator()</a> () noexcept</td></tr>
 <tr class="memdesc:a6705dc625e40c903c3aaa7faf71e2f57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pass through regular events (no-op).  <br /></td></tr>
@@ -156,8 +156,8 @@ struct fs8::basic_idle_detector&lt; RepeatT &gt;</div><p>Detect pipeline idle (n
 <div class="line"><span class="keyword">auto</span> pipeline = <a class="code hl_variable" href="namespacefs8.html#a1f84efa1ecc04f2041d05aab1244b770">context</a> | <a class="code hl_variable" href="namespacefs8.html#a94c045c9f25ce171f90ea715226c9df0">io_manager</a></div>
 <div class="line">    | <a class="code hl_variable" href="namespacefs8.html#a74388b5fa216fbbf59bf310503c1eea1">idle_detector</a>[std::chrono::seconds{1}, <a class="code hl_struct" href="structfs8_1_1idle__repeat_1_1consistent.html">idle_repeat::consistent</a>&lt;500&#39;000&gt;&gt;</div>
 <div class="line">    | ...;</div>
-<div class="ttc" id="anamespacefs8_html_a1f84efa1ecc04f2041d05aab1244b770"><div class="ttname"><a href="namespacefs8.html#a1f84efa1ecc04f2041d05aab1244b770">fs8::context</a></div><div class="ttdeci">constexpr basic_context context</div><div class="ttdef"><b>Definition</b> context.ixx:1091</div></div>
-<div class="ttc" id="anamespacefs8_html_a74388b5fa216fbbf59bf310503c1eea1"><div class="ttname"><a href="namespacefs8.html#a74388b5fa216fbbf59bf310503c1eea1">fs8::idle_detector</a></div><div class="ttdeci">constexpr basic_idle_detector idle_detector</div><div class="ttdoc">Default instance: fire once after 1 second of idle.</div><div class="ttdef"><b>Definition</b> idle_detector.ixx:148</div></div>
+<div class="ttc" id="anamespacefs8_html_a1f84efa1ecc04f2041d05aab1244b770"><div class="ttname"><a href="namespacefs8.html#a1f84efa1ecc04f2041d05aab1244b770">fs8::context</a></div><div class="ttdeci">constexpr basic_context context</div><div class="ttdef"><b>Definition</b> context.ixx:1097</div></div>
+<div class="ttc" id="anamespacefs8_html_a74388b5fa216fbbf59bf310503c1eea1"><div class="ttname"><a href="namespacefs8.html#a74388b5fa216fbbf59bf310503c1eea1">fs8::idle_detector</a></div><div class="ttdeci">constexpr basic_idle_detector idle_detector</div><div class="ttdoc">Default instance: fire once after 1 second of idle.</div><div class="ttdef"><b>Definition</b> idle_detector.ixx:141</div></div>
 <div class="ttc" id="anamespacefs8_html_a94c045c9f25ce171f90ea715226c9df0"><div class="ttname"><a href="namespacefs8.html#a94c045c9f25ce171f90ea715226c9df0">fs8::io_manager</a></div><div class="ttdeci">fs8::basic_io_manager io_manager</div></div>
 <div class="ttc" id="astructfs8_1_1idle__repeat_1_1consistent_html"><div class="ttname"><a href="structfs8_1_1idle__repeat_1_1consistent.html">fs8::idle_repeat::consistent</a></div><div class="ttdoc">Fire every PeriodUs microseconds while idle (constant interval).</div><div class="ttdef"><b>Definition</b> idle_detector.ixx:36</div></div>
 </div><!-- fragment --> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
@@ -377,7 +377,7 @@ template&lt;ContextWith&lt; <a class="el" href="structfs8_1_1basic__io__manager.
 </table>
 </div><div class="memdoc">
 
-<p>Handle start and next_event special events. </p>
+<p>Handle start: configure io_manager timeout and register idle callback. </p>
 
 </div>
 </div>
