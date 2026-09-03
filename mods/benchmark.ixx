@@ -1,7 +1,10 @@
 // Created by moisrex on 8/22/26.
 
 module;
+#include <algorithm>
+#include <array>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <string_view>
 #include <tuple>
@@ -11,7 +14,6 @@ import fs8.context;
 import fs8.traits;
 
 namespace fs8 {
-
 
     export template <Modifier... Funcs>
     struct [[nodiscard]] basic_benchmark : consteval_copyable {
@@ -27,19 +29,54 @@ namespace fs8 {
             duration      min{duration::max()};
             duration      max{};
 
+            // Running variance (Welford's online algorithm)
+            double mean = 0.0;
+            double m2   = 0.0;
+
+            // Last N samples for percentile estimation (circular buffer, sorted on read)
+            static constexpr std::size_t max_samples = 100;
+            std::array<duration, max_samples> samples{};
+            std::size_t sample_count = 0;
+            std::size_t sample_write = 0;
+
             [[nodiscard]] constexpr duration average() const noexcept {
                 return calls == 0 ? duration{} : total / static_cast<std::int64_t>(calls);
+            }
+
+            [[nodiscard]] constexpr double std_deviation() const noexcept {
+                return calls < 2 ? 0.0 : std::sqrt(m2 / static_cast<double>(calls - 1));
+            }
+
+            [[nodiscard]] constexpr duration percentile(double p) const noexcept {
+                if (sample_count == 0) return {};
+                // Copy samples into a sorted array
+                std::array<duration, max_samples> sorted{};
+                auto const n = std::min(sample_count, max_samples);
+                for (std::size_t i = 0; i < n; ++i) {
+                    sorted[i] = samples[i];
+                }
+                std::sort(sorted.begin(), sorted.begin() + static_cast<std::ptrdiff_t>(n));
+                auto const idx = static_cast<std::size_t>(
+                    std::clamp(p * static_cast<double>(n - 1), 0.0, static_cast<double>(n - 1)));
+                return sorted[idx];
             }
 
             constexpr void record(duration elapsed) noexcept {
                 ++calls;
                 total += elapsed;
-                if (elapsed < min) {
-                    min = elapsed;
-                }
-                if (elapsed > max) {
-                    max = elapsed;
-                }
+                if (elapsed < min) min = elapsed;
+                if (elapsed > max) max = elapsed;
+
+                // Welford's online variance
+                auto const delta = static_cast<double>(elapsed.count()) - mean;
+                mean += delta / static_cast<double>(calls);
+                auto const delta2 = static_cast<double>(elapsed.count()) - mean;
+                m2 += delta * delta2;
+
+                // Circular buffer for percentile samples
+                samples[sample_write] = elapsed;
+                sample_write = (sample_write + 1) % max_samples;
+                if (sample_count < max_samples) ++sample_count;
             }
 
             constexpr void clear() noexcept {
@@ -132,6 +169,29 @@ namespace fs8 {
                   ctx.get_mods());
             }
         };
+
+        // Named benchmark proxy: benchmark["name"] | context | mod
+        struct [[nodiscard]] named_benchmark_proxy {
+            std::string_view name;
+
+            template <Context CtxT>
+            [[nodiscard]] consteval auto operator[](CtxT const& ctx) const noexcept {
+                return std::apply(
+                  [&]<typename... ModT>(ModT const&... mods) constexpr noexcept {
+                      return basic_benchmark<std::remove_cvref_t<ModT>...>{name, mods...};
+                  },
+                  ctx.get_mods());
+            }
+
+            template <Modifier... Ms>
+            [[nodiscard]] consteval auto operator|(basic_benchmark<Ms...> const& b) const noexcept {
+                return std::apply(
+                  [&]<typename... ModT>(ModT const&... mods) constexpr noexcept {
+                      return basic_benchmark<std::remove_cvref_t<ModT>...>{name, mods...};
+                  },
+                  b.sub_mods());
+            }
+        };
     } // namespace benchmark_detail
 
     export template <typename SinkT>
@@ -141,6 +201,7 @@ namespace fs8 {
       private:
         [[no_unique_address]] SinkT sink;
         bool                        clear_after = false;
+        std::string_view            name_filter = "";  // empty = report all
 
       public:
         constexpr basic_benchmark_result() noexcept = default;
@@ -148,6 +209,9 @@ namespace fs8 {
         explicit constexpr basic_benchmark_result(SinkT inp_sink) noexcept : sink{std::move(inp_sink)} {}
 
         constexpr basic_benchmark_result(SinkT inp_sink, bool inp_clear) noexcept : sink{std::move(inp_sink)}, clear_after{inp_clear} {}
+
+        constexpr basic_benchmark_result(SinkT inp_sink, bool inp_clear, std::string_view inp_filter) noexcept
+          : sink{std::move(inp_sink)}, clear_after{inp_clear}, name_filter{inp_filter} {}
 
         /// Handle lifecycle events (toggle_on / toggle_off) transparently.
         context_action operator()(special_event const& tag) noexcept {
@@ -159,15 +223,24 @@ namespace fs8 {
             using enum context_action;
             auto visit = [&](auto& mod) noexcept {
                 if constexpr (requires { mod.result(); }) {
-                    auto const& counter = mod.result();
                     auto const  bname   = mod.get_name();
-                    sink("{}: calls={} total={}ns average={}ns min={}ns max={}ns",
-                         bname.empty() ? "benchmark" : bname,
-                         counter.calls,
-                         counter.total.count(),
-                         counter.average().count(),
-                         counter.calls == 0 ? 0 : counter.min.count(),
-                         counter.max.count());
+                    auto const  display = bname.empty() ? std::string_view{"benchmark"} : bname;
+                    // Apply name filter
+                    if (!name_filter.empty() && display != name_filter) {
+                        return;
+                    }
+                    auto const& c = mod.result();
+                    sink("{}: calls={} total={}ns average={}ns min={}ns max={}ns stddev={:.2f}ns p50={}ns p95={}ns p99={}ns",
+                         display,
+                         c.calls,
+                         c.total.count(),
+                         c.average().count(),
+                         c.calls == 0 ? 0 : c.min.count(),
+                         c.max.count(),
+                         c.std_deviation(),
+                         c.percentile(0.50).count(),
+                         c.percentile(0.95).count(),
+                         c.percentile(0.99).count());
                 }
                 if constexpr (requires { mod.clear(); }) {
                     if (clear_after) {
@@ -183,16 +256,16 @@ namespace fs8 {
             return drop_event;
         }
 
-        /// benchmark_result[sink] / benchmark_result[sink, true]: create a result reporter.
+        /// benchmark_result[sink] / benchmark_result[sink, true] / benchmark_result[sink, true, "name"]
         template <typename InpSinkT>
-        [[nodiscard]] consteval auto operator[](InpSinkT inp_sink, bool clear = false) const noexcept {
-            return basic_benchmark_result<std::remove_cvref_t<InpSinkT>>{std::move(inp_sink), clear};
+        [[nodiscard]] consteval auto operator[](InpSinkT inp_sink, bool clear = false, std::string_view filter = "") const noexcept {
+            return basic_benchmark_result<std::remove_cvref_t<InpSinkT>>{std::move(inp_sink), clear, filter};
         }
     };
 
-    export constexpr basic_benchmark<>                       benchmark;
-    export constexpr benchmark_detail::benchmark_all_factory benchmark_all;
-    export basic_benchmark_result<std::nullptr_t>             benchmark_result;
+    export constexpr basic_benchmark<>                               benchmark;
+    export constexpr benchmark_detail::benchmark_all_factory         benchmark_all;
+    export basic_benchmark_result<std::nullptr_t>                    benchmark_result;
 
     static_assert(Modifier<basic_benchmark<>>);
 

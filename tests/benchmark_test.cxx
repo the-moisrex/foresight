@@ -18,7 +18,10 @@ namespace {
     // All benchmark names reported by benchmark_result.
     std::vector<std::string_view> reported_names; // NOLINT(*-global-variables)
 
-    // benchmark_result always calls sink(name, calls, total, average, min, max)
+    // Last format string received by a benchmark_result sink.
+    std::string last_format; // NOLINT(*-global-variables)
+
+    // benchmark_result calls sink(name, calls, total, average, min, max, stddev, p50, p95, p99)
     constexpr auto capture_benchmark = []<typename... Args>(std::format_string<Args...>, Args&&... args) noexcept {
         auto tuple     = std::tuple{std::forward<Args>(args)...};
         last_name      = std::get<0>(tuple);
@@ -34,6 +37,7 @@ namespace {
         reported_calls = 0;
         last_name      = {};
         reported_names.clear();
+        last_format.clear();
     }
 } // namespace
 
@@ -661,4 +665,187 @@ TEST(BenchmarkTest, BenchmarkInsideOnClearActuallyResets) {
     // Clear the benchmark.
     bench.clear();
     EXPECT_EQ(bench.result().calls, 0U);
+}
+
+// ---------------------------------------------------------------------------
+// Counter: std_deviation with 0 or 1 samples returns 0
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, StdDeviationZeroSamples) {
+    basic_benchmark<>::counter c{};
+    EXPECT_DOUBLE_EQ(c.std_deviation(), 0.0);
+
+    c.record(std::chrono::nanoseconds{100});
+    EXPECT_DOUBLE_EQ(c.std_deviation(), 0.0);
+}
+
+// ---------------------------------------------------------------------------
+// Counter: std_deviation is correct for known values
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, StdDeviationCalculation) {
+    basic_benchmark<>::counter c{};
+    // Values: 10, 20, 30, 40, 50 → mean=30, variance=250, stddev≈15.81
+    c.record(std::chrono::nanoseconds{10});
+    c.record(std::chrono::nanoseconds{20});
+    c.record(std::chrono::nanoseconds{30});
+    c.record(std::chrono::nanoseconds{40});
+    c.record(std::chrono::nanoseconds{50});
+
+    EXPECT_DOUBLE_EQ(c.mean, 30.0);
+    EXPECT_NEAR(c.std_deviation(), 15.81, 0.1);
+}
+
+// ---------------------------------------------------------------------------
+// Counter: percentile with no samples returns 0
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, PercentileEmpty) {
+    basic_benchmark<>::counter c{};
+    EXPECT_EQ(c.percentile(0.50).count(), 0);
+    EXPECT_EQ(c.percentile(0.99).count(), 0);
+}
+
+// ---------------------------------------------------------------------------
+// Counter: percentile with known distribution
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, PercentileCalculation) {
+    basic_benchmark<>::counter c{};
+    for (int i = 1; i <= 100; ++i) {
+        c.record(std::chrono::nanoseconds{i});
+    }
+
+    // p50 of [1..100] → 50
+    EXPECT_EQ(c.percentile(0.50).count(), 50);
+    // p95 of [1..100] → 95
+    EXPECT_EQ(c.percentile(0.95).count(), 95);
+    // p99 of [1..100] → 99
+    EXPECT_EQ(c.percentile(0.99).count(), 99);
+}
+
+// ---------------------------------------------------------------------------
+// Counter: percentile works with circular buffer overflow
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, PercentileAfterOverflow) {
+    basic_benchmark<>::counter c{};
+    // Fill beyond max_samples (100)
+    for (int i = 1; i <= 200; ++i) {
+        c.record(std::chrono::nanoseconds{i});
+    }
+    // Buffer contains last 100 values: [101..200]
+    EXPECT_EQ(c.sample_count, basic_benchmark<>::counter::max_samples);
+    EXPECT_GE(c.percentile(0.50).count(), 101);
+    EXPECT_LE(c.percentile(0.50).count(), 200);
+}
+
+// ---------------------------------------------------------------------------
+// Counter: clear resets new fields too
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, CounterClearResetsNewFields) {
+    basic_benchmark<>::counter c{};
+    c.record(std::chrono::nanoseconds{10});
+    c.record(std::chrono::nanoseconds{20});
+    c.record(std::chrono::nanoseconds{30});
+
+    c.clear();
+
+    EXPECT_EQ(c.calls, 0U);
+    EXPECT_DOUBLE_EQ(c.mean, 0.0);
+    EXPECT_DOUBLE_EQ(c.m2, 0.0);
+    EXPECT_EQ(c.sample_count, 0U);
+    EXPECT_EQ(c.sample_write, 0U);
+    EXPECT_DOUBLE_EQ(c.std_deviation(), 0.0);
+    EXPECT_EQ(c.percentile(0.50).count(), 0);
+}
+
+// ---------------------------------------------------------------------------
+// Named benchmark: benchmark["name" | context | mod]
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, NamedBenchmarkWithOperatorOr) {
+    reset_reports();
+
+    (context
+     | emit_all[{
+       {.type = EV_KEY, .code = KEY_A, .value = 0}
+    }]
+     | basic_benchmark<basic_record>{"named_one", record}
+     | on[always_enable, benchmark_result[capture_all_benchmarks]])();
+
+    ASSERT_EQ(reported_names.size(), 1U);
+    EXPECT_EQ(reported_names[0], "named_one");
+}
+
+// ---------------------------------------------------------------------------
+// Named benchmark: factory proxy works
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, NamedBenchmarkFactoryProxy) {
+    // benchmark_result with name filter "alpha" should only report alpha
+    reset_reports();
+
+    (context
+     | emit_all[{
+       {.type = EV_KEY, .code = KEY_A, .value = 0},
+    }]
+     | basic_benchmark<basic_record>{"alpha", record}
+     | basic_benchmark<basic_record>{"beta", record}
+     | on[always_enable, benchmark_result[capture_all_benchmarks, false, "alpha"]])();
+
+    ASSERT_EQ(reported_names.size(), 1U);
+    EXPECT_EQ(reported_names[0], "alpha");
+}
+
+// ---------------------------------------------------------------------------
+// benchmark_result with name filter: only matching names reported
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, BenchmarkResultNameFilter) {
+    reset_reports();
+
+    (context
+     | emit_all[{
+       {.type = EV_KEY, .code = KEY_A, .value = 0},
+    }]
+     | basic_benchmark<basic_record>{"first", record}
+     | basic_benchmark<basic_record>{"second", record}
+     | on[always_enable, benchmark_result[capture_all_benchmarks, false, "second"]])();
+
+    ASSERT_EQ(reported_names.size(), 1U);
+    EXPECT_EQ(reported_names[0], "second");
+}
+
+// ---------------------------------------------------------------------------
+// benchmark_result with empty filter: all reported
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, BenchmarkResultEmptyFilterReportsAll) {
+    reset_reports();
+
+    (context
+     | emit_all[{
+       {.type = EV_KEY, .code = KEY_A, .value = 0},
+    }]
+     | basic_benchmark<basic_record>{"aaa", record}
+     | basic_benchmark<basic_record>{"bbb", record}
+     | on[always_enable, benchmark_result[capture_all_benchmarks, false, ""]])();
+
+    ASSERT_EQ(reported_names.size(), 2U);
+}
+
+// ---------------------------------------------------------------------------
+// benchmark_result sink receives stddev, p50, p95, p99
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, BenchmarkResultSinkReceivesAllFields) {
+    reset_reports();
+
+    constexpr auto capture_format = []<typename... Args>(std::format_string<Args...> fmt, Args&&...) noexcept {
+        last_format = std::string{fmt.get()};
+    };
+
+    (context
+     | emit_all[{
+       {.type = EV_KEY, .code = KEY_A, .value = 1},
+       {.type = EV_KEY, .code = KEY_A, .value = 0},
+    }]
+     | benchmark[context | record]
+     | on[always_enable, benchmark_result[capture_format]])();
+
+    EXPECT_NE(last_format.find("stddev"), std::string::npos);
+    EXPECT_NE(last_format.find("p50"), std::string::npos);
+    EXPECT_NE(last_format.find("p95"), std::string::npos);
+    EXPECT_NE(last_format.find("p99"), std::string::npos);
 }

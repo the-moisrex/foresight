@@ -269,6 +269,7 @@ if (IS_DEBUG)
     add_subdirectory(tests)
 endif ()
 add_subdirectory(apps)
+add_subdirectory(benchmarks)
 
 
 #############################################################

@@ -8,4 +8,10 @@ CPMAddPackage(
 if (benchmark_ADDED)
     # patch benchmark target
     set_target_properties(benchmark PROPERTIES CXX_STANDARD 23)
+    # Suppress warnings that conflict with our -Werror flags
+    target_compile_options(benchmark PRIVATE
+        -Wno-conversion
+        -Wno-float-conversion
+        -Wno-old-style-cast
+    )
 endif ()
