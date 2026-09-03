@@ -1183,9 +1183,9 @@ requires (std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#adcd5f
 <tr class="memitem:ace88079d3933f75106bb627db246af14"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ace88079d3933f75106bb627db246af14">fs8::invoke_first_mod_of_sub_pipeline</a> (CtxT &amp;ctx, std::tuple&lt; Funcs... &gt; &amp;mods, <a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
 <tr class="memdesc:ace88079d3933f75106bb627db246af14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enter a sub-pipeline, invoke_first_mod_of, exit.  <br /></td></tr>
 <tr class="separator:ace88079d3933f75106bb627db246af14"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac23b458b3d9a91fbb0306b9e9ff9c37b" id="r_ac23b458b3d9a91fbb0306b9e9ff9c37b"><td class="memTemplParams" colspan="2">template&lt;typename Mod , typename Fn &gt; </td></tr>
-<tr class="memitem:ac23b458b3d9a91fbb0306b9e9ff9c37b"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac23b458b3d9a91fbb0306b9e9ff9c37b">fs8::walk_mod_tree</a> (Mod &amp;mod, Fn &amp;&amp;fn) noexcept</td></tr>
-<tr class="separator:ac23b458b3d9a91fbb0306b9e9ff9c37b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2207143450903bfdf94eacb382b716cb" id="r_a2207143450903bfdf94eacb382b716cb"><td class="memTemplParams" colspan="2">template&lt;typename Mod , typename Fn &gt; </td></tr>
+<tr class="memitem:a2207143450903bfdf94eacb382b716cb"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2207143450903bfdf94eacb382b716cb">fs8::walk_mod_tree</a> (Mod &amp;mod, Fn &amp;&amp;fn, std::size_t max_depth=SIZE_MAX) noexcept</td></tr>
+<tr class="separator:a2207143450903bfdf94eacb382b716cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5871a3c039b921a19b53af87e040f2f2" id="r_a5871a3c039b921a19b53af87e040f2f2"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5871a3c039b921a19b53af87e040f2f2">fs8::is_lifecycle_event</a> (<a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
 <tr class="separator:a5871a3c039b921a19b53af87e040f2f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a77b74a57f7e2e0944475fdc75e7a11b2" id="r_a77b74a57f7e2e0944475fdc75e7a11b2"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a77b74a57f7e2e0944475fdc75e7a11b2">is_exiting</a> (<a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> const action) noexcept</td></tr>
@@ -3212,7 +3212,7 @@ template&lt;typename Mod &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Recurse into a mod's <code>sub_mods()</code> (if any) and report the mod to <code>out</code> when its type matches <code>token</code>. Used by the typed <code>mods&lt;T&gt;</code>/<code>rmods&lt;T&gt;</code>. </p>
+<p>Collect mods whose type matches <code>token</code> into <code>out</code>. When recursive, descends into sub_mods(); otherwise stops at the current node. Thin wrapper around walk_mod_tree with depth control. </p>
 
 </div>
 </div>
@@ -11342,8 +11342,8 @@ template&lt;typename F , typename... Ts&gt; </div>
 
 </div>
 </div>
-<a id="ac23b458b3d9a91fbb0306b9e9ff9c37b" name="ac23b458b3d9a91fbb0306b9e9ff9c37b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac23b458b3d9a91fbb0306b9e9ff9c37b">&#9670;&#160;</a></span>walk_mod_tree()</h2>
+<a id="a2207143450903bfdf94eacb382b716cb" name="a2207143450903bfdf94eacb382b716cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2207143450903bfdf94eacb382b716cb">&#9670;&#160;</a></span>walk_mod_tree()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -11363,7 +11363,13 @@ template&lt;typename Mod , typename Fn &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">Fn &amp;&amp;&#160;</td>
-          <td class="paramname"><em>fn</em>&#160;</td>
+          <td class="paramname"><em>fn</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em> = <code>SIZE_MAX</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -11377,7 +11383,7 @@ template&lt;typename Mod , typename Fn &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Depth-first walk: call fn(mod) for every mod in the tree, recursing into sub_mods() when present. </p>
+<p>Depth-first walk: call fn(mod) for every mod in the tree, recursing into sub_mods() when present. When max_depth &gt; 0, descend into sub_mods(); at 0 stop at the current node. </p>
 
 </div>
 </div>
