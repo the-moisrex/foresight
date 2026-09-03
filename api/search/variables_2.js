@@ -2,7 +2,7 @@ var searchData=
 [
   ['callback_0',['callback',['../structfs8_1_1pimpl__idiom_1_1impl_1_1tick__entry.html#a2bf2989f80d1e366cb4c7dc40b698d6f',1,'fs8::pimpl_idiom::impl::tick_entry']]],
   ['callbacks_1',['callbacks',['../structfs8_1_1pimpl__idiom_1_1impl.html#a22d4150ce62b8682abf22f36fbf3bd9c',1,'fs8::pimpl_idiom::impl']]],
-  ['calls_2',['calls',['../structfs8_1_1benchmark__stats.html#acdadaf5f09e57a501c121c243105fb88',1,'fs8::benchmark_stats']]],
+  ['calls_2',['calls',['../structfs8_1_1basic__benchmark__counter.html#ae5966c8401f0f784c89efc1eba389cf6',1,'fs8::basic_benchmark_counter']]],
   ['can_5fgenerate_5fevents_3',['can_generate_events',['../structfs8_1_1basic__on.html#af070f16e9d1cd0e0f6e12e36e58c95d9',1,'fs8::basic_on::can_generate_events'],['../structfs8_1_1basic__once.html#a7e1abf03d281c1cd0ea57ea5401b42e3',1,'fs8::basic_once::can_generate_events']]],
   ['cancel_5ftick_4',['cancel_tick',['../structfs8_1_1basic__scheduler.html#a1b7f48bcee9cd39f350a0dc02c7caf14',1,'fs8::basic_scheduler']]],
   ['cap_5fmaps_5',['cap_maps',['../namespacefs8_1_1caps.html#a3af581e2ec74d9f1ee8964d1cb9e2194',1,'fs8::caps']]],

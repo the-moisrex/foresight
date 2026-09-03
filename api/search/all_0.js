@@ -47,5 +47,5 @@ var searchData=
   ['autocomplete_2eixx_44',['autocomplete.ixx',['../autocomplete_8ixx.html',1,'']]],
   ['available_45',['available',['../namespacefs8.html#ad37238ffd12f657195d6e3e8d71292acae4894ca167b08880bfc35862f18575eb',1,'fs8']]],
   ['available_5ftemplates_46',['available_templates',['../namespacefs8.html#afcc7e78003f79e6f251f4f055250bfbc',1,'fs8']]],
-  ['average_47',['average',['../structfs8_1_1benchmark__stats.html#a72304100de65c66b55e9da342d1e48b3',1,'fs8::benchmark_stats']]]
+  ['average_47',['average',['../structfs8_1_1basic__benchmark__counter.html#add324982bfb309abf51337ba8861f3b9',1,'fs8::basic_benchmark_counter']]]
 ];

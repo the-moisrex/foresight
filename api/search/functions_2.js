@@ -11,7 +11,7 @@ var searchData=
   ['check_8',['check',['../structfs8_1_1keyboard__runner.html#a2ab232845cf23fc398c90b4c3441f691',1,'fs8::keyboard_runner']]],
   ['check_5fsystemd_5fsupport_9',['check_systemd_support',['../structfs8_1_1systemd__service.html#aa8f4490c6e543140526e4cb69939e317',1,'fs8::systemd_service']]],
   ['ci_5fhash_10',['ci_hash',['../namespacefs8.html#a011eb55d314bb09e2b44b99630f79d8d',1,'fs8']]],
-  ['clear_11',['clear',['../structfs8_1_1basic__benchmark__counter.html#a77a6d9259d11368fc060f2a79671b956',1,'fs8::basic_benchmark_counter::clear()'],['../structfs8_1_1basic__benchmark.html#a4ad2f9ab98905fe933c02d7939744adc',1,'fs8::basic_benchmark::clear()'],['../structfs8_1_1basic__io__manager.html#a4eb5e376092aec20f69dc867e9159d2c',1,'fs8::basic_io_manager::clear()'],['../structfs8_1_1basic__record.html#ae7532c924ec82ddc5b426b77ca32aa97',1,'fs8::basic_record::clear()']]],
+  ['clear_11',['clear',['../structfs8_1_1basic__benchmark__counter.html#af58459b46101ce6fd6732f22fa2d36df',1,'fs8::basic_benchmark_counter::clear()'],['../structfs8_1_1basic__benchmark.html#a4ad2f9ab98905fe933c02d7939744adc',1,'fs8::basic_benchmark::clear()'],['../structfs8_1_1basic__io__manager.html#a4eb5e376092aec20f69dc867e9159d2c',1,'fs8::basic_io_manager::clear()'],['../structfs8_1_1basic__record.html#ae7532c924ec82ddc5b426b77ca32aa97',1,'fs8::basic_record::clear()']]],
   ['clear_5fanimating_12',['clear_animating',['../structfs8_1_1basic__momentum__base.html#a7b4b35c2ee992ae34609ab218b3ca0de',1,'fs8::basic_momentum_base']]],
   ['click_13',['click',['../structfs8_1_1basic__debounce.html#a556b8e453bfa00a6742b1d24e21f580f',1,'fs8::basic_debounce']]],
   ['clone_5fdevice_14',['clone_device',['../namespacefs8.html#a996246e0d2b1df88f4a847d03cf0ff90',1,'fs8']]],

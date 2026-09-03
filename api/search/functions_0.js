@@ -20,5 +20,5 @@ var searchData=
   ['as_5fuser_5fevents_17',['as_user_events',['../structfs8_1_1basic__record.html#af6055cb025094ae0df70861a94009038',1,'fs8::basic_record']]],
   ['at_18',['at',['../structfs8_1_1basic__record.html#a0bec1d759d86fcc39712ece854fff75c',1,'fs8::basic_record']]],
   ['available_5ftemplates_19',['available_templates',['../namespacefs8.html#afcc7e78003f79e6f251f4f055250bfbc',1,'fs8']]],
-  ['average_20',['average',['../structfs8_1_1benchmark__stats.html#a72304100de65c66b55e9da342d1e48b3',1,'fs8::benchmark_stats']]]
+  ['average_20',['average',['../structfs8_1_1basic__benchmark__counter.html#add324982bfb309abf51337ba8861f3b9',1,'fs8::basic_benchmark_counter']]]
 ];

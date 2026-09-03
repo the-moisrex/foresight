@@ -4,7 +4,6 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "abs2rel.ixx", "abs2rel_8ixx.html", "abs2rel_8ixx" ],
     [ "autocomplete.cxx", "autocomplete_8cxx.html", "autocomplete_8cxx" ],
     [ "autocomplete.ixx", "autocomplete_8ixx.html", "autocomplete_8ixx" ],
-    [ "benchmark.cxx", "benchmark_8cxx.html", "benchmark_8cxx" ],
     [ "benchmark.ixx", "benchmark_8ixx.html", "benchmark_8ixx" ],
     [ "context_vars.ixx", "context__vars_8ixx.html", "context__vars_8ixx" ],
     [ "debounce.ixx", "debounce_8ixx.html", "debounce_8ixx" ],

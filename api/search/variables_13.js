@@ -18,7 +18,7 @@ var searchData=
   ['to_5fqueries_15',['to_queries',['../namespacefs8.html#ac728a44272e2dd205966a1b77dc55de8',1,'fs8']]],
   ['toggle_5foff_16',['toggle_off',['../namespacefs8.html#af98fba0a3446b72f2853d6c049f79f63',1,'fs8']]],
   ['toggle_5fon_17',['toggle_on',['../namespacefs8.html#aa3478b540108dcf19e02bdc08cf44624',1,'fs8']]],
-  ['total_18',['total',['../structfs8_1_1benchmark__stats.html#a166c8b0a7cec2297965d75d2b602f3c2',1,'fs8::benchmark_stats']]],
+  ['total_18',['total',['../structfs8_1_1basic__benchmark__counter.html#a791ecbd420f3e5f06b91a7280baa6cb9',1,'fs8::basic_benchmark_counter']]],
   ['touch_5fabs_5faxes_19',['touch_abs_axes',['../namespacefs8_1_1caps.html#a00e964b9ed3eb2a40ee11fc46c050cfa',1,'fs8::caps']]],
   ['touch_5fbtns_20',['touch_btns',['../namespacefs8_1_1caps.html#a005f2b79a429521f7c46d683676f7ef0',1,'fs8::caps']]],
   ['touchpad_21',['touchpad',['../namespacefs8_1_1caps.html#a5883b0685d98e9abea6d4d354423098c',1,'fs8::caps']]],

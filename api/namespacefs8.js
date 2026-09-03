@@ -198,7 +198,6 @@ var namespacefs8 =
     [ "basic_type_string", "structfs8_1_1basic__type__string.html", "structfs8_1_1basic__type__string" ],
     [ "basic_typed", "structfs8_1_1basic__typed.html", "structfs8_1_1basic__typed" ],
     [ "basic_uinput", "structfs8_1_1basic__uinput.html", "structfs8_1_1basic__uinput" ],
-    [ "benchmark_stats", "structfs8_1_1benchmark__stats.html", "structfs8_1_1benchmark__stats" ],
     [ "consteval_copyable", "structfs8_1_1consteval__copyable.html", "structfs8_1_1consteval__copyable" ],
     [ "construct_it_from", "structfs8_1_1construct__it__from.html", "structfs8_1_1construct__it__from" ],
     [ "context_with_impl", "structfs8_1_1context__with__impl.html", null ],

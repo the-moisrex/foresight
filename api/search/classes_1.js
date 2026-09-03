@@ -132,6 +132,5 @@ var searchData=
   ['basic_5ftoggle_5foff_129',['basic_toggle_off',['../structfs8_1_1basic__toggle__off.html',1,'fs8']]],
   ['basic_5ftype_5fstring_130',['basic_type_string',['../structfs8_1_1basic__type__string.html',1,'fs8']]],
   ['basic_5ftyped_131',['basic_typed',['../structfs8_1_1basic__typed.html',1,'fs8']]],
-  ['basic_5fuinput_132',['basic_uinput',['../structfs8_1_1basic__uinput.html',1,'fs8']]],
-  ['benchmark_5fstats_133',['benchmark_stats',['../structfs8_1_1benchmark__stats.html',1,'fs8']]]
+  ['basic_5fuinput_132',['basic_uinput',['../structfs8_1_1basic__uinput.html',1,'fs8']]]
 ];

@@ -1,6 +1,5 @@
 var benchmark_8ixx =
 [
-    [ "fs8::benchmark_stats", "structfs8_1_1benchmark__stats.html", "structfs8_1_1benchmark__stats" ],
     [ "fs8::basic_benchmark_counter", "structfs8_1_1basic__benchmark__counter.html", "structfs8_1_1basic__benchmark__counter" ],
     [ "fs8::basic_benchmark< Funcs >", "structfs8_1_1basic__benchmark.html", "structfs8_1_1basic__benchmark" ],
     [ "fs8::basic_benchmark_all", "structfs8_1_1basic__benchmark__all.html", "structfs8_1_1basic__benchmark__all" ],

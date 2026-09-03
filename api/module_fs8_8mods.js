@@ -132,7 +132,6 @@ var module_fs8_8mods =
     [ "basic_modes", "structfs8_1_1basic__modes.html", "structfs8_1_1basic__modes" ],
     [ "basic_switch_mode", "structfs8_1_1basic__switch__mode.html", "structfs8_1_1basic__switch__mode" ],
     [ "basic_mouse_history", "structfs8_1_1basic__mouse__history.html", "structfs8_1_1basic__mouse__history" ],
-    [ "benchmark_stats", "structfs8_1_1benchmark__stats.html", "structfs8_1_1benchmark__stats" ],
     [ "basic_benchmark_counter", "structfs8_1_1basic__benchmark__counter.html", "structfs8_1_1basic__benchmark__counter" ],
     [ "basic_benchmark", "structfs8_1_1basic__benchmark.html", "structfs8_1_1basic__benchmark" ],
     [ "basic_benchmark_all", "structfs8_1_1basic__benchmark__all.html", "structfs8_1_1basic__benchmark__all" ],
