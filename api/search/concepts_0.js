@@ -10,12 +10,13 @@ var searchData=
   ['fs8_3a_3afloating_5fpoint_7',['floating_point',['../conceptfs8_1_1floating__point.html',1,'fs8']]],
   ['fs8_3a_3ahas_5fmod_8',['has_mod',['../conceptfs8_1_1has__mod.html',1,'fs8']]],
   ['fs8_3a_3ahas_5fvariables_9',['has_variables',['../conceptfs8_1_1has__variables.html',1,'fs8']]],
-  ['fs8_3a_3ainvokable_5fmod_10',['invokable_mod',['../conceptfs8_1_1invokable__mod.html',1,'fs8']]],
-  ['fs8_3a_3aio_5fhandler_11',['io_handler',['../conceptfs8_1_1io__handler.html',1,'fs8']]],
-  ['fs8_3a_3amodifier_12',['Modifier',['../conceptfs8_1_1Modifier.html',1,'fs8']]],
-  ['fs8_3a_3aoutputmodifier_13',['OutputModifier',['../conceptfs8_1_1OutputModifier.html',1,'fs8']]],
-  ['fs8_3a_3apipelinetag_14',['PipelineTag',['../conceptfs8_1_1PipelineTag.html',1,'fs8']]],
-  ['fs8_3a_3apolymorphic_5fscoped_15',['polymorphic_scoped',['../conceptfs8_1_1polymorphic__scoped.html',1,'fs8']]],
-  ['fs8_3a_3aquery_5fprovider_16',['query_provider',['../conceptfs8_1_1query__provider.html',1,'fs8']]],
-  ['fs8_3a_3aquerytag_17',['QueryTag',['../conceptfs8_1_1QueryTag.html',1,'fs8']]]
+  ['fs8_3a_3aidle_5frepeat_3a_3apattern_10',['pattern',['../conceptfs8_1_1idle__repeat_1_1pattern.html',1,'fs8::idle_repeat']]],
+  ['fs8_3a_3ainvokable_5fmod_11',['invokable_mod',['../conceptfs8_1_1invokable__mod.html',1,'fs8']]],
+  ['fs8_3a_3aio_5fhandler_12',['io_handler',['../conceptfs8_1_1io__handler.html',1,'fs8']]],
+  ['fs8_3a_3amodifier_13',['Modifier',['../conceptfs8_1_1Modifier.html',1,'fs8']]],
+  ['fs8_3a_3aoutputmodifier_14',['OutputModifier',['../conceptfs8_1_1OutputModifier.html',1,'fs8']]],
+  ['fs8_3a_3apipelinetag_15',['PipelineTag',['../conceptfs8_1_1PipelineTag.html',1,'fs8']]],
+  ['fs8_3a_3apolymorphic_5fscoped_16',['polymorphic_scoped',['../conceptfs8_1_1polymorphic__scoped.html',1,'fs8']]],
+  ['fs8_3a_3aquery_5fprovider_17',['query_provider',['../conceptfs8_1_1query__provider.html',1,'fs8']]],
+  ['fs8_3a_3aquerytag_18',['QueryTag',['../conceptfs8_1_1QueryTag.html',1,'fs8']]]
 ];

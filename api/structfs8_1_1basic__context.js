@@ -6,6 +6,7 @@ var structfs8_1_1basic__context =
     [ "mods_type", "structfs8_1_1basic__context.html#a95212865301c7830bf29cf444e7be219", null ],
     [ "basic_context", "structfs8_1_1basic__context.html#a2eabae71aaad2df16469086287a2d5df", null ],
     [ "basic_context", "structfs8_1_1basic__context.html#a8db723f861c378ba652d5bbc4c9c31ad", null ],
+    [ "broadcast", "structfs8_1_1basic__context.html#ac3802efa76258b53009da63cc55a3883", null ],
     [ "consteval_copyable", "structfs8_1_1basic__context.html#aab9e941457bd45b9d6772f6ff421cec6", null ],
     [ "consteval_copyable", "structfs8_1_1basic__context.html#a07b6aecf93085d1e8fc982b21f53ed11", null ],
     [ "consteval_copyable", "structfs8_1_1basic__context.html#a23df80b9a3d5bfbc33501da95d583e26", null ],

@@ -220,6 +220,13 @@ Public Attributes</h2></td></tr>
 <tr class="separator:aede4f211ae1d547f00c0d4ace3b351cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22d4150ce62b8682abf22f36fbf3bd9c" id="r_a22d4150ce62b8682abf22f36fbf3bd9c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::function_ref&lt; <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>(<a class="el" href="structfs8_1_1io__fd.html">io_fd</a> &amp;)&gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a22d4150ce62b8682abf22f36fbf3bd9c">callbacks</a></td></tr>
 <tr class="separator:a22d4150ce62b8682abf22f36fbf3bd9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a647876cb5e6ef936a7f7a45b92a6013e" id="r_a647876cb5e6ef936a7f7a45b92a6013e"><td class="memItemLeft" align="right" valign="top">std::chrono::microseconds&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a647876cb5e6ef936a7f7a45b92a6013e">idle_timeout</a> {0}</td></tr>
+<tr class="memdesc:a647876cb5e6ef936a7f7a45b92a6013e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Idle timeout: when no fd is ready for this duration, set idle_flag.  <br /></td></tr>
+<tr class="separator:a647876cb5e6ef936a7f7a45b92a6013e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc25722dcbab9e087d9f9f59e4d5253a" id="r_acc25722dcbab9e087d9f9f59e4d5253a"><td class="memItemLeft" align="right" valign="top">steady_clock::time_point&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#acc25722dcbab9e087d9f9f59e4d5253a">last_event_time</a> {}</td></tr>
+<tr class="separator:acc25722dcbab9e087d9f9f59e4d5253a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1810ee2b2131842d78a76f0e860ed5d3" id="r_a1810ee2b2131842d78a76f0e860ed5d3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a1810ee2b2131842d78a76f0e860ed5d3">idle_flag</a> = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">false</a></td></tr>
+<tr class="separator:a1810ee2b2131842d78a76f0e860ed5d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a246fc3432df93076c75d8887b914a1f6" id="r_a246fc3432df93076c75d8887b914a1f6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1velocity__tracker.html">velocity_tracker</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a246fc3432df93076c75d8887b914a1f6">vel_x</a></td></tr>
 <tr class="separator:a246fc3432df93076c75d8887b914a1f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a890de8e97cc40468adbca91cfed81b3c" id="r_a890de8e97cc40468adbca91cfed81b3c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1velocity__tracker.html">velocity_tracker</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1pimpl__idiom_1_1impl.html#a890de8e97cc40468adbca91cfed81b3c">vel_y</a></td></tr>
@@ -1396,6 +1403,40 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
 
 </div>
 </div>
+<a id="a1810ee2b2131842d78a76f0e860ed5d3" name="a1810ee2b2131842d78a76f0e860ed5d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1810ee2b2131842d78a76f0e860ed5d3">&#9670;&#160;</a></span>idle_flag</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::idle_flag = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">false</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a647876cb5e6ef936a7f7a45b92a6013e" name="a647876cb5e6ef936a7f7a45b92a6013e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a647876cb5e6ef936a7f7a45b92a6013e">&#9670;&#160;</a></span>idle_timeout</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::chrono::microseconds <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::idle_timeout {0}</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Idle timeout: when no fd is ready for this duration, set idle_flag. </p>
+
+</div>
+</div>
 <a id="a46592a850317412383f824fa4198826f" name="a46592a850317412383f824fa4198826f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a46592a850317412383f824fa4198826f">&#9670;&#160;</a></span>im</h2>
 
@@ -1454,6 +1495,22 @@ template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c86
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::is_animating = <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">false</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="acc25722dcbab9e087d9f9f59e4d5253a" name="acc25722dcbab9e087d9f9f59e4d5253a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc25722dcbab9e087d9f9f59e4d5253a">&#9670;&#160;</a></span>last_event_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">steady_clock::time_point <a class="el" href="structfs8_1_1pimpl__idiom.html">fs8::pimpl_idiom</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> &gt;::impl::last_event_time {}</td>
         </tr>
       </table>
 </div><div class="memdoc">

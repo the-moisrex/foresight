@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['last_5fevent_5ftime_0',['last_event_time',['../structfs8_1_1mouse__accum.html#a245fb334ea345dbe9880dc0f399fd03d',1,'fs8::mouse_accum']]],
+  ['last_5fevent_5ftime_0',['last_event_time',['../structfs8_1_1mouse__accum.html#a245fb334ea345dbe9880dc0f399fd03d',1,'fs8::mouse_accum::last_event_time'],['../structfs8_1_1pimpl__idiom_1_1impl.html#acc25722dcbab9e087d9f9f59e4d5253a',1,'fs8::pimpl_idiom::impl::last_event_time']]],
   ['last_5fgeneration_1',['last_generation',['../structfs8_1_1pimpl__idiom_1_1impl.html#a8fc2b40c9cc72207529f7498c1df3525',1,'fs8::pimpl_idiom::impl']]],
   ['last_5findex_2',['last_index',['../structfs8_1_1detail_1_1router__state.html#a84588cb567d8228533b759d019479e30',1,'fs8::detail::router_state']]],
   ['last_5ftime_3',['last_time',['../structfs8_1_1pimpl__idiom_1_1impl.html#a75d6ab757265fe5804d25aae86a66f11',1,'fs8::pimpl_idiom::impl']]],

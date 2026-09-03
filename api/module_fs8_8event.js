@@ -131,5 +131,6 @@ var module_fs8_8event =
     [ "fs8::load_event", "module_fs8_8event.html#a07e88505df2f659c7dd7a91fc6e7161d", null ],
     [ "fs8::next_event", "module_fs8_8event.html#a5f89315bb94b5e653a700de40d80f8b3", null ],
     [ "fs8::toggle_on", "module_fs8_8event.html#aa3478b540108dcf19e02bdc08cf44624", null ],
-    [ "fs8::toggle_off", "module_fs8_8event.html#af98fba0a3446b72f2853d6c049f79f63", null ]
+    [ "fs8::toggle_off", "module_fs8_8event.html#af98fba0a3446b72f2853d6c049f79f63", null ],
+    [ "fs8::idle", "module_fs8_8event.html#a1aa51f24789eef377a73157f04998a87", null ]
 ];

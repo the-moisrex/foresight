@@ -12,6 +12,11 @@ var annotated_dup =
         [ "modes_caller_info", "structfs8_1_1detail_1_1modes__caller__info.html", "structfs8_1_1detail_1_1modes__caller__info" ],
         [ "router_state", "structfs8_1_1detail_1_1router__state.html", "structfs8_1_1detail_1_1router__state" ]
       ] ],
+      [ "idle_repeat", "namespacefs8_1_1idle__repeat.html", [
+        [ "consistent", "structfs8_1_1idle__repeat_1_1consistent.html", "structfs8_1_1idle__repeat_1_1consistent" ],
+        [ "exponential", "structfs8_1_1idle__repeat_1_1exponential.html", "structfs8_1_1idle__repeat_1_1exponential" ],
+        [ "once", "structfs8_1_1idle__repeat_1_1once.html", "structfs8_1_1idle__repeat_1_1once" ]
+      ] ],
       [ "xkb", "namespacefs8_1_1xkb.html", [
         [ "basic_state", "structfs8_1_1xkb_1_1basic__state.html", "structfs8_1_1xkb_1_1basic__state" ],
         [ "context", "structfs8_1_1xkb_1_1context.html", "structfs8_1_1xkb_1_1context" ],
@@ -86,6 +91,7 @@ var annotated_dup =
       [ "basic_group_mod", "structfs8_1_1basic__group__mod.html", "structfs8_1_1basic__group__mod" ],
       [ "basic_held", "structfs8_1_1basic__held.html", "structfs8_1_1basic__held" ],
       [ "basic_held_gate", "structfs8_1_1basic__held__gate.html", "structfs8_1_1basic__held__gate" ],
+      [ "basic_idle_detector", "structfs8_1_1basic__idle__detector.html", "structfs8_1_1basic__idle__detector" ],
       [ "basic_input_manager", "structfs8_1_1basic__input__manager.html", "structfs8_1_1basic__input__manager" ],
       [ "basic_interceptor", "structfs8_1_1basic__interceptor.html", "structfs8_1_1basic__interceptor" ],
       [ "basic_io_manager", "structfs8_1_1basic__io__manager.html", "structfs8_1_1basic__io__manager" ],

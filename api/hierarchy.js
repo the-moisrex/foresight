@@ -46,6 +46,7 @@ var hierarchy =
     [ "fs8::basic_pen2touch", "structfs8_1_1basic__pen2touch.html", null ],
     [ "fs8::basic_self_emitted", "structfs8_1_1basic__self__emitted.html", null ],
     [ "fs8::xkb::basic_state", "structfs8_1_1xkb_1_1basic__state.html", null ],
+    [ "fs8::idle_repeat::consistent< PeriodUs >", "structfs8_1_1idle__repeat_1_1consistent.html", null ],
     [ "fs8::consteval_copyable", "structfs8_1_1consteval__copyable.html", [
       [ "fs8::basic_code_adaptor< basic_pressed, N >", "structfs8_1_1basic__code__adaptor.html", [
         [ "fs8::basic_pressed< N >", "structfs8_1_1basic__pressed.html", null ]
@@ -128,6 +129,7 @@ var hierarchy =
       [ "fs8::basic_group_mod< Mods >", "structfs8_1_1basic__group__mod.html", null ],
       [ "fs8::basic_held", "structfs8_1_1basic__held.html", null ],
       [ "fs8::basic_held_gate< CondT >", "structfs8_1_1basic__held__gate.html", null ],
+      [ "fs8::basic_idle_detector< RepeatT >", "structfs8_1_1basic__idle__detector.html", null ],
       [ "fs8::basic_key", "structfs8_1_1basic__key.html", null ],
       [ "fs8::basic_keydown", "structfs8_1_1basic__keydown.html", null ],
       [ "fs8::basic_keys_state", "structfs8_1_1basic__keys__state.html", null ],
@@ -192,6 +194,7 @@ var hierarchy =
     [ "fs8::event_code", "structfs8_1_1event__code.html", null ],
     [ "fs8::event_type", "structfs8_1_1event__type.html", null ],
     [ "fs8::exe_hash_solution", "structfs8_1_1exe__hash__solution.html", null ],
+    [ "fs8::idle_repeat::exponential< BaseUs >", "structfs8_1_1idle__repeat_1_1exponential.html", null ],
     [ "fs8::fail_on_no_match_tag", "structfs8_1_1fail__on__no__match__tag.html", null ],
     [ "fs8::basic_context< Funcs >::fork_frame", "structfs8_1_1basic__context_1_1fork__frame.html", null ],
     [ "fs8::fork_index_guard", "structfs8_1_1fork__index__guard.html", null ],
@@ -233,6 +236,7 @@ var hierarchy =
     [ "fs8::nullable_indirect< fs8::detail::router_state >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::plain_pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
+    [ "fs8::idle_repeat::once", "structfs8_1_1idle__repeat_1_1once.html", null ],
     [ "fs8::op_not< Func >", "structfs8_1_1op__not.html", null ],
     [ "fs8::operator_adaptor< T >", "structfs8_1_1operator__adaptor.html", [
       [ "fs8::basic_code_adaptor< basic_pressed, N >", "structfs8_1_1basic__code__adaptor.html", null ],

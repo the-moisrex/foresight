@@ -143,6 +143,7 @@ var module_fs8_8context =
     [ "fs8::basic_context::event", "module_fs8_8context.html#a3d647efa621fd6580945542b50acadaf", null ],
     [ "fs8::basic_context::get_mods", "module_fs8_8context.html#ae0eacbfaa1424f62a9f927b256a8e4b5", null ],
     [ "fs8::basic_context::event", "module_fs8_8context.html#a67cfe1ccfd05ed54983d89f85808547c", null ],
+    [ "fs8::basic_context::broadcast", "module_fs8_8context.html#ac3802efa76258b53009da63cc55a3883", null ],
     [ "fs8::basic_context::mod", "module_fs8_8context.html#aed51e6eec452b94e3f39ca4be4b4073b", null ],
     [ "fs8::basic_context::mod", "module_fs8_8context.html#a55d4e4e6136e94c833167b1b742f9e5b", null ],
     [ "fs8::basic_context::mod", "module_fs8_8context.html#a6abb13b86c940509fc9f583e5dd28d06", null ],

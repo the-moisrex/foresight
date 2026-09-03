@@ -41,6 +41,7 @@ var event_8ixx =
     [ "to_source_string", "event_8ixx.html#a6b1a16f96702f325cff9977e6d6a121a", null ],
     [ "unhashed", "event_8ixx.html#a8bc80526fa5037abe2c29db10f661fed", null ],
     [ "unhashed_special", "event_8ixx.html#a341ec3d10689939290457f77891f80a8", null ],
+    [ "idle", "event_8ixx.html#a1aa51f24789eef377a73157f04998a87", null ],
     [ "invalid_user_event", "event_8ixx.html#a876ea8752da38c4c015857f01ee24e5b", null ],
     [ "load_event", "event_8ixx.html#a07e88505df2f659c7dd7a91fc6e7161d", null ],
     [ "next_event", "event_8ixx.html#a5f89315bb94b5e653a700de40d80f8b3", null ],

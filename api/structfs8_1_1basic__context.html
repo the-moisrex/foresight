@@ -144,6 +144,9 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ae0eacbfaa1424f62a9f927b256a8e4b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a67cfe1ccfd05ed54983d89f85808547c" id="r_a67cfe1ccfd05ed54983d89f85808547c"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#a67cfe1ccfd05ed54983d89f85808547c">event</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;inp_event) noexcept</td></tr>
 <tr class="separator:a67cfe1ccfd05ed54983d89f85808547c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3802efa76258b53009da63cc55a3883" id="r_ac3802efa76258b53009da63cc55a3883"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#ac3802efa76258b53009da63cc55a3883">broadcast</a> (<a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
+<tr class="memdesc:ac3802efa76258b53009da63cc55a3883"><td class="mdescLeft">&#160;</td><td class="mdescRight">Broadcast a special event to ALL mods in this pipeline.  <br /></td></tr>
+<tr class="separator:ac3802efa76258b53009da63cc55a3883"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed51e6eec452b94e3f39ca4be4b4073b" id="r_aed51e6eec452b94e3f39ca4be4b4073b"><td class="memTemplParams" colspan="2">template&lt;typename Func , typename Self &gt; <br />
 requires ((std::same_as&lt;<a class="el" href="structfs8_1_1basic__context.html#a1f9f9b26f1c56c9b7ea2391c0b12caea">mod_type</a>&lt;Func&gt;, Funcs&gt; || ...))</td></tr>
 <tr class="memitem:aed51e6eec452b94e3f39ca4be4b4073b"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__context.html#aed51e6eec452b94e3f39ca4be4b4073b">mod</a> (this Self &amp;&amp;self) noexcept</td></tr>
@@ -389,6 +392,36 @@ template&lt;Modifier... Funcs&gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="ac3802efa76258b53009da63cc55a3883" name="ac3802efa76258b53009da63cc55a3883"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3802efa76258b53009da63cc55a3883">&#9670;&#160;</a></span>broadcast()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Modifier... Funcs&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> <a class="el" href="structfs8_1_1basic__context.html">fs8::basic_context</a>&lt; Funcs &gt;::broadcast </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;&#160;</td>
+          <td class="paramname"><em>tag</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Broadcast a special event to ALL mods in this pipeline. </p>
+
+</div>
+</div>
 <a id="aab9e941457bd45b9d6772f6ff421cec6" name="aab9e941457bd45b9d6772f6ff421cec6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aab9e941457bd45b9d6772f6ff421cec6">&#9670;&#160;</a></span>consteval_copyable() <span class="overload">[1/3]</span></h2>
 
