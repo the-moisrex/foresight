@@ -462,15 +462,18 @@ export namespace fs8 {
 
     /// Depth-first walk: call fn(mod) for every mod in the tree,
     /// recursing into sub_mods() when present.
+    /// When max_depth > 0, descend into sub_mods(); at 0 stop at the current node.
     template <typename Mod, typename Fn>
-    void walk_mod_tree(Mod &mod, Fn &&fn) noexcept {
+    void walk_mod_tree(Mod &mod, Fn &&fn, std::size_t max_depth = SIZE_MAX) noexcept {
         fn(mod);
         if constexpr (requires { mod.sub_mods(); }) {
-            std::apply(
-              [&](auto &...sub) noexcept {
-                  (walk_mod_tree(sub, fn), ...);
-              },
-              mod.sub_mods());
+            if (max_depth > 0) {
+                std::apply(
+                  [&](auto &...sub) noexcept {
+                      (walk_mod_tree(sub, fn, max_depth - 1), ...);
+                  },
+                  mod.sub_mods());
+            }
         }
     }
 
@@ -960,22 +963,19 @@ namespace fs8 {
         return fork_mod<Index>(ctx, ctx.get_mods(), default_action, tag);
     }
 
-    /// Recurse into a mod's `sub_mods()` (if any) and report the mod to `out`
-    /// when its type matches `token`. Used by the typed `mods<T>`/`rmods<T>`.
+    /// Collect mods whose type matches `token` into `out`.
+    /// When recursive, descends into sub_mods(); otherwise stops at the current node.
+    /// Thin wrapper around walk_mod_tree with depth control.
     template <typename Mod>
     void collect_mods_of_impl(Mod &mod, void const *token, std::function_ref<void(void *)> out, bool const recursive) noexcept {
-        if constexpr (requires { mod.sub_mods(); }) {
-            if (recursive) {
-                std::apply(
-                  [&](auto &...sub) constexpr noexcept {
-                      (collect_mods_of_impl(sub, token, out, recursive), ...);
-                  },
-                  mod.sub_mods());
-            }
-        }
-        if (&type_id<std::remove_cvref_t<Mod>> == token) {
-            out(&mod);
-        }
+        walk_mod_tree(
+          mod,
+          [&](auto &m) noexcept {
+              if (&type_id<std::remove_cvref_t<decltype(m)>> == token) {
+                  out(&m);
+              }
+          },
+          recursive ? SIZE_MAX : 0);
     }
 
     template <typename CtxT>
