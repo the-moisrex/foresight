@@ -20,6 +20,7 @@ export import :inout;
 export import :input_manager;
 export import :intercept;
 export import :io_manager;
+export import :idle_detector;
 export import :keys_state;
 export import :lambda;
 export import :live_view;

@@ -1,6 +1,7 @@
 // Created by moisrex on 8/8/26.
 
 module;
+#include <chrono>
 #include <functional>
 #include <sys/poll.h>
 #include <type_traits>
@@ -71,6 +72,19 @@ export namespace fs8 {
         [[nodiscard]] bool        is_watched(int fd) const noexcept;
         [[nodiscard]] bool        empty() const noexcept;
         [[nodiscard]] std::size_t size() const noexcept;
+
+        /// Configure an idle timeout.  When no fd is ready for `timeout` microseconds,
+        /// `is_idle()` returns true.  Pass `0` to disable.
+        void set_idle_timeout(std::chrono::microseconds timeout) noexcept;
+
+        /// Disable the idle timeout.
+        void clear_idle_timeout() noexcept;
+
+        /// Whether the idle timeout has fired since the last `clear_idle()` call.
+        [[nodiscard]] bool is_idle() const noexcept;
+
+        /// Consume the idle flag (called by the idle_detector after producing an event).
+        void clear_idle() noexcept;
 
         context_action operator()(special_event const& tag) noexcept;
 

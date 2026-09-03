@@ -476,6 +476,7 @@ export namespace fs8 {
     constexpr special_event next_event{.type = special_event_type, .code = 3};
     constexpr special_event toggle_on{.type = special_event_type, .code = 4, .value = 1};
     constexpr special_event toggle_off{.type = special_event_type, .code = 4, .value = 0};
+    constexpr special_event idle{.type = special_event_type, .code = 5};
 
     /// Check whether a `special_event` matches a given lifecycle code.
     [[nodiscard]] constexpr bool is_special(special_event const& ev, special_event::code_type const code) noexcept {

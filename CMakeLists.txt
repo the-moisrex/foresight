@@ -153,6 +153,7 @@ target_sources(${LIB_NAME}
         mods/emitter.ixx
         mods/group.ixx
         mods/inout.ixx
+        mods/idle_detector.ixx
         mods/input_manager.ixx
         mods/intercept.ixx
         mods/io_manager.ixx

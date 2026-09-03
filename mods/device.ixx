@@ -12,6 +12,7 @@ import fs8.traits;
 import :input_manager;
 import :inout;
 import :scheduler;
+import :idle_detector;
 
 export namespace fs8 {
 
@@ -20,7 +21,8 @@ export namespace fs8 {
     constexpr struct [[nodiscard]] basic_from_device {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
             auto const src = event.source();
-            return src != source_id_none && src != sid(from_input) && src != sid(scheduler);
+            // todo: this is not a clean implemenation:
+            return src != source_id_none && src != sid(from_input) && src != sid(scheduler) && src != sid(idle_detector);
         }
     } from_device;
 

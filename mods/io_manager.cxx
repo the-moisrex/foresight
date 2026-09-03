@@ -4,6 +4,7 @@ module;
 #include <algorithm>
 #include <array>
 #include <cerrno>
+#include <chrono>
 #include <cstring>
 #include <functional>
 #include <iterator>
@@ -18,10 +19,17 @@ using fs8::context_action;
 using fs8::io_event;
 using fs8::io_fd;
 
+using steady_clock = std::chrono::steady_clock;
+
 template <>
 struct fs8::pimpl_idiom<basic_io_manager>::impl {
     std::vector<pollfd>                                    fds;
     std::vector<std::function_ref<context_action(io_fd&)>> callbacks;
+
+    /// Idle timeout: when no fd is ready for this duration, set idle_flag.
+    std::chrono::microseconds idle_timeout{0};
+    steady_clock::time_point  last_event_time{};
+    bool                      idle_flag = false;
 };
 
 void basic_io_manager::clear() noexcept {
@@ -47,6 +55,33 @@ bool basic_io_manager::empty() const noexcept {
 
 std::size_t basic_io_manager::size() const noexcept {
     return pimpl->fds.size();
+}
+
+void basic_io_manager::set_idle_timeout(std::chrono::microseconds const timeout) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+    pimpl->idle_timeout    = timeout;
+    pimpl->last_event_time = steady_clock::now();
+    pimpl->idle_flag       = false;
+}
+
+void basic_io_manager::clear_idle_timeout() noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return;
+    }
+    pimpl->idle_timeout = std::chrono::microseconds{0};
+}
+
+bool basic_io_manager::is_idle() const noexcept {
+    return pimpl.get() != nullptr && pimpl->idle_flag;
+}
+
+void basic_io_manager::clear_idle() noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return;
+    }
+    pimpl->idle_flag = false;
 }
 
 void basic_io_manager::unwatch(int const fd) noexcept {
@@ -111,6 +146,8 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
                 if (pimpl.get() == nullptr) {
                     init_impl();
                 }
+                pimpl->idle_flag       = false;
+                pimpl->last_event_time = steady_clock::now();
                 return next;
             } catch (...) {
                 return context_action::exit;
@@ -127,14 +164,29 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
         return next;
     }
 
+    // Compute poll timeout from idle_timeout.
+    int poll_timeout = -1;
+    if (pimpl->idle_timeout.count() > 0) {
+        auto const now       = steady_clock::now();
+        auto const elapsed   = std::chrono::duration_cast<std::chrono::microseconds>(now - pimpl->last_event_time);
+        auto const remaining = std::chrono::duration_cast<std::chrono::microseconds>(pimpl->idle_timeout - elapsed);
+        poll_timeout         = static_cast<int>(std::max(remaining, std::chrono::microseconds{0}).count() / 1000);
+    }
+
     int ready = 0;
     do {
-        ready = ::poll(pimpl->fds.data(), static_cast<nfds_t>(pimpl->fds.size()), -1);
+        ready = ::poll(pimpl->fds.data(), static_cast<nfds_t>(pimpl->fds.size()), poll_timeout);
     } while (ready < 0 && errno == EINTR);
 
     if (ready < 0) [[unlikely]] {
         log("io_manager: poll failed: {}", std::strerror(errno));
         return exit;
+    }
+
+    // poll timed out with no ready fds — idle threshold reached.
+    if (ready == 0 && pimpl->idle_timeout.count() > 0) {
+        pimpl->idle_flag = true;
+        return next;
     }
 
     // Collect all ready fds in a single forward scan, then dispatch forward.
@@ -163,6 +215,9 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
             pimpl->fds[i].revents = 0;
         }
     }
+
+    // Activity happened — update the idle clock.
+    pimpl->last_event_time = steady_clock::now();
 
     for (std::size_t i = 0; i < ready_count; ++i) {
         auto const& entry = ready_fds[i];

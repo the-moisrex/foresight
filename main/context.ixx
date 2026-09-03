@@ -812,6 +812,11 @@ export namespace fs8 {
             ev = inp_event;
         }
 
+        /// Broadcast a special event to ALL mods in this pipeline.
+        context_action broadcast(special_event const &tag) noexcept {
+            return invoke_mods(*this, mods_, tag);
+        }
+
         template <typename Func, typename Self>
             requires((std::same_as<mod_type<Func>, Funcs> || ...))
         [[nodiscard]] constexpr auto &mod(this Self &&self) noexcept {
