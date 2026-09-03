@@ -188,20 +188,6 @@ namespace fs8 {
         [[nodiscard]] consteval auto benchmark_all_create(ModT const& mod) noexcept {
             return basic_benchmark<ModT>{pretty_type_name<ModT>(), mod};
         }
-
-        template <typename ModT, typename FnT>
-        void for_each_benchmark(ModT& mod, FnT& fn) noexcept {
-            if constexpr (requires { mod.result(); }) {
-                fn(mod);
-            }
-            if constexpr (requires { mod.sub_mods(); }) {
-                std::apply(
-                  [&](auto&... sub) noexcept {
-                      (for_each_benchmark(sub, fn), ...);
-                  },
-                  mod.sub_mods());
-            }
-        }
     } // namespace benchmark_detail
 
     /// Factory type: benchmark_all[context | mod1 | mod2] wraps each mod in its own benchmark.
@@ -259,7 +245,7 @@ namespace fs8 {
             };
             std::apply(
               [&](auto&... mod) noexcept {
-                  (benchmark_detail::for_each_benchmark(mod, visit), ...);
+                  (walk_mod_tree(mod, visit), ...);
               },
               ctx.get_mods());
             return drop_event;

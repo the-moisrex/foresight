@@ -470,6 +470,20 @@ export namespace fs8 {
     template <typename T>
     inline constexpr type_id_t<T> type_id{};
 
+    /// Depth-first walk: call fn(mod) for every mod in the tree,
+    /// recursing into sub_mods() when present.
+    template <typename Mod, typename Fn>
+    void walk_mod_tree(Mod& mod, Fn&& fn) noexcept {
+        fn(mod);
+        if constexpr (requires { mod.sub_mods(); }) {
+            std::apply(
+              [&](auto&... sub) noexcept {
+                  (walk_mod_tree(sub, fn), ...);
+              },
+              mod.sub_mods());
+        }
+    }
+
     /// Recurse into a mod's `sub_mods()` (if any) and report the mod to `out`
     /// when its type matches `token`. Used by the typed `mods<T>`/`rmods<T>`.
     template <typename Mod>
@@ -502,18 +516,13 @@ export namespace fs8 {
     /// sub-pipelines).
     template <typename Mod>
     void collect_self_devnodes_impl(Mod &mod, std::function_ref<void(std::string_view)> out) noexcept {
-        if constexpr (requires { mod.self_devnode(); }) {
-            if (auto const node = mod.self_devnode(); !node.empty()) {
-                out(node);
+        walk_mod_tree(mod, [&](auto& m) noexcept {
+            if constexpr (requires { m.self_devnode(); }) {
+                if (auto const node = m.self_devnode(); !node.empty()) {
+                    out(node);
+                }
             }
-        }
-        if constexpr (requires { mod.sub_mods(); }) {
-            std::apply(
-              [&](auto &...sub) constexpr noexcept {
-                  (collect_self_devnodes_impl(sub, out), ...);
-              },
-              mod.sub_mods());
-        }
+        });
     }
 
     template <typename CtxT>
