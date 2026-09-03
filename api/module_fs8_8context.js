@@ -84,6 +84,7 @@ var module_fs8_8context =
     [ "fs8::invoke_sub_pipeline", "module_fs8_8context.html#a36dcea7eeb43984c61cee59a52decf19", null ],
     [ "fs8::invoke_sub_pipeline", "module_fs8_8context.html#a11d0b7eda30ceb9c51614e3311d45705", null ],
     [ "fs8::invoke_first_mod_of_sub_pipeline", "module_fs8_8context.html#ace88079d3933f75106bb627db246af14", null ],
+    [ "fs8::walk_mod_tree", "module_fs8_8context.html#ac23b458b3d9a91fbb0306b9e9ff9c37b", null ],
     [ "fs8::collect_mods_of_impl", "module_fs8_8context.html#a910bdbe1244dfd8998b4e5faee6e1b3b", null ],
     [ "fs8::collect_mods_of", "module_fs8_8context.html#a1945aab39d06e7c22e0e30638f398809", null ],
     [ "fs8::collect_self_devnodes_impl", "module_fs8_8context.html#af252a160e2619e0fe43e3d560582aa92", null ],

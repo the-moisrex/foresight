@@ -672,6 +672,7 @@ var namespacefs8 =
     [ "view", "namespacefs8.html#a3be588025a49021175ef8219b4aff37d", null ],
     [ "visit_at", "namespacefs8.html#a2780016949eef2dc81b65f3961718fd6", null ],
     [ "visit_at", "namespacefs8.html#a64b669309027c5732d33de060628ee86", null ],
+    [ "walk_mod_tree", "namespacefs8.html#ac23b458b3d9a91fbb0306b9e9ff9c37b", null ],
     [ "abs2rel", "namespacefs8.html#a2b6bbcf4ede7e0321ee5e0faa0fb082b", null ],
     [ "allow_multiple_matches", "namespacefs8.html#aa16d198f0939ff9bf4e91fa03841747f", null ],
     [ "always_disable", "namespacefs8.html#a7f6fba2e930e5817763d94de77fa1648", null ],

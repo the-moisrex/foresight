@@ -6,7 +6,6 @@ var benchmark_8ixx =
     [ "fs8::basic_benchmark_result< SinkT >", "structfs8_1_1basic__benchmark__result.html", "structfs8_1_1basic__benchmark__result" ],
     [ "benchmark_all_create", "benchmark_8ixx.html#ab37a3e1fec7313c70425636c528f85b7", null ],
     [ "extract_type", "benchmark_8ixx.html#af06cb8f88ae2f074200fd990a9ed83a1", null ],
-    [ "for_each_benchmark", "benchmark_8ixx.html#a692e4eb31f8eec67ac8a0c91f9635513", null ],
     [ "is_lifecycle_event", "benchmark_8ixx.html#a4a4c689fd3c9a0d4be6a633a2e9b7675", null ],
     [ "pretty_type_name", "benchmark_8ixx.html#a40ac73320e7d1ed8b0bd982d6b6356f0", null ],
     [ "short_name", "benchmark_8ixx.html#a990479d160f11c3a2c3764a916eca830", null ],

@@ -58,6 +58,7 @@ var context_8ixx =
     [ "to_string", "context_8ixx.html#aebf04814ae9d82a70029373f09ddc2c5", null ],
     [ "type", "context_8ixx.html#aae8069288a60ff7eade06c09f9ebcdf1", null ],
     [ "value", "context_8ixx.html#a174bdbde5061f4bbd7985525c50e7748", null ],
+    [ "walk_mod_tree", "context_8ixx.html#ac23b458b3d9a91fbb0306b9e9ff9c37b", null ],
     [ "args_contain_special_event", "context_8ixx.html#afcb45398ea2ce014080e1fee91c59c7f", null ],
     [ "context", "context_8ixx.html#a1f84efa1ecc04f2041d05aab1244b770", null ],
     [ "dynamic_context", "context_8ixx.html#a51c56ad8c2b6f112c12cec0618c358c4", null ],
