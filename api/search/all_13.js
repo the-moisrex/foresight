@@ -40,7 +40,7 @@ var searchData=
   ['toggle_5fled_37',['toggle_led',['../structfs8_1_1basic__led__state.html#ad74f6aea500d36eacaa157f4ad4c7edf',1,'fs8::basic_led_state']]],
   ['toggle_5foff_38',['toggle_off',['../namespacefs8.html#af98fba0a3446b72f2853d6c049f79f63',1,'fs8']]],
   ['toggle_5fon_39',['toggle_on',['../namespacefs8.html#aa3478b540108dcf19e02bdc08cf44624',1,'fs8']]],
-  ['total_40',['total',['../structfs8_1_1basic__benchmark__counter.html#a791ecbd420f3e5f06b91a7280baa6cb9',1,'fs8::basic_benchmark_counter']]],
+  ['total_40',['total',['../structfs8_1_1basic__benchmark_1_1counter.html#a1a85318376bc3d067b4b91b9fcbf1b94',1,'fs8::basic_benchmark::counter']]],
   ['touch_5fabs_5faxes_41',['touch_abs_axes',['../namespacefs8_1_1caps.html#a00e964b9ed3eb2a40ee11fc46c050cfa',1,'fs8::caps']]],
   ['touch_5fbtns_42',['touch_btns',['../namespacefs8_1_1caps.html#a005f2b79a429521f7c46d683676f7ef0',1,'fs8::caps']]],
   ['touchpad_43',['touchpad',['../namespacefs8_1_1caps.html#a5883b0685d98e9abea6d4d354423098c',1,'fs8::caps']]],

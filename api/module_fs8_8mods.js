@@ -141,7 +141,6 @@ var module_fs8_8mods =
     [ "basic_live_view_output", "structfs8_1_1basic__live__view__output.html", "structfs8_1_1basic__live__view__output" ],
     [ "basic_from_live_view", "structfs8_1_1basic__from__live__view.html", "structfs8_1_1basic__from__live__view" ],
     [ "basic_mouse_history", "structfs8_1_1basic__mouse__history.html", "structfs8_1_1basic__mouse__history" ],
-    [ "basic_benchmark_counter", "structfs8_1_1basic__benchmark__counter.html", "structfs8_1_1basic__benchmark__counter" ],
     [ "basic_benchmark", "structfs8_1_1basic__benchmark.html", "structfs8_1_1basic__benchmark" ],
     [ "basic_benchmark_result", "structfs8_1_1basic__benchmark__result.html", "structfs8_1_1basic__benchmark__result" ],
     [ "pattern", "conceptfs8_1_1idle__repeat_1_1pattern.html", null ],

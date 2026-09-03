@@ -77,7 +77,6 @@ var namespacefs8 =
     [ "basic_auto_mode_tag", "structfs8_1_1basic__auto__mode__tag.html", "structfs8_1_1basic__auto__mode__tag" ],
     [ "basic_autocomplete", "structfs8_1_1basic__autocomplete.html", "structfs8_1_1basic__autocomplete" ],
     [ "basic_benchmark", "structfs8_1_1basic__benchmark.html", "structfs8_1_1basic__benchmark" ],
-    [ "basic_benchmark_counter", "structfs8_1_1basic__benchmark__counter.html", "structfs8_1_1basic__benchmark__counter" ],
     [ "basic_benchmark_result", "structfs8_1_1basic__benchmark__result.html", "structfs8_1_1basic__benchmark__result" ],
     [ "basic_code_adaptor", "structfs8_1_1basic__code__adaptor.html", "structfs8_1_1basic__code__adaptor" ],
     [ "basic_context", "structfs8_1_1basic__context.html", "structfs8_1_1basic__context" ],

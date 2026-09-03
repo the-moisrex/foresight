@@ -1,7 +1,7 @@
 var searchData=
 [
   ['rearm_5ftimer_0',['rearm_timer',['../structfs8_1_1pimpl__idiom_1_1impl.html#abc5f0c24220fb3353b2807802365d1cc',1,'fs8::pimpl_idiom::impl']]],
-  ['record_1',['record',['../namespacefs8.html#a187e67dacaca35c5c527b6634bb987da',1,'fs8::record'],['../structfs8_1_1basic__benchmark__counter.html#a46ae4d72202a263ba9f87156ec72789c',1,'fs8::basic_benchmark_counter::record()']]],
+  ['record_1',['record',['../namespacefs8.html#a187e67dacaca35c5c527b6634bb987da',1,'fs8::record'],['../structfs8_1_1basic__benchmark_1_1counter.html#a7ac089b0af7e09a63bf4adfdc9e1f68d',1,'fs8::basic_benchmark::counter::record()']]],
   ['record_2ecxx_2',['record.cxx',['../record_8cxx.html',1,'']]],
   ['record_2eixx_3',['record.ixx',['../record_8ixx.html',1,'']]],
   ['recovery_4',['recovery',['../namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bda6ccf929934691710135f3f0df7cc43c5',1,'fs8']]],
@@ -23,7 +23,7 @@ var searchData=
   ['required_20',['required',['../namespacefs8.html#a4046057288914509f4cde1246de75cf3',1,'fs8']]],
   ['reset_21',['reset',['../structfs8_1_1pimpl__idiom_1_1impl.html#a0c738949d357f62003c06edc98444f1d',1,'fs8::pimpl_idiom::impl::reset()'],['../structfs8_1_1nullable__indirect.html#afb3f7b4d8907e1971b426345cf33bda1',1,'fs8::nullable_indirect::reset()'],['../structfs8_1_1pimpl__idiom_1_1impl.html#a0c738949d357f62003c06edc98444f1d',1,'fs8::pimpl_idiom::impl::reset() noexcept'],['../structfs8_1_1pimpl__idiom_1_1impl.html#a0c738949d357f62003c06edc98444f1d',1,'fs8::pimpl_idiom::impl::reset() noexcept'],['../structfs8_1_1basic__swipe__detector.html#aaf2d9515911307b6e2219ecc36c01305',1,'fs8::basic_swipe_detector::reset()'],['../structfs8_1_1velocity__tracker.html#a469c06fe6784b6566e1ee3399ad5ab30',1,'fs8::velocity_tracker::reset()']]],
   ['reset_5ftime_22',['reset_time',['../structfs8_1_1event__type.html#aa2cb30362178b2c8122ba6d61621bfcc',1,'fs8::event_type']]],
-  ['result_23',['result',['../structfs8_1_1basic__benchmark.html#ac7112f3a3961bf9fde4609e4c8197c50',1,'fs8::basic_benchmark']]],
+  ['result_23',['result',['../structfs8_1_1basic__benchmark.html#a2a7dc6d0ca70f6bcf0c203f6cd1c8df7',1,'fs8::basic_benchmark']]],
   ['revents_24',['revents',['../structfs8_1_1io__fd.html#a39c24cef126c6ba595ad13d364a0681c',1,'fs8::io_fd']]],
   ['reversal_5fscale_25',['reversal_scale',['../structfs8_1_1momentum__config.html#aca6fa3ba9da6d6a2448ae4ac6d10532b',1,'fs8::momentum_config']]],
   ['rmods_26',['rmods',['../structfs8_1_1basic__dynamic__context.html#a872c7613d8ce19544e1391103d0213ed',1,'fs8::basic_dynamic_context::rmods()'],['../structfs8_1_1basic__context.html#a3f68fcafa3aa11f5fa56a7d7c47b2354',1,'fs8::basic_context::rmods()']]],

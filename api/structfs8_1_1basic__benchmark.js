@@ -1,5 +1,6 @@
 var structfs8_1_1basic__benchmark =
 [
+    [ "counter", "structfs8_1_1basic__benchmark_1_1counter.html", "structfs8_1_1basic__benchmark_1_1counter" ],
     [ "clock", "structfs8_1_1basic__benchmark.html#a52c33031cbee815daab1226aa0f10d2f", null ],
     [ "mods_type", "structfs8_1_1basic__benchmark.html#ac8f2155f2c24fb901b1d10fe7117882c", null ],
     [ "basic_benchmark", "structfs8_1_1basic__benchmark.html#a9c90e3dca5b6cd0a0ca89f092fa5adc8", null ],
@@ -13,6 +14,6 @@ var structfs8_1_1basic__benchmark =
     [ "operator()", "structfs8_1_1basic__benchmark.html#a84bfdfde553d5d6db9afef9e45e14c25", null ],
     [ "operator()", "structfs8_1_1basic__benchmark.html#a70204a6ff8e4dc4e9630c0c7dd392ba9", null ],
     [ "operator[]", "structfs8_1_1basic__benchmark.html#a4841cd9d9ce0f5baa610f6877a8e1fb1", null ],
-    [ "result", "structfs8_1_1basic__benchmark.html#ac7112f3a3961bf9fde4609e4c8197c50", null ],
+    [ "result", "structfs8_1_1basic__benchmark.html#a2a7dc6d0ca70f6bcf0c203f6cd1c8df7", null ],
     [ "sub_mods", "structfs8_1_1basic__benchmark.html#a0ba050e29005bec19eb9c63f1e77a606", null ]
 ];
