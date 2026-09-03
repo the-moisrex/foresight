@@ -192,7 +192,7 @@ namespace fs8 {
 
     export constexpr basic_benchmark<>                       benchmark;
     export constexpr benchmark_detail::benchmark_all_factory benchmark_all;
-    export basic_benchmark_result<nullptr_t>                 benchmark_result;
+    export basic_benchmark_result<std::nullptr_t>             benchmark_result;
 
     static_assert(Modifier<basic_benchmark<>>);
 
