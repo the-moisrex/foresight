@@ -59,67 +59,63 @@ TEST(BenchmarkTest, RecordsWrappedPipelineInvocations) {
 }
 
 // ---------------------------------------------------------------------------
-// benchmark_stats: average() with 0 calls returns 0
+// Counter: average() with 0 calls returns 0
 // ---------------------------------------------------------------------------
-TEST(BenchmarkTest, StatsAverageZeroCalls) {
-    benchmark_stats stats{};
-    EXPECT_EQ(stats.calls, 0U);
-    EXPECT_EQ(stats.average().count(), 0);
+TEST(BenchmarkTest, CounterAverageZeroCalls) {
+    basic_benchmark_counter counter{};
+    EXPECT_EQ(counter.calls, 0U);
+    EXPECT_EQ(counter.average().count(), 0);
 }
 
 // ---------------------------------------------------------------------------
-// benchmark_stats: average() is total / calls
+// Counter: average() is total / calls
 // ---------------------------------------------------------------------------
-TEST(BenchmarkTest, StatsAverageCalculation) {
+TEST(BenchmarkTest, CounterAverageCalculation) {
     basic_benchmark_counter counter{};
     counter.record(std::chrono::nanoseconds{100});
     counter.record(std::chrono::nanoseconds{200});
     counter.record(std::chrono::nanoseconds{300});
 
-    auto const stats = counter.result();
-    EXPECT_EQ(stats.calls, 3U);
-    EXPECT_EQ(stats.total.count(), 600);
-    EXPECT_EQ(stats.average().count(), 200);
-    EXPECT_EQ(stats.min.count(), 100);
-    EXPECT_EQ(stats.max.count(), 300);
+    EXPECT_EQ(counter.calls, 3U);
+    EXPECT_EQ(counter.total.count(), 600);
+    EXPECT_EQ(counter.average().count(), 200);
+    EXPECT_EQ(counter.min.count(), 100);
+    EXPECT_EQ(counter.max.count(), 300);
 }
 
 // ---------------------------------------------------------------------------
-// benchmark_counter: clear() resets all fields
+// Counter: clear() resets all fields
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, CounterClearResetsStats) {
     basic_benchmark_counter counter{};
     counter.record(std::chrono::nanoseconds{42});
     counter.record(std::chrono::nanoseconds{99});
 
-    auto const before = counter.result();
-    EXPECT_EQ(before.calls, 2U);
+    EXPECT_EQ(counter.calls, 2U);
 
     counter.clear();
 
-    auto const after = counter.result();
-    EXPECT_EQ(after.calls, 0U);
-    EXPECT_EQ(after.total.count(), 0);
-    EXPECT_EQ(after.average().count(), 0);
+    EXPECT_EQ(counter.calls, 0U);
+    EXPECT_EQ(counter.total.count(), 0);
+    EXPECT_EQ(counter.average().count(), 0);
 }
 
 // ---------------------------------------------------------------------------
-// benchmark_counter: record a single event and verify result
+// Counter: record a single event
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, CounterRecordSingleEvent) {
     basic_benchmark_counter counter{};
     counter.record(std::chrono::nanoseconds{777});
 
-    auto const stats = counter.result();
-    EXPECT_EQ(stats.calls, 1U);
-    EXPECT_EQ(stats.total.count(), 777);
-    EXPECT_EQ(stats.average().count(), 777);
-    EXPECT_EQ(stats.min.count(), 777);
-    EXPECT_EQ(stats.max.count(), 777);
+    EXPECT_EQ(counter.calls, 1U);
+    EXPECT_EQ(counter.total.count(), 777);
+    EXPECT_EQ(counter.average().count(), 777);
+    EXPECT_EQ(counter.min.count(), 777);
+    EXPECT_EQ(counter.max.count(), 777);
 }
 
 // ---------------------------------------------------------------------------
-// benchmark_counter: clear after multiple records, then record again
+// Counter: clear after multiple records, then record again
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, CounterClearThenRecord) {
     basic_benchmark_counter counter{};
@@ -128,15 +124,14 @@ TEST(BenchmarkTest, CounterClearThenRecord) {
     counter.clear();
     counter.record(std::chrono::nanoseconds{50});
 
-    auto const stats = counter.result();
-    EXPECT_EQ(stats.calls, 1U);
-    EXPECT_EQ(stats.total.count(), 50);
-    EXPECT_EQ(stats.min.count(), 50);
-    EXPECT_EQ(stats.max.count(), 50);
+    EXPECT_EQ(counter.calls, 1U);
+    EXPECT_EQ(counter.total.count(), 50);
+    EXPECT_EQ(counter.min.count(), 50);
+    EXPECT_EQ(counter.max.count(), 50);
 }
 
 // ---------------------------------------------------------------------------
-// benchmark_counter: min/max track correctly across many records
+// Counter: min/max track correctly across many records
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, CounterMinMaxTracking) {
     basic_benchmark_counter counter{};
@@ -145,11 +140,65 @@ TEST(BenchmarkTest, CounterMinMaxTracking) {
     counter.record(std::chrono::nanoseconds{100});
     counter.record(std::chrono::nanoseconds{30});
 
-    auto const stats = counter.result();
-    EXPECT_EQ(stats.calls, 4U);
-    EXPECT_EQ(stats.min.count(), 10);
-    EXPECT_EQ(stats.max.count(), 100);
-    EXPECT_EQ(stats.total.count(), 190);
+    EXPECT_EQ(counter.calls, 4U);
+    EXPECT_EQ(counter.min.count(), 10);
+    EXPECT_EQ(counter.max.count(), 100);
+    EXPECT_EQ(counter.total.count(), 190);
+}
+
+// ---------------------------------------------------------------------------
+// Counter: total is sum of all recorded durations
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, CounterTotalIsSumOfDurations) {
+    basic_benchmark_counter counter{};
+    counter.record(std::chrono::nanoseconds{1});
+    counter.record(std::chrono::nanoseconds{2});
+    counter.record(std::chrono::nanoseconds{3});
+    counter.record(std::chrono::nanoseconds{4});
+    counter.record(std::chrono::nanoseconds{5});
+
+    EXPECT_EQ(counter.calls, 5U);
+    EXPECT_EQ(counter.total.count(), 15);
+}
+
+// ---------------------------------------------------------------------------
+// Counter: multiple counters are independent
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, IndependentCounters) {
+    basic_benchmark_counter a{};
+    basic_benchmark_counter b{};
+
+    a.record(std::chrono::nanoseconds{10});
+    a.record(std::chrono::nanoseconds{20});
+    b.record(std::chrono::nanoseconds{100});
+
+    EXPECT_EQ(a.calls, 2U);
+    EXPECT_EQ(a.total.count(), 30);
+    EXPECT_EQ(b.calls, 1U);
+    EXPECT_EQ(b.total.count(), 100);
+
+    a.clear();
+
+    EXPECT_EQ(a.calls, 0U);
+    EXPECT_EQ(b.calls, 1U); // b is independent, not cleared
+}
+
+// ---------------------------------------------------------------------------
+// Counter: clear only affects the target, not siblings
+// ---------------------------------------------------------------------------
+TEST(BenchmarkTest, ClearOnlyAffectsTarget) {
+    basic_benchmark_counter target{};
+    basic_benchmark_counter other{};
+
+    target.record(std::chrono::nanoseconds{10});
+    other.record(std::chrono::nanoseconds{20});
+    target.record(std::chrono::nanoseconds{30});
+
+    target.clear();
+
+    EXPECT_EQ(target.calls, 0U);
+    EXPECT_EQ(other.calls, 1U);
+    EXPECT_EQ(other.total.count(), 20);
 }
 
 // ---------------------------------------------------------------------------
@@ -389,33 +438,6 @@ TEST(BenchmarkTest, BenchmarkResultClearInsideOnResetsCounters) {
 }
 
 // ---------------------------------------------------------------------------
-// Multiple benchmark counters are independent
-// ---------------------------------------------------------------------------
-TEST(BenchmarkTest, IndependentCounters) {
-    basic_benchmark_counter a{};
-    basic_benchmark_counter b{};
-
-    a.record(std::chrono::nanoseconds{10});
-    a.record(std::chrono::nanoseconds{20});
-    b.record(std::chrono::nanoseconds{100});
-
-    auto const as = a.result();
-    auto const bs = b.result();
-
-    EXPECT_EQ(as.calls, 2U);
-    EXPECT_EQ(as.total.count(), 30);
-    EXPECT_EQ(bs.calls, 1U);
-    EXPECT_EQ(bs.total.count(), 100);
-
-    a.clear();
-
-    auto const as2 = a.result();
-    auto const bs2 = b.result();
-    EXPECT_EQ(as2.calls, 0U);
-    EXPECT_EQ(bs2.calls, 1U); // b is independent, not cleared
-}
-
-// ---------------------------------------------------------------------------
 // pretty_type_name produces non-empty strings
 // ---------------------------------------------------------------------------
 TEST(BenchmarkTest, PrettyTypeNameNotEmpty) {
@@ -501,22 +523,6 @@ TEST(BenchmarkTest, BenchmarkTracksEventCount) {
     // 4 events pass through the benchmark.
     EXPECT_EQ(bench.result().calls, 4U);
     EXPECT_GT(bench.result().total.count(), 0);
-}
-
-// ---------------------------------------------------------------------------
-// benchmark_stats: total is sum of all recorded durations
-// ---------------------------------------------------------------------------
-TEST(BenchmarkTest, StatsTotalIsSumOfDurations) {
-    basic_benchmark_counter counter{};
-    counter.record(std::chrono::nanoseconds{1});
-    counter.record(std::chrono::nanoseconds{2});
-    counter.record(std::chrono::nanoseconds{3});
-    counter.record(std::chrono::nanoseconds{4});
-    counter.record(std::chrono::nanoseconds{5});
-
-    auto const stats = counter.result();
-    EXPECT_EQ(stats.calls, 5U);
-    EXPECT_EQ(stats.total.count(), 15);
 }
 
 // ---------------------------------------------------------------------------
@@ -655,25 +661,4 @@ TEST(BenchmarkTest, BenchmarkInsideOnClearActuallyResets) {
     // Clear the benchmark.
     bench.clear();
     EXPECT_EQ(bench.result().calls, 0U);
-}
-
-// ---------------------------------------------------------------------------
-// Clear only affects the target, not sibling benchmarks
-// ---------------------------------------------------------------------------
-TEST(BenchmarkTest, ClearOnlyAffectsTarget) {
-    basic_benchmark_counter target{};
-    basic_benchmark_counter other{};
-
-    target.record(std::chrono::nanoseconds{10});
-    other.record(std::chrono::nanoseconds{20});
-    target.record(std::chrono::nanoseconds{30});
-
-    target.clear();
-
-    auto const ts = target.result();
-    auto const os = other.result();
-
-    EXPECT_EQ(ts.calls, 0U);
-    EXPECT_EQ(os.calls, 1U);
-    EXPECT_EQ(os.total.count(), 20);
 }

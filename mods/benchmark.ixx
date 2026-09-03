@@ -8,12 +8,11 @@ module;
 #include <utility>
 export module fs8.mods:benchmark;
 import fs8.context;
-import fs8.pimpl;
 import fs8.traits;
 
 namespace fs8 {
 
-    export struct [[nodiscard]] benchmark_stats {
+    export struct [[nodiscard]] basic_benchmark_counter {
         using duration = std::chrono::nanoseconds;
 
         std::uint64_t calls = 0;
@@ -24,14 +23,21 @@ namespace fs8 {
         [[nodiscard]] constexpr duration average() const noexcept {
             return calls == 0 ? duration{} : total / static_cast<std::int64_t>(calls);
         }
-    };
 
-    export struct [[nodiscard]] basic_benchmark_counter : pimpl_idiom<basic_benchmark_counter> {
-        using pimpl_idiom::pimpl_idiom;
+        constexpr void record(duration elapsed) noexcept {
+            ++calls;
+            total += elapsed;
+            if (elapsed < min) {
+                min = elapsed;
+            }
+            if (elapsed > max) {
+                max = elapsed;
+            }
+        }
 
-        void                          record(benchmark_stats::duration elapsed) noexcept;
-        [[nodiscard]] benchmark_stats result() const noexcept;
-        void                          clear() noexcept;
+        constexpr void clear() noexcept {
+            *this = {};
+        }
     };
 
     namespace benchmark_detail {
@@ -134,7 +140,7 @@ namespace fs8 {
         context_action operator()(CtxT& ctx) noexcept {
             auto const started = clock::now();
             auto const action  = invoke_mods(ctx, funcs);
-            counter.record(std::chrono::duration_cast<benchmark_stats::duration>(clock::now() - started));
+            counter.record(std::chrono::duration_cast<basic_benchmark_counter::duration>(clock::now() - started));
             return action;
         }
 
@@ -168,8 +174,8 @@ namespace fs8 {
             return name;
         }
 
-        [[nodiscard]] benchmark_stats result() const noexcept {
-            return counter.result();
+        [[nodiscard]] basic_benchmark_counter const& result() const noexcept {
+            return counter;
         }
 
         void clear() noexcept {
@@ -182,21 +188,7 @@ namespace fs8 {
         [[nodiscard]] consteval auto benchmark_all_create(ModT const& mod) noexcept {
             return basic_benchmark<ModT>{pretty_type_name<ModT>(), mod};
         }
-    } // namespace benchmark_detail
 
-    /// Factory type: benchmark_all[context | mod1 | mod2] wraps each mod in its own benchmark.
-    export struct [[nodiscard]] basic_benchmark_all {
-        template <Context CtxT>
-        [[nodiscard]] consteval auto operator[](CtxT const& ctx) const noexcept {
-            return std::apply(
-              []<typename... ModT>(ModT const&... mods) constexpr noexcept {
-                  return (context | ... | benchmark_detail::benchmark_all_create(mods));
-              },
-              ctx.get_mods());
-        }
-    };
-
-    namespace benchmark_detail {
         template <typename ModT, typename FnT>
         void for_each_benchmark(ModT& mod, FnT& fn) noexcept {
             if constexpr (requires { mod.result(); }) {
@@ -211,6 +203,18 @@ namespace fs8 {
             }
         }
     } // namespace benchmark_detail
+
+    /// Factory type: benchmark_all[context | mod1 | mod2] wraps each mod in its own benchmark.
+    export struct [[nodiscard]] basic_benchmark_all {
+        template <Context CtxT>
+        [[nodiscard]] consteval auto operator[](CtxT const& ctx) const noexcept {
+            return std::apply(
+              []<typename... ModT>(ModT const&... mods) constexpr noexcept {
+                  return (context | ... | benchmark_detail::benchmark_all_create(mods));
+              },
+              ctx.get_mods());
+        }
+    };
 
     export template <typename SinkT>
     struct [[nodiscard]] basic_benchmark_result : consteval_copyable {
@@ -228,10 +232,6 @@ namespace fs8 {
         constexpr basic_benchmark_result(SinkT inp_sink, bool inp_clear) noexcept : sink{std::move(inp_sink)}, clear_after{inp_clear} {}
 
         /// Handle lifecycle events (toggle_on / toggle_off) transparently.
-        /// The `on` block sends toggle_on when its condition first becomes true
-        /// and toggle_off when it becomes false.  We must return `next` so the
-        /// on block's lifecycle proceeds normally; returning drop_event would
-        /// cause the on block to abort before running our actual operator().
         context_action operator()(special_event const& tag) noexcept {
             using enum context_action;
             return benchmark_detail::is_lifecycle_event(tag) ? next : drop_event;
@@ -241,15 +241,15 @@ namespace fs8 {
             using enum context_action;
             auto visit = [&](auto& mod) noexcept {
                 if constexpr (requires { mod.result(); }) {
-                    auto const& stats = mod.result();
-                    auto const  bname = mod.get_name();
+                    auto const& counter = mod.result();
+                    auto const  bname   = mod.get_name();
                     sink("{}: calls={} total={}ns average={}ns min={}ns max={}ns",
                          bname.empty() ? "benchmark" : bname,
-                         stats.calls,
-                         stats.total.count(),
-                         stats.average().count(),
-                         stats.calls == 0 ? 0 : stats.min.count(),
-                         stats.max.count());
+                         counter.calls,
+                         counter.total.count(),
+                         counter.average().count(),
+                         counter.calls == 0 ? 0 : counter.min.count(),
+                         counter.max.count());
                 }
                 if constexpr (requires { mod.clear(); }) {
                     if (clear_after) {
@@ -267,8 +267,8 @@ namespace fs8 {
 
         /// benchmark_result[sink] / benchmark_result[sink, true]: create a result reporter.
         template <typename InpSinkT>
-        [[nodiscard]] consteval auto operator[](InpSinkT sink, bool clear = false) const noexcept {
-            return basic_benchmark_result<std::remove_cvref_t<InpSinkT>>{std::move(sink), clear};
+        [[nodiscard]] consteval auto operator[](InpSinkT inp_sink, bool clear = false) const noexcept {
+            return basic_benchmark_result<std::remove_cvref_t<InpSinkT>>{std::move(inp_sink), clear};
         }
     };
 

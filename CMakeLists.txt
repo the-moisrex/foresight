@@ -95,7 +95,6 @@ target_sources(${LIB_NAME}
         main/systemd.cxx
         mods/abs2rel.cxx
         mods/autocomplete.cxx
-        mods/benchmark.cxx
         mods/device.cxx
         mods/drop.cxx
         mods/emitter.cxx
