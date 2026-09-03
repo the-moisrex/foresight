@@ -12,69 +12,6 @@ import fs8.traits;
 
 namespace fs8 {
 
-    namespace benchmark_detail {
-        namespace pretty_type_name_impl {
-
-            constexpr std::string_view trim(std::string_view s) noexcept {
-                constexpr std::string_view ws{" \t"};
-                auto const                 b = s.find_first_not_of(ws);
-                if (b == std::string_view::npos) {
-                    return {};
-                }
-                auto const e = s.find_last_not_of(ws);
-                return s.substr(b, e - b + 1);
-            }
-
-            /// Slice the type token, keeping nested <...> and (...).
-            constexpr std::string_view type_token(std::string_view s) noexcept {
-                int depth = 0;
-                for (std::size_t i = 0; i < s.size(); ++i) {
-                    char const c = s[i];
-                    if (c == '<' || c == '(') {
-                        ++depth;
-                    } else if (c == '>' || c == ')') {
-                        if (depth == 0) {
-                            return trim(s.substr(0, i));
-                        }
-                        --depth;
-                    } else if (depth == 0 && (c == ']' || c == ',' || c == ';')) {
-                        return trim(s.substr(0, i));
-                    }
-                }
-                return trim(s);
-            }
-
-            constexpr std::string_view extract_type(std::string_view pretty) noexcept {
-                // GCC / Clang: "... [T = Type]" or "... [with T = Type; ...]"
-                if (auto const p = pretty.find("T = "); p != std::string_view::npos) {
-                    return type_token(pretty.substr(p + 4));
-                }
-                return {};
-            }
-
-            constexpr std::string_view unqualified(std::string_view name) noexcept {
-                auto const args = name.find('<');
-                auto const head = name.substr(0, args == std::string_view::npos ? name.size() : args);
-                auto const ns   = head.rfind("::");
-                return ns == std::string_view::npos ? name : name.substr(ns + 2);
-            }
-
-            constexpr std::string_view short_name(std::string_view pretty) noexcept {
-                auto const type = extract_type(pretty);
-                return type.empty() ? pretty : unqualified(type);
-            }
-
-        } // namespace pretty_type_name_impl
-
-        /// Extract a short readable name from __PRETTY_FUNCTION__.
-        /// Turns "...pretty_type_name() [T = fs8::basic_abs2rel]" into "basic_abs2rel".
-        template <typename T>
-        consteval std::string_view pretty_type_name() noexcept {
-            constexpr std::string_view raw = __PRETTY_FUNCTION__;
-            return pretty_type_name_impl::short_name(raw);
-        }
-
-    } // namespace benchmark_detail
 
     export template <Modifier... Funcs>
     struct [[nodiscard]] basic_benchmark : consteval_copyable {
