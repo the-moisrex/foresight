@@ -49,6 +49,11 @@ namespace fs8 {
             mode = std::clamp<std::uint8_t>(0, in_mode, sizeof...(Mods) - 1);
         }
 
+        /// The mods of this context, exposed for recursion into sub-pipelines.
+        [[nodiscard]] constexpr auto sub_mods() noexcept {
+            return std::forward_as_tuple(mods);
+        }
+
         context_action operator()(Context auto& ctx) noexcept {
             using enum context_action;
             if (invoke_cond(cond, ctx)) {

@@ -59,7 +59,8 @@ export namespace fs8 {
     /// Copy a matching device into a virtual (uinput) device, applying caps.
     /// If `best` is not valid, falls back to an empty device and applies caps.
     /// The source device is deep-cloned; it is never modified or freed.
-    [[nodiscard]] bool finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view) noexcept;
+    [[nodiscard]] bool
+    finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view, basic_input_manager* im = nullptr) noexcept;
 
     /**
      * A virtual device
@@ -205,7 +206,7 @@ export namespace fs8 {
         /// Set the device based on the query on start, preferring the devices
         /// known to the input_manager when it's available in the pipeline.
         template <typename CtxT>
-            requires requires(CtxT& ctx) { ctx.mod(fs8::input_manager).devices(); }
+            requires requires(CtxT& ctx) { ctx.mod(input_manager).devices(); }
         bool operator()(CtxT& ctx, device_query const& inp_query, special_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return true;
@@ -217,20 +218,17 @@ export namespace fs8 {
             // Prefer the devices the input_manager already knows about (they're
             // already open and matched against queries); fall back to a fresh
             // udev enumeration otherwise.
-            for (auto& cur_dev : ctx.mod(fs8::input_manager).devices()) {
+            auto& inp_man = ctx.mod(input_manager);
+            for (auto& cur_dev : inp_man.devices()) {
                 if (!fs8::matches(cur_dev, inp_query) || !fs8::is_usable(cur_dev)) {
                     continue;
                 }
                 log("uinput: matched device '{}', finalizing...", cur_dev.device_name());
-                auto const ok = fs8::finalize_device(*this, cur_dev, inp_query.caps);
-                if (ok) {
-                    ctx.mod(fs8::input_manager).own_device(devnode());
-                }
-                return ok;
+                return fs8::finalize_device(*this, cur_dev, inp_query.caps, &inp_man);
             }
             log("uinput: no matching device in input_manager, trying set_device_from");
             if (set_device_from(inp_query)) {
-                ctx.mod(fs8::input_manager).own_device(devnode());
+                inp_man.own_device(devnode());
                 return true;
             }
             log("uinput: set_device_from failed");
@@ -298,7 +296,7 @@ export namespace fs8 {
             self_created_ = value;
         }
 
-        friend bool finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view) noexcept;
+        friend bool finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view, basic_input_manager* im) noexcept;
 
       private:
         bool self_created_ = true;

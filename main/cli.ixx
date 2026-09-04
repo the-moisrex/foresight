@@ -202,7 +202,7 @@ export namespace fs8 {
             basic_arguments out = *this;
             for (std::string_view const name : {names...}) {
                 if (out.names_count < max_names) [[likely]] {
-                    out.names_(out.names_count++) = name;
+                    out.names_[out.names_count++] = name;
                 }
             }
             return out;
