@@ -4,6 +4,8 @@ var searchData=
   ['record_2eixx_1',['record.ixx',['../record_8ixx.html',1,'']]],
   ['replace_2ecxx_2',['replace.cxx',['../replace_8cxx.html',1,'']]],
   ['replace_2eixx_3',['replace.ixx',['../replace_8ixx.html',1,'']]],
-  ['router_2ecxx_4',['router.cxx',['../router_8cxx.html',1,'']]],
-  ['router_2eixx_5',['router.ixx',['../router_8ixx.html',1,'']]]
+  ['replay_2ecxx_4',['replay.cxx',['../replay_8cxx.html',1,'']]],
+  ['replay_2eixx_5',['replay.ixx',['../replay_8ixx.html',1,'']]],
+  ['router_2ecxx_6',['router.cxx',['../router_8cxx.html',1,'']]],
+  ['router_2eixx_7',['router.ixx',['../router_8ixx.html',1,'']]]
 ];

@@ -15,6 +15,8 @@ var concepts =
       [ "invokable_mod", "conceptfs8_1_1invokable__mod.html", null ],
       [ "PipelineTag", "conceptfs8_1_1PipelineTag.html", null ],
       [ "constexpr_constructible", "conceptfs8_1_1constexpr__constructible.html", null ],
+      [ "capture_format", "conceptfs8_1_1capture__format.html", null ],
+      [ "capture_naming", "conceptfs8_1_1capture__naming.html", null ],
       [ "has_variables", "conceptfs8_1_1has__variables.html", null ],
       [ "query_provider", "conceptfs8_1_1query__provider.html", null ],
       [ "io_handler", "conceptfs8_1_1io__handler.html", null ],

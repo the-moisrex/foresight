@@ -6,7 +6,7 @@ var searchData=
   ['idle_5fdetector_3',['idle_detector',['../namespacefs8.html#a74388b5fa216fbbf59bf310503c1eea1',1,'fs8']]],
   ['idle_5ftimeout_4',['idle_timeout',['../structfs8_1_1pimpl__idiom_1_1impl.html#a647876cb5e6ef936a7f7a45b92a6013e',1,'fs8::pimpl_idiom::impl']]],
   ['im_5',['im',['../structfs8_1_1pimpl__idiom_1_1impl.html#a46592a850317412383f824fa4198826f',1,'fs8::pimpl_idiom::impl']]],
-  ['index_6',['index',['../structfs8_1_1basic__scheduler_1_1tick__handle.html#a78f27d541808a33d74d62913db206af8',1,'fs8::basic_scheduler::tick_handle::index'],['../structfs8_1_1variable__pointer.html#a1ddc5dfcb3ba9d27e908c05e55fc955a',1,'fs8::variable_pointer::index']]],
+  ['index_6',['index',['../structfs8_1_1variable__pointer.html#a1ddc5dfcb3ba9d27e908c05e55fc955a',1,'fs8::variable_pointer::index'],['../structfs8_1_1basic__scheduler_1_1tick__handle.html#a78f27d541808a33d74d62913db206af8',1,'fs8::basic_scheduler::tick_handle::index']]],
   ['index_5fat_7',['index_at',['../namespacefs8.html#abc10474c1556cb2213d2b9aafc23f305',1,'fs8']]],
   ['index_5fbits_8',['INDEX_BITS',['../structfs8_1_1aho__state.html#a9739357682883601a5d11b0075aa8b12',1,'fs8::aho_state']]],
   ['index_5fmask_9',['INDEX_MASK',['../structfs8_1_1aho__state.html#a8dc65ec738c578e33466693413b76e63',1,'fs8::aho_state']]],
@@ -33,10 +33,11 @@ var searchData=
   ['io_30',['io',['../structfs8_1_1pimpl__idiom_1_1impl.html#abf1c46954958674beef8bc5dbd6baafa',1,'fs8::pimpl_idiom::impl']]],
   ['io_5fmanager_31',['io_manager',['../namespacefs8.html#a94c045c9f25ce171f90ea715226c9df0',1,'fs8']]],
   ['is_5fanimating_32',['is_animating',['../structfs8_1_1pimpl__idiom_1_1impl.html#a625b67104c8f53e1e4f74b9abc078641',1,'fs8::pimpl_idiom::impl']]],
-  ['is_5fconstructible_5fat_5fcompile_5ftime_33',['is_constructible_at_compile_time',['../structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a',1,'fs8::var_type']]],
-  ['is_5fquery_34',['is_query',['../namespacefs8.html#aadc64fc1f9d5543954acb8c8ee2cfce7',1,'fs8']]],
-  ['is_5fquery_3c_20basic_5fdevice_5fquery_3c_20n_20_3e_20_3e_35',['is_query&lt; basic_device_query&lt; N &gt; &gt;',['../namespacefs8.html#af27f94630addc25ede7b41f43544cdad',1,'fs8']]],
-  ['is_5ftag_36',['is_tag',['../structfs8_1_1get__variables__tag.html#aafb7e269771441446c32174571d22068',1,'fs8::get_variables_tag::is_tag'],['../structfs8_1_1basic__pass__trigger__tag.html#a93a831f44d5ae7942683bbed86f1736d',1,'fs8::basic_pass_trigger_tag::is_tag'],['../structfs8_1_1basic__auto__mode__tag.html#a179809a5e6c77bfaf557b487f615a4b1',1,'fs8::basic_auto_mode_tag::is_tag']]],
-  ['is_5ftag_5ftype_37',['is_tag_type',['../namespacefs8_1_1detail.html#a78191c65d0f7563de2ee3f4e82886592',1,'fs8::detail']]],
-  ['is_5ftag_5ftype_3c_20special_5fevent_2c_20void_20_3e_38',['is_tag_type&lt; special_event, void &gt;',['../namespacefs8_1_1detail.html#adb43e00e6140916bd4b24c07bf52fc34',1,'fs8::detail']]]
+  ['is_5fbinary_33',['is_binary',['../structfs8_1_1detail_1_1replay__impl.html#ae713db7dc5eb03a082fd11dfa63a8697',1,'fs8::detail::replay_impl']]],
+  ['is_5fconstructible_5fat_5fcompile_5ftime_34',['is_constructible_at_compile_time',['../structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a',1,'fs8::var_type']]],
+  ['is_5fquery_35',['is_query',['../namespacefs8.html#aadc64fc1f9d5543954acb8c8ee2cfce7',1,'fs8']]],
+  ['is_5fquery_3c_20basic_5fdevice_5fquery_3c_20n_20_3e_20_3e_36',['is_query&lt; basic_device_query&lt; N &gt; &gt;',['../namespacefs8.html#af27f94630addc25ede7b41f43544cdad',1,'fs8']]],
+  ['is_5ftag_37',['is_tag',['../structfs8_1_1basic__pass__trigger__tag.html#a93a831f44d5ae7942683bbed86f1736d',1,'fs8::basic_pass_trigger_tag::is_tag'],['../structfs8_1_1get__variables__tag.html#aafb7e269771441446c32174571d22068',1,'fs8::get_variables_tag::is_tag'],['../structfs8_1_1basic__auto__mode__tag.html#a179809a5e6c77bfaf557b487f615a4b1',1,'fs8::basic_auto_mode_tag::is_tag']]],
+  ['is_5ftag_5ftype_38',['is_tag_type',['../namespacefs8_1_1detail.html#a78191c65d0f7563de2ee3f4e82886592',1,'fs8::detail']]],
+  ['is_5ftag_5ftype_3c_20special_5fevent_2c_20void_20_3e_39',['is_tag_type&lt; special_event, void &gt;',['../namespacefs8_1_1detail.html#adb43e00e6140916bd4b24c07bf52fc34',1,'fs8::detail']]]
 ];

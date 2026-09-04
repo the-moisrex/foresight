@@ -13,8 +13,11 @@ var annotated_dup =
         [ "named_benchmark_proxy", "structfs8_1_1benchmark__detail_1_1named__benchmark__proxy.html", "structfs8_1_1benchmark__detail_1_1named__benchmark__proxy" ]
       ] ],
       [ "detail", "namespacefs8_1_1detail.html", [
+        [ "capture_impl", "structfs8_1_1detail_1_1capture__impl.html", "structfs8_1_1detail_1_1capture__impl" ],
         [ "modes_caller_info", "structfs8_1_1detail_1_1modes__caller__info.html", "structfs8_1_1detail_1_1modes__caller__info" ],
-        [ "router_state", "structfs8_1_1detail_1_1router__state.html", "structfs8_1_1detail_1_1router__state" ]
+        [ "replay_impl", "structfs8_1_1detail_1_1replay__impl.html", "structfs8_1_1detail_1_1replay__impl" ],
+        [ "router_state", "structfs8_1_1detail_1_1router__state.html", "structfs8_1_1detail_1_1router__state" ],
+        [ "tm_info", "structfs8_1_1detail_1_1tm__info.html", "structfs8_1_1detail_1_1tm__info" ]
       ] ],
       [ "idle_repeat", "namespacefs8_1_1idle__repeat.html", [
         [ "consistent", "structfs8_1_1idle__repeat_1_1consistent.html", "structfs8_1_1idle__repeat_1_1consistent" ],
@@ -44,6 +47,7 @@ var annotated_dup =
       [ "basic_autocomplete", "structfs8_1_1basic__autocomplete.html", "structfs8_1_1basic__autocomplete" ],
       [ "basic_benchmark", "structfs8_1_1basic__benchmark.html", "structfs8_1_1basic__benchmark" ],
       [ "basic_benchmark_result", "structfs8_1_1basic__benchmark__result.html", "structfs8_1_1basic__benchmark__result" ],
+      [ "basic_capture", "structfs8_1_1basic__capture.html", "structfs8_1_1basic__capture" ],
       [ "basic_code_adaptor", "structfs8_1_1basic__code__adaptor.html", "structfs8_1_1basic__code__adaptor" ],
       [ "basic_context", "structfs8_1_1basic__context.html", "structfs8_1_1basic__context" ],
       [ "basic_debounce", "structfs8_1_1basic__debounce.html", "structfs8_1_1basic__debounce" ],
@@ -140,6 +144,7 @@ var annotated_dup =
       [ "basic_record", "structfs8_1_1basic__record.html", "structfs8_1_1basic__record" ],
       [ "basic_replace", "structfs8_1_1basic__replace.html", "structfs8_1_1basic__replace" ],
       [ "basic_replace_code", "structfs8_1_1basic__replace__code.html", "structfs8_1_1basic__replace__code" ],
+      [ "basic_replay", "structfs8_1_1basic__replay.html", "structfs8_1_1basic__replay" ],
       [ "basic_router", "structfs8_1_1basic__router.html", "structfs8_1_1basic__router" ],
       [ "basic_scale_move", "structfs8_1_1basic__scale__move.html", "structfs8_1_1basic__scale__move" ],
       [ "basic_scale_pen", "structfs8_1_1basic__scale__pen.html", "structfs8_1_1basic__scale__pen" ],
@@ -162,6 +167,15 @@ var annotated_dup =
       [ "basic_type_string", "structfs8_1_1basic__type__string.html", "structfs8_1_1basic__type__string" ],
       [ "basic_typed", "structfs8_1_1basic__typed.html", "structfs8_1_1basic__typed" ],
       [ "basic_uinput", "structfs8_1_1basic__uinput.html", "structfs8_1_1basic__uinput" ],
+      [ "capture_binary_format", "structfs8_1_1capture__binary__format.html", "structfs8_1_1capture__binary__format" ],
+      [ "capture_daily", "structfs8_1_1capture__daily.html", "structfs8_1_1capture__daily" ],
+      [ "capture_evtest_format", "structfs8_1_1capture__evtest__format.html", "structfs8_1_1capture__evtest__format" ],
+      [ "capture_hourly", "structfs8_1_1capture__hourly.html", "structfs8_1_1capture__hourly" ],
+      [ "capture_manual", "structfs8_1_1capture__manual.html", "structfs8_1_1capture__manual" ],
+      [ "capture_monthly", "structfs8_1_1capture__monthly.html", "structfs8_1_1capture__monthly" ],
+      [ "capture_single_file", "structfs8_1_1capture__single__file.html", "structfs8_1_1capture__single__file" ],
+      [ "capture_uptime", "structfs8_1_1capture__uptime.html", "structfs8_1_1capture__uptime" ],
+      [ "capture_weekly", "structfs8_1_1capture__weekly.html", "structfs8_1_1capture__weekly" ],
       [ "condensed_view", "structfs8_1_1condensed__view.html", "structfs8_1_1condensed__view" ],
       [ "consteval_copyable", "structfs8_1_1consteval__copyable.html", "structfs8_1_1consteval__copyable" ],
       [ "construct_it_from", "structfs8_1_1construct__it__from.html", "structfs8_1_1construct__it__from" ],
