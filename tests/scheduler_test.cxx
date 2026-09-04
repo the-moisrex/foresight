@@ -296,8 +296,8 @@ TEST(SchedulerIo, IoHandlerIgnoresUnrelatedFd) {
 
     auto& sched = pipeline.mod<basic_scheduler>();
 
-    int const pipefd[2] = {-1, -1};
-    ASSERT_EQ(0, ::pipe(const_cast<int*>(pipefd)));
+    int pipefd[2] = {-1, -1};
+    ASSERT_EQ(0, ::pipe(pipefd));
 
     io_fd const fd_info{.fd = pipefd[0], .events = io_event::in};
     auto const  result = sched(fd_info);

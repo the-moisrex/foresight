@@ -18,11 +18,11 @@ namespace fs8 {
         ~bash_runner();
 
         void                      start();
-        std::string               load(std::string_view file);
-        std::string               exec(std::string_view command);
+        [[nodiscard]] std::string load(std::string_view file);
+        [[nodiscard]] std::string exec(std::string_view command);
         void                      set_variable(std::string_view name, std::string_view value);
-        std::string               get_variable(std::string_view name);
-        std::string               call_function(std::string_view func_name, std::span<std::string_view const> args);
+        [[nodiscard]] std::string get_variable(std::string_view name);
+        [[nodiscard]] std::string call_function(std::string_view func_name, std::span<std::string_view const> args);
         [[nodiscard]] std::string get_variables();
         [[nodiscard]] std::string get_functions();
     };

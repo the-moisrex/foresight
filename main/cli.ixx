@@ -11,14 +11,14 @@ export module fs8.cli;
 export namespace fs8 {
 
     /// Describes a single command-line flag.
-    struct [[nodiscard]] basic_flag {
+    struct [[nodiscard]] flag {
         std::string_view name;  // e.g. "--grab"
         std::string_view alias; // e.g. "-g"; may be empty
         std::string_view help;  // one-line description
         bool             takes_value = false;
     };
 
-    /// Result of parsing `argc`/`argv` through `basic_arguments`.
+    /// Result of parsing `argc`/`argv` through `arguments`.
     ///
     /// The positional arguments are copied into inline storage (as `argv`
     /// pointers, which outlive `main`) so flags can be interspersed freely.
@@ -41,7 +41,7 @@ export namespace fs8 {
         std::size_t      positional_count = 0;
 
         /// Copies of the registered flag definitions (for help + lookup).
-        std::array<basic_flag, max_flags>  flags{};
+        std::array<flag, max_flags>  flags{};
         std::size_t                        flag_count = 0;
         std::array<bool, max_flags>        flag_seen{};
         std::array<char const*, max_flags> flag_values{};
@@ -143,11 +143,11 @@ export namespace fs8 {
             std::println("  -h | --help      Print this help.");
             std::println("  -v | --version   Print version.");
             for (std::size_t i = 0; i < flag_count; ++i) {
-                basic_flag const& flag = flags[i];
-                if (flag.alias.empty()) {
-                    std::println("  {}  {}", flag.name, flag.help);
+                flag const& f = flags[i];
+                if (f.alias.empty()) {
+                    std::println("  {}  {}", f.name, f.help);
                 } else {
-                    std::println("  {} | {}  {}", flag.alias, flag.name, flag.help);
+                    std::println("  {} | {}  {}", f.alias, f.name, f.help);
                 }
             }
         }
@@ -165,15 +165,13 @@ export namespace fs8 {
         static constexpr std::size_t max_names       = 16;
 
         std::array<char const*, DefaultsN + 1>  defaults_{};
-        std::array<basic_flag, max_flags>       flags_{};
+        std::array<flag, max_flags>       flags_{};
         std::size_t                             flags_count = 0;
         std::array<std::string_view, max_names> names_{};
         std::size_t                             names_count = 0;
         std::string_view                        help_text_{};
 
       public:
-        using parsed_args = parsed_args;
-
         /// Default constructor for zero defaults.
         consteval basic_arguments() noexcept = default;
 
@@ -207,15 +205,15 @@ export namespace fs8 {
         }
 
         /// Register an extra flag.
-        constexpr basic_arguments add_flag(basic_flag const flag) const noexcept {
+        constexpr basic_arguments add_flag(flag const fl) const noexcept {
             basic_arguments out = *this;
             if (out.flags_count < max_flags) [[likely]] {
-                out.flags_[out.flags_count++] = flag;
+                out.flags_[out.flags_count++] = fl;
             }
             return out;
         }
 
-        /// Register multiple flags from a range (e.g. `std::array<basic_flag, N>`).
+        /// Register multiple flags from a range (e.g. `std::array<flag, N>`).
         template <typename Range>
             requires requires(Range const& r) {
                 std::begin(r);
@@ -223,9 +221,9 @@ export namespace fs8 {
             }
         constexpr basic_arguments add_flags(Range const& flags) const noexcept {
             basic_arguments out = *this;
-            for (basic_flag const& flag : flags) {
+            for (flag const& fl : flags) {
                 if (out.flags_count < max_flags) [[likely]] {
-                    out.flags_[out.flags_count++] = flag;
+                    out.flags_[out.flags_count++] = fl;
                 }
             }
             return out;
@@ -263,10 +261,10 @@ export namespace fs8 {
                 }
                 bool matched = false;
                 for (std::size_t f = 0; f < flags_count; ++f) {
-                    basic_flag const& flag = flags_[f];
-                    if (cur == flag.name || (!flag.alias.empty() && cur == flag.alias)) {
+                    flag const& fl = flags_[f];
+                    if (cur == fl.name || (!fl.alias.empty() && cur == fl.alias)) {
                         out.flag_seen[f] = true;
-                        if (flag.takes_value && i + 1 < count) [[likely]] {
+                        if (fl.takes_value && i + 1 < count) [[likely]] {
                             out.flag_values[f] = beg[++i];
                         }
                         matched = true;

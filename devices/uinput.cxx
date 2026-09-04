@@ -1,6 +1,7 @@
 // Created by moisrex on 6/29/24.
 
 module;
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstring>
@@ -34,7 +35,7 @@ struct fs8::pimpl_idiom<basic_uinput>::impl {
 
 static constexpr std::string_view uinput_path = "/dev/uinput";
 
-#define SYS_INPUT_DIR "/sys/devices/virtual/input/"
+constexpr std::string_view SYS_INPUT_DIR = "/sys/devices/virtual/input/";
 
 #ifndef UINPUT_IOCTL_BASE
 #    define UINPUT_IOCTL_BASE 'U'
@@ -218,16 +219,17 @@ namespace {
         dirent** namelist;
         int      ndev, i;
         int      rc;
-        char     buf[sizeof(SYS_INPUT_DIR) + 64] = SYS_INPUT_DIR;
+        char     buf[SYS_INPUT_DIR.size() + 1 + 64] = {};
+        std::copy_n(SYS_INPUT_DIR.data(), SYS_INPUT_DIR.size() + 1, buf);
 
-        rc = ioctl(uinput_dev->fd, UI_GET_SYSNAME(sizeof(buf) - strlen(SYS_INPUT_DIR)), &buf[strlen(SYS_INPUT_DIR)]);
+        rc = ioctl(uinput_dev->fd, UI_GET_SYSNAME(sizeof(buf) - SYS_INPUT_DIR.size()), &buf[SYS_INPUT_DIR.size()]);
         if (rc != -1) {
             uinput_dev->syspath = strdup(buf);
             uinput_dev->devnode = fetch_device_node(buf);
             return 0;
         }
 
-        ndev = scandir(SYS_INPUT_DIR, &namelist, is_input_device, alphasort);
+        ndev = scandir(SYS_INPUT_DIR.data(), &namelist, is_input_device, alphasort);
         if (ndev <= 0) {
             return -1;
         }
@@ -237,8 +239,8 @@ namespace {
 
             struct stat st;
 
-            rc = snprintf(buf, sizeof(buf), "%s%s/name", SYS_INPUT_DIR, namelist[i]->d_name);
-            if (rc < 0 || (size_t) rc >= sizeof(buf)) {
+            rc = snprintf(buf, sizeof(buf), "%s%s/name", SYS_INPUT_DIR.data(), namelist[i]->d_name);
+            if (rc < 0 || static_cast<size_t>(rc) >= sizeof(buf)) {
                 continue;
             }
 
@@ -267,7 +269,7 @@ namespace {
                     fs8::log("multiple identical devices found. syspath is unreliable");
                     break;
                 }
-                rc = snprintf(buf, sizeof(buf), "%s%s", SYS_INPUT_DIR, namelist[i]->d_name);
+                rc = snprintf(buf, sizeof(buf), "%s%s", SYS_INPUT_DIR.data(), namelist[i]->d_name);
                 if (rc < 0 || static_cast<size_t>(rc) >= sizeof(buf)) {
                     fs8::log("Invalid syspath, syspath is unreliable");
                     break;

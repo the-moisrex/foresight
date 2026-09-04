@@ -107,10 +107,10 @@ namespace fs8 {
     export [[nodiscard]] std::size_t parse_key_tags(std::string_view str, std::span<event_type::code_type> out) noexcept;
 
     /// Find the specified delimiter, but also checks if it's escaped or not.
-    export std::size_t find_delim(std::string_view str, char delim, std::size_t pos = 0) noexcept;
-    export std::size_t find_delim(std::u32string_view str, char32_t delim, std::size_t pos = 0) noexcept;
-    export std::size_t find_delim(std::string_view str, std::string_view delims, std::size_t pos = 0) noexcept;
-    export std::size_t find_delim(std::u32string_view str, std::u32string_view delims, std::size_t pos = 0) noexcept;
+    export [[nodiscard]] std::size_t find_delim(std::string_view str, char delim, std::size_t pos = 0) noexcept;
+    export [[nodiscard]] std::size_t find_delim(std::u32string_view str, char32_t delim, std::size_t pos = 0) noexcept;
+    export [[nodiscard]] std::size_t find_delim(std::string_view str, std::string_view delims, std::size_t pos = 0) noexcept;
+    export [[nodiscard]] std::size_t find_delim(std::u32string_view str, std::u32string_view delims, std::size_t pos = 0) noexcept;
 
     /// Parse a modifier tag (e.g. `<ctrl-r>`, `[x]`, `<<ctrl-r>>`), call the callback on each key event.
     /// Presses the keys down and releases them (in reverse order).
@@ -140,6 +140,6 @@ namespace fs8 {
 
     /// Conver to UTF-32 and encode the modifier strings into it as well
     /// Throws exceptions if input is invalid.
-    export std::u32string encoded_modifiers(std::string_view);
+    export [[nodiscard]] std::u32string encoded_modifiers(std::string_view);
 
 } // namespace fs8

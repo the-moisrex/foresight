@@ -114,7 +114,7 @@ namespace fs8 {
     /// A reusable flag group for output selection.
     ///
     /// Provides the `--output`/`-o` flag definition and knows how to apply
-    /// it to an `output_selector`.  Register the flag with `basic_arguments`
+    /// it to an `output_selector`.  Register the flag with `arguments`
     /// via `add_flags()`, then call `configure()` after parsing.
     ///
     /// Usage:
@@ -139,8 +139,8 @@ namespace fs8 {
             return output_flag_group{index_of(name)};
         }
 
-        /// The `--output` flag descriptor for registration with `basic_arguments`.
-        [[nodiscard]] consteval basic_flag flag() const noexcept {
+        /// The `--output` flag descriptor for registration with `arguments`.
+        [[nodiscard]] consteval flag get_flag() const noexcept {
             return flag_;
         }
 
@@ -154,18 +154,18 @@ namespace fs8 {
         }
 
         /// Satisfy the range concept so `add_flags(output_flags)` works.
-        [[nodiscard]] constexpr basic_flag const* begin() const noexcept {
+        [[nodiscard]] constexpr flag const* begin() const noexcept {
             return &flag_;
         }
 
-        [[nodiscard]] constexpr basic_flag const* end() const noexcept {
+        [[nodiscard]] constexpr flag const* end() const noexcept {
             return &flag_ + 1;
         }
 
       private:
         std::uint8_t default_selected_ = 0;
 
-        static constexpr basic_flag flag_{
+        static constexpr flag flag_{
           .name        = "--output",
           .alias       = "-o",
           .help        = "Output: stdout, uinput, evtest, live-view (default: stdout).",

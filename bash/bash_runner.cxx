@@ -156,7 +156,7 @@ void bash_runner::set_variable(std::string_view const name, std::string_view con
             escaped += c;
         }
     }
-    exec(std::format("{}='{}'", name, escaped));
+    static_cast<void>(exec(std::format("{}='{}'", name, escaped)));
 }
 
 std::string bash_runner::get_variable(std::string_view const name) {

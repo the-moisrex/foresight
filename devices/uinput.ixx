@@ -50,7 +50,7 @@ export namespace fs8 {
      * A successful result generally means the uinput kernel module/driver is
      * available and the process has sufficient permissions.
      */
-    uinput_access_result verify_access_to_uinput() noexcept;
+    [[nodiscard]] uinput_access_result verify_access_to_uinput() noexcept;
 
     [[nodiscard]] std::string_view to_string(uinput_access_result) noexcept;
 
