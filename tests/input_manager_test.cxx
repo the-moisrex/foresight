@@ -1,15 +1,13 @@
 // Created by moisrex on 8/9/26.
 
 #include "common/tests_common_pch.hpp"
+#include "common/test_helpers.hpp"
 
 #include <algorithm>
 #include <array>
-#include <chrono>
-#include <fcntl.h>
 #include <filesystem>
-#include <poll.h>
+#include <libevdev/libevdev.h>
 #include <span>
-#include <thread>
 
 import fs8.mods;
 import fs8.devices.udev;
@@ -45,35 +43,6 @@ namespace {
             return views;
         }
     };
-
-    /// Poll `fd` until it becomes readable or `timeout_ms` elapses.
-    [[nodiscard]] bool wait_for_event(int const fd, int timeout_ms) noexcept {
-        pollfd pfd{.fd = fd, .events = POLLIN, .revents = 0};
-        while (timeout_ms > 0) {
-            auto const res = ::poll(&pfd, 1, std::min(timeout_ms, 50));
-            if (res > 0) {
-                return true;
-            }
-            timeout_ms -= 50;
-        }
-        return false;
-    }
-
-    /// Wait until `node` can be opened or `timeout_ms` elapses. A freshly
-    /// created device node may be briefly missing or not yet world-openable
-    /// (udev applying group permissions, or another process interfering).
-    [[nodiscard]] bool wait_for_openable(std::string_view const node, int timeout_ms) noexcept {
-        while (timeout_ms > 0) {
-            int const fd = ::open(node.data(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-            if (fd >= 0) {
-                ::close(fd);
-                return true;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(std::min(50, timeout_ms)));
-            timeout_ms -= 50;
-        }
-        return false;
-    }
 
 } // namespace
 
@@ -244,12 +213,12 @@ TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
     // The device node may be missing or not yet openable if udev is still
     // applying permissions or another process (e.g. a competing instance)
     // is interfering; give it a moment and otherwise skip.
-    if (!wait_for_openable(uin.devnode(), 3000)) {
+    if (!test::wait_for_openable(uin.devnode(), 3000)) {
         uin.close();
         GTEST_SKIP() << "The virtual device node was never openable.";
     }
 
-    bool const add_delivered = wait_for_event(probe.file_descriptor(), 5000);
+    bool const add_delivered = test::wait_for_event(probe.file_descriptor(), 5000);
     if (!add_delivered) {
         uin.close();
         GTEST_SKIP() << "udev did not deliver the add event.";
@@ -259,7 +228,7 @@ TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
 
     uin.close();
 
-    bool const remove_delivered = wait_for_event(probe.file_descriptor(), 5000);
+    bool const remove_delivered = test::wait_for_event(probe.file_descriptor(), 5000);
     if (!remove_delivered) {
         GTEST_SKIP() << "udev did not deliver the remove event.";
     }
@@ -297,13 +266,13 @@ TEST(InputManager, OwnedDeviceIsNotReaddedByHotplug) {
     if (!owned_uin(caps::keyboard, start)) {
         GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
     }
-    if (!wait_for_openable(owned_uin.devnode(), 3000)) {
+    if (!test::wait_for_openable(owned_uin.devnode(), 3000)) {
         owned_uin.close();
         GTEST_SKIP() << "The owned device node was never openable.";
     }
     im.own_device(owned_uin.devnode());
 
-    bool const owned_add = wait_for_event(probe.file_descriptor(), 5000);
+    bool const owned_add = test::wait_for_event(probe.file_descriptor(), 5000);
     if (!owned_add) {
         owned_uin.close();
         GTEST_SKIP() << "udev did not deliver the owned add event.";
@@ -317,13 +286,13 @@ TEST(InputManager, OwnedDeviceIsNotReaddedByHotplug) {
         owned_uin.close();
         GTEST_SKIP() << "Cannot create a foreign virtual uinput keyboard.";
     }
-    if (!wait_for_openable(foreign_uin.devnode(), 3000)) {
+    if (!test::wait_for_openable(foreign_uin.devnode(), 3000)) {
         owned_uin.close();
         foreign_uin.close();
         GTEST_SKIP() << "The foreign device node was never openable.";
     }
 
-    bool const foreign_add = wait_for_event(probe.file_descriptor(), 5000);
+    bool const foreign_add = test::wait_for_event(probe.file_descriptor(), 5000);
     if (!foreign_add) {
         owned_uin.close();
         foreign_uin.close();
@@ -351,7 +320,7 @@ TEST(InputManager, CapsQueryPrefersBestMatchingDevice) {
     if (!base(caps::keyboard, start)) {
         GTEST_SKIP() << "Cannot create a base virtual uinput keyboard.";
     }
-    if (!wait_for_openable(base.devnode(), 3000)) {
+    if (!test::wait_for_openable(base.devnode(), 3000)) {
         base.close();
         GTEST_SKIP() << "The base device node was never openable.";
     }
@@ -378,7 +347,7 @@ TEST(InputManager, CapsQueryPrefersBestMatchingDevice) {
         base.close();
         GTEST_SKIP() << "Cannot create the virtual keyboards.";
     }
-    if (!wait_for_openable(full_kbd.devnode(), 3000) || !wait_for_openable(partial_kbd.devnode(), 3000)) {
+    if (!test::wait_for_openable(full_kbd.devnode(), 3000) || !test::wait_for_openable(partial_kbd.devnode(), 3000)) {
         base.close();
         full_kbd.close();
         partial_kbd.close();
@@ -409,4 +378,35 @@ TEST(InputManager, CapsQueryPrefersBestMatchingDevice) {
     base.close();
     full_kbd.close();
     partial_kbd.close();
+}
+
+TEST(InputManager, CapsScoringPrefersFullKeyboardOverPartial) {
+    // Synthetic: test match_caps scoring without real devices.
+    // A device with all requested capabilities must score higher than one missing some.
+    // Use a custom dev_caps_view for a small, self-contained query.
+    static constexpr std::uint16_t led_codes[] = {LED_NUML, LED_CAPSL, LED_SCROLLL};
+    dev_cap_view const         test_query{.type = EV_LED, .codes = led_codes};
+
+    // Full device: has all keyboard LEDs.
+    libevdev* const full_ptr = libevdev_new();
+    ASSERT_NE(full_ptr, nullptr);
+    libevdev_enable_event_type(full_ptr, EV_LED);
+    libevdev_enable_event_code(full_ptr, EV_LED, LED_NUML, nullptr);
+    libevdev_enable_event_code(full_ptr, EV_LED, LED_CAPSL, nullptr);
+    libevdev_enable_event_code(full_ptr, EV_LED, LED_SCROLLL, nullptr);
+    evdev full_dev(full_ptr, evdev_status::success);
+
+    // Partial device: has only one LED.
+    libevdev* const partial_ptr = libevdev_new();
+    ASSERT_NE(partial_ptr, nullptr);
+    libevdev_enable_event_type(partial_ptr, EV_LED);
+    libevdev_enable_event_code(partial_ptr, EV_LED, LED_NUML, nullptr);
+    evdev partial_dev(partial_ptr, evdev_status::success);
+
+    std::span<dev_cap_view const, 1> const test_caps{&test_query, 1};
+    auto const full_score    = full_dev.match_caps(test_caps);
+    auto const partial_score = partial_dev.match_caps(test_caps);
+
+    EXPECT_EQ(full_score, 100) << "A full device must match at 100%.";
+    EXPECT_GT(full_score, partial_score) << "The full device must score higher than the partial one.";
 }

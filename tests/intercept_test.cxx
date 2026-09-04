@@ -1,13 +1,10 @@
 // Created by moisrex on 8/9/26.
 
 #include "common/tests_common_pch.hpp"
+#include "common/test_helpers.hpp"
 
-#include <algorithm>
-#include <chrono>
 #include <fcntl.h>
 #include <linux/input.h>
-#include <poll.h>
-#include <thread>
 #include <unistd.h>
 
 import fs8.mods;
@@ -19,45 +16,12 @@ using namespace fs8;
 
 namespace {
 
-    /// Poll `fd` until it becomes readable or `timeout_ms` elapses.
-    [[nodiscard]] bool wait_for_event(int const fd, int timeout_ms) noexcept {
-        pollfd pfd{.fd = fd, .events = POLLIN, .revents = 0};
-        while (timeout_ms > 0) {
-            auto const res = ::poll(&pfd, 1, std::min(timeout_ms, 50));
-            if (res > 0) {
-                return true;
-            }
-            timeout_ms -= 50;
-        }
-        return false;
-    }
-
-    /// Wait until `node` can be opened or `timeout_ms` elapses.
-    [[nodiscard]] bool wait_for_openable(std::string_view const node, int timeout_ms) noexcept {
-        while (timeout_ms > 0) {
-            int const fd = ::open(node.data(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-            if (fd >= 0) {
-                ::close(fd);
-                return true;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(std::min(50, timeout_ms)));
-            timeout_ms -= 50;
-        }
-        return false;
-    }
-
     [[nodiscard]] bool input_available() noexcept {
         if (verify_access_to_uinput() != uinput_access_result::available) {
             return false;
         }
         udev_queue queue(udev::instance().native());
         return queue.is_active();
-    }
-
-    /// The last path component of a device node (e.g. "event9").
-    [[nodiscard]] std::string sysname_of(std::string_view const devnode) {
-        auto const pos = devnode.find_last_of('/');
-        return std::string{pos == std::string_view::npos ? devnode : devnode.substr(pos + 1)};
     }
 
     /// Create a uinput keyboard and wait until udev delivers the add event.
@@ -69,11 +33,11 @@ namespace {
         if (!uin(caps::keyboard, start)) {
             return false;
         }
-        if (!wait_for_openable(uin.devnode(), 3000)) {
+        if (!test::wait_for_openable(uin.devnode(), 3000)) {
             uin.close();
             return false;
         }
-        if (!wait_for_event(probe.file_descriptor(), 5000)) {
+        if (!test::wait_for_event(probe.file_descriptor(), 5000)) {
             uin.close();
             return false;
         }
@@ -116,7 +80,7 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
     // server (otherwise the test types a real 'a' into whatever app has focus).
     bool grabbed = false;
     for (auto& dev : im.devices()) {
-        if (device_sysname(dev) != sysname_of(uin.devnode())) {
+        if (device_sysname(dev) != test::sysname_of(uin.devnode())) {
             continue;
         }
         dev.grab_input(true);

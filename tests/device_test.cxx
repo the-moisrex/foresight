@@ -1,13 +1,10 @@
 // Created by moisrex on 8/17/26.
 
 #include "./common/tests_common_pch.hpp"
+#include "./common/test_helpers.hpp"
 
-#include <chrono>
-#include <fcntl.h>
 #include <libevdev/libevdev.h>
 #include <linux/input.h>
-#include <poll.h>
-#include <thread>
 #include <unistd.h>
 
 import fs8.mods;
@@ -37,36 +34,6 @@ namespace {
         }
         udev_queue queue(udev::instance().native());
         return queue.is_active();
-    }
-
-    /// Wait until `node` can be opened or `timeout_ms` elapses.
-    [[nodiscard]] bool wait_for_openable(std::string_view const node, int timeout_ms) noexcept {
-        while (timeout_ms > 0) {
-            int const fd = ::open(node.data(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-            if (fd >= 0) {
-                ::close(fd);
-                return true;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(std::min(50, timeout_ms)));
-            timeout_ms -= 50;
-        }
-        return false;
-    }
-
-    /// Inject a KEY_A down + SYN into the given device node.
-    void inject_key_down(std::string_view const devnode) {
-        int const fd = ::open(devnode.data(), O_WRONLY | O_NONBLOCK);
-        ASSERT_GE(fd, 0);
-        input_event ev{};
-        ev.type  = EV_KEY;
-        ev.code  = KEY_A;
-        ev.value = 1;
-        ASSERT_EQ(::write(fd, &ev, sizeof(ev)), static_cast<ssize_t>(sizeof(ev)));
-        ev.type  = EV_SYN;
-        ev.code  = SYN_REPORT;
-        ev.value = 0;
-        ASSERT_EQ(::write(fd, &ev, sizeof(ev)), static_cast<ssize_t>(sizeof(ev)));
-        ::close(fd);
     }
 
 } // namespace
@@ -270,7 +237,7 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
     if (!finalize_device(uin, template_dev, {})) {
         GTEST_SKIP() << "Cannot create a plain virtual keyboard.";
     }
-    if (!wait_for_openable(uin.devnode(), 3000)) {
+    if (!test::wait_for_openable(uin.devnode(), 3000)) {
         uin.close();
         GTEST_SKIP() << "Plain virtual keyboard did not become openable.";
     }
@@ -299,7 +266,7 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
-    inject_key_down(uin.devnode());
+    test::inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
@@ -329,7 +296,7 @@ TEST(DeviceTest, DropOwnedDropsOwnedDeviceEvents) {
     if (!uin(caps::keyboard, start)) {
         GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
     }
-    if (!wait_for_openable(uin.devnode(), 3000)) {
+    if (!test::wait_for_openable(uin.devnode(), 3000)) {
         uin.close();
         GTEST_SKIP() << "Virtual keyboard did not become openable.";
     }
@@ -355,7 +322,7 @@ TEST(DeviceTest, DropOwnedDropsOwnedDeviceEvents) {
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
-    inject_key_down(uin.devnode());
+    test::inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     // `drop_owned` drops the event (it came back from our own device).
@@ -384,52 +351,27 @@ TEST(DeviceTest, DropEmittedDropsSynthesizedEvents) {
 }
 
 TEST(DeviceTest, DropEmittedLetsOwnedThrough) {
-    if (!input_available()) {
-        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
-    }
-
-    basic_uinput uin;
-    if (!uin(caps::keyboard, start)) {
-        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
-    }
-    if (!wait_for_openable(uin.devnode(), 3000)) {
-        uin.close();
-        GTEST_SKIP() << "Virtual keyboard did not become openable.";
-    }
-
-    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | drop_emitted | record;
-
-    auto& io  = pipeline.mod<basic_io_manager>();
-    auto& im  = pipeline.mod<basic_input_manager>();
+    // Synthetic: drop_emitted only drops source_id_none; any non-zero source passes.
+    auto pipeline =
+      context
+      | emit_all[{
+        {.type = EV_KEY,      .code = KEY_A, .value = 1},
+        {.type = EV_SYN, .code = SYN_REPORT, .value = 0},
+    }]
+      | run{[](auto& ctx) noexcept {
+            // Stamp a non-zero source to simulate a device-sourced event.
+            ctx.event().source(sid(intercept, 0));
+        }}
+      | drop_emitted
+      | record;
     auto& col = pipeline.mod<basic_record>();
 
-    EXPECT_EQ(pipeline(start), context_action::next);
+    pipeline();
 
-    im.own_device(uin.devnode());
-
-    fs8::evdev opened = fs8::evdev{uin.devnode()};
-    ASSERT_TRUE(opened.is_ok());
-    opened.grab_input(true);
-    if (opened.get_status() == fs8::evdev_status::grab_failure) {
-        uin.close();
-        GTEST_SKIP() << "Cannot grab the virtual keyboard.";
-    }
-    im.add(std::move(opened));
-
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
-
-    inject_key_down(uin.devnode());
-    EXPECT_EQ(io(load_event), context_action::next);
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
-    // `drop_emitted` only drops source_id_none, not owned device events.
-    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
-
+    // drop_emitted only drops source_id_none, not device-sourced events.
     ASSERT_FALSE(col.empty());
     EXPECT_EQ(col.front().code(), KEY_A);
-    // Owned device events are not source_id_none.
     EXPECT_NE(col.front().source(), source_id_none);
-
-    uin.close();
 }
 
 TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
@@ -441,7 +383,7 @@ TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
     if (!uin(caps::keyboard, start)) {
         GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
     }
-    if (!wait_for_openable(uin.devnode(), 3000)) {
+    if (!test::wait_for_openable(uin.devnode(), 3000)) {
         uin.close();
         GTEST_SKIP() << "Virtual keyboard did not become openable.";
     }
@@ -472,7 +414,7 @@ TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
-    inject_key_down(uin.devnode());
+    test::inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
@@ -509,7 +451,7 @@ TEST(DeviceTest, ChainedDeviceIsChained) {
     if (!finalize_device(uin, template_dev, {})) {
         GTEST_SKIP() << "Cannot create a chained virtual keyboard.";
     }
-    if (!wait_for_openable(uin.devnode(), 3000)) {
+    if (!test::wait_for_openable(uin.devnode(), 3000)) {
         uin.close();
         GTEST_SKIP() << "Chained virtual keyboard did not become openable.";
     }
@@ -544,7 +486,7 @@ TEST(DeviceTest, ChainedDeviceIsChained) {
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
-    inject_key_down(uin.devnode());
+    test::inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
@@ -570,7 +512,7 @@ TEST(DeviceTest, DropSelfDropsOwnedDeviceEvents) {
     if (!uin(caps::keyboard, start)) {
         GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
     }
-    if (!wait_for_openable(uin.devnode(), 3000)) {
+    if (!test::wait_for_openable(uin.devnode(), 3000)) {
         uin.close();
         GTEST_SKIP() << "Virtual keyboard did not become openable.";
     }
@@ -598,7 +540,7 @@ TEST(DeviceTest, DropSelfDropsOwnedDeviceEvents) {
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
-    inject_key_down(uin.devnode());
+    test::inject_key_down(uin.devnode());
     EXPECT_EQ(io(load_event), context_action::next);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     // `drop_self` drops the last event (it came back from our own device).

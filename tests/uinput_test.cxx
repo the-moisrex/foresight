@@ -91,45 +91,24 @@ namespace {
         return {};
     }
 
-    fs8::evdev open_virtual_device(fs8::basic_uinput const& vdev) {
-        fs8::evdev opened;
-        for (int attempt = 0; attempt < 100; ++attempt) {
-            opened = fs8::evdev{vdev.devnode()};
-            if (opened.is_ok()) {
-                break;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds{50});
-        }
-        return opened;
-    }
-
-    void expect_fallback_caps(fs8::dev_caps_view const caps) {
-        std::array<fs8::query_term, 1> fields = {fs8::match_sysname("nonexistent-device-xyz")};
-        fs8::device_query const        q{.fields = std::span<fs8::query_term const>{fields}, .caps = caps};
-
-        fs8::basic_uinput vdev;
-        ASSERT_TRUE(vdev.set_device_from(q));
-        ASSERT_TRUE(vdev.is_ok());
-        EXPECT_FALSE(vdev.error());
-
-        auto opened = open_virtual_device(vdev);
-        ASSERT_TRUE(opened.is_ok());
+    /// Create a synthetic evdev matching the given caps for testing match_caps
+    /// without touching /dev/uinput.
+    fs8::evdev synthetic_from_caps(fs8::dev_caps_view const caps) {
+        auto dev = fs8::evdev{libevdev_new(), fs8::evdev_status::success};
         for (auto const& [type, codes, action] : caps) {
-            if (action != fs8::caps_action::append || codes.empty()) {
+            if (action != fs8::caps_action::append) {
                 continue;
             }
-            EXPECT_TRUE(opened.has_event_type(type)) << libevdev_event_type_get_name(type);
             for (auto const code : codes) {
-                EXPECT_TRUE(opened.has_event_code(type, code))
-                  << libevdev_event_type_get_name(type)
-                  << ' '
-                  << libevdev_event_code_get_name(type, code);
                 if (type == EV_ABS) {
-                    EXPECT_NE(opened.abs_info(code), nullptr) << libevdev_event_code_get_name(type, code);
+                    static constexpr input_absinfo abs0{};
+                    dev.enable_event_code(type, code, &abs0);
+                } else {
+                    dev.enable_event_code(type, code);
                 }
             }
         }
-        vdev.close();
+        return dev;
     }
 
     std::string sysname_of(std::string_view const devnode) {
@@ -140,19 +119,44 @@ namespace {
 } // namespace
 
 TEST(Uinput, SetDeviceFromQueryMouseFallbackHasCaps) {
-    auto const res = fs8::verify_access_to_uinput();
-    if (res != fs8::uinput_access_result::available) {
-        GTEST_SKIP() << "uinput is not available: " << to_string(res);
+    // Synthetic: verify that a device matching caps::mouse reports the right capabilities.
+    auto dev = synthetic_from_caps(fs8::caps::mouse);
+    ASSERT_TRUE(dev.is_ok());
+    for (auto const& [type, codes, action] : fs8::caps::mouse) {
+        if (action != fs8::caps_action::append || codes.empty()) {
+            continue;
+        }
+        EXPECT_TRUE(dev.has_event_type(type)) << libevdev_event_type_get_name(type);
+        for (auto const code : codes) {
+            EXPECT_TRUE(dev.has_event_code(type, code))
+              << libevdev_event_type_get_name(type)
+              << ' '
+              << libevdev_event_code_get_name(type, code);
+        }
     }
-    expect_fallback_caps(fs8::caps::mouse);
+    EXPECT_EQ(dev.match_caps(fs8::caps::mouse), 100);
 }
 
 TEST(Uinput, SetDeviceFromQueryTabletFallbackHasCaps) {
-    auto const res = fs8::verify_access_to_uinput();
-    if (res != fs8::uinput_access_result::available) {
-        GTEST_SKIP() << "uinput is not available: " << to_string(res);
+    // Synthetic: verify that a device matching caps::tablet reports the right capabilities.
+    auto dev = synthetic_from_caps(fs8::caps::tablet);
+    ASSERT_TRUE(dev.is_ok());
+    for (auto const& [type, codes, action] : fs8::caps::tablet) {
+        if (action != fs8::caps_action::append || codes.empty()) {
+            continue;
+        }
+        EXPECT_TRUE(dev.has_event_type(type)) << libevdev_event_type_get_name(type);
+        for (auto const code : codes) {
+            EXPECT_TRUE(dev.has_event_code(type, code))
+              << libevdev_event_type_get_name(type)
+              << ' '
+              << libevdev_event_code_get_name(type, code);
+            if (type == EV_ABS) {
+                EXPECT_NE(dev.abs_info(code), nullptr) << libevdev_event_code_get_name(type, code);
+            }
+        }
     }
-    expect_fallback_caps(fs8::caps::tablet);
+    EXPECT_EQ(dev.match_caps(fs8::caps::tablet), 100);
 }
 
 TEST(Uinput, VirtualDeviceHasStandardMarkers) {

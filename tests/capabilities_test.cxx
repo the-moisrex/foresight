@@ -153,7 +153,7 @@ TEST(CapsMatch, ThresholdPresetsWriteSupportPercentage) {
     // range-pipe capture; verify it through a compile-time application instead.
     auto apply_explicit = [](std::uint8_t const percentage) consteval {
         auto q = (fs8::query | caps::tablet);
-        q      = (q | matches_percentage(percentage));
+        q      = (q | matches_percentage[percentage]);
         return q.caps_support_percentage;
     };
 
