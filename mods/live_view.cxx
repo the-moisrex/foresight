@@ -20,7 +20,7 @@ using fs8::event_type;
 // ── helpers ─────────────────────────────────────────────────────────────────
 
 namespace {
-    [[nodiscard]] char* append(std::span<char> const buf, char* pos, std::string_view const str) noexcept {
+    [[nodiscard]] char* append_to(std::span<char> const buf, char* pos, std::string_view const str) noexcept {
         auto const remaining = static_cast<std::size_t>(buf.data() + buf.size() - pos);
         if (str.size() > remaining) [[unlikely]] {
             return nullptr;
@@ -30,7 +30,7 @@ namespace {
     }
 
     template <std::integral T>
-    [[nodiscard]] char* append_int(std::span<char> const buf, char* pos, T const value) noexcept {
+    [[nodiscard]] char* write_int(std::span<char> const buf, char* pos, T const value) noexcept {
         auto const remaining = static_cast<std::size_t>(buf.data() + buf.size() - pos);
         if (remaining < 21) [[unlikely]] {
             return nullptr;
@@ -107,6 +107,70 @@ namespace {
     [[nodiscard]] std::span<char, N> as_span(char (&arr)[N]) noexcept {
         return std::span<char, N>{arr};
     }
+
+    /// Non-allocating line builder that collects append errors.
+    /// Check `operator bool()` after building; on failure the line is silently dropped.
+    struct line_builder {
+        std::span<char> span;
+        char*           pos = nullptr;
+        bool            ok  = true;
+
+        explicit line_builder(std::span<char> s) noexcept : span(s), pos(s.data()) {}
+
+        void append(std::string_view const s) noexcept {
+            if (!ok) [[unlikely]] {
+                return;
+            }
+            pos = append_to(span, pos, s);
+            if (pos == nullptr) [[unlikely]] {
+                ok = false;
+            }
+        }
+
+        template <std::integral T>
+        void append_int(T const v) noexcept {
+            if (!ok) [[unlikely]] {
+                return;
+            }
+            pos = write_int(span, pos, v);
+            if (pos == nullptr) [[unlikely]] {
+                ok = false;
+            }
+        }
+
+        void append_usec(std::int32_t const usec) noexcept {
+            if (!ok) [[unlikely]] {
+                return;
+            }
+            auto const remaining = static_cast<std::size_t>(span.data() + span.size() - pos);
+            if (remaining < 6) [[unlikely]] {
+                ok = false;
+                return;
+            }
+            write_usec(pos, usec);
+            pos += 6;
+        }
+
+        void append_color(bool const enabled, std::string_view const code) noexcept {
+            if (enabled) {
+                append(code);
+            }
+        }
+
+        void append_timestamp(std::int64_t const sec, std::int32_t const usec) noexcept {
+            append_int(sec);
+            append(".");
+            append_usec(usec);
+        }
+
+        [[nodiscard]] explicit operator bool() const noexcept {
+            return ok;
+        }
+
+        [[nodiscard]] std::string_view result() const noexcept {
+            return {span.data(), static_cast<std::size_t>(pos - span.data())};
+        }
+    };
 } // namespace
 
 // ── event_line_format ──────────────────────────────────────────────────────
@@ -122,15 +186,15 @@ std::string_view fs8::event_line_format::format(event_type const& event, std::sp
 
     auto* pos = buf.data();
 
-    pos = append(buf, pos, "Event: time ");
+    pos = append_to(buf, pos, "Event: time ");
     if (pos == nullptr) [[unlikely]] {
         return {};
     }
-    pos = append_int(buf, pos, sec);
+    pos = write_int(buf, pos, sec);
     if (pos == nullptr) [[unlikely]] {
         return {};
     }
-    pos = append(buf, pos, ".");
+    pos = append_to(buf, pos, ".");
     if (pos == nullptr) [[unlikely]] {
         return {};
     }
@@ -144,7 +208,7 @@ std::string_view fs8::event_line_format::format(event_type const& event, std::sp
     }
 
     if (is_syn(event)) {
-        pos = append(buf, pos, ", -------------- SYN_REPORT ------------");
+        pos = append_to(buf, pos, ", -------------- SYN_REPORT ------------");
         if (pos == nullptr) [[unlikely]] {
             return {};
         }
@@ -152,61 +216,61 @@ std::string_view fs8::event_line_format::format(event_type const& event, std::sp
         std::string_view type_name = event.type_name();
         std::string_view code_name = event.code_name();
 
-        pos = append(buf, pos, ", type ");
+        pos = append_to(buf, pos, ", type ");
         if (pos == nullptr) [[unlikely]] {
             return {};
         }
-        pos = append_int(buf, pos, static_cast<std::int64_t>(event.type()));
+        pos = write_int(buf, pos, static_cast<std::int64_t>(event.type()));
         if (pos == nullptr) [[unlikely]] {
             return {};
         }
         if (!type_name.empty()) {
-            pos = append(buf, pos, " (");
+            pos = append_to(buf, pos, " (");
             if (pos == nullptr) [[unlikely]] {
                 return {};
             }
-            pos = append(buf, pos, type_name);
+            pos = append_to(buf, pos, type_name);
             if (pos == nullptr) [[unlikely]] {
                 return {};
             }
-            pos = append(buf, pos, ")");
+            pos = append_to(buf, pos, ")");
             if (pos == nullptr) [[unlikely]] {
                 return {};
             }
         }
-        pos = append(buf, pos, ", code ");
+        pos = append_to(buf, pos, ", code ");
         if (pos == nullptr) [[unlikely]] {
             return {};
         }
-        pos = append_int(buf, pos, static_cast<std::int64_t>(event.code()));
+        pos = write_int(buf, pos, static_cast<std::int64_t>(event.code()));
         if (pos == nullptr) [[unlikely]] {
             return {};
         }
         if (!code_name.empty()) {
-            pos = append(buf, pos, " (");
+            pos = append_to(buf, pos, " (");
             if (pos == nullptr) [[unlikely]] {
                 return {};
             }
-            pos = append(buf, pos, code_name);
+            pos = append_to(buf, pos, code_name);
             if (pos == nullptr) [[unlikely]] {
                 return {};
             }
-            pos = append(buf, pos, ")");
+            pos = append_to(buf, pos, ")");
             if (pos == nullptr) [[unlikely]] {
                 return {};
             }
         }
-        pos = append(buf, pos, ", value ");
+        pos = append_to(buf, pos, ", value ");
         if (pos == nullptr) [[unlikely]] {
             return {};
         }
-        pos = append_int(buf, pos, static_cast<std::int64_t>(event.value()));
+        pos = write_int(buf, pos, static_cast<std::int64_t>(event.value()));
         if (pos == nullptr) [[unlikely]] {
             return {};
         }
     }
 
-    pos = append(buf, pos, "\n");
+    pos = append_to(buf, pos, "\n");
     if (pos == nullptr) [[unlikely]] {
         return {};
     }
@@ -271,11 +335,11 @@ std::string_view fs8::condensed_view::format_time(event_type const& event, std::
     auto const usec = static_cast<std::int32_t>(tv.tv_usec);
 
     auto* pos = buf.data();
-    pos       = append_int(buf, pos, sec);
+    pos       = write_int(buf, pos, sec);
     if (pos == nullptr) [[unlikely]] {
         return {};
     }
-    pos = append(buf, pos, ".");
+    pos = append_to(buf, pos, ".");
     if (pos == nullptr) [[unlikely]] {
         return {};
     }
@@ -302,600 +366,231 @@ void fs8::condensed_view::write_line(std::string_view const line, int const fd, 
 }
 
 void fs8::condensed_view::write_mouse_summary(std::uint32_t const id, mouse_accum const& m, int const fd) {
-    char  line_buf[256];
-    auto  span = as_span(line_buf);
-    auto* pos  = line_buf;
+    char         line_buf[256];
+    line_builder lb{as_span(line_buf)};
 
     // Device ID prefix
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_dim);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, format_device_id(id, span));
-    if (pos == nullptr) {
-        return;
-    }
-    pos = append(span, pos, " ");
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
+    lb.append_color(use_ansi_, ansi_dim);
+    lb.append(format_device_id(id, lb.span));
+    lb.append(" ");
+    lb.append_color(use_ansi_, ansi_reset);
 
     // Timestamp (dim) - use last event time
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_dim);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-
-    // Format time from last_event_time
+    lb.append_color(use_ansi_, ansi_dim);
     {
         auto const sec  = static_cast<std::int64_t>(m.last_event_time.count() / 1'000'000);
         auto const usec = static_cast<std::int32_t>(m.last_event_time.count() % 1'000'000);
-        pos             = append_int(span, pos, sec);
-        if (pos == nullptr) {
-            return;
-        }
-        pos = append(span, pos, ".");
-        if (pos == nullptr) {
-            return;
-        }
-        auto const remaining = static_cast<std::size_t>(span.data() + span.size() - pos);
-        if (remaining < 6) {
-            return;
-        }
-        write_usec(pos, usec);
-        pos += 6;
+        lb.append_timestamp(sec, usec);
     }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, " ");
-    if (pos == nullptr) {
-        return;
-    }
+    lb.append_color(use_ansi_, ansi_reset);
+    lb.append(" ");
 
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_bright_green);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, "[mouse]");
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
+    // Category tag
+    lb.append_color(use_ansi_, ansi_bright_green);
+    lb.append("[mouse]");
+    lb.append_color(use_ansi_, ansi_reset);
 
     // Mouse X/Y
     if (m.delta_x != 0 || m.delta_y != 0) {
-        if (use_ansi_) {
-            pos = append(span, pos, ansi_green);
-            if (pos == nullptr) {
-                return;
-            }
-        }
-        pos = append(span, pos, " ");
-        if (pos == nullptr) {
-            return;
-        }
-        pos = append_int(span, pos, m.delta_x);
-        if (pos == nullptr) {
-            return;
-        }
-        pos = append(span, pos, ",");
-        if (pos == nullptr) {
-            return;
-        }
-        pos = append_int(span, pos, m.delta_y);
-        if (pos == nullptr) {
-            return;
-        }
-        if (use_ansi_) {
-            pos = append(span, pos, ansi_reset);
-            if (pos == nullptr) {
-                return;
-            }
-        }
+        lb.append_color(use_ansi_, ansi_green);
+        lb.append(" ");
+        lb.append_int(m.delta_x);
+        lb.append(",");
+        lb.append_int(m.delta_y);
+        lb.append_color(use_ansi_, ansi_reset);
     }
 
-    // Wheel information - combine all into one total
+    // Wheel information
     bool const has_wheel = m.wheel_hi != 0 || m.wheel != 0 || m.hwheel_hi != 0 || m.hwheel != 0;
     if (has_wheel) {
-        if (use_ansi_) {
-            pos = append(span, pos, ansi_cyan);
-            if (pos == nullptr) {
-                return;
-            }
-        }
-        // Show combined wheel as single total
+        lb.append_color(use_ansi_, ansi_cyan);
         auto const total_v = m.wheel_hi + m.wheel * 120;
         auto const total_h = m.hwheel_hi + m.hwheel * 120;
         if (total_v != 0) {
-            pos = append(span, pos, " v=");
-            if (pos == nullptr) {
-                return;
-            }
-            pos = append_int(span, pos, total_v);
-            if (pos == nullptr) {
-                return;
-            }
+            lb.append(" v=");
+            lb.append_int(total_v);
         }
         if (total_h != 0) {
-            pos = append(span, pos, " h=");
-            if (pos == nullptr) {
-                return;
-            }
-            pos = append_int(span, pos, total_h);
-            if (pos == nullptr) {
-                return;
-            }
+            lb.append(" h=");
+            lb.append_int(total_h);
         }
-        if (use_ansi_) {
-            pos = append(span, pos, ansi_reset);
-            if (pos == nullptr) {
-                return;
-            }
-        }
+        lb.append_color(use_ansi_, ansi_reset);
     }
 
     // Stats: event count, syn count, duration
     if (m.event_count > 0) {
-        if (use_ansi_) {
-            pos = append(span, pos, ansi_dim);
-            if (pos == nullptr) {
-                return;
-            }
-        }
-        pos = append(span, pos, " (");
-        if (pos == nullptr) {
-            return;
-        }
-        pos = append_int(span, pos, static_cast<std::int64_t>(m.event_count));
-        if (pos == nullptr) {
-            return;
-        }
-        pos = append(span, pos, " events, ");
-        if (pos == nullptr) {
-            return;
-        }
-        pos = append_int(span, pos, static_cast<std::int64_t>(m.syn_count));
-        if (pos == nullptr) {
-            return;
-        }
-        pos = append(span, pos, " syns, ");
-        if (pos == nullptr) {
-            return;
-        }
-        auto const duration_us = m.last_event_time - m.first_event_time;
-        auto const duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration_us);
-        pos                    = append_int(span, pos, static_cast<std::int64_t>(duration_ms.count()));
-        if (pos == nullptr) {
-            return;
-        }
-        pos = append(span, pos, "ms)");
-        if (pos == nullptr) {
-            return;
-        }
-        if (use_ansi_) {
-            pos = append(span, pos, ansi_reset);
-            if (pos == nullptr) {
-                return;
-            }
-        }
+        lb.append_color(use_ansi_, ansi_dim);
+        lb.append(" (");
+        lb.append_int(static_cast<std::int64_t>(m.event_count));
+        lb.append(" events, ");
+        lb.append_int(static_cast<std::int64_t>(m.syn_count));
+        lb.append(" syns, ");
+        auto const duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(m.last_event_time - m.first_event_time);
+        lb.append_int(static_cast<std::int64_t>(duration_ms.count()));
+        lb.append("ms)");
+        lb.append_color(use_ansi_, ansi_reset);
     }
 
-    auto const line = std::string_view{line_buf, static_cast<std::size_t>(pos - line_buf)};
-    write_line(line, fd, false); // Use \n so mouse history persists in scroll
+    if (lb) {
+        write_line(lb.result(), fd, false);
+    }
 }
 
 void fs8::condensed_view::write_diagnostic(std::uint32_t const id, sanitizer_issue const issue, event_type const& event, int const fd) {
-    char  line_buf[256];
-    auto  span = as_span(line_buf);
-    auto* pos  = line_buf;
+    char         line_buf[256];
+    line_builder lb{as_span(line_buf)};
 
     // Device ID prefix
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_dim);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, format_device_id(id, span));
-    if (pos == nullptr) {
-        return;
-    }
-    pos = append(span, pos, " ");
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
+    lb.append_color(use_ansi_, ansi_dim);
+    lb.append(format_device_id(id, lb.span));
+    lb.append(" ");
+    lb.append_color(use_ansi_, ansi_reset);
 
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_bright_yellow);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, "[diag] ");
-    if (pos == nullptr) {
-        return;
-    }
-    pos = append(span, pos, to_string(issue));
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, " - ");
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_cyan);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, event.type_name());
-    if (pos == nullptr) {
-        return;
-    }
-    pos = append(span, pos, " ");
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_yellow);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, event.code_name());
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, " ");
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, (event.value() >= 0) ? ansi_green : ansi_red);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append_int(span, pos, static_cast<std::int64_t>(event.value()));
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
+    // Diagnostic tag
+    lb.append_color(use_ansi_, ansi_bright_yellow);
+    lb.append("[diag] ");
+    lb.append(to_string(issue));
+    lb.append_color(use_ansi_, ansi_reset);
 
-    auto const line = std::string_view{line_buf, static_cast<std::size_t>(pos - line_buf)};
-    write_line(line, fd, false);
+    lb.append(" - ");
+    lb.append_color(use_ansi_, ansi_cyan);
+    lb.append(event.type_name());
+    lb.append(" ");
+    lb.append_color(use_ansi_, ansi_yellow);
+    lb.append(event.code_name());
+    lb.append_color(use_ansi_, ansi_reset);
+
+    lb.append(" ");
+    lb.append_color(use_ansi_, (event.value() >= 0) ? ansi_green : ansi_red);
+    lb.append_int(static_cast<std::int64_t>(event.value()));
+    lb.append_color(use_ansi_, ansi_reset);
+
+    if (lb) {
+        write_line(lb.result(), fd, false);
+    }
 }
 
 void fs8::condensed_view::write_key_event(std::uint32_t const id, event_type const& event, int const fd, char32_t const text) {
-    char       time_buf[32];
-    auto const time_str = format_time(event, as_span(time_buf));
-
-    char  line_buf[256];
-    auto  span = as_span(line_buf);
-    auto* pos  = line_buf;
+    char         time_buf[32];
+    auto const   time_str = format_time(event, as_span(time_buf));
+    char         line_buf[256];
+    line_builder lb{as_span(line_buf)};
 
     // Device ID prefix
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_dim);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, format_device_id(id, span));
-    if (pos == nullptr) {
-        return;
-    }
-    pos = append(span, pos, " ");
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
+    lb.append_color(use_ansi_, ansi_dim);
+    lb.append(format_device_id(id, lb.span));
+    lb.append(" ");
+    lb.append_color(use_ansi_, ansi_reset);
 
     // Timestamp (dim)
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_dim);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, time_str);
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, " ");
-    if (pos == nullptr) {
-        return;
-    }
+    lb.append_color(use_ansi_, ansi_dim);
+    lb.append(time_str);
+    lb.append_color(use_ansi_, ansi_reset);
+    lb.append(" ");
 
-    // Type name (colored by type)
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_cyan);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, event.type_name());
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, " ");
-    if (pos == nullptr) {
-        return;
-    }
+    // Type name (cyan)
+    lb.append_color(use_ansi_, ansi_cyan);
+    lb.append(event.type_name());
+    lb.append_color(use_ansi_, ansi_reset);
+    lb.append(" ");
 
-    // Code name
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_yellow);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, event.code_name());
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append(span, pos, " ");
-    if (pos == nullptr) {
-        return;
-    }
+    // Code name (yellow)
+    lb.append_color(use_ansi_, ansi_yellow);
+    lb.append(event.code_name());
+    lb.append_color(use_ansi_, ansi_reset);
+    lb.append(" ");
 
     // Value (green for positive, red for negative)
-    if (use_ansi_) {
-        pos = append(span, pos, (event.value() >= 0) ? ansi_green : ansi_red);
-        if (pos == nullptr) {
-            return;
-        }
-    }
-    pos = append_int(span, pos, static_cast<std::int64_t>(event.value()));
-    if (pos == nullptr) {
-        return;
-    }
-    if (use_ansi_) {
-        pos = append(span, pos, ansi_reset);
-        if (pos == nullptr) {
-            return;
-        }
-    }
+    lb.append_color(use_ansi_, (event.value() >= 0) ? ansi_green : ansi_red);
+    lb.append_int(static_cast<std::int64_t>(event.value()));
+    lb.append_color(use_ansi_, ansi_reset);
 
+    // Unicode text
     if (text != U'\0') {
-        pos = append(span, pos, "  ");
-        if (pos == nullptr) {
-            return;
-        }
-        if (use_ansi_) {
-            pos = append(span, pos, ansi_bright_cyan);
-            if (pos == nullptr) {
-                return;
-            }
-        }
-        pos = append(span, pos, "'");
-        if (pos == nullptr) {
-            return;
-        }
+        lb.append("  ");
+        lb.append_color(use_ansi_, ansi_bright_cyan);
+        lb.append("'");
         char       char_buf[8];
         auto const char_str = format_char(text, char_buf);
-        pos                 = append(span, pos, char_str);
-        if (pos == nullptr) {
-            return;
-        }
-        pos = append(span, pos, "'");
-        if (pos == nullptr) {
-            return;
-        }
-        if (use_ansi_) {
-            pos = append(span, pos, ansi_reset);
-            if (pos == nullptr) {
-                return;
-            }
-        }
+        lb.append(char_str);
+        lb.append("'");
+        lb.append_color(use_ansi_, ansi_reset);
     }
 
-    auto const line = std::string_view{line_buf, static_cast<std::size_t>(pos - line_buf)};
-    write_line(line, fd, false);
+    if (lb) {
+        write_line(lb.result(), fd, false);
+    }
 }
 
 void fs8::condensed_view::write_generic_event(std::uint32_t const id, event_type const& event, int const fd) {
     char              fmt_buf[event_line_format_buf_size];
     event_line_format fmt;
     auto const        text = fmt.format(event, fmt_buf);
-    if (!text.empty()) {
-        if (use_ansi_) {
-            // Add colors to the formatted text
-            char                   colored_buf[event_line_format_buf_size * 2];
-            auto                   span = as_span(colored_buf);
-            auto*                  pos  = colored_buf;
-            std::string_view const raw{text};
+    if (text.empty()) {
+        return;
+    }
 
-            // Device ID prefix
-            pos = append(span, pos, ansi_dim);
-            if (pos == nullptr) {
-                return;
-            }
-            pos = append(span, pos, format_device_id(id, span));
-            if (pos == nullptr) {
-                return;
-            }
-            pos = append(span, pos, " ");
-            if (pos == nullptr) {
-                return;
-            }
-            pos = append(span, pos, ansi_reset);
-            if (pos == nullptr) {
-                return;
-            }
+    if (!use_ansi_) {
+        write_line(text, fd, false);
+        return;
+    }
 
-            // Find and colorize the components
-            // Format: "Event: time X.XXXXXX, type N (TYPE), code N (CODE), value N"
-            auto const time_pos  = raw.find("Event: time ");
-            auto const type_pos  = raw.find("type ");
-            auto const code_pos  = raw.find("code ");
-            auto const value_pos = raw.find("value ");
+    // Colorized output: device prefix + colorized evtest text
+    char                   colored_buf[event_line_format_buf_size * 2];
+    line_builder           lb{as_span(colored_buf)};
+    std::string_view const raw{text};
 
-            if (time_pos != std::string_view::npos && type_pos != std::string_view::npos) {
-                // Timestamp (dim)
-                pos = append(span, pos, ansi_dim);
-                if (pos == nullptr) {
-                    return;
-                }
-                pos = append(span, pos, raw.substr(0, type_pos));
-                if (pos == nullptr) {
-                    return;
-                }
-                pos = append(span, pos, ansi_reset);
-                if (pos == nullptr) {
-                    return;
-                }
+    // Device ID prefix
+    lb.append(ansi_dim);
+    lb.append(format_device_id(id, lb.span));
+    lb.append(" ");
+    lb.append(ansi_reset);
 
-                // Type (cyan)
-                pos = append(span, pos, ansi_cyan);
-                if (pos == nullptr) {
-                    return;
-                }
-                if (code_pos != std::string_view::npos) {
-                    pos = append(span, pos, raw.substr(type_pos, code_pos - type_pos));
-                } else {
-                    pos = append(span, pos, raw.substr(type_pos));
-                }
-                if (pos == nullptr) {
-                    return;
-                }
-                pos = append(span, pos, ansi_reset);
-                if (pos == nullptr) {
-                    return;
-                }
+    // Find and colorize the components
+    auto const time_pos  = raw.find("Event: time ");
+    auto const type_pos  = raw.find("type ");
+    auto const code_pos  = raw.find("code ");
+    auto const value_pos = raw.find("value ");
 
-                if (code_pos != std::string_view::npos) {
-                    // Code (yellow)
-                    pos = append(span, pos, ansi_yellow);
-                    if (pos == nullptr) {
-                        return;
-                    }
-                    if (value_pos != std::string_view::npos) {
-                        pos = append(span, pos, raw.substr(code_pos, value_pos - code_pos));
-                    } else {
-                        pos = append(span, pos, raw.substr(code_pos));
-                    }
-                    if (pos == nullptr) {
-                        return;
-                    }
-                    pos = append(span, pos, ansi_reset);
-                    if (pos == nullptr) {
-                        return;
-                    }
-                }
+    if (time_pos != std::string_view::npos && type_pos != std::string_view::npos) {
+        // Timestamp (dim)
+        lb.append(ansi_dim);
+        lb.append(raw.substr(0, type_pos));
+        lb.append(ansi_reset);
 
-                if (value_pos != std::string_view::npos) {
-                    // Value (green/red)
-                    auto const val_str   = raw.substr(value_pos);
-                    // Extract the numeric value after "value "
-                    auto const num_start = val_str.find(' ');
-                    if (num_start != std::string_view::npos) {
-                        auto const num_str  = val_str.substr(num_start + 1);
-                        bool const negative = !num_str.empty() && num_str[0] == '-';
-                        pos                 = append(span, pos, val_str.substr(0, num_start + 1));
-                        if (pos == nullptr) {
-                            return;
-                        }
-                        pos = append(span, pos, negative ? ansi_red : ansi_green);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                        pos = append(span, pos, num_str);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                        pos = append(span, pos, ansi_reset);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    } else {
-                        pos = append(span, pos, val_str);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
-                }
-            } else {
-                // Fallback: no color
-                pos = append(span, pos, raw);
-                if (pos == nullptr) {
-                    return;
-                }
-            }
+        // Type (cyan)
+        lb.append(ansi_cyan);
+        lb.append(code_pos != std::string_view::npos ? raw.substr(type_pos, code_pos - type_pos) : raw.substr(type_pos));
+        lb.append(ansi_reset);
 
-            auto const colored = std::string_view{colored_buf, static_cast<std::size_t>(pos - colored_buf)};
-            write_line(colored, fd, false);
-        } else {
-            write_line(text, fd, false);
+        // Code (yellow)
+        if (code_pos != std::string_view::npos) {
+            lb.append(ansi_yellow);
+            lb.append(value_pos != std::string_view::npos ? raw.substr(code_pos, value_pos - code_pos) : raw.substr(code_pos));
+            lb.append(ansi_reset);
         }
+
+        // Value (green/red)
+        if (value_pos != std::string_view::npos) {
+            auto const val_str   = raw.substr(value_pos);
+            auto const num_start = val_str.find(' ');
+            if (num_start != std::string_view::npos) {
+                auto const num_str  = val_str.substr(num_start + 1);
+                bool const negative = !num_str.empty() && num_str[0] == '-';
+                lb.append(val_str.substr(0, num_start + 1));
+                lb.append(negative ? ansi_red : ansi_green);
+                lb.append(num_str);
+                lb.append(ansi_reset);
+            } else {
+                lb.append(val_str);
+            }
+        }
+    } else {
+        lb.append(raw);
+    }
+
+    if (lb) {
+        write_line(lb.result(), fd, false);
     }
 }
 
@@ -1009,177 +704,61 @@ void fs8::condensed_view::process_event(event_type const& event, int const fd, s
                         (void) write(fd, "\r", 1);
                     }
 
-                    char       time_buf[32];
-                    auto const time_str = format_time(event, as_span(time_buf));
-
-                    char  line_buf[256];
-                    auto  span = as_span(line_buf);
-                    auto* pos  = line_buf;
+                    char         time_buf[32];
+                    auto const   time_str = format_time(event, as_span(time_buf));
+                    char         line_buf[256];
+                    line_builder lb{as_span(line_buf)};
 
                     // Device ID prefix
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_dim);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
-                    pos = append(span, pos, format_device_id(event.source(), span));
-                    if (pos == nullptr) {
-                        return;
-                    }
-                    pos = append(span, pos, " ");
-                    if (pos == nullptr) {
-                        return;
-                    }
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_reset);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
+                    lb.append_color(use_ansi_, ansi_dim);
+                    lb.append(format_device_id(event.source(), lb.span));
+                    lb.append(" ");
+                    lb.append_color(use_ansi_, ansi_reset);
 
                     // Timestamp (dim)
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_dim);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
-                    pos = append(span, pos, time_str);
-                    if (pos == nullptr) {
-                        return;
-                    }
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_reset);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
-                    pos = append(span, pos, " ");
-                    if (pos == nullptr) {
-                        return;
-                    }
+                    lb.append_color(use_ansi_, ansi_dim);
+                    lb.append(time_str);
+                    lb.append_color(use_ansi_, ansi_reset);
+                    lb.append(" ");
 
                     // Type (cyan)
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_cyan);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
-                    pos = append(span, pos, event.type_name());
-                    if (pos == nullptr) {
-                        return;
-                    }
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_reset);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
-                    pos = append(span, pos, " ");
-                    if (pos == nullptr) {
-                        return;
-                    }
+                    lb.append_color(use_ansi_, ansi_cyan);
+                    lb.append(event.type_name());
+                    lb.append_color(use_ansi_, ansi_reset);
+                    lb.append(" ");
 
                     // Code (yellow)
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_yellow);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
-                    pos = append(span, pos, event.code_name());
-                    if (pos == nullptr) {
-                        return;
-                    }
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_reset);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
+                    lb.append_color(use_ansi_, ansi_yellow);
+                    lb.append(event.code_name());
+                    lb.append_color(use_ansi_, ansi_reset);
 
                     // Combined 1 → 0 (green)
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_green);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
-                    pos = append(span, pos, " 1 → 0");
-                    if (pos == nullptr) {
-                        return;
-                    }
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_reset);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
+                    lb.append_color(use_ansi_, ansi_green);
+                    lb.append(" 1 → 0");
+                    lb.append_color(use_ansi_, ansi_reset);
 
                     // Held duration (cyan)
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_bright_cyan);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
-                    pos = append(span, pos, " [");
-                    if (pos == nullptr) {
-                        return;
-                    }
-                    pos = append_int(span, pos, static_cast<std::int64_t>(held_ms.count()));
-                    if (pos == nullptr) {
-                        return;
-                    }
-                    pos = append(span, pos, "ms]");
-                    if (pos == nullptr) {
-                        return;
-                    }
-                    if (use_ansi_) {
-                        pos = append(span, pos, ansi_reset);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                    }
+                    lb.append_color(use_ansi_, ansi_bright_cyan);
+                    lb.append(" [");
+                    lb.append_int(static_cast<std::int64_t>(held_ms.count()));
+                    lb.append("ms]");
+                    lb.append_color(use_ansi_, ansi_reset);
 
                     // Unicode text
                     if (text != U'\0') {
-                        pos = append(span, pos, "  ");
-                        if (pos == nullptr) {
-                            return;
-                        }
-                        if (use_ansi_) {
-                            pos = append(span, pos, ansi_bright_cyan);
-                            if (pos == nullptr) {
-                                return;
-                            }
-                        }
-                        pos = append(span, pos, "'");
-                        if (pos == nullptr) {
-                            return;
-                        }
+                        lb.append("  ");
+                        lb.append_color(use_ansi_, ansi_bright_cyan);
+                        lb.append("'");
                         char       char_buf[8];
                         auto const char_str = format_char(text, char_buf);
-                        pos                 = append(span, pos, char_str);
-                        if (pos == nullptr) {
-                            return;
-                        }
-                        pos = append(span, pos, "'");
-                        if (pos == nullptr) {
-                            return;
-                        }
-                        if (use_ansi_) {
-                            pos = append(span, pos, ansi_reset);
-                            if (pos == nullptr) {
-                                return;
-                            }
-                        }
+                        lb.append(char_str);
+                        lb.append("'");
+                        lb.append_color(use_ansi_, ansi_reset);
                     }
 
-                    auto const line = std::string_view{line_buf, static_cast<std::size_t>(pos - line_buf)};
-                    write_line(line, fd, false);
+                    if (lb) {
+                        write_line(lb.result(), fd, false);
+                    }
                     return;
                 }
                 // Had intervening events — just print release
@@ -1198,7 +777,7 @@ void fs8::condensed_view::process_event(event_type const& event, int const fd, s
 // ── basic_from_event_line ──────────────────────────────────────────────────
 
 template <fs8::EvtestFormat Format>
-fs8::context_action fs8::basic_from_event_line<Format>::operator()(event_type& event, special_event const& tag) noexcept {
+context_action fs8::basic_from_event_line<Format>::operator()(event_type& event, special_event const& tag) noexcept {
     using enum context_action;
     if (tag.code != load_event.code) {
         return drop_event;
