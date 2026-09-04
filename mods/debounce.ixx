@@ -14,24 +14,17 @@ import fs8.traits;
 
 export namespace fs8 {
 
-    /// How a debounce drops events.
-    enum struct [[nodiscard]] debounce_mode : std::uint8_t {
-        click, ///< buttons/keys: drop a second press within the window and its matching release.
-        event, ///< any code: drop every event that lands within the window of the previous one.
-    };
-
     /**
      * Debounce events: drop events that arrive too soon after a previous event of
      * the same code. Used to clean up faulty hardware — double-clicking mice,
      * bouncing keyboard switches, noisy axes or scroll wheels.
      *
-     * In `click` mode (default) a press that lands within `time_threshold` of the
+     * For `EV_KEY` codes a press that lands within `time_threshold` of the
      * previous press of the same code is dropped together with its matching
-     * release, so the key/button state stays consistent. For non-EV_KEY codes
-     * `click` mode degrades to `event` mode (there is no press/release pair).
+     * release, so the key/button state stays consistent.
      *
-     * In `event` mode every event of a tracked code arriving within the window of
-     * the previous one is dropped, regardless of value.
+     * For any other event type, every event arriving within the window is
+     * dropped, regardless of value.
      */
     template <std::size_t N>
     struct [[nodiscard]] basic_debounce : consteval_copyable {
@@ -46,7 +39,6 @@ export namespace fs8 {
         std::array<bool, N>       swallow_release{};
         std::array<bool, N>       has_event{};
         msec_type                 time_threshold{default_time_threshold};
-        debounce_mode             mode{debounce_mode::click};
 
         template <typename T>
         static constexpr event_code to_code(T const inp_code) noexcept {
@@ -63,21 +55,11 @@ export namespace fs8 {
           : codes{inp_codes},
             time_threshold{inp_time_threshold} {}
 
-        constexpr explicit basic_debounce(std::array<event_code, N> const inp_codes, debounce_mode const inp_mode) noexcept
-          : codes{inp_codes},
-            mode{inp_mode} {}
-
         constexpr explicit basic_debounce(event_code const inp_code, msec_type const inp_time_threshold = default_time_threshold) noexcept
           : codes{
               event_code{.type = inp_code.type, .code = inp_code.code}
         },
             time_threshold{inp_time_threshold} {}
-
-        constexpr explicit basic_debounce(event_code const inp_code, debounce_mode const inp_mode) noexcept
-          : codes{
-              event_code{.type = inp_code.type, .code = inp_code.code}
-        },
-            mode{inp_mode} {}
 
         template <typename CodeT>
             requires std::convertible_to<CodeT, event_type::code_type>
@@ -100,28 +82,9 @@ export namespace fs8 {
             return basic_debounce<sizeof...(T)>{std::array<event_code, sizeof...(T)>{to_code(inp_codes)...}};
         }
 
-        /// Compile-time switch to `click` mode (the default).
-        consteval auto click() const noexcept {
-            auto result = *this;
-            result.mode = debounce_mode::click;
-            return result;
-        }
-
-        /// Compile-time switch to `event` mode: drop any event within the window.
-        consteval auto event() const noexcept {
-            auto result = *this;
-            result.mode = debounce_mode::event;
-            return result;
-        }
-
         /// Change the debounce window at runtime (e.g. from app args).
         void set_time_threshold(msec_type const inp_time_threshold) noexcept {
             time_threshold = inp_time_threshold;
-        }
-
-        /// Change the debounce mode at runtime (e.g. from app args).
-        void set_mode(debounce_mode const inp_mode) noexcept {
-            mode = inp_mode;
         }
 
         /// Replace the tracked codes at runtime (e.g. from app args). Up to the
@@ -151,9 +114,10 @@ export namespace fs8 {
 
             auto const now = event.micro_time();
 
-            // `click` mode only has a press/release pair for EV_KEY codes; for
-            // anything else it degrades to `event` mode (no release to swallow).
-            bool const click_mode = mode == debounce_mode::click && event.type() == EV_KEY;
+            // For EV_KEY codes we pair press/release so that a spurious
+            // double-click becomes a clean single click+release.  For anything
+            // else there is no press/release pair, so we just drop repeats.
+            bool const click_mode = event.type() == EV_KEY;
             if (click_mode) {
                 switch (event.value()) {
                     case 0: // release

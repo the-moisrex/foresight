@@ -121,7 +121,7 @@ Tags are constexpr sentinels passed as the last argument:
 | `smooth` (`lerp`, `low_pass_filter`, `kalman_filter`) | Smooth mouse movement. | `mouse_history` |
 | `momentum` | Keep motion going after the input stops (`velocity_tracker`, `momentum_calculator`). | — |
 | `ignore_*` | Filters: `drop_big_jumps`, `drop_init_moves`, `drop_start_moves`, `drop_mouse_moves`, `drop_fast_repeats`, `drop_adjacent_repeats`, `drop_repeats_of`, `drop_keys`, `drop_abs`, `drop_tablet`, `drop_caps`, plus `drop_event` and `exit_pipeline`. | — |
-| `debounce` | Drop events arriving within a window of the same code. `click` mode swallows a fast second press + its release (mouse double-clicks, bouncing keys); `event` mode swallows any repeat. Any `event_code`: `debounce[BTN_LEFT]`, `debounce[{.type = EV_ABS, .code = ABS_X}].event()`. | — |
+| `debounce` | Drop events arriving within a window of the same code. For `EV_KEY` codes a fast second press + its release are dropped; for other event types every event within the window is dropped. Any `event_code`: `debounce[BTN_LEFT]`, `debounce[{.type = EV_ABS, .code = ABS_X}]`. | — |
 | `typed`, `timed_typed` | Match what the user typed (`timed_typed` adds a time window). | `search_engine` |
 | `type_string` (`typer`) | Type text into the app via xkb how2type. | — |
 | `autocomplete` | Watch typed patterns and complete them (`PREFIX<TAG>COMPLETION`). | — |

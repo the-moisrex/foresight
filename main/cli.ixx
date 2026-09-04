@@ -24,10 +24,13 @@ export namespace fs8 {
     /// pointers, which outlive `main`) so flags can be interspersed freely.
     /// The object itself is a range over those positionals, so it can be piped
     /// through query tags directly, e.g. `parsed | grab | required`.
-    template <std::size_t MaxPositionals, std::size_t MaxFlags, std::size_t MaxNames>
-    struct [[nodiscard]] basic_parsed_args {
+    struct [[nodiscard]] parsed_args {
       private:
-        using positional_array = std::array<char const*, MaxPositionals>;
+        static constexpr std::size_t max_positionals = 16;
+        static constexpr std::size_t max_flags       = 8;
+        static constexpr std::size_t max_names       = 16;
+
+        using positional_array = std::array<char const*, max_positionals>;
 
       public:
         using iterator       = positional_array::const_pointer;
@@ -38,14 +41,14 @@ export namespace fs8 {
         std::size_t      positional_count = 0;
 
         /// Copies of the registered flag definitions (for help + lookup).
-        std::array<basic_flag, MaxFlags>  flags{};
-        std::size_t                       flag_count = 0;
-        std::array<bool, MaxFlags>        flag_seen{};
-        std::array<char const*, MaxFlags> flag_values{};
+        std::array<basic_flag, max_flags>  flags{};
+        std::size_t                        flag_count = 0;
+        std::array<bool, max_flags>        flag_seen{};
+        std::array<char const*, max_flags> flag_values{};
 
         /// Placeholder names for the auto-generated help.
-        std::array<std::string_view, MaxNames> names{};
-        std::size_t                            names_count = 0;
+        std::array<std::string_view, max_names> names{};
+        std::size_t                             names_count = 0;
 
         std::string_view program_name{};
         std::string_view help_text{};
@@ -154,27 +157,34 @@ export namespace fs8 {
     /// placeholder names (for help), extra flags, and an optional custom help
     /// text. Configure it through method chaining (e.g. `arguments["x"].help("...").add_flag(...)`)
     /// and parse with `operator()(argc, argv)`.
-    template <std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16>
+    template <std::size_t DefaultsN>
     struct [[nodiscard]] basic_arguments {
       private:
-        std::array<char const*, DefaultsN + 1> defaults_{};
-        std::array<basic_flag, MaxFlags>       flags_{};
-        std::size_t                            flags_count = 0;
-        std::array<std::string_view, MaxNames> names_{};
-        std::size_t                            names_count = 0;
-        std::string_view                       help_text_{};
+        static constexpr std::size_t max_positionals = 16;
+        static constexpr std::size_t max_flags       = 8;
+        static constexpr std::size_t max_names       = 16;
+
+        std::array<char const*, DefaultsN + 1>  defaults_{};
+        std::array<basic_flag, max_flags>       flags_{};
+        std::size_t                             flags_count = 0;
+        std::array<std::string_view, max_names> names_{};
+        std::size_t                             names_count = 0;
+        std::string_view                        help_text_{};
 
       public:
-        using parsed_args = basic_parsed_args<MaxPositionals, MaxFlags, MaxNames>;
+        using parsed_args = parsed_args;
+
+        /// Default constructor for zero defaults.
+        consteval basic_arguments() noexcept = default;
 
         template <typename... Args>
-            requires(sizeof...(Args) == DefaultsN)
+            requires(sizeof...(Args) == DefaultsN && DefaultsN > 0)
         explicit consteval basic_arguments(Args&&... defaults) noexcept : defaults_{"", std::forward<Args>(defaults)...} {}
 
         /// Set the default positional values, used when no arguments are given.
         template <typename... Args>
         consteval auto operator[](Args&&... defaults) const noexcept {
-            return basic_arguments<sizeof...(Args), MaxPositionals, MaxFlags, MaxNames>{std::forward<Args>(defaults)...};
+            return basic_arguments<sizeof...(Args)>{std::forward<Args>(defaults)...};
         }
 
         /// Add placeholder names for the positional arguments in the help text.
@@ -182,7 +192,7 @@ export namespace fs8 {
         constexpr basic_arguments positional(Names... names) const noexcept {
             basic_arguments out = *this;
             for (std::string_view const name : {names...}) {
-                if (out.names_count < MaxNames) [[likely]] {
+                if (out.names_count < max_names) [[likely]] {
                     out.names_[out.names_count++] = name;
                 }
             }
@@ -199,7 +209,7 @@ export namespace fs8 {
         /// Register an extra flag.
         constexpr basic_arguments add_flag(basic_flag const flag) const noexcept {
             basic_arguments out = *this;
-            if (out.flags_count < MaxFlags) [[likely]] {
+            if (out.flags_count < max_flags) [[likely]] {
                 out.flags_[out.flags_count++] = flag;
             }
             return out;
@@ -214,7 +224,7 @@ export namespace fs8 {
         constexpr basic_arguments add_flags(Range const& flags) const noexcept {
             basic_arguments out = *this;
             for (basic_flag const& flag : flags) {
-                if (out.flags_count < MaxFlags) [[likely]] {
+                if (out.flags_count < max_flags) [[likely]] {
                     out.flags_[out.flags_count++] = flag;
                 }
             }
@@ -266,7 +276,7 @@ export namespace fs8 {
                 if (matched) {
                     continue;
                 }
-                if (out.positional_count < MaxPositionals) [[likely]] {
+                if (out.positional_count < max_positionals) [[likely]] {
                     out.storage[out.positional_count++] = beg[i];
                 }
             }

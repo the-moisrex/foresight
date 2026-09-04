@@ -192,10 +192,10 @@ TEST(DebounceTest, RuntimeThreshold) {
     EXPECT_EQ(pipeline2.mod<basic_record>().size(), 4U);
 }
 
-TEST(DebounceTest, EventModeDropsFastRepeats) {
+TEST(DebounceTest, FastAbsRepeatsAreDropped) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
 
-    // In `event` mode any event of the code landing within the window is dropped;
+    // For non-EV_KEY codes every event arriving within the window is dropped;
     // only changes that settle for longer than the window pass through.
     auto pipeline =
       context
@@ -206,7 +206,7 @@ TEST(DebounceTest, EventModeDropsFastRepeats) {
           timed_ev(EV_ABS, ABS_X, 70, 35ms),
           timed_ev(EV_ABS, ABS_X, 80, 37ms),
         }}
-      | debounce[{.type = EV_ABS, .code = ABS_X}].event()
+      | debounce[{.type = EV_ABS, .code = ABS_X}]
       | record;
 
     pipeline();
@@ -217,11 +217,11 @@ TEST(DebounceTest, EventModeDropsFastRepeats) {
     EXPECT_EQ(col[1].value(), 70);
 }
 
-TEST(DebounceTest, ClickModeDegradesForNonKeyCodes) {
+TEST(DebounceTest, NonKeyCodesDropEveryRepeat) {
     using namespace fs8; // NOLINT(*-build-using-namespace)
 
-    // A scroll wheel that double-fires: `click` mode has no press/release pair for
-    // a non-key code, so it behaves like `event` mode and swallows the repeats.
+    // A scroll wheel that double-fires: for non-EV_KEY codes there is no
+    // press/release pair, so every event within the window is dropped.
     auto pipeline =
       context
       | timed_sequence{std::array{
@@ -272,51 +272,6 @@ TEST(DebounceTest, MixedCodesVariadic) {
     EXPECT_EQ(col[2].value(), 50);
     EXPECT_EQ(col[3].code(), ABS_X);
     EXPECT_EQ(col[3].value(), 70);
-}
-
-TEST(DebounceTest, RuntimeCodesAndMode) {
-    using namespace fs8; // NOLINT(*-build-using-namespace)
-    using debounce_t = basic_debounce<4>;
-
-    // A default-constructed debounce can be pointed at codes and a mode at runtime.
-    auto pipeline =
-      context
-      | timed_sequence{std::array{
-          timed_ev(EV_KEY, BTN_LEFT, 1, 0us),
-          timed_ev(EV_KEY, BTN_LEFT, 0, 2ms),
-          timed_ev(EV_KEY, BTN_LEFT, 1, 5ms),
-          timed_ev(EV_KEY, BTN_LEFT, 0, 8ms),
-        }}
-      | debounce_t{}
-      | record;
-
-    std::array const codes{
-      event_code{.type = EV_KEY, .code = BTN_LEFT}
-    };
-    pipeline.mod(debounce_t{}).set_codes(codes);
-    pipeline.mod(debounce_t{}).set_mode(debounce_mode::click);
-    pipeline();
-
-    // click mode: the spurious press and its release are swallowed.
-    EXPECT_EQ(pipeline.mod<basic_record>().size(), 2U);
-
-    // ...while `event` mode swallows everything after the first event.
-    auto pipeline2 =
-      context
-      | timed_sequence{std::array{
-          timed_ev(EV_KEY, BTN_LEFT, 1, 0us),
-          timed_ev(EV_KEY, BTN_LEFT, 0, 2ms),
-          timed_ev(EV_KEY, BTN_LEFT, 1, 5ms),
-          timed_ev(EV_KEY, BTN_LEFT, 0, 8ms),
-        }}
-      | debounce_t{}
-      | record;
-
-    pipeline2.mod(debounce_t{}).set_codes(codes);
-    pipeline2.mod(debounce_t{}).set_mode(debounce_mode::event);
-    pipeline2();
-
-    EXPECT_EQ(pipeline2.mod<basic_record>().size(), 1U);
 }
 
 TEST(DebounceTest, LegacyAliasStillDebounces) {

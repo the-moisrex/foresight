@@ -121,8 +121,8 @@ export namespace fs8 {
     /// Deprecated aliases of the general `fs8.mods:debounce` mod.
     ///
     /// `basic_drop_fast_double_clicks` used to be a mouse-click-only debouncer;
-    /// it is now a thin alias of `basic_debounce` in `click` mode. Prefer the
-    /// `debounce` mod going forward.
+    /// it is now a thin alias of `basic_debounce`. Prefer the `debounce` mod
+    /// going forward.
     template <std::size_t N>
     using basic_drop_fast_double_clicks = basic_debounce<N>;
 

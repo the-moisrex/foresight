@@ -145,8 +145,7 @@ namespace fs8 {
         }
 
         /// Apply the parsed `--output` value to `sel`.
-        template <std::size_t MaxP, std::size_t MaxF, std::size_t MaxN>
-        constexpr void configure(output_selector& sel, basic_parsed_args<MaxP, MaxF, MaxN> const& args) const noexcept {
+        constexpr void configure(output_selector& sel, parsed_args const& args) const noexcept {
             if (auto const val = args.flag_value("--output"); val.has_value()) {
                 sel.set_selected(index_of(*val));
             } else {

@@ -68,9 +68,9 @@ static void BM_Debounce_MultiCode(benchmark::State& state) {
 
 BENCHMARK(BM_Debounce_MultiCode);
 
-// Debounce: event mode
-static void BM_Debounce_EventMode(benchmark::State& state) {
-    auto        db     = debounce[{.type = EV_ABS, .code = ABS_X}].event();
+// Debounce: non-EV_KEY code (ABS axis)
+static void BM_Debounce_AbsCode(benchmark::State& state) {
+    auto        db     = debounce[{.type = EV_ABS, .code = ABS_X}];
     auto        events = bench::load_events("benchmarks/events/mouse.movement");
     std::size_t i      = 0;
     for (auto _ : state) {
@@ -80,6 +80,6 @@ static void BM_Debounce_EventMode(benchmark::State& state) {
     }
 }
 
-BENCHMARK(BM_Debounce_EventMode);
+BENCHMARK(BM_Debounce_AbsCode);
 
 BENCHMARK_MAIN();
