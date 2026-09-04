@@ -1,7 +1,7 @@
 var searchData=
 [
   ['parent_0',['parent',['../structfs8_1_1udev__device.html#acf6651a7ce72bbc23674b3bd9e3e9245',1,'fs8::udev_device::parent(char const *subsystem, char const *devtype=nullptr) const noexcept'],['../structfs8_1_1udev__device.html#aabbfb8ff49eca45e1d8288a85c1be524',1,'fs8::udev_device::parent() const noexcept']]],
-  ['parse_1',['parse',['../structfs8_1_1live__view__format.html#a8b91c56c9e369b58fc17cccdd0230c5f',1,'fs8::live_view_format::parse()'],['../structfs8_1_1default__evtest__format.html#a18f6aaccc731be8a56e33a3bbdb785ad',1,'fs8::default_evtest_format::parse()']]],
+  ['parse_1',['parse',['../structfs8_1_1event__line__format.html#aa179acddd6bbe92797b7857e5fe1e7c8',1,'fs8::event_line_format::parse()'],['../structfs8_1_1default__evtest__format.html#a18f6aaccc731be8a56e33a3bbdb785ad',1,'fs8::default_evtest_format::parse()']]],
   ['parse_5fchar_5for_5fcodepoint_2',['parse_char_or_codepoint',['../namespacefs8.html#a86d6a628203ef82b07d5d67036f82bfb',1,'fs8']]],
   ['parse_5fcode_3',['parse_code',['../namespacefs8.html#a25e18912478451d9116b1f5ba107464a',1,'fs8']]],
   ['parse_5fcodes_4',['parse_codes',['../namespacefs8.html#ab7f9024cc11b4c7c2b065cba054d379d',1,'fs8']]],
@@ -27,7 +27,7 @@ var searchData=
   ['print_5fhelp_24',['print_help',['../structfs8_1_1parsed__args.html#a22858621df55cf56e938f69c218dbb48',1,'fs8::parsed_args']]],
   ['print_5fversion_25',['print_version',['../structfs8_1_1parsed__args.html#a8995306eac296f7a4ba8496cd663cd7f',1,'fs8::parsed_args']]],
   ['process_26',['process',['../structfs8_1_1basic__search__engine.html#a8e13c9ce1b00fbce951324ba29af9b04',1,'fs8::basic_search_engine::process()'],['../structfs8_1_1basic__quantifier.html#a23055484ebb5a364e5afe733ced9e6fa',1,'fs8::basic_quantifier::process()']]],
-  ['process_5fevent_27',['process_event',['../structfs8_1_1velocity__tracker.html#a7584691fec042c5dda35856a68c1af5a',1,'fs8::velocity_tracker::process_event()'],['../structfs8_1_1live__view.html#aa90e1c48c8ea9aaf7c1c733ce593c93e',1,'fs8::live_view::process_event()'],['../structfs8_1_1basic__context.html#a7a1a109e493cf5d633a743d01543e54b',1,'fs8::basic_context::process_event()']]],
+  ['process_5fevent_27',['process_event',['../structfs8_1_1velocity__tracker.html#a7584691fec042c5dda35856a68c1af5a',1,'fs8::velocity_tracker::process_event()'],['../structfs8_1_1condensed__view.html#adcb5062b664f07a8755fe0cd098ce4f8',1,'fs8::condensed_view::process_event()'],['../structfs8_1_1basic__context.html#a7a1a109e493cf5d633a743d01543e54b',1,'fs8::basic_context::process_event()']]],
   ['properties_28',['properties',['../namespacefs8.html#a4124ae022b95ae28e20b323aa6d4caf0',1,'fs8::properties()'],['../structfs8_1_1udev__device.html#a8997cccefd70399e0335eb1a8605467f',1,'fs8::udev_device::properties()']]],
   ['property_29',['property',['../namespacefs8.html#a7735f946e8cfa7ddc5796e7db34bed1f',1,'fs8::property(device_query const &amp;inp_query, std::string_view key) noexcept'],['../namespacefs8.html#ada9fb1cae3a16f44f5bfe1972c522b47',1,'fs8::property(udev_device const &amp;, std::string_view) noexcept'],['../structfs8_1_1udev__device.html#a2cf4079d868cbd7cdca0c15a0572ede5',1,'fs8::udev_device::property()']]],
   ['provider_5fhandle_30',['provider_handle',['../namespacefs8.html#a2909da901642b75795d9c5ab3c4322c9',1,'fs8']]],

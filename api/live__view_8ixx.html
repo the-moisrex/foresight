@@ -105,17 +105,15 @@ $(document).ready(function(){initNavTree('live__view_8ixx.html',''); initResizab
 <code>#include &lt;linux/uinput.h&gt;</code><br />
 <code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;span&gt;</code><br />
-<code>#include &lt;string&gt;</code><br />
 <code>#include &lt;string_view&gt;</code><br />
 <code>#include &lt;unistd.h&gt;</code><br />
 <code>#include &lt;unordered_map&gt;</code><br />
-<code>#include &lt;vector&gt;</code><br />
 <code>import <a class="el" href="mods_8ixx.html">fs8.mods:inout</a>;</code><br />
 <code>import <a class="el" href="translate_8ixx.html">fs8.translate</a>;</code><br />
 <code>import <a class="el" href="traits_8ixx.html">fs8.traits</a>;</code><br />
-<code>import <a class="el" href="event2unicode_8ixx.html">fs8.lib.xkb.event2unicode</a>;</code><br />
 <code>import <a class="el" href="xkb_8ixx.html">fs8.lib.xkb</a>;</code><br />
 <code>import <a class="el" href="evtest_8ixx.html">fs8.lib.evtest</a>;</code><br />
+<code>import <a class="el" href="event2unicode_8ixx.html">fs8.lib.xkb.event2unicode</a>;</code><br />
 <code>import <a class="el" href="event_8ixx.html">fs8.event</a>;</code><br />
 <code>import <a class="el" href="context_8ixx.html">fs8.context</a>;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -126,11 +124,10 @@ Include dependency graph for live_view.ixx:</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view__format.html">fs8::live_view_format</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format for the live view output: aligned columns with text and hold duration.  <a href="structfs8_1_1live__view__format.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__line__format.html">fs8::event_line_format</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view__parse__result.html">fs8::live_view_parse_result</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse result extended with source_id.  <a href="structfs8_1_1live__view__parse__result.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__line__parse__result.html">fs8::event_line_parse_result</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse result extended with source_id.  <a href="structfs8_1_1event__line__parse__result.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1mouse__accum.html">fs8::mouse_accum</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accumulated mouse movement between SYN_REPORTs.  <a href="structfs8_1_1mouse__accum.html#details">More...</a><br /></td></tr>
@@ -139,15 +136,15 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A key currently held down.  <a href="structfs8_1_1held__key.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1device__live__state.html">fs8::device_live_state</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Per-device state for the live view.  <a href="structfs8_1_1device__live__state.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Per-device state for the condensed view.  <a href="structfs8_1_1device__live__state.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view.html">fs8::live_view</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1condensed__view.html">fs8::condensed_view</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__live__view__output.html">fs8::basic_live_view_output&lt; Format &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write events to a file descriptor in live-view text format.  <a href="structfs8_1_1basic__live__view__output.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__line__output.html">fs8::basic_event_line_output&lt; Format &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write events to a file descriptor in event-line text format.  <a href="structfs8_1_1basic__event__line__output.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__live__view.html">fs8::basic_from_live_view&lt; Format &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read live-view-format text from a file descriptor, parse it, and feed events into the pipeline.  <a href="structfs8_1_1basic__from__live__view.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__event__line.html">fs8::basic_from_event_line&lt; Format &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read event-line-format text from a file descriptor, parse it, and feed events into the pipeline.  <a href="structfs8_1_1basic__from__event__line.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -157,17 +154,17 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a406bf237d35926f500f1ef51fa27e829" id="r_a406bf237d35926f500f1ef51fa27e829"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a406bf237d35926f500f1ef51fa27e829">fs8::live_view_format_buf_size</a> = 256</td></tr>
-<tr class="separator:a406bf237d35926f500f1ef51fa27e829"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a119408d407675753831dbf32a9d42c65" id="r_a119408d407675753831dbf32a9d42c65"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a119408d407675753831dbf32a9d42c65">fs8::default_live_flush_timeout</a> = std::chrono::microseconds{16'000}</td></tr>
-<tr class="separator:a119408d407675753831dbf32a9d42c65"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f2890a556ad43fb5a6968f83af24dfd" id="r_a5f2890a556ad43fb5a6968f83af24dfd"><td class="memTemplParams" colspan="2">template&lt;EvtestFormat Format&gt; </td></tr>
-<tr class="memitem:a5f2890a556ad43fb5a6968f83af24dfd"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__live__view__output.html">basic_live_view_output</a>&lt; Format &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5f2890a556ad43fb5a6968f83af24dfd">fs8::live_view_output</a></td></tr>
-<tr class="separator:a5f2890a556ad43fb5a6968f83af24dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad64b86c99e9d74dfc6165b4bfd879f04" id="r_ad64b86c99e9d74dfc6165b4bfd879f04"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad64b86c99e9d74dfc6165b4bfd879f04">fs8::to_live_view</a> = <a class="el" href="namespacefs8.html#a5f2890a556ad43fb5a6968f83af24dfd">live_view_output</a>&lt;<a class="el" href="structfs8_1_1live__view__format.html">live_view_format</a>&gt;</td></tr>
-<tr class="separator:ad64b86c99e9d74dfc6165b4bfd879f04"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2387c5430bc4aa06191f9e216382ed2" id="r_ac2387c5430bc4aa06191f9e216382ed2"><td class="memItemLeft" align="right" valign="top">constinit <a class="el" href="structfs8_1_1basic__from__live__view.html">basic_from_live_view</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac2387c5430bc4aa06191f9e216382ed2">fs8::from_live_view</a></td></tr>
-<tr class="separator:ac2387c5430bc4aa06191f9e216382ed2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0aeb6500188a5480dec90ba1f7137efa" id="r_a0aeb6500188a5480dec90ba1f7137efa"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a0aeb6500188a5480dec90ba1f7137efa">fs8::event_line_format_buf_size</a> = 256</td></tr>
+<tr class="separator:a0aeb6500188a5480dec90ba1f7137efa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6615a87b6547e45a99adb88c42f75aa2" id="r_a6615a87b6547e45a99adb88c42f75aa2"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6615a87b6547e45a99adb88c42f75aa2">fs8::default_condensed_flush_timeout</a> = std::chrono::microseconds{16'000}</td></tr>
+<tr class="separator:a6615a87b6547e45a99adb88c42f75aa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93cfdbf08815090fb42d164c773c456e" id="r_a93cfdbf08815090fb42d164c773c456e"><td class="memTemplParams" colspan="2">template&lt;EvtestFormat Format&gt; </td></tr>
+<tr class="memitem:a93cfdbf08815090fb42d164c773c456e"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__event__line__output.html">basic_event_line_output</a>&lt; Format &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a93cfdbf08815090fb42d164c773c456e">fs8::event_line_output</a></td></tr>
+<tr class="separator:a93cfdbf08815090fb42d164c773c456e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a554df0cfedc15c406039070c73596fe9" id="r_a554df0cfedc15c406039070c73596fe9"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a554df0cfedc15c406039070c73596fe9">fs8::to_event_line</a> = <a class="el" href="namespacefs8.html#a93cfdbf08815090fb42d164c773c456e">event_line_output</a>&lt;<a class="el" href="structfs8_1_1event__line__format.html">event_line_format</a>&gt;</td></tr>
+<tr class="separator:a554df0cfedc15c406039070c73596fe9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee5db5a13c458aa9a610882d6fe9d372" id="r_aee5db5a13c458aa9a610882d6fe9d372"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__from__event__line.html">basic_from_event_line</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aee5db5a13c458aa9a610882d6fe9d372">fs8::from_event_line</a></td></tr>
+<tr class="separator:aee5db5a13c458aa9a610882d6fe9d372"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

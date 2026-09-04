@@ -64,7 +64,7 @@ var searchData=
   ['is_5fsurrogate_61',['is_surrogate',['../namespacefs8.html#a17c87e15291ca38d4a882bd64403f7e8',1,'fs8']]],
   ['is_5fsyn_62',['is_syn',['../namespacefs8.html#a2ef80f285619af3478b43d49a9234d88',1,'fs8::is_syn(event_type const &amp;event) noexcept'],['../namespacefs8.html#aea211e19ffdede51989600ba22d0879e',1,'fs8::is_syn(user_event const &amp;event) noexcept']]],
   ['is_5fsysattr_63',['is_sysattr',['../namespacefs8.html#aed0a1428131e68f01f3efd2b2383ea40',1,'fs8']]],
-  ['is_5fterminal_64',['is_terminal',['../structfs8_1_1live__view.html#a25b3091a6115edee9c03050c6298c78d',1,'fs8::live_view']]],
+  ['is_5fterminal_64',['is_terminal',['../structfs8_1_1condensed__view.html#a425f5c5784cb26d1e71d1c20535418bd',1,'fs8::condensed_view']]],
   ['is_5fusable_65',['is_usable',['../namespacefs8.html#ad1b7d3cd1d6a5fedea83349f2ecc3ced',1,'fs8']]],
   ['is_5fvalid_66',['is_valid',['../namespacefs8.html#a1779c7db7fd8f7f134fe900e93b0f993',1,'fs8::is_valid()'],['../structfs8_1_1udev.html#a271277746157ca6fb7db06931b76bda8',1,'fs8::udev::is_valid()'],['../structfs8_1_1aho__state.html#a4b8e15d4651a5dc0e8bcd8a98bdbe7a2',1,'fs8::aho_state::is_valid()'],['../structfs8_1_1udev__monitor.html#a786979a3b954f77347636841bf726096',1,'fs8::udev_monitor::is_valid()'],['../structfs8_1_1udev__enumerate.html#ae760fc297fc3a2ddb1831949d9af3200',1,'fs8::udev_enumerate::is_valid()'],['../structfs8_1_1udev__device.html#a97c82de7b7585ec7cfd154c689063319',1,'fs8::udev_device::is_valid()']]],
   ['is_5fvalid_5ftemplate_67',['is_valid_template',['../namespacefs8.html#afa52b24805b56d0030017db4cdde0340',1,'fs8']]],

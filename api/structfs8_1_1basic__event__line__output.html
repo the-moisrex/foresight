@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Foresight: fs8::basic_from_live_view&lt; Format &gt; Struct Template Reference</title>
+<title>Foresight: fs8::basic_event_line_output&lt; Format &gt; Struct Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -64,7 +64,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('structfs8_1_1basic__from__live__view.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('structfs8_1_1basic__event__line__output.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -92,37 +92,39 @@ $(document).ready(function(){initNavTree('structfs8_1_1basic__from__live__view.h
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="structfs8_1_1basic__from__live__view-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">fs8::basic_from_live_view&lt; Format &gt; Struct Template Reference<span class="mlabels"><span class="mlabel">export</span></span><div class="ingroups">module <a class="el" href="module_fs8_8mods.html">fs8.mods</a></div></div></div>
+<a href="structfs8_1_1basic__event__line__output-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">fs8::basic_event_line_output&lt; Format &gt; Struct Template Reference<span class="mlabels"><span class="mlabel">export</span></span><div class="ingroups">module <a class="el" href="module_fs8_8mods.html">fs8.mods</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Read live-view-format text from a file descriptor, parse it, and feed events into the pipeline.  
- <a href="structfs8_1_1basic__from__live__view.html#details">More...</a></p>
+<p>Write events to a file descriptor in event-line text format.  
+ <a href="structfs8_1_1basic__event__line__output.html#details">More...</a></p>
 <div class="dynheader">
-Inheritance diagram for fs8::basic_from_live_view&lt; Format &gt;:</div>
+Inheritance diagram for fs8::basic_event_line_output&lt; Format &gt;:</div>
 <div class="dyncontent">
-<div class="center"><img src="structfs8_1_1basic__from__live__view__inherit__graph.png" border="0" usemap="#afs8_1_1basic__from__live__view_3_01Format_01_4_inherit__map" alt="Inheritance graph"/></div>
+<div class="center"><img src="structfs8_1_1basic__event__line__output__inherit__graph.png" border="0" usemap="#afs8_1_1basic__event__line__output_3_01Format_01_4_inherit__map" alt="Inheritance graph"/></div>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
-Collaboration diagram for fs8::basic_from_live_view&lt; Format &gt;:</div>
+Collaboration diagram for fs8::basic_event_line_output&lt; Format &gt;:</div>
 <div class="dyncontent">
-<div class="center"><img src="structfs8_1_1basic__from__live__view__coll__graph.png" border="0" usemap="#afs8_1_1basic__from__live__view_3_01Format_01_4_coll__map" alt="Collaboration graph"/></div>
+<div class="center"><img src="structfs8_1_1basic__event__line__output__coll__graph.png" border="0" usemap="#afs8_1_1basic__event__line__output_3_01Format_01_4_coll__map" alt="Collaboration graph"/></div>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af079a318668a257e97f83ee6258834e0" id="r_af079a318668a257e97f83ee6258834e0"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__live__view.html#af079a318668a257e97f83ee6258834e0">basic_from_live_view</a> (int const inp_fd) noexcept</td></tr>
-<tr class="separator:af079a318668a257e97f83ee6258834e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acff57243310c3161aabd2c397b58de6a" id="r_acff57243310c3161aabd2c397b58de6a"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__live__view.html#acff57243310c3161aabd2c397b58de6a">set_input</a> (int const inp_fd) noexcept</td></tr>
-<tr class="separator:acff57243310c3161aabd2c397b58de6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ae88547c37dd90efd2ac892803ae59a" id="r_a4ae88547c37dd90efd2ac892803ae59a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__live__view.html#a4ae88547c37dd90efd2ac892803ae59a">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> &amp;event, <a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
-<tr class="separator:a4ae88547c37dd90efd2ac892803ae59a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__live__view.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
+<tr class="memitem:ad4d98d6a4a5b4f7788129ff28b45f37a" id="r_ad4d98d6a4a5b4f7788129ff28b45f37a"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__line__output.html#ad4d98d6a4a5b4f7788129ff28b45f37a">basic_event_line_output</a> (int const inp_fd) noexcept</td></tr>
+<tr class="separator:ad4d98d6a4a5b4f7788129ff28b45f37a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ddb78a96831c5c83f3c18f1c8a13393" id="r_a5ddb78a96831c5c83f3c18f1c8a13393"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__line__output.html#a5ddb78a96831c5c83f3c18f1c8a13393">set_output</a> (int const inp_fd) noexcept</td></tr>
+<tr class="separator:a5ddb78a96831c5c83f3c18f1c8a13393"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07cd018a51601ce6ad171c5ac63fcb8f" id="r_a07cd018a51601ce6ad171c5ac63fcb8f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__line__output.html#a07cd018a51601ce6ad171c5ac63fcb8f">emit</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;event) const noexcept</td></tr>
+<tr class="separator:a07cd018a51601ce6ad171c5ac63fcb8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f7c7642995c25ea77b2b70051f03326" id="r_a3f7c7642995c25ea77b2b70051f03326"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__line__output.html#a3f7c7642995c25ea77b2b70051f03326">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> &amp;event) const noexcept</td></tr>
+<tr class="separator:a3f7c7642995c25ea77b2b70051f03326"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__line__output.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
 <tr class="separator:aab9e941457bd45b9d6772f6ff421cec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__live__view.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;) noexcept</td></tr>
+<tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__line__output.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;) noexcept</td></tr>
 <tr class="separator:a23df80b9a3d5bfbc33501da95d583e26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a07b6aecf93085d1e8fc982b21f53ed11" id="r_a07b6aecf93085d1e8fc982b21f53ed11"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__live__view.html#a07b6aecf93085d1e8fc982b21f53ed11">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&amp;) noexcept=default</td></tr>
+<tr class="memitem:a07b6aecf93085d1e8fc982b21f53ed11" id="r_a07b6aecf93085d1e8fc982b21f53ed11"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__line__output.html#a07b6aecf93085d1e8fc982b21f53ed11">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> &amp;&amp;) noexcept=default</td></tr>
 <tr class="separator:a07b6aecf93085d1e8fc982b21f53ed11"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structfs8_1_1consteval__copyable"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structfs8_1_1consteval__copyable')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structfs8_1_1consteval__copyable.html">fs8::consteval_copyable</a></td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6 inherit pub_methods_structfs8_1_1consteval__copyable" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
@@ -139,22 +141,22 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a2386bd2adcb8954302b8616d81d4456f inherit pub_methods_structfs8_1_1consteval__copyable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><div class="compoundTemplParams">template&lt;EvtestFormat Format = live_view_format&gt;<br />
-struct fs8::basic_from_live_view&lt; Format &gt;</div><p>Read live-view-format text from a file descriptor, parse it, and feed events into the pipeline. </p>
+<div class="textblock"><div class="compoundTemplParams">template&lt;EvtestFormat Format = event_line_format&gt;<br />
+struct fs8::basic_event_line_output&lt; Format &gt;</div><p>Write events to a file descriptor in event-line text format. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="af079a318668a257e97f83ee6258834e0" name="af079a318668a257e97f83ee6258834e0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af079a318668a257e97f83ee6258834e0">&#9670;&#160;</a></span>basic_from_live_view()</h2>
+<a id="ad4d98d6a4a5b4f7788129ff28b45f37a" name="ad4d98d6a4a5b4f7788129ff28b45f37a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad4d98d6a4a5b4f7788129ff28b45f37a">&#9670;&#160;</a></span>basic_event_line_output()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;EvtestFormat Format = live_view_format&gt; </div>
+template&lt;EvtestFormat Format = event_line_format&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__from__live__view.html">fs8::basic_from_live_view</a>&lt; Format &gt;::basic_from_live_view </td>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__event__line__output.html">fs8::basic_event_line_output</a>&lt; Format &gt;::basic_event_line_output </td>
           <td>(</td>
           <td class="paramtype">int const&#160;</td>
           <td class="paramname"><em>inp_fd</em></td><td>)</td>
@@ -177,7 +179,7 @@ template&lt;EvtestFormat Format = live_view_format&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;EvtestFormat Format = live_view_format&gt; </div>
+template&lt;EvtestFormat Format = event_line_format&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -204,7 +206,7 @@ template&lt;EvtestFormat Format = live_view_format&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;EvtestFormat Format = live_view_format&gt; </div>
+template&lt;EvtestFormat Format = event_line_format&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -232,7 +234,7 @@ template&lt;EvtestFormat Format = live_view_format&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;EvtestFormat Format = live_view_format&gt; </div>
+template&lt;EvtestFormat Format = event_line_format&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -254,57 +256,75 @@ template&lt;EvtestFormat Format = live_view_format&gt; </div>
 
 </div>
 </div>
-<a id="a4ae88547c37dd90efd2ac892803ae59a" name="a4ae88547c37dd90efd2ac892803ae59a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4ae88547c37dd90efd2ac892803ae59a">&#9670;&#160;</a></span>operator()()</h2>
+<a id="a07cd018a51601ce6ad171c5ac63fcb8f" name="a07cd018a51601ce6ad171c5ac63fcb8f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07cd018a51601ce6ad171c5ac63fcb8f">&#9670;&#160;</a></span>emit()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="el" href="conceptfs8_1_1EvtestFormat.html">fs8::EvtestFormat</a> Format&gt; </div>
+template&lt;EvtestFormat Format = event_line_format&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">fs8::context_action</a> <a class="el" href="structfs8_1_1basic__from__live__view.html">fs8::basic_from_live_view</a>&lt; Format &gt;::operator() </td>
+          <td class="memname">bool <a class="el" href="structfs8_1_1basic__event__line__output.html">fs8::basic_event_line_output</a>&lt; Format &gt;::emit </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> &amp;&#160;</td>
-          <td class="paramname"><em>event</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;&#160;</td>
-          <td class="paramname"><em>tag</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;&#160;</td>
+          <td class="paramname"><em>event</em></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="acff57243310c3161aabd2c397b58de6a" name="acff57243310c3161aabd2c397b58de6a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acff57243310c3161aabd2c397b58de6a">&#9670;&#160;</a></span>set_input()</h2>
+<a id="a3f7c7642995c25ea77b2b70051f03326" name="a3f7c7642995c25ea77b2b70051f03326"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f7c7642995c25ea77b2b70051f03326">&#9670;&#160;</a></span>operator()()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;EvtestFormat Format = live_view_format&gt; </div>
+template&lt;EvtestFormat Format = event_line_format&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr void <a class="el" href="structfs8_1_1basic__from__live__view.html">fs8::basic_from_live_view</a>&lt; Format &gt;::set_input </td>
+          <td class="memname">bool <a class="el" href="structfs8_1_1basic__event__line__output.html">fs8::basic_event_line_output</a>&lt; Format &gt;::operator() </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> &amp;&#160;</td>
+          <td class="paramname"><em>event</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5ddb78a96831c5c83f3c18f1c8a13393" name="a5ddb78a96831c5c83f3c18f1c8a13393"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ddb78a96831c5c83f3c18f1c8a13393">&#9670;&#160;</a></span>set_output()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;EvtestFormat Format = event_line_format&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr void <a class="el" href="structfs8_1_1basic__event__line__output.html">fs8::basic_event_line_output</a>&lt; Format &gt;::set_output </td>
           <td>(</td>
           <td class="paramtype">int const&#160;</td>
           <td class="paramname"><em>inp_fd</em></td><td>)</td>
@@ -320,16 +340,15 @@ template&lt;EvtestFormat Format = live_view_format&gt; </div>
 
 </div>
 </div>
-<hr/>The documentation for this struct was generated from the following files:<ul>
+<hr/>The documentation for this struct was generated from the following file:<ul>
 <li>mods/<a class="el" href="live__view_8ixx.html">live_view.ixx</a></li>
-<li>mods/<a class="el" href="live__view_8cxx.html">live_view.cxx</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="namespacefs8.html">fs8</a></li><li class="navelem"><a class="el" href="structfs8_1_1basic__from__live__view.html">basic_from_live_view</a></li>
+    <li class="navelem"><a class="el" href="namespacefs8.html">fs8</a></li><li class="navelem"><a class="el" href="structfs8_1_1basic__event__line__output.html">basic_event_line_output</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

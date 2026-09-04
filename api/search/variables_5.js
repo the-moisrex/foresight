@@ -21,9 +21,9 @@ var searchData=
   ['from_5fchained_18',['from_chained',['../namespacefs8.html#a5b9076bc6086a3d2bcb853dc66273d2a',1,'fs8']]],
   ['from_5fchild_19',['from_child',['../structfs8_1_1plain__pimpl__idiom_1_1impl.html#a500138701ee3b0bfbcd8eb3ec1bb391e',1,'fs8::plain_pimpl_idiom::impl']]],
   ['from_5fdevice_20',['from_device',['../namespacefs8.html#a60ce220b375cdeb91af651d5163c4b7a',1,'fs8']]],
-  ['from_5fevtest_21',['from_evtest',['../namespacefs8.html#a30df5434468736c8b2499222eeccda5b',1,'fs8']]],
-  ['from_5finput_22',['from_input',['../namespacefs8.html#a117715ccfac2ef6ffb0bb0503db6b2be',1,'fs8']]],
-  ['from_5flive_5fview_23',['from_live_view',['../namespacefs8.html#ac2387c5430bc4aa06191f9e216382ed2',1,'fs8']]],
+  ['from_5fevent_5fline_21',['from_event_line',['../namespacefs8.html#aee5db5a13c458aa9a610882d6fe9d372',1,'fs8']]],
+  ['from_5fevtest_22',['from_evtest',['../namespacefs8.html#a30df5434468736c8b2499222eeccda5b',1,'fs8']]],
+  ['from_5finput_23',['from_input',['../namespacefs8.html#a117715ccfac2ef6ffb0bb0503db6b2be',1,'fs8']]],
   ['from_5fstdin_24',['from_stdin',['../namespacefs8.html#aa8b48a82fe91e0cf236d5873c3805ba9',1,'fs8']]],
   ['func_25',['func',['../structfs8_1_1op__not.html#a68d673d111658f048236bd118d592c2c',1,'fs8::op_not']]]
 ];

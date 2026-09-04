@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Foresight: fs8::live_view_format Struct Reference</title>
+<title>Foresight: fs8::event_line_format Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -64,7 +64,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('structfs8_1_1live__view__format.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('structfs8_1_1event__line__format.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -92,28 +92,27 @@ $(document).ready(function(){initNavTree('structfs8_1_1live__view__format.html',
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="structfs8_1_1live__view__format-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">fs8::live_view_format Struct Reference<span class="mlabels"><span class="mlabel">export</span></span><div class="ingroups">module <a class="el" href="module_fs8_8mods.html">fs8.mods</a></div></div></div>
+<a href="structfs8_1_1event__line__format-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">fs8::event_line_format Struct Reference<span class="mlabels"><span class="mlabel">export</span></span><div class="ingroups">module <a class="el" href="module_fs8_8mods.html">fs8.mods</a></div></div></div>
 </div><!--header-->
 <div class="contents">
-
-<p>Format for the live view output: aligned columns with text and hold duration.  
- <a href="structfs8_1_1live__view__format.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a8b91c56c9e369b58fc17cccdd0230c5f" id="r_a8b91c56c9e369b58fc17cccdd0230c5f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view__format.html#a8b91c56c9e369b58fc17cccdd0230c5f">parse</a> (std::string_view <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">line</a>, <a class="el" href="structfs8_1_1parsed__evtest__event.html">parsed_evtest_event</a> &amp;<a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
-<tr class="memdesc:a8b91c56c9e369b58fc17cccdd0230c5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse one live-view line. Returns false for non-event lines.  <br /></td></tr>
-<tr class="separator:a8b91c56c9e369b58fc17cccdd0230c5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afbcd52b2bcb307c90f355e7cf3b7a552" id="r_afbcd52b2bcb307c90f355e7cf3b7a552"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view__format.html#afbcd52b2bcb307c90f355e7cf3b7a552">format</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;event, std::span&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">char</a> &gt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">buf</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
-<tr class="memdesc:afbcd52b2bcb307c90f355e7cf3b7a552"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format an event into <code>buf</code>. Returns the written slice, or empty on failure.  <br /></td></tr>
-<tr class="separator:afbcd52b2bcb307c90f355e7cf3b7a552"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa179acddd6bbe92797b7857e5fe1e7c8" id="r_aa179acddd6bbe92797b7857e5fe1e7c8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__line__format.html#aa179acddd6bbe92797b7857e5fe1e7c8">parse</a> (std::string_view <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">line</a>, <a class="el" href="structfs8_1_1parsed__evtest__event.html">parsed_evtest_event</a> &amp;<a class="el" href="namespacefs8.html#ac2cd2b3bb76585e09b38e12d8981983cac68271a63ddbc431c307beb7d2918275">out</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
+<tr class="memdesc:aa179acddd6bbe92797b7857e5fe1e7c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse one event-line. Returns false for non-event lines.  <br /></td></tr>
+<tr class="separator:aa179acddd6bbe92797b7857e5fe1e7c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0e3ff94c381b1816d9a62d8db1dbe93" id="r_ac0e3ff94c381b1816d9a62d8db1dbe93"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__line__format.html#ac0e3ff94c381b1816d9a62d8db1dbe93">format</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;event, std::span&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">char</a> &gt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">buf</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
+<tr class="memdesc:ac0e3ff94c381b1816d9a62d8db1dbe93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format an event into <code>buf</code>. Returns the written slice, or empty on failure.  <br /></td></tr>
+<tr class="separator:ac0e3ff94c381b1816d9a62d8db1dbe93"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Format for the live view output: aligned columns with text and hold duration. </p>
+<div class="textblock"><p>Evtest-compatible text format for individual event lines.</p>
+<p>Produces lines like: Event: time SEC.USEC, type N (EV_KEY), code N (KEY_A), value 1</p>
+<p>Used for piping events between pipeline stages and as the fallback formatter for the condensed display. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="afbcd52b2bcb307c90f355e7cf3b7a552" name="afbcd52b2bcb307c90f355e7cf3b7a552"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afbcd52b2bcb307c90f355e7cf3b7a552">&#9670;&#160;</a></span>format()</h2>
+<a id="ac0e3ff94c381b1816d9a62d8db1dbe93" name="ac0e3ff94c381b1816d9a62d8db1dbe93"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0e3ff94c381b1816d9a62d8db1dbe93">&#9670;&#160;</a></span>format()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -122,7 +121,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::string_view fs8::live_view_format::format </td>
+          <td class="memname">std::string_view fs8::event_line_format::format </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structfs8_1_1event__type.html">event_type</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;&#160;</td>
           <td class="paramname"><em>event</em>, </td>
@@ -150,8 +149,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a8b91c56c9e369b58fc17cccdd0230c5f" name="a8b91c56c9e369b58fc17cccdd0230c5f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8b91c56c9e369b58fc17cccdd0230c5f">&#9670;&#160;</a></span>parse()</h2>
+<a id="aa179acddd6bbe92797b7857e5fe1e7c8" name="aa179acddd6bbe92797b7857e5fe1e7c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa179acddd6bbe92797b7857e5fe1e7c8">&#9670;&#160;</a></span>parse()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -160,7 +159,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> fs8::live_view_format::parse </td>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a> fs8::event_line_format::parse </td>
           <td>(</td>
           <td class="paramtype">std::string_view&#160;</td>
           <td class="paramname"><em>line</em>, </td>
@@ -184,7 +183,7 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Parse one live-view line. Returns false for non-event lines. </p>
+<p>Parse one event-line. Returns false for non-event lines. </p>
 
 </div>
 </div>
@@ -197,7 +196,7 @@ Public Member Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="namespacefs8.html">fs8</a></li><li class="navelem"><a class="el" href="structfs8_1_1live__view__format.html">live_view_format</a></li>
+    <li class="navelem"><a class="el" href="namespacefs8.html">fs8</a></li><li class="navelem"><a class="el" href="structfs8_1_1event__line__format.html">event_line_format</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

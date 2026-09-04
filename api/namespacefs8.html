@@ -232,6 +232,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__enforce__key__state.html">basic_enforce_key_state</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__event__line__output.html">basic_event_line_output</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write events to a file descriptor in event-line text format.  <a href="structfs8_1_1basic__event__line__output.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__evtest__output.html">basic_evtest_output</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write events to a file descriptor in evtest text format.  <a href="structfs8_1_1basic__evtest__output.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -243,12 +246,12 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__device.html">basic_from_device</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__event__line.html">basic_from_event_line</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read event-line-format text from a file descriptor, parse it, and feed events into the pipeline.  <a href="structfs8_1_1basic__from__event__line.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__evtest.html">basic_from_evtest</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__input.html">basic_from_input</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__live__view.html">basic_from_live_view</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read live-view-format text from a file descriptor, parse it, and feed events into the pipeline.  <a href="structfs8_1_1basic__from__live__view.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__stdin.html">basic_from_stdin</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">True when the event was read from stdin (redirect mode).  <a href="structfs8_1_1basic__from__stdin.html#details">More...</a><br /></td></tr>
@@ -289,9 +292,6 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__lerp.html">basic_lerp</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__limit__mouse__travel.html">basic_limit_mouse_travel</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__live__view__output.html">basic_live_view_output</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write events to a file descriptor in live-view text format.  <a href="structfs8_1_1basic__live__view__output.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__log.html">basic_log</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -403,6 +403,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1condensed__view.html">condensed_view</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1construct__it__from.html">construct_it_from</a></td></tr>
@@ -423,7 +425,7 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1device__change__handle.html">device_change_handle</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1device__live__state.html">device_live_state</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Per-device state for the live view.  <a href="structfs8_1_1device__live__state.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Per-device state for the condensed view.  <a href="structfs8_1_1device__live__state.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1dynamic__scope.html">dynamic_scope</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -432,6 +434,11 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1evdev.html">evdev</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__code.html">event_code</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__line__format.html">event_line_format</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__line__parse__result.html">event_line_parse_result</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse result extended with source_id.  <a href="structfs8_1_1event__line__parse__result.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1event__type.html">event_type</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -474,14 +481,6 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1keyboard__runner.html">keyboard_runner</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1keynames__type.html">keynames_type</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view.html">live_view</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view__format.html">live_view_format</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format for the live view output: aligned columns with text and hold duration.  <a href="structfs8_1_1live__view__format.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1live__view__parse__result.html">live_view_parse_result</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse result extended with source_id.  <a href="structfs8_1_1live__view__parse__result.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1low__threshold__tag.html">low_threshold_tag</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -701,8 +700,8 @@ Typedefs</h2></td></tr>
 <tr class="separator:ad0c0182c0bcba062c10b98ba72545d33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a0f43acc4fadf98b4d342f68e3660c4" id="r_a8a0f43acc4fadf98b4d342f68e3660c4"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a8a0f43acc4fadf98b4d342f68e3660c4">fs8::value_type</a> = <a class="el" href="structfs8_1_1event__type.html#a2e849054fba3388fcde2f566a6bcbdb9">event_type::value_type</a></td></tr>
 <tr class="separator:a8a0f43acc4fadf98b4d342f68e3660c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a500994f0a2de5896ef74f8ebbd942823" id="r_a500994f0a2de5896ef74f8ebbd942823"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a500994f0a2de5896ef74f8ebbd942823">fs8::output_selector</a> = <a class="el" href="structfs8_1_1basic__output__selector.html">basic_output_selector</a>&lt; <a class="el" href="structfs8_1_1basic__std__output.html">basic_std_output</a>, <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a>, <a class="el" href="structfs8_1_1basic__evtest__output.html">basic_evtest_output</a>&lt;&gt;, <a class="el" href="structfs8_1_1basic__live__view__output.html">basic_live_view_output</a>&lt;&gt; &gt;</td></tr>
-<tr class="separator:a500994f0a2de5896ef74f8ebbd942823"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ab057d8be9017d150039c782167711b" id="r_a5ab057d8be9017d150039c782167711b"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5ab057d8be9017d150039c782167711b">fs8::output_selector</a> = <a class="el" href="structfs8_1_1basic__output__selector.html">basic_output_selector</a>&lt; <a class="el" href="structfs8_1_1basic__std__output.html">basic_std_output</a>, <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a>, <a class="el" href="structfs8_1_1basic__evtest__output.html">basic_evtest_output</a>&lt;&gt;, <a class="el" href="structfs8_1_1basic__event__line__output.html">basic_event_line_output</a>&lt;&gt; &gt;</td></tr>
+<tr class="separator:a5ab057d8be9017d150039c782167711b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -1798,17 +1797,17 @@ Variables</h2></td></tr>
 <tr class="memitem:af7bb06634d38168c90334beba205c18b" id="r_af7bb06634d38168c90334beba205c18b"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__toggle__off.html">basic_toggle_off</a>&lt; LED_SCROLLL, KEY_SCROLLLOCK &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af7bb06634d38168c90334beba205c18b">fs8::scrolllock_off</a></td></tr>
 <tr class="memdesc:af7bb06634d38168c90334beba205c18b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turn the ScrollLock mode off.  <br /></td></tr>
 <tr class="separator:af7bb06634d38168c90334beba205c18b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a406bf237d35926f500f1ef51fa27e829" id="r_a406bf237d35926f500f1ef51fa27e829"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a406bf237d35926f500f1ef51fa27e829">fs8::live_view_format_buf_size</a> = 256</td></tr>
-<tr class="separator:a406bf237d35926f500f1ef51fa27e829"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a119408d407675753831dbf32a9d42c65" id="r_a119408d407675753831dbf32a9d42c65"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a119408d407675753831dbf32a9d42c65">fs8::default_live_flush_timeout</a> = std::chrono::microseconds{16'000}</td></tr>
-<tr class="separator:a119408d407675753831dbf32a9d42c65"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f2890a556ad43fb5a6968f83af24dfd" id="r_a5f2890a556ad43fb5a6968f83af24dfd"><td class="memTemplParams" colspan="2">template&lt;EvtestFormat Format&gt; </td></tr>
-<tr class="memitem:a5f2890a556ad43fb5a6968f83af24dfd"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__live__view__output.html">basic_live_view_output</a>&lt; Format &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5f2890a556ad43fb5a6968f83af24dfd">fs8::live_view_output</a></td></tr>
-<tr class="separator:a5f2890a556ad43fb5a6968f83af24dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad64b86c99e9d74dfc6165b4bfd879f04" id="r_ad64b86c99e9d74dfc6165b4bfd879f04"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad64b86c99e9d74dfc6165b4bfd879f04">fs8::to_live_view</a> = <a class="el" href="namespacefs8.html#a5f2890a556ad43fb5a6968f83af24dfd">live_view_output</a>&lt;<a class="el" href="structfs8_1_1live__view__format.html">live_view_format</a>&gt;</td></tr>
-<tr class="separator:ad64b86c99e9d74dfc6165b4bfd879f04"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2387c5430bc4aa06191f9e216382ed2" id="r_ac2387c5430bc4aa06191f9e216382ed2"><td class="memItemLeft" align="right" valign="top">constinit <a class="el" href="structfs8_1_1basic__from__live__view.html">basic_from_live_view</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac2387c5430bc4aa06191f9e216382ed2">fs8::from_live_view</a></td></tr>
-<tr class="separator:ac2387c5430bc4aa06191f9e216382ed2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0aeb6500188a5480dec90ba1f7137efa" id="r_a0aeb6500188a5480dec90ba1f7137efa"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a0aeb6500188a5480dec90ba1f7137efa">fs8::event_line_format_buf_size</a> = 256</td></tr>
+<tr class="separator:a0aeb6500188a5480dec90ba1f7137efa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6615a87b6547e45a99adb88c42f75aa2" id="r_a6615a87b6547e45a99adb88c42f75aa2"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6615a87b6547e45a99adb88c42f75aa2">fs8::default_condensed_flush_timeout</a> = std::chrono::microseconds{16'000}</td></tr>
+<tr class="separator:a6615a87b6547e45a99adb88c42f75aa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93cfdbf08815090fb42d164c773c456e" id="r_a93cfdbf08815090fb42d164c773c456e"><td class="memTemplParams" colspan="2">template&lt;EvtestFormat Format&gt; </td></tr>
+<tr class="memitem:a93cfdbf08815090fb42d164c773c456e"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__event__line__output.html">basic_event_line_output</a>&lt; Format &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a93cfdbf08815090fb42d164c773c456e">fs8::event_line_output</a></td></tr>
+<tr class="separator:a93cfdbf08815090fb42d164c773c456e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a554df0cfedc15c406039070c73596fe9" id="r_a554df0cfedc15c406039070c73596fe9"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a554df0cfedc15c406039070c73596fe9">fs8::to_event_line</a> = <a class="el" href="namespacefs8.html#a93cfdbf08815090fb42d164c773c456e">event_line_output</a>&lt;<a class="el" href="structfs8_1_1event__line__format.html">event_line_format</a>&gt;</td></tr>
+<tr class="separator:a554df0cfedc15c406039070c73596fe9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee5db5a13c458aa9a610882d6fe9d372" id="r_aee5db5a13c458aa9a610882d6fe9d372"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__from__event__line.html">basic_from_event_line</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aee5db5a13c458aa9a610882d6fe9d372">fs8::from_event_line</a></td></tr>
+<tr class="separator:aee5db5a13c458aa9a610882d6fe9d372"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d3b09029b4d253898eb87b6c681b8c0" id="r_a1d3b09029b4d253898eb87b6c681b8c0"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__modes.html">basic_modes</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a1d3b09029b4d253898eb87b6c681b8c0">fs8::modes</a> {}</td></tr>
 <tr class="separator:a1d3b09029b4d253898eb87b6c681b8c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af69f7b7381d92ffa6c923455721a66e6" id="r_af69f7b7381d92ffa6c923455721a66e6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__switch__mode.html">fs8::basic_switch_mode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#af69f7b7381d92ffa6c923455721a66e6">switch_mode</a></td></tr>
@@ -1880,7 +1879,7 @@ Variables</h2></td></tr>
 <tr class="separator:a332d0d3025ab0d9c651fcac1b34d75b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a26e0643e5886e57dea16e6288513f116" id="r_a26e0643e5886e57dea16e6288513f116"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__on__fail.html">basic_on_fail</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a26e0643e5886e57dea16e6288513f116">fs8::on_fail</a> {<a class="el" href="namespacefs8.html#a3d72441ee700519b4be49b186c8afccd">noop</a>, <a class="el" href="namespacefs8.html#a3d72441ee700519b4be49b186c8afccd">noop</a>}</td></tr>
 <tr class="separator:a26e0643e5886e57dea16e6288513f116"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7dc3fe91c5c1e5e25859f5eafbdfcff8" id="r_a7dc3fe91c5c1e5e25859f5eafbdfcff8"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#a500994f0a2de5896ef74f8ebbd942823">output_selector</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7dc3fe91c5c1e5e25859f5eafbdfcff8">fs8::output</a> {}</td></tr>
+<tr class="memitem:a7dc3fe91c5c1e5e25859f5eafbdfcff8" id="r_a7dc3fe91c5c1e5e25859f5eafbdfcff8"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="namespacefs8.html#a5ab057d8be9017d150039c782167711b">output_selector</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7dc3fe91c5c1e5e25859f5eafbdfcff8">fs8::output</a> {}</td></tr>
 <tr class="separator:a7dc3fe91c5c1e5e25859f5eafbdfcff8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11d652fd27032411a9248c0a1f9da2e5" id="r_a11d652fd27032411a9248c0a1f9da2e5"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1output__flag__group.html">output_flag_group</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a11d652fd27032411a9248c0a1f9da2e5">fs8::output_flags</a> {}</td></tr>
 <tr class="memdesc:a11d652fd27032411a9248c0a1f9da2e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default output flag group (stdout, index 0).  <br /></td></tr>
@@ -2241,8 +2240,8 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
 
 </div>
 </div>
-<a id="a500994f0a2de5896ef74f8ebbd942823" name="a500994f0a2de5896ef74f8ebbd942823"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a500994f0a2de5896ef74f8ebbd942823">&#9670;&#160;</a></span>output_selector</h2>
+<a id="a5ab057d8be9017d150039c782167711b" name="a5ab057d8be9017d150039c782167711b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ab057d8be9017d150039c782167711b">&#9670;&#160;</a></span>output_selector</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2251,7 +2250,7 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacefs8.html#a500994f0a2de5896ef74f8ebbd942823">fs8::output_selector</a> = typedef <a class="el" href="structfs8_1_1basic__output__selector.html">basic_output_selector</a>&lt;<a class="el" href="structfs8_1_1basic__std__output.html">basic_std_output</a>, <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a>, <a class="el" href="structfs8_1_1basic__evtest__output.html">basic_evtest_output</a>&lt;&gt;, <a class="el" href="structfs8_1_1basic__live__view__output.html">basic_live_view_output</a>&lt;&gt; &gt;</td>
+          <td class="memname">using <a class="el" href="namespacefs8.html#a5ab057d8be9017d150039c782167711b">fs8::output_selector</a> = typedef <a class="el" href="structfs8_1_1basic__output__selector.html">basic_output_selector</a>&lt;<a class="el" href="structfs8_1_1basic__std__output.html">basic_std_output</a>, <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a>, <a class="el" href="structfs8_1_1basic__evtest__output.html">basic_evtest_output</a>&lt;&gt;, <a class="el" href="structfs8_1_1basic__event__line__output.html">basic_event_line_output</a>&lt;&gt; &gt;</td>
         </tr>
       </table>
   </td>
@@ -2261,7 +2260,7 @@ template&lt;typename ModConcept , typename... Funcs&gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Default output selector with all built-in output types.</p>
-<p>Index mapping: 0 — basic_output (raw stdout) 1 — <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a> (kernel virtual device) 2 — basic_evtest_output&lt;&gt; (evtest text format) 3 — basic_live_view_output&lt;&gt; (live view text format) </p>
+<p>Index mapping: 0 — basic_output (raw stdout) 1 — <a class="el" href="structfs8_1_1basic__uinput.html">basic_uinput</a> (kernel virtual device) 2 — basic_evtest_output&lt;&gt; (evtest text format) 3 — basic_event_line_output&lt;&gt; (event-line text format) </p>
 
 </div>
 </div>
@@ -11739,8 +11738,8 @@ template&lt;typename Mod , typename Fn &gt; </div>
 
 </div>
 </div>
-<a id="a119408d407675753831dbf32a9d42c65" name="a119408d407675753831dbf32a9d42c65"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a119408d407675753831dbf32a9d42c65">&#9670;&#160;</a></span>default_live_flush_timeout</h2>
+<a id="a6615a87b6547e45a99adb88c42f75aa2" name="a6615a87b6547e45a99adb88c42f75aa2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6615a87b6547e45a99adb88c42f75aa2">&#9670;&#160;</a></span>default_condensed_flush_timeout</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -11749,7 +11748,7 @@ template&lt;typename Mod , typename Fn &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr auto fs8::default_live_flush_timeout = std::chrono::microseconds{16'000}</td>
+          <td class="memname">constexpr auto fs8::default_condensed_flush_timeout = std::chrono::microseconds{16'000}</td>
         </tr>
       </table>
   </td>
@@ -12549,6 +12548,52 @@ template&lt;typename Mod , typename Fn &gt; </div>
 
 </div>
 </div>
+<a id="a0aeb6500188a5480dec90ba1f7137efa" name="a0aeb6500188a5480dec90ba1f7137efa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0aeb6500188a5480dec90ba1f7137efa">&#9670;&#160;</a></span>event_line_format_buf_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr std::size_t fs8::event_line_format_buf_size = 256</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a93cfdbf08815090fb42d164c773c456e" name="a93cfdbf08815090fb42d164c773c456e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93cfdbf08815090fb42d164c773c456e">&#9670;&#160;</a></span>event_line_output</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;EvtestFormat Format&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__event__line__output.html">basic_event_line_output</a>&lt;Format&gt; fs8::event_line_output</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a4fce3d1270cea3fa64f2d82a4694b01e" name="a4fce3d1270cea3fa64f2d82a4694b01e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4fce3d1270cea3fa64f2d82a4694b01e">&#9670;&#160;</a></span>evtest_format_buf_size</h2>
 
@@ -12741,6 +12786,28 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
+<a id="aee5db5a13c458aa9a610882d6fe9d372" name="aee5db5a13c458aa9a610882d6fe9d372"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee5db5a13c458aa9a610882d6fe9d372">&#9670;&#160;</a></span>from_event_line</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__from__event__line.html">basic_from_event_line</a> fs8::from_event_line</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a30df5434468736c8b2499222eeccda5b" name="a30df5434468736c8b2499222eeccda5b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a30df5434468736c8b2499222eeccda5b">&#9670;&#160;</a></span>from_evtest</h2>
 
@@ -12773,28 +12840,6 @@ template&lt;EvtestFormat Format&gt; </div>
           <td class="memname"><a class="el" href="structfs8_1_1basic__from__input.html">fs8::basic_from_input</a> fs8::from_input</td>
         </tr>
       </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ac2387c5430bc4aa06191f9e216382ed2" name="ac2387c5430bc4aa06191f9e216382ed2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac2387c5430bc4aa06191f9e216382ed2">&#9670;&#160;</a></span>from_live_view</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constinit <a class="el" href="structfs8_1_1basic__from__live__view.html">basic_from_live_view</a> fs8::from_live_view</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
@@ -13625,52 +13670,6 @@ template&lt;std::size_t N&gt; </div>
 
 </div>
 </div>
-<a id="a406bf237d35926f500f1ef51fa27e829" name="a406bf237d35926f500f1ef51fa27e829"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a406bf237d35926f500f1ef51fa27e829">&#9670;&#160;</a></span>live_view_format_buf_size</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr std::size_t fs8::live_view_format_buf_size = 256</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a5f2890a556ad43fb5a6968f83af24dfd" name="a5f2890a556ad43fb5a6968f83af24dfd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5f2890a556ad43fb5a6968f83af24dfd">&#9670;&#160;</a></span>live_view_output</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;EvtestFormat Format&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__live__view__output.html">basic_live_view_output</a>&lt;Format&gt; fs8::live_view_output</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a07e88505df2f659c7dd7a91fc6e7161d" name="a07e88505df2f659c7dd7a91fc6e7161d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a07e88505df2f659c7dd7a91fc6e7161d">&#9670;&#160;</a></span>load_event</h2>
 
@@ -14232,7 +14231,7 @@ template&lt;EvtestFormat Format&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="namespacefs8.html#a500994f0a2de5896ef74f8ebbd942823">output_selector</a> fs8::output {}</td>
+          <td class="memname">constexpr <a class="el" href="namespacefs8.html#a5ab057d8be9017d150039c782167711b">output_selector</a> fs8::output {}</td>
         </tr>
       </table>
   </td>
@@ -15108,8 +15107,8 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
-<a id="ae0711f4e892987aed2fa991e2ee5e314" name="ae0711f4e892987aed2fa991e2ee5e314"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae0711f4e892987aed2fa991e2ee5e314">&#9670;&#160;</a></span>to_evtest</h2>
+<a id="a554df0cfedc15c406039070c73596fe9" name="a554df0cfedc15c406039070c73596fe9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a554df0cfedc15c406039070c73596fe9">&#9670;&#160;</a></span>to_event_line</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -15118,7 +15117,7 @@ template&lt;EvtestFormat Format&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr auto fs8::to_evtest = <a class="el" href="namespacefs8.html#afa9df52c3767ecdf335b27ae21ce3d40">evtest_output</a>&lt;<a class="el" href="structfs8_1_1default__evtest__format.html">default_evtest_format</a>&gt;</td>
+          <td class="memname">constexpr auto fs8::to_event_line = <a class="el" href="namespacefs8.html#a93cfdbf08815090fb42d164c773c456e">event_line_output</a>&lt;<a class="el" href="structfs8_1_1event__line__format.html">event_line_format</a>&gt;</td>
         </tr>
       </table>
   </td>
@@ -15130,8 +15129,8 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
-<a id="ad64b86c99e9d74dfc6165b4bfd879f04" name="ad64b86c99e9d74dfc6165b4bfd879f04"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad64b86c99e9d74dfc6165b4bfd879f04">&#9670;&#160;</a></span>to_live_view</h2>
+<a id="ae0711f4e892987aed2fa991e2ee5e314" name="ae0711f4e892987aed2fa991e2ee5e314"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0711f4e892987aed2fa991e2ee5e314">&#9670;&#160;</a></span>to_evtest</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -15140,7 +15139,7 @@ template&lt;EvtestFormat Format&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr auto fs8::to_live_view = <a class="el" href="namespacefs8.html#a5f2890a556ad43fb5a6968f83af24dfd">live_view_output</a>&lt;<a class="el" href="structfs8_1_1live__view__format.html">live_view_format</a>&gt;</td>
+          <td class="memname">constexpr auto fs8::to_evtest = <a class="el" href="namespacefs8.html#afa9df52c3767ecdf335b27ae21ce3d40">evtest_output</a>&lt;<a class="el" href="structfs8_1_1default__evtest__format.html">default_evtest_format</a>&gt;</td>
         </tr>
       </table>
   </td>

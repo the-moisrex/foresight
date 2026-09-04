@@ -14,14 +14,13 @@ var searchData=
   ['lerp_11',['lerp',['../namespacefs8.html#a2bb11e4e60596fe650042cb7d9e48933',1,'fs8']]],
   ['level_12',['level',['../structfs8_1_1xkb_1_1key__position.html#a2c39f0e9919e2e7a366be819d3364882',1,'fs8::xkb::key_position']]],
   ['limit_5fmouse_5ftravel_13',['limit_mouse_travel',['../namespacefs8.html#a4732f4557d93cef41e51d86eb8639508',1,'fs8']]],
-  ['listeners_14',['listeners',['../structfs8_1_1pimpl__idiom_1_1impl.html#a222a0e785afcf212ee0030db395b88b9',1,'fs8::pimpl_idiom::impl']]],
-  ['live_5fview_5fformat_5fbuf_5fsize_15',['live_view_format_buf_size',['../namespacefs8.html#a406bf237d35926f500f1ef51fa27e829',1,'fs8']]],
-  ['live_5fview_5foutput_16',['live_view_output',['../namespacefs8.html#a5f2890a556ad43fb5a6968f83af24dfd',1,'fs8']]],
-  ['load_5fevent_17',['load_event',['../namespacefs8.html#a07e88505df2f659c7dd7a91fc6e7161d',1,'fs8']]],
-  ['log_18',['log',['../namespacefs8.html#a976dc73ef435c645b097a7fa36ecfaaf',1,'fs8']]],
-  ['log_5fand_5fdrop_19',['log_and_drop',['../namespacefs8.html#a2f3d1cd6a8ffaf5b3c51335aa140dc03',1,'fs8']]],
-  ['log_5fdiagnostics_20',['log_diagnostics',['../namespacefs8.html#a51a2bb7da98bfb72014b626688f89346',1,'fs8']]],
-  ['longtime_5freleased_21',['longtime_released',['../namespacefs8.html#a38d55a9436aeb69c0eeab34768639137',1,'fs8']]],
-  ['low_5fpass_5ffilter_22',['low_pass_filter',['../namespacefs8.html#a96522800554b963fb1a7a3fda11bbf01',1,'fs8']]],
-  ['low_5fthreshold_23',['low_threshold',['../namespacefs8.html#afce98c75abad678593079062353796f1',1,'fs8']]]
+  ['line_5fbuffer_5fcapacity_14',['line_buffer_capacity',['../structfs8_1_1basic__from__event__line.html#a3883a89a7c592b83ee5072ebfccb5f87',1,'fs8::basic_from_event_line']]],
+  ['listeners_15',['listeners',['../structfs8_1_1pimpl__idiom_1_1impl.html#a222a0e785afcf212ee0030db395b88b9',1,'fs8::pimpl_idiom::impl']]],
+  ['load_5fevent_16',['load_event',['../namespacefs8.html#a07e88505df2f659c7dd7a91fc6e7161d',1,'fs8']]],
+  ['log_17',['log',['../namespacefs8.html#a976dc73ef435c645b097a7fa36ecfaaf',1,'fs8']]],
+  ['log_5fand_5fdrop_18',['log_and_drop',['../namespacefs8.html#a2f3d1cd6a8ffaf5b3c51335aa140dc03',1,'fs8']]],
+  ['log_5fdiagnostics_19',['log_diagnostics',['../namespacefs8.html#a51a2bb7da98bfb72014b626688f89346',1,'fs8']]],
+  ['longtime_5freleased_20',['longtime_released',['../namespacefs8.html#a38d55a9436aeb69c0eeab34768639137',1,'fs8']]],
+  ['low_5fpass_5ffilter_21',['low_pass_filter',['../namespacefs8.html#a96522800554b963fb1a7a3fda11bbf01',1,'fs8']]],
+  ['low_5fthreshold_22',['low_threshold',['../namespacefs8.html#afce98c75abad678593079062353796f1',1,'fs8']]]
 ];
