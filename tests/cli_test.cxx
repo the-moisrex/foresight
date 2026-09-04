@@ -33,8 +33,8 @@ TEST(CLI, PositionalsKept) {
     auto const            parsed = args(3, argv);
     EXPECT_FALSE(parsed.help());
     ASSERT_EQ(parsed.size(), 2);
-    EXPECT_EQ(std::string_view{parsed.storage[0]}, "pen");
-    EXPECT_EQ(std::string_view{parsed.storage[1]}, "keyboard");
+    EXPECT_EQ(parsed.positional(0), "pen");
+    EXPECT_EQ(parsed.positional(1), "keyboard");
 }
 
 TEST(CLI, FlagFilteredOut) {
@@ -44,8 +44,8 @@ TEST(CLI, FlagFilteredOut) {
     ASSERT_EQ(parsed.size(), 2);
     EXPECT_TRUE(parsed.has_flag("--grab"));
     EXPECT_TRUE(parsed.has_flag("-g"));
-    EXPECT_EQ(std::string_view{parsed.storage[0]}, "pen");
-    EXPECT_EQ(std::string_view{parsed.storage[1]}, "keyboard");
+    EXPECT_EQ(parsed.positional(0), "pen");
+    EXPECT_EQ(parsed.positional(1), "keyboard");
 }
 
 TEST(CLI, ValueFlagConsumesNext) {
@@ -53,7 +53,7 @@ TEST(CLI, ValueFlagConsumesNext) {
     char const* const     argv[] = {"prog", "--device", "/dev/input/event3", "pen"};
     auto const            parsed = args(4, argv);
     ASSERT_EQ(parsed.size(), 1);
-    EXPECT_EQ(std::string_view{parsed.storage[0]}, "pen");
+    EXPECT_EQ(parsed.positional(0), "pen");
     EXPECT_TRUE(parsed.has_flag("--device"));
     auto const value = parsed.flag_value("--device");
     ASSERT_TRUE(value.has_value());
@@ -65,8 +65,8 @@ TEST(CLI, DefaultsUsedWhenNoArgs) {
     char const* const     argv[] = {"prog"};
     auto const            parsed = args(1, argv);
     ASSERT_EQ(parsed.size(), 2);
-    EXPECT_EQ(std::string_view{parsed.storage[0]}, "pen");
-    EXPECT_EQ(std::string_view{parsed.storage[1]}, "keyboard");
+    EXPECT_EQ(parsed.positional(0), "pen");
+    EXPECT_EQ(parsed.positional(1), "keyboard");
     EXPECT_FALSE(parsed.help());
 }
 
