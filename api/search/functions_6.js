@@ -14,5 +14,6 @@ var searchData=
   ['get_5fvariable_11',['get_variable',['../structfs8_1_1bash__runner.html#a085a8c4dffeff4b9d0338ab2727104bf',1,'fs8::bash_runner']]],
   ['get_5fvariables_12',['get_variables',['../structfs8_1_1bash__runner.html#a458a4f002ed7f55dda1486468d669e1a',1,'fs8::bash_runner']]],
   ['grab_13',['grab',['../structfs8_1_1evdev.html#aff3f5508338ee7e882c509b4402d216e',1,'fs8::evdev']]],
-  ['grab_5finput_14',['grab_input',['../structfs8_1_1evdev.html#a90145204c0ebce77bc9f212806c472d7',1,'fs8::evdev']]]
+  ['grab_5finput_14',['grab_input',['../structfs8_1_1evdev.html#a90145204c0ebce77bc9f212806c472d7',1,'fs8::evdev']]],
+  ['grab_5ftag_15',['grab_tag',['../structfs8_1_1grab__tag.html#ae601ae828339b4e525327ce6b8b8167f',1,'fs8::grab_tag::grab_tag() noexcept=default'],['../structfs8_1_1grab__tag.html#ac8a6d48c39a1b8c52966ae2072b57648',1,'fs8::grab_tag::grab_tag(grab_tag const &amp;)=default'],['../structfs8_1_1grab__tag.html#a35f888fae6b56e7eff403a982b4a4aff',1,'fs8::grab_tag::grab_tag(grab_tag &amp;&amp;) noexcept=default']]]
 ];

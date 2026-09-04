@@ -171,8 +171,6 @@ var hierarchy =
       [ "fs8::basic_switch_mode", "structfs8_1_1basic__switch__mode.html", null ],
       [ "fs8::basic_toggle_off< LedCode, KeyCode >", "structfs8_1_1basic__toggle__off.html", null ],
       [ "fs8::basic_type_string< StrGetter >", "structfs8_1_1basic__type__string.html", null ],
-      [ "fs8::matches_limit", "structfs8_1_1matches__limit.html", null ],
-      [ "fs8::matches_percentage", "structfs8_1_1matches__percentage.html", null ],
       [ "fs8::or_op< Funcs >", "structfs8_1_1or__op.html", null ],
       [ "fs8::pimpl_idiom< typename >", "structfs8_1_1pimpl__idiom.html", null ],
       [ "fs8::var_type< T >", "structfs8_1_1var__type.html", null ]
@@ -220,6 +218,8 @@ var hierarchy =
     [ "fs8::live_view_format", "structfs8_1_1live__view__format.html", null ],
     [ "fs8::live_view_parse_result", "structfs8_1_1live__view__parse__result.html", null ],
     [ "fs8::low_threshold_tag", "structfs8_1_1low__threshold__tag.html", null ],
+    [ "fs8::matches_limit", "structfs8_1_1matches__limit.html", null ],
+    [ "fs8::matches_percentage", "structfs8_1_1matches__percentage.html", null ],
     [ "fs8::mod_of_t< ModConcept,... >", "structfs8_1_1mod__of__t.html", null ],
     [ "fs8::mod_of_t< ModConcept, Funcs... >", "structfs8_1_1mod__of__t.html", [
       [ "fs8::mod_of_t< ModConcept, Func, Funcs... >", "structfs8_1_1mod__of__t_3_01ModConcept_00_01Func_00_01Funcs_8_8_8_01_4.html", null ]

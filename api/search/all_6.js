@@ -25,7 +25,7 @@ var searchData=
   ['grab_5ffailure_22',['grab_failure',['../namespacefs8.html#a1cd6248f16c943ae782320ce417f2338a2e45328359dbe10d485da8de002ef2ab',1,'fs8']]],
   ['grab_5finput_23',['grab_input',['../structfs8_1_1evdev.html#a90145204c0ebce77bc9f212806c472d7',1,'fs8::evdev']]],
   ['grab_5fstate_24',['grab_state',['../namespacefs8.html#acf583ae8070e458d1b44419098d31571',1,'fs8']]],
-  ['grab_5ftag_25',['grab_tag',['../structfs8_1_1grab__tag.html',1,'fs8']]],
+  ['grab_5ftag_25',['grab_tag',['../structfs8_1_1grab__tag.html#ae601ae828339b4e525327ce6b8b8167f',1,'fs8::grab_tag::grab_tag() noexcept=default'],['../structfs8_1_1grab__tag.html#ac8a6d48c39a1b8c52966ae2072b57648',1,'fs8::grab_tag::grab_tag(grab_tag const &amp;)=default'],['../structfs8_1_1grab__tag.html#a35f888fae6b56e7eff403a982b4a4aff',1,'fs8::grab_tag::grab_tag(grab_tag &amp;&amp;) noexcept=default'],['../structfs8_1_1grab__tag.html',1,'fs8::grab_tag']]],
   ['grabbing_26',['grabbing',['../namespacefs8.html#acf583ae8070e458d1b44419098d31571a6631ce3e19c459ec52654b31168f12de',1,'fs8']]],
   ['group_2eixx_27',['group.ixx',['../group_8ixx.html',1,'']]],
   ['group_5fmod_28',['group_mod',['../namespacefs8.html#ab2aea3fca3970fc7adb3834020616e81',1,'fs8']]]

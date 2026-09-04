@@ -285,6 +285,7 @@ var module_fs8_8mods =
     [ "fs8::basic_debounce::set_mode", "module_fs8_8mods.html#ad11870aff688829198c13904e9d29b88", null ],
     [ "fs8::basic_debounce::set_codes", "module_fs8_8mods.html#abb7cc7bcbba3bbc34db1f4911e649e0f", null ],
     [ "fs8::basic_debounce::operator()", "module_fs8_8mods.html#a7fbec7f8239c435ca1918833b46eb976", null ],
+    [ "fs8::basic_interceptor::basic_interceptor", "module_fs8_8mods.html#aad051b2865a5b4317517e13ab8a48be4", null ],
     [ "fs8::basic_interceptor::operator[]", "module_fs8_8mods.html#ad0893b309433b2f90aacaf4989d040a7", null ],
     [ "fs8::basic_interceptor::add", "module_fs8_8mods.html#aaf36343826bffb3a1c2c7650bfe1d8ac", null ],
     [ "fs8::basic_interceptor::add", "module_fs8_8mods.html#a08ca81c06b38f7f92107a21f396bd8f6", null ],

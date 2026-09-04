@@ -1,5 +1,6 @@
 var structfs8_1_1basic__interceptor =
 [
+    [ "basic_interceptor", "structfs8_1_1basic__interceptor.html#aad051b2865a5b4317517e13ab8a48be4", null ],
     [ "add", "structfs8_1_1basic__interceptor.html#aaf36343826bffb3a1c2c7650bfe1d8ac", null ],
     [ "add", "structfs8_1_1basic__interceptor.html#ae684d86c0f7cbc7aed1075a94897c670", null ],
     [ "add", "structfs8_1_1basic__interceptor.html#a08ca81c06b38f7f92107a21f396bd8f6", null ],

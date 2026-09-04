@@ -109,6 +109,8 @@ Collaboration diagram for fs8::basic_interceptor:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:aad051b2865a5b4317517e13ab8a48be4" id="r_aad051b2865a5b4317517e13ab8a48be4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__interceptor.html#aad051b2865a5b4317517e13ab8a48be4">basic_interceptor</a> () noexcept=default</td></tr>
+<tr class="separator:aad051b2865a5b4317517e13ab8a48be4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0893b309433b2f90aacaf4989d040a7" id="r_ad0893b309433b2f90aacaf4989d040a7"><td class="memTemplParams" colspan="2">template&lt;typename... Qs&gt; <br />
 requires (sizeof...(Qs) &gt;= 1 &amp;&amp; (std::convertible_to&lt;Qs, <a class="el" href="namespacefs8.html#adcd5f715cab1b6f86ae4d96f54e9c049">device_query</a>&gt; &amp;&amp; ...))</td></tr>
 <tr class="memitem:ad0893b309433b2f90aacaf4989d040a7"><td class="memTemplItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1basic__interceptor.html">basic_interceptor</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__interceptor.html#ad0893b309433b2f90aacaf4989d040a7">operator[]</a> (Qs... qs) const noexcept</td></tr>
@@ -167,7 +169,33 @@ Additional Inherited Members</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Query-driven event provider.</p>
 <p>Owns no devices; it forwards queries/devices to <code>input_manager</code> and reads ready devices through <code>io_manager</code>. Blocking readiness is provided by <code>io_manager</code> (the <code>load_event</code> provider) and events are delivered as a <code>next_event</code> provider. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="aad051b2865a5b4317517e13ab8a48be4" name="aad051b2865a5b4317517e13ab8a48be4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad051b2865a5b4317517e13ab8a48be4">&#9670;&#160;</a></span>basic_interceptor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fs8::basic_interceptor::basic_interceptor </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">default</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="aaf36343826bffb3a1c2c7650bfe1d8ac" name="aaf36343826bffb3a1c2c7650bfe1d8ac"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aaf36343826bffb3a1c2c7650bfe1d8ac">&#9670;&#160;</a></span>add() <span class="overload">[1/4]</span></h2>
 
