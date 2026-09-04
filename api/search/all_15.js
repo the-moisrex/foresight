@@ -28,12 +28,11 @@ var searchData=
   ['velocity_5ftracker_25',['velocity_tracker',['../structfs8_1_1velocity__tracker.html',1,'fs8']]],
   ['verify_5faccess_5fto_5fuinput_26',['verify_access_to_uinput',['../namespacefs8.html#a925df7ee1aac9d6cf75918ee02624b59',1,'fs8']]],
   ['version_27',['version',['../structfs8_1_1parsed__args.html#a623b6e9226ef45c79103279a38bcbbfe',1,'fs8::parsed_args']]],
-  ['version_5frequested_28',['version_requested',['../structfs8_1_1parsed__args.html#a9c65eed94847c35051c66e8ff803cc0c',1,'fs8::parsed_args']]],
-  ['via_5fusb_29',['via_usb',['../namespacefs8_1_1attr.html#a62c3302b38720e65b6eb52ea38e17e81',1,'fs8::attr']]],
-  ['view_30',['view',['../namespacefs8.html#af2e5329a4bef98be2e9a251ae19ceb7a',1,'fs8::view(dev_cap&lt; N &gt; const &amp;inp_cap) noexcept'],['../namespacefs8.html#a3be588025a49021175ef8219b4aff37d',1,'fs8::view(dev_caps&lt; N &gt; const &amp;inp_caps) noexcept']]],
-  ['visit_31',['visit',['../structfs8_1_1visit__impl.html#ab71ef7b671a44f110f5d5ad638d3bed7',1,'fs8::visit_impl::visit()'],['../structfs8_1_1visit__impl_3_010_01_4.html#aeed73798a47a59372e58c1231b7b3a55',1,'fs8::visit_impl&lt; 0 &gt;::visit()']]],
-  ['visit_5fat_32',['visit_at',['../namespacefs8.html#a64b669309027c5732d33de060628ee86',1,'fs8::visit_at(std::tuple&lt; Ts... &gt; const &amp;tup, std::size_t idx, F &amp;&amp;fun) noexcept'],['../namespacefs8.html#a2780016949eef2dc81b65f3961718fd6',1,'fs8::visit_at(std::tuple&lt; Ts... &gt; &amp;tup, std::size_t idx, F &amp;&amp;fun) noexcept']]],
-  ['visit_5fimpl_33',['visit_impl',['../structfs8_1_1visit__impl.html',1,'fs8']]],
-  ['visit_5fimpl_3c_200_20_3e_34',['visit_impl&lt; 0 &gt;',['../structfs8_1_1visit__impl_3_010_01_4.html',1,'fs8']]],
-  ['visual_5fkeys_35',['visual_keys',['../namespacefs8.html#ad2d7a6e666e13f66f2bca6add2876069',1,'fs8']]]
+  ['via_5fusb_28',['via_usb',['../namespacefs8_1_1attr.html#a62c3302b38720e65b6eb52ea38e17e81',1,'fs8::attr']]],
+  ['view_29',['view',['../namespacefs8.html#af2e5329a4bef98be2e9a251ae19ceb7a',1,'fs8::view(dev_cap&lt; N &gt; const &amp;inp_cap) noexcept'],['../namespacefs8.html#a3be588025a49021175ef8219b4aff37d',1,'fs8::view(dev_caps&lt; N &gt; const &amp;inp_caps) noexcept']]],
+  ['visit_30',['visit',['../structfs8_1_1visit__impl_3_010_01_4.html#aeed73798a47a59372e58c1231b7b3a55',1,'fs8::visit_impl&lt; 0 &gt;::visit()'],['../structfs8_1_1visit__impl.html#ab71ef7b671a44f110f5d5ad638d3bed7',1,'fs8::visit_impl::visit()']]],
+  ['visit_5fat_31',['visit_at',['../namespacefs8.html#a64b669309027c5732d33de060628ee86',1,'fs8::visit_at(std::tuple&lt; Ts... &gt; const &amp;tup, std::size_t idx, F &amp;&amp;fun) noexcept'],['../namespacefs8.html#a2780016949eef2dc81b65f3961718fd6',1,'fs8::visit_at(std::tuple&lt; Ts... &gt; &amp;tup, std::size_t idx, F &amp;&amp;fun) noexcept']]],
+  ['visit_5fimpl_32',['visit_impl',['../structfs8_1_1visit__impl.html',1,'fs8']]],
+  ['visit_5fimpl_3c_200_20_3e_33',['visit_impl&lt; 0 &gt;',['../structfs8_1_1visit__impl_3_010_01_4.html',1,'fs8']]],
+  ['visual_5fkeys_34',['visual_keys',['../namespacefs8.html#ad2d7a6e666e13f66f2bca6add2876069',1,'fs8']]]
 ];

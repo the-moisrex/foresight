@@ -79,8 +79,12 @@ digraph "mods/modes.ixx"
   Node28 -> Node7 [id="edge44_Node000028_Node000007",color="steelblue1",style="solid",tooltip=" "];
   Node28 -> Node9 [id="edge45_Node000028_Node000009",color="steelblue1",style="solid",tooltip=" "];
   Node28 -> Node30 [id="edge46_Node000028_Node000030",color="steelblue1",style="solid",tooltip=" "];
-  Node30 [id="Node000030",label="optional",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
-  Node28 -> Node19 [id="edge47_Node000028_Node000019",color="steelblue1",style="solid",tooltip=" "];
-  Node28 -> Node10 [id="edge48_Node000028_Node000010",color="steelblue1",style="solid",tooltip=" "];
-  Node28 -> Node15 [id="edge49_Node000028_Node000015",color="steelblue1",style="solid",tooltip=" "];
+  Node30 [id="Node000030",label="iterator",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node28 -> Node31 [id="edge47_Node000028_Node000031",color="steelblue1",style="solid",tooltip=" "];
+  Node31 [id="Node000031",label="optional",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node28 -> Node19 [id="edge48_Node000028_Node000019",color="steelblue1",style="solid",tooltip=" "];
+  Node28 -> Node32 [id="edge49_Node000028_Node000032",color="steelblue1",style="solid",tooltip=" "];
+  Node32 [id="Node000032",label="span",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node28 -> Node10 [id="edge50_Node000028_Node000010",color="steelblue1",style="solid",tooltip=" "];
+  Node28 -> Node15 [id="edge51_Node000028_Node000015",color="steelblue1",style="solid",tooltip=" "];
 }

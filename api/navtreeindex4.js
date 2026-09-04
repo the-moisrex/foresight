@@ -1,16 +1,5 @@
 var NAVTREEINDEX4 =
 {
-"module_fs8_8devices_8evdev.html#afa6e1c5623e2c416739e0346ab7aa3d3":[0,0,2,44],
-"module_fs8_8devices_8evdev.html#afe60ef2a0599c31e3dc7781cc0aff466":[0,0,2,63],
-"module_fs8_8devices_8evdev.html#aff3f5508338ee7e882c509b4402d216e":[0,0,2,28],
-"module_fs8_8devices_8event__codes.html":[0,0,3],
-"module_fs8_8devices_8event__codes.html#a31ba11602e19e705ab53f7956cc2f56f":[0,0,3,3],
-"module_fs8_8devices_8event__codes.html#aadda817d884a4a2379acf976e116c2ec":[0,0,3,2],
-"module_fs8_8devices_8event__codes.html#abd00bdff5d6bbb56bdd93071ce6a01f6":[0,0,3,1],
-"module_fs8_8devices_8key__codes.html":[0,0,4],
-"module_fs8_8devices_8key__codes.html#af848054874ae987ce7a93293d3b273a2":[0,0,4,0],
-"module_fs8_8devices_8queries.html":[0,0,5],
-"module_fs8_8devices_8queries.html#a05a903cf46bc0d209f5172a60d221b80":[0,0,5,113],
 "module_fs8_8devices_8queries.html#a0ae24548c09ed73e64de87f6f5f589a0":[0,0,5,77],
 "module_fs8_8devices_8queries.html#a0b9a4631134f1a964b6f8327172454cc":[0,0,5,153],
 "module_fs8_8devices_8queries.html#a0c0f6665ba53682ffb2bbd044b0fdcaf":[0,0,5,90],
@@ -249,5 +238,16 @@ var NAVTREEINDEX4 =
 "module_fs8_8event.html#a8048e3eb474e60858774f7130f23453a":[0,0,14,74],
 "module_fs8_8event.html#a821846ec9588a6613cba5e2070b49da8":[0,0,14,26],
 "module_fs8_8event.html#a82861155e886a0062f58ad3a78d94fd1":[0,0,14,123],
-"module_fs8_8event.html#a8331737e4f95844f042f341ca03e0928":[0,0,14,57]
+"module_fs8_8event.html#a8331737e4f95844f042f341ca03e0928":[0,0,14,57],
+"module_fs8_8event.html#a876ea8752da38c4c015857f01ee24e5b":[0,0,14,113],
+"module_fs8_8event.html#a894a503521319257055012ed41c6abdb":[0,0,14,70],
+"module_fs8_8event.html#a8a8de092a209ff984950fffbf3a45d50":[0,0,14,14],
+"module_fs8_8event.html#a8b91bfeaf0d0ede593ee3feabfbc8ead":[0,0,14,6],
+"module_fs8_8event.html#a8bc80526fa5037abe2c29db10f661fed":[0,0,14,30],
+"module_fs8_8event.html#a8dbbf66fa6f2244157d172d7ec851326":[0,0,14,50],
+"module_fs8_8event.html#a938387a7a0a0264ae3cc05b0fcbc4914":[0,0,14,97],
+"module_fs8_8event.html#a961ad15fcf4a37564000d39cd727f530":[0,0,14,109],
+"module_fs8_8event.html#a963f585b2fc2b634667ffeecf96c603b":[0,0,14,76],
+"module_fs8_8event.html#a9aefe2be07e0e52ffbb4b20ac58a7c77":[0,0,14,121],
+"module_fs8_8event.html#a9cc5f177778f28e2a7668b7021f1cf57":[0,0,14,104]
 };

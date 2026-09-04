@@ -13,7 +13,7 @@ var searchData=
   ['find_5fmodifier_5ftag_10',['find_modifier_tag',['../namespacefs8.html#a33a247d6f878eeeed2ca604c641e0cf7',1,'fs8']]],
   ['find_5fvariable_11',['find_variable',['../namespacefs8.html#adf175a6eadf3cacbbcea1a7a62ed39cd',1,'fs8::find_variable(std::string_view const name, std::array&lt; variable_pointer, N &gt; variables, TupT &amp;&amp;tup)'],['../namespacefs8.html#aee0f598f5f7d0c23216a755b40d36913',1,'fs8::find_variable(std::string_view const name, std::array&lt; variable_pointer, N &gt; variables) noexcept']]],
   ['first_5fpressed_12',['first_pressed',['../structfs8_1_1basic__keys__state.html#ad9b60042fae84092d66d8db891333e1e',1,'fs8::basic_keys_state']]],
-  ['flag_5fvalue_13',['flag_value',['../structfs8_1_1parsed__args.html#a4946584184b1c9d5564c6f68d2360cd0',1,'fs8::parsed_args']]],
+  ['flag_5fvalue_13',['flag_value',['../structfs8_1_1parsed__args.html#af67ff1b9fae6c7e88d375fdb5cf12f53',1,'fs8::parsed_args']]],
   ['flush_14',['flush',['../structfs8_1_1live__view.html#ac7fcbe3377bfc69f4d75935f9766cbea',1,'fs8::live_view']]],
   ['fnv1a_5fhash_15',['fnv1a_hash',['../namespacefs8.html#a1c59a87a0eb22f1f2999e93727b8e940',1,'fs8::fnv1a_hash(std::uint64_t &amp;hash, char32_t uch) noexcept'],['../namespacefs8.html#a4cf6e4c290b22b963d814fb4606c5089',1,'fs8::fnv1a_hash(std::uint32_t &amp;hash, char32_t uch) noexcept']]],
   ['fnv1a_5finit_16',['fnv1a_init',['../namespacefs8.html#a69ca9445bcfa2e63f2ab0031a25a87f8',1,'fs8::fnv1a_init(std::uint32_t &amp;hash) noexcept'],['../namespacefs8.html#af30016478cdce3cd36c5ca3845fc6d8c',1,'fs8::fnv1a_init(std::uint64_t &amp;hash) noexcept']]],

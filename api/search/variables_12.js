@@ -27,7 +27,7 @@ var searchData=
   ['states_5floc_24',['states_loc',['../abs2rel_8cxx.html#ab3909c25079b603496d0715660961512',1,'abs2rel.cxx']]],
   ['std_5foutput_25',['std_output',['../namespacefs8.html#a2f494c20201c7e14ea3393957dd91b66',1,'fs8']]],
   ['stopper_26',['stopper',['../namespacefs8.html#ae36c0ebc1ffd8c28734932b184f569cb',1,'fs8']]],
-  ['storage_27',['storage',['../structfs8_1_1owned__query.html#a57042f89dd940345a83fc54affa61bdd',1,'fs8::owned_query::storage'],['../structfs8_1_1parsed__args.html#a8d0434a74092c33fb54d413f06127c24',1,'fs8::parsed_args::storage']]],
+  ['storage_27',['storage',['../structfs8_1_1owned__query.html#a57042f89dd940345a83fc54affa61bdd',1,'fs8::owned_query']]],
   ['str_28',['str',['../structfs8_1_1plain__pimpl__idiom_1_1impl.html#a065076217dad9bb2e8e6efa555142977',1,'fs8::plain_pimpl_idiom::impl']]],
   ['swipe_5fdetector_29',['swipe_detector',['../namespacefs8.html#a47bf646501ed44893ad4f647d698b44b',1,'fs8']]],
   ['swipe_5fdown_30',['swipe_down',['../namespacefs8.html#ad83a48826f02d1e5cee3e7ba88541da2',1,'fs8']]],
