@@ -670,7 +670,7 @@ var module_fs8_8mods =
     [ "fs8::basic_event_line_output::operator()", "module_fs8_8mods.html#a3f7c7642995c25ea77b2b70051f03326", null ],
     [ "fs8::basic_from_event_line::basic_from_event_line", "module_fs8_8mods.html#a74742d9f1fd92f135c76078bacd478cf", null ],
     [ "fs8::basic_from_event_line::set_input", "module_fs8_8mods.html#aace7fa5b00b22690ebc5ec215295cab4", null ],
-    [ "fs8::basic_from_event_line::operator()", "module_fs8_8mods.html#a86bcf399eba18c308d33a76e2da4330b", null ],
+    [ "fs8::basic_from_event_line::operator()", "module_fs8_8mods.html#ade21495d073dcc727283b83e54332749", null ],
     [ "fs8::basic_mouse_history::cur", "module_fs8_8mods.html#ad912765a6a741d196aa7a77cbb4e312a", null ],
     [ "fs8::basic_mouse_history::cur", "module_fs8_8mods.html#a2349d4618706393248e114740f51273b", null ],
     [ "fs8::basic_mouse_history::prev", "module_fs8_8mods.html#a266204c34e42b3e85f355b9ddb4e0e65", null ],
