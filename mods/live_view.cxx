@@ -109,13 +109,13 @@ namespace {
     }
 } // namespace
 
-// ── live_view_format ────────────────────────────────────────────────────────
+// ── event_line_format ──────────────────────────────────────────────────────
 
-bool fs8::live_view_format::parse(std::string_view const line, parsed_evtest_event& out) const noexcept {
+bool fs8::event_line_format::parse(std::string_view const line, parsed_evtest_event& out) const noexcept {
     return parse_evtest_line(line, out);
 }
 
-std::string_view fs8::live_view_format::format(event_type const& event, std::span<char> const buf) const noexcept {
+std::string_view fs8::event_line_format::format(event_type const& event, std::span<char> const buf) const noexcept {
     auto const tv   = event.native().time;
     auto const sec  = static_cast<std::int64_t>(tv.tv_sec);
     auto const usec = static_cast<std::int32_t>(tv.tv_usec);
@@ -214,17 +214,17 @@ std::string_view fs8::live_view_format::format(event_type const& event, std::spa
     return std::string_view{buf.data(), static_cast<std::size_t>(pos - buf.data())};
 }
 
-// ── live_view ───────────────────────────────────────────────────────────────
+// ── condensed_view ─────────────────────────────────────────────────────────
 
-fs8::live_view::live_view(bool const force_terminal) noexcept
+fs8::condensed_view::condensed_view(bool const force_terminal) noexcept
   : terminal_mode_{force_terminal || isatty(STDOUT_FILENO) == 1},
     use_ansi_{terminal_mode_} {}
 
-fs8::device_live_state& fs8::live_view::state_for(std::uint32_t const id) {
+fs8::device_live_state& fs8::condensed_view::state_for(std::uint32_t const id) {
     return devices_[id];
 }
 
-fs8::xkb::basic_state& fs8::live_view::get_xkb_state(device_live_state& st) {
+fs8::xkb::basic_state& fs8::condensed_view::get_xkb_state(device_live_state& st) {
     if (!st.xkb_state.has_value()) {
         if (!xkb_keymap_.has_value()) {
             xkb_keymap_.emplace(xkb_ctx_);
@@ -234,7 +234,7 @@ fs8::xkb::basic_state& fs8::live_view::get_xkb_state(device_live_state& st) {
     return *st.xkb_state;
 }
 
-char32_t fs8::live_view::key_to_text(device_live_state& st, event_type const& event) {
+char32_t fs8::condensed_view::key_to_text(device_live_state& st, event_type const& event) {
     if (event.type() != EV_KEY) {
         return U'\0';
     }
@@ -242,7 +242,7 @@ char32_t fs8::live_view::key_to_text(device_live_state& st, event_type const& ev
     return xkb::event2unicode(xkb_st, static_cast<key_event>(event));
 }
 
-bool fs8::live_view::direction_changed(mouse_accum const& m, int const dx, int const dy) const noexcept {
+bool fs8::condensed_view::direction_changed(mouse_accum const& m, int const dx, int const dy) const noexcept {
     if (!m.has_direction) {
         return false;
     }
@@ -261,11 +261,11 @@ bool fs8::live_view::direction_changed(mouse_accum const& m, int const dx, int c
     return cos_angle < direction_epsilon_;
 }
 
-std::string_view fs8::live_view::format_device_id(std::uint32_t const id, std::span<char> /*buf*/) noexcept {
+std::string_view fs8::condensed_view::format_device_id(std::uint32_t const id, std::span<char> /*buf*/) noexcept {
     return fs8::to_source_string(id);
 }
 
-std::string_view fs8::live_view::format_time(event_type const& event, std::span<char> const buf) noexcept {
+std::string_view fs8::condensed_view::format_time(event_type const& event, std::span<char> const buf) noexcept {
     auto const tv   = event.native().time;
     auto const sec  = static_cast<std::int64_t>(tv.tv_sec);
     auto const usec = static_cast<std::int32_t>(tv.tv_usec);
@@ -290,7 +290,7 @@ std::string_view fs8::live_view::format_time(event_type const& event, std::span<
     return std::string_view{buf.data(), static_cast<std::size_t>(pos - buf.data())};
 }
 
-void fs8::live_view::write_line(std::string_view const line, int const fd, bool const is_live_status) {
+void fs8::condensed_view::write_line(std::string_view const line, int const fd, bool const is_live_status) {
     if (is_live_status && use_ansi_) {
         (void) write(fd, ansi_clear_line.data(), ansi_clear_line.size());
         (void) write(fd, line.data(), line.size());
@@ -301,7 +301,7 @@ void fs8::live_view::write_line(std::string_view const line, int const fd, bool 
     }
 }
 
-void fs8::live_view::write_mouse_summary(std::uint32_t const id, mouse_accum const& m, int const fd) {
+void fs8::condensed_view::write_mouse_summary(std::uint32_t const id, mouse_accum const& m, int const fd) {
     char  line_buf[256];
     auto  span = as_span(line_buf);
     auto* pos  = line_buf;
@@ -505,7 +505,7 @@ void fs8::live_view::write_mouse_summary(std::uint32_t const id, mouse_accum con
     write_line(line, fd, false); // Use \n so mouse history persists in scroll
 }
 
-void fs8::live_view::write_diagnostic(std::uint32_t const id, sanitizer_issue const issue, event_type const& event, int const fd) {
+void fs8::condensed_view::write_diagnostic(std::uint32_t const id, sanitizer_issue const issue, event_type const& event, int const fd) {
     char  line_buf[256];
     auto  span = as_span(line_buf);
     auto* pos  = line_buf;
@@ -611,7 +611,7 @@ void fs8::live_view::write_diagnostic(std::uint32_t const id, sanitizer_issue co
     write_line(line, fd, false);
 }
 
-void fs8::live_view::write_key_event(std::uint32_t const id, event_type const& event, int const fd, char32_t const text) {
+void fs8::condensed_view::write_key_event(std::uint32_t const id, event_type const& event, int const fd, char32_t const text) {
     char       time_buf[32];
     auto const time_str = format_time(event, as_span(time_buf));
 
@@ -762,14 +762,14 @@ void fs8::live_view::write_key_event(std::uint32_t const id, event_type const& e
     write_line(line, fd, false);
 }
 
-void fs8::live_view::write_generic_event(std::uint32_t const id, event_type const& event, int const fd) {
-    char             fmt_buf[live_view_format_buf_size];
-    live_view_format fmt;
-    auto const       text = fmt.format(event, fmt_buf);
+void fs8::condensed_view::write_generic_event(std::uint32_t const id, event_type const& event, int const fd) {
+    char              fmt_buf[event_line_format_buf_size];
+    event_line_format fmt;
+    auto const        text = fmt.format(event, fmt_buf);
     if (!text.empty()) {
         if (use_ansi_) {
             // Add colors to the formatted text
-            char                   colored_buf[live_view_format_buf_size * 2];
+            char                   colored_buf[event_line_format_buf_size * 2];
             auto                   span = as_span(colored_buf);
             auto*                  pos  = colored_buf;
             std::string_view const raw{text};
@@ -899,7 +899,7 @@ void fs8::live_view::write_generic_event(std::uint32_t const id, event_type cons
     }
 }
 
-void fs8::live_view::flush_mouse(std::uint32_t const id, device_live_state& st, int const fd) {
+void fs8::condensed_view::flush_mouse(std::uint32_t const id, device_live_state& st, int const fd) {
     if (st.mouse.event_count == 0) {
         return;
     }
@@ -907,16 +907,16 @@ void fs8::live_view::flush_mouse(std::uint32_t const id, device_live_state& st, 
     st.mouse = mouse_accum{};
 }
 
-void fs8::live_view::flush_keyboard(std::uint32_t const /*id*/, device_live_state& /*st*/, int const /*fd*/) {}
+void fs8::condensed_view::flush_keyboard(std::uint32_t const /*id*/, device_live_state& /*st*/, int const /*fd*/) {}
 
-void fs8::live_view::flush(int const fd) {
+void fs8::condensed_view::flush(int const fd) {
     for (auto& [id, st] : devices_) {
         flush_mouse(id, st, fd);
         st.pending_issue = sanitizer_issue::none;
     }
 }
 
-void fs8::live_view::process_event(event_type const& event, int const fd, sanitizer_issue const issue) {
+void fs8::condensed_view::process_event(event_type const& event, int const fd, sanitizer_issue const issue) {
     auto& st = state_for(event.source());
 
     if (issue != sanitizer_issue::none) {
@@ -1195,10 +1195,10 @@ void fs8::live_view::process_event(event_type const& event, int const fd, saniti
     }
 }
 
-// ── basic_from_live_view ────────────────────────────────────────────────────
+// ── basic_from_event_line ──────────────────────────────────────────────────
 
 template <fs8::EvtestFormat Format>
-fs8::context_action fs8::basic_from_live_view<Format>::operator()(event_type& event, special_event const& tag) noexcept {
+fs8::context_action fs8::basic_from_event_line<Format>::operator()(event_type& event, special_event const& tag) noexcept {
     using enum context_action;
     if (tag.code != load_event.code) {
         return drop_event;
@@ -1211,50 +1211,53 @@ fs8::context_action fs8::basic_from_live_view<Format>::operator()(event_type& ev
 
     // 2. Read more data from the fd, then try parsing again.
     while (true) {
-        auto const buf_size = line_buffer.size();
-        auto const cap      = buf_size + 4096;
-        line_buffer.resize(cap);
-        auto const n = read(file_descriptor, line_buffer.data() + buf_size, 4096);
-        line_buffer.resize(buf_size + static_cast<std::size_t>(n));
+        // Ensure we have room for a full read. If the buffer already holds
+        // more than capacity - 4096 bytes, we have a line that exceeds the
+        // fixed buffer — drop it.
+        constexpr auto read_size = std::size_t{4096};
+        if (line_size_ + read_size > line_buffer_capacity) {
+            line_size_ = 0;
+            return drop_event;
+        }
 
-        if (n == 0) {
-            // EOF — try to flush any remaining partial line.
-            if (!line_buffer.empty()) {
-                parsed_evtest_event parsed;
-                if (format.parse(line_buffer, parsed)) {
-                    line_buffer.clear();
-                    event = event_type{parsed.event};
+        auto const n = read(file_descriptor, line_buffer_.data() + line_size_, read_size);
+
+        if (n <= 0) {
+            if (n == 0 && line_size_ > 0) {
+                // EOF — try to flush any remaining partial line.
+                std::string_view const remaining{line_buffer_.data(), line_size_};
+                parsed_evtest_event    parsed;
+                if (format.parse(remaining, parsed)) {
+                    line_size_ = 0;
+                    event      = event_type{parsed.event};
                     event.source(sid(from_input));
                     return next;
                 }
-                line_buffer.clear();
             }
-            return exit;
+            line_size_ = 0;
+            return (n == 0) ? exit : drop_event;
         }
+
+        line_size_ += static_cast<std::size_t>(n);
 
         // Parse every complete line in the buffer.
         while (true) {
-            auto const nl = line_buffer.find('\n');
-            if (nl == std::string::npos) {
+            auto const* const nl = static_cast<char const*>(std::memchr(line_buffer_.data(), '\n', line_size_));
+            if (nl == nullptr) {
                 break;
             }
-            std::string_view const line{line_buffer.data(), nl};
+            auto const             newline = static_cast<std::size_t>(nl - line_buffer_.data());
+            std::string_view const line{line_buffer_.data(), newline};
             parsed_evtest_event    parsed;
             if (format.parse(line, parsed)) {
-                line_buffer.erase(0, nl + 1);
+                erase_front(newline + 1);
                 event = event_type{parsed.event};
                 event.source(sid(from_input));
                 return next;
             }
-            line_buffer.erase(0, nl + 1);
+            erase_front(newline + 1);
         }
-
-        if (n > 0) {
-            continue;
-        }
-        // n < 0: read error — treat as drop.
-        return drop_event;
     }
 }
 
-template struct fs8::basic_from_live_view<fs8::live_view_format>;
+template struct fs8::basic_from_event_line<fs8::event_line_format>;

@@ -13,14 +13,14 @@ using fs8::event_type;
 using fs8::parsed_evtest_event;
 using fs8::user_event;
 
-// ── live_view_format tests ──────────────────────────────────────────────────
+// ── event_line_format tests ────────────────────────────────────────────────
 
-TEST(LiveViewFormat, FormatKeyEvent) {
-    fs8::live_view_format fmt;
+TEST(EventLineFormat, FormatKeyEvent) {
+    fs8::event_line_format fmt;
     event_type            event{EV_KEY, KEY_A, 1};
     event.native().time = {.tv_sec = 1'787'439'635, .tv_usec = 318'229};
 
-    char       buf[fs8::live_view_format_buf_size];
+    char       buf[fs8::event_line_format_buf_size];
     auto const text = fmt.format(event, buf);
     EXPECT_FALSE(text.empty());
     EXPECT_TRUE(text.ends_with('\n'));
@@ -31,29 +31,29 @@ TEST(LiveViewFormat, FormatKeyEvent) {
     EXPECT_NE(text.find("value 1"), std::string_view::npos);
 }
 
-TEST(LiveViewFormat, FormatSynReport) {
-    fs8::live_view_format fmt;
+TEST(EventLineFormat, FormatSynReport) {
+    fs8::event_line_format fmt;
     event_type            event{EV_SYN, SYN_REPORT, 0};
     event.native().time = {.tv_sec = 1'787'439'635, .tv_usec = 318'229};
 
-    char       buf[fs8::live_view_format_buf_size];
+    char       buf[fs8::event_line_format_buf_size];
     auto const text = fmt.format(event, buf);
     EXPECT_FALSE(text.empty());
     EXPECT_NE(text.find("SYN_REPORT"), std::string_view::npos);
 }
 
-TEST(LiveViewFormat, FormatNegativeValue) {
-    fs8::live_view_format fmt;
+TEST(EventLineFormat, FormatNegativeValue) {
+    fs8::event_line_format fmt;
     event_type            event{EV_REL, REL_X, -5};
 
-    char       buf[fs8::live_view_format_buf_size];
+    char       buf[fs8::event_line_format_buf_size];
     auto const text = fmt.format(event, buf);
     EXPECT_FALSE(text.empty());
     EXPECT_NE(text.find("value -5"), std::string_view::npos);
 }
 
-TEST(LiveViewFormat, ParseKeyEvent) {
-    fs8::live_view_format      fmt;
+TEST(EventLineFormat, ParseKeyEvent) {
+    fs8::event_line_format      fmt;
     constexpr std::string_view line = "Event: time 1787439635.318229, type 1 (EV_KEY), code 30 (KEY_A), value 1";
     parsed_evtest_event        out;
     EXPECT_TRUE(fmt.parse(line, out));
@@ -61,22 +61,22 @@ TEST(LiveViewFormat, ParseKeyEvent) {
     EXPECT_DOUBLE_EQ(out.time, 1787439635.318229);
 }
 
-TEST(LiveViewFormat, ParseSynReport) {
-    fs8::live_view_format fmt;
+TEST(EventLineFormat, ParseSynReport) {
+    fs8::event_line_format fmt;
     parsed_evtest_event   out;
     EXPECT_FALSE(fmt.parse("Event: time 0.000000, -------------- SYN_REPORT ------------", out));
 }
 
-TEST(LiveViewFormat, ParseNegativeValue) {
-    fs8::live_view_format      fmt;
+TEST(EventLineFormat, ParseNegativeValue) {
+    fs8::event_line_format      fmt;
     constexpr std::string_view line = "Event: time 0.000000, type 2 (EV_REL), code 0 (REL_X), value -5";
     parsed_evtest_event        out;
     EXPECT_TRUE(fmt.parse(line, out));
     EXPECT_EQ(out.event, (user_event{.type = EV_REL, .code = REL_X, .value = -5}));
 }
 
-TEST(LiveViewFormat, ParseJunkLines) {
-    fs8::live_view_format fmt;
+TEST(EventLineFormat, ParseJunkLines) {
+    fs8::event_line_format fmt;
     parsed_evtest_event   out;
     EXPECT_FALSE(fmt.parse("", out));
     EXPECT_FALSE(fmt.parse("some random garbage", out));
@@ -85,12 +85,12 @@ TEST(LiveViewFormat, ParseJunkLines) {
 
 // ── Round-trip tests ────────────────────────────────────────────────────────
 
-TEST(LiveView, RoundTripKeyEvent) {
+TEST(EventLine, RoundTripKeyEvent) {
     int pipe_fds[2];
     EXPECT_EQ(pipe(pipe_fds), 0);
 
-    fs8::basic_live_view_output<fs8::live_view_format> writer{pipe_fds[1]};
-    fs8::basic_from_live_view<fs8::live_view_format>   reader{pipe_fds[0]};
+    fs8::basic_event_line_output<fs8::event_line_format> writer{pipe_fds[1]};
+    fs8::basic_from_event_line<fs8::event_line_format>   reader{pipe_fds[0]};
 
     event_type press{EV_KEY, KEY_A, 1};
     press.native().time = {.tv_sec = 100, .tv_usec = 500'000};
@@ -118,12 +118,12 @@ TEST(LiveView, RoundTripKeyEvent) {
     close(pipe_fds[0]);
 }
 
-TEST(LiveView, RoundTripSynReport) {
+TEST(EventLine, RoundTripSynReport) {
     int pipe_fds[2];
     EXPECT_EQ(pipe(pipe_fds), 0);
 
-    fs8::basic_live_view_output<fs8::live_view_format> writer{pipe_fds[1]};
-    fs8::basic_from_live_view<fs8::live_view_format>   reader{pipe_fds[0]};
+    fs8::basic_event_line_output<fs8::event_line_format> writer{pipe_fds[1]};
+    fs8::basic_from_event_line<fs8::event_line_format>   reader{pipe_fds[0]};
 
     event_type syn{EV_SYN, SYN_REPORT, 0};
     EXPECT_TRUE(writer(syn));
@@ -137,13 +137,13 @@ TEST(LiveView, RoundTripSynReport) {
     close(pipe_fds[0]);
 }
 
-TEST(LiveView, RoundTripMultipleKeys) {
+TEST(EventLine, RoundTripMultipleKeys) {
     // Simulate: press A, press B, release A, release B
     int pipe_fds[2];
     EXPECT_EQ(pipe(pipe_fds), 0);
 
-    fs8::basic_live_view_output<fs8::live_view_format> writer{pipe_fds[1]};
-    fs8::basic_from_live_view<fs8::live_view_format>   reader{pipe_fds[0]};
+    fs8::basic_event_line_output<fs8::event_line_format> writer{pipe_fds[1]};
+    fs8::basic_from_event_line<fs8::event_line_format>   reader{pipe_fds[0]};
 
     event_type press_a{EV_KEY, KEY_A, 1};
     press_a.native().time = {.tv_sec = 100, .tv_usec = 0};
@@ -191,10 +191,10 @@ TEST(LiveView, RoundTripMultipleKeys) {
     close(pipe_fds[0]);
 }
 
-// ── live_view state tests ──────────────────────────────────────────────────
+// ── condensed_view state tests ─────────────────────────────────────────────
 
-TEST(LiveView, MouseAccumulation) {
-    fs8::live_view lv{false}; // non-terminal
+TEST(CondensedView, MouseAccumulation) {
+    fs8::condensed_view lv{false}; // non-terminal
     lv.set_ansi(false);
 
     int pipe_fds[2];
@@ -222,8 +222,8 @@ TEST(LiveView, MouseAccumulation) {
     EXPECT_EQ(st.mouse.delta_x, 0);
 }
 
-TEST(LiveView, DirectionChangeFlushes) {
-    fs8::live_view lv{false};
+TEST(CondensedView, DirectionChangeFlushes) {
+    fs8::condensed_view lv{false};
     lv.set_ansi(false);
 
     int pipe_fds[2];
@@ -249,8 +249,8 @@ TEST(LiveView, DirectionChangeFlushes) {
     close(pipe_fds[1]);
 }
 
-TEST(LiveView, KeyTracking) {
-    fs8::live_view lv{false};
+TEST(CondensedView, KeyTracking) {
+    fs8::condensed_view lv{false};
     lv.set_ansi(false);
 
     int pipe_fds[2];

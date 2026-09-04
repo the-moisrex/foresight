@@ -9,11 +9,9 @@ module;
 #include <linux/uinput.h>
 #include <optional>
 #include <span>
-#include <string>
 #include <string_view>
 #include <unistd.h>
 #include <unordered_map>
-#include <vector>
 export module fs8.mods:live_view;
 import fs8.context;
 import fs8.event;
@@ -27,27 +25,33 @@ import :inout;
 
 export namespace fs8 {
 
-    /// Format for the live view output: aligned columns with text and hold duration.
-    struct [[nodiscard]] live_view_format {
-        /// Parse one live-view line. Returns false for non-event lines.
+    /// Evtest-compatible text format for individual event lines.
+    ///
+    /// Produces lines like:
+    ///   Event: time SEC.USEC, type N (EV_KEY), code N (KEY_A), value 1
+    ///
+    /// Used for piping events between pipeline stages and as the fallback
+    /// formatter for the condensed display.
+    struct [[nodiscard]] event_line_format {
+        /// Parse one event-line. Returns false for non-event lines.
         [[nodiscard]] bool parse(std::string_view line, parsed_evtest_event& out) const noexcept;
 
         /// Format an event into `buf`. Returns the written slice, or empty on failure.
         [[nodiscard]] std::string_view format(event_type const& event, std::span<char> buf) const noexcept;
     };
 
-    static_assert(EvtestFormat<live_view_format>);
+    static_assert(EvtestFormat<event_line_format>);
 
-    inline constexpr std::size_t live_view_format_buf_size = 256;
+    inline constexpr std::size_t event_line_format_buf_size = 256;
 
     /// Parse result extended with source_id.
-    struct [[nodiscard]] live_view_parse_result {
+    struct [[nodiscard]] event_line_parse_result {
         user_event    event;
         double        time   = 0;
         std::uint32_t source = source_id_none;
     };
 
-    // ── State structs for live_view ──────────────────────────────────────────
+    // ── State structs for condensed_view ─────────────────────────────────────
 
     /// Accumulated mouse movement between SYN_REPORTs.
     struct [[nodiscard]] mouse_accum {
@@ -73,7 +77,7 @@ export namespace fs8 {
         bool                      has_intervening_events = false;
     };
 
-    /// Per-device state for the live view.
+    /// Per-device state for the condensed view.
     struct [[nodiscard]] device_live_state {
         mouse_accum                                 mouse{};
         std::unordered_map<std::uint16_t, held_key> held_keys;
@@ -81,12 +85,19 @@ export namespace fs8 {
         sanitizer_issue                             pending_issue = sanitizer_issue::none;
     };
 
-    // ── Live view state ──────────────────────────────────────────────────────
+    // ── Condensed view ──────────────────────────────────────────────────────
 
-    /// Stateful event processor for the live view. Accumulates mouse movements
-    /// by direction, tracks keyboard hold durations, and formats output for
-    /// terminal display.
-    struct [[nodiscard]] live_view {
+    /// Condensed terminal display for input events.
+    ///
+    /// Aggregates mouse movements by direction, tracks keyboard hold durations,
+    /// and produces ANSI-colored summary lines. The output format is:
+    ///
+    ///   mod:HASH,idx:N TIMESTAMP [category] values (events, syns, duration)
+    ///
+    /// Mouse events are collapsed into delta summaries with event/syn counts.
+    /// Key events show hold duration and Unicode text. Non-key/non-mouse events
+    /// fall back to `event_line_format` with a device prefix.
+    struct [[nodiscard]] condensed_view {
       private:
         bool                                                 terminal_mode_     = false;
         bool                                                 use_ansi_          = false;
@@ -97,8 +108,8 @@ export namespace fs8 {
         std::optional<xkb::keymap>                           xkb_keymap_;
 
       public:
-        /// Construct a live view. Detects terminal mode if term_fd is a TTY.
-        explicit live_view(bool force_terminal = false) noexcept;
+        /// Construct a condensed view. Detects terminal mode if term_fd is a TTY.
+        explicit condensed_view(bool force_terminal = false) noexcept;
 
         /// Enable or disable ANSI color output.
         void set_ansi(bool on) noexcept {
@@ -189,13 +200,13 @@ export namespace fs8 {
         static constexpr std::string_view ansi_bright_cyan   = "\033[96m";
     };
 
-    inline constexpr auto default_live_flush_timeout = std::chrono::microseconds{16'000};
+    inline constexpr auto default_condensed_flush_timeout = std::chrono::microseconds{16'000};
 
     // ── Pipeline mods ────────────────────────────────────────────────────────
 
-    /// Write events to a file descriptor in live-view text format.
-    template <EvtestFormat Format = live_view_format>
-    struct [[nodiscard]] basic_live_view_output : consteval_copyable {
+    /// Write events to a file descriptor in event-line text format.
+    template <EvtestFormat Format = event_line_format>
+    struct [[nodiscard]] basic_event_line_output : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
@@ -203,7 +214,7 @@ export namespace fs8 {
         Format format{};
 
       public:
-        constexpr explicit basic_live_view_output(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
+        constexpr explicit basic_event_line_output(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
 
         constexpr void set_output(int const inp_fd) noexcept {
             file_descriptor = inp_fd;
@@ -211,7 +222,7 @@ export namespace fs8 {
 
         // NOLINTNEXTLINE(*-use-nodiscard)
         bool emit(event_type const& event) const noexcept {
-            char       buf[live_view_format_buf_size];
+            char       buf[event_line_format_buf_size];
             auto const text = format.format(event, buf);
             if (text.empty()) [[unlikely]] {
                 return false;
@@ -226,46 +237,64 @@ export namespace fs8 {
     };
 
     template <EvtestFormat Format>
-    inline constexpr basic_live_view_output<Format> live_view_output;
+    inline constexpr basic_event_line_output<Format> event_line_output;
 
-    constexpr auto to_live_view = live_view_output<live_view_format>;
+    constexpr auto to_event_line = event_line_output<event_line_format>;
 
-    static_assert(OutputModifier<basic_live_view_output<>>, "Must be a output modifier.");
+    static_assert(OutputModifier<basic_event_line_output<>>, "Must be a output modifier.");
 
-    /// Read live-view-format text from a file descriptor, parse it, and feed
+    /// Read event-line-format text from a file descriptor, parse it, and feed
     /// events into the pipeline.
-    template <EvtestFormat Format = live_view_format>
-    struct [[nodiscard]] basic_from_live_view : consteval_copyable {
+    template <EvtestFormat Format = event_line_format>
+    struct [[nodiscard]] basic_from_event_line : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
+        /// Fixed-capacity line buffer. Large enough for a 4096-byte read plus
+        /// one partial line (< 256 bytes).
+        static constexpr std::size_t line_buffer_capacity = 8192;
+
       private:
-        int                 file_descriptor = STDIN_FILENO;
-        Format              format{};
-        mutable std::string line_buffer;
+        int                                            file_descriptor = STDIN_FILENO;
+        Format                                         format{};
+        mutable std::array<char, line_buffer_capacity> line_buffer_{};
+        mutable std::size_t                            line_size_ = 0;
+
+        /// Erase the first `n` bytes from the line buffer.
+        void erase_front(std::size_t const n) noexcept {
+            if (n >= line_size_) {
+                line_size_ = 0;
+                return;
+            }
+            auto const remaining = line_size_ - n;
+            std::memmove(line_buffer_.data(), line_buffer_.data() + n, remaining);
+            line_size_ = remaining;
+        }
 
         /// Try to parse existing complete lines in the buffer. Returns true
         /// when a line was successfully parsed (event is filled in).
         [[nodiscard]] bool try_parse_buffered(event_type& event) noexcept {
             while (true) {
-                auto const newline = line_buffer.find('\n');
-                if (newline == std::string::npos) {
+                auto const* const end = line_buffer_.data() + line_size_;
+                auto const* const nl  = static_cast<char const*>(std::memchr(line_buffer_.data(), '\n', line_size_));
+                if (nl == nullptr) {
                     break;
                 }
-                std::string_view const line{line_buffer.data(), newline};
+                auto const             newline = static_cast<std::size_t>(nl - line_buffer_.data());
+                std::string_view const line{line_buffer_.data(), newline};
                 parsed_evtest_event    parsed;
                 if (format.parse(line, parsed)) {
-                    line_buffer.erase(0, newline + 1);
+                    erase_front(newline + 1);
                     event = event_type{parsed.event};
                     event.source(sid(from_input));
                     return true;
                 }
-                line_buffer.erase(0, newline + 1);
+                erase_front(newline + 1);
             }
             return false;
         }
 
       public:
-        constexpr explicit basic_from_live_view(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
+        constexpr explicit basic_from_event_line(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
 
         constexpr void set_input(int const inp_fd) noexcept {
             file_descriptor = inp_fd;
@@ -274,6 +303,6 @@ export namespace fs8 {
         context_action operator()(event_type& event, special_event const& tag) noexcept;
     };
 
-    inline constinit basic_from_live_view<> from_live_view;
+    constexpr basic_from_event_line<> from_event_line;
 
 } // namespace fs8

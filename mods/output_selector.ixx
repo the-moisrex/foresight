@@ -104,8 +104,8 @@ namespace fs8 {
     ///   0 — basic_output (raw stdout)
     ///   1 — basic_uinput (kernel virtual device)
     ///   2 — basic_evtest_output<> (evtest text format)
-    ///   3 — basic_live_view_output<> (live view text format)
-    export using output_selector = basic_output_selector<basic_std_output, basic_uinput, basic_evtest_output<>, basic_live_view_output<>>;
+    ///   3 — basic_event_line_output<> (event-line text format)
+    export using output_selector = basic_output_selector<basic_std_output, basic_uinput, basic_evtest_output<>, basic_event_line_output<>>;
 
     export constexpr output_selector output{};
 

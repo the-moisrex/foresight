@@ -754,8 +754,8 @@ Options:
         }
 
         // --- event loop ---
-        bool const     is_terminal = isatty(STDOUT_FILENO) == 1;
-        fs8::live_view lv{is_terminal};
+        bool const           is_terminal = isatty(STDOUT_FILENO) == 1;
+        fs8::condensed_view lv{is_terminal};
         lv.set_ansi(is_terminal);
 
         int const fd  = dev.native_handle();
