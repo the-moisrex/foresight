@@ -123,6 +123,9 @@ requires (sizeof...(<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4eb
 <tr class="separator:a94f2f3ddd4962ae204c71a44f514977f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0adc5154d5bc279bf253f978da7e991a" id="r_a0adc5154d5bc279bf253f978da7e991a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__modes.html#a0adc5154d5bc279bf253f978da7e991a">switch_mode</a> (std::uint8_t <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">in_mode</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a0adc5154d5bc279bf253f978da7e991a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3ebfaf01a282e7f6cbb0acdec44d66b" id="r_ac3ebfaf01a282e7f6cbb0acdec44d66b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">auto</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__modes.html#ac3ebfaf01a282e7f6cbb0acdec44d66b">sub_mods</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
+<tr class="memdesc:ac3ebfaf01a282e7f6cbb0acdec44d66b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The mods of this context, exposed for recursion into sub-pipelines.  <br /></td></tr>
+<tr class="separator:ac3ebfaf01a282e7f6cbb0acdec44d66b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3743733f40aed93bd2b2feb21cd7088d" id="r_a3743733f40aed93bd2b2feb21cd7088d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__modes.html#a3743733f40aed93bd2b2feb21cd7088d">operator()</a> (Context <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">auto</a> &amp;ctx) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a3743733f40aed93bd2b2feb21cd7088d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__modes.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
@@ -351,6 +354,35 @@ requires (sizeof...(<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4eb
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac3ebfaf01a282e7f6cbb0acdec44d66b" name="ac3ebfaf01a282e7f6cbb0acdec44d66b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3ebfaf01a282e7f6cbb0acdec44d66b">&#9670;&#160;</a></span>sub_mods()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;<a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">typename</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">CondT</a>  = basic_noop, typename... Mods&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">auto</a> <a class="el" href="structfs8_1_1basic__modes.html">fs8::basic_modes</a>&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">CondT</a>, <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">Mods</a> &gt;::sub_mods </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The mods of this context, exposed for recursion into sub-pipelines. </p>
 
 </div>
 </div>

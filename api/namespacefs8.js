@@ -462,7 +462,7 @@ var namespacefs8 =
     [ "extract_variables", "namespacefs8.html#a666fccac76dbd01298dbd925b017d75f", null ],
     [ "filter_devices", "namespacefs8.html#a96d774a2c5537eb63a30b0efc8c23c4b", null ],
     [ "filter_devices", "namespacefs8.html#a3c3307ea21f5b386ebb264b50f98d9dc", null ],
-    [ "finalize_device", "namespacefs8.html#adee1a80366c18034df5097aa668dd38c", null ],
+    [ "finalize_device", "namespacefs8.html#a938f9937c12728220385cd47d29f1647", null ],
     [ "find_delim", "namespacefs8.html#a3acf851620bca684a4e6fa9d9cc19f20", null ],
     [ "find_delim", "namespacefs8.html#a7fec36ba6dbac44945e60b3cc65a3501", null ],
     [ "find_delim", "namespacefs8.html#a7aab62f1b48aab9be85753f18a1a14ed", null ],

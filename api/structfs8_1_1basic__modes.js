@@ -7,5 +7,6 @@ var structfs8_1_1basic__modes =
     [ "consteval_copyable", "structfs8_1_1basic__modes.html#a23df80b9a3d5bfbc33501da95d583e26", null ],
     [ "operator()", "structfs8_1_1basic__modes.html#a3743733f40aed93bd2b2feb21cd7088d", null ],
     [ "operator[]", "structfs8_1_1basic__modes.html#a94f2f3ddd4962ae204c71a44f514977f", null ],
+    [ "sub_mods", "structfs8_1_1basic__modes.html#ac3ebfaf01a282e7f6cbb0acdec44d66b", null ],
     [ "switch_mode", "structfs8_1_1basic__modes.html#a0adc5154d5bc279bf253f978da7e991a", null ]
 ];

@@ -8,7 +8,7 @@ var uinput_8ixx =
       [ "not_a_character_device", "uinput_8ixx.html#ad37238ffd12f657195d6e3e8d71292aca2064d3fa2380c2e46e9d68ddddde9b53", null ],
       [ "open_failed", "uinput_8ixx.html#ad37238ffd12f657195d6e3e8d71292aca93ac46772777323b172bbf1299ef96a6", null ]
     ] ],
-    [ "finalize_device", "uinput_8ixx.html#adee1a80366c18034df5097aa668dd38c", null ],
+    [ "finalize_device", "uinput_8ixx.html#a938f9937c12728220385cd47d29f1647", null ],
     [ "to_string", "uinput_8ixx.html#a18f7254fa63e6bdec71453bfeb061372", null ],
     [ "verify_access_to_uinput", "uinput_8ixx.html#a925df7ee1aac9d6cf75918ee02624b59", null ],
     [ "empty_uinput_name", "uinput_8ixx.html#aeb5f813c0e66b32d745ee408a5f79603", null ],
