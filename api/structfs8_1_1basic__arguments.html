@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Foresight: fs8::basic_arguments&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt; Struct Template Reference</title>
+<title>Foresight: fs8::basic_arguments&lt; DefaultsN &gt; Struct Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -94,63 +94,66 @@ $(document).ready(function(){initNavTree('structfs8_1_1basic__arguments.html',''
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="structfs8_1_1basic__arguments-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">fs8::basic_arguments&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt; Struct Template Reference<span class="mlabels"><span class="mlabel">export</span></span><div class="ingroups">module <a class="el" href="module_fs8_8cli.html">fs8.cli</a></div></div></div>
+  <div class="headertitle"><div class="title">fs8::basic_arguments&lt; DefaultsN &gt; Struct Template Reference<span class="mlabels"><span class="mlabel">export</span></span><div class="ingroups">module <a class="el" href="module_fs8_8cli.html">fs8.cli</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a2ce2b68ebdd5ecb0974515d849869365" id="r_a2ce2b68ebdd5ecb0974515d849869365"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a2ce2b68ebdd5ecb0974515d849869365">parsed_args</a> = <a class="el" href="structfs8_1_1basic__parsed__args.html">basic_parsed_args</a>&lt; MaxPositionals, MaxFlags, MaxNames &gt;</td></tr>
-<tr class="separator:a2ce2b68ebdd5ecb0974515d849869365"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae019256797f2802b0d315378797a9577" id="r_ae019256797f2802b0d315378797a9577"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#ae019256797f2802b0d315378797a9577">parsed_args</a> = <a class="el" href="structfs8_1_1basic__arguments.html#ae019256797f2802b0d315378797a9577">parsed_args</a></td></tr>
+<tr class="separator:ae019256797f2802b0d315378797a9577"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a8ebc1c5a21ddb33e84d288c6f2ca68ff" id="r_a8ebc1c5a21ddb33e84d288c6f2ca68ff"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; <br />
-requires (sizeof...(Args) == DefaultsN)</td></tr>
-<tr class="memitem:a8ebc1c5a21ddb33e84d288c6f2ca68ff"><td class="memTemplItemLeft" align="right" valign="top">consteval&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a8ebc1c5a21ddb33e84d288c6f2ca68ff">basic_arguments</a> (Args &amp;&amp;... defaults) noexcept</td></tr>
-<tr class="separator:a8ebc1c5a21ddb33e84d288c6f2ca68ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16f620cf57ff948955ba520aae62b30c" id="r_a16f620cf57ff948955ba520aae62b30c"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:a16f620cf57ff948955ba520aae62b30c"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a16f620cf57ff948955ba520aae62b30c">operator[]</a> (Args &amp;&amp;... defaults) const noexcept</td></tr>
-<tr class="memdesc:a16f620cf57ff948955ba520aae62b30c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the default positional values, used when no arguments are given.  <br /></td></tr>
-<tr class="separator:a16f620cf57ff948955ba520aae62b30c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a92b436b3d54cfd18072e544e81ad138a" id="r_a92b436b3d54cfd18072e544e81ad138a"><td class="memTemplParams" colspan="2">template&lt;typename... Names&gt; </td></tr>
-<tr class="memitem:a92b436b3d54cfd18072e544e81ad138a"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a92b436b3d54cfd18072e544e81ad138a">positional</a> (Names... names) const noexcept</td></tr>
-<tr class="memdesc:a92b436b3d54cfd18072e544e81ad138a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add placeholder names for the positional arguments in the help text.  <br /></td></tr>
-<tr class="separator:a92b436b3d54cfd18072e544e81ad138a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af4c7752342ab5ff0bb755e63ea3da325" id="r_af4c7752342ab5ff0bb755e63ea3da325"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#af4c7752342ab5ff0bb755e63ea3da325">help</a> (std::string_view const text) const noexcept</td></tr>
-<tr class="memdesc:af4c7752342ab5ff0bb755e63ea3da325"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a custom help text; when empty, help is auto-generated.  <br /></td></tr>
-<tr class="separator:af4c7752342ab5ff0bb755e63ea3da325"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa26d759b008bd14b93d70626602dff91" id="r_aa26d759b008bd14b93d70626602dff91"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#aa26d759b008bd14b93d70626602dff91">add_flag</a> (<a class="el" href="structfs8_1_1basic__flag.html">basic_flag</a> const flag) const noexcept</td></tr>
-<tr class="memdesc:aa26d759b008bd14b93d70626602dff91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register an extra flag.  <br /></td></tr>
-<tr class="separator:aa26d759b008bd14b93d70626602dff91"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a8599269010462fa48a2872b12b2c18" id="r_a0a8599269010462fa48a2872b12b2c18"><td class="memTemplParams" colspan="2">template&lt;typename Range &gt; <br />
+<tr class="memitem:a40a470c311748930c611d82c95bfcb38" id="r_a40a470c311748930c611d82c95bfcb38"><td class="memItemLeft" align="right" valign="top">consteval&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a40a470c311748930c611d82c95bfcb38">basic_arguments</a> () noexcept=default</td></tr>
+<tr class="memdesc:a40a470c311748930c611d82c95bfcb38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default constructor for zero defaults.  <br /></td></tr>
+<tr class="separator:a40a470c311748930c611d82c95bfcb38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82479fdaf5c6478406973fbf807f8fbd" id="r_a82479fdaf5c6478406973fbf807f8fbd"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; <br />
+requires (sizeof...(Args) == DefaultsN &amp;&amp; DefaultsN &gt; 0)</td></tr>
+<tr class="memitem:a82479fdaf5c6478406973fbf807f8fbd"><td class="memTemplItemLeft" align="right" valign="top">consteval&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a82479fdaf5c6478406973fbf807f8fbd">basic_arguments</a> (Args &amp;&amp;... defaults) noexcept</td></tr>
+<tr class="separator:a82479fdaf5c6478406973fbf807f8fbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af45ad88d117ab50b2c77df3d98016551" id="r_af45ad88d117ab50b2c77df3d98016551"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:af45ad88d117ab50b2c77df3d98016551"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#af45ad88d117ab50b2c77df3d98016551">operator[]</a> (Args &amp;&amp;... defaults) const noexcept</td></tr>
+<tr class="memdesc:af45ad88d117ab50b2c77df3d98016551"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the default positional values, used when no arguments are given.  <br /></td></tr>
+<tr class="separator:af45ad88d117ab50b2c77df3d98016551"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6628f0533ce16468b2d7201ff1e152e1" id="r_a6628f0533ce16468b2d7201ff1e152e1"><td class="memTemplParams" colspan="2">template&lt;typename... Names&gt; </td></tr>
+<tr class="memitem:a6628f0533ce16468b2d7201ff1e152e1"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a6628f0533ce16468b2d7201ff1e152e1">positional</a> (Names... names) const noexcept</td></tr>
+<tr class="memdesc:a6628f0533ce16468b2d7201ff1e152e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add placeholder names for the positional arguments in the help text.  <br /></td></tr>
+<tr class="separator:a6628f0533ce16468b2d7201ff1e152e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d1694e0fec1b09125a241efac8f712a" id="r_a5d1694e0fec1b09125a241efac8f712a"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a5d1694e0fec1b09125a241efac8f712a">help</a> (std::string_view const text) const noexcept</td></tr>
+<tr class="memdesc:a5d1694e0fec1b09125a241efac8f712a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a custom help text; when empty, help is auto-generated.  <br /></td></tr>
+<tr class="separator:a5d1694e0fec1b09125a241efac8f712a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a143066d190bb7b24379b802a7700d5c8" id="r_a143066d190bb7b24379b802a7700d5c8"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a143066d190bb7b24379b802a7700d5c8">add_flag</a> (<a class="el" href="structfs8_1_1basic__flag.html">basic_flag</a> const flag) const noexcept</td></tr>
+<tr class="memdesc:a143066d190bb7b24379b802a7700d5c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register an extra flag.  <br /></td></tr>
+<tr class="separator:a143066d190bb7b24379b802a7700d5c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2499a172afda616cdae13db91f0b6f26" id="r_a2499a172afda616cdae13db91f0b6f26"><td class="memTemplParams" colspan="2">template&lt;typename Range &gt; <br />
 requires requires(Range const&amp; r) { std::begin(r); std::end(r); }</td></tr>
-<tr class="memitem:a0a8599269010462fa48a2872b12b2c18"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a0a8599269010462fa48a2872b12b2c18">add_flags</a> (Range const &amp;flags) const noexcept</td></tr>
-<tr class="memdesc:a0a8599269010462fa48a2872b12b2c18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register multiple flags from a range (e.g. <code>std::array&lt;<a class="el" href="structfs8_1_1basic__flag.html" title="Describes a single command-line flag.">basic_flag</a>, N&gt;</code>).  <br /></td></tr>
-<tr class="separator:a0a8599269010462fa48a2872b12b2c18"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac909a06d5fd7060e44d7fd17b5d21d2f" id="r_ac909a06d5fd7060e44d7fd17b5d21d2f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__arguments.html#a2ce2b68ebdd5ecb0974515d849869365">parsed_args</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#ac909a06d5fd7060e44d7fd17b5d21d2f">operator()</a> (int const argc, char const *const *argv) const &amp;noexcept</td></tr>
-<tr class="memdesc:ac909a06d5fd7060e44d7fd17b5d21d2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse <code>argc</code>/<code>argv</code> into positional arguments and flag state.  <br /></td></tr>
-<tr class="separator:ac909a06d5fd7060e44d7fd17b5d21d2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2cab827a4ebb929888ff22acdcd28600" id="r_a2cab827a4ebb929888ff22acdcd28600"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a2cab827a4ebb929888ff22acdcd28600">operator()</a> (int argc, char const *const *argv) const &amp;&amp;noexcept=delete</td></tr>
-<tr class="separator:a2cab827a4ebb929888ff22acdcd28600"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2499a172afda616cdae13db91f0b6f26"><td class="memTemplItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a2499a172afda616cdae13db91f0b6f26">add_flags</a> (Range const &amp;flags) const noexcept</td></tr>
+<tr class="memdesc:a2499a172afda616cdae13db91f0b6f26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register multiple flags from a range (e.g. <code>std::array&lt;<a class="el" href="structfs8_1_1basic__flag.html" title="Describes a single command-line flag.">basic_flag</a>, N&gt;</code>).  <br /></td></tr>
+<tr class="separator:a2499a172afda616cdae13db91f0b6f26"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b4a02dcd6fb2a90417b50e70368172a" id="r_a4b4a02dcd6fb2a90417b50e70368172a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__arguments.html#ae019256797f2802b0d315378797a9577">parsed_args</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a4b4a02dcd6fb2a90417b50e70368172a">operator()</a> (int const argc, char const *const *argv) const &amp;noexcept</td></tr>
+<tr class="memdesc:a4b4a02dcd6fb2a90417b50e70368172a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse <code>argc</code>/<code>argv</code> into positional arguments and flag state.  <br /></td></tr>
+<tr class="separator:a4b4a02dcd6fb2a90417b50e70368172a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34b74b72e64aa7783b4ece6d0314a9e2" id="r_a34b74b72e64aa7783b4ece6d0314a9e2"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a34b74b72e64aa7783b4ece6d0314a9e2">operator()</a> (int argc, char const *const *argv) const &amp;&amp;noexcept=delete</td></tr>
+<tr class="separator:a34b74b72e64aa7783b4ece6d0314a9e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><div class="compoundTemplParams">template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16&gt;<br />
-struct fs8::basic_arguments&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt;</div><p>Command-line configuration for an app: default positionals, positional placeholder names (for help), extra flags, and an optional custom help text. Configure it through method chaining (e.g. <code>arguments["x"].help("...").add_flag(...)</code>) and parse with <code>operator()(argc, argv)</code>. </p>
+<div class="textblock"><div class="compoundTemplParams">template&lt;std::size_t DefaultsN&gt;<br />
+struct fs8::basic_arguments&lt; DefaultsN &gt;</div><p>Command-line configuration for an app: default positionals, positional placeholder names (for help), extra flags, and an optional custom help text. Configure it through method chaining (e.g. <code>arguments["x"].help("...").add_flag(...)</code>) and parse with <code>operator()(argc, argv)</code>. </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a id="a2ce2b68ebdd5ecb0974515d849869365" name="a2ce2b68ebdd5ecb0974515d849869365"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2ce2b68ebdd5ecb0974515d849869365">&#9670;&#160;</a></span>parsed_args</h2>
+<a id="ae019256797f2802b0d315378797a9577" name="ae019256797f2802b0d315378797a9577"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae019256797f2802b0d315378797a9577">&#9670;&#160;</a></span>parsed_args</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16&gt; </div>
+template&lt;std::size_t DefaultsN&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt;::parsed_args =  <a class="el" href="structfs8_1_1basic__parsed__args.html">basic_parsed_args</a>&lt;MaxPositionals, MaxFlags, MaxNames&gt;</td>
+          <td class="memname">using <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN &gt;::parsed_args =  <a class="el" href="structfs8_1_1basic__arguments.html#ae019256797f2802b0d315378797a9577">parsed_args</a></td>
         </tr>
       </table>
   </td>
@@ -163,22 +166,51 @@ template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t 
 </div>
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a8ebc1c5a21ddb33e84d288c6f2ca68ff" name="a8ebc1c5a21ddb33e84d288c6f2ca68ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8ebc1c5a21ddb33e84d288c6f2ca68ff">&#9670;&#160;</a></span>basic_arguments()</h2>
+<a id="a40a470c311748930c611d82c95bfcb38" name="a40a470c311748930c611d82c95bfcb38"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a40a470c311748930c611d82c95bfcb38">&#9670;&#160;</a></span>basic_arguments() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16&gt; </div>
-<div class="memtemplate">
-template&lt;typename... Args&gt; <br />
-requires (sizeof...(Args) == DefaultsN)</div>
+template&lt;std::size_t DefaultsN&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">consteval <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt;::basic_arguments </td>
+          <td class="memname">consteval <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN &gt;::basic_arguments </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">default</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Default constructor for zero defaults. </p>
+
+</div>
+</div>
+<a id="a82479fdaf5c6478406973fbf807f8fbd" name="a82479fdaf5c6478406973fbf807f8fbd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a82479fdaf5c6478406973fbf807f8fbd">&#9670;&#160;</a></span>basic_arguments() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;std::size_t DefaultsN&gt; </div>
+<div class="memtemplate">
+template&lt;typename... Args&gt; <br />
+requires (sizeof...(Args) == DefaultsN &amp;&amp; DefaultsN &gt; 0)</div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">consteval <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN &gt;::basic_arguments </td>
           <td>(</td>
           <td class="paramtype">Args &amp;&amp;...&#160;</td>
           <td class="paramname"><em>defaults</em></td><td>)</td>
@@ -195,19 +227,19 @@ requires (sizeof...(Args) == DefaultsN)</div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="aa26d759b008bd14b93d70626602dff91" name="aa26d759b008bd14b93d70626602dff91"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa26d759b008bd14b93d70626602dff91">&#9670;&#160;</a></span>add_flag()</h2>
+<a id="a143066d190bb7b24379b802a7700d5c8" name="a143066d190bb7b24379b802a7700d5c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a143066d190bb7b24379b802a7700d5c8">&#9670;&#160;</a></span>add_flag()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16&gt; </div>
+template&lt;std::size_t DefaultsN&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a> <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt;::add_flag </td>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a> <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN &gt;::add_flag </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structfs8_1_1basic__flag.html">basic_flag</a> const&#160;</td>
           <td class="paramname"><em>flag</em></td><td>)</td>
@@ -225,13 +257,13 @@ template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t 
 
 </div>
 </div>
-<a id="a0a8599269010462fa48a2872b12b2c18" name="a0a8599269010462fa48a2872b12b2c18"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0a8599269010462fa48a2872b12b2c18">&#9670;&#160;</a></span>add_flags()</h2>
+<a id="a2499a172afda616cdae13db91f0b6f26" name="a2499a172afda616cdae13db91f0b6f26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2499a172afda616cdae13db91f0b6f26">&#9670;&#160;</a></span>add_flags()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16&gt; </div>
+template&lt;std::size_t DefaultsN&gt; </div>
 <div class="memtemplate">
 template&lt;typename Range &gt; <br />
 requires requires(Range const&amp; r) { std::begin(r); std::end(r); }</div>
@@ -240,7 +272,7 @@ requires requires(Range const&amp; r) { std::begin(r); std::end(r); }</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a> <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt;::add_flags </td>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a> <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN &gt;::add_flags </td>
           <td>(</td>
           <td class="paramtype">Range const &amp;&#160;</td>
           <td class="paramname"><em>flags</em></td><td>)</td>
@@ -258,19 +290,19 @@ requires requires(Range const&amp; r) { std::begin(r); std::end(r); }</div>
 
 </div>
 </div>
-<a id="af4c7752342ab5ff0bb755e63ea3da325" name="af4c7752342ab5ff0bb755e63ea3da325"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af4c7752342ab5ff0bb755e63ea3da325">&#9670;&#160;</a></span>help()</h2>
+<a id="a5d1694e0fec1b09125a241efac8f712a" name="a5d1694e0fec1b09125a241efac8f712a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d1694e0fec1b09125a241efac8f712a">&#9670;&#160;</a></span>help()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16&gt; </div>
+template&lt;std::size_t DefaultsN&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a> <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt;::help </td>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a> <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN &gt;::help </td>
           <td>(</td>
           <td class="paramtype">std::string_view const&#160;</td>
           <td class="paramname"><em>text</em></td><td>)</td>
@@ -288,19 +320,19 @@ template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t 
 
 </div>
 </div>
-<a id="a2cab827a4ebb929888ff22acdcd28600" name="a2cab827a4ebb929888ff22acdcd28600"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2cab827a4ebb929888ff22acdcd28600">&#9670;&#160;</a></span>operator()() <span class="overload">[1/2]</span></h2>
+<a id="a34b74b72e64aa7783b4ece6d0314a9e2" name="a34b74b72e64aa7783b4ece6d0314a9e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a34b74b72e64aa7783b4ece6d0314a9e2">&#9670;&#160;</a></span>operator()() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16&gt; </div>
+template&lt;std::size_t DefaultsN&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">auto <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt;::operator() </td>
+          <td class="memname">auto <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN &gt;::operator() </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>argc</em>, </td>
@@ -326,19 +358,19 @@ template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t 
 
 </div>
 </div>
-<a id="ac909a06d5fd7060e44d7fd17b5d21d2f" name="ac909a06d5fd7060e44d7fd17b5d21d2f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac909a06d5fd7060e44d7fd17b5d21d2f">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
+<a id="a4b4a02dcd6fb2a90417b50e70368172a" name="a4b4a02dcd6fb2a90417b50e70368172a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b4a02dcd6fb2a90417b50e70368172a">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16&gt; </div>
+template&lt;std::size_t DefaultsN&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structfs8_1_1basic__arguments.html#a2ce2b68ebdd5ecb0974515d849869365">parsed_args</a> <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt;::operator() </td>
+          <td class="memname"><a class="el" href="structfs8_1_1basic__arguments.html#ae019256797f2802b0d315378797a9577">parsed_args</a> <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN &gt;::operator() </td>
           <td>(</td>
           <td class="paramtype">int const&#160;</td>
           <td class="paramname"><em>argc</em>, </td>
@@ -366,13 +398,13 @@ template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t 
 
 </div>
 </div>
-<a id="a16f620cf57ff948955ba520aae62b30c" name="a16f620cf57ff948955ba520aae62b30c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a16f620cf57ff948955ba520aae62b30c">&#9670;&#160;</a></span>operator[]()</h2>
+<a id="af45ad88d117ab50b2c77df3d98016551" name="af45ad88d117ab50b2c77df3d98016551"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af45ad88d117ab50b2c77df3d98016551">&#9670;&#160;</a></span>operator[]()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16&gt; </div>
+template&lt;std::size_t DefaultsN&gt; </div>
 <div class="memtemplate">
 template&lt;typename... Args&gt; </div>
 <table class="mlabels">
@@ -380,7 +412,7 @@ template&lt;typename... Args&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">consteval auto <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt;::operator[] </td>
+          <td class="memname">consteval auto <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN &gt;::operator[] </td>
           <td>(</td>
           <td class="paramtype">Args &amp;&amp;...&#160;</td>
           <td class="paramname"><em>defaults</em></td><td>)</td>
@@ -398,13 +430,13 @@ template&lt;typename... Args&gt; </div>
 
 </div>
 </div>
-<a id="a92b436b3d54cfd18072e544e81ad138a" name="a92b436b3d54cfd18072e544e81ad138a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a92b436b3d54cfd18072e544e81ad138a">&#9670;&#160;</a></span>positional()</h2>
+<a id="a6628f0533ce16468b2d7201ff1e152e1" name="a6628f0533ce16468b2d7201ff1e152e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6628f0533ce16468b2d7201ff1e152e1">&#9670;&#160;</a></span>positional()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;std::size_t DefaultsN, std::size_t MaxPositionals = 16, std::size_t MaxFlags = 8, std::size_t MaxNames = 16&gt; </div>
+template&lt;std::size_t DefaultsN&gt; </div>
 <div class="memtemplate">
 template&lt;typename... Names&gt; </div>
 <table class="mlabels">
@@ -412,7 +444,7 @@ template&lt;typename... Names&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a> <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN, MaxPositionals, MaxFlags, MaxNames &gt;::positional </td>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a> <a class="el" href="structfs8_1_1basic__arguments.html">fs8::basic_arguments</a>&lt; DefaultsN &gt;::positional </td>
           <td>(</td>
           <td class="paramtype">Names...&#160;</td>
           <td class="paramname"><em>names</em></td><td>)</td>

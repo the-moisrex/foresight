@@ -1014,7 +1014,7 @@ mod is for and when you'd reach for it.</p>
 </tr>
 <tr>
 <td><code>debounce</code></td>
-<td>Drop events that arrive too soon after a previous event of the same code (faulty mouse double-clicks, bouncing keys, noisy axes/scroll). <code>click</code> mode (default) swallows a fast second press <em>and its release</em>; <code>event</code> mode swallows any event within the window. Works on any <code>event_code</code>, e.g. <code>debounce[BTN_LEFT, BTN_RIGHT]</code>, <code>debounce[{.type = EV_ABS, .code = ABS_X}].event()</code>.</td>
+<td>Drop events that arrive too soon after a previous event of the same code (faulty mouse double-clicks, bouncing keys, noisy axes/scroll). For <code>EV_KEY</code> codes a fast second press and its matching release are dropped; for other event types every event within the window is dropped. Works on any <code>event_code</code>, e.g. <code>debounce[BTN_LEFT, BTN_RIGHT]</code>, <code>debounce[{.type = EV_ABS, .code = ABS_X}]</code>.</td>
 </tr>
 <tr>
 <td><code>typed</code></td>

@@ -146,10 +146,6 @@ var module_fs8_8mods =
     [ "pattern", "conceptfs8_1_1idle__repeat_1_1pattern.html", null ],
     [ "query_provider", "conceptfs8_1_1query__provider.html", null ],
     [ "io_handler", "conceptfs8_1_1io__handler.html", null ],
-    [ "fs8::debounce_mode", "module_fs8_8mods.html#a2008ba272c641df21f53c054eacdf257", [
-      [ "click", "module_fs8_8mods.html#a2008ba272c641df21f53c054eacdf257aa8affc088cbca89fa20dbd98c91362e4", null ],
-      [ "event", "module_fs8_8mods.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d", null ]
-    ] ],
     [ "fs8::device_change", "module_fs8_8mods.html#a5a20a1a79bbb5147ba7a0db2bb301c63", [
       [ "connected", "module_fs8_8mods.html#a5a20a1a79bbb5147ba7a0db2bb301c63a06aa6fa8bdc2078e7e1bd903e70c8f6a", null ],
       [ "disconnected", "module_fs8_8mods.html#a5a20a1a79bbb5147ba7a0db2bb301c63a3a561116f0c9675a3c83d21fa365050d", null ]
@@ -273,16 +269,11 @@ var module_fs8_8mods =
     [ "fs8::basic_group_mod::operator()", "module_fs8_8mods.html#a2405edc9c3c620d9f9e28f8413f2a724", null ],
     [ "fs8::basic_group_mod", "module_fs8_8mods.html#a62f2868ca1cc8d35df31dba7e04cb0e4", null ],
     [ "fs8::basic_debounce::basic_debounce", "module_fs8_8mods.html#a230c08f93d33deb2e7a312a9623ad4ce", null ],
-    [ "fs8::basic_debounce::basic_debounce", "module_fs8_8mods.html#a81953a81b19d96acafcee3fdf392f89f", null ],
     [ "fs8::basic_debounce::basic_debounce", "module_fs8_8mods.html#a6d477635833a276a25660ef17563c365", null ],
-    [ "fs8::basic_debounce::basic_debounce", "module_fs8_8mods.html#a643817e55867ed382a1481b361625c0d", null ],
     [ "fs8::basic_debounce::operator[]", "module_fs8_8mods.html#ab772827d243096547fb1a57f7c2fb392", null ],
     [ "fs8::basic_debounce::operator[]", "module_fs8_8mods.html#a90d80253cfb7dc2f077e2363582d7b55", null ],
     [ "fs8::basic_debounce::operator[]", "module_fs8_8mods.html#ad00ec8be6d53ee80d9717cc9d3456191", null ],
-    [ "fs8::basic_debounce::click", "module_fs8_8mods.html#a556b8e453bfa00a6742b1d24e21f580f", null ],
-    [ "fs8::basic_debounce::event", "module_fs8_8mods.html#a483b2401459adfdea68c4612b92182e9", null ],
     [ "fs8::basic_debounce::set_time_threshold", "module_fs8_8mods.html#abe3d9f1c9cfc1454ff3753532e097b48", null ],
-    [ "fs8::basic_debounce::set_mode", "module_fs8_8mods.html#ad11870aff688829198c13904e9d29b88", null ],
     [ "fs8::basic_debounce::set_codes", "module_fs8_8mods.html#abb7cc7bcbba3bbc34db1f4911e649e0f", null ],
     [ "fs8::basic_debounce::operator()", "module_fs8_8mods.html#a7fbec7f8239c435ca1918833b46eb976", null ],
     [ "fs8::basic_interceptor::basic_interceptor", "module_fs8_8mods.html#aad051b2865a5b4317517e13ab8a48be4", null ],

@@ -164,7 +164,6 @@ var namespacefs8 =
     [ "basic_only_device", "structfs8_1_1basic__only__device.html", "structfs8_1_1basic__only__device" ],
     [ "basic_only_ok", "structfs8_1_1basic__only__ok.html", "structfs8_1_1basic__only__ok" ],
     [ "basic_output_selector", "structfs8_1_1basic__output__selector.html", "structfs8_1_1basic__output__selector" ],
-    [ "basic_parsed_args", "structfs8_1_1basic__parsed__args.html", "structfs8_1_1basic__parsed__args" ],
     [ "basic_pass_trigger_tag", "structfs8_1_1basic__pass__trigger__tag.html", "structfs8_1_1basic__pass__trigger__tag" ],
     [ "basic_pen2mice", "structfs8_1_1basic__pen2mice.html", "structfs8_1_1basic__pen2mice" ],
     [ "basic_pen2touch", "structfs8_1_1basic__pen2touch.html", "structfs8_1_1basic__pen2touch" ],
@@ -248,6 +247,7 @@ var namespacefs8 =
     [ "or_op", "structfs8_1_1or__op.html", "structfs8_1_1or__op" ],
     [ "output_flag_group", "structfs8_1_1output__flag__group.html", "structfs8_1_1output__flag__group" ],
     [ "owned_query", "structfs8_1_1owned__query.html", "structfs8_1_1owned__query" ],
+    [ "parsed_args", "structfs8_1_1parsed__args.html", "structfs8_1_1parsed__args" ],
     [ "parsed_evtest_event", "structfs8_1_1parsed__evtest__event.html", "structfs8_1_1parsed__evtest__event" ],
     [ "pimpl_idiom", "structfs8_1_1pimpl__idiom.html", "structfs8_1_1pimpl__idiom" ],
     [ "pipeline_hash_solution", "structfs8_1_1pipeline__hash__solution.html", "structfs8_1_1pipeline__hash__solution" ],
@@ -337,10 +337,6 @@ var namespacefs8 =
       [ "drop_event", "namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdada9272a324969f72f7a666f130249238", null ],
       [ "recovery", "namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bda6ccf929934691710135f3f0df7cc43c5", null ],
       [ "exit", "namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b", null ]
-    ] ],
-    [ "debounce_mode", "namespacefs8.html#a2008ba272c641df21f53c054eacdf257", [
-      [ "click", "namespacefs8.html#a2008ba272c641df21f53c054eacdf257aa8affc088cbca89fa20dbd98c91362e4", null ],
-      [ "event", "namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d", null ]
     ] ],
     [ "device_change", "namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63", [
       [ "connected", "namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63a06aa6fa8bdc2078e7e1bd903e70c8f6a", null ],

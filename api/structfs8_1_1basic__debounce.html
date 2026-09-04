@@ -118,12 +118,8 @@ Public Types</h2></td></tr>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a230c08f93d33deb2e7a312a9623ad4ce" id="r_a230c08f93d33deb2e7a312a9623ad4ce"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#a230c08f93d33deb2e7a312a9623ad4ce">basic_debounce</a> (std::array&lt; <a class="el" href="structfs8_1_1event__code.html">event_code</a>, N &gt; const inp_codes, <a class="el" href="structfs8_1_1basic__debounce.html#a439b80b173bd442a3972c1cfb501cf7b">msec_type</a> const inp_time_threshold=<a class="el" href="structfs8_1_1basic__debounce.html#aadc037e4cd0a1981b9330a5c6318b215">default_time_threshold</a>) noexcept</td></tr>
 <tr class="separator:a230c08f93d33deb2e7a312a9623ad4ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81953a81b19d96acafcee3fdf392f89f" id="r_a81953a81b19d96acafcee3fdf392f89f"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#a81953a81b19d96acafcee3fdf392f89f">basic_debounce</a> (std::array&lt; <a class="el" href="structfs8_1_1event__code.html">event_code</a>, N &gt; const inp_codes, <a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257">debounce_mode</a> const inp_mode) noexcept</td></tr>
-<tr class="separator:a81953a81b19d96acafcee3fdf392f89f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d477635833a276a25660ef17563c365" id="r_a6d477635833a276a25660ef17563c365"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#a6d477635833a276a25660ef17563c365">basic_debounce</a> (<a class="el" href="structfs8_1_1event__code.html">event_code</a> const inp_code, <a class="el" href="structfs8_1_1basic__debounce.html#a439b80b173bd442a3972c1cfb501cf7b">msec_type</a> const inp_time_threshold=<a class="el" href="structfs8_1_1basic__debounce.html#aadc037e4cd0a1981b9330a5c6318b215">default_time_threshold</a>) noexcept</td></tr>
 <tr class="separator:a6d477635833a276a25660ef17563c365"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a643817e55867ed382a1481b361625c0d" id="r_a643817e55867ed382a1481b361625c0d"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#a643817e55867ed382a1481b361625c0d">basic_debounce</a> (<a class="el" href="structfs8_1_1event__code.html">event_code</a> const inp_code, <a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257">debounce_mode</a> const inp_mode) noexcept</td></tr>
-<tr class="separator:a643817e55867ed382a1481b361625c0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab772827d243096547fb1a57f7c2fb392" id="r_ab772827d243096547fb1a57f7c2fb392"><td class="memTemplParams" colspan="2">template&lt;typename CodeT &gt; <br />
 requires std::convertible_to&lt;CodeT, <a class="el" href="structfs8_1_1event__type.html#a1a1df75700acff332dda0c3b2cc0cd8f">event_type::code_type</a>&gt;</td></tr>
 <tr class="memitem:ab772827d243096547fb1a57f7c2fb392"><td class="memTemplItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1basic__debounce.html">basic_debounce</a>&lt; 1 &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#ab772827d243096547fb1a57f7c2fb392">operator[]</a> (CodeT const inp_code, <a class="el" href="structfs8_1_1basic__debounce.html#a439b80b173bd442a3972c1cfb501cf7b">msec_type</a> const inp_time_threshold=<a class="el" href="structfs8_1_1basic__debounce.html#aadc037e4cd0a1981b9330a5c6318b215">default_time_threshold</a>) const noexcept</td></tr>
@@ -134,21 +130,12 @@ requires std::convertible_to&lt;CodeT, <a class="el" href="structfs8_1_1event__t
 requires (sizeof...(T) &gt; 1 &amp;&amp; (... &amp;&amp; (std::convertible_to&lt;T, <a class="el" href="structfs8_1_1event__code.html">event_code</a>&gt; || std::convertible_to&lt;T, <a class="el" href="structfs8_1_1event__type.html#a1a1df75700acff332dda0c3b2cc0cd8f">event_type::code_type</a>&gt;) ))</td></tr>
 <tr class="memitem:ad00ec8be6d53ee80d9717cc9d3456191"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#ad00ec8be6d53ee80d9717cc9d3456191">operator[]</a> (T... inp_codes) const noexcept</td></tr>
 <tr class="separator:ad00ec8be6d53ee80d9717cc9d3456191"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a556b8e453bfa00a6742b1d24e21f580f" id="r_a556b8e453bfa00a6742b1d24e21f580f"><td class="memItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#a556b8e453bfa00a6742b1d24e21f580f">click</a> () const noexcept</td></tr>
-<tr class="memdesc:a556b8e453bfa00a6742b1d24e21f580f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile-time switch to <code>click</code> mode (the default).  <br /></td></tr>
-<tr class="separator:a556b8e453bfa00a6742b1d24e21f580f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a483b2401459adfdea68c4612b92182e9" id="r_a483b2401459adfdea68c4612b92182e9"><td class="memItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#a483b2401459adfdea68c4612b92182e9">event</a> () const noexcept</td></tr>
-<tr class="memdesc:a483b2401459adfdea68c4612b92182e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile-time switch to <code>event</code> mode: drop any event within the window.  <br /></td></tr>
-<tr class="separator:a483b2401459adfdea68c4612b92182e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe3d9f1c9cfc1454ff3753532e097b48" id="r_abe3d9f1c9cfc1454ff3753532e097b48"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#abe3d9f1c9cfc1454ff3753532e097b48">set_time_threshold</a> (<a class="el" href="structfs8_1_1basic__debounce.html#a439b80b173bd442a3972c1cfb501cf7b">msec_type</a> const inp_time_threshold) noexcept</td></tr>
 <tr class="memdesc:abe3d9f1c9cfc1454ff3753532e097b48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change the debounce window at runtime (e.g. from app args).  <br /></td></tr>
 <tr class="separator:abe3d9f1c9cfc1454ff3753532e097b48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad11870aff688829198c13904e9d29b88" id="r_ad11870aff688829198c13904e9d29b88"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#ad11870aff688829198c13904e9d29b88">set_mode</a> (<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257">debounce_mode</a> const inp_mode) noexcept</td></tr>
-<tr class="memdesc:ad11870aff688829198c13904e9d29b88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change the debounce mode at runtime (e.g. from app args).  <br /></td></tr>
-<tr class="separator:ad11870aff688829198c13904e9d29b88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb7cc7bcbba3bbc34db1f4911e649e0f" id="r_abb7cc7bcbba3bbc34db1f4911e649e0f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#abb7cc7bcbba3bbc34db1f4911e649e0f">set_codes</a> (std::span&lt; <a class="el" href="structfs8_1_1event__code.html">event_code</a> const &gt; const inp_codes) noexcept</td></tr>
 <tr class="separator:abb7cc7bcbba3bbc34db1f4911e649e0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fbec7f8239c435ca1918833b46eb976" id="r_a7fbec7f8239c435ca1918833b46eb976"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#a7fbec7f8239c435ca1918833b46eb976">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="structfs8_1_1basic__debounce.html#a483b2401459adfdea68c4612b92182e9">event</a>) noexcept</td></tr>
+<tr class="memitem:a7fbec7f8239c435ca1918833b46eb976" id="r_a7fbec7f8239c435ca1918833b46eb976"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#a7fbec7f8239c435ca1918833b46eb976">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;event) noexcept</td></tr>
 <tr class="separator:a7fbec7f8239c435ca1918833b46eb976"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__debounce.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
 <tr class="separator:aab9e941457bd45b9d6772f6ff421cec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -178,8 +165,8 @@ Static Public Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;std::size_t N&gt;<br />
 struct fs8::basic_debounce&lt; N &gt;</div><p>Debounce events: drop events that arrive too soon after a previous event of the same code. Used to clean up faulty hardware — double-clicking mice, bouncing keyboard switches, noisy axes or scroll wheels.</p>
-<p>In <code>click</code> mode (default) a press that lands within <code>time_threshold</code> of the previous press of the same code is dropped together with its matching release, so the key/button state stays consistent. For non-EV_KEY codes <code>click</code> mode degrades to <code>event</code> mode (there is no press/release pair).</p>
-<p>In <code>event</code> mode every event of a tracked code arriving within the window of the previous one is dropped, regardless of value. </p>
+<p>For <code>EV_KEY</code> codes a press that lands within <code>time_threshold</code> of the previous press of the same code is dropped together with its matching release, so the key/button state stays consistent.</p>
+<p>For any other event type, every event arriving within the window is dropped, regardless of value. </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a439b80b173bd442a3972c1cfb501cf7b" name="a439b80b173bd442a3972c1cfb501cf7b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a439b80b173bd442a3972c1cfb501cf7b">&#9670;&#160;</a></span>msec_type</h2>
@@ -207,7 +194,7 @@ template&lt;std::size_t N&gt; </div>
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a230c08f93d33deb2e7a312a9623ad4ce" name="a230c08f93d33deb2e7a312a9623ad4ce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a230c08f93d33deb2e7a312a9623ad4ce">&#9670;&#160;</a></span>basic_debounce() <span class="overload">[1/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a230c08f93d33deb2e7a312a9623ad4ce">&#9670;&#160;</a></span>basic_debounce() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -228,44 +215,6 @@ template&lt;std::size_t N&gt; </div>
           <td></td>
           <td class="paramtype"><a class="el" href="structfs8_1_1basic__debounce.html#a439b80b173bd442a3972c1cfb501cf7b">msec_type</a> const&#160;</td>
           <td class="paramname"><em>inp_time_threshold</em> = <code><a class="el" href="structfs8_1_1basic__debounce.html#aadc037e4cd0a1981b9330a5c6318b215">default_time_threshold</a></code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a81953a81b19d96acafcee3fdf392f89f" name="a81953a81b19d96acafcee3fdf392f89f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a81953a81b19d96acafcee3fdf392f89f">&#9670;&#160;</a></span>basic_debounce() <span class="overload">[2/4]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;std::size_t N&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__debounce.html">fs8::basic_debounce</a>&lt; N &gt;::basic_debounce </td>
-          <td>(</td>
-          <td class="paramtype">std::array&lt; <a class="el" href="structfs8_1_1event__code.html">event_code</a>, N &gt; const&#160;</td>
-          <td class="paramname"><em>inp_codes</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257">debounce_mode</a> const&#160;</td>
-          <td class="paramname"><em>inp_mode</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -283,7 +232,7 @@ template&lt;std::size_t N&gt; </div>
 </div>
 </div>
 <a id="a6d477635833a276a25660ef17563c365" name="a6d477635833a276a25660ef17563c365"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6d477635833a276a25660ef17563c365">&#9670;&#160;</a></span>basic_debounce() <span class="overload">[3/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d477635833a276a25660ef17563c365">&#9670;&#160;</a></span>basic_debounce() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -320,74 +269,7 @@ template&lt;std::size_t N&gt; </div>
 
 </div>
 </div>
-<a id="a643817e55867ed382a1481b361625c0d" name="a643817e55867ed382a1481b361625c0d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a643817e55867ed382a1481b361625c0d">&#9670;&#160;</a></span>basic_debounce() <span class="overload">[4/4]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;std::size_t N&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__debounce.html">fs8::basic_debounce</a>&lt; N &gt;::basic_debounce </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structfs8_1_1event__code.html">event_code</a> const&#160;</td>
-          <td class="paramname"><em>inp_code</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257">debounce_mode</a> const&#160;</td>
-          <td class="paramname"><em>inp_mode</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a556b8e453bfa00a6742b1d24e21f580f" name="a556b8e453bfa00a6742b1d24e21f580f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a556b8e453bfa00a6742b1d24e21f580f">&#9670;&#160;</a></span>click()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;std::size_t N&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">consteval auto <a class="el" href="structfs8_1_1basic__debounce.html">fs8::basic_debounce</a>&lt; N &gt;::click </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Compile-time switch to <code>click</code> mode (the default). </p>
-
-</div>
-</div>
 <a id="aab9e941457bd45b9d6772f6ff421cec6" name="aab9e941457bd45b9d6772f6ff421cec6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aab9e941457bd45b9d6772f6ff421cec6">&#9670;&#160;</a></span>consteval_copyable() <span class="overload">[1/3]</span></h2>
 
@@ -468,35 +350,6 @@ template&lt;std::size_t N&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-</div>
-</div>
-<a id="a483b2401459adfdea68c4612b92182e9" name="a483b2401459adfdea68c4612b92182e9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a483b2401459adfdea68c4612b92182e9">&#9670;&#160;</a></span>event()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;std::size_t N&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">consteval auto <a class="el" href="structfs8_1_1basic__debounce.html">fs8::basic_debounce</a>&lt; N &gt;::event </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Compile-time switch to <code>event</code> mode: drop any event within the window. </p>
 
 </div>
 </div>
@@ -664,36 +517,6 @@ template&lt;std::size_t N&gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Replace the tracked codes at runtime (e.g. from app args). Up to the first <code>N</code> codes are used; remaining slots stay unmatchable. Tracking state is reset so a changed code list starts fresh. </p>
-
-</div>
-</div>
-<a id="ad11870aff688829198c13904e9d29b88" name="ad11870aff688829198c13904e9d29b88"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad11870aff688829198c13904e9d29b88">&#9670;&#160;</a></span>set_mode()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;std::size_t N&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void <a class="el" href="structfs8_1_1basic__debounce.html">fs8::basic_debounce</a>&lt; N &gt;::set_mode </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257">debounce_mode</a> const&#160;</td>
-          <td class="paramname"><em>inp_mode</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Change the debounce mode at runtime (e.g. from app args). </p>
 
 </div>
 </div>

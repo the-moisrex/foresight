@@ -6,7 +6,7 @@ var searchData=
   ['variable_5fsize_5fv_3',['variable_size_v',['../namespacefs8.html#aa29e3a0f19262b3b9b8fc129a6740f05',1,'fs8']]],
   ['vel_5fx_4',['vel_x',['../structfs8_1_1pimpl__idiom_1_1impl.html#a246fc3432df93076c75d8887b914a1f6',1,'fs8::pimpl_idiom::impl']]],
   ['vel_5fy_5',['vel_y',['../structfs8_1_1pimpl__idiom_1_1impl.html#a890de8e97cc40468adbca91cfed81b3c',1,'fs8::pimpl_idiom::impl']]],
-  ['version_5frequested_6',['version_requested',['../structfs8_1_1basic__parsed__args.html#a55d21aa522d8f9f50f6a3f118b7695db',1,'fs8::basic_parsed_args']]],
+  ['version_5frequested_6',['version_requested',['../structfs8_1_1parsed__args.html#a9c65eed94847c35051c66e8ff803cc0c',1,'fs8::parsed_args']]],
   ['via_5fusb_7',['via_usb',['../namespacefs8_1_1attr.html#a62c3302b38720e65b6eb52ea38e17e81',1,'fs8::attr']]],
   ['visual_5fkeys_8',['visual_keys',['../namespacefs8.html#ad2d7a6e666e13f66f2bca6add2876069',1,'fs8']]]
 ];

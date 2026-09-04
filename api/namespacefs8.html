@@ -340,8 +340,6 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__output__selector.html">basic_output_selector</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__parsed__args.html">basic_parsed_args</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__pass__trigger__tag.html">basic_pass_trigger_tag</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__pen2mice.html">basic_pen2mice</a></td></tr>
@@ -519,6 +517,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1output__flag__group.html">output_flag_group</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1owned__query.html">owned_query</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html">parsed_args</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__evtest__event.html">parsed_evtest_event</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One parsed line of evtest-format output.  <a href="structfs8_1_1parsed__evtest__event.html#details">More...</a><br /></td></tr>
@@ -775,11 +775,6 @@ Enumerations</h2></td></tr>
 , <a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b">exit</a>
  }</td></tr>
 <tr class="separator:ac5160ee6707deaad4917cbf8bd1e99bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2008ba272c641df21f53c054eacdf257" id="r_a2008ba272c641df21f53c054eacdf257"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257">fs8::debounce_mode</a> : std::uint8_t { <a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257aa8affc088cbca89fa20dbd98c91362e4">click</a>
-, <a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>
- }</td></tr>
-<tr class="memdesc:a2008ba272c641df21f53c054eacdf257"><td class="mdescLeft">&#160;</td><td class="mdescRight">How a debounce drops events.  <a href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257">More...</a><br /></td></tr>
-<tr class="separator:a2008ba272c641df21f53c054eacdf257"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5a20a1a79bbb5147ba7a0db2bb301c63" id="r_a5a20a1a79bbb5147ba7a0db2bb301c63"><td class="memItemLeft" align="right" valign="top">enum struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63">fs8::device_change</a> : std::uint8_t { <a class="el" href="namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63a06aa6fa8bdc2078e7e1bd903e70c8f6a">connected</a>
 , <a class="el" href="namespacefs8.html#a5a20a1a79bbb5147ba7a0db2bb301c63a3a561116f0c9675a3c83d21fa365050d">disconnected</a>
  }</td></tr>
@@ -1218,9 +1213,9 @@ requires (std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#adcd5f
 <tr class="separator:a174bdbde5061f4bbd7985525c50e7748"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f19402142417d98c5b54c87111661c6" id="r_a5f19402142417d98c5b54c87111661c6"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5f19402142417d98c5b54c87111661c6">fs8::operator==</a> (<a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;lhs, <a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;rhs) noexcept</td></tr>
 <tr class="separator:a5f19402142417d98c5b54c87111661c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a821846ec9588a6613cba5e2070b49da8" id="r_a821846ec9588a6613cba5e2070b49da8"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a821846ec9588a6613cba5e2070b49da8">fs8::is_invalid</a> (<a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="memitem:a821846ec9588a6613cba5e2070b49da8" id="r_a821846ec9588a6613cba5e2070b49da8"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a821846ec9588a6613cba5e2070b49da8">fs8::is_invalid</a> (<a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;event) noexcept</td></tr>
 <tr class="separator:a821846ec9588a6613cba5e2070b49da8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae722fd1e3ee0e8c2f85d947b48ba18c7" id="r_ae722fd1e3ee0e8c2f85d947b48ba18c7"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae722fd1e3ee0e8c2f85d947b48ba18c7">fs8::is_invalid</a> (<a class="el" href="structfs8_1_1key__event.html">key_event</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="memitem:ae722fd1e3ee0e8c2f85d947b48ba18c7" id="r_ae722fd1e3ee0e8c2f85d947b48ba18c7"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae722fd1e3ee0e8c2f85d947b48ba18c7">fs8::is_invalid</a> (<a class="el" href="structfs8_1_1key__event.html">key_event</a> const &amp;event) noexcept</td></tr>
 <tr class="separator:ae722fd1e3ee0e8c2f85d947b48ba18c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acef00bf97bc1f9ccf3675d1a36edf2f3" id="r_acef00bf97bc1f9ccf3675d1a36edf2f3"><td class="memItemLeft" align="right" valign="top">constexpr std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#acef00bf97bc1f9ccf3675d1a36edf2f3">fs8::hashed</a> (<a class="el" href="structfs8_1_1event__code.html">event_code</a> const &amp;<a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a>) noexcept</td></tr>
 <tr class="separator:acef00bf97bc1f9ccf3675d1a36edf2f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1262,17 +1257,17 @@ requires (std::convertible_to&lt;T, <a class="el" href="namespacefs8.html#adcd5f
 <tr class="separator:a6b1a16f96702f325cff9977e6d6a121a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a266fcad2b4c49218e11e63b7fe183613" id="r_a266fcad2b4c49218e11e63b7fe183613"><td class="memItemLeft" align="right" valign="top">consteval <a class="el" href="structfs8_1_1event__type.html">event_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a266fcad2b4c49218e11e63b7fe183613">fs8::syn</a> () noexcept</td></tr>
 <tr class="separator:a266fcad2b4c49218e11e63b7fe183613"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23bdc0e0cf884a92b1a95580caebe6bd" id="r_a23bdc0e0cf884a92b1a95580caebe6bd"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a23bdc0e0cf884a92b1a95580caebe6bd">fs8::is_mouse_movement</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="memitem:a23bdc0e0cf884a92b1a95580caebe6bd" id="r_a23bdc0e0cf884a92b1a95580caebe6bd"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a23bdc0e0cf884a92b1a95580caebe6bd">fs8::is_mouse_movement</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;event) noexcept</td></tr>
 <tr class="separator:a23bdc0e0cf884a92b1a95580caebe6bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a938387a7a0a0264ae3cc05b0fcbc4914" id="r_a938387a7a0a0264ae3cc05b0fcbc4914"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a938387a7a0a0264ae3cc05b0fcbc4914">fs8::is_high_res_scroll</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="memitem:a938387a7a0a0264ae3cc05b0fcbc4914" id="r_a938387a7a0a0264ae3cc05b0fcbc4914"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a938387a7a0a0264ae3cc05b0fcbc4914">fs8::is_high_res_scroll</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;event) noexcept</td></tr>
 <tr class="separator:a938387a7a0a0264ae3cc05b0fcbc4914"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeb77a6041ae57e9ce9d2986db5470f0c" id="r_aeb77a6041ae57e9ce9d2986db5470f0c"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aeb77a6041ae57e9ce9d2986db5470f0c">fs8::is_mouse_clicks</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="memitem:aeb77a6041ae57e9ce9d2986db5470f0c" id="r_aeb77a6041ae57e9ce9d2986db5470f0c"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aeb77a6041ae57e9ce9d2986db5470f0c">fs8::is_mouse_clicks</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;event) noexcept</td></tr>
 <tr class="separator:aeb77a6041ae57e9ce9d2986db5470f0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a626fbce15918f461d6d70f429f0095" id="r_a2a626fbce15918f461d6d70f429f0095"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2a626fbce15918f461d6d70f429f0095">fs8::is_mouse_event</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="memitem:a2a626fbce15918f461d6d70f429f0095" id="r_a2a626fbce15918f461d6d70f429f0095"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2a626fbce15918f461d6d70f429f0095">fs8::is_mouse_event</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;event) noexcept</td></tr>
 <tr class="separator:a2a626fbce15918f461d6d70f429f0095"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2ef80f285619af3478b43d49a9234d88" id="r_a2ef80f285619af3478b43d49a9234d88"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2ef80f285619af3478b43d49a9234d88">fs8::is_syn</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="memitem:a2ef80f285619af3478b43d49a9234d88" id="r_a2ef80f285619af3478b43d49a9234d88"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2ef80f285619af3478b43d49a9234d88">fs8::is_syn</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;event) noexcept</td></tr>
 <tr class="separator:a2ef80f285619af3478b43d49a9234d88"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aea211e19ffdede51989600ba22d0879e" id="r_aea211e19ffdede51989600ba22d0879e"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aea211e19ffdede51989600ba22d0879e">fs8::is_syn</a> (<a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="memitem:aea211e19ffdede51989600ba22d0879e" id="r_aea211e19ffdede51989600ba22d0879e"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aea211e19ffdede51989600ba22d0879e">fs8::is_syn</a> (<a class="el" href="structfs8_1_1user__event.html">user_event</a> const &amp;event) noexcept</td></tr>
 <tr class="separator:aea211e19ffdede51989600ba22d0879e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac0871b2cb5f74feeb3f4f7743ad34952" id="r_ac0871b2cb5f74feeb3f4f7743ad34952"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac0871b2cb5f74feeb3f4f7743ad34952">fs8::is_special</a> (<a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;ev, <a class="el" href="structfs8_1_1special__event.html#ab0d3c7614e1ab618aeafb447aa76f763">special_event::code_type</a> const <a class="el" href="namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac">code</a>) noexcept</td></tr>
 <tr class="memdesc:ac0871b2cb5f74feeb3f4f7743ad34952"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether a <code><a class="el" href="structfs8_1_1special__event.html">special_event</a></code> matches a given lifecycle code.  <br /></td></tr>
@@ -1380,7 +1375,7 @@ requires (std::is_invocable_v&lt;T, <a class="el" href="structfs8_1_1construct__
 <tr class="separator:ae8da3c7a962ea8e4674c5e7618c679a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa8545c3eccc3e82465adae55f7ef7144" id="r_aa8545c3eccc3e82465adae55f7ef7144"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa8545c3eccc3e82465adae55f7ef7144">fs8::to_string</a> (<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">sanitizer_issue</a> const issue) noexcept</td></tr>
 <tr class="separator:aa8545c3eccc3e82465adae55f7ef7144"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac14bae7250ac9ba8429ddd4a327fced8" id="r_ac14bae7250ac9ba8429ddd4a327fced8"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac14bae7250ac9ba8429ddd4a327fced8">fs8::to_string</a> (<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">sanitizer_issue</a> const issue, <a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;<a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d">event</a>) noexcept</td></tr>
+<tr class="memitem:ac14bae7250ac9ba8429ddd4a327fced8" id="r_ac14bae7250ac9ba8429ddd4a327fced8"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ac14bae7250ac9ba8429ddd4a327fced8">fs8::to_string</a> (<a class="el" href="namespacefs8.html#a7275d4de75bd1ef162eb0f4b4d4b015d">sanitizer_issue</a> const issue, <a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;event) noexcept</td></tr>
 <tr class="separator:ac14bae7250ac9ba8429ddd4a327fced8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a621d548d40a1829c81c2b84f46ae8ff5" id="r_a621d548d40a1829c81c2b84f46ae8ff5"><td class="memTemplParams" colspan="2">template&lt;typename CharT &gt; </td></tr>
 <tr class="memitem:a621d548d40a1829c81c2b84f46ae8ff5"><td class="memTemplItemLeft" align="right" valign="top">constexpr std::basic_string_view&lt; CharT &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a621d548d40a1829c81c2b84f46ae8ff5">fs8::to_string</a> (std::basic_string_view&lt; CharT &gt; str) noexcept</td></tr>
@@ -1986,7 +1981,7 @@ template&lt;std::size_t N&gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Deprecated aliases of the general <code>fs8.mods:debounce</code> mod.</p>
-<p><code>basic_drop_fast_double_clicks</code> used to be a mouse-click-only debouncer; it is now a thin alias of <code><a class="el" href="structfs8_1_1basic__debounce.html">basic_debounce</a></code> in <code>click</code> mode. Prefer the <code>debounce</code> mod going forward. </p>
+<p><code>basic_drop_fast_double_clicks</code> used to be a mouse-click-only debouncer; it is now a thin alias of <code><a class="el" href="structfs8_1_1basic__debounce.html">basic_debounce</a></code>. Prefer the <code>debounce</code> mod going forward. </p>
 
 </div>
 </div>
@@ -2483,36 +2478,6 @@ template&lt;template&lt; typename... &gt; typename Templ, typename... ModsT&gt; 
 <tr><td class="fieldname"><a id="ac5160ee6707deaad4917cbf8bd1e99bdada9272a324969f72f7a666f130249238" name="ac5160ee6707deaad4917cbf8bd1e99bdada9272a324969f72f7a666f130249238"></a>drop_event&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="ac5160ee6707deaad4917cbf8bd1e99bda6ccf929934691710135f3f0df7cc43c5" name="ac5160ee6707deaad4917cbf8bd1e99bda6ccf929934691710135f3f0df7cc43c5"></a>recovery&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b" name="ac5160ee6707deaad4917cbf8bd1e99bdaf24f62eeb789199b9b2e467df3b1876b"></a>exit&#160;</td><td class="fielddoc"></td></tr>
-</table>
-
-</div>
-</div>
-<a id="a2008ba272c641df21f53c054eacdf257" name="a2008ba272c641df21f53c054eacdf257"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2008ba272c641df21f53c054eacdf257">&#9670;&#160;</a></span>debounce_mode</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum struct <a class="el" href="namespacefs8.html#a2008ba272c641df21f53c054eacdf257">fs8::debounce_mode</a> : std::uint8_t</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">strong</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>How a debounce drops events. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a2008ba272c641df21f53c054eacdf257aa8affc088cbca89fa20dbd98c91362e4" name="a2008ba272c641df21f53c054eacdf257aa8affc088cbca89fa20dbd98c91362e4"></a>click&#160;</td><td class="fielddoc"><p>buttons/keys: drop a second press within the window and its matching release. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d" name="a2008ba272c641df21f53c054eacdf257a4119639092e62c55ea8be348e4d9260d"></a>event&#160;</td><td class="fielddoc"><p>any code: drop every event that lands within the window of the previous one. </p>
-</td></tr>
 </table>
 
 </div>

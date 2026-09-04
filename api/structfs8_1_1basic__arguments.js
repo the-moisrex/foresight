@@ -1,12 +1,13 @@
 var structfs8_1_1basic__arguments =
 [
-    [ "parsed_args", "structfs8_1_1basic__arguments.html#a2ce2b68ebdd5ecb0974515d849869365", null ],
-    [ "basic_arguments", "structfs8_1_1basic__arguments.html#a8ebc1c5a21ddb33e84d288c6f2ca68ff", null ],
-    [ "add_flag", "structfs8_1_1basic__arguments.html#aa26d759b008bd14b93d70626602dff91", null ],
-    [ "add_flags", "structfs8_1_1basic__arguments.html#a0a8599269010462fa48a2872b12b2c18", null ],
-    [ "help", "structfs8_1_1basic__arguments.html#af4c7752342ab5ff0bb755e63ea3da325", null ],
-    [ "operator()", "structfs8_1_1basic__arguments.html#a2cab827a4ebb929888ff22acdcd28600", null ],
-    [ "operator()", "structfs8_1_1basic__arguments.html#ac909a06d5fd7060e44d7fd17b5d21d2f", null ],
-    [ "operator[]", "structfs8_1_1basic__arguments.html#a16f620cf57ff948955ba520aae62b30c", null ],
-    [ "positional", "structfs8_1_1basic__arguments.html#a92b436b3d54cfd18072e544e81ad138a", null ]
+    [ "parsed_args", "structfs8_1_1basic__arguments.html#ae019256797f2802b0d315378797a9577", null ],
+    [ "basic_arguments", "structfs8_1_1basic__arguments.html#a40a470c311748930c611d82c95bfcb38", null ],
+    [ "basic_arguments", "structfs8_1_1basic__arguments.html#a82479fdaf5c6478406973fbf807f8fbd", null ],
+    [ "add_flag", "structfs8_1_1basic__arguments.html#a143066d190bb7b24379b802a7700d5c8", null ],
+    [ "add_flags", "structfs8_1_1basic__arguments.html#a2499a172afda616cdae13db91f0b6f26", null ],
+    [ "help", "structfs8_1_1basic__arguments.html#a5d1694e0fec1b09125a241efac8f712a", null ],
+    [ "operator()", "structfs8_1_1basic__arguments.html#a34b74b72e64aa7783b4ece6d0314a9e2", null ],
+    [ "operator()", "structfs8_1_1basic__arguments.html#a4b4a02dcd6fb2a90417b50e70368172a", null ],
+    [ "operator[]", "structfs8_1_1basic__arguments.html#af45ad88d117ab50b2c77df3d98016551", null ],
+    [ "positional", "structfs8_1_1basic__arguments.html#a6628f0533ce16468b2d7201ff1e152e1", null ]
 ];
