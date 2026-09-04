@@ -95,6 +95,9 @@ target_sources(${LIB_NAME}
         main/systemd.cxx
         mods/abs2rel.cxx
         mods/autocomplete.cxx
+        mods/capture.cxx
+        mods/capture_format.cxx
+        mods/capture_naming.cxx
         mods/device.cxx
         mods/drop.cxx
         mods/emitter.cxx
@@ -108,6 +111,7 @@ target_sources(${LIB_NAME}
         mods/on.cxx
         mods/quantifier.cxx
         mods/record.cxx
+        mods/replay.cxx
         mods/replace.cxx
         mods/router.cxx
         mods/sanitizer.cxx
@@ -147,6 +151,9 @@ target_sources(${LIB_NAME}
         mods/abs2rel.ixx
         mods/autocomplete.ixx
         mods/benchmark.ixx
+        mods/capture.ixx
+        mods/capture_format.ixx
+        mods/capture_naming.ixx
         mods/context_vars.ixx
         mods/debounce.ixx
         mods/device.ixx
@@ -171,6 +178,7 @@ target_sources(${LIB_NAME}
         mods/output_selector.ixx
         mods/quantifier.ixx
         mods/record.ixx
+        mods/replay.ixx
         mods/replace.ixx
         mods/router.ixx
         mods/sanitizer.ixx
