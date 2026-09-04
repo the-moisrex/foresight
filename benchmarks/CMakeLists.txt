@@ -1,5 +1,11 @@
 set(name benchmarks)
 
+# Shared header directory
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/common)
+
+# Copy event files to build directory
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/events DESTINATION ${CMAKE_BINARY_DIR}/benchmarks)
+
 # Micro-benchmarks (Google Benchmark)
 file(GLOB MICRO_BENCH_SOURCES micro/*_bench.cxx)
 foreach(source ${MICRO_BENCH_SOURCES})

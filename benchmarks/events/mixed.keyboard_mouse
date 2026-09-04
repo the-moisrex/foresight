@@ -1,0 +1,41 @@
+# Mixed: keyboard typing + mouse clicks
+# type code value
+# EV_KEY=1, EV_REL=2, EV_SYN=0
+# KEY_A=30, BTN_LEFT=272, SYN_REPORT=0
+# Type 'a'
+1 30 1
+0 0 0
+1 30 0
+0 0 0
+# Mouse move
+2 0 10
+2 1 5
+0 0 0
+# Click
+1 272 1
+0 0 0
+1 272 0
+0 0 0
+# Type 'b'
+1 48 1
+0 0 0
+1 48 0
+0 0 0
+# Mouse move
+2 0 -5
+2 1 15
+0 0 0
+# Click
+1 272 1
+0 0 0
+1 272 0
+0 0 0
+# Type 'c'
+1 46 1
+0 0 0
+1 46 0
+0 0 0
+# Mouse move
+2 0 20
+2 1 -10
+0 0 0

@@ -3,37 +3,50 @@
 
 import fs8.mods;
 
+#include "events.hxx"
+
 using namespace fs8;
 
 // Debounce: pass-through (event not in tracked set)
 static void BM_Debounce_Passthrough(benchmark::State& state) {
     auto db = debounce[BTN_LEFT];
-    auto const ev = event_type{EV_KEY, KEY_A, 1};
+    auto events = bench::load_events("benchmarks/events/mouse.movement");
+    std::size_t i = 0;
     for (auto _ : state) {
+        auto const& ev = events[i % events.size()];
         benchmark::DoNotOptimize(db(ev));
+        ++i;
     }
 }
 BENCHMARK(BM_Debounce_Passthrough);
 
-// Debounce: tracked event (first call passes, second drops)
+// Debounce: tracked event (first call passes)
 static void BM_Debounce_TrackedFirst(benchmark::State& state) {
+    auto events = bench::load_events("benchmarks/events/keyboard.typing");
+    std::size_t i = 0;
     for (auto _ : state) {
         state.PauseTiming();
         auto db = debounce[BTN_LEFT];
         state.ResumeTiming();
-        auto const ev = event_type{EV_KEY, BTN_LEFT, 1};
+        auto const& ev = events[i % events.size()];
         benchmark::DoNotOptimize(db(ev));
+        ++i;
     }
 }
 BENCHMARK(BM_Debounce_TrackedFirst);
 
-// Debounce: tracked event (second call drops — measures drop path)
+// Debounce: tracked event (second call drops)
 static void BM_Debounce_Drop(benchmark::State& state) {
     auto db = debounce[BTN_LEFT];
-    auto const ev = event_type{EV_KEY, BTN_LEFT, 1};
-    benchmark::DoNotOptimize(db(ev));  // first call — passes
+    auto events = bench::load_events("benchmarks/events/keyboard.typing");
+    for (auto const& ev : events) {
+        benchmark::DoNotOptimize(db(ev));  // seed
+    }
+    std::size_t i = 0;
     for (auto _ : state) {
+        auto const& ev = events[i % events.size()];
         benchmark::DoNotOptimize(db(ev));
+        ++i;
     }
 }
 BENCHMARK(BM_Debounce_Drop);
@@ -41,19 +54,25 @@ BENCHMARK(BM_Debounce_Drop);
 // Debounce: multiple codes
 static void BM_Debounce_MultiCode(benchmark::State& state) {
     auto db = debounce[BTN_LEFT, BTN_RIGHT, BTN_MIDDLE];
-    auto const ev = event_type{EV_KEY, BTN_LEFT, 1};
+    auto events = bench::load_events("benchmarks/events/mixed.keyboard_mouse");
+    std::size_t i = 0;
     for (auto _ : state) {
+        auto const& ev = events[i % events.size()];
         benchmark::DoNotOptimize(db(ev));
+        ++i;
     }
 }
 BENCHMARK(BM_Debounce_MultiCode);
 
-// Debounce: event mode (drops any event within window)
+// Debounce: event mode
 static void BM_Debounce_EventMode(benchmark::State& state) {
     auto db = debounce[{.type = EV_ABS, .code = ABS_X}].event();
-    auto const ev = event_type{EV_ABS, ABS_X, 100};
+    auto events = bench::load_events("benchmarks/events/mouse.movement");
+    std::size_t i = 0;
     for (auto _ : state) {
+        auto const& ev = events[i % events.size()];
         benchmark::DoNotOptimize(db(ev));
+        ++i;
     }
 }
 BENCHMARK(BM_Debounce_EventMode);
