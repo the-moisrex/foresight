@@ -114,7 +114,7 @@ var searchData=
   ['syn_111',['syn',['../namespacefs8.html#a266fcad2b4c49218e11e63b7fe183613',1,'fs8::syn()'],['../namespacefs8_1_1caps.html#a119ac66b13accb404016f59c9abb938d',1,'fs8::caps::syn']]],
   ['syn_5fcount_112',['syn_count',['../structfs8_1_1mouse__accum.html#a650c2baf7e4e851318d334a0e9430df7',1,'fs8::mouse_accum']]],
   ['syn_5fuser_5fevent_113',['syn_user_event',['../namespacefs8.html#a6d35b5bb608db37a858ce51e52952a52',1,'fs8']]],
-  ['sys_5finput_5fdir_114',['SYS_INPUT_DIR',['../uinput_8cxx.html#a81f4e5a0468c8040953b6372c9dd5712',1,'uinput.cxx']]],
+  ['sys_5finput_5fdir_114',['SYS_INPUT_DIR',['../uinput_8cxx.html#a9e4e268f0f890064fe522a13b03f8be5',1,'uinput.cxx']]],
   ['sysattr_115',['sysattr',['../namespacefs8.html#af91fe56ddc8f7d8127f96558a4560a62',1,'fs8::sysattr()'],['../structfs8_1_1udev__device.html#a74a4e7f01bcb3f0d9686c4933e9d8447',1,'fs8::udev_device::sysattr()'],['../namespacefs8.html#a2d10795021a7a5b0b402171e6fb5532c',1,'fs8::sysattr()']]],
   ['sysattrs_116',['sysattrs',['../structfs8_1_1udev__device.html#a42426f0adcc53b6a67560cdde6c1b6e8',1,'fs8::udev_device::sysattrs()'],['../namespacefs8.html#ab6ab385ce53fee43ed26924986c613de',1,'fs8::sysattrs()']]],
   ['sysname_117',['sysname',['../structfs8_1_1udev__device.html#a3efae16efdc6d606b80889b32ec65b90',1,'fs8::udev_device::sysname()'],['../namespacefs8.html#ab7f0fa2c09b263592204789448be49e1a42c0989cb33b3c3eee722eb0eed72706',1,'fs8::sysname']]],

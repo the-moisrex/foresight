@@ -102,8 +102,8 @@ $(document).ready(function(){initNavTree('module_fs8_8cli.html',''); initResizab
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__flag.html">fs8::basic_flag</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes a single command-line flag.  <a href="structfs8_1_1basic__flag.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1flag.html">fs8::flag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes a single command-line flag.  <a href="structfs8_1_1flag.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html">fs8::parsed_args</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -116,8 +116,6 @@ Typedefs</h2></td></tr>
 <tr class="separator:ad8ec109179a163ef3a6b65cb9831c1e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c3a9c64a0013ea6e970e07d455edd7f" id="r_a3c3a9c64a0013ea6e970e07d455edd7f"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#a3c3a9c64a0013ea6e970e07d455edd7f">const_iterator</a> = iterator</td></tr>
 <tr class="separator:a3c3a9c64a0013ea6e970e07d455edd7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae019256797f2802b0d315378797a9577" id="r_ae019256797f2802b0d315378797a9577"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#ae019256797f2802b0d315378797a9577">parsed_args</a> = parsed_args</td></tr>
-<tr class="separator:ae019256797f2802b0d315378797a9577"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -167,13 +165,13 @@ requires (sizeof...(Args) == DefaultsN &amp;&amp; DefaultsN &gt; 0)</td></tr>
 <tr class="memitem:a5d1694e0fec1b09125a241efac8f712a" id="r_a5d1694e0fec1b09125a241efac8f712a"><td class="memItemLeft" align="right" valign="top">constexpr basic_arguments&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a5d1694e0fec1b09125a241efac8f712a">help</a> (std::string_view const text) const noexcept</td></tr>
 <tr class="memdesc:a5d1694e0fec1b09125a241efac8f712a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a custom help text; when empty, help is auto-generated.  <br /></td></tr>
 <tr class="separator:a5d1694e0fec1b09125a241efac8f712a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a143066d190bb7b24379b802a7700d5c8" id="r_a143066d190bb7b24379b802a7700d5c8"><td class="memItemLeft" align="right" valign="top">constexpr basic_arguments&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a143066d190bb7b24379b802a7700d5c8">add_flag</a> (basic_flag const flag) const noexcept</td></tr>
-<tr class="memdesc:a143066d190bb7b24379b802a7700d5c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register an extra flag.  <br /></td></tr>
-<tr class="separator:a143066d190bb7b24379b802a7700d5c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab93e5d86b40f225a967af398d0dac1c" id="r_aab93e5d86b40f225a967af398d0dac1c"><td class="memItemLeft" align="right" valign="top">constexpr basic_arguments&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#aab93e5d86b40f225a967af398d0dac1c">add_flag</a> (flag const fl) const noexcept</td></tr>
+<tr class="memdesc:aab93e5d86b40f225a967af398d0dac1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register an extra flag.  <br /></td></tr>
+<tr class="separator:aab93e5d86b40f225a967af398d0dac1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2499a172afda616cdae13db91f0b6f26" id="r_a2499a172afda616cdae13db91f0b6f26"><td class="memTemplParams" colspan="2">template&lt;typename Range &gt; <br />
 requires requires(Range const&amp; r) { std::begin(r); std::end(r); }</td></tr>
 <tr class="memitem:a2499a172afda616cdae13db91f0b6f26"><td class="memTemplItemLeft" align="right" valign="top">constexpr basic_arguments&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a2499a172afda616cdae13db91f0b6f26">add_flags</a> (Range const &amp;flags) const noexcept</td></tr>
-<tr class="memdesc:a2499a172afda616cdae13db91f0b6f26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register multiple flags from a range (e.g. <code>std::array&lt;<a class="el" href="structfs8_1_1basic__flag.html" title="Describes a single command-line flag.">basic_flag</a>, N&gt;</code>).  <br /></td></tr>
+<tr class="memdesc:a2499a172afda616cdae13db91f0b6f26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register multiple flags from a range (e.g. <code>std::array&lt;flag, N&gt;</code>).  <br /></td></tr>
 <tr class="separator:a2499a172afda616cdae13db91f0b6f26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b4a02dcd6fb2a90417b50e70368172a" id="r_a4b4a02dcd6fb2a90417b50e70368172a"><td class="memItemLeft" align="right" valign="top">parsed_args&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__arguments.html#a4b4a02dcd6fb2a90417b50e70368172a">operator()</a> (int const argc, char const *const *argv) const &amp;noexcept</td></tr>
 <tr class="memdesc:a4b4a02dcd6fb2a90417b50e70368172a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse <code>argc</code>/<code>argv</code> into positional arguments and flag state.  <br /></td></tr>
@@ -183,22 +181,22 @@ requires requires(Range const&amp; r) { std::begin(r); std::end(r); }</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a77f6bf0020127bd369b67cad1460da09" id="r_a77f6bf0020127bd369b67cad1460da09"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__flag.html#a77f6bf0020127bd369b67cad1460da09">name</a></td></tr>
-<tr class="separator:a77f6bf0020127bd369b67cad1460da09"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9f1fb52e288596a9c7359fba7f30abb" id="r_ac9f1fb52e288596a9c7359fba7f30abb"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__flag.html#ac9f1fb52e288596a9c7359fba7f30abb">alias</a></td></tr>
-<tr class="separator:ac9f1fb52e288596a9c7359fba7f30abb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88dcf0e7168d3e855d510b251d9a5fed" id="r_a88dcf0e7168d3e855d510b251d9a5fed"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__flag.html#a88dcf0e7168d3e855d510b251d9a5fed">help</a></td></tr>
-<tr class="separator:a88dcf0e7168d3e855d510b251d9a5fed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac44fd4c1e4585f6a93e1b56d5d0f0944" id="r_ac44fd4c1e4585f6a93e1b56d5d0f0944"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__flag.html#ac44fd4c1e4585f6a93e1b56d5d0f0944">takes_value</a> = false</td></tr>
-<tr class="separator:ac44fd4c1e4585f6a93e1b56d5d0f0944"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60533d83d9a34dff5daff9d11f0279e4" id="r_a60533d83d9a34dff5daff9d11f0279e4"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1flag.html#a60533d83d9a34dff5daff9d11f0279e4">name</a></td></tr>
+<tr class="separator:a60533d83d9a34dff5daff9d11f0279e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03f441b92893ecb1302f209127ef755e" id="r_a03f441b92893ecb1302f209127ef755e"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1flag.html#a03f441b92893ecb1302f209127ef755e">alias</a></td></tr>
+<tr class="separator:a03f441b92893ecb1302f209127ef755e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad49a39fe866b63793e28f302b049d08" id="r_aad49a39fe866b63793e28f302b049d08"><td class="memItemLeft" align="right" valign="top">std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1flag.html#aad49a39fe866b63793e28f302b049d08">help</a></td></tr>
+<tr class="separator:aad49a39fe866b63793e28f302b049d08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad570428184839da589e8dab54ab7190" id="r_aad570428184839da589e8dab54ab7190"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1flag.html#aad570428184839da589e8dab54ab7190">takes_value</a> = false</td></tr>
+<tr class="separator:aad570428184839da589e8dab54ab7190"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8d0434a74092c33fb54d413f06127c24" id="r_a8d0434a74092c33fb54d413f06127c24"><td class="memItemLeft" align="right" valign="top">positional_array&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#a8d0434a74092c33fb54d413f06127c24">storage</a> {}</td></tr>
 <tr class="memdesc:a8d0434a74092c33fb54d413f06127c24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inline storage for the positional arguments.  <br /></td></tr>
 <tr class="separator:a8d0434a74092c33fb54d413f06127c24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d8cb2cff47c3d45aef4bdedff9ef9a4" id="r_a1d8cb2cff47c3d45aef4bdedff9ef9a4"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#a1d8cb2cff47c3d45aef4bdedff9ef9a4">positional_count</a> = 0</td></tr>
 <tr class="separator:a1d8cb2cff47c3d45aef4bdedff9ef9a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a62f72d4e6f07aae1e9b1aa4563dc0dc3" id="r_a62f72d4e6f07aae1e9b1aa4563dc0dc3"><td class="memItemLeft" align="right" valign="top">std::array&lt; basic_flag, max_flags &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#a62f72d4e6f07aae1e9b1aa4563dc0dc3">flags</a> {}</td></tr>
-<tr class="memdesc:a62f72d4e6f07aae1e9b1aa4563dc0dc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies of the registered flag definitions (for help + lookup).  <br /></td></tr>
-<tr class="separator:a62f72d4e6f07aae1e9b1aa4563dc0dc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10cb91fef31275a0a2eb29ce47e5a8e8" id="r_a10cb91fef31275a0a2eb29ce47e5a8e8"><td class="memItemLeft" align="right" valign="top">std::array&lt; flag, max_flags &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#a10cb91fef31275a0a2eb29ce47e5a8e8">flags</a> {}</td></tr>
+<tr class="memdesc:a10cb91fef31275a0a2eb29ce47e5a8e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies of the registered flag definitions (for help + lookup).  <br /></td></tr>
+<tr class="separator:a10cb91fef31275a0a2eb29ce47e5a8e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3af481a6d3f6e7c7b027f7d5df75980b" id="r_a3af481a6d3f6e7c7b027f7d5df75980b"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#a3af481a6d3f6e7c7b027f7d5df75980b">flag_count</a> = 0</td></tr>
 <tr class="separator:a3af481a6d3f6e7c7b027f7d5df75980b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad79c105ea517844aac69a44ff01ce84d" id="r_ad79c105ea517844aac69a44ff01ce84d"><td class="memItemLeft" align="right" valign="top">std::array&lt; bool, max_flags &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#ad79c105ea517844aac69a44ff01ce84d">flag_seen</a> {}</td></tr>

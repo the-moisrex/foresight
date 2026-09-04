@@ -144,9 +144,9 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a8d0434a74092c33fb54d413f06127c24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d8cb2cff47c3d45aef4bdedff9ef9a4" id="r_a1d8cb2cff47c3d45aef4bdedff9ef9a4"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#a1d8cb2cff47c3d45aef4bdedff9ef9a4">positional_count</a> = 0</td></tr>
 <tr class="separator:a1d8cb2cff47c3d45aef4bdedff9ef9a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a62f72d4e6f07aae1e9b1aa4563dc0dc3" id="r_a62f72d4e6f07aae1e9b1aa4563dc0dc3"><td class="memItemLeft" align="right" valign="top">std::array&lt; <a class="el" href="structfs8_1_1basic__flag.html">basic_flag</a>, max_flags &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#a62f72d4e6f07aae1e9b1aa4563dc0dc3">flags</a> {}</td></tr>
-<tr class="memdesc:a62f72d4e6f07aae1e9b1aa4563dc0dc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies of the registered flag definitions (for help + lookup).  <br /></td></tr>
-<tr class="separator:a62f72d4e6f07aae1e9b1aa4563dc0dc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10cb91fef31275a0a2eb29ce47e5a8e8" id="r_a10cb91fef31275a0a2eb29ce47e5a8e8"><td class="memItemLeft" align="right" valign="top">std::array&lt; <a class="el" href="structfs8_1_1flag.html">flag</a>, max_flags &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#a10cb91fef31275a0a2eb29ce47e5a8e8">flags</a> {}</td></tr>
+<tr class="memdesc:a10cb91fef31275a0a2eb29ce47e5a8e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies of the registered flag definitions (for help + lookup).  <br /></td></tr>
+<tr class="separator:a10cb91fef31275a0a2eb29ce47e5a8e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3af481a6d3f6e7c7b027f7d5df75980b" id="r_a3af481a6d3f6e7c7b027f7d5df75980b"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#a3af481a6d3f6e7c7b027f7d5df75980b">flag_count</a> = 0</td></tr>
 <tr class="separator:a3af481a6d3f6e7c7b027f7d5df75980b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad79c105ea517844aac69a44ff01ce84d" id="r_ad79c105ea517844aac69a44ff01ce84d"><td class="memItemLeft" align="right" valign="top">std::array&lt; <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">bool</a>, max_flags &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1parsed__args.html#ad79c105ea517844aac69a44ff01ce84d">flag_seen</a> {}</td></tr>
@@ -168,7 +168,7 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a9c65eed94847c35051c66e8ff803cc0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Result of parsing <code>argc</code>/<code>argv</code> through <code><a class="el" href="structfs8_1_1basic__arguments.html">basic_arguments</a></code>.</p>
+<div class="textblock"><p>Result of parsing <code>argc</code>/<code>argv</code> through <code>arguments</code>.</p>
 <p>The positional arguments are copied into inline storage (as <code>argv</code> pointers, which outlive <code>main</code>) so flags can be interspersed freely. The object itself is a range over those positionals, so it can be piped through query tags directly, e.g. <code>parsed | grab | required</code>. </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a3c3a9c64a0013ea6e970e07d455edd7f" name="a3c3a9c64a0013ea6e970e07d455edd7f"></a>
@@ -573,8 +573,8 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a62f72d4e6f07aae1e9b1aa4563dc0dc3" name="a62f72d4e6f07aae1e9b1aa4563dc0dc3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a62f72d4e6f07aae1e9b1aa4563dc0dc3">&#9670;&#160;</a></span>flags</h2>
+<a id="a10cb91fef31275a0a2eb29ce47e5a8e8" name="a10cb91fef31275a0a2eb29ce47e5a8e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10cb91fef31275a0a2eb29ce47e5a8e8">&#9670;&#160;</a></span>flags</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -583,7 +583,7 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::array&lt;<a class="el" href="structfs8_1_1basic__flag.html">basic_flag</a>, max_flags&gt; fs8::parsed_args::flags {}</td>
+          <td class="memname">std::array&lt;<a class="el" href="structfs8_1_1flag.html">flag</a>, max_flags&gt; fs8::parsed_args::flags {}</td>
         </tr>
       </table>
   </td>

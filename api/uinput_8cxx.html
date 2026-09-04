@@ -97,7 +97,8 @@ $(document).ready(function(){initNavTree('uinput_8cxx.html',''); initResizable()
   <div class="headertitle"><div class="title">uinput.cxx File Reference<div class="ingroups">module <a class="el" href="module_fs8_8mods.html">fs8.mods</a></div></div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;array&gt;</code><br />
+<div class="textblock"><code>#include &lt;algorithm&gt;</code><br />
+<code>#include &lt;array&gt;</code><br />
 <code>#include &lt;cassert&gt;</code><br />
 <code>#include &lt;cstring&gt;</code><br />
 <code>#include &lt;dirent.h&gt;</code><br />
@@ -127,8 +128,6 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a81f4e5a0468c8040953b6372c9dd5712" id="r_a81f4e5a0468c8040953b6372c9dd5712"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uinput_8cxx.html#a81f4e5a0468c8040953b6372c9dd5712">SYS_INPUT_DIR</a>&#160;&#160;&#160;&quot;/sys/devices/virtual/input/&quot;</td></tr>
-<tr class="separator:a81f4e5a0468c8040953b6372c9dd5712"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac0d6122fd87c8f92170a7310c6b67cd" id="r_aac0d6122fd87c8f92170a7310c6b67cd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uinput_8cxx.html#aac0d6122fd87c8f92170a7310c6b67cd">UINPUT_IOCTL_BASE</a>&#160;&#160;&#160;'U'</td></tr>
 <tr class="separator:aac0d6122fd87c8f92170a7310c6b67cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:addce69b15ff6053a5f57bb0f41f16c1c" id="r_addce69b15ff6053a5f57bb0f41f16c1c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uinput_8cxx.html#addce69b15ff6053a5f57bb0f41f16c1c">UI_SET_PROPBIT</a>&#160;&#160;&#160;_IOW(<a class="el" href="uinput_8cxx.html#aac0d6122fd87c8f92170a7310c6b67cd">UINPUT_IOCTL_BASE</a>, 110, int)</td></tr>
@@ -138,22 +137,10 @@ Macros</h2></td></tr>
 Variables</h2></td></tr>
 <tr class="memitem:acfe021fbcd5f8a826a4d3e8c9a45fded" id="r_acfe021fbcd5f8a826a4d3e8c9a45fded"><td class="memItemLeft" align="right" valign="top">static constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uinput_8cxx.html#acfe021fbcd5f8a826a4d3e8c9a45fded">uinput_path</a> = &quot;/dev/uinput&quot;</td></tr>
 <tr class="separator:acfe021fbcd5f8a826a4d3e8c9a45fded"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e4e268f0f890064fe522a13b03f8be5" id="r_a9e4e268f0f890064fe522a13b03f8be5"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uinput_8cxx.html#a9e4e268f0f890064fe522a13b03f8be5">SYS_INPUT_DIR</a> = &quot;/sys/devices/virtual/input/&quot;</td></tr>
+<tr class="separator:a9e4e268f0f890064fe522a13b03f8be5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="a81f4e5a0468c8040953b6372c9dd5712" name="a81f4e5a0468c8040953b6372c9dd5712"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a81f4e5a0468c8040953b6372c9dd5712">&#9670;&#160;</a></span>SYS_INPUT_DIR</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define SYS_INPUT_DIR&#160;&#160;&#160;&quot;/sys/devices/virtual/input/&quot;</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="addce69b15ff6053a5f57bb0f41f16c1c" name="addce69b15ff6053a5f57bb0f41f16c1c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#addce69b15ff6053a5f57bb0f41f16c1c">&#9670;&#160;</a></span>UI_SET_PROPBIT</h2>
 
@@ -183,6 +170,28 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="a9e4e268f0f890064fe522a13b03f8be5" name="a9e4e268f0f890064fe522a13b03f8be5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e4e268f0f890064fe522a13b03f8be5">&#9670;&#160;</a></span>SYS_INPUT_DIR</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr std::string_view SYS_INPUT_DIR = &quot;/sys/devices/virtual/input/&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="acfe021fbcd5f8a826a4d3e8c9a45fded" name="acfe021fbcd5f8a826a4d3e8c9a45fded"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acfe021fbcd5f8a826a4d3e8c9a45fded">&#9670;&#160;</a></span>uinput_path</h2>
 

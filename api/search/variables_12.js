@@ -40,5 +40,6 @@ var searchData=
   ['syn_37',['syn',['../namespacefs8_1_1caps.html#a119ac66b13accb404016f59c9abb938d',1,'fs8::caps']]],
   ['syn_5fcount_38',['syn_count',['../structfs8_1_1mouse__accum.html#a650c2baf7e4e851318d334a0e9430df7',1,'fs8::mouse_accum']]],
   ['syn_5fuser_5fevent_39',['syn_user_event',['../namespacefs8.html#a6d35b5bb608db37a858ce51e52952a52',1,'fs8']]],
-  ['syspath_40',['syspath',['../structmy__libevdev__uinput.html#a115a5c1021bdec506af3a80b8dfa4b08',1,'my_libevdev_uinput']]]
+  ['sys_5finput_5fdir_40',['SYS_INPUT_DIR',['../uinput_8cxx.html#a9e4e268f0f890064fe522a13b03f8be5',1,'uinput.cxx']]],
+  ['syspath_41',['syspath',['../structmy__libevdev__uinput.html#a115a5c1021bdec506af3a80b8dfa4b08',1,'my_libevdev_uinput']]]
 ];

@@ -9,7 +9,7 @@ var searchData=
   ['hashes_6',['hashes',['../structfs8_1_1detail_1_1router__state.html#a651c6acee65fb6a13424165bbd10e381',1,'fs8::detail::router_state']]],
   ['held_7',['held',['../namespacefs8.html#a23e4dde2a6f758bd281fe6916fdfb715',1,'fs8']]],
   ['held_5fkeys_8',['held_keys',['../structfs8_1_1device__live__state.html#affc2b60c820a0eba714f2faeb3921055',1,'fs8::device_live_state']]],
-  ['help_9',['help',['../structfs8_1_1basic__flag.html#a88dcf0e7168d3e855d510b251d9a5fed',1,'fs8::basic_flag']]],
+  ['help_9',['help',['../structfs8_1_1flag.html#aad49a39fe866b63793e28f302b049d08',1,'fs8::flag']]],
   ['help_5frequested_10',['help_requested',['../structfs8_1_1parsed__args.html#a685fd122a9db884dee1fc95dafbf0e88',1,'fs8::parsed_args']]],
   ['help_5ftext_11',['help_text',['../structfs8_1_1parsed__args.html#aaa3f2d2d357e550dbde039c7106de18d',1,'fs8::parsed_args']]],
   ['high_5fthreshold_12',['high_threshold',['../namespacefs8.html#adf54975160a256916e01e62a2ce35872',1,'fs8']]],

@@ -8,7 +8,7 @@ var searchData=
   ['tag_5',['tag',['../namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5',1,'fs8']]],
   ['tags_6',['tags',['../structfs8_1_1udev__device.html#a0ffd70a69ad38f1b3e1bbaf5a586ed62',1,'fs8::udev_device']]],
   ['take_5fframe_7',['take_frame',['../structfs8_1_1pimpl__idiom_1_1impl.html#a81718eb7795da07ca2aca84c201d8ef8',1,'fs8::pimpl_idiom::impl']]],
-  ['takes_5fvalue_8',['takes_value',['../structfs8_1_1basic__flag.html#ac44fd4c1e4585f6a93e1b56d5d0f0944',1,'fs8::basic_flag']]],
+  ['takes_5fvalue_8',['takes_value',['../structfs8_1_1flag.html#aad570428184839da589e8dab54ab7190',1,'fs8::flag']]],
   ['target_9',['target',['../structfs8_1_1query__term.html#a0dcbde96b02ff63b1069990f921dc936',1,'fs8::query_term']]],
   ['template_5fdescription_10',['template_description',['../namespacefs8.html#a45670fe5ad961da5120c85a3e8567924',1,'fs8']]],
   ['template_5ffile_11',['template_file',['../structfs8_1_1template__file.html',1,'fs8']]],

@@ -1,9 +1,8 @@
 var structfs8_1_1basic__arguments =
 [
-    [ "parsed_args", "structfs8_1_1basic__arguments.html#ae019256797f2802b0d315378797a9577", null ],
     [ "basic_arguments", "structfs8_1_1basic__arguments.html#a40a470c311748930c611d82c95bfcb38", null ],
     [ "basic_arguments", "structfs8_1_1basic__arguments.html#a82479fdaf5c6478406973fbf807f8fbd", null ],
-    [ "add_flag", "structfs8_1_1basic__arguments.html#a143066d190bb7b24379b802a7700d5c8", null ],
+    [ "add_flag", "structfs8_1_1basic__arguments.html#aab93e5d86b40f225a967af398d0dac1c", null ],
     [ "add_flags", "structfs8_1_1basic__arguments.html#a2499a172afda616cdae13db91f0b6f26", null ],
     [ "help", "structfs8_1_1basic__arguments.html#a5d1694e0fec1b09125a241efac8f712a", null ],
     [ "operator()", "structfs8_1_1basic__arguments.html#a34b74b72e64aa7783b4ece6d0314a9e2", null ],

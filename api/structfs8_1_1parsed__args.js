@@ -16,7 +16,7 @@ var structfs8_1_1parsed__args =
     [ "flag_count", "structfs8_1_1parsed__args.html#a3af481a6d3f6e7c7b027f7d5df75980b", null ],
     [ "flag_seen", "structfs8_1_1parsed__args.html#ad79c105ea517844aac69a44ff01ce84d", null ],
     [ "flag_values", "structfs8_1_1parsed__args.html#ab004cdaead92daa2256c18f1e8aa627d", null ],
-    [ "flags", "structfs8_1_1parsed__args.html#a62f72d4e6f07aae1e9b1aa4563dc0dc3", null ],
+    [ "flags", "structfs8_1_1parsed__args.html#a10cb91fef31275a0a2eb29ce47e5a8e8", null ],
     [ "help_requested", "structfs8_1_1parsed__args.html#a685fd122a9db884dee1fc95dafbf0e88", null ],
     [ "help_text", "structfs8_1_1parsed__args.html#aaa3f2d2d357e550dbde039c7106de18d", null ],
     [ "names", "structfs8_1_1parsed__args.html#a1181ba028fa4bd2a737c07c64309f5c7", null ],

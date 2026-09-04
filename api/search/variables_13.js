@@ -5,7 +5,7 @@ var searchData=
   ['tablet_5fabs_5faxes_2',['tablet_abs_axes',['../namespacefs8_1_1caps.html#a1d5c862ec15e319b9ea8718c719c321c',1,'fs8::caps']]],
   ['tablet_5fabs_5fcommon_3',['tablet_abs_common',['../namespacefs8_1_1caps.html#acd2a2cb6ce3bebacc61d7988685e8db0',1,'fs8::caps']]],
   ['tablet_5ftool_5fbtns_4',['tablet_tool_btns',['../namespacefs8_1_1caps.html#a25888e27a78d199003f4128c98fa36f7',1,'fs8::caps']]],
-  ['takes_5fvalue_5',['takes_value',['../structfs8_1_1basic__flag.html#ac44fd4c1e4585f6a93e1b56d5d0f0944',1,'fs8::basic_flag']]],
+  ['takes_5fvalue_5',['takes_value',['../structfs8_1_1flag.html#aad570428184839da589e8dab54ab7190',1,'fs8::flag']]],
   ['target_6',['target',['../structfs8_1_1query__term.html#a0dcbde96b02ff63b1069990f921dc936',1,'fs8::query_term']]],
   ['ticks_7',['ticks',['../structfs8_1_1pimpl__idiom_1_1impl.html#a84c1bda9fb33c4b2a57c3026351c2b2e',1,'fs8::pimpl_idiom::impl']]],
   ['time_8',['time',['../structfs8_1_1live__view__parse__result.html#a99c6cc986b79982182fe1a371862ff43',1,'fs8::live_view_parse_result::time'],['../structfs8_1_1special__event.html#a9aefe2be07e0e52ffbb4b20ac58a7c77',1,'fs8::special_event::time'],['../structfs8_1_1parsed__evtest__event.html#ab7b9720ef22d4cba81cda104a2c08622',1,'fs8::parsed_evtest_event::time']]],
