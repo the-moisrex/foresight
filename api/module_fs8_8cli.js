@@ -22,6 +22,7 @@ var module_fs8_8cli =
     [ "fs8::basic_arguments::positional", "module_fs8_8cli.html#a92b436b3d54cfd18072e544e81ad138a", null ],
     [ "fs8::basic_arguments::help", "module_fs8_8cli.html#af4c7752342ab5ff0bb755e63ea3da325", null ],
     [ "fs8::basic_arguments::add_flag", "module_fs8_8cli.html#aa26d759b008bd14b93d70626602dff91", null ],
+    [ "fs8::basic_arguments::add_flags", "module_fs8_8cli.html#a0a8599269010462fa48a2872b12b2c18", null ],
     [ "fs8::basic_arguments::operator()", "module_fs8_8cli.html#ac909a06d5fd7060e44d7fd17b5d21d2f", null ],
     [ "fs8::basic_arguments::operator()", "module_fs8_8cli.html#a2cab827a4ebb929888ff22acdcd28600", null ],
     [ "fs8::basic_flag::name", "module_fs8_8cli.html#a77f6bf0020127bd369b67cad1460da09", null ],

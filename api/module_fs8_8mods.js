@@ -688,6 +688,7 @@ var module_fs8_8mods =
     [ "fs8::replace", "module_fs8_8mods.html#a7d23a51b0b591c5d3a87b00822c56ef5", null ],
     [ "fs8::idle_detector", "module_fs8_8mods.html#a74388b5fa216fbbf59bf310503c1eea1", null ],
     [ "fs8::output", "module_fs8_8mods.html#a7dc3fe91c5c1e5e25859f5eafbdfcff8", null ],
+    [ "fs8::output_flags", "module_fs8_8mods.html#a11d652fd27032411a9248c0a1f9da2e5", null ],
     [ "fs8::on_fail", "module_fs8_8mods.html#a26e0643e5886e57dea16e6288513f116", null ],
     [ "fs8::modes", "module_fs8_8mods.html#a1d3b09029b4d253898eb87b6c681b8c0", null ],
     [ "fs8::group_mod", "module_fs8_8mods.html#ab2aea3fca3970fc7adb3834020616e81", null ],

@@ -115,15 +115,17 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a82f7d6dc548fa6a99568f338d21f23eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b0f454258071b9124155d33f82b3500" id="r_a6b0f454258071b9124155d33f82b3500"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a6b0f454258071b9124155d33f82b3500">basic_benchmark_result</a> (SinkT inp_sink, bool inp_clear) noexcept</td></tr>
 <tr class="separator:a6b0f454258071b9124155d33f82b3500"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a246d038994539d9a7a081ccf34225a" id="r_a8a246d038994539d9a7a081ccf34225a"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a8a246d038994539d9a7a081ccf34225a">basic_benchmark_result</a> (SinkT inp_sink, bool inp_clear, std::string_view inp_filter) noexcept</td></tr>
+<tr class="separator:a8a246d038994539d9a7a081ccf34225a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1532073d32af43cbb58a1f6a152ca0cb" id="r_a1532073d32af43cbb58a1f6a152ca0cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a1532073d32af43cbb58a1f6a152ca0cb">operator()</a> (<a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
 <tr class="memdesc:a1532073d32af43cbb58a1f6a152ca0cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle lifecycle events (toggle_on / toggle_off) transparently.  <br /></td></tr>
 <tr class="separator:a1532073d32af43cbb58a1f6a152ca0cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61f9f388c3e20dd19a8acd0ea13e988b" id="r_a61f9f388c3e20dd19a8acd0ea13e988b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a61f9f388c3e20dd19a8acd0ea13e988b">operator()</a> (Context auto &amp;ctx) noexcept</td></tr>
 <tr class="separator:a61f9f388c3e20dd19a8acd0ea13e988b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1151617615078f291856bd6248decf6c" id="r_a1151617615078f291856bd6248decf6c"><td class="memTemplParams" colspan="2">template&lt;typename InpSinkT &gt; </td></tr>
-<tr class="memitem:a1151617615078f291856bd6248decf6c"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a1151617615078f291856bd6248decf6c">operator[]</a> (InpSinkT inp_sink, bool clear=false) const noexcept</td></tr>
-<tr class="memdesc:a1151617615078f291856bd6248decf6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">benchmark_result[sink] / benchmark_result[sink, true]: create a result reporter.  <br /></td></tr>
-<tr class="separator:a1151617615078f291856bd6248decf6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3335a57c443dbe2ce843385ef12bb450" id="r_a3335a57c443dbe2ce843385ef12bb450"><td class="memTemplParams" colspan="2">template&lt;typename InpSinkT &gt; </td></tr>
+<tr class="memitem:a3335a57c443dbe2ce843385ef12bb450"><td class="memTemplItemLeft" align="right" valign="top">consteval auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a3335a57c443dbe2ce843385ef12bb450">operator[]</a> (InpSinkT inp_sink, bool clear=false, std::string_view filter=&quot;&quot;) const noexcept</td></tr>
+<tr class="memdesc:a3335a57c443dbe2ce843385ef12bb450"><td class="mdescLeft">&#160;</td><td class="mdescRight">benchmark_result[sink] / benchmark_result[sink, true] / benchmark_result[sink, true, "name"]  <br /></td></tr>
+<tr class="separator:a3335a57c443dbe2ce843385ef12bb450"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () noexcept</td></tr>
 <tr class="separator:aab9e941457bd45b9d6772f6ff421cec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23df80b9a3d5bfbc33501da95d583e26" id="r_a23df80b9a3d5bfbc33501da95d583e26"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__benchmark__result.html#a23df80b9a3d5bfbc33501da95d583e26">consteval_copyable</a> (<a class="el" href="structfs8_1_1consteval__copyable.html">consteval_copyable</a> const &amp;) noexcept</td></tr>
@@ -146,7 +148,7 @@ Public Member Functions</h2></td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ac0a07f21c700c7d7093b27ed034ab3b8" name="ac0a07f21c700c7d7093b27ed034ab3b8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac0a07f21c700c7d7093b27ed034ab3b8">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[1/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0a07f21c700c7d7093b27ed034ab3b8">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -173,7 +175,7 @@ template&lt;typename SinkT &gt; </div>
 </div>
 </div>
 <a id="a82f7d6dc548fa6a99568f338d21f23eb" name="a82f7d6dc548fa6a99568f338d21f23eb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a82f7d6dc548fa6a99568f338d21f23eb">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[2/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a82f7d6dc548fa6a99568f338d21f23eb">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[2/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -201,7 +203,7 @@ template&lt;typename SinkT &gt; </div>
 </div>
 </div>
 <a id="a6b0f454258071b9124155d33f82b3500" name="a6b0f454258071b9124155d33f82b3500"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6b0f454258071b9124155d33f82b3500">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[3/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a6b0f454258071b9124155d33f82b3500">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -222,6 +224,50 @@ template&lt;typename SinkT &gt; </div>
           <td></td>
           <td class="paramtype">bool&#160;</td>
           <td class="paramname"><em>inp_clear</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8a246d038994539d9a7a081ccf34225a" name="a8a246d038994539d9a7a081ccf34225a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a246d038994539d9a7a081ccf34225a">&#9670;&#160;</a></span>basic_benchmark_result() <span class="overload">[4/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename SinkT &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__benchmark__result.html">fs8::basic_benchmark_result</a>&lt; SinkT &gt;::basic_benchmark_result </td>
+          <td>(</td>
+          <td class="paramtype">SinkT&#160;</td>
+          <td class="paramname"><em>inp_sink</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>inp_clear</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>inp_filter</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -380,8 +426,8 @@ template&lt;typename SinkT &gt; </div>
 
 </div>
 </div>
-<a id="a1151617615078f291856bd6248decf6c" name="a1151617615078f291856bd6248decf6c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1151617615078f291856bd6248decf6c">&#9670;&#160;</a></span>operator[]()</h2>
+<a id="a3335a57c443dbe2ce843385ef12bb450" name="a3335a57c443dbe2ce843385ef12bb450"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3335a57c443dbe2ce843385ef12bb450">&#9670;&#160;</a></span>operator[]()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -403,7 +449,13 @@ template&lt;typename InpSinkT &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>clear</em> = <code>false</code>&#160;</td>
+          <td class="paramname"><em>clear</em> = <code>false</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>filter</em> = <code>&quot;&quot;</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -418,7 +470,7 @@ template&lt;typename InpSinkT &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>benchmark_result[sink] / benchmark_result[sink, true]: create a result reporter. </p>
+<p>benchmark_result[sink] / benchmark_result[sink, true] / benchmark_result[sink, true, "name"] </p>
 
 </div>
 </div>

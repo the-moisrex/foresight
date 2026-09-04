@@ -9,7 +9,8 @@ var annotated_dup =
     ] ],
     [ "fs8", "namespacefs8.html", [
       [ "benchmark_detail", "namespacefs8_1_1benchmark__detail.html", [
-        [ "benchmark_all_factory", "structfs8_1_1benchmark__detail_1_1benchmark__all__factory.html", "structfs8_1_1benchmark__detail_1_1benchmark__all__factory" ]
+        [ "benchmark_all_factory", "structfs8_1_1benchmark__detail_1_1benchmark__all__factory.html", "structfs8_1_1benchmark__detail_1_1benchmark__all__factory" ],
+        [ "named_benchmark_proxy", "structfs8_1_1benchmark__detail_1_1named__benchmark__proxy.html", "structfs8_1_1benchmark__detail_1_1named__benchmark__proxy" ]
       ] ],
       [ "detail", "namespacefs8_1_1detail.html", [
         [ "modes_caller_info", "structfs8_1_1detail_1_1modes__caller__info.html", "structfs8_1_1detail_1_1modes__caller__info" ],
@@ -211,6 +212,7 @@ var annotated_dup =
       [ "op_not", "structfs8_1_1op__not.html", "structfs8_1_1op__not" ],
       [ "operator_adaptor", "structfs8_1_1operator__adaptor.html", "structfs8_1_1operator__adaptor" ],
       [ "or_op", "structfs8_1_1or__op.html", "structfs8_1_1or__op" ],
+      [ "output_flag_group", "structfs8_1_1output__flag__group.html", "structfs8_1_1output__flag__group" ],
       [ "owned_query", "structfs8_1_1owned__query.html", "structfs8_1_1owned__query" ],
       [ "parsed_evtest_event", "structfs8_1_1parsed__evtest__event.html", "structfs8_1_1parsed__evtest__event" ],
       [ "pimpl_idiom", "structfs8_1_1pimpl__idiom.html", "structfs8_1_1pimpl__idiom" ],

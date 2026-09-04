@@ -27,6 +27,7 @@ var modules_dup =
     [ "fs8.easings", "module_fs8_8easings.html", "module_fs8_8easings" ],
     [ "fs8.hash", "module_fs8_8hash.html", "module_fs8_8hash" ],
     [ "fs8.nullable_indirect", "module_fs8_8nullable__indirect.html", "module_fs8_8nullable__indirect" ],
+    [ "fs8.parsing", "module_fs8_8parsing.html", "module_fs8_8parsing" ],
     [ "fs8.pimpl", "module_fs8_8pimpl.html", "module_fs8_8pimpl" ],
     [ "fs8.strings", "module_fs8_8strings.html", "module_fs8_8strings" ],
     [ "fs8.traits", "module_fs8_8traits.html", "module_fs8_8traits" ]

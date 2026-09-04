@@ -230,6 +230,7 @@ var hierarchy =
     [ "fs8::momentum_config", "structfs8_1_1momentum__config.html", null ],
     [ "fs8::mouse_accum", "structfs8_1_1mouse__accum.html", null ],
     [ "my_libevdev_uinput", "structmy__libevdev__uinput.html", null ],
+    [ "fs8::benchmark_detail::named_benchmark_proxy", "structfs8_1_1benchmark__detail_1_1named__benchmark__proxy.html", null ],
     [ "fs8::named_solution", "structfs8_1_1named__solution.html", null ],
     [ "fs8::pimpl_idiom< typename >::impl::node_type", "structfs8_1_1pimpl__idiom_1_1impl_1_1node__type.html", null ],
     [ "fs8::nullable_indirect< T, Allocator >", "structfs8_1_1nullable__indirect.html", null ],
@@ -282,6 +283,7 @@ var hierarchy =
     [ "fs8::operator_adaptor< basic_swipe_detector >", "structfs8_1_1operator__adaptor.html", [
       [ "fs8::basic_swipe_detector", "structfs8_1_1basic__swipe__detector.html", null ]
     ] ],
+    [ "fs8::output_flag_group", "structfs8_1_1output__flag__group.html", null ],
     [ "fs8::owned_query", "structfs8_1_1owned__query.html", null ],
     [ "fs8::parsed_evtest_event", "structfs8_1_1parsed__evtest__event.html", null ],
     [ "fs8::pipeline_hash_solution", "structfs8_1_1pipeline__hash__solution.html", null ],
