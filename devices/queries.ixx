@@ -258,9 +258,26 @@ export namespace fs8 {
     }
 
     constexpr struct [[nodiscard]] grab_tag {
+      private:
+        bool value = true;
+
+      public:
+        grab_tag() noexcept                      = default;
+        grab_tag(grab_tag const&)                = default;
+        grab_tag(grab_tag&&) noexcept            = default;
+        grab_tag& operator=(grab_tag const&)     = default;
+        grab_tag& operator=(grab_tag&&) noexcept = default;
+        ~grab_tag() noexcept                     = default;
+
+        constexpr grab_tag operator[](bool const value) const noexcept {
+            grab_tag res;
+            res.value = value;
+            return res;
+        }
+
         template <std::size_t N>
         constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
-            out_query.grab = true;
+            out_query.grab = value;
         }
     } grab;
 
@@ -271,38 +288,48 @@ export namespace fs8 {
         }
     } allow_multiple_matches;
 
-    constexpr struct [[nodiscard]] matches_limit : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
-
+    constexpr struct [[nodiscard]] matches_limit {
       private:
         std::uint8_t limit = 1;
 
       public:
+        matches_limit() noexcept                           = default;
+        matches_limit(matches_limit const&)                = default;
+        matches_limit(matches_limit&&) noexcept            = default;
+        matches_limit& operator=(matches_limit const&)     = default;
+        matches_limit& operator=(matches_limit&&) noexcept = default;
+        ~matches_limit() noexcept                          = default;
+
         template <std::size_t N>
         constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
             out_query.matches_limit = limit;
         }
 
-        consteval matches_limit operator()(std::uint8_t const inp_limit) const noexcept {
+        constexpr matches_limit operator[](std::uint8_t const inp_limit) const noexcept {
             matches_limit res;
             res.limit = inp_limit;
             return res;
         }
     } matches_limit;
 
-    constexpr struct [[nodiscard]] matches_percentage : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
-
+    constexpr struct [[nodiscard]] matches_percentage {
       private:
         std::uint8_t percentage = 100;
 
       public:
+        matches_percentage() noexcept                                = default;
+        matches_percentage(matches_percentage const&)                = default;
+        matches_percentage(matches_percentage&&) noexcept            = default;
+        matches_percentage& operator=(matches_percentage const&)     = default;
+        matches_percentage& operator=(matches_percentage&&) noexcept = default;
+        ~matches_percentage() noexcept                               = default;
+
         template <std::size_t N>
         constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
             out_query.caps_support_percentage = percentage;
         }
 
-        consteval matches_percentage operator()(std::uint8_t const inp_percentage) const noexcept {
+        constexpr matches_percentage operator[](std::uint8_t const inp_percentage) const noexcept {
             assert(inp_percentage <= 100);
             matches_percentage res;
             res.percentage = inp_percentage;
@@ -329,9 +356,26 @@ export namespace fs8 {
     } high_threshold;
 
     constexpr struct [[nodiscard]] fail_on_no_match_tag {
+      private:
+        bool value = true;
+
+      public:
+        fail_on_no_match_tag() noexcept                                  = default;
+        fail_on_no_match_tag(fail_on_no_match_tag const&)                = default;
+        fail_on_no_match_tag(fail_on_no_match_tag&&) noexcept            = default;
+        fail_on_no_match_tag& operator=(fail_on_no_match_tag const&)     = default;
+        fail_on_no_match_tag& operator=(fail_on_no_match_tag&&) noexcept = default;
+        ~fail_on_no_match_tag() noexcept                                 = default;
+
+        constexpr fail_on_no_match_tag operator[](bool const value) const noexcept {
+            fail_on_no_match_tag res;
+            res.value = value;
+            return res;
+        }
+
         template <std::size_t N>
         constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
-            out_query.fail_on_no_match = true;
+            out_query.fail_on_no_match = value;
         }
     } required;
 

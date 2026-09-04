@@ -1,7 +1,6 @@
 #include <array>
 #include <cstdint>
 #include <format>
-#include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
 #include <optional>
 #include <stdexcept>
@@ -61,6 +60,7 @@ Arguments:
     -o | --output <type>  Output: stdout, uinput, evtest, live-view (default: stdout).
     -t | --time <time>    The debounce window, e.g. 50ms, 1s, 500us (default: 30ms).
     -m | --mode <mode>    'click' (default) or 'event'.
+    -m | --no-grab        Do not grab the input device.
     -c | --codes <codes>  Comma-separated event codes, e.g. 'BTN_LEFT,BTN_RIGHT'
                           or 'EV_ABS:ABS_X' (default: BTN_LEFT,BTN_RIGHT,BTN_MIDDLE).
 
@@ -107,7 +107,7 @@ int main(int const argc, char const* const* argv) try {
     static constinit auto pipeline =
       context
       | io_manager
-      | intercept[mouse | required | grab | matches_limit(1)]
+      | intercept[mouse | required | matches_limit[1]]
       | input_manager
       | basic_debounce<max_codes>{}
       | drop_adjacent_syns
@@ -117,7 +117,7 @@ int main(int const argc, char const* const* argv) try {
     pipeline.mod(basic_debounce<max_codes>{}).set_codes(codes);
     pipeline.mod(basic_debounce<max_codes>{}).set_mode(mode);
     pipeline.mod(basic_debounce<max_codes>{}).set_time_threshold(time_threshold);
-    pipeline.mod(intercept).add(parsed | grab | required);
+    pipeline.mod(intercept).add(parsed | grab[!parsed.has_flag("--no-grab")] | required);
     pipeline();
 
     return 0;

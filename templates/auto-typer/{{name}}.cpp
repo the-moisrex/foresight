@@ -27,7 +27,7 @@ int main(int const argc, char const* const* argv) try {
     static constinit auto pipeline =
       context
       | io_manager
-      | intercept[keyboard | required | matches_limit(10)]
+      | intercept[keyboard | required | matches_limit[10]]
       | input_manager
       | search_engine
       | on[typed["@test"], type_string("nice")]

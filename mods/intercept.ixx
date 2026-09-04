@@ -7,12 +7,12 @@ module;
 #include <ranges>
 #include <span>
 export module fs8.mods:intercept;
+import fs8.context;
 import fs8.devices.evdev;
 import fs8.devices.queries;
-import fs8.context;
-import :io_manager;
-import :input_manager;
 import fs8.pimpl;
+import :input_manager;
+import :io_manager;
 
 export namespace fs8 {
 
@@ -26,6 +26,8 @@ export namespace fs8 {
      */
     constexpr struct [[nodiscard]] basic_interceptor : pimpl_idiom<basic_interceptor> {
         using pimpl_idiom::pimpl_idiom;
+
+        basic_interceptor() noexcept = default;
 
         /// Pipeline form: intercept[keyboard, mouse]
         template <typename... Qs>

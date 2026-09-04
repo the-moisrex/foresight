@@ -26,7 +26,7 @@ int main(int const argc, char const* const* argv) try {
       | io_manager
       | input_manager
       | drop_owned
-      | intercept[keyboard | required | matches_limit(10)]
+      | intercept[keyboard | required | matches_limit[10]]
       | search_engine
       | on[typed["@test"], type_string("nice")]
       | drop_adjacent_syns
