@@ -43,9 +43,9 @@ export namespace fs8 {
         positional_array storage_{};
         std::size_t      positional_count_ = 0;
 
-        std::array<flag, max_flags>  flags_{};
-        std::size_t                  flag_count_ = 0;
-        std::array<bool, max_flags>  flag_seen_{};
+        std::array<flag, max_flags>        flags_{};
+        std::size_t                        flag_count_ = 0;
+        std::array<bool, max_flags>        flag_seen_{};
         std::array<char const*, max_flags> flag_values_{};
 
         std::array<std::string_view, max_names> names_{};
@@ -65,7 +65,8 @@ export namespace fs8 {
         }
 
         [[nodiscard]] constexpr iterator end() const noexcept {
-            return std::to_address(std::span<char const* const>{storage_}.subspan(0, positional_count_).end());
+            return std::span<char const* const>{storage_}.subspan(0, positional_count_).data()
+                   + positional_count_; // NOLINT(*-pointer-arithmetic)
         }
 
         [[nodiscard]] constexpr bool empty() const noexcept {
@@ -77,17 +78,17 @@ export namespace fs8 {
         }
 
         /// Access a positional argument by index.
-        [[nodiscard]] constexpr std::string_view positional(std::size_t const i) const { // NOLINT(bugprone-exception-escape)
-            return storage_[i]; // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+        [[nodiscard]] constexpr std::string_view positional(std::size_t const i) const {
+            return storage_.at(i);
         }
 
         /// True when `-h`/`--help` was passed.
-        [[nodiscard]] bool help() const noexcept {
+        [[nodiscard]] bool help() const noexcept { // NOLINT(concurrency-mt-unsafe)
             return help_requested_;
         }
 
         /// True when `-v`/`--version` was passed.
-        [[nodiscard]] bool version() const noexcept {
+        [[nodiscard]] bool version() const noexcept { // NOLINT(concurrency-mt-unsafe)
             return version_requested_;
         }
 
@@ -175,7 +176,7 @@ export namespace fs8 {
         static constexpr std::size_t max_names       = 16;
 
         std::array<char const*, DefaultsN + 1>  defaults_{};
-        std::array<flag, max_flags>       flags_{};
+        std::array<flag, max_flags>             flags_{};
         std::size_t                             flags_count = 0;
         std::array<std::string_view, max_names> names_{};
         std::size_t                             names_count = 0;
@@ -201,7 +202,7 @@ export namespace fs8 {
             basic_arguments out = *this;
             for (std::string_view const name : {names...}) {
                 if (out.names_count < max_names) [[likely]] {
-                    out.names_[out.names_count++] = name; // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+                    out.names_(out.names_count++) = name;
                 }
             }
             return out;
@@ -218,7 +219,7 @@ export namespace fs8 {
         constexpr basic_arguments add_flag(flag const& fl) const { // NOLINT(bugprone-exception-escape)
             basic_arguments out = *this;
             if (out.flags_count < max_flags) [[likely]] {
-                out.flags_[out.flags_count++] = fl; // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+                out.flags_.at(out.flags_count++) = fl;
             }
             return out;
         }
@@ -233,7 +234,7 @@ export namespace fs8 {
             basic_arguments out = *this;
             for (flag const& fl : flags) {
                 if (out.flags_count < max_flags) [[likely]] {
-                    out.flags_[out.flags_count++] = fl; // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+                    out.flags_.at(out.flags_count++) = fl;
                 }
             }
             return out;
