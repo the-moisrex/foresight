@@ -4,9 +4,11 @@ module;
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <string_view>
 #include <variant>
 export module fs8.mods:output_selector;
 import fs8.context;
+import fs8.cli;
 import fs8.event;
 import fs8.traits;
 import :inout;
@@ -108,5 +110,87 @@ namespace fs8 {
     export constexpr output_selector output{};
 
     static_assert(OutputModifier<output_selector>, "Must be an output modifier.");
+
+    /// A reusable flag group for output selection.
+    ///
+    /// Provides the `--output`/`-o` flag definition and knows how to apply
+    /// it to an `output_selector`.  Register the flag with `basic_arguments`
+    /// via `add_flags()`, then call `configure()` after parsing.
+    ///
+    /// Usage:
+    /// ```cpp
+    /// static constexpr auto args =
+    ///   fs8::arguments["Mouse"]
+    ///     .positional("mouse_device")
+    ///     .add_flags(fs8::output_flags);
+    ///
+    /// auto const parsed = args(argc, argv);
+    /// parsed.exit_if_needed();
+    /// fs8::output_flags.configure(output, parsed);
+    /// ```
+    struct [[nodiscard]] output_flag_group {
+        consteval explicit output_flag_group(std::uint8_t const sel = 0) noexcept : default_selected_(sel) {}
+
+        consteval output_flag_group operator[](std::uint8_t const sel) const noexcept {
+            return output_flag_group{sel};
+        }
+
+        consteval output_flag_group operator[](std::string_view const name) const noexcept {
+            return output_flag_group{index_of(name)};
+        }
+
+        /// The `--output` flag descriptor for registration with `basic_arguments`.
+        [[nodiscard]] consteval basic_flag flag() const noexcept {
+            return flag_;
+        }
+
+        /// Apply the parsed `--output` value to `sel`.
+        template <std::size_t MaxP, std::size_t MaxF, std::size_t MaxN>
+        constexpr void configure(output_selector& sel, basic_parsed_args<MaxP, MaxF, MaxN> const& args) const noexcept {
+            if (auto const val = args.flag_value("--output"); val.has_value()) {
+                sel.set_selected(index_of(*val));
+            } else {
+                sel.set_selected(default_selected_);
+            }
+        }
+
+        /// Satisfy the range concept so `add_flags(output_flags)` works.
+        [[nodiscard]] constexpr basic_flag const* begin() const noexcept {
+            return &flag_;
+        }
+
+        [[nodiscard]] constexpr basic_flag const* end() const noexcept {
+            return &flag_ + 1;
+        }
+
+      private:
+        std::uint8_t default_selected_ = 0;
+
+        static constexpr basic_flag flag_{
+          .name        = "--output",
+          .alias       = "-o",
+          .help        = "Output: stdout, uinput, evtest, live-view (default: stdout).",
+          .takes_value = true,
+        };
+
+        [[nodiscard]] static constexpr std::uint8_t index_of(std::string_view const name) noexcept {
+            if (name == "stdout") {
+                return 0;
+            }
+            if (name == "uinput") {
+                return 1;
+            }
+            if (name == "evtest") {
+                return 2;
+            }
+            if (name == "live-view") {
+                return 3;
+            }
+            return 0;
+        }
+    };
+
+    /// Default output flag group (stdout, index 0).
+    export inline constexpr output_flag_group output_flags{};
 
 } // namespace fs8

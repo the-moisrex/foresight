@@ -1,96 +1,18 @@
 #include <array>
-#include <charconv>
-#include <chrono>
 #include <cstdint>
 #include <format>
 #include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
 #include <optional>
 #include <stdexcept>
-#include <string>
 #include <string_view>
 
 import fs8;
+import fs8.parsing;
 
 namespace {
-    using namespace std::chrono_literals; // NOLINT(*-using-namespace)
-
     /// How many distinct event codes the debounce can track.
     constexpr std::size_t max_codes = 16;
-
-    /// Parse a duration string like "50", "50ms", "1s", "500us" into microseconds.
-    [[nodiscard]] std::optional<std::chrono::microseconds> parse_duration(std::string_view const str) noexcept {
-        std::uint64_t value  = 0;
-        auto const [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
-        if (ec != std::errc{} || ptr == str.data()) {
-            return std::nullopt;
-        }
-
-        std::string_view const suffix = str.substr(static_cast<std::size_t>(ptr - str.data()));
-        if (suffix == "s") {
-            return std::chrono::seconds(value);
-        }
-        if (suffix == "us" || suffix == "µs") {
-            return std::chrono::microseconds(value);
-        }
-        if (suffix.empty() || suffix == "ms") {
-            return std::chrono::milliseconds(value);
-        }
-        return std::nullopt;
-    }
-
-    /// Parse an event code from a name like "BTN_LEFT" (EV_KEY implied) or
-    /// "EV_ABS:ABS_X". Returns nullopt for unknown names.
-    [[nodiscard]] std::optional<fs8::event_code> parse_code(std::string_view const str) noexcept {
-        if (auto const colon = str.find(':'); colon != std::string_view::npos) {
-            std::string const type_name{str.substr(0, colon)};
-            std::string const code_name{str.substr(colon + 1)};
-            int const         type = libevdev_event_type_from_name(type_name.c_str());
-            if (type == -1) {
-                return std::nullopt;
-            }
-            int const code = libevdev_event_code_from_name(static_cast<unsigned>(type), code_name.c_str());
-            if (code == -1) {
-                return std::nullopt;
-            }
-            return fs8::event_code{
-              .type = static_cast<decltype(fs8::event_code::type)>(type),
-              .code = static_cast<decltype(fs8::event_code::code)>(code),
-            };
-        }
-
-        std::string const code_name{str};
-        int const         code = libevdev_event_code_from_name(EV_KEY, code_name.c_str());
-        if (code == -1) {
-            return std::nullopt;
-        }
-        return fs8::event_code{
-          .type = EV_KEY,
-          .code = static_cast<decltype(fs8::event_code::code)>(code),
-        };
-    }
-
-    /// Parse a comma-separated list of event codes.
-    [[nodiscard]] std::optional<std::array<fs8::event_code, max_codes>> parse_codes(std::string_view str) noexcept {
-        std::array<fs8::event_code, max_codes> out{};
-        std::size_t                            count = 0;
-        while (!str.empty()) {
-            auto const                           comma = str.find(',');
-            auto const                           token = str.substr(0, comma);
-            std::optional<fs8::event_code> const code  = parse_code(token);
-            if (!code.has_value()) {
-                return std::nullopt;
-            }
-            if (count < out.size()) {
-                out[count++] = *code;
-            }
-            if (comma == std::string_view::npos) {
-                break;
-            }
-            str = str.substr(comma + 1);
-        }
-        return count == 0 ? std::nullopt : std::optional{out};
-    }
 
     /// Parse the `--mode` value.
     [[nodiscard]] std::optional<fs8::debounce_mode> parse_mode(std::string_view const str) noexcept {
@@ -116,6 +38,7 @@ namespace {
 static constexpr auto args =
   fs8::arguments["Mouse"]
     .positional("mouse_device")
+    .add_flags(fs8::output_flags)
     .add_flag({.name = "--time", .alias = "-t", .help = "The debounce window, e.g. 50ms, 1s, 500us (default: 30ms).", .takes_value = true})
     .add_flag({.name        = "--mode",
                .alias       = "-m",
@@ -135,6 +58,7 @@ such as bouncing keyboard keys, noisy tablet axes, or double-firing scroll wheel
 
 Arguments:
     -h | --help           Print help.
+    -o | --output <type>  Output: stdout, uinput, evtest, live-view (default: stdout).
     -t | --time <time>    The debounce window, e.g. 50ms, 1s, 500us (default: 30ms).
     -m | --mode <mode>    'click' (default) or 'event'.
     -c | --codes <codes>  Comma-separated event codes, e.g. 'BTN_LEFT,BTN_RIGHT'
@@ -172,7 +96,7 @@ int main(int const argc, char const* const* argv) try {
 
     auto const codes = [&] {
         if (auto const c = parsed.flag_value("--codes"); c.has_value()) {
-            if (auto const parsed_codes = parse_codes(*c); parsed_codes.has_value()) {
+            if (auto const parsed_codes = parse_codes<max_codes>(*c); parsed_codes.has_value()) {
                 return *parsed_codes;
             }
             throw std::runtime_error(std::format("Invalid --codes value: '{}' (use e.g. 'BTN_LEFT,BTN_RIGHT' or 'EV_ABS:ABS_X').", *c));
@@ -187,8 +111,9 @@ int main(int const argc, char const* const* argv) try {
       | input_manager
       | basic_debounce<max_codes>{}
       | drop_adjacent_syns
-      | uinput;
+      | output;
 
+    output_flags.configure(pipeline.mod(output), parsed);
     pipeline.mod(basic_debounce<max_codes>{}).set_codes(codes);
     pipeline.mod(basic_debounce<max_codes>{}).set_mode(mode);
     pipeline.mod(basic_debounce<max_codes>{}).set_time_threshold(time_threshold);

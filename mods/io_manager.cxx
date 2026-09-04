@@ -30,7 +30,7 @@ struct fs8::pimpl_idiom<basic_io_manager>::impl {
     std::chrono::microseconds       idle_timeout{0};
     steady_clock::time_point        last_event_time{};
     basic_io_manager::idle_callback on_idle;
-    bool has_idle_callback = false;
+    bool                            has_idle_callback = false;
 };
 
 void basic_io_manager::clear() noexcept {
@@ -78,7 +78,7 @@ void basic_io_manager::set_idle_callback(idle_callback cb) noexcept {
         init_impl();
     }
     try {
-        pimpl->on_idle          = std::move(cb);
+        pimpl->on_idle           = std::move(cb);
         pimpl->has_idle_callback = true;
     } catch (...) {
         // Allocation failure: leave callback unset.
@@ -89,7 +89,7 @@ void basic_io_manager::clear_idle_callback() noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;
     }
-    pimpl->on_idle          = idle_callback{};
+    pimpl->on_idle           = idle_callback{};
     pimpl->has_idle_callback = false;
 }
 
@@ -155,9 +155,9 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
                 if (pimpl.get() == nullptr) {
                     init_impl();
                 }
-                pimpl->on_idle          = idle_callback{};
+                pimpl->on_idle           = idle_callback{};
                 pimpl->has_idle_callback = false;
-                pimpl->last_event_time  = steady_clock::now();
+                pimpl->last_event_time   = steady_clock::now();
                 return next;
             } catch (...) {
                 return context_action::exit;

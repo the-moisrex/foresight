@@ -205,6 +205,22 @@ export namespace fs8 {
             return out;
         }
 
+        /// Register multiple flags from a range (e.g. `std::array<basic_flag, N>`).
+        template <typename Range>
+            requires requires(Range const& r) {
+                std::begin(r);
+                std::end(r);
+            }
+        constexpr basic_arguments add_flags(Range const& flags) const noexcept {
+            basic_arguments out = *this;
+            for (basic_flag const& flag : flags) {
+                if (out.flags_count < MaxFlags) [[likely]] {
+                    out.flags_[out.flags_count++] = flag;
+                }
+            }
+            return out;
+        }
+
         /// Parse `argc`/`argv` into positional arguments and flag state.
         [[nodiscard]] parsed_args operator()(int const argc, char const* const* argv) const& noexcept {
             parsed_args out;

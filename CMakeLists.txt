@@ -119,6 +119,7 @@ target_sources(${LIB_NAME}
         mods/typed.cxx
         mods/typer.cxx
         utils/hash.cxx
+        utils/parsing.cxx
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         bash/bash_runner.ixx
         devices/capabilities.ixx
@@ -187,6 +188,7 @@ target_sources(${LIB_NAME}
         utils/easings.ixx
         utils/hash.ixx
         utils/nullable_indirect.ixx
+        utils/parsing.ixx
         utils/pimpl.ixx
         utils/strings.ixx
         utils/traits.ixx

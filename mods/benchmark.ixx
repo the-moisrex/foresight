@@ -34,10 +34,10 @@ namespace fs8 {
             double m2   = 0.0;
 
             // Last N samples for percentile estimation (circular buffer, sorted on read)
-            static constexpr std::size_t max_samples = 100;
+            static constexpr std::size_t      max_samples = 100;
             std::array<duration, max_samples> samples{};
-            std::size_t sample_count = 0;
-            std::size_t sample_write = 0;
+            std::size_t                       sample_count = 0;
+            std::size_t                       sample_write = 0;
 
             [[nodiscard]] constexpr duration average() const noexcept {
                 return calls == 0 ? duration{} : total / static_cast<std::int64_t>(calls);
@@ -48,35 +48,42 @@ namespace fs8 {
             }
 
             [[nodiscard]] constexpr duration percentile(double p) const noexcept {
-                if (sample_count == 0) return {};
+                if (sample_count == 0) {
+                    return {};
+                }
                 // Copy samples into a sorted array
                 std::array<duration, max_samples> sorted{};
-                auto const n = std::min(sample_count, max_samples);
+                auto const                        n = std::min(sample_count, max_samples);
                 for (std::size_t i = 0; i < n; ++i) {
                     sorted[i] = samples[i];
                 }
                 std::sort(sorted.begin(), sorted.begin() + static_cast<std::ptrdiff_t>(n));
-                auto const idx = static_cast<std::size_t>(
-                    std::clamp(p * static_cast<double>(n - 1), 0.0, static_cast<double>(n - 1)));
+                auto const idx = static_cast<std::size_t>(std::clamp(p * static_cast<double>(n - 1), 0.0, static_cast<double>(n - 1)));
                 return sorted[idx];
             }
 
             constexpr void record(duration elapsed) noexcept {
                 ++calls;
                 total += elapsed;
-                if (elapsed < min) min = elapsed;
-                if (elapsed > max) max = elapsed;
+                if (elapsed < min) {
+                    min = elapsed;
+                }
+                if (elapsed > max) {
+                    max = elapsed;
+                }
 
                 // Welford's online variance
-                auto const delta = static_cast<double>(elapsed.count()) - mean;
-                mean += delta / static_cast<double>(calls);
-                auto const delta2 = static_cast<double>(elapsed.count()) - mean;
-                m2 += delta * delta2;
+                auto const delta   = static_cast<double>(elapsed.count()) - mean;
+                mean              += delta / static_cast<double>(calls);
+                auto const delta2  = static_cast<double>(elapsed.count()) - mean;
+                m2                += delta * delta2;
 
                 // Circular buffer for percentile samples
                 samples[sample_write] = elapsed;
-                sample_write = (sample_write + 1) % max_samples;
-                if (sample_count < max_samples) ++sample_count;
+                sample_write          = (sample_write + 1) % max_samples;
+                if (sample_count < max_samples) {
+                    ++sample_count;
+                }
             }
 
             constexpr void clear() noexcept {
@@ -201,7 +208,7 @@ namespace fs8 {
       private:
         [[no_unique_address]] SinkT sink;
         bool                        clear_after = false;
-        std::string_view            name_filter = "";  // empty = report all
+        std::string_view            name_filter = ""; // empty = report all
 
       public:
         constexpr basic_benchmark_result() noexcept = default;
@@ -211,7 +218,9 @@ namespace fs8 {
         constexpr basic_benchmark_result(SinkT inp_sink, bool inp_clear) noexcept : sink{std::move(inp_sink)}, clear_after{inp_clear} {}
 
         constexpr basic_benchmark_result(SinkT inp_sink, bool inp_clear, std::string_view inp_filter) noexcept
-          : sink{std::move(inp_sink)}, clear_after{inp_clear}, name_filter{inp_filter} {}
+          : sink{std::move(inp_sink)},
+            clear_after{inp_clear},
+            name_filter{inp_filter} {}
 
         /// Handle lifecycle events (toggle_on / toggle_off) transparently.
         context_action operator()(special_event const& tag) noexcept {
@@ -223,8 +232,8 @@ namespace fs8 {
             using enum context_action;
             auto visit = [&](auto& mod) noexcept {
                 if constexpr (requires { mod.result(); }) {
-                    auto const  bname   = mod.get_name();
-                    auto const  display = bname.empty() ? std::string_view{"benchmark"} : bname;
+                    auto const bname   = mod.get_name();
+                    auto const display = bname.empty() ? std::string_view{"benchmark"} : bname;
                     // Apply name filter
                     if (!name_filter.empty() && display != name_filter) {
                         return;
@@ -263,9 +272,9 @@ namespace fs8 {
         }
     };
 
-    export constexpr basic_benchmark<>                               benchmark;
-    export constexpr benchmark_detail::benchmark_all_factory         benchmark_all;
-    export basic_benchmark_result<std::nullptr_t>                    benchmark_result;
+    export constexpr basic_benchmark<>                       benchmark;
+    export constexpr benchmark_detail::benchmark_all_factory benchmark_all;
+    export basic_benchmark_result<std::nullptr_t>            benchmark_result;
 
     static_assert(Modifier<basic_benchmark<>>);
 
