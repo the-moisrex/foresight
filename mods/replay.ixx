@@ -16,7 +16,6 @@ export namespace fs8 {
 
     namespace detail {
         constexpr std::size_t format_header_size = 6;
-        struct replay_impl;
     } // namespace detail
 
     /// Pipeline mod that reads captured events from a file and injects them
@@ -28,7 +27,7 @@ export namespace fs8 {
     /// Pipeline form:
     /// ```cpp
     /// auto pipeline = context | stopper | replay | output;
-    /// replay.set_file("capture-2026-09-04.bin");
+    /// pipeline.mod(replay).set_file("capture-2026-09-04.bin");
     /// pipeline();
     /// ```
     template <capture_format FormatT = capture_binary_format>
@@ -36,13 +35,22 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
       private:
-        FormatT                               format_{};
-        std::string                           file_path_;
-        nullable_indirect<detail::replay_impl> impl_{};
+        FormatT format_{};
+
+        struct state {
+            std::string file_path;
+            int         fd        = -1;
+            bool        is_binary = false;
+            std::string linebuf;
+        };
+
+        nullable_indirect<state> st_{};
 
       public:
-        void set_file(std::string_view path) noexcept;
-        void init_impl() noexcept;
+        void set_file(std::string_view path) noexcept {
+            ensure_state();
+            st_->file_path = std::string{path};
+        }
 
         // ── Pipeline interface ───────────────────────────────────────────────
 
@@ -51,6 +59,13 @@ export namespace fs8 {
 
         /// Handle load_event: read the next event from the file.
         context_action operator()(event_type& event, special_event const& tag) noexcept;
+
+      private:
+        void ensure_state() noexcept {
+            if (!static_cast<bool>(st_)) {
+                st_ = nullable_indirect<state>::make();
+            }
+        }
     };
 
     /// Default replay: auto-detect format.

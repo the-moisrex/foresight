@@ -41,9 +41,11 @@ namespace {
             evtest,
             live,
             version,
+            capture,
+            replay,
         } action = action_type::none;
 
-        /// intercept/redirect query
+        /// intercept/redirect/capture query
         std::vector<fs8::owned_query> queries;
 
         /// matches patterns
@@ -54,6 +56,15 @@ namespace {
 
         /// Grab the device (intercept/evtest)
         bool grab = false;
+
+        /// Capture output format: "binary" or "evtest"
+        std::string_view capture_format = "binary";
+
+        /// Capture naming strategy: "daily", "hourly", "weekly", "monthly", "uptime", "system-uptime", "single-file"
+        std::string_view capture_naming = "daily";
+
+        /// Replay file path
+        std::string_view replay_file;
 
         /// All args
         std::span<char const* const> args;
@@ -109,9 +120,20 @@ namespace {
        -g | --grab                Grab the input exclusively.
 
     live     [device]             Live view: compact, aligned event display with
-                                    mouse accumulation, keyboard text, and hold
-                                    durations. Uses terminal colors when interactive.
+                                     mouse accumulation, keyboard text, and hold
+                                     durations. Uses terminal colors when interactive.
        -g | --grab                Grab the input exclusively.
+
+    capture  [queries...]         Capture input events to a file. Events are
+                                     buffered in memory and flushed to disk on idle.
+       -g | --grab                Grab the input exclusively.
+       --format <fmt>             Output format: "binary" (default) or "evtest".
+       --naming <strategy>        File naming: "daily" (default), "hourly",
+                                     "weekly", "monthly", "uptime", "system-uptime",
+                                     or "single-file".
+
+    replay   <file>               Replay captured events from a file to stdout.
+                                     Auto-detects format (binary or evtest).
 
     help                 Print help.
 
@@ -277,6 +299,10 @@ Options:
             set_action(opts, evtest);
         } else if (action_str == "live") {
             set_action(opts, live);
+        } else if (action_str == "capture") {
+            set_action(opts, capture);
+        } else if (action_str == "replay") {
+            set_action(opts, replay);
         }
 
         bool grab = false;
@@ -300,6 +326,16 @@ Options:
                 opts.echo_events = true;
                 continue;
             }
+            if (opt == "--format" && index + 1 < argv.size()) {
+                opts.capture_format = argv[index + 1];
+                ++index;
+                continue;
+            }
+            if (opt == "--naming" && index + 1 < argv.size()) {
+                opts.capture_naming = argv[index + 1];
+                ++index;
+                continue;
+            }
 
             switch (opts.action) {
                 case intercept:
@@ -312,6 +348,19 @@ Options:
                 case evtest:
                 case live: {
                     opts.queries.emplace_back(opt);
+                    break;
+                }
+
+                case capture: {
+                    opts.queries.emplace_back(opt);
+                    opts.queries.back().grab = grab;
+                    break;
+                }
+
+                case replay: {
+                    if (opts.replay_file.empty()) {
+                        opts.replay_file = opt;
+                    }
                     break;
                 }
 
@@ -340,6 +389,19 @@ Options:
             case matches:
                 if (opts.patterns.empty()) {
                     throw invalid_argument("Please provide a pattern as an argument.");
+                }
+                break;
+            case capture:
+                if (opts.queries.empty()) {
+                    throw invalid_argument("Please provide a device query as an argument.");
+                }
+                if (opts.capture_format != "binary" && opts.capture_format != "evtest") {
+                    throw invalid_argument(std::format("Invalid capture format '{}'. Use 'binary' or 'evtest'.", opts.capture_format));
+                }
+                break;
+            case replay:
+                if (opts.replay_file.empty()) {
+                    throw invalid_argument("Please provide a capture file path as an argument.");
                 }
                 break;
             default: break;
@@ -799,6 +861,56 @@ Options:
         return EXIT_SUCCESS;
     }
 
+    template <fs8::capture_format FormatT, fs8::capture_naming NamingT>
+    int run_capture_pipeline(options const& opts) {
+        static constinit auto pipeline =
+          fs8::context | fs8::io_manager | fs8::intercept | fs8::input_manager | fs8::stopper
+          | fs8::basic_capture<FormatT, NamingT>{FormatT{}, NamingT{}};
+
+        auto& sig_stopper = pipeline.mod(fs8::stopper);
+        auto& inpor       = pipeline.mod(fs8::intercept);
+
+        register_stop_signal(sig_stopper);
+        for (auto const& q : opts.queries) {
+            inpor.add(q);
+        }
+
+        pipeline();
+        return EXIT_SUCCESS;
+    }
+
+    int run_capture_action(options const& opts) {
+        auto const is_evtest = opts.capture_format == "evtest";
+        auto const& nam      = opts.capture_naming;
+
+        if (is_evtest) {
+            if (nam == "hourly")        return run_capture_pipeline<fs8::capture_evtest_format, fs8::capture_hourly>(opts);
+            if (nam == "weekly")        return run_capture_pipeline<fs8::capture_evtest_format, fs8::capture_weekly>(opts);
+            if (nam == "monthly")       return run_capture_pipeline<fs8::capture_evtest_format, fs8::capture_monthly>(opts);
+            if (nam == "uptime")        return run_capture_pipeline<fs8::capture_evtest_format, fs8::capture_uptime>(opts);
+            if (nam == "system-uptime") return run_capture_pipeline<fs8::capture_evtest_format, fs8::capture_system_uptime>(opts);
+            if (nam == "single-file")   return run_capture_pipeline<fs8::capture_evtest_format, fs8::capture_single_file>(opts);
+            return run_capture_pipeline<fs8::capture_evtest_format, fs8::capture_daily>(opts);
+        }
+        if (nam == "hourly")        return run_capture_pipeline<fs8::capture_binary_format, fs8::capture_hourly>(opts);
+        if (nam == "weekly")        return run_capture_pipeline<fs8::capture_binary_format, fs8::capture_weekly>(opts);
+        if (nam == "monthly")       return run_capture_pipeline<fs8::capture_binary_format, fs8::capture_monthly>(opts);
+        if (nam == "uptime")        return run_capture_pipeline<fs8::capture_binary_format, fs8::capture_uptime>(opts);
+        if (nam == "system-uptime") return run_capture_pipeline<fs8::capture_binary_format, fs8::capture_system_uptime>(opts);
+        if (nam == "single-file")   return run_capture_pipeline<fs8::capture_binary_format, fs8::capture_single_file>(opts);
+        return run_capture_pipeline<fs8::capture_binary_format, fs8::capture_daily>(opts);
+    }
+
+    int run_replay_action(options const& opts) {
+        static constinit auto pipeline = fs8::context | fs8::stopper | fs8::replay | fs8::std_output;
+
+        auto& rep = pipeline.mod(fs8::replay);
+        rep.set_file(opts.replay_file);
+
+        pipeline();
+        return EXIT_SUCCESS;
+    }
+
     int run_action(options const& opts) {
         using enum options::action_type;
         switch (opts.action) {
@@ -899,6 +1011,15 @@ Options:
             }
             case live: {
                 return run_live(opts);
+            }
+            case capture: {
+                if (opts.queries.empty()) {
+                    throw std::invalid_argument("Please provide a device query as an argument.");
+                }
+                return run_capture_action(opts);
+            }
+            case replay: {
+                return run_replay_action(opts);
             }
             default: {
                 fs8::keyboard_runner kbd;
