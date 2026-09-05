@@ -1,8 +1,10 @@
 // Created by moisrex on 9/4/26.
 
 module;
+#include <chrono>
 #include <cstdint>
 #include <ctime>
+#include <format>
 #include <string>
 module fs8.mods;
 
@@ -38,39 +40,28 @@ fs8::detail::tm_info fs8::detail::time_from_epoch(std::int64_t const epoch) noex
     };
 }
 
-std::string fs8::detail::zero_pad(int const value, int const width) noexcept {
-    auto const s = std::to_string(value);
-    if (static_cast<int>(s.size()) >= width) {
-        return s;
-    }
-    return std::string(static_cast<std::size_t>(width) - s.size(), '0') + s;
-}
-
 // ── capture_single_file ──────────────────────────────────────────────────────
 
-std::string fs8::capture_single_file::filename() const noexcept {
+std::string fs8::capture_single_file::filename(std::string_view const ext) noexcept {
     auto const now = detail::local_time_now();
-    return prefix + "-" + detail::zero_pad(now.year, 4) + detail::zero_pad(now.month, 2)
-         + detail::zero_pad(now.day, 2) + ".bin";
+    return std::format("capture-{:04d}{:02d}{:02d}{}", now.year, now.month, now.day, ext);
 }
 
 // ── capture_uptime ───────────────────────────────────────────────────────────
 
-std::string fs8::capture_uptime::filename() const noexcept {
+std::string fs8::capture_uptime::filename(std::string_view const ext) noexcept {
     auto const now = detail::local_time_now();
-    return "capture-" + detail::zero_pad(now.year, 4) + detail::zero_pad(now.month, 2)
-         + detail::zero_pad(now.day, 2) + "-" + detail::zero_pad(now.hour, 2) + "0000" + ".bin";
+    return std::format("capture-{:04d}{:02d}{:02d}-{:02d}0000{}", now.year, now.month, now.day, now.hour, ext);
 }
 
 // ── capture_hourly ───────────────────────────────────────────────────────────
 
-std::string fs8::capture_hourly::filename() const noexcept {
+std::string fs8::capture_hourly::filename(std::string_view const ext) noexcept {
     auto const now = detail::local_time_now();
-    return "capture-" + detail::zero_pad(now.year, 4) + "-" + detail::zero_pad(now.month, 2) + "-"
-         + detail::zero_pad(now.day, 2) + "-" + detail::zero_pad(now.hour, 2) + ".bin";
+    return std::format("capture-{:04d}-{:02d}-{:02d}-{:02d}{}", now.year, now.month, now.day, now.hour, ext);
 }
 
-bool fs8::capture_hourly::should_rotate(std::int64_t const last_rotation) const noexcept {
+bool fs8::capture_hourly::should_rotate(std::int64_t const last_rotation) noexcept {
     auto const cur = detail::local_time_now();
     auto const old = detail::time_from_epoch(last_rotation);
     return cur.year != old.year || cur.month != old.month || cur.day != old.day || cur.hour != old.hour;
@@ -78,13 +69,12 @@ bool fs8::capture_hourly::should_rotate(std::int64_t const last_rotation) const 
 
 // ── capture_daily ────────────────────────────────────────────────────────────
 
-std::string fs8::capture_daily::filename() const noexcept {
+std::string fs8::capture_daily::filename(std::string_view const ext) noexcept {
     auto const now = detail::local_time_now();
-    return "capture-" + detail::zero_pad(now.year, 4) + "-" + detail::zero_pad(now.month, 2) + "-"
-         + detail::zero_pad(now.day, 2) + ".bin";
+    return std::format("capture-{:04d}-{:02d}-{:02d}{}", now.year, now.month, now.day, ext);
 }
 
-bool fs8::capture_daily::should_rotate(std::int64_t const last_rotation) const noexcept {
+bool fs8::capture_daily::should_rotate(std::int64_t const last_rotation) noexcept {
     auto const cur = detail::local_time_now();
     auto const old = detail::time_from_epoch(last_rotation);
     return cur.year != old.year || cur.month != old.month || cur.day != old.day;
@@ -92,12 +82,12 @@ bool fs8::capture_daily::should_rotate(std::int64_t const last_rotation) const n
 
 // ── capture_weekly ───────────────────────────────────────────────────────────
 
-std::string fs8::capture_weekly::filename() const noexcept {
+std::string fs8::capture_weekly::filename(std::string_view const ext) noexcept {
     auto const now = detail::local_time_now();
-    return "capture-" + detail::zero_pad(now.year, 4) + "-W" + detail::zero_pad(now.week, 2) + ".bin";
+    return std::format("capture-{:04d}-W{:02d}{}", now.year, now.week, ext);
 }
 
-bool fs8::capture_weekly::should_rotate(std::int64_t const last_rotation) const noexcept {
+bool fs8::capture_weekly::should_rotate(std::int64_t const last_rotation) noexcept {
     auto const cur = detail::local_time_now();
     auto const old = detail::time_from_epoch(last_rotation);
     return cur.year != old.year || cur.week != old.week;
@@ -105,12 +95,12 @@ bool fs8::capture_weekly::should_rotate(std::int64_t const last_rotation) const 
 
 // ── capture_monthly ──────────────────────────────────────────────────────────
 
-std::string fs8::capture_monthly::filename() const noexcept {
+std::string fs8::capture_monthly::filename(std::string_view const ext) noexcept {
     auto const now = detail::local_time_now();
-    return "capture-" + detail::zero_pad(now.year, 4) + "-" + detail::zero_pad(now.month, 2) + ".bin";
+    return std::format("capture-{:04d}-{:02d}{}", now.year, now.month, ext);
 }
 
-bool fs8::capture_monthly::should_rotate(std::int64_t const last_rotation) const noexcept {
+bool fs8::capture_monthly::should_rotate(std::int64_t const last_rotation) noexcept {
     auto const cur = detail::local_time_now();
     auto const old = detail::time_from_epoch(last_rotation);
     return cur.year != old.year || cur.month != old.month;
@@ -118,6 +108,30 @@ bool fs8::capture_monthly::should_rotate(std::int64_t const last_rotation) const
 
 // ── capture_manual ───────────────────────────────────────────────────────────
 
-std::string fs8::capture_manual::filename() const noexcept {
-    return base_name + ".bin";
+std::string fs8::capture_manual::filename(std::string_view const ext) const noexcept {
+    return std::format("capture{}", ext);
+}
+
+// ── capture_name (duration-based) ────────────────────────────────────────────
+
+std::string fs8::capture_name::filename(std::string_view const ext) const noexcept {
+    auto const now = detail::local_time_now();
+    if (interval_seconds.count() >= 30 * 86400) {
+        return std::format("capture-{:04d}-{:02d}{}", now.year, now.month, ext);
+    }
+    if (interval_seconds.count() >= 7 * 86400) {
+        return std::format("capture-{:04d}-W{:02d}{}", now.year, now.week, ext);
+    }
+    if (interval_seconds.count() >= 86400) {
+        return std::format("capture-{:04d}-{:02d}-{:02d}{}", now.year, now.month, now.day, ext);
+    }
+    if (interval_seconds.count() >= 3600) {
+        return std::format("capture-{:04d}-{:02d}-{:02d}-{:02d}{}", now.year, now.month, now.day, now.hour, ext);
+    }
+    return std::format("capture-{:04d}{:02d}{:02d}-{:02d}0000{}", now.year, now.month, now.day, now.hour, ext);
+}
+
+bool fs8::capture_name::should_rotate(std::int64_t const last_rotation) const noexcept {
+    auto const now_seconds = detail::now_epoch_seconds();
+    return std::chrono::seconds{now_seconds - last_rotation} >= interval_seconds;
 }

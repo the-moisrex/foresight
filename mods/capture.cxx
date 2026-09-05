@@ -15,13 +15,10 @@ using fs8::special_event;
 
 // ── capture_impl (not exported) ──────────────────────────────────────────────
 
-struct fs8::detail::capture_impl : fs8::consteval_copyable {
-    using consteval_copyable::consteval_copyable;
-
+struct fs8::detail::capture_impl {
     std::vector<event_type> buffer;
     int                     current_fd    = -1;
     std::string             current_path;
-    bool                    active        = false;
     std::int64_t            last_rotation = 0;
 };
 
@@ -39,41 +36,40 @@ context_action fs8::basic_capture<FormatT, NamingT>::operator()(special_event co
         init_impl();
     }
     switch (tag.code) {
-        case start.code:
-            return next;
+        case start.code: return next;
         case toggle_on.code: {
             if (tag.value == toggle_on.value) {
-                if (impl_->active) {
-                    return next;
-                }
-                return on_toggle_on();
+                return next; // no-op: events are always buffered
             }
-            if (!impl_->active) {
-                return next;
-            }
-            flush_and_close();
+            // toggle_off: flush immediately
+            flush_buffer();
             return next;
         }
         case idle.code: {
-            if (!impl_->active || impl_->buffer.empty()) {
+            if (impl_->buffer.empty()) {
                 return next;
             }
-            if (naming_.should_rotate(impl_->last_rotation)) {
-                flush_and_close();
-                return on_toggle_on();
+            if (impl_->current_fd < 0) {
+                if (!open_file()) {
+                    return next;
+                }
+            } else if (naming_.should_rotate(impl_->last_rotation)) {
+                close_file();
+                if (!open_file()) {
+                    return next;
+                }
             }
             flush_buffer();
             return next;
         }
-        default:
-            return drop_event;
+        default: return drop_event;
     }
 }
 
 template <fs8::capture_format FormatT, fs8::capture_naming NamingT>
 context_action fs8::basic_capture<FormatT, NamingT>::operator()(event_type const& event) noexcept {
-    if (!static_cast<bool>(impl_) || !impl_->active) {
-        return context_action::next;
+    if (!static_cast<bool>(impl_)) {
+        init_impl();
     }
     impl_->buffer.push_back(event);
     return context_action::next;
@@ -96,31 +92,37 @@ std::size_t fs8::basic_capture<FormatT, NamingT>::buffer_size() const noexcept {
 }
 
 template <fs8::capture_format FormatT, fs8::capture_naming NamingT>
-bool fs8::basic_capture<FormatT, NamingT>::is_active() const noexcept {
-    if (!static_cast<bool>(impl_)) {
-        return false;
-    }
-    return impl_->active;
+bool fs8::basic_capture<FormatT, NamingT>::is_open() const noexcept {
+    return static_cast<bool>(impl_) && impl_->current_fd >= 0;
 }
 
 template <fs8::capture_format FormatT, fs8::capture_naming NamingT>
-context_action fs8::basic_capture<FormatT, NamingT>::on_toggle_on() noexcept {
-    auto const path = naming_.filename();
+bool fs8::basic_capture<FormatT, NamingT>::open_file() noexcept {
+    auto const path = naming_.filename(FormatT::extension);
     auto const fd   = ::open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
     if (fd < 0) {
         log("capture: failed to open {}", path);
-        return context_action::next;
+        return false;
     }
     if (!format_.write_header(fd)) {
         log("capture: failed to write header to {}", path);
         ::close(fd);
-        return context_action::next;
+        return false;
     }
     impl_->current_fd    = fd;
     impl_->current_path  = std::move(path);
     impl_->last_rotation = detail::now_epoch_seconds();
-    impl_->active        = true;
-    return context_action::next;
+    return true;
+}
+
+template <fs8::capture_format FormatT, fs8::capture_naming NamingT>
+void fs8::basic_capture<FormatT, NamingT>::close_file() noexcept {
+    if (impl_->current_fd < 0) {
+        return;
+    }
+    std::ignore = format_.write_footer(impl_->current_fd);
+    ::close(impl_->current_fd);
+    impl_->current_fd = -1;
 }
 
 template <fs8::capture_format FormatT, fs8::capture_naming NamingT>
@@ -130,17 +132,6 @@ void fs8::basic_capture<FormatT, NamingT>::flush_buffer() noexcept {
     }
     std::ignore = format_.emit(impl_->current_fd, impl_->buffer);
     impl_->buffer.clear();
-}
-
-template <fs8::capture_format FormatT, fs8::capture_naming NamingT>
-void fs8::basic_capture<FormatT, NamingT>::flush_and_close() noexcept {
-    flush_buffer();
-    if (impl_->current_fd >= 0) {
-        std::ignore = format_.write_footer(impl_->current_fd);
-        ::close(impl_->current_fd);
-        impl_->current_fd = -1;
-    }
-    impl_->active = false;
 }
 
 // ── Explicit instantiations ──────────────────────────────────────────────────

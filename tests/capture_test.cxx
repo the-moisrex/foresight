@@ -3,6 +3,7 @@
 #include "./common/tests_common_pch.hpp"
 
 #include <fcntl.h>
+#include <format>
 #include <linux/input-event-codes.h>
 #include <linux/uinput.h>
 #include <sys/stat.h>
@@ -82,29 +83,14 @@ namespace {
 TEST(CaptureTest, InactiveByDefault) {
     constexpr basic_capture<capture_binary_format, capture_daily> cap{
       capture_binary_format{}, capture_daily{}};
-    EXPECT_FALSE(cap.is_active());
+    EXPECT_FALSE(cap.is_open());
     EXPECT_EQ(cap.buffer_size(), 0U);
     EXPECT_TRUE(cap.buffered().empty());
 }
 
-TEST(CaptureTest, ToggleOnActivates) {
+TEST(CaptureTest, EventsAlwaysBuffered) {
     basic_capture<capture_binary_format, capture_daily> cap{
       capture_binary_format{}, capture_daily{}};
-
-    context_action result = cap(special_event{.code = start.code});
-    EXPECT_EQ(result, context_action::next);
-
-    result = cap(special_event{.code = toggle_on.code, .value = 1});
-    EXPECT_EQ(result, context_action::next);
-    EXPECT_TRUE(cap.is_active());
-}
-
-TEST(CaptureTest, EventsBufferedWhenActive) {
-    basic_capture<capture_binary_format, capture_daily> cap{
-      capture_binary_format{}, capture_daily{}};
-
-    cap(special_event{.code = start.code});
-    cap(special_event{.code = toggle_on.code, .value = 1});
 
     cap(event_type{EV_KEY, KEY_A, 1});
     cap(event_type{EV_SYN, SYN_REPORT, 0});
@@ -117,26 +103,22 @@ TEST(CaptureTest, EventsBufferedWhenActive) {
     EXPECT_EQ(cap.buffered()[2].value(), 0);
 }
 
-TEST(CaptureTest, EventsNotBufferedWhenInactive) {
+TEST(CaptureTest, ToggleOffFlushes) {
     basic_capture<capture_binary_format, capture_daily> cap{
       capture_binary_format{}, capture_daily{}};
-
-    cap(event_type{EV_KEY, KEY_A, 1});
-    EXPECT_EQ(cap.buffer_size(), 0U);
-}
-
-TEST(CaptureTest, ToggleOffDeactivates) {
-    basic_capture<capture_binary_format, capture_daily> cap{
-      capture_binary_format{}, capture_daily{}};
-
-    cap(special_event{.code = start.code});
-    cap(special_event{.code = toggle_on.code, .value = 1});
-    EXPECT_TRUE(cap.is_active());
-
-    cap(special_event{.code = toggle_on.code, .value = 0});
-    EXPECT_FALSE(cap.is_active());
 
     cap(event_type{EV_KEY, KEY_B, 1});
+    cap(event_type{EV_SYN, SYN_REPORT, 0});
+    EXPECT_EQ(cap.buffer_size(), 2U);
+
+    // Idle opens the file.
+    cap(special_event{.code = idle.code});
+    EXPECT_TRUE(cap.is_open());
+
+    cap(event_type{EV_KEY, KEY_B, 1});
+
+    // toggle_off flushes the buffer.
+    cap(special_event{.code = toggle_on.code, .value = 0});
     EXPECT_EQ(cap.buffer_size(), 0U);
 }
 
@@ -144,16 +126,14 @@ TEST(CaptureTest, IdleFlushesToFile) {
     basic_capture<capture_binary_format, capture_daily> cap{
       capture_binary_format{}, capture_daily{}};
 
-    cap(special_event{.code = start.code});
-    cap(special_event{.code = toggle_on.code, .value = 1});
-
     cap(event_type{EV_KEY, KEY_A, 1});
     cap(event_type{EV_SYN, SYN_REPORT, 0});
     EXPECT_EQ(cap.buffer_size(), 2U);
 
-    // Idle should flush the buffer.
+    // Idle should open file and flush the buffer.
     cap(special_event{.code = idle.code});
     EXPECT_EQ(cap.buffer_size(), 0U);
+    EXPECT_TRUE(cap.is_open());
 }
 
 TEST(CaptureTest, BinaryFormatRoundtrip) {
@@ -233,14 +213,9 @@ TEST(CaptureTest, AccessorsReportCorrectState) {
     basic_capture<capture_binary_format, capture_daily> cap{
       capture_binary_format{}, capture_daily{}};
 
-    EXPECT_FALSE(cap.is_active());
+    EXPECT_FALSE(cap.is_open());
     EXPECT_EQ(cap.buffer_size(), 0U);
     EXPECT_TRUE(cap.buffered().empty());
-
-    cap(special_event{.code = start.code});
-    cap(special_event{.code = toggle_on.code, .value = 1});
-
-    EXPECT_TRUE(cap.is_active());
 
     cap(event_type{EV_REL, REL_X, 5});
     cap(event_type{EV_SYN, SYN_REPORT, 0});
@@ -249,8 +224,9 @@ TEST(CaptureTest, AccessorsReportCorrectState) {
     EXPECT_FALSE(cap.buffered().empty());
     EXPECT_EQ(cap.buffered()[0].code(), REL_X);
 
+    // toggle_off flushes.
     cap(special_event{.code = toggle_on.code, .value = 0});
-    EXPECT_FALSE(cap.is_active());
+    EXPECT_FALSE(cap.is_open());
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -440,4 +416,135 @@ TEST(ReplayTest, NonLoadTagReturnsDrop) {
     EXPECT_EQ(result, context_action::drop_event);
 
     unlink(tmp);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Pipeline integration tests
+// ══════════════════════════════════════════════════════════════════════════════
+
+TEST(CapturePipelineTest, CaptureInPipelineBuffersEvents) {
+    static constinit auto pipeline =
+      context | emit_all[{user_event{.type = EV_KEY, .code = KEY_A, .value = 1}, user_event{EV_SYN, SYN_REPORT, 0},
+                          user_event{.type = EV_KEY, .code = KEY_A, .value = 0}, user_event{EV_SYN, SYN_REPORT, 0}}]
+      | capture | record;
+
+    auto& cap = pipeline.mod<basic_capture<capture_binary_format, capture_daily>>();
+
+    pipeline();
+    EXPECT_EQ(cap.buffer_size(), 4U);
+    EXPECT_EQ(pipeline.mod<basic_record>().size(), 4U);
+}
+
+TEST(CapturePipelineTest, IdleFlushesCaptureToFile) {
+    static constinit auto pipeline =
+      context
+      | emit_all[{user_event{.type = EV_KEY, .code = KEY_A, .value = 1}, user_event{EV_SYN, SYN_REPORT, 0},
+                   user_event{.type = EV_KEY, .code = KEY_A, .value = 0}, user_event{EV_SYN, SYN_REPORT, 0}}]
+      | capture | record;
+
+    auto& cap = pipeline.mod<basic_capture<capture_binary_format, capture_daily>>();
+
+    pipeline();
+    EXPECT_EQ(cap.buffer_size(), 4U);
+
+    // Manually trigger idle to flush the buffer.
+    cap(special_event{.code = idle.code});
+    EXPECT_EQ(cap.buffer_size(), 0U);
+}
+
+TEST(CapturePipelineTest, ReplayInPipelineReplaysEvents) {
+    std::vector const original = {
+      make_event(make_native(EV_KEY, KEY_A, 1, 100, 0)),
+      make_event(make_native(EV_SYN, SYN_REPORT, 0, 100, 0)),
+      make_event(make_native(EV_KEY, KEY_A, 0, 100, 1000)),
+    };
+
+    char const* const tmp = "/tmp/replay_pipeline_test.bin";
+    write_binary_capture(tmp, original);
+
+    basic_replay<capture_binary_format> rep{};
+    rep.set_file(tmp);
+    rep(special_event{.code = start.code});
+
+    std::vector<event_type> captured;
+    for (int i = 0; i < 10; ++i) {
+        event_type ev{};
+        auto const result = rep(ev, special_event{.code = load_event.code});
+        if (result == context_action::exit) {
+            break;
+        }
+        if (result == context_action::next) {
+            captured.push_back(ev);
+        }
+    }
+
+    ASSERT_EQ(captured.size(), original.size());
+    for (std::size_t i = 0; i < original.size(); ++i) {
+        EXPECT_EQ(captured[i].type(), original[i].type()) << "event " << i;
+        EXPECT_EQ(captured[i].code(), original[i].code()) << "event " << i;
+        EXPECT_EQ(captured[i].value(), original[i].value()) << "event " << i;
+    }
+
+    unlink(tmp);
+}
+
+TEST(CapturePipelineTest, CaptureReplayRoundtrip) {
+    // Step 1: Capture events to file via pipeline.
+    static constinit auto cap_pipeline =
+      context
+      | emit_all[{user_event{.type = EV_KEY, .code = KEY_A, .value = 1}, user_event{EV_SYN, SYN_REPORT, 0},
+                   user_event{.type = EV_KEY, .code = KEY_A, .value = 0}, user_event{EV_SYN, SYN_REPORT, 0},
+                   user_event{.type = EV_REL, .code = REL_X, .value = 10}, user_event{EV_SYN, SYN_REPORT, 0}}]
+      | capture | record;
+
+    auto& cap = cap_pipeline.mod<basic_capture<capture_binary_format, capture_daily>>();
+    cap_pipeline();
+    cap(special_event{.code = idle.code});
+
+    // The daily naming writes to capture-YYYY-MM-DD.fs8 in CWD.
+    auto const now      = detail::local_time_now();
+    auto const expected = std::format("capture-{:04d}-{:02d}-{:02d}.fs8", now.year, now.month, now.day);
+
+    struct stat st{};
+    ASSERT_EQ(::stat(expected.c_str(), &st), 0);
+    ASSERT_GT(st.st_size, 0);
+
+    // Step 2: Replay from the captured file via direct replay mod calls.
+    std::vector<event_type> replayed;
+    {
+        basic_replay<capture_binary_format> rep{};
+        rep.set_file(expected);
+        rep(special_event{.code = start.code});
+
+        for (int i = 0; i < 20; ++i) {
+            event_type ev{};
+            auto const result = rep(ev, special_event{.code = load_event.code});
+            if (result == context_action::exit) {
+                break;
+            }
+            if (result == context_action::next) {
+                replayed.push_back(ev);
+            }
+        }
+    }
+
+    ASSERT_EQ(replayed.size(), 6U);
+    // First 6 events should match what emit_all provided.
+    EXPECT_EQ(replayed[0].type(), EV_KEY);
+    EXPECT_EQ(replayed[0].code(), KEY_A);
+    EXPECT_EQ(replayed[0].value(), 1);
+    EXPECT_EQ(replayed[1].type(), EV_SYN);
+    EXPECT_EQ(replayed[1].code(), SYN_REPORT);
+    EXPECT_EQ(replayed[2].type(), EV_KEY);
+    EXPECT_EQ(replayed[2].code(), KEY_A);
+    EXPECT_EQ(replayed[2].value(), 0);
+    EXPECT_EQ(replayed[3].type(), EV_SYN);
+    EXPECT_EQ(replayed[3].code(), SYN_REPORT);
+    EXPECT_EQ(replayed[4].type(), EV_REL);
+    EXPECT_EQ(replayed[4].code(), REL_X);
+    EXPECT_EQ(replayed[4].value(), 10);
+    EXPECT_EQ(replayed[5].type(), EV_SYN);
+    EXPECT_EQ(replayed[5].code(), SYN_REPORT);
+
+    unlink(expected.c_str());
 }

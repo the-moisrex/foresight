@@ -3,6 +3,7 @@
 module;
 #include <array>
 #include <cstdint>
+#include <linux/uinput.h>
 #include <span>
 #include <string_view>
 #include <unistd.h>
@@ -12,7 +13,7 @@ using fs8::event_type;
 
 // ── capture_binary_format ────────────────────────────────────────────────────
 
-bool fs8::capture_binary_format::write_header(int const fd) const noexcept {
+bool fs8::capture_binary_format::write_header(int const fd) noexcept {
     struct __attribute__((packed)) {
         std::uint32_t magic;
         std::uint16_t version;
@@ -21,29 +22,33 @@ bool fs8::capture_binary_format::write_header(int const fd) const noexcept {
     return result == sizeof(hdr);
 }
 
-bool fs8::capture_binary_format::emit(int const fd, std::span<event_type const> const evs) const noexcept {
+bool fs8::capture_binary_format::emit(int const fd, std::span<event_type const> const evs) noexcept {
     if (evs.empty()) {
         return true;
     }
-    auto const* ptr    = evs.data();
-    auto const  nbytes = evs.size() * sizeof(event_type);
-    auto const  result = ::write(fd, static_cast<void const*>(ptr), nbytes);
-    return result == static_cast<ssize_t>(nbytes);
+    for (auto const& ev : evs) {
+        auto const& native = ev.native();
+        auto const  result = ::write(fd, &native, sizeof(input_event));
+        if (result != sizeof(input_event)) {
+            return false;
+        }
+    }
+    return true;
 }
 
-bool fs8::capture_binary_format::write_footer(int) const noexcept {
+bool fs8::capture_binary_format::write_footer(int) noexcept {
     return true;
 }
 
 // ── capture_evtest_format ────────────────────────────────────────────────────
 
-bool fs8::capture_evtest_format::write_header(int const fd) const noexcept {
+bool fs8::capture_evtest_format::write_header(int const fd) noexcept {
     constexpr std::string_view header = "# foresight capture evtest\n";
     auto const result = ::write(fd, header.data(), header.size());
     return result == static_cast<ssize_t>(header.size());
 }
 
-bool fs8::capture_evtest_format::emit(int const fd, std::span<event_type const> const evs) const noexcept {
+bool fs8::capture_evtest_format::emit(int const fd, std::span<event_type const> const evs) noexcept {
     constexpr std::size_t buf_size = 128;
     std::array<char, buf_size> buf{};
 
@@ -61,6 +66,6 @@ bool fs8::capture_evtest_format::emit(int const fd, std::span<event_type const> 
     return true;
 }
 
-bool fs8::capture_evtest_format::write_footer(int) const noexcept {
+bool fs8::capture_evtest_format::write_footer(int) noexcept {
     return true;
 }

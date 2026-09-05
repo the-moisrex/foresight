@@ -13,10 +13,10 @@ export namespace fs8 {
 
     /// Concept for capture output formats.
     template <typename T>
-    concept capture_format = requires(T const& t, int fd, std::span<event_type const> evs) {
-        { t.write_header(fd) } -> std::convertible_to<bool>;
-        { t.emit(fd, evs) } -> std::convertible_to<bool>;
-        { t.write_footer(fd) } -> std::convertible_to<bool>;
+    concept capture_format = requires(int fd, std::span<event_type const> evs) {
+        { T::write_header(fd) } -> std::convertible_to<bool>;
+        { T::emit(fd, evs) } -> std::convertible_to<bool>;
+        { T::write_footer(fd) } -> std::convertible_to<bool>;
     };
 
     /// Binary capture: raw input_event structs. Compact, fast, replayable.
@@ -25,15 +25,16 @@ export namespace fs8 {
 
         static constexpr std::uint32_t magic = 0x38534646u; // "FFS8" little-endian
         static constexpr std::uint16_t version = 1;
+        static constexpr std::string_view extension = ".fs8";
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool write_header(int fd) const noexcept;
+        static bool write_header(int fd) noexcept;
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool emit(int fd, std::span<event_type const> evs) const noexcept;
+        static bool emit(int fd, std::span<event_type const> evs) noexcept;
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool write_footer(int fd) const noexcept;
+        static bool write_footer(int fd) noexcept;
     };
 
     static_assert(capture_format<capture_binary_format>);
@@ -43,14 +44,16 @@ export namespace fs8 {
     struct [[nodiscard]] capture_evtest_format : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
-        // NOLINTNEXTLINE(*-use-nodiscard)
-        bool write_header(int fd) const noexcept;
+        static constexpr std::string_view extension = ".evtest.fs8";
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool emit(int fd, std::span<event_type const> evs) const noexcept;
+        static bool write_header(int fd) noexcept;
 
         // NOLINTNEXTLINE(*-use-nodiscard)
-        bool write_footer(int fd) const noexcept;
+        static bool emit(int fd, std::span<event_type const> evs) noexcept;
+
+        // NOLINTNEXTLINE(*-use-nodiscard)
+        static bool write_footer(int fd) noexcept;
     };
 
     static_assert(capture_format<capture_evtest_format>);

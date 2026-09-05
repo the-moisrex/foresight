@@ -1,7 +1,6 @@
 // Created by moisrex on 9/4/26.
 
 module;
-#include <cstdint>
 #include <span>
 #include <string>
 #include <vector>
@@ -23,14 +22,13 @@ export namespace fs8 {
     /// Pipeline mod that buffers events in memory and flushes to a file during
     /// idle periods. File naming and output format are template parameters.
     ///
-    /// Lifecycle:
-    ///   start       → initialize (no file opened yet)
-    ///   toggle_on   → open file, begin buffering
-    ///   idle        → flush buffer to file
-    ///   toggle_off  → flush, close file, stop buffering
+    /// Events are always buffered. The file is opened on the first flush and
+    /// stays open until the pipeline exits or the naming rotates.
     ///
-    /// Use inside `on[key_combo, capture]` for explicit start/stop,
-    /// or at pipeline end for always-on capture.
+    ///   start       → no-op
+    ///   toggle_on   → no-op (events are buffered regardless)
+    ///   idle        → open file if needed, flush buffer, rotate if needed
+    ///   toggle_off  → flush buffer immediately
     ///
     /// Pipeline form:
     /// ```cpp
@@ -65,18 +63,43 @@ export namespace fs8 {
 
         [[nodiscard]] std::span<event_type const> buffered() const noexcept;
         [[nodiscard]] std::size_t                  buffer_size() const noexcept;
-        [[nodiscard]] bool                         is_active() const noexcept;
+        [[nodiscard]] bool                         is_open() const noexcept;
 
       private:
-        context_action on_toggle_on() noexcept;
-        void           flush_buffer() noexcept;
-        void           flush_and_close() noexcept;
+        bool open_file() noexcept;
+        void close_file() noexcept;
+        void flush_buffer() noexcept;
+
+      public:
+        // ── Bracket syntax ──────────────────────────────────────────────────
+
+        /// `capture[daily]` — binary format + custom naming.
+        consteval auto operator[](capture_naming auto naming) const noexcept {
+            return basic_capture{capture_binary_format{}, naming};
+        }
+
+        /// `capture[evtest_format]` — custom format + daily naming.
+        consteval auto operator[](capture_format auto fmt) const noexcept {
+            return basic_capture{fmt, capture_daily{}};
+        }
+
+        /// `capture[evtest_format, daily]` — custom format + custom naming.
+        consteval auto operator[](capture_format auto fmt, capture_naming auto naming) const noexcept {
+            return basic_capture{fmt, naming};
+        }
+
+        /// `capture[daily, evtest_format]` — naming first, format second.
+        consteval auto operator[](capture_naming auto naming, capture_format auto fmt) const noexcept {
+            return basic_capture{fmt, naming};
+        }
     };
 
     template <capture_format FormatT, capture_naming NamingT>
     basic_capture(FormatT, NamingT) -> basic_capture<FormatT, NamingT>;
 
     /// Default capture: binary format, daily rotation.
-    constexpr auto capture = basic_capture{capture_binary_format{}, capture_daily{}};
+    /// Supports bracket syntax: `capture[daily]`, `capture[evtest_format]`, etc.
+    /// Use `capture_name{1h}` for duration-based rotation.
+    constexpr basic_capture<capture_binary_format, capture_daily> capture{capture_binary_format{}, capture_daily{}};
 
 } // namespace fs8
