@@ -91,6 +91,7 @@ $(document).ready(function(){initNavTree('structfs8_1_1basic__replay.html',''); 
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="structfs8_1_1basic__replay-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">fs8::basic_replay&lt; FormatT &gt; Struct Template Reference<span class="mlabels"><span class="mlabel">export</span></span><div class="ingroups">module <a class="el" href="module_fs8_8mods.html">fs8.mods</a></div></div></div>
@@ -111,8 +112,6 @@ Collaboration diagram for fs8::basic_replay&lt; FormatT &gt;:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a9d247597a82dbe4463728d7d2f40e7bf" id="r_a9d247597a82dbe4463728d7d2f40e7bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__replay.html#a9d247597a82dbe4463728d7d2f40e7bf">set_file</a> (std::string_view path) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a9d247597a82dbe4463728d7d2f40e7bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2245b36d4241c0dbe6d379df783b006a" id="r_a2245b36d4241c0dbe6d379df783b006a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__replay.html#a2245b36d4241c0dbe6d379df783b006a">init_impl</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
-<tr class="separator:a2245b36d4241c0dbe6d379df783b006a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaf36fdf7ece95e5139dbe168d915b42b" id="r_aaf36fdf7ece95e5139dbe168d915b42b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__replay.html#aaf36fdf7ece95e5139dbe168d915b42b">operator()</a> (<a class="el" href="structfs8_1_1special__event.html">special_event</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="memdesc:aaf36fdf7ece95e5139dbe168d915b42b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle start tag: open file and read header.  <br /></td></tr>
 <tr class="separator:aaf36fdf7ece95e5139dbe168d915b42b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,13 +143,12 @@ Public Member Functions</h2></td></tr>
 struct fs8::basic_replay&lt; FormatT &gt;</div><p>Pipeline mod that reads captured events from a file and injects them into the pipeline on each <code>load_event</code> tag. When the file is exhausted, returns <code>exit</code>.</p>
 <p>Auto-detects file format (binary or evtest text) from the file header.</p>
 <p>Pipeline form: </p><div class="fragment"><div class="line"><span class="keyword">auto</span> pipeline = <a class="code hl_variable" href="namespacefs8.html#a1f84efa1ecc04f2041d05aab1244b770">context</a> | <a class="code hl_variable" href="namespacefs8.html#ae36c0ebc1ffd8c28734932b184f569cb">stopper</a> | <a class="code hl_variable" href="namespacefs8.html#a163365beeea06c22d92a3948feebbdf8">replay</a> | <a class="code hl_variable" href="namespacefs8.html#a7dc3fe91c5c1e5e25859f5eafbdfcff8">output</a>;</div>
-<div class="line"><a class="code hl_variable" href="namespacefs8.html#a163365beeea06c22d92a3948feebbdf8">replay</a>.<a class="code hl_function" href="structfs8_1_1basic__replay.html#a9d247597a82dbe4463728d7d2f40e7bf">set_file</a>(<span class="stringliteral">&quot;capture-2026-09-04.bin&quot;</span>);</div>
+<div class="line">pipeline.mod(<a class="code hl_variable" href="namespacefs8.html#a163365beeea06c22d92a3948feebbdf8">replay</a>).set_file(<span class="stringliteral">&quot;capture-2026-09-04.bin&quot;</span>);</div>
 <div class="line">pipeline();</div>
-<div class="ttc" id="anamespacefs8_html_a163365beeea06c22d92a3948feebbdf8"><div class="ttname"><a href="namespacefs8.html#a163365beeea06c22d92a3948feebbdf8">fs8::replay</a></div><div class="ttdeci">constexpr basic_replay replay</div><div class="ttdoc">Default replay: auto-detect format.</div><div class="ttdef"><b>Definition</b> replay.ixx:57</div></div>
+<div class="ttc" id="anamespacefs8_html_a163365beeea06c22d92a3948feebbdf8"><div class="ttname"><a href="namespacefs8.html#a163365beeea06c22d92a3948feebbdf8">fs8::replay</a></div><div class="ttdeci">constexpr basic_replay replay</div><div class="ttdoc">Default replay: auto-detect format.</div><div class="ttdef"><b>Definition</b> replay.ixx:72</div></div>
 <div class="ttc" id="anamespacefs8_html_a1f84efa1ecc04f2041d05aab1244b770"><div class="ttname"><a href="namespacefs8.html#a1f84efa1ecc04f2041d05aab1244b770">fs8::context</a></div><div class="ttdeci">constexpr basic_context context</div><div class="ttdef"><b>Definition</b> context.ixx:930</div></div>
 <div class="ttc" id="anamespacefs8_html_a7dc3fe91c5c1e5e25859f5eafbdfcff8"><div class="ttname"><a href="namespacefs8.html#a7dc3fe91c5c1e5e25859f5eafbdfcff8">fs8::output</a></div><div class="ttdeci">constexpr output_selector output</div><div class="ttdef"><b>Definition</b> output_selector.ixx:110</div></div>
 <div class="ttc" id="anamespacefs8_html_ae36c0ebc1ffd8c28734932b184f569cb"><div class="ttname"><a href="namespacefs8.html#ae36c0ebc1ffd8c28734932b184f569cb">fs8::stopper</a></div><div class="ttdeci">fs8::basic_stopper stopper</div></div>
-<div class="ttc" id="astructfs8_1_1basic__replay_html_a9d247597a82dbe4463728d7d2f40e7bf"><div class="ttname"><a href="structfs8_1_1basic__replay.html#a9d247597a82dbe4463728d7d2f40e7bf">fs8::basic_replay::set_file</a></div><div class="ttdeci">void set_file(std::string_view path) noexcept</div><div class="ttdef"><b>Definition</b> replay.cxx:31</div></div>
 </div><!-- fragment --> </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="aab9e941457bd45b9d6772f6ff421cec6" name="aab9e941457bd45b9d6772f6ff421cec6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aab9e941457bd45b9d6772f6ff421cec6">&#9670;&#160;</a></span>consteval_copyable() <span class="overload">[1/3]</span></h2>
@@ -235,33 +233,6 @@ template&lt;capture_format FormatT = capture_binary_format&gt; </div>
 
 </div>
 </div>
-<a id="a2245b36d4241c0dbe6d379df783b006a" name="a2245b36d4241c0dbe6d379df783b006a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2245b36d4241c0dbe6d379df783b006a">&#9670;&#160;</a></span>init_impl()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;<a class="el" href="conceptfs8_1_1capture__format.html">fs8::capture_format</a> FormatT&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a> <a class="el" href="structfs8_1_1basic__replay.html">fs8::basic_replay</a>&lt; FormatT &gt;::init_impl </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="af9b2aea5d63ac8ee533d5815a8d8295b" name="af9b2aea5d63ac8ee533d5815a8d8295b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af9b2aea5d63ac8ee533d5815a8d8295b">&#9670;&#160;</a></span>operator()() <span class="overload">[1/2]</span></h2>
 
@@ -338,7 +309,7 @@ template&lt;<a class="el" href="conceptfs8_1_1capture__format.html">fs8::capture
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="el" href="conceptfs8_1_1capture__format.html">fs8::capture_format</a> FormatT&gt; </div>
+template&lt;capture_format FormatT = capture_binary_format&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -353,7 +324,7 @@ template&lt;<a class="el" href="conceptfs8_1_1capture__format.html">fs8::capture
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

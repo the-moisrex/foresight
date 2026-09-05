@@ -304,6 +304,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__uptime.html">fs8::capture_uptime</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filename includes monotonic timestamp. One file per capture session.  <a href="structfs8_1_1capture__uptime.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__system__uptime.html">fs8::capture_system_uptime</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__hourly.html">fs8::capture_hourly</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">New file every hour.  <a href="structfs8_1_1capture__hourly.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -967,8 +969,6 @@ requires (!Context&lt;std::remove_cvref_t&lt;InpModT&gt;&gt; &amp;&amp; !detail:
 <tr class="separator:aacc191f9231e0595b912c82449202fea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d247597a82dbe4463728d7d2f40e7bf" id="r_a9d247597a82dbe4463728d7d2f40e7bf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__replay.html#a9d247597a82dbe4463728d7d2f40e7bf">set_file</a> (std::string_view path) noexcept</td></tr>
 <tr class="separator:a9d247597a82dbe4463728d7d2f40e7bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2245b36d4241c0dbe6d379df783b006a" id="r_a2245b36d4241c0dbe6d379df783b006a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__replay.html#a2245b36d4241c0dbe6d379df783b006a">init_impl</a> () noexcept</td></tr>
-<tr class="separator:a2245b36d4241c0dbe6d379df783b006a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaf36fdf7ece95e5139dbe168d915b42b" id="r_aaf36fdf7ece95e5139dbe168d915b42b"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__replay.html#aaf36fdf7ece95e5139dbe168d915b42b">operator()</a> (<a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;tag) noexcept</td></tr>
 <tr class="memdesc:aaf36fdf7ece95e5139dbe168d915b42b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle start tag: open file and read header.  <br /></td></tr>
 <tr class="separator:aaf36fdf7ece95e5139dbe168d915b42b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1290,6 +1290,8 @@ requires (sizeof...(C) &gt;= 1)</td></tr>
 <tr class="separator:a30e34176933f74b38dde170d64c60d63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44aa84ee18606cca1c6c46106e46c830" id="r_a44aa84ee18606cca1c6c46106e46c830"><td class="memItemLeft" align="right" valign="top">tm_info&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#a44aa84ee18606cca1c6c46106e46c830">fs8::detail::time_from_epoch</a> (std::int64_t epoch) noexcept</td></tr>
 <tr class="separator:a44aa84ee18606cca1c6c46106e46c830"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e5e8ed040f5d33091a8fc8924f5cc79" id="r_a8e5e8ed040f5d33091a8fc8924f5cc79"><td class="memItemLeft" align="right" valign="top">std::int64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#a8e5e8ed040f5d33091a8fc8924f5cc79">fs8::detail::system_uptime_seconds</a> () noexcept</td></tr>
+<tr class="separator:a8e5e8ed040f5d33091a8fc8924f5cc79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a94be64135b1cb8a8c4adf02d50e0921d" id="r_a94be64135b1cb8a8c4adf02d50e0921d"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__single__file.html#a94be64135b1cb8a8c4adf02d50e0921d">filename</a> (std::string_view ext) noexcept</td></tr>
 <tr class="separator:a94be64135b1cb8a8c4adf02d50e0921d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a274dc0b3611b48274c6060e395ab653b" id="r_a274dc0b3611b48274c6060e395ab653b"><td class="memItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__single__file.html#a274dc0b3611b48274c6060e395ab653b">should_rotate</a> (std::int64_t) noexcept</td></tr>
@@ -1298,6 +1300,10 @@ requires (sizeof...(C) &gt;= 1)</td></tr>
 <tr class="separator:ab60f4163800beafb970948ee7d39827f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac4933fbb678d6dd3caa59edc198d9cd5" id="r_ac4933fbb678d6dd3caa59edc198d9cd5"><td class="memItemLeft" align="right" valign="top">static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__uptime.html#ac4933fbb678d6dd3caa59edc198d9cd5">should_rotate</a> (std::int64_t) noexcept</td></tr>
 <tr class="separator:ac4933fbb678d6dd3caa59edc198d9cd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99d764a7adaf148ceb496b978e47db35" id="r_a99d764a7adaf148ceb496b978e47db35"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__system__uptime.html#a99d764a7adaf148ceb496b978e47db35">filename</a> (std::string_view ext) noexcept</td></tr>
+<tr class="separator:a99d764a7adaf148ceb496b978e47db35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1382dd5b54521120061bcb9447cfeeee" id="r_a1382dd5b54521120061bcb9447cfeeee"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__system__uptime.html#a1382dd5b54521120061bcb9447cfeeee">should_rotate</a> (std::int64_t last_rotation) noexcept</td></tr>
+<tr class="separator:a1382dd5b54521120061bcb9447cfeeee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0cf776585c2d631b7a2ac7f70575d86" id="r_aa0cf776585c2d631b7a2ac7f70575d86"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__hourly.html#aa0cf776585c2d631b7a2ac7f70575d86">filename</a> (std::string_view ext) noexcept</td></tr>
 <tr class="separator:aa0cf776585c2d631b7a2ac7f70575d86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44169e942cc74939ae8a912d8210633d" id="r_a44169e942cc74939ae8a912d8210633d"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__hourly.html#a44169e942cc74939ae8a912d8210633d">should_rotate</a> (std::int64_t last_rotation) noexcept</td></tr>
@@ -1905,6 +1911,14 @@ Variables</h2></td></tr>
 <tr class="separator:a06902ccf70cc2beacd762a3c760778cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f014eb67f58296d09d9e73643db7b3e" id="r_a9f014eb67f58296d09d9e73643db7b3e"><td class="memItemLeft" align="right" valign="top">constexpr std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#a9f014eb67f58296d09d9e73643db7b3e">fs8::detail::format_header_size</a> = 6</td></tr>
 <tr class="separator:a9f014eb67f58296d09d9e73643db7b3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac342462f50c096a356a58cdd157cb5fe" id="r_ac342462f50c096a356a58cdd157cb5fe"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__replay_1_1state.html#ac342462f50c096a356a58cdd157cb5fe">file_path</a></td></tr>
+<tr class="separator:ac342462f50c096a356a58cdd157cb5fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a921a377fa5039406eaca0d1eca4bae40" id="r_a921a377fa5039406eaca0d1eca4bae40"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__replay_1_1state.html#a921a377fa5039406eaca0d1eca4bae40">fd</a> = -1</td></tr>
+<tr class="separator:a921a377fa5039406eaca0d1eca4bae40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70fceb0f8f2c8eda0bb866940944858c" id="r_a70fceb0f8f2c8eda0bb866940944858c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__replay_1_1state.html#a70fceb0f8f2c8eda0bb866940944858c">is_binary</a> = false</td></tr>
+<tr class="separator:a70fceb0f8f2c8eda0bb866940944858c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9887d126dc881c54a8ffe47665e4d79" id="r_ab9887d126dc881c54a8ffe47665e4d79"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__replay_1_1state.html#ab9887d126dc881c54a8ffe47665e4d79">linebuf</a></td></tr>
+<tr class="separator:ab9887d126dc881c54a8ffe47665e4d79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a163365beeea06c22d92a3948feebbdf8" id="r_a163365beeea06c22d92a3948feebbdf8"><td class="memItemLeft" align="right" valign="top">constexpr basic_replay&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a163365beeea06c22d92a3948feebbdf8">fs8::replay</a></td></tr>
 <tr class="memdesc:a163365beeea06c22d92a3948feebbdf8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default replay: auto-detect format.  <br /></td></tr>
 <tr class="separator:a163365beeea06c22d92a3948feebbdf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2021,6 +2035,8 @@ Variables</h2></td></tr>
 <tr class="separator:a6d5354109de13a3a5f446c2018a2ce99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a81ae4647b90976962ea0dd4fe3c75f72" id="r_a81ae4647b90976962ea0dd4fe3c75f72"><td class="memItemLeft" align="right" valign="top">constexpr capture_uptime&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a81ae4647b90976962ea0dd4fe3c75f72">fs8::uptime</a> {}</td></tr>
 <tr class="separator:a81ae4647b90976962ea0dd4fe3c75f72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8db623e12b04b423ceed57967685a653" id="r_a8db623e12b04b423ceed57967685a653"><td class="memItemLeft" align="right" valign="top">constexpr capture_system_uptime&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a8db623e12b04b423ceed57967685a653">fs8::system_uptime</a> {}</td></tr>
+<tr class="separator:a8db623e12b04b423ceed57967685a653"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adeeeef55183ab6b08dcecf74324eda9a" id="r_adeeeef55183ab6b08dcecf74324eda9a"><td class="memItemLeft" align="right" valign="top">constexpr capture_hourly&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#adeeeef55183ab6b08dcecf74324eda9a">fs8::hourly</a> {}</td></tr>
 <tr class="separator:adeeeef55183ab6b08dcecf74324eda9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d5af1802c08c1b93c2cd7cacbc3fa9b" id="r_a9d5af1802c08c1b93c2cd7cacbc3fa9b"><td class="memItemLeft" align="right" valign="top">constexpr capture_daily&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a9d5af1802c08c1b93c2cd7cacbc3fa9b">fs8::daily</a> {}</td></tr>

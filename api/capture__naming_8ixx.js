@@ -3,6 +3,7 @@ var capture__naming_8ixx =
     [ "fs8::detail::tm_info", "structfs8_1_1detail_1_1tm__info.html", "structfs8_1_1detail_1_1tm__info" ],
     [ "fs8::capture_single_file", "structfs8_1_1capture__single__file.html", "structfs8_1_1capture__single__file" ],
     [ "fs8::capture_uptime", "structfs8_1_1capture__uptime.html", "structfs8_1_1capture__uptime" ],
+    [ "fs8::capture_system_uptime", "structfs8_1_1capture__system__uptime.html", "structfs8_1_1capture__system__uptime" ],
     [ "fs8::capture_hourly", "structfs8_1_1capture__hourly.html", "structfs8_1_1capture__hourly" ],
     [ "fs8::capture_daily", "structfs8_1_1capture__daily.html", "structfs8_1_1capture__daily" ],
     [ "fs8::capture_weekly", "structfs8_1_1capture__weekly.html", "structfs8_1_1capture__weekly" ],
@@ -12,6 +13,7 @@ var capture__naming_8ixx =
     [ "fs8::capture_naming", "conceptfs8_1_1capture__naming.html", null ],
     [ "local_time_now", "capture__naming_8ixx.html#a678976c813a5667c5d3facfe778e1d19", null ],
     [ "now_epoch_seconds", "capture__naming_8ixx.html#a30e34176933f74b38dde170d64c60d63", null ],
+    [ "system_uptime_seconds", "capture__naming_8ixx.html#a8e5e8ed040f5d33091a8fc8924f5cc79", null ],
     [ "time_from_epoch", "capture__naming_8ixx.html#a44aa84ee18606cca1c6c46106e46c830", null ],
     [ "capture_default_naming", "capture__naming_8ixx.html#aa0c2a3cd1db8ac3404417bf1cf06788f", null ],
     [ "daily", "capture__naming_8ixx.html#a9d5af1802c08c1b93c2cd7cacbc3fa9b", null ],
@@ -21,6 +23,7 @@ var capture__naming_8ixx =
     [ "manual", "capture__naming_8ixx.html#a6384c8a9576d9c0c42a69d8cd81e2a91", null ],
     [ "monthly", "capture__naming_8ixx.html#ada1026d948fe4312747b0a07fe247f7b", null ],
     [ "single_file", "capture__naming_8ixx.html#a6d5354109de13a3a5f446c2018a2ce99", null ],
+    [ "system_uptime", "capture__naming_8ixx.html#a8db623e12b04b423ceed57967685a653", null ],
     [ "uptime", "capture__naming_8ixx.html#a81ae4647b90976962ea0dd4fe3c75f72", null ],
     [ "weekly", "capture__naming_8ixx.html#a161cebb3b5b8f6ed54aa29fce59cff09", null ]
 ];

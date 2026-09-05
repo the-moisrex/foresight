@@ -1,7 +1,6 @@
 var namespacefs8_1_1detail =
 [
     [ "modes_caller_info", "structfs8_1_1detail_1_1modes__caller__info.html", "structfs8_1_1detail_1_1modes__caller__info" ],
-    [ "replay_impl", "structfs8_1_1detail_1_1replay__impl.html", "structfs8_1_1detail_1_1replay__impl" ],
     [ "router_state", "structfs8_1_1detail_1_1router__state.html", "structfs8_1_1detail_1_1router__state" ],
     [ "tm_info", "structfs8_1_1detail_1_1tm__info.html", "structfs8_1_1detail_1_1tm__info" ],
     [ "current_modes_caller", "namespacefs8_1_1detail.html#a9779fd07e2605ff2061f92ffba7f8b6c", null ],
@@ -13,6 +12,7 @@ var namespacefs8_1_1detail =
     [ "router_lookup", "namespacefs8_1_1detail.html#a52b6e0204fa095b01ef694f611f04c37", null ],
     [ "router_set_caps", "namespacefs8_1_1detail.html#aa6746c2867b93eb4689da578a8432229", null ],
     [ "short_name", "namespacefs8_1_1detail.html#a9054aec8fc457f20173ec176253de3e2", null ],
+    [ "system_uptime_seconds", "namespacefs8_1_1detail.html#a8e5e8ed040f5d33091a8fc8924f5cc79", null ],
     [ "time_from_epoch", "namespacefs8_1_1detail.html#a44aa84ee18606cca1c6c46106e46c830", null ],
     [ "trim", "namespacefs8_1_1detail.html#a7a6306c881a2bc1cda50a8042e097b8a", null ],
     [ "type_token", "namespacefs8_1_1detail.html#a965f237d0db4af1ded33a2b772ee0615", null ],

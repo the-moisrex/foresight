@@ -42,5 +42,6 @@ var searchData=
   ['syn_5fcount_39',['syn_count',['../structfs8_1_1mouse__accum.html#a650c2baf7e4e851318d334a0e9430df7',1,'fs8::mouse_accum']]],
   ['syn_5fuser_5fevent_40',['syn_user_event',['../namespacefs8.html#a6d35b5bb608db37a858ce51e52952a52',1,'fs8']]],
   ['sys_5finput_5fdir_41',['SYS_INPUT_DIR',['../uinput_8cxx.html#a9e4e268f0f890064fe522a13b03f8be5',1,'uinput.cxx']]],
-  ['syspath_42',['syspath',['../structmy__libevdev__uinput.html#a115a5c1021bdec506af3a80b8dfa4b08',1,'my_libevdev_uinput']]]
+  ['syspath_42',['syspath',['../structmy__libevdev__uinput.html#a115a5c1021bdec506af3a80b8dfa4b08',1,'my_libevdev_uinput']]],
+  ['system_5fuptime_43',['system_uptime',['../namespacefs8.html#a8db623e12b04b423ceed57967685a653',1,'fs8']]]
 ];

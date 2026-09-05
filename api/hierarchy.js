@@ -180,9 +180,9 @@ var hierarchy =
       [ "fs8::capture_monthly", "structfs8_1_1capture__monthly.html", null ],
       [ "fs8::capture_name", "structfs8_1_1capture__name.html", null ],
       [ "fs8::capture_single_file", "structfs8_1_1capture__single__file.html", null ],
+      [ "fs8::capture_system_uptime", "structfs8_1_1capture__system__uptime.html", null ],
       [ "fs8::capture_uptime", "structfs8_1_1capture__uptime.html", null ],
       [ "fs8::capture_weekly", "structfs8_1_1capture__weekly.html", null ],
-      [ "fs8::detail::replay_impl", "structfs8_1_1detail_1_1replay__impl.html", null ],
       [ "fs8::or_op< Funcs >", "structfs8_1_1or__op.html", null ],
       [ "fs8::pimpl_idiom< typename >", "structfs8_1_1pimpl__idiom.html", null ],
       [ "fs8::var_type< T >", "structfs8_1_1var__type.html", null ]
@@ -246,7 +246,6 @@ var hierarchy =
     [ "fs8::named_solution", "structfs8_1_1named__solution.html", null ],
     [ "fs8::pimpl_idiom< typename >::impl::node_type", "structfs8_1_1pimpl__idiom_1_1impl_1_1node__type.html", null ],
     [ "fs8::nullable_indirect< T, Allocator >", "structfs8_1_1nullable__indirect.html", null ],
-    [ "fs8::nullable_indirect< fs8::detail::replay_impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::detail::router_state >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::plain_pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],

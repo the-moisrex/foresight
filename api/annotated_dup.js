@@ -14,7 +14,6 @@ var annotated_dup =
       ] ],
       [ "detail", "namespacefs8_1_1detail.html", [
         [ "modes_caller_info", "structfs8_1_1detail_1_1modes__caller__info.html", "structfs8_1_1detail_1_1modes__caller__info" ],
-        [ "replay_impl", "structfs8_1_1detail_1_1replay__impl.html", "structfs8_1_1detail_1_1replay__impl" ],
         [ "router_state", "structfs8_1_1detail_1_1router__state.html", "structfs8_1_1detail_1_1router__state" ],
         [ "tm_info", "structfs8_1_1detail_1_1tm__info.html", "structfs8_1_1detail_1_1tm__info" ]
       ] ],
@@ -174,6 +173,7 @@ var annotated_dup =
       [ "capture_monthly", "structfs8_1_1capture__monthly.html", "structfs8_1_1capture__monthly" ],
       [ "capture_name", "structfs8_1_1capture__name.html", "structfs8_1_1capture__name" ],
       [ "capture_single_file", "structfs8_1_1capture__single__file.html", "structfs8_1_1capture__single__file" ],
+      [ "capture_system_uptime", "structfs8_1_1capture__system__uptime.html", "structfs8_1_1capture__system__uptime" ],
       [ "capture_uptime", "structfs8_1_1capture__uptime.html", "structfs8_1_1capture__uptime" ],
       [ "capture_weekly", "structfs8_1_1capture__weekly.html", "structfs8_1_1capture__weekly" ],
       [ "condensed_view", "structfs8_1_1condensed__view.html", "structfs8_1_1condensed__view" ],
