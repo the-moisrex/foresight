@@ -134,14 +134,20 @@ export namespace fs8 {
     // ── Manual ───────────────────────────────────────────────────────────────
 
     /// Explicit start/stop. Only rotates when `stop()` is called.
-    /// The filename is user-provided or auto-generated on start.
+    /// The filename defaults to `capture.ext`, or a user-provided name via
+    /// `set_name()`.
     struct [[nodiscard]] capture_manual : consteval_copyable {
         using consteval_copyable::consteval_copyable;
+
+        void set_name(std::string_view name) noexcept { name_ = name; }
 
         [[nodiscard]] std::string filename(std::string_view ext) const noexcept;
         [[nodiscard]] static constexpr bool should_rotate(std::int64_t) noexcept {
             return false; // only rotates on explicit stop
         }
+
+      private:
+        std::string_view name_{};
     };
 
     static_assert(capture_naming<capture_manual>);

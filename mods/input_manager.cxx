@@ -2,6 +2,7 @@
 
 module;
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <functional>
@@ -51,6 +52,7 @@ namespace {
 template <>
 struct fs8::pimpl_idiom<basic_input_manager>::impl {
     bool                                           started = false;
+    std::atomic<bool>                              stop_requested{false};
     udev_monitor                                   monitor;
     std::list<evdev>                               devs;                   // stable handles; todo: switch to std::hive once available
     std::vector<query_provider_handle>             providers;
@@ -225,6 +227,9 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
 
         for (auto& provider : providers) {
             for (device_query const cur_query : provider()) {
+                if (stop_requested.load(std::memory_order_relaxed)) [[unlikely]] {
+                    return;
+                }
                 bool found = false;
                 if (!devs.empty()) [[likely]] {
                     for (auto& existing : devs) {
@@ -260,6 +265,9 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         std::vector<std::pair<std::uint8_t, evdev>> candidates;
         candidates.reserve(16);
         for (auto const& entry : enumerator.list_entries()) {
+            if (stop_requested.load(std::memory_order_relaxed)) [[unlikely]] {
+                return false;
+            }
             auto event_dev = udev_device{entry};
             if (!event_dev || event_dev.devnode().empty()) [[unlikely]] {
                 continue;
@@ -461,6 +469,17 @@ void basic_input_manager::unregister_source(std::uint32_t const source_id) noexc
         return;
     }
     pimpl->source_map.erase(source_id);
+}
+
+void basic_input_manager::request_stop() noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return;
+    }
+    pimpl->stop_requested.store(true, std::memory_order_relaxed);
+}
+
+bool basic_input_manager::stop_requested() const noexcept {
+    return pimpl.get() != nullptr && pimpl->stop_requested.load(std::memory_order_relaxed);
 }
 
 void basic_input_manager::requery() {

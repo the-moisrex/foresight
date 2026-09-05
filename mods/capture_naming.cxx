@@ -136,7 +136,8 @@ bool fs8::capture_monthly::should_rotate(std::int64_t const last_rotation) noexc
 // ── capture_manual ───────────────────────────────────────────────────────────
 
 std::string fs8::capture_manual::filename(std::string_view const ext) const noexcept {
-    return std::format("capture{}", ext);
+    auto const base = name_.empty() ? std::string_view{"capture"} : name_;
+    return std::format("{}{}", base, ext);
 }
 
 // ── capture_name (duration-based) ────────────────────────────────────────────

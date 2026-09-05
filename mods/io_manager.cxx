@@ -184,9 +184,18 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
     }
 
     int ready = 0;
-    do {
+    for (;;) {
         ready = ::poll(pimpl->fds.data(), static_cast<nfds_t>(pimpl->fds.size()), poll_timeout);
-    } while (ready < 0 && errno == EINTR);
+        if (ready < 0) {
+            if (errno == EINTR) [[unlikely]] {
+                // Signal interrupted poll — return to the pipeline so the stopper
+                // can check its flag and exit if needed.
+                return drop_event;
+            }
+            continue;
+        }
+        break;
+    }
 
     if (ready < 0) [[unlikely]] {
         log("io_manager: poll failed: {}", std::strerror(errno));

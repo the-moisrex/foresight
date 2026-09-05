@@ -21,6 +21,11 @@ export namespace fs8 {
             using enum context_action;
             return stopped ? exit : next;
         }
+
+        context_action operator()(special_event const&) const noexcept {
+            using enum context_action;
+            return stopped ? exit : drop_event;
+        }
     } stopper;
 
 } // namespace fs8

@@ -60,8 +60,11 @@ namespace {
         /// Capture output format: "binary" or "evtest"
         std::string_view capture_format = "binary";
 
-        /// Capture naming strategy: "daily", "hourly", "weekly", "monthly", "uptime", "system-uptime", "single-file"
+        /// Capture naming strategy: "daily", "hourly", "weekly", "monthly", "uptime", "system-uptime", "single-file", "manual"
         std::string_view capture_naming = "daily";
+
+        /// Custom capture filename (used with --naming manual).
+        std::string_view capture_name;
 
         /// Replay file path
         std::string_view replay_file;
@@ -130,7 +133,8 @@ namespace {
        --format <fmt>             Output format: "binary" (default) or "evtest".
        --naming <strategy>        File naming: "daily" (default), "hourly",
                                      "weekly", "monthly", "uptime", "system-uptime",
-                                     or "single-file".
+                                     "single-file", or "manual".
+       --name <filename>          Custom output filename (requires --naming manual).
 
     replay   <file>               Replay captured events from a file to stdout.
                                      Auto-detects format (binary or evtest).
@@ -343,6 +347,11 @@ Options:
                 ++index;
                 continue;
             }
+            if (opt == "--name" && index + 1 < argv.size()) {
+                opts.capture_name = argv[index + 1];
+                ++index;
+                continue;
+            }
 
             switch (opts.action) {
                 case intercept:
@@ -404,6 +413,9 @@ Options:
                 }
                 if (opts.capture_format != "binary" && opts.capture_format != "evtest") {
                     throw invalid_argument(std::format("Invalid capture format '{}'. Use 'binary' or 'evtest'.", opts.capture_format));
+                }
+                if (!opts.capture_name.empty() && opts.capture_naming != "manual") {
+                    throw invalid_argument("--name requires --naming manual.");
                 }
                 break;
             case replay:
@@ -492,7 +504,6 @@ Options:
             actions.emplace_back([&obj](std::sig_atomic_t const cur_sig) {
                 switch (cur_sig) {
                     case SIGINT:
-                    case SIGKILL:
                     case SIGTERM: obj.stop(); break;
                     default: break;
                 }
@@ -875,9 +886,17 @@ Options:
           | fs8::basic_capture<FormatT, NamingT>{FormatT{}, NamingT{}};
 
         auto& sig_stopper = pipeline.mod(fs8::stopper);
+        auto& sig_input   = pipeline.mod(fs8::input_manager);
         auto& inpor       = pipeline.mod(fs8::intercept);
 
+        if constexpr (std::same_as<NamingT, fs8::capture_manual>) {
+            if (!opts.capture_name.empty()) {
+                pipeline.template mod<fs8::basic_capture<FormatT, NamingT>>().set_name(opts.capture_name);
+            }
+        }
+
         register_stop_signal(sig_stopper);
+        register_stop_signal(sig_input);
         for (auto const& q : opts.queries) {
             inpor.add(q);
         }
@@ -935,9 +954,11 @@ Options:
                   fs8::context | fs8::io_manager | fs8::intercept | fs8::input_manager | fs8::stopper | fs8::std_output;
 
                 auto& sig_stopper = pipeline.mod(fs8::stopper);
+                auto& sig_input   = pipeline.mod(fs8::input_manager);
                 auto& inpor       = pipeline.mod(fs8::intercept);
 
                 register_stop_signal(sig_stopper);
+                register_stop_signal(sig_input);
                 for (auto const& q : opts.queries) {
                     inpor.add(q);
                 }
@@ -1041,7 +1062,6 @@ Options:
 int main(int const argc, char const* const* argv) try {
     std::ignore = std::signal(SIGINT, handle_signals);
     std::ignore = std::signal(SIGTERM, handle_signals);
-    std::ignore = std::signal(SIGKILL, handle_signals);
 
     auto const opts = parse_arguments(std::span{argv, argv + argc});
     return run_action(opts);

@@ -1,6 +1,7 @@
 // Created by moisrex on 9/4/26.
 
 module;
+#include <cassert>
 #include <cstdint>
 #include <fcntl.h>
 #include <format>
@@ -56,6 +57,13 @@ export namespace fs8 {
       public:
         consteval basic_capture(FormatT format, NamingT naming) noexcept : format_{format}, naming_{std::move(naming)} {}
 
+        /// Set a custom output filename (for naming strategies that support it, e.g. capture_manual).
+        void set_name(std::string_view const name) noexcept
+            requires requires { naming_.set_name(name); }
+        {
+            naming_.set_name(name);
+        }
+
         // ── Pipeline interface ───────────────────────────────────────────────
 
         context_action operator()(special_event const& tag) noexcept {
@@ -86,6 +94,8 @@ export namespace fs8 {
                         }
                     }
                     flush_buffer();
+
+                    log("Capture started on {}", st_->current_path);
                     return next;
                 }
                 default: return drop_event;
@@ -93,7 +103,8 @@ export namespace fs8 {
         }
 
         context_action operator()(event_type const& event) noexcept {
-            ensure_state();
+            // ensure_state();
+            assert(static_cast<bool>(st_));
             st_->buffer.push_back(event);
             return context_action::next;
         }
@@ -150,6 +161,7 @@ export namespace fs8 {
             std::ignore = format_.write_footer(st_->current_fd);
             ::close(st_->current_fd);
             st_->current_fd = -1;
+            log("Closing: {}", st_->current_path);
         }
 
         void flush_buffer() noexcept {

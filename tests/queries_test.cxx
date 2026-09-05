@@ -506,8 +506,10 @@ TEST(QueryFrom, EmptyStringIsEmptyQuery) {
 
 TEST(QueryFrom, CapabilitiesName) {
     auto q = query_from("keyboard");
-    EXPECT_EQ(q.count, 0U);
+    ASSERT_EQ(q.count, 2U);
     EXPECT_EQ(q.value().caps, caps_of("keyboard"));
+    EXPECT_EQ(q.value().fields[0], attr::input_subsystem);
+    EXPECT_EQ(q.value().fields[1], attr::event_sysname);
 }
 
 TEST(QueryFrom, PathBecomesSubsystemAndSysname) {

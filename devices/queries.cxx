@@ -327,6 +327,13 @@ fs8::owned_query::owned_query(std::string_view const str) noexcept {
     else if (auto const caps_value = caps_of(str); !caps_value.empty())
     {
         this->caps = caps_value;
+        // Add default udev filters so the enumerator doesn't scan every device
+        // on the system.  The input subsystem + event sysname pair narrows the
+        // scan to /sys/class/input/event* devices, which is what these
+        // capability queries actually target.
+        storage[0] = attr::input_subsystem;
+        storage[1] = attr::event_sysname;
+        count      = 2;
         return;
     }
     // 3. A query term (e.g. "name=event0", "attr:device/name=my_mouse")
