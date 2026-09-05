@@ -229,6 +229,17 @@ TEST(CaptureTest, AccessorsReportCorrectState) {
     EXPECT_FALSE(cap.is_open());
 }
 
+TEST(CaptureTest, SystemUptimeNaming) {
+    // Filename should contain "boot-" prefix.
+    auto const name = capture_system_uptime::filename(".fs8");
+    EXPECT_FALSE(name.empty());
+    EXPECT_NE(name.find("capture-boot-"), std::string::npos);
+
+    // On a running system, should_rotate should be false for a recent timestamp.
+    auto const now = detail::now_epoch_seconds();
+    EXPECT_FALSE(capture_system_uptime::should_rotate(now));
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // Replay tests
 // ══════════════════════════════════════════════════════════════════════════════

@@ -39,6 +39,7 @@ export namespace fs8 {
         [[nodiscard]] tm_info local_time_now() noexcept;
         [[nodiscard]] std::int64_t now_epoch_seconds() noexcept;
         [[nodiscard]] tm_info time_from_epoch(std::int64_t epoch) noexcept;
+        [[nodiscard]] std::int64_t system_uptime_seconds() noexcept;
     } // namespace detail
 
     // ── Single file (no rotation) ────────────────────────────────────────────
@@ -68,6 +69,19 @@ export namespace fs8 {
     };
 
     static_assert(capture_naming<capture_uptime>);
+
+    // ── System uptime-based ──────────────────────────────────────────────────
+
+    /// Filename includes boot timestamp. One file per system boot session.
+    /// Rotates when a reboot is detected (uptime decreases).
+    struct [[nodiscard]] capture_system_uptime : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+        [[nodiscard]] static std::string filename(std::string_view ext) noexcept;
+        [[nodiscard]] static bool should_rotate(std::int64_t last_rotation) noexcept;
+    };
+
+    static_assert(capture_naming<capture_system_uptime>);
 
     // ── Hourly ───────────────────────────────────────────────────────────────
 
@@ -157,9 +171,10 @@ export namespace fs8 {
 
     // ── Shorthand objects ────────────────────────────────────────────────────
 
-    constexpr capture_single_file single_file{};
-    constexpr capture_uptime      uptime{};
-    constexpr capture_hourly      hourly{};
+    constexpr capture_single_file     single_file{};
+    constexpr capture_uptime          uptime{};
+    constexpr capture_system_uptime   system_uptime{};
+    constexpr capture_hourly          hourly{};
     constexpr capture_daily       daily{};
     constexpr capture_weekly      weekly{};
     constexpr capture_monthly     monthly{};

@@ -6,6 +6,7 @@ module;
 #include <ctime>
 #include <format>
 #include <string>
+#include <sys/sysinfo.h>
 module fs8.mods;
 
 // ── detail helpers ───────────────────────────────────────────────────────────
@@ -40,6 +41,14 @@ fs8::detail::tm_info fs8::detail::time_from_epoch(std::int64_t const epoch) noex
     };
 }
 
+std::int64_t fs8::detail::system_uptime_seconds() noexcept {
+    struct sysinfo si{};
+    if (sysinfo(&si) != 0) {
+        return 0;
+    }
+    return static_cast<std::int64_t>(si.uptime);
+}
+
 // ── capture_single_file ──────────────────────────────────────────────────────
 
 std::string fs8::capture_single_file::filename(std::string_view const ext) noexcept {
@@ -52,6 +61,24 @@ std::string fs8::capture_single_file::filename(std::string_view const ext) noexc
 std::string fs8::capture_uptime::filename(std::string_view const ext) noexcept {
     auto const now = detail::local_time_now();
     return std::format("capture-{:04d}{:02d}{:02d}-{:02d}0000{}", now.year, now.month, now.day, now.hour, ext);
+}
+
+// ── capture_system_uptime ────────────────────────────────────────────────────
+
+std::string fs8::capture_system_uptime::filename(std::string_view const ext) noexcept {
+    auto const uptime = detail::system_uptime_seconds();
+    auto const now    = detail::now_epoch_seconds();
+    auto const boot   = now - uptime;
+    auto const ti     = detail::time_from_epoch(boot);
+    return std::format("capture-boot-{:04d}{:02d}{:02d}-{:02d}0000{}", ti.year, ti.month, ti.day, ti.hour, ext);
+}
+
+bool fs8::capture_system_uptime::should_rotate(std::int64_t const last_rotation) noexcept {
+    auto const now      = detail::now_epoch_seconds();
+    auto const uptime   = detail::system_uptime_seconds();
+    auto const elapsed  = now - last_rotation;
+    // If current uptime is less than time elapsed since file was opened, a reboot happened.
+    return uptime < elapsed;
 }
 
 // ── capture_hourly ───────────────────────────────────────────────────────────
