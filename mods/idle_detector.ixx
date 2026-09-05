@@ -116,13 +116,18 @@ export namespace fs8 {
                 case start.code: {
                     io.set_idle_timeout(idle_period_);
                     io.set_idle_callback([&](std::chrono::microseconds) noexcept {
-                        ctx.broadcast(idle);
+                        switch (auto const res = ctx.broadcast(idle)) {
+                            [[unlikely]] case exit:
+                            [[unlikely]] case recovery:
+                                return res;
+                            default: break;
+                        }
 
                         // Re-arm for the next idle cycle unless the pattern is fire-once.
-                        auto const next_timeout = repeat_(idle_period_);
-                        if (next_timeout.count() > 0) {
+                        if (auto const next_timeout = repeat_(idle_period_); next_timeout.count() > 0) {
                             io.set_idle_timeout(next_timeout);
                         }
+                        return next;
                     });
                     return next;
                 }

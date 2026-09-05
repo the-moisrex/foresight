@@ -882,7 +882,7 @@ Options:
     template <fs8::capture_format FormatT, fs8::capture_naming NamingT>
     int run_capture_pipeline(options const& opts) {
         static constinit auto pipeline =
-          fs8::context | fs8::io_manager | fs8::intercept | fs8::input_manager | fs8::stopper
+          fs8::context | fs8::io_manager | fs8::idle_detector | fs8::intercept | fs8::input_manager | fs8::stopper
           | fs8::basic_capture<FormatT, NamingT>{FormatT{}, NamingT{}};
 
         auto& sig_stopper = pipeline.mod(fs8::stopper);

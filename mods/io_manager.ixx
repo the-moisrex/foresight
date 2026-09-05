@@ -61,7 +61,7 @@ export namespace fs8 {
      */
     constexpr struct [[nodiscard]] basic_io_manager : pimpl_idiom<basic_io_manager> {
         using io_callback   = std::function_ref<context_action(io_fd&)>;
-        using idle_callback = std::function<void(std::chrono::microseconds)>;
+        using idle_callback = std::function<context_action(std::chrono::microseconds)>;
 
         template <io_handler HandlerT>
         [[nodiscard]] bool watch(io_fd const& fd, HandlerT& handler) noexcept {

@@ -17,6 +17,7 @@ import fs8.traits;
 import fs8.log;
 import :capture_format;
 import :capture_naming;
+import :idle_detector;
 
 export namespace fs8 {
 
@@ -66,7 +67,9 @@ export namespace fs8 {
 
         // ── Pipeline interface ───────────────────────────────────────────────
 
-        context_action operator()(special_event const& tag) noexcept {
+        template <Context CtxT>
+        context_action operator()(CtxT&, special_event const& tag) noexcept {
+            static_assert(has_mod<basic_idle_detector<>, CtxT>, "Need this mod to send the idle events.");
             using enum context_action;
             ensure_state();
             switch (tag.code) {
@@ -95,7 +98,6 @@ export namespace fs8 {
                     }
                     flush_buffer();
 
-                    log("Capture started on {}", st_->current_path);
                     return next;
                 }
                 default: return drop_event;
@@ -151,6 +153,7 @@ export namespace fs8 {
             st_->current_fd    = fd;
             st_->current_path  = std::move(path);
             st_->last_rotation = detail::now_epoch_seconds();
+            log("Capture started on {}", st_->current_path);
             return true;
         }
 

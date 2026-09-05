@@ -160,7 +160,7 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
                 pimpl->last_event_time   = steady_clock::now();
                 return next;
             } catch (...) {
-                return context_action::exit;
+                return exit;
             }
         case 2:    // load_event
             break; // fall through to load_event logic below
@@ -205,7 +205,12 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
     // poll timed out with no ready fds — idle threshold reached.
     if (ready == 0 && pimpl->idle_timeout.count() > 0) {
         if (pimpl->has_idle_callback) {
-            pimpl->on_idle(pimpl->idle_timeout);
+            switch (auto const res = pimpl->on_idle(pimpl->idle_timeout)) {
+                [[unlikely]] case exit:
+                [[unlikely]] case recovery:
+                    return res;
+                default: break;
+            }
         }
         return next;
     }
