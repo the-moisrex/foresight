@@ -173,6 +173,7 @@ var annotated_dup =
       [ "capture_hourly", "structfs8_1_1capture__hourly.html", "structfs8_1_1capture__hourly" ],
       [ "capture_manual", "structfs8_1_1capture__manual.html", "structfs8_1_1capture__manual" ],
       [ "capture_monthly", "structfs8_1_1capture__monthly.html", "structfs8_1_1capture__monthly" ],
+      [ "capture_name", "structfs8_1_1capture__name.html", "structfs8_1_1capture__name" ],
       [ "capture_single_file", "structfs8_1_1capture__single__file.html", "structfs8_1_1capture__single__file" ],
       [ "capture_uptime", "structfs8_1_1capture__uptime.html", "structfs8_1_1capture__uptime" ],
       [ "capture_weekly", "structfs8_1_1capture__weekly.html", "structfs8_1_1capture__weekly" ],

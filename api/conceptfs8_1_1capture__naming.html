@@ -95,15 +95,15 @@ $(document).ready(function(){initNavTree('conceptfs8_1_1capture__naming.html',''
 <div class="contents">
 <h2 class="groupheader">Concept definition</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
-<div class="line"><span class="keyword">concept </span><a class="code hl_concept" href="conceptfs8_1_1capture__naming.html">fs8::capture_naming</a> =  <span class="keyword">requires</span>(<a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> <span class="keyword">const</span>&amp; <a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">t</a>, std::int64_t last_rotation) {</div>
-<div class="line">        { <a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">t</a>.filename() } -&gt; std::convertible_to&lt;std::string&gt;;</div>
+<div class="line"><span class="keyword">concept </span><a class="code hl_concept" href="conceptfs8_1_1capture__naming.html">fs8::capture_naming</a> =  <span class="keyword">requires</span>(<a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">T</a> <span class="keyword">const</span>&amp; <a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">t</a>, std::int64_t last_rotation, std::string_view <a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">ext</a>) {</div>
+<div class="line">        { <a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">t</a>.filename(<a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">ext</a>) } -&gt; std::convertible_to&lt;std::string&gt;;</div>
 <div class="line">        { <a class="code hl_function" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">t</a>.should_rotate(last_rotation) } -&gt; std::convertible_to&lt;bool&gt;;</div>
 <div class="line">    }</div>
-<div class="ttc" id="aconceptfs8_1_1capture__naming_html"><div class="ttname"><a href="conceptfs8_1_1capture__naming.html">fs8::capture_naming</a></div><div class="ttdef"><b>Definition</b> capture_naming.ixx:19</div></div>
+<div class="ttc" id="aconceptfs8_1_1capture__naming_html"><div class="ttname"><a href="conceptfs8_1_1capture__naming.html">fs8::capture_naming</a></div><div class="ttdef"><b>Definition</b> capture_naming.ixx:20</div></div>
 <div class="ttc" id="anamespacefs8_html_a8efac394a54c3cd92d4ebd11d1c8627b"><div class="ttname"><a href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">fs8::easeInOutQuad</a></div><div class="ttdeci">constexpr T easeInOutQuad(T t) noexcept</div><div class="ttdoc">Quadratic in-out: slow at start and end, fast in the middle.</div><div class="ttdef"><b>Definition</b> easings.ixx:58</div></div>
 </div><!-- fragment --><a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Concept for capture file naming strategies.</p>
-<p><code>filename()</code> generates the current output file path. <code>should_rotate(last_rotation)</code> returns true when a new file should be started. <code>last_rotation</code> is the timestamp when the current file was opened (seconds since epoch). </p>
+<p><code>filename(ext)</code> generates the current output file path with the given extension. <code>should_rotate(last_rotation)</code> returns true when a new file should be started. <code>last_rotation</code> is the timestamp when the current file was opened (seconds since epoch). </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

@@ -18,7 +18,7 @@ var searchData=
   ['pointer_5frel_5fall_15',['pointer_rel_all',['../namespacefs8_1_1caps.html#ae3915c262e4cfdc5ae2051ebbcff829a',1,'fs8::caps']]],
   ['pointer_5frel_5faxes_16',['pointer_rel_axes',['../namespacefs8_1_1caps.html#aea8da8433d542afbc76e35e4e2192cff',1,'fs8::caps']]],
   ['pointer_5fwheels_17',['pointer_wheels',['../namespacefs8_1_1caps.html#a53e2bc02336a26c097c72d4f072ab525',1,'fs8::caps']]],
-  ['prefix_18',['prefix',['../structfs8_1_1capture__single__file.html#a351337fbaef7342519ded08ac59edc96',1,'fs8::capture_single_file::prefix'],['../structfs8_1_1pimpl__idiom_1_1impl.html#a361627608ba9a874aa4bf17e88458059',1,'fs8::pimpl_idiom::impl::prefix']]],
+  ['prefix_18',['prefix',['../structfs8_1_1pimpl__idiom_1_1impl.html#a361627608ba9a874aa4bf17e88458059',1,'fs8::pimpl_idiom::impl']]],
   ['press_5ftime_19',['press_time',['../structfs8_1_1held__key.html#af04b9f8dd94c5cecf0713e399184ba70',1,'fs8::held_key']]],
   ['pressed_20',['pressed',['../namespacefs8.html#a178145bb115300c48873362b1eda1bb0',1,'fs8']]],
   ['pressed_5fany_21',['pressed_any',['../namespacefs8.html#a7b07795556a78892ecff114a1e0e29cb',1,'fs8']]],

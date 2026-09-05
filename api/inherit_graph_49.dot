@@ -237,13 +237,13 @@ digraph "Graphical Class Hierarchy"
   Node0 -> Node127 [id="edge119_Node000000_Node000127",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node127 [id="Node000127",label="fs8::capture_monthly",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1capture__monthly.html",tooltip="New file every month."];
   Node0 -> Node128 [id="edge120_Node000000_Node000128",dir="back",color="steelblue1",style="solid",tooltip=" "];
-  Node128 [id="Node000128",label="fs8::capture_single_file",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1capture__single__file.html",tooltip="One file for the entire capture session. No rotation."];
+  Node128 [id="Node000128",label="fs8::capture_name",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1capture__name.html",tooltip=" "];
   Node0 -> Node129 [id="edge121_Node000000_Node000129",dir="back",color="steelblue1",style="solid",tooltip=" "];
-  Node129 [id="Node000129",label="fs8::capture_uptime",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1capture__uptime.html",tooltip="Filename includes monotonic timestamp. One file per capture session."];
+  Node129 [id="Node000129",label="fs8::capture_single_file",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1capture__single__file.html",tooltip="One file for the entire capture session. No rotation."];
   Node0 -> Node130 [id="edge122_Node000000_Node000130",dir="back",color="steelblue1",style="solid",tooltip=" "];
-  Node130 [id="Node000130",label="fs8::capture_weekly",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1capture__weekly.html",tooltip="New file every ISO week."];
+  Node130 [id="Node000130",label="fs8::capture_uptime",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1capture__uptime.html",tooltip="Filename includes monotonic timestamp. One file per capture session."];
   Node0 -> Node131 [id="edge123_Node000000_Node000131",dir="back",color="steelblue1",style="solid",tooltip=" "];
-  Node131 [id="Node000131",label="fs8::detail::capture_impl",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1detail_1_1capture__impl.html",tooltip=" "];
+  Node131 [id="Node000131",label="fs8::capture_weekly",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1capture__weekly.html",tooltip="New file every ISO week."];
   Node0 -> Node132 [id="edge124_Node000000_Node000132",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node132 [id="Node000132",label="fs8::detail::replay_impl",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1detail_1_1replay__impl.html",tooltip=" "];
   Node0 -> Node133 [id="edge125_Node000000_Node000133",dir="back",color="steelblue1",style="solid",tooltip=" "];

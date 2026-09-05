@@ -423,6 +423,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__monthly.html">capture_monthly</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">New file every month.  <a href="structfs8_1_1capture__monthly.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__name.html">capture_name</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__single__file.html">capture_single_file</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One file for the entire capture session. No rotation.  <a href="structfs8_1_1capture__single__file.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1694,11 +1696,24 @@ Variables</h2></td></tr>
 <tr class="separator:a53e94787fdce8a7f6cfb59d8eb6371bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aebc85e1cddf32571bcce710f817ada92" id="r_aebc85e1cddf32571bcce710f817ada92"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1basic__benchmark__result.html">basic_benchmark_result</a>&lt; std::nullptr_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aebc85e1cddf32571bcce710f817ada92">fs8::benchmark_result</a></td></tr>
 <tr class="separator:aebc85e1cddf32571bcce710f817ada92"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a426803210f3c74ab62375cb061a51a" id="r_a5a426803210f3c74ab62375cb061a51a"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5a426803210f3c74ab62375cb061a51a">fs8::capture</a> = <a class="el" href="structfs8_1_1basic__capture.html">basic_capture</a>{<a class="el" href="structfs8_1_1capture__binary__format.html">capture_binary_format</a>{}, <a class="el" href="structfs8_1_1capture__daily.html">capture_daily</a>{}}</td></tr>
-<tr class="memdesc:a5a426803210f3c74ab62375cb061a51a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default capture: binary format, daily rotation.  <br /></td></tr>
-<tr class="separator:a5a426803210f3c74ab62375cb061a51a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82eb830ae1f0d74d3a44741729c85c3d" id="r_a82eb830ae1f0d74d3a44741729c85c3d"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1basic__capture.html">basic_capture</a>&lt; <a class="el" href="structfs8_1_1capture__binary__format.html">capture_binary_format</a>, <a class="el" href="structfs8_1_1capture__daily.html">capture_daily</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a82eb830ae1f0d74d3a44741729c85c3d">fs8::capture</a> {<a class="el" href="structfs8_1_1capture__binary__format.html">capture_binary_format</a>{}, <a class="el" href="structfs8_1_1capture__daily.html">capture_daily</a>{}}</td></tr>
+<tr class="separator:a82eb830ae1f0d74d3a44741729c85c3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0c2a3cd1db8ac3404417bf1cf06788f" id="r_aa0c2a3cd1db8ac3404417bf1cf06788f"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa0c2a3cd1db8ac3404417bf1cf06788f">fs8::capture_default_naming</a> = <a class="el" href="structfs8_1_1capture__daily.html">capture_daily</a>{}</td></tr>
 <tr class="separator:aa0c2a3cd1db8ac3404417bf1cf06788f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d5354109de13a3a5f446c2018a2ce99" id="r_a6d5354109de13a3a5f446c2018a2ce99"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__single__file.html">capture_single_file</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6d5354109de13a3a5f446c2018a2ce99">fs8::single_file</a> {}</td></tr>
+<tr class="separator:a6d5354109de13a3a5f446c2018a2ce99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81ae4647b90976962ea0dd4fe3c75f72" id="r_a81ae4647b90976962ea0dd4fe3c75f72"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__uptime.html">capture_uptime</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a81ae4647b90976962ea0dd4fe3c75f72">fs8::uptime</a> {}</td></tr>
+<tr class="separator:a81ae4647b90976962ea0dd4fe3c75f72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adeeeef55183ab6b08dcecf74324eda9a" id="r_adeeeef55183ab6b08dcecf74324eda9a"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__hourly.html">capture_hourly</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#adeeeef55183ab6b08dcecf74324eda9a">fs8::hourly</a> {}</td></tr>
+<tr class="separator:adeeeef55183ab6b08dcecf74324eda9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d5af1802c08c1b93c2cd7cacbc3fa9b" id="r_a9d5af1802c08c1b93c2cd7cacbc3fa9b"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__daily.html">capture_daily</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a9d5af1802c08c1b93c2cd7cacbc3fa9b">fs8::daily</a> {}</td></tr>
+<tr class="separator:a9d5af1802c08c1b93c2cd7cacbc3fa9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a161cebb3b5b8f6ed54aa29fce59cff09" id="r_a161cebb3b5b8f6ed54aa29fce59cff09"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__weekly.html">capture_weekly</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a161cebb3b5b8f6ed54aa29fce59cff09">fs8::weekly</a> {}</td></tr>
+<tr class="separator:a161cebb3b5b8f6ed54aa29fce59cff09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada1026d948fe4312747b0a07fe247f7b" id="r_ada1026d948fe4312747b0a07fe247f7b"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__monthly.html">capture_monthly</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ada1026d948fe4312747b0a07fe247f7b">fs8::monthly</a> {}</td></tr>
+<tr class="separator:ada1026d948fe4312747b0a07fe247f7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6384c8a9576d9c0c42a69d8cd81e2a91" id="r_a6384c8a9576d9c0c42a69d8cd81e2a91"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__manual.html">capture_manual</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6384c8a9576d9c0c42a69d8cd81e2a91">fs8::manual</a> {}</td></tr>
+<tr class="separator:a6384c8a9576d9c0c42a69d8cd81e2a91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f787cdfdd8dadd61885e398d7320029" id="r_a4f787cdfdd8dadd61885e398d7320029"><td class="memItemLeft" align="right" valign="top">constexpr struct <a class="el" href="structfs8_1_1get__variables__tag.html">fs8::get_variables_tag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a4f787cdfdd8dadd61885e398d7320029">get_variables</a></td></tr>
 <tr class="separator:a4f787cdfdd8dadd61885e398d7320029"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa29e3a0f19262b3b9b8fc129a6740f05" id="r_aa29e3a0f19262b3b9b8fc129a6740f05"><td class="memTemplParams" colspan="2">template&lt;typename... ModsT&gt; </td></tr>
@@ -11777,8 +11792,8 @@ template&lt;typename Mod , typename Fn &gt; </div>
 
 </div>
 </div>
-<a id="a5a426803210f3c74ab62375cb061a51a" name="a5a426803210f3c74ab62375cb061a51a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5a426803210f3c74ab62375cb061a51a">&#9670;&#160;</a></span>capture</h2>
+<a id="a82eb830ae1f0d74d3a44741729c85c3d" name="a82eb830ae1f0d74d3a44741729c85c3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a82eb830ae1f0d74d3a44741729c85c3d">&#9670;&#160;</a></span>capture</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -11787,7 +11802,7 @@ template&lt;typename Mod , typename Fn &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr auto fs8::capture = <a class="el" href="structfs8_1_1basic__capture.html">basic_capture</a>{<a class="el" href="structfs8_1_1capture__binary__format.html">capture_binary_format</a>{}, <a class="el" href="structfs8_1_1capture__daily.html">capture_daily</a>{}}</td>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__capture.html">basic_capture</a>&lt;<a class="el" href="structfs8_1_1capture__binary__format.html">capture_binary_format</a>, <a class="el" href="structfs8_1_1capture__daily.html">capture_daily</a>&gt; fs8::capture {<a class="el" href="structfs8_1_1capture__binary__format.html">capture_binary_format</a>{}, <a class="el" href="structfs8_1_1capture__daily.html">capture_daily</a>{}}</td>
         </tr>
       </table>
   </td>
@@ -11796,8 +11811,7 @@ template&lt;typename Mod , typename Fn &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Default capture: binary format, daily rotation. </p>
+<p>Default capture: binary format, daily rotation. Supports bracket syntax: <code>capture[daily]</code>, <code>capture[evtest_format]</code>, etc. Use <code><a class="el" href="structfs8_1_1capture__name.html">capture_name</a>{1h}</code> for duration-based rotation. </p>
 
 </div>
 </div>
@@ -11834,6 +11848,28 @@ template&lt;typename Mod , typename Fn &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__context.html">basic_context</a> fs8::context</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a9d5af1802c08c1b93c2cd7cacbc3fa9b" name="a9d5af1802c08c1b93c2cd7cacbc3fa9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d5af1802c08c1b93c2cd7cacbc3fa9b">&#9670;&#160;</a></span>daily</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1capture__daily.html">capture_daily</a> fs8::daily {}</td>
         </tr>
       </table>
   </td>
@@ -13097,6 +13133,28 @@ template&lt;EvtestFormat Format&gt; </div>
 
 </div>
 </div>
+<a id="adeeeef55183ab6b08dcecf74324eda9a" name="adeeeef55183ab6b08dcecf74324eda9a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adeeeef55183ab6b08dcecf74324eda9a">&#9670;&#160;</a></span>hourly</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1capture__hourly.html">capture_hourly</a> fs8::hourly {}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a1aa51f24789eef377a73157f04998a87" name="a1aa51f24789eef377a73157f04998a87"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1aa51f24789eef377a73157f04998a87">&#9670;&#160;</a></span>idle</h2>
 
@@ -13913,6 +13971,28 @@ template&lt;std::size_t N&gt; </div>
 
 </div>
 </div>
+<a id="a6384c8a9576d9c0c42a69d8cd81e2a91" name="a6384c8a9576d9c0c42a69d8cd81e2a91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6384c8a9576d9c0c42a69d8cd81e2a91">&#9670;&#160;</a></span>manual</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1capture__manual.html">capture_manual</a> fs8::manual {}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a38ef5381e4b7474511ff4fdaf029b19f" name="a38ef5381e4b7474511ff4fdaf029b19f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a38ef5381e4b7474511ff4fdaf029b19f">&#9670;&#160;</a></span>matches_limit</h2>
 
@@ -13997,6 +14077,28 @@ template&lt;std::size_t N&gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Scroll momentum: tracks and emits REL_WHEEL_HI_RES during animation. Distance-based slowdown is enabled by default (max_mouse_distance = 500). </p>
+
+</div>
+</div>
+<a id="ada1026d948fe4312747b0a07fe247f7b" name="ada1026d948fe4312747b0a07fe247f7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada1026d948fe4312747b0a07fe247f7b">&#9670;&#160;</a></span>monthly</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1capture__monthly.html">capture_monthly</a> fs8::monthly {}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -14891,6 +14993,28 @@ template&lt;std::size_t N&gt; </div>
 
 </div>
 </div>
+<a id="a6d5354109de13a3a5f446c2018a2ce99" name="a6d5354109de13a3a5f446c2018a2ce99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d5354109de13a3a5f446c2018a2ce99">&#9670;&#160;</a></span>single_file</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1capture__single__file.html">capture_single_file</a> fs8::single_file {}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="aa2d9bb7f4205e91b7b69bd21d81209b6" name="aa2d9bb7f4205e91b7b69bd21d81209b6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa2d9bb7f4205e91b7b69bd21d81209b6">&#9670;&#160;</a></span>singleton</h2>
 
@@ -15480,6 +15604,28 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a id="a81ae4647b90976962ea0dd4fe3c75f72" name="a81ae4647b90976962ea0dd4fe3c75f72"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81ae4647b90976962ea0dd4fe3c75f72">&#9670;&#160;</a></span>uptime</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1capture__uptime.html">capture_uptime</a> fs8::uptime {}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a7173fa229504ccad0dce40353b4a6084" name="a7173fa229504ccad0dce40353b4a6084"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7173fa229504ccad0dce40353b4a6084">&#9670;&#160;</a></span>variable_not_found</h2>
 
@@ -15537,6 +15683,28 @@ template&lt;typename... ModsT&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">constexpr std::array fs8::visual_keys</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">constexpr</span><span class="mlabel">export</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a161cebb3b5b8f6ed54aa29fce59cff09" name="a161cebb3b5b8f6ed54aa29fce59cff09"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a161cebb3b5b8f6ed54aa29fce59cff09">&#9670;&#160;</a></span>weekly</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1capture__weekly.html">capture_weekly</a> fs8::weekly {}</td>
         </tr>
       </table>
   </td>

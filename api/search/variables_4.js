@@ -16,8 +16,9 @@ var searchData=
   ['event_5fline_5fformat_5fbuf_5fsize_13',['event_line_format_buf_size',['../namespacefs8.html#a0aeb6500188a5480dec90ba1f7137efa',1,'fs8']]],
   ['event_5fline_5foutput_14',['event_line_output',['../namespacefs8.html#a93cfdbf08815090fb42d164c773c456e',1,'fs8']]],
   ['event_5fsysname_15',['event_sysname',['../namespacefs8_1_1attr.html#a3700ab5666116ff6496ee60c010a5eb7',1,'fs8::attr']]],
-  ['events_16',['events',['../structfs8_1_1pimpl__idiom_1_1impl.html#a1998b457b63614cd8d8bc1b5b030d7c6',1,'fs8::pimpl_idiom::impl::events'],['../structfs8_1_1basic__scheduler_1_1tick__result.html#aab42c159ca5a607838efa49540c8bec6',1,'fs8::basic_scheduler::tick_result::events'],['../structfs8_1_1io__fd.html#a0688d25610d8b192986a33e09c7365c5',1,'fs8::io_fd::events'],['../structfs8_1_1plain__pimpl__idiom_1_1impl.html#a18b9925761edd563d1f36a1565e2b1b0',1,'fs8::plain_pimpl_idiom::impl::events']]],
+  ['events_16',['events',['../structfs8_1_1basic__scheduler_1_1tick__result.html#aab42c159ca5a607838efa49540c8bec6',1,'fs8::basic_scheduler::tick_result::events'],['../structfs8_1_1pimpl__idiom_1_1impl.html#a1998b457b63614cd8d8bc1b5b030d7c6',1,'fs8::pimpl_idiom::impl::events'],['../structfs8_1_1io__fd.html#a0688d25610d8b192986a33e09c7365c5',1,'fs8::io_fd::events'],['../structfs8_1_1plain__pimpl__idiom_1_1impl.html#a18b9925761edd563d1f36a1565e2b1b0',1,'fs8::plain_pimpl_idiom::impl::events']]],
   ['evtest_5fformat_5fbuf_5fsize_17',['evtest_format_buf_size',['../namespacefs8.html#a4fce3d1270cea3fa64f2d82a4694b01e',1,'fs8']]],
   ['evtest_5foutput_18',['evtest_output',['../namespacefs8.html#afa9df52c3767ecdf335b27ae21ce3d40',1,'fs8']]],
-  ['exit_5fpipeline_19',['exit_pipeline',['../namespacefs8.html#a1d701f96dc69129488fc6e15f1f95880',1,'fs8']]]
+  ['exit_5fpipeline_19',['exit_pipeline',['../namespacefs8.html#a1d701f96dc69129488fc6e15f1f95880',1,'fs8']]],
+  ['extension_20',['extension',['../structfs8_1_1capture__evtest__format.html#a7997b06a99b24ea5811d652b98eadd85',1,'fs8::capture_evtest_format::extension'],['../structfs8_1_1capture__binary__format.html#ac4bbe14609851cf45a0ea5401549e08e',1,'fs8::capture_binary_format::extension']]]
 ];

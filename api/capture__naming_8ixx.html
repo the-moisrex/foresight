@@ -99,7 +99,8 @@ $(document).ready(function(){initNavTree('capture__naming_8ixx.html',''); initRe
   <div class="headertitle"><div class="title">capture_naming.ixx File Reference<div class="ingroups">module <a class="el" href="module_fs8_8mods.html">fs8.mods</a></div></div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;cstdint&gt;</code><br />
+<div class="textblock"><code>#include &lt;chrono&gt;</code><br />
+<code>#include &lt;cstdint&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;string_view&gt;</code><br />
 <code>import <a class="el" href="traits_8ixx.html">fs8.traits</a>;</code><br />
@@ -133,6 +134,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__manual.html">fs8::capture_manual</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__name.html">fs8::capture_name</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
@@ -154,8 +157,6 @@ Functions</h2></td></tr>
 <tr class="separator:a30e34176933f74b38dde170d64c60d63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44aa84ee18606cca1c6c46106e46c830" id="r_a44aa84ee18606cca1c6c46106e46c830"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfs8_1_1detail_1_1tm__info.html">tm_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#a44aa84ee18606cca1c6c46106e46c830">fs8::detail::time_from_epoch</a> (std::int64_t epoch) noexcept</td></tr>
 <tr class="separator:a44aa84ee18606cca1c6c46106e46c830"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a91c9bd1886aa99957d3e6174a8c13cf6" id="r_a91c9bd1886aa99957d3e6174a8c13cf6"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8_1_1detail.html#a91c9bd1886aa99957d3e6174a8c13cf6">fs8::detail::zero_pad</a> (int <a class="el" href="namespacefs8.html#a174bdbde5061f4bbd7985525c50e7748">value</a>, int width) noexcept</td></tr>
-<tr class="separator:a91c9bd1886aa99957d3e6174a8c13cf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -165,6 +166,20 @@ Variables</h2></td></tr>
 <tr class="separator:a816f2f5faec847914d3a01958b320043"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0c2a3cd1db8ac3404417bf1cf06788f" id="r_aa0c2a3cd1db8ac3404417bf1cf06788f"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#aa0c2a3cd1db8ac3404417bf1cf06788f">fs8::capture_default_naming</a> = <a class="el" href="structfs8_1_1capture__daily.html">capture_daily</a>{}</td></tr>
 <tr class="separator:aa0c2a3cd1db8ac3404417bf1cf06788f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d5354109de13a3a5f446c2018a2ce99" id="r_a6d5354109de13a3a5f446c2018a2ce99"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__single__file.html">capture_single_file</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6d5354109de13a3a5f446c2018a2ce99">fs8::single_file</a> {}</td></tr>
+<tr class="separator:a6d5354109de13a3a5f446c2018a2ce99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81ae4647b90976962ea0dd4fe3c75f72" id="r_a81ae4647b90976962ea0dd4fe3c75f72"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__uptime.html">capture_uptime</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a81ae4647b90976962ea0dd4fe3c75f72">fs8::uptime</a> {}</td></tr>
+<tr class="separator:a81ae4647b90976962ea0dd4fe3c75f72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adeeeef55183ab6b08dcecf74324eda9a" id="r_adeeeef55183ab6b08dcecf74324eda9a"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__hourly.html">capture_hourly</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#adeeeef55183ab6b08dcecf74324eda9a">fs8::hourly</a> {}</td></tr>
+<tr class="separator:adeeeef55183ab6b08dcecf74324eda9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d5af1802c08c1b93c2cd7cacbc3fa9b" id="r_a9d5af1802c08c1b93c2cd7cacbc3fa9b"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__daily.html">capture_daily</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a9d5af1802c08c1b93c2cd7cacbc3fa9b">fs8::daily</a> {}</td></tr>
+<tr class="separator:a9d5af1802c08c1b93c2cd7cacbc3fa9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a161cebb3b5b8f6ed54aa29fce59cff09" id="r_a161cebb3b5b8f6ed54aa29fce59cff09"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__weekly.html">capture_weekly</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a161cebb3b5b8f6ed54aa29fce59cff09">fs8::weekly</a> {}</td></tr>
+<tr class="separator:a161cebb3b5b8f6ed54aa29fce59cff09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada1026d948fe4312747b0a07fe247f7b" id="r_ada1026d948fe4312747b0a07fe247f7b"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__monthly.html">capture_monthly</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ada1026d948fe4312747b0a07fe247f7b">fs8::monthly</a> {}</td></tr>
+<tr class="separator:ada1026d948fe4312747b0a07fe247f7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6384c8a9576d9c0c42a69d8cd81e2a91" id="r_a6384c8a9576d9c0c42a69d8cd81e2a91"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structfs8_1_1capture__manual.html">capture_manual</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a6384c8a9576d9c0c42a69d8cd81e2a91">fs8::manual</a> {}</td></tr>
+<tr class="separator:a6384c8a9576d9c0c42a69d8cd81e2a91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

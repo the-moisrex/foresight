@@ -8,12 +8,19 @@ var capture__naming_8ixx =
     [ "fs8::capture_weekly", "structfs8_1_1capture__weekly.html", "structfs8_1_1capture__weekly" ],
     [ "fs8::capture_monthly", "structfs8_1_1capture__monthly.html", "structfs8_1_1capture__monthly" ],
     [ "fs8::capture_manual", "structfs8_1_1capture__manual.html", "structfs8_1_1capture__manual" ],
+    [ "fs8::capture_name", "structfs8_1_1capture__name.html", "structfs8_1_1capture__name" ],
     [ "fs8::capture_naming", "conceptfs8_1_1capture__naming.html", null ],
     [ "local_time_now", "capture__naming_8ixx.html#a678976c813a5667c5d3facfe778e1d19", null ],
     [ "now_epoch_seconds", "capture__naming_8ixx.html#a30e34176933f74b38dde170d64c60d63", null ],
     [ "time_from_epoch", "capture__naming_8ixx.html#a44aa84ee18606cca1c6c46106e46c830", null ],
-    [ "zero_pad", "capture__naming_8ixx.html#a91c9bd1886aa99957d3e6174a8c13cf6", null ],
     [ "capture_default_naming", "capture__naming_8ixx.html#aa0c2a3cd1db8ac3404417bf1cf06788f", null ],
+    [ "daily", "capture__naming_8ixx.html#a9d5af1802c08c1b93c2cd7cacbc3fa9b", null ],
     [ "days_per_week", "capture__naming_8ixx.html#a816f2f5faec847914d3a01958b320043", null ],
-    [ "epoch_year_offset", "capture__naming_8ixx.html#a92137730dd9cb1d1706933988f56cfbf", null ]
+    [ "epoch_year_offset", "capture__naming_8ixx.html#a92137730dd9cb1d1706933988f56cfbf", null ],
+    [ "hourly", "capture__naming_8ixx.html#adeeeef55183ab6b08dcecf74324eda9a", null ],
+    [ "manual", "capture__naming_8ixx.html#a6384c8a9576d9c0c42a69d8cd81e2a91", null ],
+    [ "monthly", "capture__naming_8ixx.html#ada1026d948fe4312747b0a07fe247f7b", null ],
+    [ "single_file", "capture__naming_8ixx.html#a6d5354109de13a3a5f446c2018a2ce99", null ],
+    [ "uptime", "capture__naming_8ixx.html#a81ae4647b90976962ea0dd4fe3c75f72", null ],
+    [ "weekly", "capture__naming_8ixx.html#a161cebb3b5b8f6ed54aa29fce59cff09", null ]
 ];
