@@ -77,5 +77,5 @@ var searchData=
   ['broadcast_74',['broadcast',['../structfs8_1_1basic__context.html#ac3802efa76258b53009da63cc55a3883',1,'fs8::basic_context']]],
   ['buffer_75',['buffer',['../structfs8_1_1keyboard__runner.html#a77f209a6e0d5fe61937a1b7c663e7d6f',1,'fs8::keyboard_runner']]],
   ['buffer_5fsize_76',['buffer_size',['../structfs8_1_1basic__capture.html#a6525a2d9292121861e6ce7389f7acb32',1,'fs8::basic_capture']]],
-  ['buffered_77',['buffered',['../structfs8_1_1basic__capture.html#ae30189d9e35d1f3a89f8b5fe862e5b42',1,'fs8::basic_capture']]]
+  ['buffered_77',['buffered',['../structfs8_1_1basic__capture.html#a658c457ede2ead0d7b4d20870a08c6cb',1,'fs8::basic_capture']]]
 ];

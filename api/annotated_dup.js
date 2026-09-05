@@ -13,7 +13,6 @@ var annotated_dup =
         [ "named_benchmark_proxy", "structfs8_1_1benchmark__detail_1_1named__benchmark__proxy.html", "structfs8_1_1benchmark__detail_1_1named__benchmark__proxy" ]
       ] ],
       [ "detail", "namespacefs8_1_1detail.html", [
-        [ "capture_impl", "structfs8_1_1detail_1_1capture__impl.html", "structfs8_1_1detail_1_1capture__impl" ],
         [ "modes_caller_info", "structfs8_1_1detail_1_1modes__caller__info.html", "structfs8_1_1detail_1_1modes__caller__info" ],
         [ "replay_impl", "structfs8_1_1detail_1_1replay__impl.html", "structfs8_1_1detail_1_1replay__impl" ],
         [ "router_state", "structfs8_1_1detail_1_1router__state.html", "structfs8_1_1detail_1_1router__state" ],

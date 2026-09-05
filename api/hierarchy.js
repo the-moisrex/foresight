@@ -43,7 +43,6 @@ var hierarchy =
     [ "fs8::basic_self_emitted", "structfs8_1_1basic__self__emitted.html", null ],
     [ "fs8::xkb::basic_state", "structfs8_1_1xkb_1_1basic__state.html", null ],
     [ "fs8::benchmark_detail::benchmark_all_factory", "structfs8_1_1benchmark__detail_1_1benchmark__all__factory.html", null ],
-    [ "fs8::detail::capture_impl", "structfs8_1_1detail_1_1capture__impl.html", null ],
     [ "fs8::condensed_view", "structfs8_1_1condensed__view.html", null ],
     [ "fs8::idle_repeat::consistent< PeriodUs >", "structfs8_1_1idle__repeat_1_1consistent.html", null ],
     [ "fs8::consteval_copyable", "structfs8_1_1consteval__copyable.html", [
@@ -247,11 +246,11 @@ var hierarchy =
     [ "fs8::named_solution", "structfs8_1_1named__solution.html", null ],
     [ "fs8::pimpl_idiom< typename >::impl::node_type", "structfs8_1_1pimpl__idiom_1_1impl_1_1node__type.html", null ],
     [ "fs8::nullable_indirect< T, Allocator >", "structfs8_1_1nullable__indirect.html", null ],
-    [ "fs8::nullable_indirect< fs8::detail::capture_impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::detail::replay_impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::detail::router_state >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::plain_pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
+    [ "fs8::nullable_indirect< state >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::idle_repeat::once", "structfs8_1_1idle__repeat_1_1once.html", null ],
     [ "fs8::op_not< Func >", "structfs8_1_1op__not.html", null ],
     [ "fs8::operator_adaptor< T >", "structfs8_1_1operator__adaptor.html", [

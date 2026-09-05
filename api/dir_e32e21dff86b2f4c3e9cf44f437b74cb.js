@@ -5,7 +5,7 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "autocomplete.cxx", "autocomplete_8cxx.html", "autocomplete_8cxx" ],
     [ "autocomplete.ixx", "autocomplete_8ixx.html", "autocomplete_8ixx" ],
     [ "benchmark.ixx", "benchmark_8ixx.html", "benchmark_8ixx" ],
-    [ "capture.cxx", "capture_8cxx.html", "capture_8cxx" ],
+    [ "capture.cxx", "capture_8cxx.html", null ],
     [ "capture.ixx", "capture_8ixx.html", "capture_8ixx" ],
     [ "capture_format.cxx", "capture__format_8cxx.html", null ],
     [ "capture_format.ixx", "capture__format_8ixx.html", "capture__format_8ixx" ],
