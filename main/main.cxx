@@ -140,6 +140,13 @@ namespace {
   Queries are device names, paths (e.g. /dev/input/event1), or udev terms
   (e.g. "name=event0", "attr:device/name=My Mouse", "keyboard").
 
+  How-to-type queries use modifier tags:
+    <key>          Press keys together  (e.g. <ctrl+alt+x>)
+    [key]          Release keys together (e.g. [ctrl+shift+left])
+    <<key>>        Press keys in order
+    [[key]]        Release keys in order
+  Tags use -, +, or space as separators; plain text is typed literally.
+
   Example Usages:
     $ keyboard=/dev/input/event1
     $ foresight intercept -g $keyboard | x2y | foresight redirect $keyboard
