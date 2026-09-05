@@ -1,8 +1,12 @@
 // Created by moisrex on 9/4/26.
 
 module;
+#include <cstdint>
+#include <fcntl.h>
+#include <format>
 #include <span>
 #include <string>
+#include <unistd.h>
 #include <vector>
 export module fs8.mods:capture;
 import fs8.context;
@@ -14,10 +18,6 @@ import :capture_format;
 import :capture_naming;
 
 export namespace fs8 {
-
-    namespace detail {
-        struct capture_impl;
-    } // namespace detail
 
     /// Pipeline mod that buffers events in memory and flushes to a file during
     /// idle periods. File naming and output format are template parameters.
@@ -41,34 +41,124 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
       private:
-        FormatT                                format_{};
-        NamingT                                naming_{};
-        nullable_indirect<detail::capture_impl> impl_{};
+        FormatT format_{};
+        NamingT naming_{};
+
+        struct state {
+            std::vector<event_type> buffer;
+            int                     current_fd = -1;
+            std::string             current_path;
+            std::int64_t            last_rotation = 0;
+        };
+
+        nullable_indirect<state> st_{};
 
       public:
-        consteval basic_capture(FormatT format, NamingT naming) noexcept
-          : format_{format}, naming_{std::move(naming)}, impl_{} {}
-
-        void init_impl() noexcept;
+        consteval basic_capture(FormatT format, NamingT naming) noexcept : format_{format}, naming_{std::move(naming)} {}
 
         // ── Pipeline interface ───────────────────────────────────────────────
 
-        /// Handle lifecycle tags: start, toggle_on, toggle_off, idle.
-        context_action operator()(special_event const& tag) noexcept;
+        context_action operator()(special_event const& tag) noexcept {
+            using enum context_action;
+            ensure_state();
+            switch (tag.code) {
+                case start.code: return next;
+                case toggle_on.code: {
+                    if (tag.value == toggle_on.value) {
+                        return next; // no-op: events are always buffered
+                    }
+                    // toggle_off: flush immediately
+                    flush_buffer();
+                    return next;
+                }
+                case idle.code: {
+                    if (st_->buffer.empty()) {
+                        return next;
+                    }
+                    if (st_->current_fd < 0) {
+                        if (!open_file()) {
+                            return next;
+                        }
+                    } else if (naming_.should_rotate(st_->last_rotation)) {
+                        close_file();
+                        if (!open_file()) {
+                            return next;
+                        }
+                    }
+                    flush_buffer();
+                    return next;
+                }
+                default: return drop_event;
+            }
+        }
 
-        /// Buffer regular events.
-        context_action operator()(event_type const& event) noexcept;
+        context_action operator()(event_type const& event) noexcept {
+            ensure_state();
+            st_->buffer.push_back(event);
+            return context_action::next;
+        }
 
         // ── Accessors (for tests) ───────────────────────────────────────────
 
-        [[nodiscard]] std::span<event_type const> buffered() const noexcept;
-        [[nodiscard]] std::size_t                  buffer_size() const noexcept;
-        [[nodiscard]] bool                         is_open() const noexcept;
+        [[nodiscard]] std::span<event_type const> buffered() const noexcept {
+            if (!static_cast<bool>(st_)) {
+                return {};
+            }
+            return st_->buffer;
+        }
+
+        [[nodiscard]] std::size_t buffer_size() const noexcept {
+            if (!static_cast<bool>(st_)) {
+                return 0;
+            }
+            return st_->buffer.size();
+        }
+
+        [[nodiscard]] bool is_open() const noexcept {
+            return static_cast<bool>(st_) && st_->current_fd >= 0;
+        }
 
       private:
-        bool open_file() noexcept;
-        void close_file() noexcept;
-        void flush_buffer() noexcept;
+        void ensure_state() noexcept {
+            if (!static_cast<bool>(st_)) {
+                st_ = nullable_indirect<state>::make();
+            }
+        }
+
+        bool open_file() noexcept {
+            auto const path = naming_.filename(FormatT::extension);
+            auto const fd   = ::open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+            if (fd < 0) {
+                log("capture: failed to open {}", path);
+                return false;
+            }
+            if (!format_.write_header(fd)) {
+                log("capture: failed to write header to {}", path);
+                ::close(fd);
+                return false;
+            }
+            st_->current_fd    = fd;
+            st_->current_path  = std::move(path);
+            st_->last_rotation = detail::now_epoch_seconds();
+            return true;
+        }
+
+        void close_file() noexcept {
+            if (st_->current_fd < 0) {
+                return;
+            }
+            std::ignore = format_.write_footer(st_->current_fd);
+            ::close(st_->current_fd);
+            st_->current_fd = -1;
+        }
+
+        void flush_buffer() noexcept {
+            if (st_->buffer.empty() || st_->current_fd < 0) {
+                return;
+            }
+            std::ignore = format_.emit(st_->current_fd, st_->buffer);
+            st_->buffer.clear();
+        }
 
       public:
         // ── Bracket syntax ──────────────────────────────────────────────────
