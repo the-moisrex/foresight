@@ -32,7 +32,6 @@ var queries_8ixx =
       [ "nomatch_sysattr", "queries_8ixx.html#ab7f0fa2c09b263592204789448be49e1a823f0ecc456d90944d42e75c96d63497", null ],
       [ "nomatch_property", "queries_8ixx.html#ab7f0fa2c09b263592204789448be49e1a2808f52b903c5304ea45f5d4fb13bd3f", null ]
     ] ],
-    [ "capture", "queries_8ixx.html#a7ce4fb7e23485ab72341209611cf46eb", null ],
     [ "device", "queries_8ixx.html#a0c0f6665ba53682ffb2bbd044b0fdcaf", null ],
     [ "device", "queries_8ixx.html#a8ac5eac8a55267eddf7e4b35b92e90f4", null ],
     [ "device", "queries_8ixx.html#a10f19220072eeaae5f7295d681ef8bbb", null ],

@@ -433,7 +433,6 @@ var namespacefs8 =
     [ "cap", "namespacefs8.html#ad2679ef91f2a0ad95f6e8598f5353d82", null ],
     [ "caps_of", "namespacefs8.html#abd04e202da1c715c563e1bbb5cc3862c", null ],
     [ "caps_range", "namespacefs8.html#a76244649f9982ba0f7b9086f92fcaa57", null ],
-    [ "capture", "namespacefs8.html#a7ce4fb7e23485ab72341209611cf46eb", null ],
     [ "ci_hash", "namespacefs8.html#a011eb55d314bb09e2b44b99630f79d8d", null ],
     [ "clone_device", "namespacefs8.html#a996246e0d2b1df88f4a847d03cf0ff90", null ],
     [ "code", "namespacefs8.html#a77f733d4cfe0e6560ac2768e838fc6ac", null ],

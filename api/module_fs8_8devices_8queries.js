@@ -34,7 +34,6 @@ var module_fs8_8devices_8queries =
     [ "fs8::value_or_view< T, std::dynamic_extent >::type", "module_fs8_8devices_8queries.html#a930bbb65a2ba1d49ce2b22e023efaef6", null ],
     [ "fs8::value_or_view_t", "module_fs8_8devices_8queries.html#a9abe6bf905cbf6fb604a8a193c5fccac", null ],
     [ "fs8::device_query", "module_fs8_8devices_8queries.html#adcd5f715cab1b6f86ae4d96f54e9c049", null ],
-    [ "fs8::capture", "module_fs8_8devices_8queries.html#a7ce4fb7e23485ab72341209611cf46eb", null ],
     [ "fs8::operator+", "module_fs8_8devices_8queries.html#a668c228ea62e263990778a15809a5872", null ],
     [ "fs8::query_term::operator==", "module_fs8_8devices_8queries.html#acf686638f26b28ecbdbedefc2d8ac3cb", null ],
     [ "fs8::query_term::operator bool", "module_fs8_8devices_8queries.html#a3bffbd88129772988b0c98ed20934aaf", null ],

@@ -299,7 +299,7 @@ var module_fs8_8mods =
     [ "fs8::basic_capture::basic_capture", "module_fs8_8mods.html#af8d7d20b58cbca31117104e7a753b57d", null ],
     [ "fs8::basic_capture::~basic_capture", "module_fs8_8mods.html#a6561739544100e25c858ee2b56cec83c", null ],
     [ "fs8::basic_capture::set_name", "module_fs8_8mods.html#a68acb0587db95b34944efc34829582ba", null ],
-    [ "fs8::basic_capture::operator()", "module_fs8_8mods.html#a2ffb5bdfe786a4a555200a9d236c6920", null ],
+    [ "fs8::basic_capture::operator()", "module_fs8_8mods.html#a77a1940c5084e9cf1da2beb1a4f446c6", null ],
     [ "fs8::basic_capture::operator()", "module_fs8_8mods.html#a74b94dbc76a7c673c031de3bb8d70b79", null ],
     [ "fs8::basic_capture::operator()", "module_fs8_8mods.html#ab0cbe6774a857d11019d4d6723436507", null ],
     [ "fs8::basic_capture::buffered", "module_fs8_8mods.html#a658c457ede2ead0d7b4d20870a08c6cb", null ],

@@ -768,11 +768,10 @@ requires std::convertible_to&lt;std::ranges::range_value_t&lt;R&gt;, evdev&gt;</
 <tr class="memitem:a68acb0587db95b34944efc34829582ba" id="r_a68acb0587db95b34944efc34829582ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capture.html#a68acb0587db95b34944efc34829582ba">set_name</a> (std::string_view const name) noexcept</td></tr>
 <tr class="memdesc:a68acb0587db95b34944efc34829582ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a custom output filename (for naming strategies that support it, e.g. <a class="el" href="structfs8_1_1capture__manual.html">capture_manual</a>).  <br /></td></tr>
 <tr class="separator:a68acb0587db95b34944efc34829582ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2ffb5bdfe786a4a555200a9d236c6920" id="r_a2ffb5bdfe786a4a555200a9d236c6920"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; <br />
-requires has_mod&lt;basic_idle_detector&lt;&gt;, CtxT&gt;</td></tr>
-<tr class="memitem:a2ffb5bdfe786a4a555200a9d236c6920"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capture.html#a2ffb5bdfe786a4a555200a9d236c6920">operator()</a> (CtxT &amp;, special_event const &amp;tag) noexcept</td></tr>
-<tr class="memdesc:a2ffb5bdfe786a4a555200a9d236c6920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pipeline form: receives special events from the context.  <br /></td></tr>
-<tr class="separator:a2ffb5bdfe786a4a555200a9d236c6920"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a77a1940c5084e9cf1da2beb1a4f446c6" id="r_a77a1940c5084e9cf1da2beb1a4f446c6"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
+<tr class="memitem:a77a1940c5084e9cf1da2beb1a4f446c6"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capture.html#a77a1940c5084e9cf1da2beb1a4f446c6">operator()</a> (CtxT &amp;, special_event const &amp;tag) noexcept</td></tr>
+<tr class="memdesc:a77a1940c5084e9cf1da2beb1a4f446c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pipeline form: receives special events from the context.  <br /></td></tr>
+<tr class="separator:a77a1940c5084e9cf1da2beb1a4f446c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74b94dbc76a7c673c031de3bb8d70b79" id="r_a74b94dbc76a7c673c031de3bb8d70b79"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capture.html#a74b94dbc76a7c673c031de3bb8d70b79">operator()</a> (special_event const &amp;tag) noexcept</td></tr>
 <tr class="memdesc:a74b94dbc76a7c673c031de3bb8d70b79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Direct form: for tests and standalone use without a context.  <br /></td></tr>
 <tr class="separator:a74b94dbc76a7c673c031de3bb8d70b79"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -902,7 +901,7 @@ requires (!Context&lt;std::remove_cvref_t&lt;InpModT&gt;&gt; &amp;&amp; !detail:
 <tr class="separator:ab42f139130113077000bac53ed868b3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a286bb2549ee192845b17f98296811476" id="r_a286bb2549ee192845b17f98296811476"><td class="memItemLeft" align="right" valign="top">constexpr std::chrono::microseconds&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__idle__detector.html#a286bb2549ee192845b17f98296811476">idle_period</a> () const noexcept</td></tr>
 <tr class="separator:a286bb2549ee192845b17f98296811476"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:accaa8db0b5cbfbcc31377d3e66a5035a" id="r_accaa8db0b5cbfbcc31377d3e66a5035a"><td class="memTemplParams" colspan="2">template&lt;ContextWith&lt; basic_io_manager &gt; CtxT&gt; </td></tr>
+<tr class="memitem:accaa8db0b5cbfbcc31377d3e66a5035a" id="r_accaa8db0b5cbfbcc31377d3e66a5035a"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; </td></tr>
 <tr class="memitem:accaa8db0b5cbfbcc31377d3e66a5035a"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__idle__detector.html#accaa8db0b5cbfbcc31377d3e66a5035a">operator()</a> (CtxT &amp;ctx, special_event const &amp;tag) noexcept</td></tr>
 <tr class="memdesc:accaa8db0b5cbfbcc31377d3e66a5035a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle start: configure io_manager timeout and register idle callback.  <br /></td></tr>
 <tr class="separator:accaa8db0b5cbfbcc31377d3e66a5035a"><td class="memSeparator" colspan="2">&#160;</td></tr>
