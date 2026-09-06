@@ -250,6 +250,7 @@ var hierarchy =
     [ "fs8::nullable_indirect< fs8::pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::plain_pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< state >", "structfs8_1_1nullable__indirect.html", null ],
+    [ "fs8::nullable_indirect< state_type >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::idle_repeat::once", "structfs8_1_1idle__repeat_1_1once.html", null ],
     [ "fs8::op_not< Func >", "structfs8_1_1op__not.html", null ],
     [ "fs8::operator_adaptor< T >", "structfs8_1_1operator__adaptor.html", [

@@ -5,5 +5,7 @@ digraph "Graphical Class Hierarchy"
   edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
   node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
   rankdir="LR";
-  Node0 [id="Node000000",label="fs8::plain_pimpl_idiom\l\< typename \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1plain__pimpl__idiom.html",tooltip=" "];
+  Node0 [id="Node000000",label="fs8::plain_pimpl_idiom\l\< systemd_service \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1plain__pimpl__idiom.html",tooltip=" "];
+  Node0 -> Node1 [id="edge147_Node000000_Node000001",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node1 [id="Node000001",label="fs8::systemd_service",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1systemd__service.html",tooltip=" "];
 }
