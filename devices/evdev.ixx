@@ -222,6 +222,11 @@ namespace fs8 {
     /// disrupting a grab that this process already holds.
     export [[nodiscard]] bool is_usable(evdev& dev) noexcept;
 
+    /// Compute the caps score and halve it if the device is grabbed by
+    /// another process.  Leaves the device ungrabbed.  For non-caps
+    /// queries the score is always 0, so the penalty never fires.
+    export [[nodiscard]] std::uint8_t score_caps(evdev& dev, dev_caps_view caps) noexcept;
+
     /// sysname of an open device (e.g. "event10"), derived from its fd.
     export [[nodiscard]] std::string device_sysname(evdev const& dev) noexcept;
 

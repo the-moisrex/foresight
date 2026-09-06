@@ -489,6 +489,21 @@ bool fs8::is_usable(evdev& dev) noexcept {
     return test_grab(dev);
 }
 
+/// Compute the caps score and halve it if the device is grabbed by another process.
+std::uint8_t fs8::score_caps(evdev& dev, dev_caps_view const caps) noexcept {
+    if (caps.empty()) {
+        return 0;
+    }
+    auto const score = dev.match_caps(caps);
+    if (score == 0) {
+        return 0;
+    }
+    if (!test_grab(dev)) {
+        return score / 2;
+    }
+    return score;
+}
+
 /// sysname of an open device (e.g. "event10"), derived from its fd.
 std::string fs8::device_sysname(evdev const& dev) noexcept try {
     int const fd = dev.native_handle();

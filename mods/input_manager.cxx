@@ -288,7 +288,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 }
                 continue;
             }
-            std::uint8_t const score = cur_query.caps.empty() ? 0 : edev.match_caps(cur_query.caps);
+            std::uint8_t const score = score_caps(edev, cur_query.caps);
             candidates.emplace_back(score, std::move(edev));
             found = true;
         }
