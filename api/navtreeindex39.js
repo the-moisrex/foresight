@@ -1,6 +1,5 @@
 var NAVTREEINDEX39 =
 {
-"vars_8ixx.html":[4,0,4,72],
 "vars_8ixx.html#a330690f922a4d095db81f9d4ecd0943b":[4,0,4,72,1],
 "xkb_8cxx.html":[4,0,2,8],
 "xkb_8cxx.html#a5618b67de8948b23189b478cb45bafae":[4,0,2,8,0],

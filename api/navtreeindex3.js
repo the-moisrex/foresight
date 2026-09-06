@@ -1,6 +1,5 @@
 var NAVTREEINDEX3 =
 {
-"module_fs8_8cli.html#ad8ec109179a163ef3a6b65cb9831c1e5":[0,0,12,3],
 "module_fs8_8cli.html#ada49ea29ee7738077406b8d85ff23fd4":[0,0,12,8],
 "module_fs8_8cli.html#aedf2b0f31bf0183d69b6ebc666f21f56":[0,0,12,20],
 "module_fs8_8cli.html#af45ad88d117ab50b2c77df3d98016551":[0,0,12,19],
@@ -249,5 +248,6 @@ var NAVTREEINDEX3 =
 "module_fs8_8devices_8evdev.html#a67c29e461f7e431c7de587f3520dc2a5":[0,0,2,11],
 "module_fs8_8devices_8evdev.html#a6a3ffd4e3c13827b47798d159cf2c685":[0,0,2,33],
 "module_fs8_8devices_8evdev.html#a6c3498cbbbe6f6d65a8a2141bcdf4885":[0,0,2,56],
-"module_fs8_8devices_8evdev.html#a6ccebb5519d2951be3a3b3b2ee932d48":[0,0,2,16]
+"module_fs8_8devices_8evdev.html#a6ccebb5519d2951be3a3b3b2ee932d48":[0,0,2,16],
+"module_fs8_8devices_8evdev.html#a6e8132e85ff92915779b0373a97ced65":[0,0,2,40]
 };

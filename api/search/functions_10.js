@@ -19,12 +19,11 @@ var searchData=
   ['router_5fhash_16',['router_hash',['../namespacefs8_1_1detail.html#a1d7fee2af746b7353fa247fde9ac81af',1,'fs8::detail']]],
   ['router_5flookup_17',['router_lookup',['../namespacefs8_1_1detail.html#a52b6e0204fa095b01ef694f611f04c37',1,'fs8::detail']]],
   ['router_5fset_5fcaps_18',['router_set_caps',['../namespacefs8_1_1detail.html#aa6746c2867b93eb4689da578a8432229',1,'fs8::detail']]],
-  ['run_19',['run',['../structfs8_1_1run.html#ad93f97cb5f86576a81d0d146efa3c492',1,'fs8::run::run()'],['../namespacefs8.html#a7c8764ffa126fca31a16ae49359b9fba',1,'fs8::run()'],['../structfs8_1_1run.html#ac047e0a0709c131874b05ee596baf4a8',1,'fs8::run::run(run &amp;&amp;) noexcept=default'],['../structfs8_1_1run.html#a7419f02e6c9d02e9c4e39adfa147097d',1,'fs8::run::run()=default']]],
+  ['run_19',['run',['../structfs8_1_1run.html#a7419f02e6c9d02e9c4e39adfa147097d',1,'fs8::run::run()=default'],['../structfs8_1_1run.html#ad93f97cb5f86576a81d0d146efa3c492',1,'fs8::run::run(run const &amp;)=default'],['../structfs8_1_1run.html#ac047e0a0709c131874b05ee596baf4a8',1,'fs8::run::run(run &amp;&amp;) noexcept=default'],['../namespacefs8.html#a7c8764ffa126fca31a16ae49359b9fba',1,'fs8::run()']]],
   ['run_5faction_20',['run_action',['../main_8cxx.html#a4dcc7904c792c68c8ad46207911e9ca4',1,'main.cxx']]],
   ['run_5fcapture_5faction_21',['run_capture_action',['../cli__capture_8cxx.html#a285615d58a298cc3305b538338fdb782',1,'cli_capture.cxx']]],
-  ['run_5fcapture_5fpipeline_22',['run_capture_pipeline',['../cli__capture_8cxx.html#ac99f95f6d96f65a1d6c8ca5fec4d5da1',1,'cli_capture.cxx']]],
-  ['run_5fevtest_23',['run_evtest',['../cli__evtest_8cxx.html#a8439300d696cf8064eb3d66ef646e7b2',1,'cli_evtest.cxx']]],
-  ['run_5flive_24',['run_live',['../cli__live_8cxx.html#abf94b86c9c3f39bba69f2bc18ac7d1f6',1,'cli_live.cxx']]],
-  ['run_5fmatches_25',['run_matches',['../cli__matches_8cxx.html#ab74aa01bfa5bec1c8d006c31cba8b61a',1,'cli_matches.cxx']]],
-  ['run_5freplay_5faction_26',['run_replay_action',['../cli__capture_8cxx.html#a22f90f9a983d13c1e4bff2e9c6af40b2',1,'cli_capture.cxx']]]
+  ['run_5fevtest_22',['run_evtest',['../cli__evtest_8cxx.html#a8439300d696cf8064eb3d66ef646e7b2',1,'cli_evtest.cxx']]],
+  ['run_5flive_23',['run_live',['../cli__live_8cxx.html#abf94b86c9c3f39bba69f2bc18ac7d1f6',1,'cli_live.cxx']]],
+  ['run_5fmatches_24',['run_matches',['../cli__matches_8cxx.html#ab74aa01bfa5bec1c8d006c31cba8b61a',1,'cli_matches.cxx']]],
+  ['run_5freplay_5faction_25',['run_replay_action',['../cli__capture_8cxx.html#a22f90f9a983d13c1e4bff2e9c6af40b2',1,'cli_capture.cxx']]]
 ];
