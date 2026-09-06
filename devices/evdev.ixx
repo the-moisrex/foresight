@@ -215,7 +215,7 @@ namespace fs8 {
     };
 
     /// Check if a freshly-opened device can be grabbed without disrupting a grab
-    /// this process already holds. Always leaves the device ungrabbed afterwards.
+    /// this process already holds. Restores the original grab state afterwards.
     export [[nodiscard]] bool test_grab(evdev& dev) noexcept;
 
     /// Check if a device is usable as a source for a virtual device without
@@ -223,8 +223,8 @@ namespace fs8 {
     export [[nodiscard]] bool is_usable(evdev& dev) noexcept;
 
     /// Compute the caps score and halve it if the device is grabbed by
-    /// another process.  Leaves the device ungrabbed.  For non-caps
-    /// queries the score is always 0, so the penalty never fires.
+    /// another process.  Restores the original grab state afterwards.  For
+    /// non-caps queries the score is always 0, so the penalty never fires.
     export [[nodiscard]] std::uint8_t score_caps(evdev& dev, dev_caps_view caps) noexcept;
 
     /// sysname of an open device (e.g. "event10"), derived from its fd.

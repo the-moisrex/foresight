@@ -470,13 +470,17 @@ bool evdev::send_event(event_type::type_type const  type,
 }
 
 /// Check if a freshly-opened device can be grabbed without disrupting a grab
-/// this process already holds. Always leaves the device ungrabbed afterwards.
+/// this process already holds. Restores the original grab state afterwards.
 bool fs8::test_grab(evdev& dev) noexcept {
+    auto const was_grabbed = dev.get_status() == evdev_status::success_grabbed;
     dev.grab_input(true);
     if (dev.get_status() == evdev_status::grab_failure) {
         return false;
     }
     dev.grab_input(false);
+    if (was_grabbed) {
+        dev.grab_input(true);
+    }
     return dev.get_status() == evdev_status::success;
 }
 
