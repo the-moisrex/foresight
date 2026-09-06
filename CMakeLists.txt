@@ -236,6 +236,14 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_26)
 target_sources(${PROJECT_NAME}
         PRIVATE
         main/main.cxx
+        main/cli_args.cxx
+        main/cli_signals.cxx
+        main/cli_help.cxx
+        main/cli_new.cxx
+        main/cli_matches.cxx
+        main/cli_evtest.cxx
+        main/cli_live.cxx
+        main/cli_capture.cxx
 )
 target_link_libraries(${PROJECT_NAME}
         PRIVATE ${LIB_NAME}::${LIB_NAME}
