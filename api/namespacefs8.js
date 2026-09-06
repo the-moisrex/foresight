@@ -643,6 +643,7 @@ var namespacefs8 =
     [ "replace_modifier_strings", "namespacefs8.html#ab5a3b771d2db79a39d8155ea204cd610", null ],
     [ "route", "namespacefs8.html#ac50cc3ca471463b44e288ea9dba52ede", null ],
     [ "run", "namespacefs8.html#a7c8764ffa126fca31a16ae49359b9fba", null ],
+    [ "score_caps", "namespacefs8.html#a7b5cb8b5c6a7badc2f6a19fdde24cd7b", null ],
     [ "sid", "namespacefs8.html#ad46e27365094f4b86ca86bf6eecc4b73", null ],
     [ "sid", "namespacefs8.html#a601850b77443140d821d53b449251fb5", null ],
     [ "sid", "namespacefs8.html#a6481ac42a6d838583ebbd92fe9680127", null ],

@@ -1,5 +1,6 @@
 var NAVTREEINDEX3 =
 {
+"module_fs8_8cli.html#ad8ec109179a163ef3a6b65cb9831c1e5":[0,0,12,3],
 "module_fs8_8cli.html#ada49ea29ee7738077406b8d85ff23fd4":[0,0,12,8],
 "module_fs8_8cli.html#aedf2b0f31bf0183d69b6ebc666f21f56":[0,0,12,20],
 "module_fs8_8cli.html#af45ad88d117ab50b2c77df3d98016551":[0,0,12,19],
@@ -212,9 +213,9 @@ var NAVTREEINDEX3 =
 "module_fs8_8devices_8capabilities.html#af911c32326d5aa5eb9c20aeccd49a97c":[0,0,1,46],
 "module_fs8_8devices_8evdev.html":[0,0,2],
 "module_fs8_8devices_8evdev.html#a021c17e825dc3e8932c321f0f246571a":[0,0,2,54],
-"module_fs8_8devices_8evdev.html#a0c573f5e187eef4b1050266ae9783dff":[0,0,2,69],
+"module_fs8_8devices_8evdev.html#a0c573f5e187eef4b1050266ae9783dff":[0,0,2,70],
 "module_fs8_8devices_8evdev.html#a10e09c361ca2bed9459c75229bd78c2b":[0,0,2,15],
-"module_fs8_8devices_8evdev.html#a1591a14b327703acffe77dfb9bc58fda":[0,0,2,64],
+"module_fs8_8devices_8evdev.html#a1591a14b327703acffe77dfb9bc58fda":[0,0,2,65],
 "module_fs8_8devices_8evdev.html#a15ca6c03a4ac003a91a00ea18d500237":[0,0,2,35],
 "module_fs8_8devices_8evdev.html#a15cf6f8628175af9fb25de947ad2f282":[0,0,2,22],
 "module_fs8_8devices_8evdev.html#a1779c7db7fd8f7f134fe900e93b0f993":[0,0,2,8],
@@ -242,12 +243,11 @@ var NAVTREEINDEX3 =
 "module_fs8_8devices_8evdev.html#a453d7783c36e5ad769bd6334d4e1a008":[0,0,2,21],
 "module_fs8_8devices_8evdev.html#a477bf2955dbd411e19d8dc44d2ef5a9f":[0,0,2,49],
 "module_fs8_8devices_8evdev.html#a48dc00d9257ab1ea90b887ce6d070e63":[0,0,2,47],
-"module_fs8_8devices_8evdev.html#a52e6282f6c2746f7e6994978a48700ca":[0,0,2,65],
+"module_fs8_8devices_8evdev.html#a52e6282f6c2746f7e6994978a48700ca":[0,0,2,66],
 "module_fs8_8devices_8evdev.html#a61de125e1c27f6fdec64088a41c39cb8":[0,0,2,29],
 "module_fs8_8devices_8evdev.html#a6705c89d325ba05fb01768dbc73e6b4e":[0,0,2,30],
 "module_fs8_8devices_8evdev.html#a67c29e461f7e431c7de587f3520dc2a5":[0,0,2,11],
 "module_fs8_8devices_8evdev.html#a6a3ffd4e3c13827b47798d159cf2c685":[0,0,2,33],
 "module_fs8_8devices_8evdev.html#a6c3498cbbbe6f6d65a8a2141bcdf4885":[0,0,2,56],
-"module_fs8_8devices_8evdev.html#a6ccebb5519d2951be3a3b3b2ee932d48":[0,0,2,16],
-"module_fs8_8devices_8evdev.html#a6e8132e85ff92915779b0373a97ced65":[0,0,2,40]
+"module_fs8_8devices_8evdev.html#a6ccebb5519d2951be3a3b3b2ee932d48":[0,0,2,16]
 };

@@ -28,6 +28,7 @@ var evdev_8ixx =
     [ "is_valid", "evdev_8ixx.html#a1779c7db7fd8f7f134fe900e93b0f993", null ],
     [ "query_key_state", "evdev_8ixx.html#afe60ef2a0599c31e3dc7781cc0aff466", null ],
     [ "release_all_keys", "evdev_8ixx.html#a1591a14b327703acffe77dfb9bc58fda", null ],
+    [ "score_caps", "evdev_8ixx.html#a7b5cb8b5c6a7badc2f6a19fdde24cd7b", null ],
     [ "test_grab", "evdev_8ixx.html#a80f07b5fe57b5df73e8ab9db6ceeebc0", null ],
     [ "to_string", "evdev_8ixx.html#a7cc253bfca76ef6b4cc860e2737abd0b", null ],
     [ "invalid_device_location", "evdev_8ixx.html#a89f3fc67cb8b70fc5e4bb073f8e09152", null ],

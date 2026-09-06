@@ -929,6 +929,9 @@ Functions</h2></td></tr>
 <tr class="separator:a80f07b5fe57b5df73e8ab9db6ceeebc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad1b7d3cd1d6a5fedea83349f2ecc3ced" id="r_ad1b7d3cd1d6a5fedea83349f2ecc3ced"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ad1b7d3cd1d6a5fedea83349f2ecc3ced">fs8::is_usable</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> &amp;dev) noexcept</td></tr>
 <tr class="separator:ad1b7d3cd1d6a5fedea83349f2ecc3ced"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b5cb8b5c6a7badc2f6a19fdde24cd7b" id="r_a7b5cb8b5c6a7badc2f6a19fdde24cd7b"><td class="memItemLeft" align="right" valign="top">std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a7b5cb8b5c6a7badc2f6a19fdde24cd7b">fs8::score_caps</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> &amp;dev, <a class="el" href="namespacefs8.html#a6765bed97fe4ab722b67e29633e8f7e3">dev_caps_view</a> caps) noexcept</td></tr>
+<tr class="memdesc:a7b5cb8b5c6a7badc2f6a19fdde24cd7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the caps score and halve it if the device is grabbed by another process.  <br /></td></tr>
+<tr class="separator:a7b5cb8b5c6a7badc2f6a19fdde24cd7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae78b87ff81f45a71463545ffef6ae966" id="r_ae78b87ff81f45a71463545ffef6ae966"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ae78b87ff81f45a71463545ffef6ae966">fs8::device_sysname</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;dev) noexcept</td></tr>
 <tr class="memdesc:ae78b87ff81f45a71463545ffef6ae966"><td class="mdescLeft">&#160;</td><td class="mdescRight">sysname of an open device (e.g. "event10"), derived from its fd.  <br /></td></tr>
 <tr class="separator:ae78b87ff81f45a71463545ffef6ae966"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -10195,6 +10198,45 @@ template&lt;typename... Ts&gt; </div>
 
 </div>
 </div>
+<a id="a7b5cb8b5c6a7badc2f6a19fdde24cd7b" name="a7b5cb8b5c6a7badc2f6a19fdde24cd7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b5cb8b5c6a7badc2f6a19fdde24cd7b">&#9670;&#160;</a></span>score_caps()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint8_t fs8::score_caps </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1evdev.html">evdev</a> &amp;&#160;</td>
+          <td class="paramname"><em>dev</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacefs8.html#a6765bed97fe4ab722b67e29633e8f7e3">dev_caps_view</a>&#160;</td>
+          <td class="paramname"><em>caps</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Compute the caps score and halve it if the device is grabbed by another process. </p>
+<p>Compute the caps score and halve it if the device is grabbed by another process. Restores the original grab state afterwards. For non-caps queries the score is always 0, so the penalty never fires. </p>
+
+</div>
+</div>
 <a id="ad46e27365094f4b86ca86bf6eecc4b73" name="ad46e27365094f4b86ca86bf6eecc4b73"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad46e27365094f4b86ca86bf6eecc4b73">&#9670;&#160;</a></span>sid() <span class="overload">[1/3]</span></h2>
 
@@ -10597,7 +10639,7 @@ template&lt;std::size_t N&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Check if a freshly-opened device can be grabbed without disrupting a grab this process already holds. Always leaves the device ungrabbed afterwards. </p>
+<p>Check if a freshly-opened device can be grabbed without disrupting a grab this process already holds. Restores the original grab state afterwards. </p>
 
 </div>
 </div>

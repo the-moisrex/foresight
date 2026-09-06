@@ -76,6 +76,7 @@ var module_fs8_8devices_8evdev =
     [ "fs8::evdev::send_event", "module_fs8_8devices_8evdev.html#a21e27b603c13c8c9e7838ac79e428cfa", null ],
     [ "fs8::test_grab", "module_fs8_8devices_8evdev.html#a80f07b5fe57b5df73e8ab9db6ceeebc0", null ],
     [ "fs8::is_usable", "module_fs8_8devices_8evdev.html#ad1b7d3cd1d6a5fedea83349f2ecc3ced", null ],
+    [ "fs8::score_caps", "module_fs8_8devices_8evdev.html#a7b5cb8b5c6a7badc2f6a19fdde24cd7b", null ],
     [ "fs8::device_sysname", "module_fs8_8devices_8evdev.html#ae78b87ff81f45a71463545ffef6ae966", null ],
     [ "fs8::clone_device", "module_fs8_8devices_8evdev.html#a996246e0d2b1df88f4a847d03cf0ff90", null ],
     [ "fs8::query_key_state", "module_fs8_8devices_8evdev.html#afe60ef2a0599c31e3dc7781cc0aff466", null ],
