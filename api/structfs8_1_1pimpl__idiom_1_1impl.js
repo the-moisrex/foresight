@@ -81,6 +81,7 @@ var structfs8_1_1pimpl__idiom_1_1impl =
     [ "scheduler", "structfs8_1_1pimpl__idiom_1_1impl.html#ae812b4947ca61554a2363b50ee9c8057", null ],
     [ "source_map", "structfs8_1_1pimpl__idiom_1_1impl.html#af24e4b8696f84a642739b2466e00a1f5", null ],
     [ "started", "structfs8_1_1pimpl__idiom_1_1impl.html#a6bf557e20b7c52ba68f877fa69133e0b", null ],
+    [ "stop_requested", "structfs8_1_1pimpl__idiom_1_1impl.html#a984963518f3b3f217f798f7c7241cf3d", null ],
     [ "ticks", "structfs8_1_1pimpl__idiom_1_1impl.html#a84c1bda9fb33c4b2a57c3026351c2b2e", null ],
     [ "timer_fd", "structfs8_1_1pimpl__idiom_1_1impl.html#a47026de60d3015ac534d46901f8f43ba", null ],
     [ "trie", "structfs8_1_1pimpl__idiom_1_1impl.html#a3fbf8fea9f5144aa593adb54b92aea4d", null ],

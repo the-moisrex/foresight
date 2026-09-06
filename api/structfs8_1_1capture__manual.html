@@ -110,6 +110,8 @@ Collaboration diagram for fs8::capture_manual:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a3d2f0679dbda85fd3389b6cd64e60544" id="r_a3d2f0679dbda85fd3389b6cd64e60544"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__manual.html#a3d2f0679dbda85fd3389b6cd64e60544">set_name</a> (std::string_view <a class="el" href="namespacefs8.html#a05a903cf46bc0d209f5172a60d221b80">name</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
+<tr class="separator:a3d2f0679dbda85fd3389b6cd64e60544"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1001894c13e48cac6d51f723a4f47976" id="r_a1001894c13e48cac6d51f723a4f47976"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__manual.html#a1001894c13e48cac6d51f723a4f47976">filename</a> (std::string_view <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">ext</a>) <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">const</a> <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
 <tr class="separator:a1001894c13e48cac6d51f723a4f47976"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab9e941457bd45b9d6772f6ff421cec6" id="r_aab9e941457bd45b9d6772f6ff421cec6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">constexpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1capture__manual.html#aab9e941457bd45b9d6772f6ff421cec6">consteval_copyable</a> () <a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">noexcept</a></td></tr>
@@ -138,7 +140,7 @@ Static Public Member Functions</h2></td></tr>
 <tr class="separator:aa84e8ce0749fdee3454f2213fafe8e3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Explicit start/stop. Only rotates when <code>stop()</code> is called. The filename is user-provided or auto-generated on start. </p>
+<div class="textblock"><p>Explicit start/stop. Only rotates when <code>stop()</code> is called. The filename defaults to <code>capture.ext</code>, or a user-provided name via <code><a class="el" href="structfs8_1_1capture__manual.html#a3d2f0679dbda85fd3389b6cd64e60544">set_name()</a></code>. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="aab9e941457bd45b9d6772f6ff421cec6" name="aab9e941457bd45b9d6772f6ff421cec6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aab9e941457bd45b9d6772f6ff421cec6">&#9670;&#160;</a></span>consteval_copyable() <span class="overload">[1/3]</span></h2>
@@ -237,6 +239,32 @@ Static Public Member Functions</h2></td></tr>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3d2f0679dbda85fd3389b6cd64e60544" name="a3d2f0679dbda85fd3389b6cd64e60544"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d2f0679dbda85fd3389b6cd64e60544">&#9670;&#160;</a></span>set_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#a8efac394a54c3cd92d4ebd11d1c8627b">void</a> fs8::capture_manual::set_name </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

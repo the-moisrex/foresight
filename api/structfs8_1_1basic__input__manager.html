@@ -119,6 +119,14 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ad7e4a7a8c1616bfb310ee4d3deccd5e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae92ae2c2e2fce6fcc080448e9a75c3b9" id="r_ae92ae2c2e2fce6fcc080448e9a75c3b9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#ae92ae2c2e2fce6fcc080448e9a75c3b9">requery</a> ()</td></tr>
 <tr class="separator:ae92ae2c2e2fce6fcc080448e9a75c3b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0607ebcfe4a912b92f050ab8a80f939" id="r_ac0607ebcfe4a912b92f050ab8a80f939"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#ac0607ebcfe4a912b92f050ab8a80f939">request_stop</a> () noexcept</td></tr>
+<tr class="separator:ac0607ebcfe4a912b92f050ab8a80f939"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb99a3e1a795d0c4bc1e6ff88659f101" id="r_abb99a3e1a795d0c4bc1e6ff88659f101"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#abb99a3e1a795d0c4bc1e6ff88659f101">stop_requested</a> () const noexcept</td></tr>
+<tr class="memdesc:abb99a3e1a795d0c4bc1e6ff88659f101"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether stop has been requested.  <br /></td></tr>
+<tr class="separator:abb99a3e1a795d0c4bc1e6ff88659f101"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3240101753b13e0788d0e1b23a0adb94" id="r_a3240101753b13e0788d0e1b23a0adb94"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a3240101753b13e0788d0e1b23a0adb94">stop</a> () noexcept</td></tr>
+<tr class="memdesc:a3240101753b13e0788d0e1b23a0adb94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signal-handler-friendly stop (calls <a class="el" href="structfs8_1_1basic__input__manager.html#ac0607ebcfe4a912b92f050ab8a80f939">request_stop()</a>).  <br /></td></tr>
+<tr class="separator:a3240101753b13e0788d0e1b23a0adb94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa34542c4b6f7e27fb1db3953d9cf96e" id="r_aaa34542c4b6f7e27fb1db3953d9cf96e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#aaa34542c4b6f7e27fb1db3953d9cf96e">own_device</a> (std::string_view devnode) noexcept</td></tr>
 <tr class="separator:aaa34542c4b6f7e27fb1db3953d9cf96e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a10fe2cb7f6c3e41622a6145e702e7a67" id="r_a10fe2cb7f6c3e41622a6145e702e7a67"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__input__manager.html#a10fe2cb7f6c3e41622a6145e702e7a67">is_owned</a> (<a class="el" href="structfs8_1_1evdev.html">evdev</a> const &amp;dev) const noexcept</td></tr>
@@ -766,6 +774,32 @@ template&lt;Context ContextT&gt; </div>
 
 </div>
 </div>
+<a id="ac0607ebcfe4a912b92f050ab8a80f939" name="ac0607ebcfe4a912b92f050ab8a80f939"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0607ebcfe4a912b92f050ab8a80f939">&#9670;&#160;</a></span>request_stop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void basic_input_manager::request_stop </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Request that any in-progress enumeration aborts early. Safe to call from a signal handler (uses relaxed atomic ops). </p>
+
+</div>
+</div>
 <a id="a834f85674ddc56771c1d5b159c79aa65" name="a834f85674ddc56771c1d5b159c79aa65"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a834f85674ddc56771c1d5b159c79aa65">&#9670;&#160;</a></span>source_id_of()</h2>
 
@@ -818,6 +852,60 @@ template&lt;Context ContextT&gt; </div>
 </div><div class="memdoc">
 
 <p>Start monitoring; also used by <code>intercept</code> to trigger enumeration. </p>
+
+</div>
+</div>
+<a id="a3240101753b13e0788d0e1b23a0adb94" name="a3240101753b13e0788d0e1b23a0adb94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3240101753b13e0788d0e1b23a0adb94">&#9670;&#160;</a></span>stop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fs8::basic_input_manager::stop </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Signal-handler-friendly stop (calls <a class="el" href="structfs8_1_1basic__input__manager.html#ac0607ebcfe4a912b92f050ab8a80f939">request_stop()</a>). </p>
+
+</div>
+</div>
+<a id="abb99a3e1a795d0c4bc1e6ff88659f101" name="abb99a3e1a795d0c4bc1e6ff88659f101"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb99a3e1a795d0c4bc1e6ff88659f101">&#9670;&#160;</a></span>stop_requested()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool basic_input_manager::stop_requested </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether stop has been requested. </p>
 
 </div>
 </div>

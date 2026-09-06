@@ -20,8 +20,11 @@ var structfs8_1_1basic__input__manager =
     [ "own_device", "structfs8_1_1basic__input__manager.html#aaa34542c4b6f7e27fb1db3953d9cf96e", null ],
     [ "register_source", "structfs8_1_1basic__input__manager.html#a0b8e6cfbcbf08c90e8dba88e63b888c4", null ],
     [ "requery", "structfs8_1_1basic__input__manager.html#ae92ae2c2e2fce6fcc080448e9a75c3b9", null ],
+    [ "request_stop", "structfs8_1_1basic__input__manager.html#ac0607ebcfe4a912b92f050ab8a80f939", null ],
     [ "source_id_of", "structfs8_1_1basic__input__manager.html#a834f85674ddc56771c1d5b159c79aa65", null ],
     [ "start", "structfs8_1_1basic__input__manager.html#a602abc468b2988cc4a54f8c7a68bf479", null ],
+    [ "stop", "structfs8_1_1basic__input__manager.html#a3240101753b13e0788d0e1b23a0adb94", null ],
+    [ "stop_requested", "structfs8_1_1basic__input__manager.html#abb99a3e1a795d0c4bc1e6ff88659f101", null ],
     [ "sysname_of", "structfs8_1_1basic__input__manager.html#a68e49e6df00b3df083b98833de7d4efa", null ],
     [ "unregister_source", "structfs8_1_1basic__input__manager.html#a58bd42baa6d49066e874dd55305ab6a3", null ]
 ];

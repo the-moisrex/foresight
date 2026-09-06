@@ -112,7 +112,18 @@ Collaboration diagram for fs8::basic_capture&lt; FormatT, NamingT &gt;:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:af8d7d20b58cbca31117104e7a753b57d" id="r_af8d7d20b58cbca31117104e7a753b57d"><td class="memItemLeft" align="right" valign="top">consteval&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capture.html#af8d7d20b58cbca31117104e7a753b57d">basic_capture</a> (FormatT format, NamingT naming) noexcept</td></tr>
 <tr class="separator:af8d7d20b58cbca31117104e7a753b57d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6561739544100e25c858ee2b56cec83c" id="r_a6561739544100e25c858ee2b56cec83c"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capture.html#a6561739544100e25c858ee2b56cec83c">~basic_capture</a> () noexcept</td></tr>
+<tr class="separator:a6561739544100e25c858ee2b56cec83c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68acb0587db95b34944efc34829582ba" id="r_a68acb0587db95b34944efc34829582ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capture.html#a68acb0587db95b34944efc34829582ba">set_name</a> (std::string_view const <a class="el" href="namespacefs8.html#a05a903cf46bc0d209f5172a60d221b80">name</a>) noexcept</td></tr>
+<tr class="memdesc:a68acb0587db95b34944efc34829582ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a custom output filename (for naming strategies that support it, e.g. <a class="el" href="structfs8_1_1capture__manual.html">capture_manual</a>).  <br /></td></tr>
+<tr class="separator:a68acb0587db95b34944efc34829582ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ffb5bdfe786a4a555200a9d236c6920" id="r_a2ffb5bdfe786a4a555200a9d236c6920"><td class="memTemplParams" colspan="2">template&lt;Context CtxT&gt; <br />
+requires has_mod&lt;<a class="el" href="structfs8_1_1basic__idle__detector.html">basic_idle_detector</a>&lt;&gt;, CtxT&gt;</td></tr>
+<tr class="memitem:a2ffb5bdfe786a4a555200a9d236c6920"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capture.html#a2ffb5bdfe786a4a555200a9d236c6920">operator()</a> (CtxT &amp;, <a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
+<tr class="memdesc:a2ffb5bdfe786a4a555200a9d236c6920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pipeline form: receives special events from the context.  <br /></td></tr>
+<tr class="separator:a2ffb5bdfe786a4a555200a9d236c6920"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74b94dbc76a7c673c031de3bb8d70b79" id="r_a74b94dbc76a7c673c031de3bb8d70b79"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capture.html#a74b94dbc76a7c673c031de3bb8d70b79">operator()</a> (<a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;<a class="el" href="namespacefs8.html#ab7f0fa2c09b263592204789448be49e1ae4d23e841d8e8804190027bce3180fa5">tag</a>) noexcept</td></tr>
+<tr class="memdesc:a74b94dbc76a7c673c031de3bb8d70b79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Direct form: for tests and standalone use without a context.  <br /></td></tr>
 <tr class="separator:a74b94dbc76a7c673c031de3bb8d70b79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0cbe6774a857d11019d4d6723436507" id="r_ab0cbe6774a857d11019d4d6723436507"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__capture.html#ab0cbe6774a857d11019d4d6723436507">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> const &amp;event) noexcept</td></tr>
 <tr class="separator:ab0cbe6774a857d11019d4d6723436507"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -165,9 +176,9 @@ struct fs8::basic_capture&lt; FormatT, NamingT &gt;</div><p>Pipeline mod that bu
 <div class="ttc" id="anamespacefs8_html_a178145bb115300c48873362b1eda1bb0"><div class="ttname"><a href="namespacefs8.html#a178145bb115300c48873362b1eda1bb0">fs8::pressed</a></div><div class="ttdeci">constexpr basic_pressed&lt; 0 &gt; pressed</div><div class="ttdef"><b>Definition</b> on.ixx:379</div></div>
 <div class="ttc" id="anamespacefs8_html_a1f84efa1ecc04f2041d05aab1244b770"><div class="ttname"><a href="namespacefs8.html#a1f84efa1ecc04f2041d05aab1244b770">fs8::context</a></div><div class="ttdeci">constexpr basic_context context</div><div class="ttdef"><b>Definition</b> context.ixx:930</div></div>
 <div class="ttc" id="anamespacefs8_html_a5e581dd9f7cd73975863af9a06630070"><div class="ttname"><a href="namespacefs8.html#a5e581dd9f7cd73975863af9a06630070">fs8::intercept</a></div><div class="ttdeci">fs8::basic_interceptor intercept</div></div>
-<div class="ttc" id="anamespacefs8_html_a74388b5fa216fbbf59bf310503c1eea1"><div class="ttname"><a href="namespacefs8.html#a74388b5fa216fbbf59bf310503c1eea1">fs8::idle_detector</a></div><div class="ttdeci">constexpr basic_idle_detector idle_detector</div><div class="ttdoc">Default instance: fire once after 1 second of idle.</div><div class="ttdef"><b>Definition</b> idle_detector.ixx:141</div></div>
+<div class="ttc" id="anamespacefs8_html_a74388b5fa216fbbf59bf310503c1eea1"><div class="ttname"><a href="namespacefs8.html#a74388b5fa216fbbf59bf310503c1eea1">fs8::idle_detector</a></div><div class="ttdeci">constexpr basic_idle_detector idle_detector</div><div class="ttdoc">Default instance: fire once after 1 second of idle.</div><div class="ttdef"><b>Definition</b> idle_detector.ixx:146</div></div>
 <div class="ttc" id="anamespacefs8_html_a804062ceba9799980345ac46a758f297"><div class="ttname"><a href="namespacefs8.html#a804062ceba9799980345ac46a758f297">fs8::input_manager</a></div><div class="ttdeci">fs8::basic_input_manager input_manager</div></div>
-<div class="ttc" id="anamespacefs8_html_a82eb830ae1f0d74d3a44741729c85c3d"><div class="ttname"><a href="namespacefs8.html#a82eb830ae1f0d74d3a44741729c85c3d">fs8::capture</a></div><div class="ttdeci">constexpr basic_capture&lt; capture_binary_format, capture_daily &gt; capture</div><div class="ttdef"><b>Definition</b> capture.ixx:193</div></div>
+<div class="ttc" id="anamespacefs8_html_a82eb830ae1f0d74d3a44741729c85c3d"><div class="ttname"><a href="namespacefs8.html#a82eb830ae1f0d74d3a44741729c85c3d">fs8::capture</a></div><div class="ttdeci">constexpr basic_capture&lt; capture_binary_format, capture_daily &gt; capture</div><div class="ttdef"><b>Definition</b> capture.ixx:223</div></div>
 <div class="ttc" id="anamespacefs8_html_a94c045c9f25ce171f90ea715226c9df0"><div class="ttname"><a href="namespacefs8.html#a94c045c9f25ce171f90ea715226c9df0">fs8::io_manager</a></div><div class="ttdeci">fs8::basic_io_manager io_manager</div></div>
 <div class="ttc" id="anamespacefs8_html_ac692aede954d4a2b34fe8fda96a554ec"><div class="ttname"><a href="namespacefs8.html#ac692aede954d4a2b34fe8fda96a554ec">fs8::on</a></div><div class="ttdeci">constexpr basic_on on</div><div class="ttdoc">usage: on[released{...}, [] { ... }]</div><div class="ttdef"><b>Definition</b> on.ixx:1139</div></div>
 <div class="ttc" id="anamespacefs8_html_ae36c0ebc1ffd8c28734932b184f569cb"><div class="ttname"><a href="namespacefs8.html#ae36c0ebc1ffd8c28734932b184f569cb">fs8::stopper</a></div><div class="ttdeci">fs8::basic_stopper stopper</div></div>
@@ -206,6 +217,33 @@ template&lt;capture_format FormatT, capture_naming NamingT&gt; </div>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6561739544100e25c858ee2b56cec83c" name="a6561739544100e25c858ee2b56cec83c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6561739544100e25c858ee2b56cec83c">&#9670;&#160;</a></span>~basic_capture()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;capture_format FormatT, capture_naming NamingT&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr <a class="el" href="structfs8_1_1basic__capture.html">fs8::basic_capture</a>&lt; FormatT, NamingT &gt;::~<a class="el" href="structfs8_1_1basic__capture.html">basic_capture</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">constexpr</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -377,8 +415,51 @@ template&lt;capture_format FormatT, capture_naming NamingT&gt; </div>
 
 </div>
 </div>
+<a id="a2ffb5bdfe786a4a555200a9d236c6920" name="a2ffb5bdfe786a4a555200a9d236c6920"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ffb5bdfe786a4a555200a9d236c6920">&#9670;&#160;</a></span>operator()() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;capture_format FormatT, capture_naming NamingT&gt; </div>
+<div class="memtemplate">
+template&lt;Context CtxT&gt; <br />
+requires has_mod&lt;<a class="el" href="structfs8_1_1basic__idle__detector.html">basic_idle_detector</a>&lt;&gt;, CtxT&gt;</div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacefs8.html#ac5160ee6707deaad4917cbf8bd1e99bd">context_action</a> <a class="el" href="structfs8_1_1basic__capture.html">fs8::basic_capture</a>&lt; FormatT, NamingT &gt;::operator() </td>
+          <td>(</td>
+          <td class="paramtype">CtxT &amp;&#160;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfs8_1_1special__event.html">special_event</a> const &amp;&#160;</td>
+          <td class="paramname"><em>tag</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Pipeline form: receives special events from the context. </p>
+
+</div>
+</div>
 <a id="ab0cbe6774a857d11019d4d6723436507" name="ab0cbe6774a857d11019d4d6723436507"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab0cbe6774a857d11019d4d6723436507">&#9670;&#160;</a></span>operator()() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0cbe6774a857d11019d4d6723436507">&#9670;&#160;</a></span>operator()() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -406,7 +487,7 @@ template&lt;capture_format FormatT, capture_naming NamingT&gt; </div>
 </div>
 </div>
 <a id="a74b94dbc76a7c673c031de3bb8d70b79" name="a74b94dbc76a7c673c031de3bb8d70b79"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a74b94dbc76a7c673c031de3bb8d70b79">&#9670;&#160;</a></span>operator()() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a74b94dbc76a7c673c031de3bb8d70b79">&#9670;&#160;</a></span>operator()() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -430,6 +511,8 @@ template&lt;capture_format FormatT, capture_naming NamingT&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Direct form: for tests and standalone use without a context. </p>
 
 </div>
 </div>
@@ -570,6 +653,36 @@ template&lt;capture_format FormatT, capture_naming NamingT&gt; </div>
 </div><div class="memdoc">
 
 <p><code>capture[daily, evtest_format]</code> — naming first, format second. </p>
+
+</div>
+</div>
+<a id="a68acb0587db95b34944efc34829582ba" name="a68acb0587db95b34944efc34829582ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68acb0587db95b34944efc34829582ba">&#9670;&#160;</a></span>set_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;capture_format FormatT, capture_naming NamingT&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="structfs8_1_1basic__capture.html">fs8::basic_capture</a>&lt; FormatT, NamingT &gt;::set_name </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view const&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">export</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set a custom output filename (for naming strategies that support it, e.g. <a class="el" href="structfs8_1_1capture__manual.html">capture_manual</a>). </p>
 
 </div>
 </div>
