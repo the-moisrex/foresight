@@ -181,8 +181,8 @@ export namespace fs8 {
         // ── Bracket syntax ──────────────────────────────────────────────────
 
         /// `capture[daily]` — binary format + custom naming.
-        consteval auto operator[](capture_naming auto naming) const noexcept {
-            return basic_capture{capture_binary_format{}, naming};
+        consteval auto operator[](capture_naming auto inp_naming) const noexcept {
+            return basic_capture{capture_binary_format{}, inp_naming};
         }
 
         /// `capture[evtest_format]` — custom format + daily naming.
@@ -191,13 +191,13 @@ export namespace fs8 {
         }
 
         /// `capture[evtest_format, daily]` — custom format + custom naming.
-        consteval auto operator[](capture_format auto fmt, capture_naming auto naming) const noexcept {
-            return basic_capture{fmt, naming};
+        consteval auto operator[](capture_format auto fmt, capture_naming auto inp_naming) const noexcept {
+            return basic_capture{fmt, inp_naming};
         }
 
         /// `capture[daily, evtest_format]` — naming first, format second.
-        consteval auto operator[](capture_naming auto naming, capture_format auto fmt) const noexcept {
-            return basic_capture{fmt, naming};
+        consteval auto operator[](capture_naming auto inp_naming, capture_format auto fmt) const noexcept {
+            return basic_capture{fmt, inp_naming};
         }
     };
 

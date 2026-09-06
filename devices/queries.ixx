@@ -269,9 +269,9 @@ export namespace fs8 {
         grab_tag& operator=(grab_tag&&) noexcept = default;
         ~grab_tag() noexcept                     = default;
 
-        constexpr grab_tag operator[](bool const value) const noexcept {
+        constexpr grab_tag operator[](bool const inp_value) const noexcept {
             grab_tag res;
-            res.value = value;
+            res.value = inp_value;
             return res;
         }
 
@@ -367,9 +367,9 @@ export namespace fs8 {
         fail_on_no_match_tag& operator=(fail_on_no_match_tag&&) noexcept = default;
         ~fail_on_no_match_tag() noexcept                                 = default;
 
-        constexpr fail_on_no_match_tag operator[](bool const value) const noexcept {
+        constexpr fail_on_no_match_tag operator[](bool const inp_value) const noexcept {
             fail_on_no_match_tag res;
-            res.value = value;
+            res.value = inp_value;
             return res;
         }
 
