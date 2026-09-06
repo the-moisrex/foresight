@@ -25,7 +25,7 @@ context_action fs8::basic_replay<FormatT>::operator()(special_event const& tag) 
     }
     ensure_state();
     if (st_->file_path.empty()) {
-        fs8::log("replay: no file set");
+        log("replay: no file set");
         return exit;
     }
     if (st_->fd >= 0) {
@@ -34,14 +34,14 @@ context_action fs8::basic_replay<FormatT>::operator()(special_event const& tag) 
     }
     st_->fd = ::open(st_->file_path.c_str(), O_RDONLY | O_CLOEXEC);
     if (st_->fd < 0) {
-        fs8::log("replay: failed to open {}", st_->file_path);
+        log("replay: failed to open {}", st_->file_path);
         return exit;
     }
     // Read the header bytes to detect format.
-    std::array<char, fs8::detail::format_header_size> header{};
-    auto const                                        n = ::read(st_->fd, header.data(), header.size());
-    if (n < fs8::detail::format_header_size) {
-        fs8::log("replay: file too short");
+    std::array<char, detail::format_header_size> header{};
+    auto const                                   n = ::read(st_->fd, header.data(), header.size());
+    if (n < static_cast<ssize_t>(detail::format_header_size)) {
+        log("replay: file too short");
         ::close(st_->fd);
         st_->fd = -1;
         return exit;

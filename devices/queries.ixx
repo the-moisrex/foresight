@@ -32,18 +32,18 @@ export namespace fs8 {
     using value_or_view_t = value_or_view<T, N>::type;
 
     // The factory function
-    template <typename T, std::size_t N = std::dynamic_extent>
-    [[nodiscard]] constexpr value_or_view_t<T, N> capture(T const* data, std::size_t size) noexcept {
-        if constexpr (N == std::dynamic_extent) {
-            return std::span<T const>{data, size}; // Non-owning view
-        } else {
-            std::array<T, N> arr{};                // Owning copy
-            for (std::size_t i = 0; i < N; ++i) {
-                arr[i] = data[i];                  // NOLINT(*-pointer-arithmetic)
-            }
-            return arr;
-        }
-    }
+    // template <typename T, std::size_t N = std::dynamic_extent>
+    // [[nodiscard]] constexpr value_or_view_t<T, N> capture(T const* data, std::size_t size) noexcept {
+    //     if constexpr (N == std::dynamic_extent) {
+    //         return std::span<T const>{data, size}; // Non-owning view
+    //     } else {
+    //         std::array<T, N> arr{};                // Owning copy
+    //         for (std::size_t i = 0; i < N; ++i) {
+    //             arr[i] = data[i];                  // NOLINT(*-pointer-arithmetic)
+    //         }
+    //         return arr;
+    //     }
+    // }
 
 
     /**

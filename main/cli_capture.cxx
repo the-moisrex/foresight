@@ -22,10 +22,8 @@ namespace {
         auto& inpor       = pipeline.mod(fs8::intercept);
 
         if constexpr (std::same_as<NamingT, fs8::capture_manual>) {
-            using mod_type = fs8::basic_capture<FormatT, NamingT>;
             if (!opts.capture_name.empty()) {
-                auto& capture_mod = pipeline.template mod<mod_type>();
-                capture_mod.set_name(opts.capture_name);
+                pipeline.mod(fs8::capture).set_name(opts.capture_name);
             }
         }
 

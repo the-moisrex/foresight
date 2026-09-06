@@ -274,8 +274,7 @@ export namespace fs8 {
         /// when a line was successfully parsed (event is filled in).
         [[nodiscard]] bool try_parse_buffered(event_type& event) noexcept {
             while (true) {
-                auto const* const end = line_buffer_.data() + line_size_;
-                auto const* const nl  = static_cast<char const*>(std::memchr(line_buffer_.data(), '\n', line_size_));
+                auto const* const nl = static_cast<char const*>(std::memchr(line_buffer_.data(), '\n', line_size_));
                 if (nl == nullptr) {
                     break;
                 }

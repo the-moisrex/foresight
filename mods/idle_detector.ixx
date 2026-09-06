@@ -107,8 +107,9 @@ export namespace fs8 {
         // ── Pipeline mod interface ───────────────────────────────────────────
 
         /// Handle start: configure io_manager timeout and register idle callback.
-        template <ContextWith<basic_io_manager> CtxT>
+        template <Context CtxT>
         context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+            static_assert(has_mod<basic_io_manager, CtxT>, "Required mod");
             using enum context_action;
 
             auto& io = ctx.mod(io_manager);

@@ -76,8 +76,8 @@ export namespace fs8 {
 
         /// Pipeline form: receives special events from the context.
         template <Context CtxT>
-            requires has_mod<basic_idle_detector<>, CtxT>
         context_action operator()(CtxT&, special_event const& tag) noexcept {
+            static_assert(has_mod<basic_idle_detector<>, CtxT>, "Mod required");
             return handle_special(tag);
         }
 
