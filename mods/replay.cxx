@@ -18,52 +18,46 @@ using fs8::special_event;
 // ── basic_replay members ─────────────────────────────────────────────────────
 
 template <fs8::capture_format FormatT>
-context_action fs8::basic_replay<FormatT>::operator()(special_event const& tag) noexcept {
-    using enum context_action;
-    if (tag.code != fs8::start.code) {
-        return drop_event;
-    }
-    ensure_state();
-    if (st_->file_path.empty()) {
-        log("replay: no file set");
-        return exit;
-    }
-    if (st_->fd >= 0) {
-        ::close(st_->fd);
-        st_->fd = -1;
-    }
-    st_->fd = ::open(st_->file_path.c_str(), O_RDONLY | O_CLOEXEC);
-    if (st_->fd < 0) {
-        log("replay: failed to open {}", st_->file_path);
-        return exit;
-    }
-    // Read the header bytes to detect format.
-    std::array<char, detail::format_header_size> header{};
-    auto const                                   n = ::read(st_->fd, header.data(), header.size());
-    if (n < static_cast<ssize_t>(detail::format_header_size)) {
-        log("replay: file too short");
-        ::close(st_->fd);
-        st_->fd = -1;
-        return exit;
-    }
-    // Check binary magic: FFS8 (0x38534646) + version (u16)
-    constexpr std::uint32_t binary_magic = 0x3853'4646u;
-    std::uint32_t           file_magic{};
-    std::memcpy(&file_magic, header.data(), sizeof(file_magic));
-    if (file_magic == binary_magic) {
-        st_->is_binary = true;
-        return next; // header consumed
-    }
-    // Not binary — assume evtest text format.
-    st_->is_binary = false;
-    st_->linebuf.clear();
-    st_->linebuf.append(header.data(), static_cast<std::size_t>(n));
-    return next;
-}
-
-template <fs8::capture_format FormatT>
 context_action fs8::basic_replay<FormatT>::operator()(event_type& event, special_event const& tag) noexcept {
     using enum context_action;
+    if (tag.code == fs8::start.code) {
+        ensure_state();
+        if (st_->file_path.empty()) {
+            log("replay: no file set");
+            return exit;
+        }
+        if (st_->fd >= 0) {
+            ::close(st_->fd);
+            st_->fd = -1;
+        }
+        st_->fd = ::open(st_->file_path.c_str(), O_RDONLY | O_CLOEXEC);
+        if (st_->fd < 0) {
+            log("replay: failed to open {}", st_->file_path);
+            return exit;
+        }
+        // Read the header bytes to detect format.
+        std::array<char, detail::format_header_size> header{};
+        auto const                                   n = ::read(st_->fd, header.data(), header.size());
+        if (n < static_cast<ssize_t>(detail::format_header_size)) {
+            log("replay: file too short");
+            ::close(st_->fd);
+            st_->fd = -1;
+            return exit;
+        }
+        // Check binary magic: FFS8 (0x38534646) + version (u16)
+        constexpr std::uint32_t binary_magic = 0x3853'4646u;
+        std::uint32_t           file_magic{};
+        std::memcpy(&file_magic, header.data(), sizeof(file_magic));
+        if (file_magic == binary_magic) {
+            st_->is_binary = true;
+            return next; // header consumed
+        }
+        // Not binary — assume evtest text format.
+        st_->is_binary = false;
+        st_->linebuf.clear();
+        st_->linebuf.append(header.data(), static_cast<std::size_t>(n));
+        return next;
+    }
     if (tag.code != fs8::load_event.code) {
         return drop_event;
     }

@@ -54,10 +54,7 @@ export namespace fs8 {
 
         // ── Pipeline interface ───────────────────────────────────────────────
 
-        /// Handle start tag: open file and read header.
-        context_action operator()(special_event const& tag) noexcept;
-
-        /// Handle load_event: read the next event from the file.
+        /// Handle start and load_event tags.
         context_action operator()(event_type& event, special_event const& tag) noexcept;
 
       private:

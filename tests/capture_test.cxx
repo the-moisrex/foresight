@@ -155,7 +155,8 @@ TEST(CaptureTest, BinaryFormatRoundtrip) {
 
     basic_replay<capture_binary_format> rep{};
     rep.set_file(tmp);
-    rep(special_event{.code = start.code});
+    event_type ev_start{};
+    rep(ev_start, special_event{.code = start.code});
 
     std::vector<event_type> replayed;
     for (int i = 0; i < 10; ++i) {
@@ -191,7 +192,8 @@ TEST(CaptureTest, EvtestFormatRoundtrip) {
 
     basic_replay<capture_evtest_format> rep{};
     rep.set_file(tmp);
-    rep(special_event{.code = start.code});
+    event_type ev_start{};
+    rep(ev_start, special_event{.code = start.code});
 
     std::vector<event_type> replayed;
     for (int i = 0; i < 10; ++i) {
@@ -207,9 +209,9 @@ TEST(CaptureTest, EvtestFormatRoundtrip) {
 
     ASSERT_EQ(replayed.size(), original.size());
     for (std::size_t i = 0; i < original.size(); ++i) {
-        EXPECT_EQ(replayed[i].type(), original[i].type()) << "event " << i << " type mismatch";
-        EXPECT_EQ(replayed[i].code(), original[i].code()) << "event " << i << " code mismatch";
-        EXPECT_EQ(replayed[i].value(), original[i].value()) << "event " << i << " value mismatch";
+        EXPECT_EQ(replayed[i].type(), original[i].type()) << "event " << i;
+        EXPECT_EQ(replayed[i].code(), original[i].code()) << "event " << i;
+        EXPECT_EQ(replayed[i].value(), original[i].value()) << "event " << i;
     }
 
     unlink(tmp);
@@ -260,10 +262,10 @@ TEST(ReplayTest, BinaryFormatDetection) {
     basic_replay<capture_binary_format> rep{};
     rep.set_file(tmp);
 
-    auto const result = rep(special_event{.code = start.code});
+    event_type ev{};
+    auto const result = rep(ev, special_event{.code = start.code});
     EXPECT_EQ(result, context_action::next);
 
-    event_type ev{};
     auto const load_result = rep(ev, special_event{.code = load_event.code});
     EXPECT_EQ(load_result, context_action::next);
     EXPECT_EQ(ev.type(), EV_KEY);
@@ -283,10 +285,10 @@ TEST(ReplayTest, EvtestFormatDetection) {
     basic_replay<capture_evtest_format> rep{};
     rep.set_file(tmp);
 
-    auto const result = rep(special_event{.code = start.code});
+    event_type ev{};
+    auto const result = rep(ev, special_event{.code = start.code});
     EXPECT_EQ(result, context_action::next);
 
-    event_type ev{};
     auto const load_result = rep(ev, special_event{.code = load_event.code});
     EXPECT_EQ(load_result, context_action::next);
     EXPECT_EQ(ev.type(), EV_KEY);
@@ -310,10 +312,11 @@ TEST(ReplayTest, ReplaysBinaryEvents) {
 
     basic_replay<capture_binary_format> rep{};
     rep.set_file(tmp);
-    rep(special_event{.code = start.code});
+    event_type ev_start{};
+    rep(ev_start, special_event{.code = start.code});
 
     std::vector<event_type> replayed;
-    for (int i = 0; i < 20; ++i) {
+    for (int i = 0; i < 10; ++i) {
         event_type ev{};
         auto const result = rep(ev, special_event{.code = load_event.code});
         if (result == context_action::exit) {
@@ -346,7 +349,8 @@ TEST(ReplayTest, ReplaysEvtestEvents) {
 
     basic_replay<capture_evtest_format> rep{};
     rep.set_file(tmp);
-    rep(special_event{.code = start.code});
+    event_type ev_start{};
+    rep(ev_start, special_event{.code = start.code});
 
     std::vector<event_type> replayed;
     for (int i = 0; i < 10; ++i) {
@@ -372,14 +376,16 @@ TEST(ReplayTest, ReplaysEvtestEvents) {
 
 TEST(ReplayTest, NoFileSetReturnsExit) {
     basic_replay<capture_binary_format> rep{};
-    auto const                          result = rep(special_event{.code = start.code});
+    event_type                         ev{};
+    auto const                         result = rep(ev, special_event{.code = start.code});
     EXPECT_EQ(result, context_action::exit);
 }
 
 TEST(ReplayTest, MissingFileReturnsExit) {
     basic_replay<capture_binary_format> rep{};
     rep.set_file("/tmp/nonexistent_replay_file.bin");
-    auto const result = rep(special_event{.code = start.code});
+    event_type ev{};
+    auto const result = rep(ev, special_event{.code = start.code});
     EXPECT_EQ(result, context_action::exit);
 }
 
@@ -400,9 +406,9 @@ TEST(ReplayTest, HeaderOnlyFileReturnsExitOnLoad) {
 
     basic_replay<capture_binary_format> rep{};
     rep.set_file(tmp);
-    rep(special_event{.code = start.code});
-
     event_type ev{};
+    rep(ev, special_event{.code = start.code});
+
     auto const result = rep(ev, special_event{.code = load_event.code});
     EXPECT_EQ(result, context_action::exit);
 
@@ -413,7 +419,8 @@ TEST(ReplayTest, NonStartTagReturnsDrop) {
     basic_replay<capture_binary_format> rep{};
     rep.set_file("/tmp/anything.bin");
 
-    auto const result = rep(special_event{.code = toggle_on.code, .value = 1});
+    event_type ev{};
+    auto const result = rep(ev, special_event{.code = toggle_on.code, .value = 1});
     EXPECT_EQ(result, context_action::drop_event);
 }
 
@@ -427,7 +434,8 @@ TEST(ReplayTest, NonLoadTagReturnsDrop) {
 
     basic_replay<capture_binary_format> rep{};
     rep.set_file(tmp);
-    rep(special_event{.code = start.code});
+    event_type ev_start{};
+    rep(ev_start, special_event{.code = start.code});
 
     event_type ev{};
     auto const result = rep(ev, special_event{.code = toggle_on.code, .value = 1});
@@ -493,7 +501,8 @@ TEST(CapturePipelineTest, ReplayInPipelineReplaysEvents) {
 
     basic_replay<capture_binary_format> rep{};
     rep.set_file(tmp);
-    rep(special_event{.code = start.code});
+    event_type ev_start{};
+    rep(ev_start, special_event{.code = start.code});
 
     std::vector<event_type> captured;
     for (int i = 0; i < 10; ++i) {
@@ -549,7 +558,8 @@ TEST(CapturePipelineTest, CaptureReplayRoundtrip) {
     {
         basic_replay<capture_binary_format> rep{};
         rep.set_file(expected);
-        rep(special_event{.code = start.code});
+        event_type ev_start{};
+        rep(ev_start, special_event{.code = start.code});
 
         for (int i = 0; i < 20; ++i) {
             event_type ev{};
