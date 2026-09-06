@@ -8,6 +8,7 @@ var live__view_8ixx =
     [ "fs8::condensed_view", "structfs8_1_1condensed__view.html", "structfs8_1_1condensed__view" ],
     [ "fs8::basic_event_line_output< Format >", "structfs8_1_1basic__event__line__output.html", "structfs8_1_1basic__event__line__output" ],
     [ "fs8::basic_from_event_line< Format >", "structfs8_1_1basic__from__event__line.html", "structfs8_1_1basic__from__event__line" ],
+    [ "fs8::basic_condensed_view_output", "structfs8_1_1basic__condensed__view__output.html", "structfs8_1_1basic__condensed__view__output" ],
     [ "default_condensed_flush_timeout", "live__view_8ixx.html#a6615a87b6547e45a99adb88c42f75aa2", null ],
     [ "event_line_format_buf_size", "live__view_8ixx.html#a0aeb6500188a5480dec90ba1f7137efa", null ],
     [ "event_line_output", "live__view_8ixx.html#a93cfdbf08815090fb42d164c773c456e", null ],

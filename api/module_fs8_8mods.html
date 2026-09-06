@@ -494,6 +494,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__event__line.html">fs8::basic_from_event_line&lt; Format &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read event-line-format text from a file descriptor, parse it, and feed events into the pipeline.  <a href="structfs8_1_1basic__from__event__line.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__condensed__view__output.html">fs8::basic_condensed_view_output</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output modifier that displays events using the <a class="el" href="structfs8_1_1condensed__view.html">condensed_view</a> format (mouse accumulation, key holds, ANSI colors). Used by <code>foresight replay --live</code>.  <a href="structfs8_1_1basic__condensed__view__output.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -1863,6 +1866,16 @@ requires (std::convertible_to&lt;Arg, T&gt;)</td></tr>
 <tr class="separator:aace7fa5b00b22690ebc5ec215295cab4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade21495d073dcc727283b83e54332749" id="r_ade21495d073dcc727283b83e54332749"><td class="memItemLeft" align="right" valign="top">context_action&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__event__line.html#ade21495d073dcc727283b83e54332749">operator()</a> (<a class="el" href="structfs8_1_1event__type.html">event_type</a> &amp;event, special_event const &amp;tag) noexcept</td></tr>
 <tr class="separator:ade21495d073dcc727283b83e54332749"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae98080f0eb5e2649fa0c4e4a3f958681" id="r_ae98080f0eb5e2649fa0c4e4a3f958681"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__condensed__view__output.html#ae98080f0eb5e2649fa0c4e4a3f958681">basic_condensed_view_output</a> () noexcept=default</td></tr>
+<tr class="separator:ae98080f0eb5e2649fa0c4e4a3f958681"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a512184a00fb70a74e0a5c3318d7d7dc2" id="r_a512184a00fb70a74e0a5c3318d7d7dc2"><td class="memItemLeft" align="right" valign="top">constexpr&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__condensed__view__output.html#a512184a00fb70a74e0a5c3318d7d7dc2">basic_condensed_view_output</a> (int const inp_fd) noexcept</td></tr>
+<tr class="separator:a512184a00fb70a74e0a5c3318d7d7dc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58af86427a1801cff681fd454e5311d2" id="r_a58af86427a1801cff681fd454e5311d2"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__condensed__view__output.html#a58af86427a1801cff681fd454e5311d2">set_output</a> (int const inp_fd) noexcept</td></tr>
+<tr class="separator:a58af86427a1801cff681fd454e5311d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20018ba47f6037bc0128eda58897c092" id="r_a20018ba47f6037bc0128eda58897c092"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__condensed__view__output.html#a20018ba47f6037bc0128eda58897c092">emit</a> (event_type const &amp;event) noexcept</td></tr>
+<tr class="separator:a20018ba47f6037bc0128eda58897c092"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30baeb73c905a3f977cfc08b8b7638a8" id="r_a30baeb73c905a3f977cfc08b8b7638a8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__condensed__view__output.html#a30baeb73c905a3f977cfc08b8b7638a8">operator()</a> (event_type &amp;event) noexcept</td></tr>
+<tr class="separator:a30baeb73c905a3f977cfc08b8b7638a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>

@@ -108,9 +108,10 @@ $(document).ready(function(){initNavTree('live__view_8ixx.html',''); initResizab
 <code>#include &lt;string_view&gt;</code><br />
 <code>#include &lt;unistd.h&gt;</code><br />
 <code>#include &lt;unordered_map&gt;</code><br />
-<code>import <a class="el" href="mods_8ixx.html">fs8.mods:inout</a>;</code><br />
+<code>import <a class="el" href="mods_8ixx.html">fs8.mods:sanitizer</a>;</code><br />
 <code>import <a class="el" href="translate_8ixx.html">fs8.translate</a>;</code><br />
 <code>import <a class="el" href="traits_8ixx.html">fs8.traits</a>;</code><br />
+<code>import <a class="el" href="nullable__indirect_8ixx.html">fs8.nullable_indirect</a>;</code><br />
 <code>import <a class="el" href="xkb_8ixx.html">fs8.lib.xkb</a>;</code><br />
 <code>import <a class="el" href="evtest_8ixx.html">fs8.lib.evtest</a>;</code><br />
 <code>import <a class="el" href="event2unicode_8ixx.html">fs8.lib.xkb.event2unicode</a>;</code><br />
@@ -145,6 +146,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__from__event__line.html">fs8::basic_from_event_line&lt; Format &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read event-line-format text from a file descriptor, parse it, and feed events into the pipeline.  <a href="structfs8_1_1basic__from__event__line.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfs8_1_1basic__condensed__view__output.html">fs8::basic_condensed_view_output</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output modifier that displays events using the <a class="el" href="structfs8_1_1condensed__view.html">condensed_view</a> format (mouse accumulation, key holds, ANSI colors). Used by <code>foresight replay --live</code>.  <a href="structfs8_1_1basic__condensed__view__output.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>

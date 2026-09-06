@@ -47,6 +47,7 @@ var annotated_dup =
       [ "basic_benchmark_result", "structfs8_1_1basic__benchmark__result.html", "structfs8_1_1basic__benchmark__result" ],
       [ "basic_capture", "structfs8_1_1basic__capture.html", "structfs8_1_1basic__capture" ],
       [ "basic_code_adaptor", "structfs8_1_1basic__code__adaptor.html", "structfs8_1_1basic__code__adaptor" ],
+      [ "basic_condensed_view_output", "structfs8_1_1basic__condensed__view__output.html", "structfs8_1_1basic__condensed__view__output" ],
       [ "basic_context", "structfs8_1_1basic__context.html", "structfs8_1_1basic__context" ],
       [ "basic_debounce", "structfs8_1_1basic__debounce.html", "structfs8_1_1basic__debounce" ],
       [ "basic_device_id_of", "structfs8_1_1basic__device__id__of.html", "structfs8_1_1basic__device__id__of" ],

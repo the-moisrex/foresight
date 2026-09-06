@@ -5,7 +5,5 @@ digraph "Graphical Class Hierarchy"
   edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
   node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
   rankdir="LR";
-  Node0 [id="Node000000",label="fs8::variable_types\l\< Templ, T, ModsT... \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1variable__types.html",tooltip=" "];
-  Node0 -> Node1 [id="edge149_Node000000_Node000001",dir="back",color="steelblue1",style="solid",tooltip=" "];
-  Node1 [id="Node000001",label="fs8::variable_types\l\< Templ, T, ModT, ModsT... \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1variable__types_3_01Templ_00_01T_00_01ModT_00_01ModsT_8_8_8_01_4.html",tooltip=" "];
+  Node0 [id="Node000000",label="fs8::variable_size\<\>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1variable__size_3_4.html",tooltip=" "];
 }
