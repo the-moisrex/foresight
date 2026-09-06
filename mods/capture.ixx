@@ -58,6 +58,13 @@ export namespace fs8 {
       public:
         consteval basic_capture(FormatT format, NamingT naming) noexcept : format_{format}, naming_{std::move(naming)} {}
 
+        constexpr ~basic_capture() noexcept {
+            if (static_cast<bool>(st_)) {
+                flush_buffer();
+                close_file();
+            }
+        }
+
         /// Set a custom output filename (for naming strategies that support it, e.g. capture_manual).
         void set_name(std::string_view const name) noexcept
             requires requires { naming_.set_name(name); }
@@ -67,46 +74,20 @@ export namespace fs8 {
 
         // ── Pipeline interface ───────────────────────────────────────────────
 
+        /// Pipeline form: receives special events from the context.
         template <Context CtxT>
+            requires has_mod<basic_idle_detector<>, CtxT>
         context_action operator()(CtxT&, special_event const& tag) noexcept {
-            static_assert(has_mod<basic_idle_detector<>, CtxT>, "Need this mod to send the idle events.");
-            using enum context_action;
-            ensure_state();
-            switch (tag.code) {
-                case start.code: return next;
-                case toggle_on.code: {
-                    if (tag.value == toggle_on.value) {
-                        return next; // no-op: events are always buffered
-                    }
-                    // toggle_off: flush immediately
-                    flush_buffer();
-                    return next;
-                }
-                case idle.code: {
-                    if (st_->buffer.empty()) {
-                        return next;
-                    }
-                    if (st_->current_fd < 0) {
-                        if (!open_file()) {
-                            return next;
-                        }
-                    } else if (naming_.should_rotate(st_->last_rotation)) {
-                        close_file();
-                        if (!open_file()) {
-                            return next;
-                        }
-                    }
-                    flush_buffer();
+            return handle_special(tag);
+        }
 
-                    return next;
-                }
-                default: return drop_event;
-            }
+        /// Direct form: for tests and standalone use without a context.
+        context_action operator()(special_event const& tag) noexcept {
+            return handle_special(tag);
         }
 
         context_action operator()(event_type const& event) noexcept {
-            // ensure_state();
-            assert(static_cast<bool>(st_));
+            ensure_state();
             st_->buffer.push_back(event);
             return context_action::next;
         }
@@ -135,6 +116,40 @@ export namespace fs8 {
         void ensure_state() noexcept {
             if (!static_cast<bool>(st_)) {
                 st_ = nullable_indirect<state>::make();
+            }
+        }
+
+        context_action handle_special(special_event const& tag) noexcept {
+            using enum context_action;
+            ensure_state();
+            switch (tag.code) {
+                case start.code: return next;
+                case toggle_on.code: {
+                    if (tag.value == toggle_on.value) {
+                        return next; // no-op: events are always buffered
+                    }
+                    // toggle_off: flush immediately
+                    flush_buffer();
+                    return next;
+                }
+                case idle.code: {
+                    if (st_->buffer.empty()) {
+                        return next;
+                    }
+                    if (st_->current_fd < 0) {
+                        if (!open_file()) {
+                            return next;
+                        }
+                    } else if (naming_.should_rotate(st_->last_rotation)) {
+                        close_file();
+                        if (!open_file()) {
+                            return next;
+                        }
+                    }
+                    flush_buffer();
+                    return next;
+                }
+                default: return drop_event;
             }
         }
 

@@ -267,7 +267,7 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
     test::inject_key_down(uin.devnode());
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
 
@@ -323,7 +323,7 @@ TEST(DeviceTest, DropOwnedDropsOwnedDeviceEvents) {
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
     test::inject_key_down(uin.devnode());
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     // `drop_owned` drops the event (it came back from our own device).
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::drop_event);
@@ -415,7 +415,7 @@ TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
     test::inject_key_down(uin.devnode());
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
 
@@ -487,7 +487,7 @@ TEST(DeviceTest, ChainedDeviceIsChained) {
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
     test::inject_key_down(uin.devnode());
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
 
@@ -541,7 +541,7 @@ TEST(DeviceTest, DropSelfDropsOwnedDeviceEvents) {
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
     test::inject_key_down(uin.devnode());
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     // `drop_self` drops the last event (it came back from our own device).
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::drop_event);

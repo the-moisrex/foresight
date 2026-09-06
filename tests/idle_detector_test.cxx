@@ -92,14 +92,15 @@ TEST(IOManagerIdle, CallbackFiresOnTimeout) {
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
 
     bool callback_fired = false;
-    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept {
+    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept -> context_action {
         callback_fired = true;
+        return context_action::next;
     });
     mgr.set_idle_timeout(50ms);
 
     // poll() should block for ~50ms then time out, firing the callback.
     auto const result = mgr(load_event);
-    EXPECT_EQ(result, context_action::next);
+    EXPECT_EQ(result, context_action::drop_event);
     EXPECT_TRUE(callback_fired);
 
     mgr.clear_idle_callback();
@@ -126,15 +127,16 @@ TEST(IOManagerIdle, ClearCallbackStopsFiring) {
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
 
     bool callback_fired = false;
-    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept {
+    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept -> context_action {
         callback_fired = true;
+        return context_action::next;
     });
     mgr.set_idle_timeout(50ms);
     mgr.clear_idle_callback();
 
     // After clearing callback, poll should time out but callback should not fire.
     auto const result = mgr(load_event);
-    EXPECT_EQ(result, context_action::next);
+    EXPECT_EQ(result, context_action::drop_event);
     EXPECT_FALSE(callback_fired);
 
     mgr.clear();
@@ -160,8 +162,9 @@ TEST(IOManagerIdle, ClearIdleTimeoutStopsFiring) {
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
 
     bool callback_fired = false;
-    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept {
+    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept -> context_action {
         callback_fired = true;
+        return context_action::next;
     });
     mgr.set_idle_timeout(50ms);
     mgr.clear_idle_timeout();
@@ -170,7 +173,7 @@ TEST(IOManagerIdle, ClearIdleTimeoutStopsFiring) {
     // With no data written, load_event would block forever, so write to unblock.
     ASSERT_EQ(write(fds[1], "x", 1), 1);
     auto const result = mgr(load_event);
-    EXPECT_EQ(result, context_action::next);
+    EXPECT_EQ(result, context_action::drop_event);
     EXPECT_FALSE(callback_fired);
 
     mgr.clear_idle_callback();
@@ -203,12 +206,13 @@ TEST(IOManagerIdle, ActivityResetsIdleClock) {
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
 
     bool callback_fired = false;
-    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept {
+    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept -> context_action {
         callback_fired = true;
+        return context_action::next;
     });
 
     auto const result = mgr(load_event);
-    EXPECT_EQ(result, context_action::next);
+    EXPECT_EQ(result, context_action::drop_event);
     // Activity happened, so callback should NOT have fired.
     EXPECT_FALSE(callback_fired);
 
@@ -236,13 +240,14 @@ TEST(IOManagerIdle, CallbackReceivesIdleDuration) {
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
 
     std::chrono::microseconds received_duration{0};
-    mgr.set_idle_callback([&](std::chrono::microseconds duration) noexcept {
+    mgr.set_idle_callback([&](std::chrono::microseconds duration) noexcept -> context_action {
         received_duration = duration;
+        return context_action::next;
     });
     mgr.set_idle_timeout(75ms);
 
     auto const result = mgr(load_event);
-    EXPECT_EQ(result, context_action::next);
+    EXPECT_EQ(result, context_action::drop_event);
     EXPECT_EQ(received_duration.count(), 75'000);
 
     mgr.clear_idle_callback();
@@ -269,8 +274,9 @@ TEST(IOManagerIdle, StartClearsIdleCallback) {
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
 
     bool callback_fired = false;
-    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept {
+    mgr.set_idle_callback([&](std::chrono::microseconds) noexcept -> context_action {
         callback_fired = true;
+        return context_action::next;
     });
     mgr.set_idle_timeout(10ms);
 

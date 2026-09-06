@@ -93,7 +93,7 @@ TEST(IOManager, DispatchesReadyFd) {
     char const byte = 'x';
     ASSERT_EQ(write(fds[1], &byte, 1), 1);
 
-    ASSERT_EQ(mgr(load_event), context_action::next);
+    ASSERT_EQ(mgr(load_event), context_action::drop_event);
     EXPECT_EQ(handler.info.fd, fds[0]);
     EXPECT_TRUE(has(handler.info.revents, io_event::in));
     EXPECT_STREQ(handler.buf.data(), "x");
@@ -118,7 +118,7 @@ TEST(IOManager, DuplicateWatchReplacesInPlace) {
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0]}, second));
 
     ASSERT_EQ(write(fds[1], "z", 1), 1);
-    ASSERT_EQ(mgr(load_event), context_action::next);
+    ASSERT_EQ(mgr(load_event), context_action::drop_event);
 
     // The latest handler wins, and it's dispatched only once.
     EXPECT_EQ(second.buf[0], 'z');
@@ -149,7 +149,7 @@ TEST(IOManager, RestartClearsStaleRegistrations) {
     ASSERT_TRUE(mgr.is_watched(fds[0]));
 
     ASSERT_EQ(write(fds[1], "y", 1), 1);
-    ASSERT_EQ(mgr(load_event), context_action::next);
+    ASSERT_EQ(mgr(load_event), context_action::drop_event);
     EXPECT_EQ(second.buf[0], 'y');
     EXPECT_EQ(first.buf[0], 0);
 
@@ -180,7 +180,7 @@ TEST(IOManager, SnapshotDispatchesSafelyDespiteUnwatch) {
     ASSERT_EQ(write(a[1], "1", 1), 1);
     ASSERT_EQ(write(b[1], "2", 1), 1);
 
-    ASSERT_EQ(mgr(load_event), context_action::next);
+    ASSERT_EQ(mgr(load_event), context_action::drop_event);
     // `ha` runs first and unwatches both fds; `hb`'s fd is gone by the time we
     // get to it, so it must not be called (and nothing crashes).
     EXPECT_EQ(ha.calls, 1);
@@ -246,7 +246,7 @@ TEST(IOManager, DispatchesWritableFd) {
     read_handler handler;
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[1], .events = io_event::out}, handler));
 
-    ASSERT_EQ(mgr(load_event), context_action::next);
+    ASSERT_EQ(mgr(load_event), context_action::drop_event);
     EXPECT_EQ(handler.info.fd, fds[1]);
     EXPECT_TRUE(has(handler.info.revents, io_event::out));
 
@@ -267,7 +267,7 @@ TEST(IOManager, ReportsHangup) {
 
     close(fds[1]); // closing the write end hangs up the read end
 
-    ASSERT_EQ(mgr(load_event), context_action::next);
+    ASSERT_EQ(mgr(load_event), context_action::drop_event);
     EXPECT_TRUE(has(handler.info.revents, io_event::hup));
 
     mgr.clear();
@@ -322,7 +322,7 @@ TEST(IOManager, DuplicateWatchReplacesEventsMask) {
     ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
 
     ASSERT_EQ(write(fds[1], "x", 1), 1);
-    ASSERT_EQ(mgr(load_event), context_action::next);
+    ASSERT_EQ(mgr(load_event), context_action::drop_event);
 
     // The events mask is replaced, not OR'd with the earlier one.
     EXPECT_EQ(handler.info.events, io_event::in);

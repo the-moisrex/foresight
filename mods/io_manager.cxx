@@ -205,6 +205,10 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
     // poll timed out with no ready fds — idle threshold reached.
     if (ready == 0 && pimpl->idle_timeout.count() > 0) {
         if (pimpl->has_idle_callback) {
+            // Reset the idle clock *before* invoking the callback so that
+            // the next poll() gets a full timeout (prevents a busy-loop
+            // when the callback doesn't re-arm the timeout).
+            pimpl->last_event_time = steady_clock::now();
             switch (auto const res = pimpl->on_idle(pimpl->idle_timeout)) {
                 [[unlikely]] case exit:
                 [[unlikely]] case recovery:
@@ -212,13 +216,20 @@ context_action basic_io_manager::operator()(special_event const& tag) noexcept {
                 default: break;
             }
         }
-        return next;
+        // load_event is a pure wait: it must NOT load an event into ctx.event().
+        // Return drop_event so the run_loop goes back to next_event instead of
+        // re-processing a stale ctx.event().
+        return drop_event;
     }
 
     // Collect all ready fds in a single forward scan, then dispatch forward.
     // Each handler is only called if its fd is still watched (a prior handler
     // may have unwatched it), so we re-validate before every dispatch.
-    auto action = next;
+    //
+    // start as drop_event: load_event is a pure wait and must not indicate an
+    // event was loaded.  Handlers drain fds into the interceptor's pending
+    // queue; next_event will pop them one by one.
+    auto action = drop_event;
 
     struct ready_entry {
         std::size_t index;

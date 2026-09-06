@@ -223,7 +223,7 @@ TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
         uin.close();
         GTEST_SKIP() << "udev did not deliver the add event.";
     }
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_GT(std::ranges::distance(im.devices()), before) << "Hotplug add was not registered.";
 
     uin.close();
@@ -232,7 +232,7 @@ TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
     if (!remove_delivered) {
         GTEST_SKIP() << "udev did not deliver the remove event.";
     }
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_EQ(std::ranges::distance(im.devices()), before) << "Hotplug remove was not registered.";
 }
 
@@ -277,7 +277,7 @@ TEST(InputManager, OwnedDeviceIsNotReaddedByHotplug) {
         owned_uin.close();
         GTEST_SKIP() << "udev did not deliver the owned add event.";
     }
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_EQ(std::ranges::distance(im.devices()), before) << "An owned (self-created) device must not be enumerated back in.";
 
     // A foreign device must still be picked up by hotplug.
@@ -298,7 +298,7 @@ TEST(InputManager, OwnedDeviceIsNotReaddedByHotplug) {
         foreign_uin.close();
         GTEST_SKIP() << "udev did not deliver the foreign add event.";
     }
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_GT(std::ranges::distance(im.devices()), before) << "A foreign (unowned) device must still be enumerated by hotplug.";
 
     owned_uin.close();

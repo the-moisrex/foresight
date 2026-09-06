@@ -66,7 +66,7 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
     }
 
     // The monitor FD is ready, so this drains the udev add without blocking.
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     if (im.devices().empty()) {
         uin.close();
         GTEST_SKIP() << "The uinput keyboard was not enumerated.";
@@ -107,7 +107,7 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
     ::close(fd);
 
     // The device FD is readable now; io_manager dispatches it to the interceptor.
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
 
     // The next_event provider pops the queued event into the context.
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
@@ -140,7 +140,7 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
         GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
     }
 
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     if (im.devices().empty()) {
         uin.close();
         GTEST_SKIP() << "The uinput keyboard was not enumerated.";
@@ -161,7 +161,7 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
         GTEST_SKIP() << "Cannot create a second virtual uinput keyboard.";
     }
 
-    EXPECT_EQ(io(load_event), context_action::next);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
     if (std::ranges::distance(im.devices()) < static_cast<std::ptrdiff_t>(known + 1)) {
         uin.close();
         uin2.close();
