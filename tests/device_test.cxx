@@ -1,7 +1,7 @@
 // Created by moisrex on 8/17/26.
 
-#include "./common/tests_common_pch.hpp"
 #include "./common/test_helpers.hpp"
+#include "./common/tests_common_pch.hpp"
 
 #include <libevdev/libevdev.h>
 #include <linux/input.h>

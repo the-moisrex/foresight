@@ -39,7 +39,7 @@ context_action fs8::basic_replay<FormatT>::operator()(special_event const& tag) 
     }
     // Read the header bytes to detect format.
     std::array<char, fs8::detail::format_header_size> header{};
-    auto const n = ::read(st_->fd, header.data(), header.size());
+    auto const                                        n = ::read(st_->fd, header.data(), header.size());
     if (n < fs8::detail::format_header_size) {
         fs8::log("replay: file too short");
         ::close(st_->fd);
@@ -47,7 +47,7 @@ context_action fs8::basic_replay<FormatT>::operator()(special_event const& tag) 
         return exit;
     }
     // Check binary magic: FFS8 (0x38534646) + version (u16)
-    constexpr std::uint32_t binary_magic = 0x38534646u;
+    constexpr std::uint32_t binary_magic = 0x3853'4646u;
     std::uint32_t           file_magic{};
     std::memcpy(&file_magic, header.data(), sizeof(file_magic));
     if (file_magic == binary_magic) {
@@ -55,7 +55,7 @@ context_action fs8::basic_replay<FormatT>::operator()(special_event const& tag) 
         return next; // header consumed
     }
     // Not binary — assume evtest text format.
-    st_->is_binary     = false;
+    st_->is_binary = false;
     st_->linebuf.clear();
     st_->linebuf.append(header.data(), static_cast<std::size_t>(n));
     return next;
@@ -87,7 +87,7 @@ context_action fs8::basic_replay<FormatT>::operator()(event_type& event, special
         if (newline == std::string::npos) {
             break;
         }
-        std::string_view const line{st_->linebuf.data(), newline};
+        std::string_view const   line{st_->linebuf.data(), newline};
         fs8::parsed_evtest_event parsed;
         if (fs8::parse_evtest_line(line, parsed)) {
             st_->linebuf.erase(0, newline + 1);
@@ -121,7 +121,7 @@ context_action fs8::basic_replay<FormatT>::operator()(event_type& event, special
             if (nl == std::string::npos) {
                 break;
             }
-            std::string_view const line{st_->linebuf.data(), nl};
+            std::string_view const   line{st_->linebuf.data(), nl};
             fs8::parsed_evtest_event parsed;
             if (fs8::parse_evtest_line(line, parsed)) {
                 st_->linebuf.erase(0, nl + 1);

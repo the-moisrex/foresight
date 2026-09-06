@@ -1,7 +1,7 @@
 // Created by moisrex on 8/9/26.
 
-#include "common/tests_common_pch.hpp"
 #include "common/test_helpers.hpp"
+#include "common/tests_common_pch.hpp"
 
 #include <algorithm>
 #include <array>
@@ -385,7 +385,7 @@ TEST(InputManager, CapsScoringPrefersFullKeyboardOverPartial) {
     // A device with all requested capabilities must score higher than one missing some.
     // Use a custom dev_caps_view for a small, self-contained query.
     static constexpr std::uint16_t led_codes[] = {LED_NUML, LED_CAPSL, LED_SCROLLL};
-    dev_cap_view const         test_query{.type = EV_LED, .codes = led_codes};
+    dev_cap_view const             test_query{.type = EV_LED, .codes = led_codes};
 
     // Full device: has all keyboard LEDs.
     libevdev* const full_ptr = libevdev_new();
@@ -404,8 +404,8 @@ TEST(InputManager, CapsScoringPrefersFullKeyboardOverPartial) {
     evdev partial_dev(partial_ptr, evdev_status::success);
 
     std::span<dev_cap_view const, 1> const test_caps{&test_query, 1};
-    auto const full_score    = full_dev.match_caps(test_caps);
-    auto const partial_score = partial_dev.match_caps(test_caps);
+    auto const                             full_score    = full_dev.match_caps(test_caps);
+    auto const                             partial_score = partial_dev.match_caps(test_caps);
 
     EXPECT_EQ(full_score, 100) << "A full device must match at 100%.";
     EXPECT_GT(full_score, partial_score) << "The full device must score higher than the partial one.";

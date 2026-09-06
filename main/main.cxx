@@ -57,8 +57,8 @@ int run_action(options const& opts) {
             auto& out         = pipeline.mod(fs8::uinput);
             auto& sig_stopper = pipeline.mod(fs8::stopper);
 
-            auto oq = fs8::owned_query{opts.queries.front()};
-            oq.grab = opts.grab;
+            auto oq              = fs8::owned_query{opts.queries.front()};
+            oq.grab              = opts.grab;
             fs8::evdev const dev = fs8::device(oq);
             if (!dev.is_ok()) [[unlikely]] {
                 throw std::runtime_error("Could not open device for the given query.");

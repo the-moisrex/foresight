@@ -74,9 +74,9 @@ std::string fs8::capture_system_uptime::filename(std::string_view const ext) noe
 }
 
 bool fs8::capture_system_uptime::should_rotate(std::int64_t const last_rotation) noexcept {
-    auto const now      = detail::now_epoch_seconds();
-    auto const uptime   = detail::system_uptime_seconds();
-    auto const elapsed  = now - last_rotation;
+    auto const now     = detail::now_epoch_seconds();
+    auto const uptime  = detail::system_uptime_seconds();
+    auto const elapsed = now - last_rotation;
     // If current uptime is less than time elapsed since file was opened, a reboot happened.
     return uptime < elapsed;
 }
@@ -144,13 +144,13 @@ std::string fs8::capture_manual::filename(std::string_view const ext) const noex
 
 std::string fs8::capture_name::filename(std::string_view const ext) const noexcept {
     auto const now = detail::local_time_now();
-    if (interval_seconds.count() >= 30 * 86400) {
+    if (interval_seconds.count() >= 30 * 86'400) {
         return std::format("capture-{:04d}-{:02d}{}", now.year, now.month, ext);
     }
-    if (interval_seconds.count() >= 7 * 86400) {
+    if (interval_seconds.count() >= 7 * 86'400) {
         return std::format("capture-{:04d}-W{:02d}{}", now.year, now.week, ext);
     }
-    if (interval_seconds.count() >= 86400) {
+    if (interval_seconds.count() >= 86'400) {
         return std::format("capture-{:04d}-{:02d}-{:02d}{}", now.year, now.month, now.day, ext);
     }
     if (interval_seconds.count() >= 3600) {

@@ -25,7 +25,8 @@ namespace {
         struct __attribute__((packed)) {
             std::uint32_t magic;
             std::uint16_t version;
-        } constexpr header{0x38534646u, 1};
+        } constexpr header{0x3853'4646u, 1};
+
         ASSERT_EQ(::write(fd, &header, sizeof(header)), static_cast<ssize_t>(sizeof(header)));
 
         for (auto const& ev : events) {
@@ -44,13 +45,22 @@ namespace {
         ASSERT_EQ(::write(fd, hdr.data(), hdr.size()), static_cast<ssize_t>(hdr.size()));
 
         for (auto const& ev : events) {
-            auto const  tv   = ev.native().time;
-            auto const  sec  = static_cast<std::int64_t>(tv.tv_sec);
-            auto const  usec = static_cast<std::int32_t>(tv.tv_usec);
+            auto const tv   = ev.native().time;
+            auto const sec  = static_cast<std::int64_t>(tv.tv_sec);
+            auto const usec = static_cast<std::int32_t>(tv.tv_usec);
 
-            std::string line = "Event: time " + std::to_string(sec) + "." + std::to_string(usec) + ", type "
-                             + std::to_string(ev.type()) + ", code " + std::to_string(ev.code()) + ", value "
-                             + std::to_string(ev.value()) + "\n";
+            std::string line =
+              "Event: time "
+              + std::to_string(sec)
+              + "."
+              + std::to_string(usec)
+              + ", type "
+              + std::to_string(ev.type())
+              + ", code "
+              + std::to_string(ev.code())
+              + ", value "
+              + std::to_string(ev.value())
+              + "\n";
             ASSERT_EQ(::write(fd, line.data(), line.size()), static_cast<ssize_t>(line.size()));
         }
         ::close(fd);
@@ -59,9 +69,9 @@ namespace {
     /// Make an input_event with a specific timestamp.
     input_event make_native(int type, int code, int value, long sec, long usec) {
         input_event ev{};
-        ev.type  = static_cast<__u16>(type);
-        ev.code  = static_cast<__u16>(code);
-        ev.value = value;
+        ev.type         = static_cast<__u16>(type);
+        ev.code         = static_cast<__u16>(code);
+        ev.value        = value;
         ev.time.tv_sec  = sec;
         ev.time.tv_usec = usec;
         return ev;
@@ -81,16 +91,14 @@ namespace {
 // ══════════════════════════════════════════════════════════════════════════════
 
 TEST(CaptureTest, InactiveByDefault) {
-    constexpr basic_capture<capture_binary_format, capture_daily> cap{
-      capture_binary_format{}, capture_daily{}};
+    constexpr basic_capture<capture_binary_format, capture_daily> cap{capture_binary_format{}, capture_daily{}};
     EXPECT_FALSE(cap.is_open());
     EXPECT_EQ(cap.buffer_size(), 0U);
     EXPECT_TRUE(cap.buffered().empty());
 }
 
 TEST(CaptureTest, EventsAlwaysBuffered) {
-    basic_capture<capture_binary_format, capture_daily> cap{
-      capture_binary_format{}, capture_daily{}};
+    basic_capture<capture_binary_format, capture_daily> cap{capture_binary_format{}, capture_daily{}};
 
     cap(event_type{EV_KEY, KEY_A, 1});
     cap(event_type{EV_SYN, SYN_REPORT, 0});
@@ -104,8 +112,7 @@ TEST(CaptureTest, EventsAlwaysBuffered) {
 }
 
 TEST(CaptureTest, ToggleOffFlushes) {
-    basic_capture<capture_binary_format, capture_daily> cap{
-      capture_binary_format{}, capture_daily{}};
+    basic_capture<capture_binary_format, capture_daily> cap{capture_binary_format{}, capture_daily{}};
 
     cap(event_type{EV_KEY, KEY_B, 1});
     cap(event_type{EV_SYN, SYN_REPORT, 0});
@@ -123,8 +130,7 @@ TEST(CaptureTest, ToggleOffFlushes) {
 }
 
 TEST(CaptureTest, IdleFlushesToFile) {
-    basic_capture<capture_binary_format, capture_daily> cap{
-      capture_binary_format{}, capture_daily{}};
+    basic_capture<capture_binary_format, capture_daily> cap{capture_binary_format{}, capture_daily{}};
 
     cap(event_type{EV_KEY, KEY_A, 1});
     cap(event_type{EV_SYN, SYN_REPORT, 0});
@@ -210,8 +216,7 @@ TEST(CaptureTest, EvtestFormatRoundtrip) {
 }
 
 TEST(CaptureTest, AccessorsReportCorrectState) {
-    basic_capture<capture_binary_format, capture_daily> cap{
-      capture_binary_format{}, capture_daily{}};
+    basic_capture<capture_binary_format, capture_daily> cap{capture_binary_format{}, capture_daily{}};
 
     EXPECT_FALSE(cap.is_open());
     EXPECT_EQ(cap.buffer_size(), 0U);
@@ -367,7 +372,7 @@ TEST(ReplayTest, ReplaysEvtestEvents) {
 
 TEST(ReplayTest, NoFileSetReturnsExit) {
     basic_replay<capture_binary_format> rep{};
-    auto const result = rep(special_event{.code = start.code});
+    auto const                          result = rep(special_event{.code = start.code});
     EXPECT_EQ(result, context_action::exit);
 }
 
@@ -383,10 +388,12 @@ TEST(ReplayTest, HeaderOnlyFileReturnsExitOnLoad) {
     {
         int const fd = ::open(tmp, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
         ASSERT_GE(fd, 0);
+
         struct __attribute__((packed)) {
             std::uint32_t magic;
             std::uint16_t version;
-        } constexpr hdr{0x38534646u, 1};
+        } constexpr hdr{0x3853'4646u, 1};
+
         ASSERT_EQ(::write(fd, &hdr, sizeof(hdr)), static_cast<ssize_t>(sizeof(hdr)));
         ::close(fd);
     }
@@ -435,9 +442,15 @@ TEST(ReplayTest, NonLoadTagReturnsDrop) {
 
 TEST(CapturePipelineTest, CaptureInPipelineBuffersEvents) {
     static constinit auto pipeline =
-      context | emit_all[{user_event{.type = EV_KEY, .code = KEY_A, .value = 1}, user_event{EV_SYN, SYN_REPORT, 0},
-                          user_event{.type = EV_KEY, .code = KEY_A, .value = 0}, user_event{EV_SYN, SYN_REPORT, 0}}]
-      | capture | record;
+      context
+      | emit_all[{
+        user_event{.type = EV_KEY, .code = KEY_A, .value = 1},
+        user_event{        EV_SYN,    SYN_REPORT,          0},
+        user_event{.type = EV_KEY, .code = KEY_A, .value = 0},
+        user_event{        EV_SYN,    SYN_REPORT,          0}
+    }]
+      | capture
+      | record;
 
     auto& cap = pipeline.mod<basic_capture<capture_binary_format, capture_daily>>();
 
@@ -449,9 +462,14 @@ TEST(CapturePipelineTest, CaptureInPipelineBuffersEvents) {
 TEST(CapturePipelineTest, IdleFlushesCaptureToFile) {
     static constinit auto pipeline =
       context
-      | emit_all[{user_event{.type = EV_KEY, .code = KEY_A, .value = 1}, user_event{EV_SYN, SYN_REPORT, 0},
-                   user_event{.type = EV_KEY, .code = KEY_A, .value = 0}, user_event{EV_SYN, SYN_REPORT, 0}}]
-      | capture | record;
+      | emit_all[{
+        user_event{.type = EV_KEY, .code = KEY_A, .value = 1},
+        user_event{        EV_SYN,    SYN_REPORT,          0},
+        user_event{.type = EV_KEY, .code = KEY_A, .value = 0},
+        user_event{        EV_SYN,    SYN_REPORT,          0}
+    }]
+      | capture
+      | record;
 
     auto& cap = pipeline.mod<basic_capture<capture_binary_format, capture_daily>>();
 
@@ -503,10 +521,16 @@ TEST(CapturePipelineTest, CaptureReplayRoundtrip) {
     // Step 1: Capture events to file via pipeline.
     static constinit auto cap_pipeline =
       context
-      | emit_all[{user_event{.type = EV_KEY, .code = KEY_A, .value = 1}, user_event{EV_SYN, SYN_REPORT, 0},
-                   user_event{.type = EV_KEY, .code = KEY_A, .value = 0}, user_event{EV_SYN, SYN_REPORT, 0},
-                   user_event{.type = EV_REL, .code = REL_X, .value = 10}, user_event{EV_SYN, SYN_REPORT, 0}}]
-      | capture | record;
+      | emit_all[{
+        user_event{.type = EV_KEY, .code = KEY_A,  .value = 1},
+        user_event{        EV_SYN,    SYN_REPORT,           0},
+        user_event{.type = EV_KEY, .code = KEY_A,  .value = 0},
+        user_event{        EV_SYN,    SYN_REPORT,           0},
+        user_event{.type = EV_REL, .code = REL_X, .value = 10},
+        user_event{        EV_SYN,    SYN_REPORT,           0}
+    }]
+      | capture
+      | record;
 
     auto& cap = cap_pipeline.mod<basic_capture<capture_binary_format, capture_daily>>();
     cap_pipeline();

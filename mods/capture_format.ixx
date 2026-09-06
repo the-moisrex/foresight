@@ -23,8 +23,8 @@ export namespace fs8 {
     struct [[nodiscard]] capture_binary_format : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
-        static constexpr std::uint32_t magic = 0x38534646u; // "FFS8" little-endian
-        static constexpr std::uint16_t version = 1;
+        static constexpr std::uint32_t    magic     = 0x3853'4646u; // "FFS8" little-endian
+        static constexpr std::uint16_t    version   = 1;
         static constexpr std::string_view extension = ".fs8";
 
         // NOLINTNEXTLINE(*-use-nodiscard)

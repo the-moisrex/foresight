@@ -36,9 +36,9 @@ export namespace fs8 {
             int week  = 0; // ISO week of year
         };
 
-        [[nodiscard]] tm_info local_time_now() noexcept;
+        [[nodiscard]] tm_info      local_time_now() noexcept;
         [[nodiscard]] std::int64_t now_epoch_seconds() noexcept;
-        [[nodiscard]] tm_info time_from_epoch(std::int64_t epoch) noexcept;
+        [[nodiscard]] tm_info      time_from_epoch(std::int64_t epoch) noexcept;
         [[nodiscard]] std::int64_t system_uptime_seconds() noexcept;
     } // namespace detail
 
@@ -49,6 +49,7 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
         [[nodiscard]] static std::string filename(std::string_view ext) noexcept;
+
         [[nodiscard]] static constexpr bool should_rotate(std::int64_t) noexcept {
             return false;
         }
@@ -63,6 +64,7 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
         [[nodiscard]] static std::string filename(std::string_view ext) noexcept;
+
         [[nodiscard]] static constexpr bool should_rotate(std::int64_t) noexcept {
             return false;
         }
@@ -78,7 +80,7 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
         [[nodiscard]] static std::string filename(std::string_view ext) noexcept;
-        [[nodiscard]] static bool should_rotate(std::int64_t last_rotation) noexcept;
+        [[nodiscard]] static bool        should_rotate(std::int64_t last_rotation) noexcept;
     };
 
     static_assert(capture_naming<capture_system_uptime>);
@@ -90,7 +92,7 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
         [[nodiscard]] static std::string filename(std::string_view ext) noexcept;
-        [[nodiscard]] static bool should_rotate(std::int64_t last_rotation) noexcept;
+        [[nodiscard]] static bool        should_rotate(std::int64_t last_rotation) noexcept;
     };
 
     static_assert(capture_naming<capture_hourly>);
@@ -102,7 +104,7 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
         [[nodiscard]] static std::string filename(std::string_view ext) noexcept;
-        [[nodiscard]] static bool should_rotate(std::int64_t last_rotation) noexcept;
+        [[nodiscard]] static bool        should_rotate(std::int64_t last_rotation) noexcept;
     };
 
     static_assert(capture_naming<capture_daily>);
@@ -114,7 +116,7 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
         [[nodiscard]] static std::string filename(std::string_view ext) noexcept;
-        [[nodiscard]] static bool should_rotate(std::int64_t last_rotation) noexcept;
+        [[nodiscard]] static bool        should_rotate(std::int64_t last_rotation) noexcept;
     };
 
     static_assert(capture_naming<capture_weekly>);
@@ -126,7 +128,7 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
         [[nodiscard]] static std::string filename(std::string_view ext) noexcept;
-        [[nodiscard]] static bool should_rotate(std::int64_t last_rotation) noexcept;
+        [[nodiscard]] static bool        should_rotate(std::int64_t last_rotation) noexcept;
     };
 
     static_assert(capture_naming<capture_monthly>);
@@ -139,9 +141,12 @@ export namespace fs8 {
     struct [[nodiscard]] capture_manual : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
-        void set_name(std::string_view name) noexcept { name_ = name; }
+        void set_name(std::string_view name) noexcept {
+            name_ = name;
+        }
 
         [[nodiscard]] std::string filename(std::string_view ext) const noexcept;
+
         [[nodiscard]] static constexpr bool should_rotate(std::int64_t) noexcept {
             return false; // only rotates on explicit stop
         }
@@ -166,7 +171,7 @@ export namespace fs8 {
         consteval explicit capture_name(std::chrono::seconds dur) noexcept : interval_seconds{dur} {}
 
         [[nodiscard]] std::string filename(std::string_view ext) const noexcept;
-        [[nodiscard]] bool should_rotate(std::int64_t last_rotation) const noexcept;
+        [[nodiscard]] bool        should_rotate(std::int64_t last_rotation) const noexcept;
     };
 
     static_assert(capture_naming<capture_name>);
@@ -177,13 +182,13 @@ export namespace fs8 {
 
     // ── Shorthand objects ────────────────────────────────────────────────────
 
-    constexpr capture_single_file     single_file{};
-    constexpr capture_uptime          uptime{};
-    constexpr capture_system_uptime   system_uptime{};
-    constexpr capture_hourly          hourly{};
-    constexpr capture_daily       daily{};
-    constexpr capture_weekly      weekly{};
-    constexpr capture_monthly     monthly{};
-    constexpr capture_manual      manual{};
+    constexpr capture_single_file   single_file{};
+    constexpr capture_uptime        uptime{};
+    constexpr capture_system_uptime system_uptime{};
+    constexpr capture_hourly        hourly{};
+    constexpr capture_daily         daily{};
+    constexpr capture_weekly        weekly{};
+    constexpr capture_monthly       monthly{};
+    constexpr capture_manual        manual{};
 
 } // namespace fs8

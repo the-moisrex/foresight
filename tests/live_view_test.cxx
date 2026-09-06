@@ -17,7 +17,7 @@ using fs8::user_event;
 
 TEST(EventLineFormat, FormatKeyEvent) {
     fs8::event_line_format fmt;
-    event_type            event{EV_KEY, KEY_A, 1};
+    event_type             event{EV_KEY, KEY_A, 1};
     event.native().time = {.tv_sec = 1'787'439'635, .tv_usec = 318'229};
 
     char       buf[fs8::event_line_format_buf_size];
@@ -33,7 +33,7 @@ TEST(EventLineFormat, FormatKeyEvent) {
 
 TEST(EventLineFormat, FormatSynReport) {
     fs8::event_line_format fmt;
-    event_type            event{EV_SYN, SYN_REPORT, 0};
+    event_type             event{EV_SYN, SYN_REPORT, 0};
     event.native().time = {.tv_sec = 1'787'439'635, .tv_usec = 318'229};
 
     char       buf[fs8::event_line_format_buf_size];
@@ -44,7 +44,7 @@ TEST(EventLineFormat, FormatSynReport) {
 
 TEST(EventLineFormat, FormatNegativeValue) {
     fs8::event_line_format fmt;
-    event_type            event{EV_REL, REL_X, -5};
+    event_type             event{EV_REL, REL_X, -5};
 
     char       buf[fs8::event_line_format_buf_size];
     auto const text = fmt.format(event, buf);
@@ -53,7 +53,7 @@ TEST(EventLineFormat, FormatNegativeValue) {
 }
 
 TEST(EventLineFormat, ParseKeyEvent) {
-    fs8::event_line_format      fmt;
+    fs8::event_line_format     fmt;
     constexpr std::string_view line = "Event: time 1787439635.318229, type 1 (EV_KEY), code 30 (KEY_A), value 1";
     parsed_evtest_event        out;
     EXPECT_TRUE(fmt.parse(line, out));
@@ -63,12 +63,12 @@ TEST(EventLineFormat, ParseKeyEvent) {
 
 TEST(EventLineFormat, ParseSynReport) {
     fs8::event_line_format fmt;
-    parsed_evtest_event   out;
+    parsed_evtest_event    out;
     EXPECT_FALSE(fmt.parse("Event: time 0.000000, -------------- SYN_REPORT ------------", out));
 }
 
 TEST(EventLineFormat, ParseNegativeValue) {
-    fs8::event_line_format      fmt;
+    fs8::event_line_format     fmt;
     constexpr std::string_view line = "Event: time 0.000000, type 2 (EV_REL), code 0 (REL_X), value -5";
     parsed_evtest_event        out;
     EXPECT_TRUE(fmt.parse(line, out));
@@ -77,7 +77,7 @@ TEST(EventLineFormat, ParseNegativeValue) {
 
 TEST(EventLineFormat, ParseJunkLines) {
     fs8::event_line_format fmt;
-    parsed_evtest_event   out;
+    parsed_evtest_event    out;
     EXPECT_FALSE(fmt.parse("", out));
     EXPECT_FALSE(fmt.parse("some random garbage", out));
     EXPECT_FALSE(fmt.parse("Input device name: \"Logitech\"", out));

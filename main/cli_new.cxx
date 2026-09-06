@@ -13,8 +13,8 @@ int create_new_app(std::span<char const* const> const args) {
     using enum options::action_type;
 
     // NOLINTBEGIN(*-avoid-non-const-global-variables)
-    bool             list_templates = false;
-    bool             help_requested = false;
+    bool list_templates = false;
+    bool help_requested = false;
     // NOLINTEND(*-avoid-non-const-global-variables)
     std::string_view tpl;
     std::string_view name;
@@ -31,8 +31,7 @@ int create_new_app(std::span<char const* const> const args) {
         }
         if (fs8::is_valid_template(cur)) {
             if (!tpl.empty()) [[unlikely]] {
-                throw std::invalid_argument(
-                  std::format("'{}' and '{}' are both templates; pass one template and one app name.", tpl, cur));
+                throw std::invalid_argument(std::format("'{}' and '{}' are both templates; pass one template and one app name.", tpl, cur));
             }
             tpl = cur;
             continue;
