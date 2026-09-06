@@ -22,18 +22,16 @@ namespace {
         auto& inpor       = pipeline.mod(fs8::intercept);
 
         if constexpr (std::same_as<NamingT, fs8::capture_manual>) {
+            using mod_type = fs8::basic_capture<FormatT, NamingT>;
             if (!opts.capture_name.empty()) {
-                pipeline.template mod<fs8::basic_capture<FormatT, NamingT>>().set_name(opts.capture_name);
+                auto& capture_mod = pipeline.template mod<mod_type>();
+                capture_mod.set_name(opts.capture_name);
             }
         }
 
         signals::register_stop_signal(sig_stopper);
         signals::register_stop_signal(sig_input);
-        for (auto const& q : opts.queries) {
-            auto oq = fs8::owned_query{q};
-            oq.grab = opts.grab;
-            inpor.add(oq);
-        }
+        inpor.add(opts.queries | fs8::to_queries | fs8::grab[opts.grab]);
 
         pipeline();
         return EXIT_SUCCESS;

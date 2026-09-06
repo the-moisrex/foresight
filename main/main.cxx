@@ -38,11 +38,7 @@ int run_action(options const& opts) {
 
             signals::register_stop_signal(sig_stopper);
             signals::register_stop_signal(sig_input);
-            for (auto const& q : opts.queries) {
-                auto oq = fs8::owned_query{q};
-                oq.grab = opts.grab;
-                inpor.add(oq);
-            }
+            inpor.add(opts.queries | fs8::to_queries | fs8::grab[opts.grab]);
 
             pipeline();
             return EXIT_SUCCESS;
@@ -57,7 +53,7 @@ int run_action(options const& opts) {
             auto& out         = pipeline.mod(fs8::uinput);
             auto& sig_stopper = pipeline.mod(fs8::stopper);
 
-            auto oq              = fs8::owned_query{opts.queries.front()};
+            auto oq              = fs8::query_from(opts.queries.front());
             oq.grab              = opts.grab;
             fs8::evdev const dev = fs8::device(oq);
             if (!dev.is_ok()) [[unlikely]] {
@@ -67,7 +63,6 @@ int run_action(options const& opts) {
             signals::register_stop_signal(sig_stopper);
 
             pipeline();
-
             return EXIT_SUCCESS;
         }
         case systemd: {
