@@ -17,8 +17,12 @@ using fs8::special_event;
 
 // ── basic_replay members ─────────────────────────────────────────────────────
 
-template <fs8::capture_format FormatT>
-context_action fs8::basic_replay<FormatT>::operator()(event_type& event, special_event const& tag) noexcept {
+void fs8::basic_replay::set_file(std::string_view path) noexcept {
+    ensure_state();
+    st_->file_path = std::string{path};
+}
+
+context_action fs8::basic_replay::operator()(event_type& event, special_event const& tag) noexcept {
     using enum context_action;
     if (tag.code == fs8::start.code) {
         ensure_state();
@@ -58,7 +62,7 @@ context_action fs8::basic_replay<FormatT>::operator()(event_type& event, special
         st_->linebuf.append(header.data(), static_cast<std::size_t>(n));
         return next;
     }
-    if (tag.code != fs8::load_event.code) {
+    if (tag.code != load_event.code) {
         return drop_event;
     }
     if (!static_cast<bool>(st_) || st_->fd < 0) {
@@ -82,8 +86,8 @@ context_action fs8::basic_replay<FormatT>::operator()(event_type& event, special
             break;
         }
         std::string_view const   line{st_->linebuf.data(), newline};
-        fs8::parsed_evtest_event parsed;
-        if (fs8::parse_evtest_line(line, parsed)) {
+        parsed_evtest_event parsed;
+        if (parse_evtest_line(line, parsed)) {
             st_->linebuf.erase(0, newline + 1);
             event = event_type{parsed.event};
             return next;
@@ -101,8 +105,8 @@ context_action fs8::basic_replay<FormatT>::operator()(event_type& event, special
         if (nread == 0) {
             // EOF — try to flush any remaining partial line.
             if (!st_->linebuf.empty()) {
-                fs8::parsed_evtest_event parsed;
-                if (fs8::parse_evtest_line(st_->linebuf, parsed)) {
+                parsed_evtest_event parsed;
+                if (parse_evtest_line(st_->linebuf, parsed)) {
                     event = event_type{parsed.event};
                     return next;
                 }
@@ -116,8 +120,8 @@ context_action fs8::basic_replay<FormatT>::operator()(event_type& event, special
                 break;
             }
             std::string_view const   line{st_->linebuf.data(), nl};
-            fs8::parsed_evtest_event parsed;
-            if (fs8::parse_evtest_line(line, parsed)) {
+            parsed_evtest_event parsed;
+            if (parse_evtest_line(line, parsed)) {
                 st_->linebuf.erase(0, nl + 1);
                 event = event_type{parsed.event};
                 return next;
@@ -130,8 +134,3 @@ context_action fs8::basic_replay<FormatT>::operator()(event_type& event, special
         return drop_event;
     }
 }
-
-// ── Explicit instantiations ──────────────────────────────────────────────────
-
-template struct fs8::basic_replay<fs8::capture_binary_format>;
-template struct fs8::basic_replay<fs8::capture_evtest_format>;

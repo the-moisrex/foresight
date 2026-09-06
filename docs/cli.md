@@ -36,45 +36,38 @@ Usage: foresight [options] [action]
 
 ## Example usages
 
-The classic pipeline — intercept a keyboard, transform it, and write it back:
+A Foresight pipeline app can remap keys directly, e.g. an x2y remapper:
+
+```cpp
+#include <linux/input-event-codes.h>
+import fs8;
+import fs8.mods;
+
+int main() {
+    using namespace fs8;
+
+    static constinit auto pipeline =
+      context
+      | io_manager
+      | input_manager
+      | intercept[keyboard | required | grab]
+      | replace[KEY_X, KEY_Y]
+      | output;
+
+    pipeline();
+}
+```
+
+### Legacy: the intercept–transform–redirect pipeline
+
+The same result can also be achieved by piping `foresight intercept` through a
+standalone filter program and back into `foresight redirect`. This works with a
+filter written in any language — it just has to pass `struct input_event`
+records through unmodified pipes:
 
 ```bash
 keyboard=/dev/input/event1
 foresight intercept -g $keyboard | x2y | foresight redirect $keyboard
-```
-
-The three stages in the pipeline are:
-
-1. **`foresight intercept`** — reads the device and prints `input_event`s to stdout.
-2. **the middle program** — reads from stdin, transforms the events, writes to stdout.
-3. **`foresight redirect`** — reads stdin and writes the events back to the device.
-
-The middle program can be written in any language; it just has to pass
-`struct input_event` records through unmodified pipes. A minimal example in C:
-
-```c
-#include <stdio.h>
-#include <stdlib.h>
-#include <linux/input.h>
-
-int main(void) {
-    setbuf(stdin, NULL);   // disable stdin buffer
-    setbuf(stdout, NULL);  // disable stdout buffer
-
-    struct input_event event;
-
-    // read from the input
-    while (fread(&event, sizeof(event), 1, stdin) == 1) {
-
-        // modify the input however you like
-        // here, we change "x" to "y"
-        if (event.type == EV_KEY && event.code == KEY_X)
-            event.code = KEY_Y;
-
-        // write it to stdout
-        fwrite(&event, sizeof(event), 1, stdout);
-    }
-}
 ```
 
 ## Creating a new app from a template

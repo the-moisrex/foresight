@@ -6,47 +6,37 @@ This example converts the key `x` on your keyboard to `y` when you press it on y
 Usage:
 
 ```bash
-keyboard=/dev/input/event1
-foresight intercept $keyboard | x2y | foresight redirect $keyboard 
+./x2y
 ```
 
 
 ```
-  Example Usages:
-    $ keyboard=/dev/input/event1
-    $ foresight intercept $keyboard | x2y | foresight redirect $keyboard
-      -----------------------------   ---   ----------------------------
-        |                              |      |
-        |                              |      |
-        |                              |      |
-        |                              |      |
-        `----> Intercept the input     |      `---> put the modified input back
-                                      /
-                                     /
-                                    /
-             -----------------------
-            /
-    $ cat x2y.c  # you can do it with any programming language you like
-      #include <stdio.h>
-      #include <stdlib.h>
-      #include <linux/input.h>
+  A Foresight pipeline app that remaps x to y:
 
-      int main(void) {
-          setbuf(stdin, NULL);   // disable stdin buffer
-          setbuf(stdout, NULL);  // disable stdout buffer
+      #include <linux/input-event-codes.h>
+      import fs8;
+      import fs8.mods;
 
-          struct input_event event;
+      int main() {
+          using namespace fs8;
 
-          // read from the input
-          while (fread(&event, sizeof(event), 1, stdin) == 1) {
+          static constinit auto pipeline =
+            context
+            | io_manager
+            | input_manager
+            | intercept[keyboard | required | grab]
+            | replace[KEY_X, KEY_Y]
+            | output;
 
-              // modify the input however you like
-              // here, we change "x" to "y"
-              if (event.type == EV_KEY && event.code == KEY_X)
-                  event.code = KEY_Y;
-
-              // write it to stdout
-              fwrite(&event, sizeof(event), 1, stdout);
-          }
+          pipeline();
       }
+```
+
+### Legacy: the intercept–transform–redirect pipeline
+
+The same result can also be achieved by piping through a standalone filter:
+
+```bash
+keyboard=/dev/input/event1
+foresight intercept $keyboard | x2y | foresight redirect $keyboard
 ```

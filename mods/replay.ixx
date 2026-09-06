@@ -10,7 +10,6 @@ import fs8.nullable_indirect;
 import fs8.traits;
 import fs8.log;
 import fs8.lib.evtest;
-import :capture_format;
 
 export namespace fs8 {
 
@@ -27,16 +26,13 @@ export namespace fs8 {
     /// Pipeline form:
     /// ```cpp
     /// auto pipeline = context | stopper | replay | output;
-    /// pipeline.mod(replay).set_file("capture-2026-09-04.bin");
+    /// pipeline.mod(replay).set_file("capture-2026-09-04.fs8");
     /// pipeline();
     /// ```
-    template <capture_format FormatT = capture_binary_format>
     struct [[nodiscard]] basic_replay : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
-        FormatT format_{};
-
         struct state {
             std::string file_path;
             int         fd        = -1;
@@ -47,10 +43,7 @@ export namespace fs8 {
         nullable_indirect<state> st_{};
 
       public:
-        void set_file(std::string_view path) noexcept {
-            ensure_state();
-            st_->file_path = std::string{path};
-        }
+        void set_file(std::string_view path) noexcept;
 
         // ── Pipeline interface ───────────────────────────────────────────────
 
@@ -66,6 +59,6 @@ export namespace fs8 {
     };
 
     /// Default replay: auto-detect format.
-    constexpr basic_replay<> replay;
+    constexpr basic_replay replay;
 
 } // namespace fs8

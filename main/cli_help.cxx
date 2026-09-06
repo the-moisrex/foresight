@@ -79,41 +79,24 @@ void print_help() {
   Tags use -, +, or space as separators; plain text is typed literally.
 
   Example Usages:
-    $ keyboard=/dev/input/event1
-    $ foresight intercept -g $keyboard | x2y | foresight redirect $keyboard
-      --------------------------------   ---   ----------------------------
-        |                                 |      |
-        |                                 |      |
-        |                                 |      |
-        |                                 |      |
-        `----> Intercept the input        |      `---> put input back to device
-                                         /
-                                        /
-                                       /
-             --------------------------
-            /
-    $ cat discard-fast-clicks.c  # you can do it with any programming language you like
-      #include <stdio.h>
-      #include <stdlib.h>
-      #include <linux/input.h>
+    A Foresight pipeline app can remap keys directly, e.g. an x2y remapper:
 
-      int main(void) {
-          setbuf(stdin, NULL);   // disable stdin buffer
-          setbuf(stdout, NULL);  // disable stdout buffer
+      #include <linux/input-event-codes.h>
+      import fs8;
+      import fs8.mods;
 
-          struct input_event event;
+      int main() {
+          using namespace fs8;
 
-          // read from the input
-          while (fread(&event, sizeof(event), 1, stdin) == 1) {
+          static constinit auto pipeline =
+            context
+            | io_manager
+            | input_manager
+            | intercept[keyboard | required | grab]
+            | replace[KEY_X, KEY_Y]
+            | output;
 
-              // modify the input however you like
-              // here, we change "x" to "y"
-              if (event.type == EV_KEY && event.code == KEY_X)
-                  event.code = KEY_Y;
-
-              // write it to stdout
-              fwrite(&event, sizeof(event), 1, stdout);
-          }
+          pipeline();
       }
 
     $ foresight how-to-type --evtest "[Ctrl+Shift+Left]" \

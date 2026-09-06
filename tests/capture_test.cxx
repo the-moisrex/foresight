@@ -153,7 +153,7 @@ TEST(CaptureTest, BinaryFormatRoundtrip) {
     char const* const tmp = "/tmp/capture_test_rt.bin";
     write_binary_capture(tmp, original);
 
-    basic_replay<capture_binary_format> rep{};
+    basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
     rep(ev_start, special_event{.code = start.code});
@@ -190,7 +190,7 @@ TEST(CaptureTest, EvtestFormatRoundtrip) {
     char const* const tmp = "/tmp/capture_test_rt.txt";
     write_evtest_capture(tmp, original);
 
-    basic_replay<capture_evtest_format> rep{};
+    basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
     rep(ev_start, special_event{.code = start.code});
@@ -259,7 +259,7 @@ TEST(ReplayTest, BinaryFormatDetection) {
     char const* const tmp = "/tmp/replay_test_detect.bin";
     write_binary_capture(tmp, events);
 
-    basic_replay<capture_binary_format> rep{};
+    basic_replay rep{};
     rep.set_file(tmp);
 
     event_type ev{};
@@ -282,7 +282,7 @@ TEST(ReplayTest, EvtestFormatDetection) {
     char const* const tmp = "/tmp/replay_test_detect.txt";
     write_evtest_capture(tmp, events);
 
-    basic_replay<capture_evtest_format> rep{};
+    basic_replay rep{};
     rep.set_file(tmp);
 
     event_type ev{};
@@ -310,7 +310,7 @@ TEST(ReplayTest, ReplaysBinaryEvents) {
     char const* const tmp = "/tmp/replay_test_events.bin";
     write_binary_capture(tmp, original);
 
-    basic_replay<capture_binary_format> rep{};
+    basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
     rep(ev_start, special_event{.code = start.code});
@@ -347,7 +347,7 @@ TEST(ReplayTest, ReplaysEvtestEvents) {
     char const* const tmp = "/tmp/replay_test_events.txt";
     write_evtest_capture(tmp, original);
 
-    basic_replay<capture_evtest_format> rep{};
+    basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
     rep(ev_start, special_event{.code = start.code});
@@ -375,14 +375,14 @@ TEST(ReplayTest, ReplaysEvtestEvents) {
 }
 
 TEST(ReplayTest, NoFileSetReturnsExit) {
-    basic_replay<capture_binary_format> rep{};
+    basic_replay rep{};
     event_type                         ev{};
     auto const                         result = rep(ev, special_event{.code = start.code});
     EXPECT_EQ(result, context_action::exit);
 }
 
 TEST(ReplayTest, MissingFileReturnsExit) {
-    basic_replay<capture_binary_format> rep{};
+    basic_replay rep{};
     rep.set_file("/tmp/nonexistent_replay_file.bin");
     event_type ev{};
     auto const result = rep(ev, special_event{.code = start.code});
@@ -404,7 +404,7 @@ TEST(ReplayTest, HeaderOnlyFileReturnsExitOnLoad) {
         ::close(fd);
     }
 
-    basic_replay<capture_binary_format> rep{};
+    basic_replay rep{};
     rep.set_file(tmp);
     event_type ev{};
     rep(ev, special_event{.code = start.code});
@@ -416,7 +416,7 @@ TEST(ReplayTest, HeaderOnlyFileReturnsExitOnLoad) {
 }
 
 TEST(ReplayTest, NonStartTagReturnsDrop) {
-    basic_replay<capture_binary_format> rep{};
+    basic_replay rep{};
     rep.set_file("/tmp/anything.bin");
 
     event_type ev{};
@@ -432,7 +432,7 @@ TEST(ReplayTest, NonLoadTagReturnsDrop) {
     char const* const tmp = "/tmp/replay_test_droptag.bin";
     write_binary_capture(tmp, events);
 
-    basic_replay<capture_binary_format> rep{};
+    basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
     rep(ev_start, special_event{.code = start.code});
@@ -499,7 +499,7 @@ TEST(CapturePipelineTest, ReplayInPipelineReplaysEvents) {
     char const* const tmp = "/tmp/replay_pipeline_test.bin";
     write_binary_capture(tmp, original);
 
-    basic_replay<capture_binary_format> rep{};
+    basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
     rep(ev_start, special_event{.code = start.code});
@@ -556,7 +556,7 @@ TEST(CapturePipelineTest, CaptureReplayRoundtrip) {
     // Step 2: Replay from the captured file via direct replay mod calls.
     std::vector<event_type> replayed;
     {
-        basic_replay<capture_binary_format> rep{};
+        basic_replay rep{};
         rep.set_file(expected);
         event_type ev_start{};
         rep(ev_start, special_event{.code = start.code});
