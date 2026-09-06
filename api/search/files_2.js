@@ -9,6 +9,14 @@ var searchData=
   ['capture_5fnaming_2ecxx_6',['capture_naming.cxx',['../capture__naming_8cxx.html',1,'']]],
   ['capture_5fnaming_2eixx_7',['capture_naming.ixx',['../capture__naming_8ixx.html',1,'']]],
   ['cli_2eixx_8',['cli.ixx',['../cli_8ixx.html',1,'']]],
-  ['context_2eixx_9',['context.ixx',['../context_8ixx.html',1,'']]],
-  ['context_5fvars_2eixx_10',['context_vars.ixx',['../context__vars_8ixx.html',1,'']]]
+  ['cli_5fargs_2ecxx_9',['cli_args.cxx',['../cli__args_8cxx.html',1,'']]],
+  ['cli_5fcapture_2ecxx_10',['cli_capture.cxx',['../cli__capture_8cxx.html',1,'']]],
+  ['cli_5fevtest_2ecxx_11',['cli_evtest.cxx',['../cli__evtest_8cxx.html',1,'']]],
+  ['cli_5fhelp_2ecxx_12',['cli_help.cxx',['../cli__help_8cxx.html',1,'']]],
+  ['cli_5flive_2ecxx_13',['cli_live.cxx',['../cli__live_8cxx.html',1,'']]],
+  ['cli_5fmatches_2ecxx_14',['cli_matches.cxx',['../cli__matches_8cxx.html',1,'']]],
+  ['cli_5fnew_2ecxx_15',['cli_new.cxx',['../cli__new_8cxx.html',1,'']]],
+  ['cli_5fsignals_2ecxx_16',['cli_signals.cxx',['../cli__signals_8cxx.html',1,'']]],
+  ['context_2eixx_17',['context.ixx',['../context_8ixx.html',1,'']]],
+  ['context_5fvars_2eixx_18',['context_vars.ixx',['../context__vars_8ixx.html',1,'']]]
 ];

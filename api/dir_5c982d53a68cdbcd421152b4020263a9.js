@@ -1,6 +1,14 @@
 var dir_5c982d53a68cdbcd421152b4020263a9 =
 [
     [ "cli.ixx", "cli_8ixx.html", "cli_8ixx" ],
+    [ "cli_args.cxx", "cli__args_8cxx.html", "cli__args_8cxx" ],
+    [ "cli_capture.cxx", "cli__capture_8cxx.html", "cli__capture_8cxx" ],
+    [ "cli_evtest.cxx", "cli__evtest_8cxx.html", "cli__evtest_8cxx" ],
+    [ "cli_help.cxx", "cli__help_8cxx.html", "cli__help_8cxx" ],
+    [ "cli_live.cxx", "cli__live_8cxx.html", "cli__live_8cxx" ],
+    [ "cli_matches.cxx", "cli__matches_8cxx.html", "cli__matches_8cxx" ],
+    [ "cli_new.cxx", "cli__new_8cxx.html", "cli__new_8cxx" ],
+    [ "cli_signals.cxx", "cli__signals_8cxx.html", "cli__signals_8cxx" ],
     [ "context.ixx", "context_8ixx.html", "context_8ixx" ],
     [ "event.cxx", "event_8cxx.html", null ],
     [ "event.ixx", "event_8ixx.html", "event_8ixx" ],

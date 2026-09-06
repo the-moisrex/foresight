@@ -33,9 +33,10 @@ var searchData=
   ['context_30',['context',['../structfs8_1_1xkb_1_1context.html#aa7d9c473fecad902219bdd41ae1922b4',1,'fs8::xkb::context::context(context &amp;&amp;) noexcept=default'],['../structfs8_1_1xkb_1_1context.html#a840a1052d21f85adf25862b421cef85a',1,'fs8::xkb::context::context(context const &amp;)=delete'],['../structfs8_1_1xkb_1_1context.html#af786e1920b17b5cf98d3f81645e87f80',1,'fs8::xkb::context::context(xkb_context_flags flags=XKB_CONTEXT_NO_FLAGS)']]],
   ['count_31',['count',['../structfs8_1_1basic__record.html#ad26c799821237e6e0524d928d737ffaf',1,'fs8::basic_record::count(event_type::type_type type, event_type::code_type code) const noexcept'],['../structfs8_1_1basic__record.html#ac843889869e732aaa199cee0b84cf9d4',1,'fs8::basic_record::count(event_type::type_type type) const noexcept'],['../structfs8_1_1basic__record.html#a822d22463559ede565efa68ca33a1ccb',1,'fs8::basic_record::count(Pred &amp;&amp;pred) const noexcept'],['../structfs8_1_1basic__drop__missing__syns.html#ae29f137c70ea691d709fedde5a259d46',1,'fs8::basic_drop_missing_syns::count()']]],
   ['create_5fapp_32',['create_app',['../namespacefs8.html#a831704bcebdaf4c4dfc6c7ce20dc325e',1,'fs8']]],
-  ['cur_33',['cur',['../structfs8_1_1basic__mouse__history.html#a2349d4618706393248e114740f51273b',1,'fs8::basic_mouse_history::cur() noexcept'],['../structfs8_1_1basic__mouse__history.html#ad912765a6a741d196aa7a77cbb4e312a',1,'fs8::basic_mouse_history::cur() const noexcept']]],
-  ['current_5fframe_34',['current_frame',['../structfs8_1_1basic__context.html#a6e69ffa52391efe00e215e87107a40ad',1,'fs8::basic_context']]],
-  ['current_5fmodes_5fcaller_35',['current_modes_caller',['../namespacefs8_1_1detail.html#a9779fd07e2605ff2061f92ffba7f8b6c',1,'fs8::detail']]],
-  ['current_5fvelocity_36',['current_velocity',['../structfs8_1_1basic__momentum__base.html#a4e8c6fc8362b82674535dfc7b4b3d5d7',1,'fs8::basic_momentum_base']]],
-  ['curve_5fmagnitude_37',['curve_magnitude',['../structfs8_1_1momentum__calculator.html#a4a034362d3e2aacd8bb236e278c7da0e',1,'fs8::momentum_calculator']]]
+  ['create_5fnew_5fapp_33',['create_new_app',['../cli__new_8cxx.html#a3853eeb3c4cebf4719a1d3b987edcdb1',1,'cli_new.cxx']]],
+  ['cur_34',['cur',['../structfs8_1_1basic__mouse__history.html#a2349d4618706393248e114740f51273b',1,'fs8::basic_mouse_history::cur() noexcept'],['../structfs8_1_1basic__mouse__history.html#ad912765a6a741d196aa7a77cbb4e312a',1,'fs8::basic_mouse_history::cur() const noexcept']]],
+  ['current_5fframe_35',['current_frame',['../structfs8_1_1basic__context.html#a6e69ffa52391efe00e215e87107a40ad',1,'fs8::basic_context']]],
+  ['current_5fmodes_5fcaller_36',['current_modes_caller',['../namespacefs8_1_1detail.html#a9779fd07e2605ff2061f92ffba7f8b6c',1,'fs8::detail']]],
+  ['current_5fvelocity_37',['current_velocity',['../structfs8_1_1basic__momentum__base.html#a4e8c6fc8362b82674535dfc7b4b3d5d7',1,'fs8::basic_momentum_base']]],
+  ['curve_5fmagnitude_38',['curve_magnitude',['../structfs8_1_1momentum__calculator.html#a4a034362d3e2aacd8bb236e278c7da0e',1,'fs8::momentum_calculator']]]
 ];
