@@ -319,9 +319,10 @@ fs8::owned_query::owned_query(std::string_view const str) noexcept {
     if (str.starts_with('/')) {
         auto const pos  = str.find_last_of('/');
         auto const base = (pos == std::string_view::npos) ? str : str.substr(pos + 1);
-        storage[0]      = subsystem("input");
-        storage[1]      = match_sysname(base);
-        count           = 2;
+        // storage[0]      = match_property("ID_INPUT", "1");
+        // storage[1]      = subsystem("input");
+        storage[0]      = match_sysname(base);
+        count           = 1;
     }
     // 2. A known capabilities name (e.g. "keyboard", "mouse", "pen")
     else if (auto const caps_value = caps_of(str); !caps_value.empty())
@@ -331,9 +332,10 @@ fs8::owned_query::owned_query(std::string_view const str) noexcept {
         // on the system.  The input subsystem + event sysname pair narrows the
         // scan to /sys/class/input/event* devices, which is what these
         // capability queries actually target.
-        storage[0] = attr::input_subsystem;
-        storage[1] = attr::event_sysname;
-        count      = 2;
+        storage[0] = attr::input;
+        storage[1] = attr::input_subsystem;
+        storage[2] = attr::event_sysname;
+        count      = 3;
         return;
     }
     // 3. A query term (e.g. "name=event0", "attr:device/name=my_mouse")

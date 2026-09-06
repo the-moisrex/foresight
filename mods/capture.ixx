@@ -43,23 +43,23 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
       private:
-        FormatT format_{};
-        NamingT naming_{};
+        FormatT format{};
+        NamingT naming{};
 
-        struct state {
+        struct state_type {
             std::vector<event_type> buffer;
             int                     current_fd = -1;
             std::string             current_path;
             std::int64_t            last_rotation = 0;
         };
 
-        nullable_indirect<state> st_{};
+        nullable_indirect<state_type> state{};
 
       public:
-        consteval basic_capture(FormatT format, NamingT naming) noexcept : format_{format}, naming_{std::move(naming)} {}
+        consteval basic_capture(FormatT inp_format, NamingT inp_naming) noexcept : format{inp_format}, naming{std::move(inp_naming)} {}
 
         constexpr ~basic_capture() noexcept {
-            if (static_cast<bool>(st_)) {
+            if (static_cast<bool>(state)) {
                 flush_buffer();
                 close_file();
             }
@@ -67,83 +67,34 @@ export namespace fs8 {
 
         /// Set a custom output filename (for naming strategies that support it, e.g. capture_manual).
         void set_name(std::string_view const name) noexcept
-            requires requires { naming_.set_name(name); }
+            requires requires { naming.set_name(name); }
         {
-            naming_.set_name(name);
+            naming.set_name(name);
         }
 
         // ── Pipeline interface ───────────────────────────────────────────────
 
-        /// Pipeline form: receives special events from the context.
+        /// receives special events from the context.
         template <Context CtxT>
         context_action operator()(CtxT&, special_event const& tag) noexcept {
             static_assert(has_mod<basic_idle_detector<>, CtxT>, "Mod required");
-            return handle_special(tag);
-        }
 
-        /// Direct form: for tests and standalone use without a context.
-        context_action operator()(special_event const& tag) noexcept {
-            return handle_special(tag);
-        }
-
-        context_action operator()(event_type const& event) noexcept {
-            ensure_state();
-            st_->buffer.push_back(event);
-            return context_action::next;
-        }
-
-        // ── Accessors (for tests) ───────────────────────────────────────────
-
-        [[nodiscard]] std::span<event_type const> buffered() const noexcept {
-            if (!static_cast<bool>(st_)) {
-                return {};
-            }
-            return st_->buffer;
-        }
-
-        [[nodiscard]] std::size_t buffer_size() const noexcept {
-            if (!static_cast<bool>(st_)) {
-                return 0;
-            }
-            return st_->buffer.size();
-        }
-
-        [[nodiscard]] bool is_open() const noexcept {
-            return static_cast<bool>(st_) && st_->current_fd >= 0;
-        }
-
-      private:
-        void ensure_state() noexcept {
-            if (!static_cast<bool>(st_)) {
-                st_ = nullable_indirect<state>::make();
-            }
-        }
-
-        context_action handle_special(special_event const& tag) noexcept {
             using enum context_action;
-            ensure_state();
             switch (tag.code) {
-                case start.code: return next;
-                case toggle_on.code: {
-                    if (tag.value == toggle_on.value) {
-                        return next; // no-op: events are always buffered
+                case start.code:
+                    ensure_state();
+                    if (!open_file()) [[unlikely]] {
+                        return recovery;
                     }
-                    // toggle_off: flush immediately
-                    flush_buffer();
                     return next;
-                }
                 case idle.code: {
-                    if (st_->buffer.empty()) {
+                    assert(static_cast<bool>(state));
+                    if (state->buffer.empty()) {
                         return next;
                     }
-                    if (st_->current_fd < 0) {
-                        if (!open_file()) {
-                            return next;
-                        }
-                    } else if (naming_.should_rotate(st_->last_rotation)) {
-                        close_file();
-                        if (!open_file()) {
-                            return next;
+                    if (state->current_fd < 0 || naming.should_rotate(state->last_rotation)) [[unlikely]] {
+                        if (!open_file()) [[unlikely]] {
+                            return recovery;
                         }
                     }
                     flush_buffer();
@@ -153,41 +104,77 @@ export namespace fs8 {
             }
         }
 
+        context_action operator()(event_type const& event) noexcept {
+            assert(static_cast<bool>(state));
+            state->buffer.push_back(event);
+            return context_action::next;
+        }
+
+        // ── Accessors (for tests) ───────────────────────────────────────────
+
+        [[nodiscard]] std::span<event_type const> buffered() const noexcept {
+            if (!static_cast<bool>(state)) {
+                return {};
+            }
+            return state->buffer;
+        }
+
+        [[nodiscard]] std::size_t buffer_size() const noexcept {
+            if (!static_cast<bool>(state)) {
+                return 0;
+            }
+            return state->buffer.size();
+        }
+
+        [[nodiscard]] bool is_open() const noexcept {
+            return static_cast<bool>(state) && state->current_fd >= 0;
+        }
+
+      private:
+        void ensure_state() noexcept {
+            if (!static_cast<bool>(state)) {
+                state = nullable_indirect<state_type>::make();
+            }
+        }
+
         bool open_file() noexcept {
-            auto const path = naming_.filename(FormatT::extension);
+            if (is_open()) [[unlikely]] {
+                close_file();
+            }
+            auto const path = naming.filename(FormatT::extension);
             auto const fd   = ::open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
             if (fd < 0) {
                 log("capture: failed to open {}", path);
                 return false;
             }
-            if (!format_.write_header(fd)) {
+            if (!format.write_header(fd)) {
                 log("capture: failed to write header to {}", path);
                 ::close(fd);
                 return false;
             }
-            st_->current_fd    = fd;
-            st_->current_path  = std::move(path);
-            st_->last_rotation = detail::now_epoch_seconds();
-            log("Capture started on {}", st_->current_path);
+            state->current_fd    = fd;
+            state->current_path  = std::move(path);
+            state->last_rotation = detail::now_epoch_seconds();
+            log("Capture started on {}", state->current_path);
             return true;
         }
 
         void close_file() noexcept {
-            if (st_->current_fd < 0) {
+            if (state->current_fd < 0) {
                 return;
             }
-            std::ignore = format_.write_footer(st_->current_fd);
-            ::close(st_->current_fd);
-            st_->current_fd = -1;
-            log("Closing: {}", st_->current_path);
+            std::ignore = format.write_footer(state->current_fd);
+            ::close(state->current_fd);
+            state->current_fd = -1;
+            log("Closing: {}", state->current_path);
         }
 
         void flush_buffer() noexcept {
-            if (st_->buffer.empty() || st_->current_fd < 0) {
+            if (state->buffer.empty() || state->current_fd < 0) [[unlikely]] {
                 return;
             }
-            std::ignore = format_.emit(st_->current_fd, st_->buffer);
-            st_->buffer.clear();
+            std::ignore = format.emit(state->current_fd, state->buffer);
+            state->buffer.clear();
         }
 
       public:

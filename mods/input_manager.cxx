@@ -101,11 +101,11 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         // Fall back to the currently-bound dynamic context (if any): ask the
         // active pipeline's mods (recursing into routers/sub-pipelines) for
         // their self-created devnodes.
-        if (!fs8::dynamic_context.bound()) {
+        if (!dynamic_context.bound()) {
             return false;
         }
         bool match = false;
-        fs8::dynamic_context.for_each_self_devnode([&](std::string_view const devnode) noexcept {
+        dynamic_context.for_each_self_devnode([&](std::string_view const devnode) noexcept {
             if (match) {
                 return;
             }
@@ -175,7 +175,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 }
                 auto edev = open_device(cur_query, event_dev);
                 if (!edev.is_ok()) {
-                    log("Device '{}' status: {}", path, to_string(edev.get_status()));
+                    log("Device '{}' with status: {}", path, to_string(edev.get_status()));
                     continue;
                 }
                 devs.emplace_back(std::move(edev));
@@ -283,7 +283,9 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
             }
             auto edev = open_device(cur_query, event_dev);
             if (!edev.is_ok()) {
-                log("Device '{}' status: {}", event_dev.syspath(), to_string(edev.get_status()));
+                if (edev.get_status() != evdev_status::not_matched) {
+                    log("Skipping device '{}' status: {}", event_dev.syspath(), to_string(edev.get_status()));
+                }
                 continue;
             }
             std::uint8_t const score = cur_query.caps.empty() ? 0 : edev.match_caps(cur_query.caps);
@@ -305,8 +307,8 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 break;
             }
             devs.emplace_back(std::move(edev));
-            auto const id = fs8::ci_hash(std::string_view{fs8::device_sysname(devs.back())});
-            notify_listeners(id, fs8::device_change::connected);
+            auto const id = ci_hash(std::string_view{device_sysname(devs.back())});
+            notify_listeners(id, device_change::connected);
             --remaining;
         }
         return found;
