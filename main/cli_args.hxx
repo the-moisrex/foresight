@@ -59,6 +59,9 @@ struct options {
     /// Replay file path
     std::string_view replay_file;
 
+    /// Replay live view: use condensed_view output instead of raw stdout
+    bool live_view = false;
+
     /// All args
     std::span<char const* const> args;
 };

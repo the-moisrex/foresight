@@ -80,6 +80,10 @@ options parse_arguments(std::span<char const* const> const argv) {
             opts.echo_events = true;
             continue;
         }
+        if (opt == "--live") {
+            opts.live_view = true;
+            continue;
+        }
         if (opt == "--format" && index + 1 < argv.size()) {
             opts.capture_format = argv[index + 1];
             ++index;

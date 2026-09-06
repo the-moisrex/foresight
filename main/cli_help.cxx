@@ -64,7 +64,9 @@ void print_help() {
        --name <filename>          Custom output filename (requires --naming manual).
 
     replay   <file>               Replay captured events from a file to stdout.
-                                     Auto-detects format (binary or evtest).
+                                      Auto-detects format (binary or evtest).
+       --live                     Display events using the condensed live view
+                                    format (mouse accumulation, key holds, colors).
 
     help                 Print help.
 

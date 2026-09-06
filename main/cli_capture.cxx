@@ -83,11 +83,22 @@ int run_capture_action(options const& opts) {
 }
 
 int run_replay_action(options const& opts) {
-    static constinit auto pipeline = fs8::context | fs8::stopper | fs8::replay | fs8::std_output;
+    if (opts.live_view) {
+        static constinit auto pipeline =
+          fs8::context | fs8::stopper | fs8::replay | fs8::basic_condensed_view_output{};
 
-    auto& rep = pipeline.mod(fs8::replay);
-    rep.set_file(opts.replay_file);
+        auto& rep = pipeline.mod(fs8::replay);
+        rep.set_file(opts.replay_file);
 
-    pipeline();
+        pipeline();
+    } else {
+        static constinit auto pipeline =
+          fs8::context | fs8::stopper | fs8::replay | fs8::std_output;
+
+        auto& rep = pipeline.mod(fs8::replay);
+        rep.set_file(opts.replay_file);
+
+        pipeline();
+    }
     return EXIT_SUCCESS;
 }

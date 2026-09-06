@@ -18,6 +18,7 @@ import fs8.event;
 import fs8.lib.evtest;
 import fs8.lib.xkb;
 import fs8.lib.xkb.event2unicode;
+import fs8.nullable_indirect;
 import fs8.traits;
 import fs8.translate;
 import :sanitizer;
@@ -303,5 +304,51 @@ export namespace fs8 {
     };
 
     constexpr basic_from_event_line<> from_event_line;
+
+    /// Output modifier that displays events using the condensed_view format
+    /// (mouse accumulation, key holds, ANSI colors). Used by `foresight replay --live`.
+    struct [[nodiscard]] basic_condensed_view_output : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+      private:
+        int                                file_descriptor = STDOUT_FILENO;
+        nullable_indirect<condensed_view>  lv_;
+
+      public:
+        constexpr basic_condensed_view_output() noexcept = default;
+
+        constexpr explicit basic_condensed_view_output(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
+
+        constexpr void set_output(int const inp_fd) noexcept {
+            file_descriptor = inp_fd;
+        }
+
+        // NOLINTNEXTLINE(*-use-nodiscard)
+        bool emit(event_type const& event) noexcept {
+            try {
+                ensure_view();
+                lv_->process_event(event, file_descriptor);
+                return true;
+            } catch (...) {
+                return false;
+            }
+        }
+
+        // NOLINTNEXTLINE(*-use-nodiscard)
+        bool operator()(event_type& event) noexcept {
+            return emit(event);
+        }
+
+      private:
+        void ensure_view() {
+            if (!lv_) {
+                bool const is_terminal = ::isatty(file_descriptor) == 1;
+                lv_ = nullable_indirect<condensed_view>::make(is_terminal);
+                lv_->set_ansi(is_terminal);
+            }
+        }
+    };
+
+    static_assert(OutputModifier<basic_condensed_view_output>, "Must be a output modifier.");
 
 } // namespace fs8
