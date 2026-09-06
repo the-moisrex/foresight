@@ -157,7 +157,7 @@ var hierarchy =
       [ "fs8::basic_quantifier", "structfs8_1_1basic__quantifier.html", null ],
       [ "fs8::basic_replace< N, EventType >", "structfs8_1_1basic__replace.html", null ],
       [ "fs8::basic_replace_code", "structfs8_1_1basic__replace__code.html", null ],
-      [ "fs8::basic_replay< FormatT >", "structfs8_1_1basic__replay.html", null ],
+      [ "fs8::basic_replay", "structfs8_1_1basic__replay.html", null ],
       [ "fs8::basic_router< Routes >", "structfs8_1_1basic__router.html", null ],
       [ "fs8::basic_scale_move", "structfs8_1_1basic__scale__move.html", null ],
       [ "fs8::basic_scale_pen", "structfs8_1_1basic__scale__pen.html", null ],

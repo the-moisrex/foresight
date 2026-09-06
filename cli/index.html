@@ -561,6 +561,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Example usages">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#legacy-the-intercepttransformredirect-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Legacy: the intercept–transform–redirect pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -866,6 +883,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Example usages">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#legacy-the-intercepttransformredirect-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Legacy: the intercept–transform–redirect pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -942,40 +976,32 @@ with the Foresight library.</p>
     help                 Print help.
 </code></pre></div>
 <h2 id="example-usages">Example usages</h2>
-<p>The classic pipeline — intercept a keyboard, transform it, and write it back:</p>
+<p>A Foresight pipeline app can remap keys directly, e.g. an x2y remapper:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;linux/input-event-codes.h&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="n">fs8</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="n">fs8</span><span class="p">.</span><span class="n">mods</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">fs8</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">constinit</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">pipeline</span><span class="w"> </span><span class="o">=</span>
+<span class="w">      </span><span class="n">context</span>
+<span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">io_manager</span>
+<span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">input_manager</span>
+<span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">intercept</span><span class="p">[</span><span class="n">keyboard</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grab</span><span class="p">]</span>
+<span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">replace</span><span class="p">[</span><span class="n">KEY_X</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_Y</span><span class="p">]</span>
+<span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">output</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">pipeline</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="legacy-the-intercepttransformredirect-pipeline">Legacy: the intercept–transform–redirect pipeline</h3>
+<p>The same result can also be achieved by piping <code>foresight intercept</code> through a
+standalone filter program and back into <code>foresight redirect</code>. This works with a
+filter written in any language — it just has to pass <code>struct input_event</code>
+records through unmodified pipes:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">keyboard</span><span class="o">=</span>/dev/input/event1
 foresight<span class="w"> </span>intercept<span class="w"> </span>-g<span class="w"> </span><span class="nv">$keyboard</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>x2y<span class="w"> </span><span class="p">|</span><span class="w"> </span>foresight<span class="w"> </span>redirect<span class="w"> </span><span class="nv">$keyboard</span>
-</code></pre></div>
-<p>The three stages in the pipeline are:</p>
-<ol>
-<li><strong><code>foresight intercept</code></strong> — reads the device and prints <code>input_event</code>s to stdout.</li>
-<li><strong>the middle program</strong> — reads from stdin, transforms the events, writes to stdout.</li>
-<li><strong><code>foresight redirect</code></strong> — reads stdin and writes the events back to the device.</li>
-</ol>
-<p>The middle program can be written in any language; it just has to pass
-<code>struct input_event</code> records through unmodified pipes. A minimal example in C:</p>
-<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;linux/input.h&gt;</span>
-
-<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">setbuf</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w">   </span><span class="c1">// disable stdin buffer</span>
-<span class="w">    </span><span class="n">setbuf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w">  </span><span class="c1">// disable stdout buffer</span>
-
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">input_event</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
-
-<span class="w">    </span><span class="c1">// read from the input</span>
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">fread</span><span class="p">(</span><span class="o">&amp;</span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">event</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">stdin</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-
-<span class="w">        </span><span class="c1">// modify the input however you like</span>
-<span class="w">        </span><span class="c1">// here, we change "x" to "y"</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">EV_KEY</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">event</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">KEY_X</span><span class="p">)</span>
-<span class="w">            </span><span class="n">event</span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KEY_Y</span><span class="p">;</span>
-
-<span class="w">        </span><span class="c1">// write it to stdout</span>
-<span class="w">        </span><span class="n">fwrite</span><span class="p">(</span><span class="o">&amp;</span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">event</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">stdout</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
 </code></pre></div>
 <h2 id="creating-a-new-app-from-a-template">Creating a new app from a template</h2>
 <p><code>foresight new</code> scaffolds a new app (project) from an interchangeable template:</p>

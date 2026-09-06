@@ -195,7 +195,7 @@ digraph "Graphical Class Hierarchy"
   Node0 -> Node104 [id="edge98_Node000000_Node000104",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node104 [id="Node000104",label="fs8::basic_replace_code",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__replace__code.html",tooltip=" "];
   Node0 -> Node105 [id="edge99_Node000000_Node000105",dir="back",color="steelblue1",style="solid",tooltip=" "];
-  Node105 [id="Node000105",label="fs8::basic_replay\<\l FormatT \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__replay.html",tooltip=" "];
+  Node105 [id="Node000105",label="fs8::basic_replay",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__replay.html",tooltip=" "];
   Node0 -> Node106 [id="edge100_Node000000_Node000106",dir="back",color="steelblue1",style="solid",tooltip=" "];
   Node106 [id="Node000106",label="fs8::basic_router\<\l Routes \>",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$structfs8_1_1basic__router.html",tooltip=" "];
   Node0 -> Node107 [id="edge101_Node000000_Node000107",dir="back",color="steelblue1",style="solid",tooltip=" "];
