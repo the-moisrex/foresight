@@ -1,12 +1,11 @@
 #include "cli_args.hxx"
 
 #include <concepts>
-#include <print>
-#include <span>
 
 import fs8;
 import fs8.devices.queries;
 
+namespace {
 template <fs8::capture_format FormatT, fs8::capture_naming NamingT>
 int run_capture_pipeline(options const& opts) {
     static constinit auto pipeline =
@@ -39,6 +38,7 @@ int run_capture_pipeline(options const& opts) {
     pipeline();
     return EXIT_SUCCESS;
 }
+} // namespace
 
 int run_capture_action(options const& opts) {
     auto const  is_evtest = opts.capture_format == "evtest";

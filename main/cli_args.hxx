@@ -1,3 +1,4 @@
+// NOLINTNEXTLINE(*-header-guard)
 #pragma once
 
 // Internal header for the foresight CLI — shared types and declarations.
@@ -62,9 +63,9 @@ struct options {
     std::span<char const* const> args;
 };
 
-void set_action(options& opt, options::action_type const inp_action);
+void set_action(options& opt, options::action_type inp_action);
 
-options parse_arguments(std::span<char const* const> const argv);
+options parse_arguments(std::span<char const* const> argv);
 
 // ---- Signals ----
 
@@ -72,6 +73,7 @@ namespace signals {
     // NOLINTBEGIN(*-avoid-non-const-global-variables)
     extern std::sig_atomic_t volatile sig;
     extern std::vector<std::move_only_function<void(std::sig_atomic_t) const>> actions;
+
     // NOLINTEND(*-avoid-non-const-global-variables)
 
     template <typename T>
@@ -97,8 +99,8 @@ void print_input_devices_table();
 
 // ---- Actions ----
 
-int create_new_app(std::span<char const* const> const args);
-int run_matches(std::span<std::string_view const> const patterns, bool echo_events);
+int create_new_app(std::span<char const* const> args);
+int run_matches(std::span<std::string_view const> patterns, bool echo_events);
 int run_evtest(options const& opts);
 int run_live(options const& opts);
 int run_capture_action(options const& opts);

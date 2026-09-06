@@ -48,7 +48,7 @@ int run_action(options const& opts) {
             return EXIT_SUCCESS;
         }
         case redirect: {
-            if (opts.queries.size() != 1) {
+            if (opts.queries.size() != 1) [[unlikely]] {
                 throw std::invalid_argument("Only pass one query for redirect.");
             }
 
@@ -60,7 +60,7 @@ int run_action(options const& opts) {
             auto oq = fs8::owned_query{opts.queries.front()};
             oq.grab = opts.grab;
             fs8::evdev const dev = fs8::device(oq);
-            if (!dev.is_ok()) {
+            if (!dev.is_ok()) [[unlikely]] {
                 throw std::runtime_error("Could not open device for the given query.");
             }
             out.set_device(dev);
@@ -124,7 +124,7 @@ int run_action(options const& opts) {
             return run_live(opts);
         }
         case capture: {
-            if (opts.queries.empty()) {
+            if (opts.queries.empty()) [[unlikely]] {
                 throw std::invalid_argument("Please provide a device query as an argument.");
             }
             return run_capture_action(opts);

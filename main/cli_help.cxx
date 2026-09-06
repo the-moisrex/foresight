@@ -1,12 +1,9 @@
 #include "cli_args.hxx"
 
 #include <algorithm>
-#include <format>
-#include <iostream>
+#include <coroutine>
 #include <print>
-#include <span>
 #include <string>
-#include <string_view>
 #include <vector>
 
 import fs8;
@@ -153,13 +150,23 @@ void print_input_devices_table() {
         std::string id;
     };
 
+    constexpr std::size_t kInitialReserve = 16;
+
     std::vector<Entry> devices;
-    devices.reserve(16);
+    devices.reserve(kInitialReserve);
+
+    // NOLINTBEGIN(*-magic-numbers)
+    constexpr std::size_t kDefaultNameWidth = 6;  // "Device"
+    constexpr std::size_t kDefaultLocWidth  = 17; // "Physical Location"
+    constexpr std::size_t kDefaultIdWidth   = 9;  // "Unique ID"
+    // NOLINTEND(*-magic-numbers)
 
     // Minimum column widths (length of header texts)
-    std::size_t w_name = 6;  // "Device"
-    std::size_t w_loc  = 17; // "Physical Location"
-    std::size_t w_id   = 9;  // "Unique ID"
+    // NOLINTBEGIN(*-avoid-non-const-global-variables)
+    std::size_t w_name = kDefaultNameWidth;
+    std::size_t w_loc  = kDefaultLocWidth;
+    std::size_t w_id   = kDefaultIdWidth;
+    // NOLINTEND(*-avoid-non-const-global-variables)
 
     // Single pass: measure + store owned strings
     // Enumerate input devices through the query system (udev), then open
@@ -180,7 +187,7 @@ void print_input_devices_table() {
         devices.emplace_back(std::string{name_sv}, std::string{loc_sv}, std::string{id_sv});
     }
 
-    if (devices.empty()) {
+    if (devices.empty()) [[unlikely]] {
         std::println("No input devices found.");
         return;
     }

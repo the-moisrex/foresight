@@ -1,7 +1,6 @@
 #include "cli_args.hxx"
 
 #include <format>
-#include <print>
 #include <stdexcept>
 
 import fs8;
@@ -10,19 +9,20 @@ void set_action(options& opt, options::action_type const inp_action) {
     if (opt.action == inp_action) {
         return;
     }
-    if (opt.action != options::action_type::none) {
+    if (opt.action != options::action_type::none) [[unlikely]] {
         throw std::invalid_argument(std::format("Invalid argument syntax, two actions provided."));
     }
     opt.action = inp_action;
 }
 
+// NOLINTNEXTLINE(*-cognitive-complexity)
 options parse_arguments(std::span<char const* const> const argv) {
     using enum options::action_type;
     using std::format;
     using std::invalid_argument;
 
     options opts{};
-    if (argv.size() <= 1) {
+    if (argv.size() <= 1) [[unlikely]] {
         return opts;
     }
     opts.args = argv;
@@ -98,17 +98,9 @@ options parse_arguments(std::span<char const* const> const argv) {
 
         switch (opts.action) {
             case intercept:
-            case redirect: {
-                opts.queries.emplace_back(opt);
-                break;
-            }
-
+            case redirect:
             case evtest:
-            case live: {
-                opts.queries.emplace_back(opt);
-                break;
-            }
-
+            case live:
             case capture: {
                 opts.queries.emplace_back(opt);
                 break;

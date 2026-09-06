@@ -4,7 +4,6 @@
 #include <print>
 #include <ranges>
 #include <span>
-#include <string>
 #include <string_view>
 
 import fs8;
@@ -13,8 +12,10 @@ import fs8.scaffold;
 int create_new_app(std::span<char const* const> const args) {
     using enum options::action_type;
 
+    // NOLINTBEGIN(*-avoid-non-const-global-variables)
     bool             list_templates = false;
     bool             help_requested = false;
+    // NOLINTEND(*-avoid-non-const-global-variables)
     std::string_view tpl;
     std::string_view name;
 
@@ -29,32 +30,32 @@ int create_new_app(std::span<char const* const> const args) {
             continue;
         }
         if (fs8::is_valid_template(cur)) {
-            if (!tpl.empty()) {
+            if (!tpl.empty()) [[unlikely]] {
                 throw std::invalid_argument(
                   std::format("'{}' and '{}' are both templates; pass one template and one app name.", tpl, cur));
             }
             tpl = cur;
             continue;
         }
-        if (!name.empty()) {
+        if (!name.empty()) [[unlikely]] {
             throw std::invalid_argument(std::format("Unknown argument '{}'.", cur));
         }
         name = cur;
     }
 
-    if (list_templates) {
+    if (list_templates) [[unlikely]] {
         std::println("Available templates:");
         for (auto const& templ : fs8::available_templates()) {
             std::println("  {:<12} {}", templ.name, templ.description);
         }
         return EXIT_SUCCESS;
     }
-    if (help_requested) {
+    if (help_requested) [[unlikely]] {
         print_new_help();
         return EXIT_SUCCESS;
     }
-    if (name.empty()) {
-        if (tpl.empty()) {
+    if (name.empty()) [[unlikely]] {
+        if (tpl.empty()) [[unlikely]] {
             throw std::invalid_argument("Please provide a name for the app.");
         }
         name = tpl; // e.g. `foresight new x2y` -> an app named after the template

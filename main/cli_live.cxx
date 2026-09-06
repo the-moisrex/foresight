@@ -2,21 +2,20 @@
 
 #include <algorithm>
 #include <charconv>
-#include <cstdint>
 #include <filesystem>
 #include <iostream>
+#include <poll.h>
 #include <print>
 #include <ranges>
-#include <span>
 #include <string>
 #include <unistd.h>
-
-#include <poll.h>
 
 import fs8;
 import fs8.devices.queries;
 import fs8.devices.udev;
 import fs8.lib.evtest;
+
+constexpr int kPollTimeoutMs = 100;
 
 int run_live(options const& opts) {
     // --- open the device ---
@@ -59,7 +58,7 @@ int run_live(options const& opts) {
             });
         }
 
-        if (devices.empty()) {
+        if (devices.empty()) [[unlikely]] {
             std::println(stderr, "No devices available");
             return EXIT_FAILURE;
         }
@@ -79,14 +78,14 @@ int run_live(options const& opts) {
         std::fflush(stdout);
 
         int selection = -1;
-        if (!(std::cin >> selection)) {
+        if (!(std::cin >> selection)) [[unlikely]] {
             std::println(stderr, "Could not select.");
             return EXIT_FAILURE;
         }
         auto const it = std::ranges::find_if(devices, [selection](auto const& d) {
             return d.event_num == selection;
         });
-        if (it == devices.end()) {
+        if (it == devices.end()) [[unlikely]] {
             std::println(stderr, "Invalid selection.");
             return EXIT_FAILURE;
         }
@@ -94,10 +93,10 @@ int run_live(options const& opts) {
         dev = fs8::evdev{std::filesystem::path{it->devnode}};
     } else {
         auto oq = fs8::owned_query{opts.queries.front()};
-        dev = fs8::device(oq);
+        dev     = fs8::device(oq);
     }
 
-    if (!dev.is_ok()) {
+    if (!dev.is_ok()) [[unlikely]] {
         std::println(stderr, "Could not open device.");
         return EXIT_FAILURE;
     }
@@ -116,27 +115,28 @@ int run_live(options const& opts) {
     pollfd    pfd = {.fd = fd, .events = POLLIN, .revents = 0};
 
     while (signals::sig == 0) {
-        int ready = 0;
-        do {
-            ready = ::poll(&pfd, 1, 100);
-        } while (ready < 0 && errno == EINTR && signals::sig == 0);
+        int ready = ::poll(&pfd, 1, kPollTimeoutMs);
+        while (ready < 0 && errno == EINTR && signals::sig == 0) {
+            ready = ::poll(&pfd, 1, kPollTimeoutMs);
+        }
 
-        if (signals::sig != 0) {
+        if (signals::sig != 0) [[unlikely]] {
             break;
         }
 
-        if (ready == 0) {
+        if (ready == 0) [[unlikely]] {
             lv.flush(STDOUT_FILENO);
             continue;
         }
 
-        if (pfd.revents & (POLLHUP | POLLERR)) {
+        // NOLINTNEXTLINE(*-signed-*)
+        if ((static_cast<unsigned>(pfd.revents) & (POLLHUP | POLLERR)) != 0u) [[unlikely]] {
             break;
         }
 
         while (signals::sig == 0) {
             auto const ev = dev.next();
-            if (!ev.has_value()) {
+            if (!ev.has_value()) [[unlikely]] {
                 break;
             }
 
