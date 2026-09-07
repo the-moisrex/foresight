@@ -8,6 +8,7 @@ if(NOT foresight_FOUND)
             GIT_REPOSITORY https://github.com/the-moisrex/foresight.git
             GIT_TAG        main
     )
+    set(FORESIGHT_LIBRARY_ONLY ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(foresight)
 endif()
 

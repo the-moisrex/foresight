@@ -16,6 +16,8 @@ else ()
 endif ()
 
 
+option(FORESIGHT_LIBRARY_ONLY "Build only the library, skipping apps, tests, benchmarks, and docs" OFF)
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(IS_GCC TRUE)
     set(IS_CLANG FALSE)
@@ -283,25 +285,29 @@ install(EXPORT ${LIB_NAME}-targets
 
 #############################################################
 
-if (IS_DEBUG)
-    add_subdirectory(tests)
+if (NOT FORESIGHT_LIBRARY_ONLY)
+    if (IS_DEBUG)
+        add_subdirectory(tests)
+    endif ()
+    add_subdirectory(apps)
+    add_subdirectory(benchmarks)
 endif ()
-add_subdirectory(apps)
-add_subdirectory(benchmarks)
 
 
 #############################################################
 ########## --------------- Docs Target ----------- ##########
 #############################################################
 
-find_package(Doxygen)
-if (Doxygen_FOUND)
-    add_custom_target(docs
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/docs/doxygen"
-            COMMAND ${CMAKE_COMMAND} -E env
-            "FS8_DOC_OUTPUT=${CMAKE_CURRENT_BINARY_DIR}/docs/doxygen"
-            ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-            COMMENT "Generating the Foresight API reference with Doxygen."
-            VERBATIM)
+if (IS_DEBUG AND NOT FORESIGHT_LIBRARY_ONLY)
+    find_package(Doxygen)
+    if (Doxygen_FOUND)
+        add_custom_target(docs
+                COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/docs/doxygen"
+                COMMAND ${CMAKE_COMMAND} -E env
+                "FS8_DOC_OUTPUT=${CMAKE_CURRENT_BINARY_DIR}/docs/doxygen"
+                ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                COMMENT "Generating the Foresight API reference with Doxygen."
+                VERBATIM)
+    endif ()
 endif ()
