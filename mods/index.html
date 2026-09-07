@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mods-overview" class="md-skip">
+        <a href="#mods" class="md-skip">
           Skip to content
         </a>
       
@@ -623,10 +623,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#getting-events-in-and-out" class="md-nav__link">
+  <a href="#quick-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Getting events in and out
+        Quick reference
       
     </span>
   </a>
@@ -634,13 +634,356 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#transforming-events" class="md-nav__link">
+  <a href="#event-providers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Transforming events
+        Event providers
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Event providers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intercept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        intercept
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#io_manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        io_manager
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input_manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        input_manager
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#idle_detector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        idle_detector
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#replay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        replay
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Output">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#output_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uinput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        uinput
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#router" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        router
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emit-schedule_emit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        emit / schedule_emit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type_string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type_string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        capture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transformers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transformers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Transformers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#replace-put" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        replace / put
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abs2rel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        abs2rel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pen2mice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pen2mice
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pen2touch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pen2touch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pressure2mouse_clicks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pressure2mouse_clicks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mouse_to_scroll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mouse_to_scroll
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smooth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        smooth
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#momentum_scroll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        momentum_scroll
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scale_pen-scale_move" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scale_pen / scale_move
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#autocomplete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        autocomplete
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Filters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#debounce" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        debounce
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#drop_-family" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        drop_* family
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enforce_key_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enforce_key_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sanitizer-diagnostics-sieve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sanitizer / diagnostics / sieve
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -653,16 +996,342 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#state-and-context" class="md-nav__link">
+    <nav class="md-nav" aria-label="Conditions and control flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#on-once" class="md-nav__link">
     <span class="md-ellipsis">
       
-        State and context
+        on / once
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pressed-pressed_any" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pressed / pressed_any
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keydown-keyup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        keydown / keyup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#held-on_held" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        held / on_held
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hold_mod" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hold_mod
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#longtime_released" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        longtime_released
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limit_mouse_travel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        limit_mouse_travel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi_click-double_click-triple_click" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        multi_click / double_click / triple_click
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swipe_" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        swipe_*
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#led_on-led_off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        led_on / led_off
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#op" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        op
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modes-switch_mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        modes / switch_mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on_fail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on_fail
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stopper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stopper
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="State">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#keys_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        keys_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#led_state-led_toggle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        led_state / led_toggle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mouse_history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mouse_history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quantifier-mice_quantifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quantifier / mice_quantifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#var_type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        var_type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#startup_key_releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        startup_key_releases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device conditions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utility
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Utility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-lambda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        run (lambda)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group_mod" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group_mod
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        benchmark
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#singleton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        singleton
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#live_view" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        live_view
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -858,10 +1527,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#getting-events-in-and-out" class="md-nav__link">
+  <a href="#quick-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Getting events in and out
+        Quick reference
       
     </span>
   </a>
@@ -869,13 +1538,356 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#transforming-events" class="md-nav__link">
+  <a href="#event-providers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Transforming events
+        Event providers
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Event providers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intercept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        intercept
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#io_manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        io_manager
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input_manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        input_manager
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#idle_detector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        idle_detector
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#replay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        replay
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Output">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#output_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uinput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        uinput
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#router" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        router
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emit-schedule_emit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        emit / schedule_emit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type_string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type_string
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        capture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transformers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transformers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Transformers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#replace-put" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        replace / put
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abs2rel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        abs2rel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pen2mice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pen2mice
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pen2touch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pen2touch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pressure2mouse_clicks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pressure2mouse_clicks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mouse_to_scroll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mouse_to_scroll
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smooth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        smooth
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#momentum_scroll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        momentum_scroll
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scale_pen-scale_move" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scale_pen / scale_move
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#autocomplete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        autocomplete
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Filters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#debounce" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        debounce
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#drop_-family" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        drop_* family
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enforce_key_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enforce_key_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sanitizer-diagnostics-sieve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sanitizer / diagnostics / sieve
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -888,16 +1900,342 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#state-and-context" class="md-nav__link">
+    <nav class="md-nav" aria-label="Conditions and control flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#on-once" class="md-nav__link">
     <span class="md-ellipsis">
       
-        State and context
+        on / once
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pressed-pressed_any" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pressed / pressed_any
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keydown-keyup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        keydown / keyup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#held-on_held" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        held / on_held
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hold_mod" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hold_mod
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#longtime_released" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        longtime_released
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limit_mouse_travel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        limit_mouse_travel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi_click-double_click-triple_click" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        multi_click / double_click / triple_click
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swipe_" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        swipe_*
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#led_on-led_off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        led_on / led_off
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#op" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        op
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modes-switch_mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        modes / switch_mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on_fail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on_fail
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stopper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stopper
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="State">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#keys_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        keys_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#led_state-led_toggle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        led_state / led_toggle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mouse_history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mouse_history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quantifier-mice_quantifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quantifier / mice_quantifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#var_type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        var_type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#startup_key_releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        startup_key_releases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device conditions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utility
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Utility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-lambda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        run (lambda)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        record
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group_mod" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        group_mod
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        benchmark
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#singleton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        singleton
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#live_view" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        live_view
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -932,180 +2270,623 @@
   
 
 
-<h1 id="mods-overview">Mods overview</h1>
-<p>A <em>mod</em> (module / modifier) is the building block of a Foresight pipeline. The
-library exports all of them through a single umbrella module:</p>
+<h1 id="mods">Mods</h1>
+<p>Mods are the building blocks of a Foresight pipeline. Import everything with:</p>
 <div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="n">fs8</span><span class="p">.</span><span class="n">mods</span><span class="p">;</span>
 </code></pre></div>
-<p>Everything in the <code>fs8</code> namespace. The full signatures live in the
-<a href="../api-reference/">API Reference</a>; this page is a curated catalog of what each
-mod is for and when you'd reach for it.</p>
-<h2 id="getting-events-in-and-out">Getting events in and out</h2>
+<p>Everything lives in the <code>fs8</code> namespace. Full signatures are in the
+<a href="../api-reference/">API Reference</a>.</p>
+<h2 id="quick-reference">Quick reference</h2>
 <table>
 <thead>
 <tr>
 <th>Mod</th>
+<th>Category</th>
 <th>What it does</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>intercept</code></td>
-<td>Event provider. Reads kernel input devices (selected by <code>device_query</code>) and feeds their events into the pipeline.</td>
+<td>Event provider</td>
+<td>Reads kernel input devices and feeds events into the pipeline.</td>
 </tr>
 <tr>
 <td><code>io_manager</code></td>
-<td>Watches file descriptors (poll-based readiness) and wakes the pipeline when an event is available.</td>
+<td>Event provider</td>
+<td>Poll-based fd readiness watcher; wakes the pipeline.</td>
 </tr>
 <tr>
 <td><code>input_manager</code></td>
-<td>Owns and monitors input devices; resolves queries, tracks hotplug, and answers "which device did this event come from?".</td>
+<td>Event provider</td>
+<td>Owns devices, resolves queries, tracks hotplug.</td>
+</tr>
+<tr>
+<td><code>idle_detector</code></td>
+<td>Event provider</td>
+<td>Detects pipeline idle and broadcasts an event.</td>
+</tr>
+<tr>
+<td><code>scheduler</code></td>
+<td>Event provider</td>
+<td>Timer-based event scheduling via <code>timerfd</code>.</td>
+</tr>
+<tr>
+<td><code>replay</code></td>
+<td>Event provider</td>
+<td>Plays back captured events from a file.</td>
 </tr>
 <tr>
 <td><code>output</code></td>
-<td>Writes events to a file descriptor (stdout by default) — the library-side <code>redirect</code>.</td>
+<td>Output</td>
+<td>Writes events to an fd (stdout by default).</td>
 </tr>
 <tr>
 <td><code>uinput</code></td>
-<td>Creates virtual devices (<code>/dev/uinput</code>) that events can be written to.</td>
+<td>Output</td>
+<td>Creates virtual devices under <code>/dev/uinput</code>.</td>
 </tr>
 <tr>
 <td><code>router</code></td>
-<td>Routes events to specific output devices, e.g. <code>router[caps::mouse &gt;&gt; uinput]</code>.</td>
+<td>Output</td>
+<td>Routes events to outputs by capability.</td>
 </tr>
-</tbody>
-</table>
-<h2 id="transforming-events">Transforming events</h2>
-<table>
-<thead>
 <tr>
-<th>Mod</th>
-<th>What it does</th>
+<td><code>emit</code> / <code>schedule_emit</code></td>
+<td>Output</td>
+<td>Synthesize events (<code>emit[press(...)]</code>).</td>
 </tr>
-</thead>
-<tbody>
 <tr>
-<td><code>replace</code></td>
-<td>Replace one key (or chord) with another sequence, e.g. <code>replace[KEY_D, KEY_LEFTMETA, KEY_LEFTCTRL, KEY_RIGHT]</code>.</td>
+<td><code>type_string</code></td>
+<td>Output</td>
+<td>Type text into the current app via xkb.</td>
+</tr>
+<tr>
+<td><code>capture</code></td>
+<td>Output</td>
+<td>Buffer events and flush to a file on idle.</td>
+</tr>
+<tr>
+<td><code>replace</code> / <code>put</code></td>
+<td>Transformer</td>
+<td>Rewrite one key/chord into another sequence.</td>
 </tr>
 <tr>
 <td><code>abs2rel</code></td>
-<td>Convert absolute events (drawing tablets) into relative events (mouse).</td>
+<td>Transformer</td>
+<td>Absolute (tablet) to relative (mouse) movement.</td>
 </tr>
 <tr>
 <td><code>pen2mice</code></td>
-<td>Translate a pen tablet's buttons/tools into mouse clicks.</td>
+<td>Transformer</td>
+<td>Pen buttons/tools to mouse clicks.</td>
+</tr>
+<tr>
+<td><code>pen2touch</code></td>
+<td>Transformer</td>
+<td>Pen events to touch events.</td>
+</tr>
+<tr>
+<td><code>pressure2mouse_clicks</code></td>
+<td>Transformer</td>
+<td>Pen pressure to mouse clicks by threshold.</td>
 </tr>
 <tr>
 <td><code>mouse_to_scroll</code></td>
-<td>Convert mouse movement into scroll-wheel events. Pure transformer with no condition of its own — gate it with <code>hold_mod</code>, e.g. <code>hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]</code>. Requires <code>mice_quantifier</code>.</td>
+<td>Transformer</td>
+<td>Mouse movement to scroll-wheel events.</td>
 </tr>
 <tr>
 <td><code>smooth</code></td>
-<td>Smooth mouse movement / ease the output: <code>lerp[max_steps, easing]</code>, <code>low_pass_filter[alpha]</code>, <code>kalman_filter[q, r]</code>. Requires <code>mouse_history</code> placed before it in the pipeline.</td>
+<td>Transformer</td>
+<td>Mouse smoothing: <code>lerp</code>, <code>low_pass_filter</code>, <code>kalman_filter</code>.</td>
 </tr>
 <tr>
-<td><code>momentum</code></td>
-<td>Keep mouse momentum going after you stop moving.</td>
+<td><code>momentum_scroll</code></td>
+<td>Transformer</td>
+<td>Inertial scrolling after input stops.</td>
 </tr>
 <tr>
-<td><code>drop</code></td>
-<td>Family of "drop" filters: big jumps, starting moves, fast repeats, adjacent repeats, and full event dropping.</td>
+<td><code>scale_pen</code> / <code>scale_move</code></td>
+<td>Transformer</td>
+<td>Scale pen or mouse movement by a factor.</td>
 </tr>
 <tr>
 <td><code>debounce</code></td>
-<td>Drop events that arrive too soon after a previous event of the same code (faulty mouse double-clicks, bouncing keys, noisy axes/scroll). For <code>EV_KEY</code> codes a fast second press and its matching release are dropped; for other event types every event within the window is dropped. Works on any <code>event_code</code>, e.g. <code>debounce[BTN_LEFT, BTN_RIGHT]</code>, <code>debounce[{.type = EV_ABS, .code = ABS_X}]</code>.</td>
+<td>Filter</td>
+<td>Drop events arriving too soon after the same code.</td>
 </tr>
 <tr>
-<td><code>typed</code></td>
-<td>Track what the user is typing/editing.</td>
+<td><code>drop_*</code> (30+ variants)</td>
+<td>Filter</td>
+<td>Drop big jumps, init moves, fast repeats, etc.</td>
 </tr>
 <tr>
-<td><code>timed_typed</code></td>
-<td>Like <code>typed</code>, but only matches if the pattern is typed within a time window (<code>timed_typed["test", 2s]</code>); pauses longer than the window discard the partial match.</td>
+<td><code>enforce_key_state</code></td>
+<td>Filter</td>
+<td>Enforce valid key state transitions.</td>
 </tr>
 <tr>
-<td><code>typer</code></td>
-<td>Type text (how2type) into the current application.</td>
+<td><code>sanitizer</code> / <code>diagnostics</code></td>
+<td>Filter</td>
+<td>Pre-built filter groups for common bad events.</td>
 </tr>
-<tr>
-<td><code>autocomplete</code></td>
-<td>Watch typed patterns and auto-complete them into longer strings.</td>
-</tr>
-<tr>
-<td><code>record</code></td>
-<td>Record events into a buffer for later replay or comparison.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="conditions-and-control-flow">Conditions and control flow</h2>
-<table>
-<thead>
-<tr>
-<th>Mod</th>
-<th>What it does</th>
-</tr>
-</thead>
-<tbody>
 <tr>
 <td><code>on</code></td>
-<td>Run actions while a condition is true (<code>on[cond, ...actions]</code>); toggles on/off.</td>
+<td>Control flow</td>
+<td>Run actions while a condition is true.</td>
 </tr>
 <tr>
 <td><code>once</code></td>
-<td>Like <code>on</code>, but only fires when the condition <em>switches on</em>.</td>
+<td>Control flow</td>
+<td>Fire once when a condition switches on.</td>
 </tr>
 <tr>
-<td><code>held</code></td>
-<td>True while a key/chord is held; <code>held[key, decider]</code> gates the held keys (swallow or emit).</td>
+<td><code>held</code> / <code>on_held</code></td>
+<td>Control flow</td>
+<td>True while keys are held; gate with decider.</td>
 </tr>
 <tr>
 <td><code>hold_mod</code></td>
-<td>Run a mod while given modifier keys are held, e.g. <code>hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]</code>. Buffers each key's initial press: a quick tap is re-emitted as a real press+release (caps toggle / click), while a hold past <code>.hold(dur)</code> (default 200ms) — or a key that was actually used — swallows the release.</td>
+<td>Control flow</td>
+<td>Run a mod while modifiers are held; tap re-emits.</td>
 </tr>
 <tr>
 <td><code>pressed</code> / <code>pressed_any</code></td>
-<td>True when specific key(s) are currently down.</td>
+<td>Condition</td>
+<td>True when specific keys are down.</td>
 </tr>
 <tr>
 <td><code>keydown</code> / <code>keyup</code></td>
-<td>Match a key press / release event.</td>
-</tr>
-<tr>
-<td><code>multi_click</code></td>
-<td>Double/triple click detection (<code>double_click</code>, <code>triple_click</code>).</td>
-</tr>
-<tr>
-<td><code>swipe_*</code></td>
-<td>Swipe detection (<code>swipe_left</code>, <code>swipe_right</code>, <code>swipe_up</code>, <code>swipe_down</code>).</td>
+<td>Condition</td>
+<td>Match a key press or release event.</td>
 </tr>
 <tr>
 <td><code>longtime_released</code></td>
+<td>Condition</td>
 <td>True when a key has been released for a while.</td>
 </tr>
 <tr>
 <td><code>limit_mouse_travel</code></td>
+<td>Condition</td>
 <td>True while mouse travel stays under a limit.</td>
 </tr>
 <tr>
+<td><code>multi_click</code></td>
+<td>Condition</td>
+<td>Double/triple click detection.</td>
+</tr>
+<tr>
+<td><code>swipe_*</code></td>
+<td>Condition</td>
+<td>Swipe detection (left/right/up/down).</td>
+</tr>
+<tr>
 <td><code>led_on</code> / <code>led_off</code></td>
-<td>Conditions based on keyboard LED state.</td>
+<td>Condition</td>
+<td>Keyboard LED state conditions.</td>
 </tr>
 <tr>
 <td><code>op</code></td>
-<td>Boolean combination: <code>op &amp; cond &amp; cond</code>, <code>op | cond | cond</code>.</td>
+<td>Condition</td>
+<td>Boolean combinators (<code>&amp;</code>, <code>\|</code>, <code>!</code>).</td>
 </tr>
 <tr>
-<td><code>modes</code></td>
-<td>Vim-like modes and layers, e.g. <code>modes[trigger, normal_ctx, express_ctx]</code>.</td>
+<td><code>modes</code> / <code>switch_mode</code></td>
+<td>Control flow</td>
+<td>Vim-like modes/layers.</td>
 </tr>
 <tr>
-<td><code>lambda</code></td>
-<td>Wrap one or more functions so they can be used as mods/callbacks (<code>run</code>).</td>
+<td><code>on_fail</code></td>
+<td>Control flow</td>
+<td>Invoke an action when a condition fails.</td>
+</tr>
+<tr>
+<td><code>stopper</code></td>
+<td>Control flow</td>
+<td>Exit the pipeline on demand.</td>
+</tr>
+<tr>
+<td><code>typed</code> / <code>timed_typed</code></td>
+<td>Condition</td>
+<td>Match what the user is typing.</td>
+</tr>
+<tr>
+<td><code>keys_state</code></td>
+<td>State</td>
+<td>Track the current state of every key.</td>
+</tr>
+<tr>
+<td><code>led_state</code> / <code>led_toggle</code></td>
+<td>State</td>
+<td>Track keyboard LED state.</td>
+</tr>
+<tr>
+<td><code>mouse_history</code></td>
+<td>State</td>
+<td>Track current/previous mouse positions.</td>
+</tr>
+<tr>
+<td><code>quantifier</code> / <code>mice_quantifier</code></td>
+<td>State</td>
+<td>Threshold-step accumulation for movement.</td>
+</tr>
+<tr>
+<td><code>var_type</code></td>
+<td>State</td>
+<td>Typed pipeline variables (<code>context["name"]</code>).</td>
+</tr>
+<tr>
+<td><code>startup_key_releases</code></td>
+<td>State</td>
+<td>Sync pipeline with physical keyboard on launch.</td>
+</tr>
+<tr>
+<td><code>device</code> (11 variants)</td>
+<td>Condition</td>
+<td>Filter by which device an event came from.</td>
+</tr>
+<tr>
+<td><code>run</code></td>
+<td>Utility</td>
+<td>Wrap functions as mods/callbacks.</td>
+</tr>
+<tr>
+<td><code>record</code></td>
+<td>Utility</td>
+<td>Record events into a buffer for replay.</td>
+</tr>
+<tr>
+<td><code>group_mod</code></td>
+<td>Utility</td>
+<td>Run a tuple of mods as a single mod.</td>
+</tr>
+<tr>
+<td><code>benchmark</code></td>
+<td>Utility</td>
+<td>Measure mod performance (latency, percentiles).</td>
+</tr>
+<tr>
+<td><code>singleton</code></td>
+<td>Utility</td>
+<td>Prevent multiple pipeline instances.</td>
+</tr>
+<tr>
+<td><code>live_view</code></td>
+<td>Output</td>
+<td>Terminal event display for <code>foresight replay --live</code>.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="state-and-context">State and context</h2>
+<h2 id="event-providers">Event providers</h2>
+<p>These put events into the pipeline.</p>
+<h3 id="intercept"><code>intercept</code></h3>
+<p>Query-driven event provider. Reads kernel devices matching <code>device_query</code>es
+and feeds their events in.</p>
+<div class="highlight"><pre><span></span><code><span class="n">intercept</span><span class="p">[</span><span class="n">keyboard</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grab</span><span class="p">,</span><span class="w"> </span><span class="n">mouse</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grab</span><span class="p">]</span>
+</code></pre></div>
+<p>Needs <code>io_manager</code> and <code>input_manager</code> in the pipeline.</p>
+<h3 id="io_manager"><code>io_manager</code></h3>
+<p>Poll-based fd readiness manager. Registers file descriptors, waits for events,
+and dispatches each ready fd to its handler. Supports idle timeout.</p>
+<h3 id="input_manager"><code>input_manager</code></h3>
+<p>Owns and monitors discovered evdev devices. Resolves queries, tracks hotplug
+via udev, answers "which device did this event come from?". Does NOT provide
+events itself -- <code>intercept</code> is the event provider.</p>
+<h3 id="idle_detector"><code>idle_detector</code></h3>
+<p>Detects pipeline idle (no events for a configurable period) and broadcasts an
+<code>idle</code> special event. Supports repeat patterns: <code>once</code>,
+<code>consistent&lt;PeriodUs&gt;</code>, <code>exponential&lt;BaseUs&gt;</code>.</p>
+<h3 id="scheduler"><code>scheduler</code></h3>
+<p>Timer-based event scheduler using <code>timerfd</code> registered with <code>io_manager</code>.
+Required by <code>momentum_scroll</code>.</p>
+<h3 id="replay"><code>replay</code></h3>
+<p>Reads captured events from a file and injects them into the pipeline.
+Auto-detects format (binary or evtest text). Returns <code>exit</code> when exhausted.</p>
+<h2 id="output">Output</h2>
+<h3 id="output_1"><code>output</code></h3>
+<p>Writes events to a file descriptor (stdout by default). The library-side
+redirect.</p>
+<h3 id="uinput"><code>uinput</code></h3>
+<p>Creates virtual devices under <code>/dev/uinput</code> that events can be written to.
+Can clone a physical device's capabilities into a virtual device.</p>
+<div class="highlight"><pre><span></span><code><span class="n">uinput</span><span class="w">  </span><span class="c1">// creates a virtual device and writes events to it</span>
+</code></pre></div>
+<h3 id="router"><code>router</code></h3>
+<p>Routes events to specific output devices by capability. Uses a hash-based
+lookup table.</p>
+<div class="highlight"><pre><span></span><code><span class="n">router</span><span class="p">[</span><span class="n">caps</span><span class="o">::</span><span class="n">mouse</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">uinput</span><span class="p">,</span><span class="w"> </span><span class="n">caps</span><span class="o">::</span><span class="n">keyboard</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">keyboard_pipeline</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="emit-schedule_emit"><code>emit</code> / <code>schedule_emit</code></h3>
+<p>Synthesize events. Build event sequences with <code>press(...)</code>, <code>down(...)</code>,
+<code>up(...)</code>, <code>keypress(...)</code>, <code>turn_led_on(...)</code>, <code>turn_led_off(...)</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">emit</span><span class="p">[</span><span class="n">press</span><span class="p">(</span><span class="n">KEY_LEFTMETA</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_TAB</span><span class="p">)]</span>
+<span class="n">schedule_emit</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">press</span><span class="p">(</span><span class="n">BTN_RIGHT</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="type_string"><code>type_string</code></h3>
+<p>Type text into the current application via xkb <code>how2type</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">type_string</span><span class="p">(</span><span class="s">"hello world"</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="capture"><code>capture</code></h3>
+<p>Buffer events in memory and flush to a file during idle periods. Supports
+daily, hourly, weekly, monthly, uptime-based, single-file, and manual
+rotation. Output formats: <code>capture_binary_format</code> (raw <code>.fs8</code>) and
+<code>capture_evtest_format</code> (human-readable <code>.evtest.fs8</code>).</p>
+<h2 id="transformers">Transformers</h2>
+<h3 id="replace-put"><code>replace</code> / <code>put</code></h3>
+<p>Rewrite one key/chord into another sequence. On press, replacements are emitted
+in order; on release, they are emitted in reverse order.</p>
+<div class="highlight"><pre><span></span><code><span class="n">replace</span><span class="p">[</span><span class="n">KEY_D</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_LEFTMETA</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_LEFTCTRL</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_RIGHT</span><span class="p">]</span>
+<span class="n">put</span><span class="p">[</span><span class="n">KEY_A</span><span class="p">]</span><span class="w">  </span><span class="c1">// rewrite the current event's code to KEY_A</span>
+</code></pre></div>
+<h3 id="abs2rel"><code>abs2rel</code></h3>
+<p>Convert absolute events (drawing tablets) into relative events (mouse).</p>
+<h3 id="pen2mice"><code>pen2mice</code></h3>
+<p>Translate a pen tablet's buttons/tools into mouse clicks.</p>
+<h3 id="pen2touch"><code>pen2touch</code></h3>
+<p>Convert pen events to touch events.</p>
+<h3 id="pressure2mouse_clicks"><code>pressure2mouse_clicks</code></h3>
+<p>Convert pen pressure into mouse clicks based on a threshold.</p>
+<h3 id="mouse_to_scroll"><code>mouse_to_scroll</code></h3>
+<p>Convert mouse movement into scroll-wheel events. Pure transformer with no
+condition of its own -- gate it with <code>hold_mod</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">on_held</span><span class="p">[</span><span class="n">KEY_CAPSLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">BTN_MIDDLE</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">kalman_filter</span><span class="p">[</span><span class="mf">0.3f</span><span class="p">]</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">mouse_to_scroll</span><span class="p">]</span>
+</code></pre></div>
+<p>Requires <code>mice_quantifier</code> in the pipeline.</p>
+<h3 id="smooth"><code>smooth</code></h3>
+<p>Mouse movement smoothing. Three strategies:</p>
+<div class="highlight"><pre><span></span><code><span class="n">lerp</span><span class="p">[</span><span class="n">max_steps</span><span class="p">,</span><span class="w"> </span><span class="n">easing</span><span class="p">]</span><span class="w">         </span><span class="c1">// interpolate with easing (default: easeOutQuad)</span>
+<span class="n">low_pass_filter</span><span class="p">[</span><span class="n">alpha</span><span class="p">]</span><span class="w">          </span><span class="c1">// exponential moving average</span>
+<span class="n">kalman_filter</span><span class="p">[</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">]</span><span class="w">             </span><span class="c1">// 1D Kalman filter per axis</span>
+</code></pre></div>
+<p>All require <code>mouse_history</code> placed before them in the pipeline.</p>
+<h3 id="momentum_scroll"><code>momentum_scroll</code></h3>
+<p>Inertial scrolling after input stops. Tracks velocity and schedules momentum
+events via <code>scheduler</code>. Requires <code>scheduler</code> in the pipeline.</p>
+<h3 id="scale_pen-scale_move"><code>scale_pen</code> / <code>scale_move</code></h3>
+<p>Scale movement events by a factor.</p>
+<div class="highlight"><pre><span></span><code><span class="n">on</span><span class="p">[</span><span class="n">held</span><span class="p">[</span><span class="n">KEY_LEFTSHIFT</span><span class="p">],</span><span class="w"> </span><span class="n">context</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">scale_move</span><span class="p">[</span><span class="mf">0.5f</span><span class="p">]</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">scale_pen</span><span class="p">[</span><span class="mf">0.5f</span><span class="p">]]</span>
+</code></pre></div>
+<h3 id="autocomplete"><code>autocomplete</code></h3>
+<p>Watch typed patterns of the form <code>PREFIX&lt;TAG&gt;COMPLETION</code> and auto-complete
+them. In trigger mode, fires on a trigger keypress; in <code>auto_mode</code>, fires as
+soon as the prefix is fully typed.</p>
+<h2 id="filters">Filters</h2>
+<h3 id="debounce"><code>debounce</code></h3>
+<p>Drop events that arrive too soon after a previous event of the same code. For
+<code>EV_KEY</code>, a fast second press and its release are dropped (faulty double-clicks,
+bouncing keys). For other event types, every event within the window is dropped.</p>
+<div class="highlight"><pre><span></span><code><span class="n">debounce</span><span class="p">[</span><span class="n">BTN_LEFT</span><span class="p">,</span><span class="w"> </span><span class="n">BTN_RIGHT</span><span class="p">]</span>
+<span class="n">debounce</span><span class="p">[{.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EV_ABS</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ABS_X</span><span class="p">}]</span>
+</code></pre></div>
+<h3 id="drop_-family"><code>drop_*</code> family</h3>
+<p>Over 30 variants for filtering bad or unwanted events:</p>
+<table>
+<thead>
+<tr>
+<th>Mod</th>
+<th>What it drops</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>drop_big_jumps</code></td>
+<td>Large mouse movements</td>
+</tr>
+<tr>
+<td><code>drop_init_moves</code></td>
+<td>Initial mouse movements after connect</td>
+</tr>
+<tr>
+<td><code>drop_start_moves</code></td>
+<td>Mouse moves at the start of an action</td>
+</tr>
+<tr>
+<td><code>drop_mouse_moves</code></td>
+<td>All mouse movement events</td>
+</tr>
+<tr>
+<td><code>drop_zero_mouse_moves</code></td>
+<td>Mouse moves with zero delta</td>
+</tr>
+<tr>
+<td><code>drop_mouse_clicks</code></td>
+<td>Mouse button events</td>
+</tr>
+<tr>
+<td><code>drop_fast_repeats</code></td>
+<td>Fast auto-repeat events</td>
+</tr>
+<tr>
+<td><code>drop_adjacent_repeats</code></td>
+<td>Consecutive duplicate events</td>
+</tr>
+<tr>
+<td><code>drop_adjacent_syns</code></td>
+<td>Consecutive SYN_REPORTs</td>
+</tr>
+<tr>
+<td><code>drop_fast_left_clicks</code></td>
+<td>Fast left-click press+release</td>
+</tr>
+<tr>
+<td><code>drop_fast_right_clicks</code></td>
+<td>Fast right-click press+release</td>
+</tr>
+<tr>
+<td><code>drop_fast_double_clicks</code></td>
+<td>Fast double-click sequences</td>
+</tr>
+<tr>
+<td><code>drop_keys[...]</code></td>
+<td>Specific key events</td>
+</tr>
+<tr>
+<td><code>drop_repeats_of[...]</code></td>
+<td>Auto-repeat (value 2) of specific keys</td>
+</tr>
+<tr>
+<td><code>drop_caps[...]</code></td>
+<td>Events matching specific device capabilities</td>
+</tr>
+<tr>
+<td><code>drop_abs</code></td>
+<td>All absolute axis events</td>
+</tr>
+<tr>
+<td><code>drop_tablet</code></td>
+<td>All tablet events</td>
+</tr>
+<tr>
+<td><code>drop_caps</code></td>
+<td>CapsLock-related events</td>
+</tr>
+<tr>
+<td><code>drop_msc_scan</code></td>
+<td>MSC_SCAN events</td>
+</tr>
+<tr>
+<td><code>drop_late_syn</code></td>
+<td>Empty sync packets after long idle</td>
+</tr>
+<tr>
+<td><code>drop_pen_out_of_bounds</code></td>
+<td>Pen ABS values outside device bounds</td>
+</tr>
+<tr>
+<td><code>drop_orphan_abs</code></td>
+<td>ABS position events before any tool press</td>
+</tr>
+<tr>
+<td><code>drop_missing_syns</code></td>
+<td>Events when SYN_REPORT framing is broken</td>
+</tr>
+<tr>
+<td><code>drop_event</code></td>
+<td>Returns <code>drop_event</code> (any event)</td>
+</tr>
+<tr>
+<td><code>exit_pipeline</code></td>
+<td>Returns <code>exit</code> (stops the pipeline)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="enforce_key_state"><code>enforce_key_state</code></h3>
+<p>Enforce valid key state transitions: no orphan releases, no repeats without
+prior press, no double presses.</p>
+<h3 id="sanitizer-diagnostics-sieve"><code>sanitizer</code> / <code>diagnostics</code> / <code>sieve</code></h3>
+<p>Pre-built filter groups:</p>
+<ul>
+<li><code>sanitizer</code> -- all default checks, silent drop</li>
+<li><code>diagnostics</code> -- same checks, log only (no drop)</li>
+<li><code>sieve</code> -- drop bad events and log each one</li>
+</ul>
+<h2 id="conditions-and-control-flow">Conditions and control flow</h2>
+<h3 id="on-once"><code>on</code> / <code>once</code></h3>
+<p><code>on[cond, ...actions]</code> runs actions while a condition is true (toggles
+on/off). <code>once[cond, ...actions]</code> fires only when the condition switches on.</p>
+<div class="highlight"><pre><span></span><code><span class="n">on</span><span class="p">[</span><span class="n">pressed</span><span class="p">[</span><span class="n">BTN_RIGHT</span><span class="p">],</span><span class="w"> </span><span class="n">drop_start_moves</span><span class="p">]</span>
+<span class="n">once</span><span class="p">[</span><span class="n">pressed</span><span class="p">[</span><span class="n">KEY_CAPSLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_LEFTSHIFT</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_ESC</span><span class="p">],</span><span class="w"> </span><span class="n">exit_pipeline</span><span class="p">]</span>
+
+<span class="c1">// Sub-pipeline inside on:</span>
+<span class="n">on</span><span class="p">[</span><span class="n">pressed</span><span class="p">[</span><span class="n">KEY_CAPSLOCK</span><span class="p">]</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">led_off</span><span class="p">[</span><span class="n">LED_CAPSL</span><span class="p">],</span>
+<span class="w">   </span><span class="n">context</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">abs2rel</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pen2mice</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">router</span><span class="p">[</span><span class="n">mouse</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">uinput</span><span class="p">]]</span>
+</code></pre></div>
+<h3 id="pressed-pressed_any"><code>pressed</code> / <code>pressed_any</code></h3>
+<p>True when specific key(s) are currently down.</p>
+<div class="highlight"><pre><span></span><code><span class="n">pressed</span><span class="p">[</span><span class="n">KEY_A</span><span class="p">]</span>
+<span class="n">pressed_any</span><span class="p">[</span><span class="n">BTN_LEFT</span><span class="p">,</span><span class="w"> </span><span class="n">BTN_RIGHT</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="keydown-keyup"><code>keydown</code> / <code>keyup</code></h3>
+<p>Match a key press or release event (edge-triggered, not level).</p>
+<div class="highlight"><pre><span></span><code><span class="n">keydown</span><span class="p">[</span><span class="n">KEY_X</span><span class="p">]</span>
+<span class="n">keyup</span><span class="p">[</span><span class="n">BTN_LEFT</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="held-on_held"><code>held</code> / <code>on_held</code></h3>
+<p><code>held[key]</code> is true while a key is held (suppresses auto-repeat).
+<code>held[key, decider]</code> gates whether the held key is swallowed or emitted.</p>
+<p><code>on_held[modifier, key, mod]</code> runs a mod while modifier keys are held. A quick
+tap re-emits as a real press+release; a hold swallows the release.</p>
+<div class="highlight"><pre><span></span><code><span class="n">on</span><span class="p">[</span><span class="n">held</span><span class="p">[</span><span class="n">KEY_LEFTSHIFT</span><span class="p">],</span><span class="w"> </span><span class="n">context</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">scale_move</span><span class="p">[</span><span class="mf">0.5f</span><span class="p">]]</span>
+<span class="n">on_held</span><span class="p">[</span><span class="n">KEY_CAPSLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">BTN_MIDDLE</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">mouse_to_scroll</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="hold_mod"><code>hold_mod</code></h3>
+<p>Run a mod while modifier keys are held. Quick taps re-emit as real
+press+release, holds swallow the release.</p>
+<div class="highlight"><pre><span></span><code><span class="n">hold_mod</span><span class="p">[</span><span class="n">KEY_CAPSLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">BTN_MIDDLE</span><span class="p">,</span><span class="w"> </span><span class="n">mouse_to_scroll</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="longtime_released"><code>longtime_released</code></h3>
+<p>True when a key has been released for a while.</p>
+<h3 id="limit_mouse_travel"><code>limit_mouse_travel</code></h3>
+<p>True while mouse travel stays under a limit.</p>
+<div class="highlight"><pre><span></span><code><span class="n">once</span><span class="p">[</span><span class="n">limit_mouse_travel</span><span class="p">[</span><span class="n">pressed</span><span class="p">[</span><span class="n">KEY_CAPSLOCK</span><span class="p">],</span><span class="w"> </span><span class="mi">50</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">keyup</span><span class="p">[</span><span class="n">BTN_LEFT</span><span class="p">],</span>
+<span class="w">     </span><span class="n">schedule_emit</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">press</span><span class="p">(</span><span class="n">BTN_RIGHT</span><span class="p">)]</span>
+</code></pre></div>
+<h3 id="multi_click-double_click-triple_click"><code>multi_click</code> / <code>double_click</code> / <code>triple_click</code></h3>
+<p>Double/triple click detection. Requires <code>keys_state</code> in the pipeline.</p>
+<div class="highlight"><pre><span></span><code><span class="n">once</span><span class="p">[</span><span class="n">pressed</span><span class="p">[</span><span class="n">BTN_MIDDLE</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">triple_click</span><span class="p">,</span><span class="w"> </span><span class="n">emit</span><span class="p">[</span><span class="n">press</span><span class="p">(</span><span class="n">KEY_LEFTMETA</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_TAB</span><span class="p">)]]</span>
+</code></pre></div>
+<h3 id="swipe_"><code>swipe_*</code></h3>
+<p>Swipe detection: <code>swipe_left</code>, <code>swipe_right</code>, <code>swipe_up</code>, <code>swipe_down</code>.
+Requires <code>swipe_detector</code> in the pipeline.</p>
+<div class="highlight"><pre><span></span><code><span class="n">on</span><span class="p">[</span><span class="n">pressed_any</span><span class="p">[</span><span class="n">KEY_CAPSLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">BTN_MIDDLE</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">pressed</span><span class="p">[</span><span class="n">BTN_LEFT</span><span class="p">],</span>
+<span class="w">   </span><span class="n">context</span>
+<span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">[</span><span class="n">swipe_right</span><span class="p">,</span><span class="w"> </span><span class="n">emit</span><span class="p">[</span><span class="n">press</span><span class="p">(</span><span class="n">KEY_LEFTCTRL</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_LEFTMETA</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_RIGHT</span><span class="p">)]]</span>
+<span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">[</span><span class="n">swipe_left</span><span class="p">,</span><span class="w"> </span><span class="n">emit</span><span class="p">[</span><span class="n">press</span><span class="p">(</span><span class="n">KEY_LEFTCTRL</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_LEFTMETA</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_LEFT</span><span class="p">)]]]</span>
+</code></pre></div>
+<h3 id="led_on-led_off"><code>led_on</code> / <code>led_off</code></h3>
+<p>Conditions based on keyboard LED state. Requires <code>led_state</code> in the pipeline.</p>
+<div class="highlight"><pre><span></span><code><span class="n">on</span><span class="p">[</span><span class="n">pressed</span><span class="p">[</span><span class="n">KEY_CAPSLOCK</span><span class="p">]</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">led_off</span><span class="p">[</span><span class="n">LED_CAPSL</span><span class="p">],</span><span class="w"> </span><span class="p">...]</span>
+</code></pre></div>
+<h3 id="op"><code>op</code></h3>
+<p>Boolean combinators. <code>op</code> is an empty <code>and</code>; <code>op | condition</code> is the
+idiomatic way to start a condition.</p>
+<div class="highlight"><pre><span></span><code><span class="n">op</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">pressed</span><span class="p">[</span><span class="n">KEY_A</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">pressed</span><span class="p">[</span><span class="n">KEY_B</span><span class="p">]</span>
+<span class="n">op</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pressed</span><span class="p">[</span><span class="n">KEY_F1</span><span class="p">]</span>
+<span class="o">!</span><span class="n">always_disable</span>
+</code></pre></div>
+<h3 id="modes-switch_mode"><code>modes</code> / <code>switch_mode</code></h3>
+<p>Vim-like modes/layers. Cycles through mod pipelines when a trigger condition
+is true.</p>
+<div class="highlight"><pre><span></span><code><span class="n">modes</span><span class="p">[</span><span class="n">multi_click</span><span class="p">[</span><span class="n">KEY_RIGHTCTRL</span><span class="p">],</span>
+<span class="w">      </span><span class="n">context</span><span class="p">,</span><span class="w">                                       </span><span class="c1">// Mode 0: empty</span>
+<span class="w">      </span><span class="n">context</span><span class="w">                                         </span><span class="c1">// Mode 1: express</span>
+<span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="n">replace</span><span class="p">[</span><span class="n">KEY_D</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_LEFTMETA</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_LEFTCTRL</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_RIGHT</span><span class="p">]</span>
+<span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">[</span><span class="n">pressed</span><span class="p">[</span><span class="n">KEY_ESC</span><span class="p">],</span><span class="w"> </span><span class="n">switch_mode</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+</code></pre></div>
+<h3 id="on_fail"><code>on_fail</code></h3>
+<p>When a condition check fails, invoke a side-effect action.</p>
+<div class="highlight"><pre><span></span><code><span class="n">on_fail</span><span class="p">[</span><span class="n">condition</span><span class="p">,</span><span class="w"> </span><span class="n">action</span><span class="p">,</span><span class="w"> </span><span class="n">extra</span><span class="p">...]</span>
+</code></pre></div>
+<h3 id="stopper"><code>stopper</code></h3>
+<p>Exit the pipeline on demand. Call <code>stopper.stop()</code> to set the flag; the next
+event causes the pipeline to return <code>exit</code>.</p>
+<h2 id="state">State</h2>
+<h3 id="keys_state"><code>keys_state</code></h3>
+<p>Tracks the current state of every key via a bitset. Provides <code>is_pressed()</code>,
+<code>is_pressed_any()</code>, <code>is_released()</code>, <code>release_all()</code>. Seeds from the device's
+<code>EVIOCGKEY</code> bitmap on connect.</p>
+<h3 id="led_state-led_toggle"><code>led_state</code> / <code>led_toggle</code></h3>
+<p><code>led_state</code> tracks keyboard LED state (CapsLock, NumLock, ScrollLock).
+<code>led_toggle</code> flips the CapsLock mode. Also provides <code>capslock_off</code>,
+<code>numlock_off</code>, <code>scrolllock_off</code>.</p>
+<h3 id="mouse_history"><code>mouse_history</code></h3>
+<p>Tracks current/previous mouse positions in a circular buffer. Updated on
+<code>EV_REL</code> events, pushed on <code>EV_SYN</code>. Required by smoothing mods (<code>lerp</code>,
+<code>low_pass_filter</code>, <code>kalman_filter</code>).</p>
+<h3 id="quantifier-mice_quantifier"><code>quantifier</code> / <code>mice_quantifier</code></h3>
+<p>Threshold-step accumulation for movement. <code>quantifier</code> works for a single
+event code; <code>mice_quantifier</code> tracks both X and Y axes. Required by
+<code>mouse_to_scroll</code>.</p>
+<h3 id="var_type"><code>var_type</code></h3>
+<p>Typed pipeline variables. Share values between mods via <code>context["name"]</code>
+lookup.</p>
+<h3 id="startup_key_releases"><code>startup_key_releases</code></h3>
+<p>On device connect, queries the <code>EVIOCGKEY</code> bitmap and releases any held keys.
+Useful when the pipeline is launched by a key press.</p>
+<h2 id="device-conditions">Device conditions</h2>
+<p>The <code>device</code> mod provides conditions and filters based on which device an
+event came from:</p>
 <table>
 <thead>
 <tr>
@@ -1115,33 +2896,74 @@ mod is for and when you'd reach for it.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>keys_state</code></td>
-<td>Tracks the current state of every key.</td>
+<td><code>from_device</code></td>
+<td>True if event is from a specific device node</td>
 </tr>
 <tr>
-<td><code>mouse_state</code></td>
-<td>Tracks the current mouse buttons.</td>
+<td><code>from_stdin</code></td>
+<td>True if event is from stdin (redirect mode)</td>
 </tr>
 <tr>
-<td><code>quantifier</code></td>
-<td>Quantifies/measures events (e.g. mouse movement thresholds).</td>
+<td><code>self_emitted</code></td>
+<td>True if event was synthesized by this pipeline</td>
 </tr>
 <tr>
-<td><code>device</code></td>
-<td>Conditions/filters based on which device an event came from: <code>from_device</code>, <code>from_stdin</code>, <code>self_emitted</code>, <code>from_chained</code>, <code>device_is</code>, <code>only_device</code>, <code>drop_device</code>, <code>drop_origin</code>, <code>drop_self</code> (drops both emitted + owned), <code>drop_owned</code> (owned uinput devices only), <code>drop_emitted</code> (synthesized events only).</td>
+<td><code>from_chained</code></td>
+<td>True if event is from another foresight process</td>
 </tr>
 <tr>
-<td><code>vars</code></td>
-<td>Pipeline variables — share values between mods (<code>context[name]</code> lookup).</td>
+<td><code>device_is</code></td>
+<td>Check device identity</td>
 </tr>
 <tr>
-<td><code>emitter</code> / <code>scheduled_emitter</code></td>
-<td>Synthesize events (<code>emit[press(...)]</code>) or schedule them to fire.</td>
+<td><code>only_device</code></td>
+<td>Drop events not from the specified device</td>
+</tr>
+<tr>
+<td><code>drop_device</code></td>
+<td>Drop events from a specific device</td>
+</tr>
+<tr>
+<td><code>drop_origin</code></td>
+<td>Drop events by source ID</td>
+</tr>
+<tr>
+<td><code>drop_self</code></td>
+<td>Drop synthesized + owned events</td>
+</tr>
+<tr>
+<td><code>drop_owned</code></td>
+<td>Drop only events from owned uinput devices</td>
+</tr>
+<tr>
+<td><code>drop_emitted</code></td>
+<td>Drop only synthesized events</td>
 </tr>
 </tbody>
 </table>
+<h2 id="utility">Utility</h2>
+<h3 id="run-lambda"><code>run</code> (lambda)</h3>
+<p>Wrap one or more functions so they can be used as mods or callbacks.</p>
+<div class="highlight"><pre><span></span><code><span class="n">on</span><span class="p">[</span><span class="n">pressed</span><span class="p">[</span><span class="n">KEY_A</span><span class="p">],</span><span class="w"> </span><span class="n">run</span><span class="p">([](</span><span class="n">Context</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ctx</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">})]</span>
+</code></pre></div>
+<h3 id="record"><code>record</code></h3>
+<p>Record events into a buffer for later replay or inspection. Provides
+<code>events()</code>, <code>count()</code>, <code>any()</code>, <code>all()</code>, <code>filter()</code>, <code>keys()</code>.</p>
+<h3 id="group_mod"><code>group_mod</code></h3>
+<p>Run a tuple of mods as a single mod. If any mod returns <code>drop_event</code>, the
+event is dropped.</p>
+<h3 id="benchmark"><code>benchmark</code></h3>
+<p>Performance measurement wrapper. Records call count, total/average/min/max
+latency, standard deviation, and percentiles (p50/p95/p99).</p>
+<h3 id="singleton"><code>singleton</code></h3>
+<p>Prevent multiple instances of the same pipeline from running concurrently. Uses
+a Linux abstract Unix socket.</p>
+<h3 id="live_view"><code>live_view</code></h3>
+<p>Terminal event display. <code>condensed_view_output</code> aggregates mouse movements by
+direction and tracks keyboard hold durations. Used by
+<code>foresight replay --live</code>.</p>
 <h2 id="context-actions">Context actions</h2>
-<p>Mods communicate their intent by returning a <code>context_action</code>:</p>
+<p>Mods return a <code>context_action</code> to communicate intent:</p>
 <table>
 <thead>
 <tr>
@@ -1168,8 +2990,6 @@ mod is for and when you'd reach for it.</p>
 </tr>
 </tbody>
 </table>
-<p>For the definitive list and signatures, see the <a href="../api-reference/">API Reference</a>,
-which is generated directly from the source with Doxygen.</p>
 
 
 
