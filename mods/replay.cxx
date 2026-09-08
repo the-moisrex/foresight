@@ -30,21 +30,29 @@ context_action fs8::basic_replay::operator()(event_type& event, special_event co
             log("replay: no file set");
             return exit;
         }
-        if (st_->fd >= 0) {
+        if (st_->fd >= 0 && st_->owns_fd) {
             ::close(st_->fd);
-            st_->fd = -1;
         }
-        st_->fd = ::open(st_->file_path.c_str(), O_RDONLY | O_CLOEXEC);
-        if (st_->fd < 0) {
-            log("replay: failed to open {}", st_->file_path);
-            return exit;
+        st_->fd = -1;
+        st_->owns_fd = true;
+        if (st_->file_path == "-") {
+            st_->fd      = STDIN_FILENO;
+            st_->owns_fd = false;
+        } else {
+            st_->fd = ::open(st_->file_path.c_str(), O_RDONLY | O_CLOEXEC);
+            if (st_->fd < 0) {
+                log("replay: failed to open {}", st_->file_path);
+                return exit;
+            }
         }
         // Read the header bytes to detect format.
         std::array<char, detail::format_header_size> header{};
         auto const                                   n = ::read(st_->fd, header.data(), header.size());
         if (n < static_cast<ssize_t>(detail::format_header_size)) {
             log("replay: file too short");
-            ::close(st_->fd);
+            if (st_->owns_fd) {
+                ::close(st_->fd);
+            }
             st_->fd = -1;
             return exit;
         }

@@ -36,6 +36,7 @@ export namespace fs8 {
         struct state {
             std::string file_path;
             int         fd        = -1;
+            bool        owns_fd  = true;
             bool        is_binary = false;
             std::string linebuf;
         };

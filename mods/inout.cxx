@@ -5,6 +5,7 @@ module;
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <deque>
 #include <linux/uinput.h>
 #include <span>
 #include <string_view>
@@ -26,12 +27,51 @@ bool fs8::basic_std_output::operator()(event_type& event) const noexcept {
 
 // ── basic_from_input (raw binary) ───────────────────────────────────────────
 
-context_action fs8::basic_from_input::operator()(event_type& event, special_event const& tag) const noexcept {
+template <>
+struct fs8::pimpl_idiom<fs8::basic_from_input>::impl {
+    std::deque<event_type> pending;
+    bool                   eof = false;
+};
+
+context_action fs8::basic_from_input::do_start(basic_io_manager& io) noexcept {
     using enum context_action;
-    if (tag.code != load_event.code) {
-        return drop_event;
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
     }
-    auto const res = read(file_descriptor, &event.native(), sizeof(input_event));
+    pimpl->eof = false;
+    pimpl->pending.clear();
+    if (!io.watch(io_fd{.fd = file_descriptor, .events = io_event::in}, *this)) [[unlikely]] {
+        log("from_input: failed to register fd {} with io_manager", file_descriptor);
+        return exit;
+    }
+    return next;
+}
+
+context_action fs8::basic_from_input::operator()(io_fd& /*fd*/) noexcept {
+    using enum context_action;
+    if (pimpl->eof) {
+        return exit;
+    }
+    // Drain all available events from the fd.
+    while (true) {
+        event_type ev;
+        auto const res = ::read(file_descriptor, &ev.native(), sizeof(input_event));
+        if (res == 0) {
+            pimpl->eof = true;
+            break;
+        }
+        if (res != sizeof(input_event)) {
+            break;
+        }
+        ev.source(sid(from_input));
+        pimpl->pending.push_back(ev);
+    }
+    return next;
+}
+
+context_action fs8::basic_from_input::do_read(event_type& event) noexcept {
+    using enum context_action;
+    auto const res = ::read(file_descriptor, &event.native(), sizeof(input_event));
     if (res == 0) [[unlikely]] {
         return exit;
     }
@@ -39,6 +79,19 @@ context_action fs8::basic_from_input::operator()(event_type& event, special_even
         return drop_event;
     }
     event.source(sid(from_input));
+    return next;
+}
+
+context_action fs8::basic_from_input::do_pop(event_type& ctx_event) noexcept {
+    using enum context_action;
+    if (pimpl.get() == nullptr || pimpl->pending.empty()) {
+        if (pimpl && pimpl->eof) {
+            return exit;
+        }
+        return drop_event;
+    }
+    ctx_event = pimpl->pending.front();
+    pimpl->pending.pop_front();
     return next;
 }
 

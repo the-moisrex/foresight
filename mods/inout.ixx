@@ -13,8 +13,10 @@ export module fs8.mods:inout;
 import fs8.context;
 import fs8.event;
 import fs8.lib.evtest;
+import fs8.pimpl;
 import fs8.traits;
 import fs8.log;
+import :io_manager;
 
 export namespace fs8 {
 
@@ -40,16 +42,50 @@ export namespace fs8 {
 
     static_assert(OutputModifier<basic_std_output>, "Must be a output modifier.");
 
-    constexpr struct [[nodiscard]] basic_from_input : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
+    constexpr struct [[nodiscard]] basic_from_input : pimpl_idiom<basic_from_input> {
+        using pimpl_idiom::pimpl_idiom;
 
       private:
         int file_descriptor = STDIN_FILENO;
 
       public:
-        constexpr explicit basic_from_input(int const inp_fd) noexcept : file_descriptor(inp_fd) {}
+        constexpr explicit basic_from_input(int const inp_fd) noexcept : file_descriptor{inp_fd} {}
 
-        context_action operator()(event_type& event, special_event const& tag) const noexcept;
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+            using enum context_action;
+            static constexpr bool has_io_man = has_mod<basic_io_manager, CtxT>;
+            switch (tag.code) {
+                case start.code:
+                    if constexpr (has_io_man) {
+                        return do_start(ctx.mod(io_manager));
+                    } else {
+                        return next;
+                    }
+                case next_event.code:
+                    if constexpr (has_io_man) {
+                        return do_pop(ctx.event());
+                    } else {
+                        return drop_event;
+                    }
+                case load_event.code:
+                    if constexpr (has_io_man) {
+                        return drop_event; // io_manager handles blocking
+                    } else {
+                        return do_read(ctx.event());
+                    }
+                default: return drop_event;
+            }
+        }
+
+      private:
+        context_action do_start(basic_io_manager& io) noexcept;
+        context_action do_pop(event_type& ctx_event) noexcept;
+        context_action do_read(event_type& event) noexcept;
+
+      public:
+        /// io_manager callback: drain a readable fd into the pending queue.
+        context_action operator()(io_fd& fd) noexcept;
     } from_input;
 
     /// Default evtest format: standard evtest text with libevdev annotations.

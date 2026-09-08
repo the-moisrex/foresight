@@ -156,9 +156,7 @@ options parse_arguments(std::span<char const* const> const argv) {
             }
             break;
         case replay:
-            if (opts.replay_file.empty()) {
-                throw invalid_argument("Please provide a capture file path as an argument.");
-            }
+            // File is optional: empty means read from stdin.
             break;
         default: break;
     }

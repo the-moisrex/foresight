@@ -56,6 +56,9 @@ void print_help() {
 
     capture  [queries...]         Capture input events to a file. Events are
                                      buffered in memory and flushed to disk on idle.
+                                     When stdin is a pipe, reads binary events from
+                                     stdin instead of from devices (e.g.
+                                     foresight intercept kb | foresight capture).
        -g | --grab                Grab the input exclusively.
        --format <fmt>             Output format: "binary" (default) or "evtest".
        --naming <strategy>        File naming: "daily" (default), "hourly",
@@ -63,8 +66,10 @@ void print_help() {
                                      "single-file", or "manual".
        --name <filename>          Custom output filename (requires --naming manual).
 
-    replay   <file>               Replay captured events from a file to stdout.
-                                      Auto-detects format (binary or evtest).
+    replay   [file]               Replay captured events from a file (or stdin) to
+                                    stdout. Use "-" or omit the file to read from
+                                    stdin (e.g. foresight intercept kb | foresight replay).
+                                    Auto-detects format (binary or evtest).
        --live                     Display events using the condensed live view
                                     format (mouse accumulation, key holds, colors).
 
