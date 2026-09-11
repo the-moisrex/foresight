@@ -16,8 +16,8 @@ import fs8.lib.evtest;
 export namespace fs8 {
 
     namespace detail {
-        constexpr std::size_t format_header_size  = 6;
-        constexpr std::size_t input_event_size    = 24; // sizeof(input_event) on 64-bit Linux
+        constexpr std::size_t format_header_size = 6;
+        constexpr std::size_t input_event_size   = 24; // sizeof(input_event) on 64-bit Linux
     } // namespace detail
 
     /// Pipeline mod that reads captured events from a file and injects them
@@ -37,13 +37,13 @@ export namespace fs8 {
 
       private:
         struct state {
-            std::string file_path;
-            int         fd        = -1;
-            bool        owns_fd  = true;
-            bool        is_binary = false;
-            std::string linebuf;
+            std::string                                file_path;
+            int                                        fd        = -1;
+            bool                                       owns_fd   = true;
+            bool                                       is_binary = false;
+            std::string                                linebuf;
             std::array<char, detail::input_event_size> header_buf{}; // leftover bytes from format detection (pipe only)
-            std::size_t header_len = 0;
+            std::size_t                                header_len = 0;
         };
 
         nullable_indirect<state> st_{};
@@ -62,6 +62,13 @@ export namespace fs8 {
                 st_ = nullable_indirect<state>::make();
             }
         }
+
+        context_action handle_start() noexcept;
+        context_action handle_load_binary(event_type& event) noexcept;
+        /// Parse complete lines already in the line buffer; returns `next` on the
+        /// first successfully parsed event, or `drop_event` if nothing was parsed.
+        context_action parse_buffered_lines(event_type& event) noexcept;
+        context_action handle_load_text(event_type& event) noexcept;
     };
 
     /// Default replay: auto-detect format.
