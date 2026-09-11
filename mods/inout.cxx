@@ -6,6 +6,7 @@ module;
 #include <cstdio>
 #include <cstring>
 #include <deque>
+#include <fcntl.h>
 #include <linux/uinput.h>
 #include <span>
 #include <string_view>
@@ -40,6 +41,12 @@ context_action fs8::basic_from_input::do_start(basic_io_manager& io) noexcept {
     }
     pimpl->eof = false;
     pimpl->pending.clear();
+    // Set non-blocking so the io_manager callback drain loop terminates with
+    // EAGAIN instead of blocking inside poll-ready dispatch.
+    auto const flags = ::fcntl(file_descriptor, F_GETFL, 0);
+    if (flags >= 0) {
+        std::ignore = ::fcntl(file_descriptor, F_SETFL, flags | O_NONBLOCK);
+    }
     if (!io.watch(io_fd{.fd = file_descriptor, .events = io_event::in}, *this)) [[unlikely]] {
         log("from_input: failed to register fd {} with io_manager", file_descriptor);
         return exit;

@@ -418,13 +418,13 @@ export namespace fs8 {
         }
     }
 
-    /// Run functions until one of them return "context_action::next"
+    /// Run functions until one of them returns something other than drop_event.
     template <Context CtxT, typename... Funcs, typename... Args>
     context_action invoke_first_mod_of(CtxT &ctx, std::tuple<Funcs...> &funcs, Args... args) noexcept {
         using enum context_action;
         return [&]<std::size_t... I>(std::index_sequence<I...>) noexcept {
             auto action = drop_event;
-            std::ignore = (((action = fork_mod<I>(ctx, funcs, drop_event, args...)) != next) && ...);
+            std::ignore = (((action = fork_mod<I>(ctx, funcs, drop_event, args...)) == drop_event) && ...);
             return action;
         }(std::make_index_sequence<sizeof...(Funcs)>{});
     }

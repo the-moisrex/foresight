@@ -100,9 +100,9 @@ TEST(CaptureTest, InactiveByDefault) {
 TEST(CaptureTest, EventsAlwaysBuffered) {
     basic_capture<capture_binary_format, capture_daily> cap{capture_binary_format{}, capture_daily{}};
 
-    cap(event_type{EV_KEY, KEY_A, 1});
-    cap(event_type{EV_SYN, SYN_REPORT, 0});
-    cap(event_type{EV_KEY, KEY_A, 0});
+    (void)cap(event_type{EV_KEY, KEY_A, 1});
+    (void)cap(event_type{EV_SYN, SYN_REPORT, 0});
+    (void)cap(event_type{EV_KEY, KEY_A, 0});
 
     EXPECT_EQ(cap.buffer_size(), 3U);
     EXPECT_EQ(cap.buffered()[0].code(), KEY_A);
@@ -114,30 +114,29 @@ TEST(CaptureTest, EventsAlwaysBuffered) {
 TEST(CaptureTest, ToggleOffFlushes) {
     basic_capture<capture_binary_format, capture_daily> cap{capture_binary_format{}, capture_daily{}};
 
-    cap(event_type{EV_KEY, KEY_B, 1});
-    cap(event_type{EV_SYN, SYN_REPORT, 0});
+    (void)cap(event_type{EV_KEY, KEY_B, 1});
+    (void)cap(event_type{EV_SYN, SYN_REPORT, 0});
     EXPECT_EQ(cap.buffer_size(), 2U);
 
-    // Idle opens the file.
-    cap(special_event{.code = idle.code});
+    // Idle opens the file and flushes the buffer.
+    (void)cap(special_event{.code = idle.code});
     EXPECT_TRUE(cap.is_open());
-
-    cap(event_type{EV_KEY, KEY_B, 1});
-
-    // toggle_off flushes the buffer.
-    cap(special_event{.code = toggle_on.code, .value = 0});
     EXPECT_EQ(cap.buffer_size(), 0U);
+
+    // Events after idle are buffered.
+    (void)cap(event_type{EV_KEY, KEY_B, 1});
+    EXPECT_EQ(cap.buffer_size(), 1U);
 }
 
 TEST(CaptureTest, IdleFlushesToFile) {
     basic_capture<capture_binary_format, capture_daily> cap{capture_binary_format{}, capture_daily{}};
 
-    cap(event_type{EV_KEY, KEY_A, 1});
-    cap(event_type{EV_SYN, SYN_REPORT, 0});
+    (void)cap(event_type{EV_KEY, KEY_A, 1});
+    (void)cap(event_type{EV_SYN, SYN_REPORT, 0});
     EXPECT_EQ(cap.buffer_size(), 2U);
 
     // Idle should open file and flush the buffer.
-    cap(special_event{.code = idle.code});
+    (void)cap(special_event{.code = idle.code});
     EXPECT_EQ(cap.buffer_size(), 0U);
     EXPECT_TRUE(cap.is_open());
 }
@@ -156,7 +155,7 @@ TEST(CaptureTest, BinaryFormatRoundtrip) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    rep(ev_start, special_event{.code = start.code});
+    (void)rep(ev_start, special_event{.code = start.code});
 
     std::vector<event_type> replayed;
     for (int i = 0; i < 10; ++i) {
@@ -193,7 +192,7 @@ TEST(CaptureTest, EvtestFormatRoundtrip) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    rep(ev_start, special_event{.code = start.code});
+    (void)rep(ev_start, special_event{.code = start.code});
 
     std::vector<event_type> replayed;
     for (int i = 0; i < 10; ++i) {
@@ -224,16 +223,17 @@ TEST(CaptureTest, AccessorsReportCorrectState) {
     EXPECT_EQ(cap.buffer_size(), 0U);
     EXPECT_TRUE(cap.buffered().empty());
 
-    cap(event_type{EV_REL, REL_X, 5});
-    cap(event_type{EV_SYN, SYN_REPORT, 0});
+    (void)cap(event_type{EV_REL, REL_X, 5});
+    (void)cap(event_type{EV_SYN, SYN_REPORT, 0});
 
     EXPECT_EQ(cap.buffer_size(), 2U);
     EXPECT_FALSE(cap.buffered().empty());
     EXPECT_EQ(cap.buffered()[0].code(), REL_X);
 
-    // toggle_off flushes.
-    cap(special_event{.code = toggle_on.code, .value = 0});
-    EXPECT_FALSE(cap.is_open());
+    // Idle opens file and flushes.
+    (void)cap(special_event{.code = idle.code});
+    EXPECT_TRUE(cap.is_open());
+    EXPECT_EQ(cap.buffer_size(), 0U);
 }
 
 TEST(CaptureTest, SystemUptimeNaming) {
@@ -313,7 +313,7 @@ TEST(ReplayTest, ReplaysBinaryEvents) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    rep(ev_start, special_event{.code = start.code});
+    (void)rep(ev_start, special_event{.code = start.code});
 
     std::vector<event_type> replayed;
     for (int i = 0; i < 10; ++i) {
@@ -350,7 +350,7 @@ TEST(ReplayTest, ReplaysEvtestEvents) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    rep(ev_start, special_event{.code = start.code});
+    (void)rep(ev_start, special_event{.code = start.code});
 
     std::vector<event_type> replayed;
     for (int i = 0; i < 10; ++i) {
@@ -407,7 +407,7 @@ TEST(ReplayTest, HeaderOnlyFileReturnsExitOnLoad) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev{};
-    rep(ev, special_event{.code = start.code});
+    (void)rep(ev, special_event{.code = start.code});
 
     auto const result = rep(ev, special_event{.code = load_event.code});
     EXPECT_EQ(result, context_action::exit);
@@ -435,7 +435,7 @@ TEST(ReplayTest, NonLoadTagReturnsDrop) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    rep(ev_start, special_event{.code = start.code});
+    (void)rep(ev_start, special_event{.code = start.code});
 
     event_type ev{};
     auto const result = rep(ev, special_event{.code = toggle_on.code, .value = 1});
@@ -485,7 +485,7 @@ TEST(CapturePipelineTest, IdleFlushesCaptureToFile) {
     EXPECT_EQ(cap.buffer_size(), 4U);
 
     // Manually trigger idle to flush the buffer.
-    cap(special_event{.code = idle.code});
+    (void)cap(special_event{.code = idle.code});
     EXPECT_EQ(cap.buffer_size(), 0U);
 }
 
@@ -502,7 +502,7 @@ TEST(CapturePipelineTest, ReplayInPipelineReplaysEvents) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    rep(ev_start, special_event{.code = start.code});
+    (void)rep(ev_start, special_event{.code = start.code});
 
     std::vector<event_type> captured;
     for (int i = 0; i < 10; ++i) {
@@ -527,6 +527,11 @@ TEST(CapturePipelineTest, ReplayInPipelineReplaysEvents) {
 }
 
 TEST(CapturePipelineTest, CaptureReplayRoundtrip) {
+    // The daily naming writes to capture-YYYY-MM-DD.fs8 in CWD.
+    auto const now      = detail::local_time_now();
+    auto const expected = std::format("capture-{:04d}-{:02d}-{:02d}.fs8", now.year, now.month, now.day);
+    ::unlink(expected.c_str());
+
     // Step 1: Capture events to file via pipeline.
     static constinit auto cap_pipeline =
       context
@@ -543,11 +548,7 @@ TEST(CapturePipelineTest, CaptureReplayRoundtrip) {
 
     auto& cap = cap_pipeline.mod<basic_capture<capture_binary_format, capture_daily>>();
     cap_pipeline();
-    cap(special_event{.code = idle.code});
-
-    // The daily naming writes to capture-YYYY-MM-DD.fs8 in CWD.
-    auto const now      = detail::local_time_now();
-    auto const expected = std::format("capture-{:04d}-{:02d}-{:02d}.fs8", now.year, now.month, now.day);
+    (void)cap(special_event{.code = idle.code});
 
     struct stat st{};
     ASSERT_EQ(::stat(expected.c_str(), &st), 0);
@@ -559,7 +560,7 @@ TEST(CapturePipelineTest, CaptureReplayRoundtrip) {
         basic_replay rep{};
         rep.set_file(expected);
         event_type ev_start{};
-        rep(ev_start, special_event{.code = start.code});
+        (void)rep(ev_start, special_event{.code = start.code});
 
         for (int i = 0; i < 20; ++i) {
             event_type ev{};

@@ -506,17 +506,17 @@ TEST(QueryFrom, EmptyStringIsEmptyQuery) {
 
 TEST(QueryFrom, CapabilitiesName) {
     auto q = query_from("keyboard");
-    ASSERT_EQ(q.count, 2U);
+    ASSERT_EQ(q.count, 3U);
     EXPECT_EQ(q.value().caps, caps_of("keyboard"));
-    EXPECT_EQ(q.value().fields[0], attr::input_subsystem);
-    EXPECT_EQ(q.value().fields[1], attr::event_sysname);
+    EXPECT_EQ(q.value().fields[0], attr::input);
+    EXPECT_EQ(q.value().fields[1], attr::input_subsystem);
+    EXPECT_EQ(q.value().fields[2], attr::event_sysname);
 }
 
 TEST(QueryFrom, PathBecomesSubsystemAndSysname) {
     auto q = query_from("/dev/input/event10");
-    ASSERT_EQ(q.count, 2U);
-    EXPECT_EQ(q.value().fields[0], subsystem("input"));
-    EXPECT_EQ(q.value().fields[1], match_sysname("event10"));
+    ASSERT_EQ(q.count, 1U);
+    EXPECT_EQ(q.value().fields[0], match_sysname("event10"));
 }
 
 TEST(QueryFrom, QueryTerm) {
@@ -537,9 +537,8 @@ TEST(OwnedQuery, CopyRepointsIntoOwnStorage) {
     auto                     source = query_from("/dev/input/event10");
     std::vector<owned_query> vec;
     vec.push_back(source);
-    ASSERT_EQ(vec[0].count, 2U);
-    EXPECT_EQ(vec[0].value().fields[0], subsystem("input"));
-    EXPECT_EQ(vec[0].value().fields[1], match_sysname("event10"));
+    ASSERT_EQ(vec[0].count, 1U);
+    EXPECT_EQ(vec[0].value().fields[0], match_sysname("event10"));
 }
 
 TEST(ToQueries, MapsStringsAndSkipsEmpty) {

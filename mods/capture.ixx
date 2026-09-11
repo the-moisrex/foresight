@@ -7,6 +7,7 @@ module;
 #include <format>
 #include <span>
 #include <string>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
 export module fs8.mods:capture;
@@ -74,11 +75,8 @@ export namespace fs8 {
 
         // ── Pipeline interface ───────────────────────────────────────────────
 
-        /// receives special events from the context.
-        template <Context CtxT>
-        context_action operator()(CtxT&, special_event const& tag) noexcept {
-            static_assert(has_mod<basic_idle_detector<>, CtxT>, "Mod required");
-
+        /// receives special events (standalone use, no pipeline context needed).
+        context_action operator()(special_event const& tag) noexcept {
             using enum context_action;
             switch (tag.code) {
                 case start.code:
@@ -104,8 +102,14 @@ export namespace fs8 {
             }
         }
 
+        /// receives special events from the context (pipeline use).
+        template <Context CtxT>
+        context_action operator()(CtxT&, special_event const& tag) noexcept {
+            return operator()(tag);
+        }
+
         context_action operator()(event_type const& event) noexcept {
-            assert(static_cast<bool>(state));
+            ensure_state();
             state->buffer.push_back(event);
             return context_action::next;
         }
@@ -142,15 +146,19 @@ export namespace fs8 {
                 close_file();
             }
             auto const path = naming.filename(FormatT::extension);
-            auto const fd   = ::open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+            auto const fd   = ::open(path.c_str(), O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0644);
             if (fd < 0) {
                 log("capture: failed to open {}", path);
                 return false;
             }
-            if (!format.write_header(fd)) {
-                log("capture: failed to write header to {}", path);
-                ::close(fd);
-                return false;
+            // Only write the header for new (empty) files.
+            struct stat st{};
+            if (::fstat(fd, &st) != 0 || st.st_size == 0) {
+                if (!format.write_header(fd)) {
+                    log("capture: failed to write header to {}", path);
+                    ::close(fd);
+                    return false;
+                }
             }
             state->current_fd    = fd;
             state->current_path  = std::move(path);

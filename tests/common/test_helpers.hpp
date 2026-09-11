@@ -9,6 +9,7 @@
 
 #include <chrono>
 #include <fcntl.h>
+#include <gtest/gtest.h>
 #include <linux/input.h>
 #include <poll.h>
 #include <string>

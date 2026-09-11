@@ -64,10 +64,32 @@ context_action fs8::basic_replay::operator()(event_type& event, special_event co
             st_->is_binary = true;
             return next; // header consumed
         }
-        // Not binary — assume evtest text format.
-        st_->is_binary = false;
-        st_->linebuf.clear();
-        st_->linebuf.append(header.data(), static_cast<std::size_t>(n));
+        // Check if it looks like evtest text (all printable ASCII / tab / newline).
+        bool looks_like_text = true;
+        for (char c : header) {
+            auto const u = static_cast<unsigned char>(c);
+            if (u < 0x20 && u != 0x09 && u != 0x0A) {
+                looks_like_text = false;
+                break;
+            }
+        }
+        if (looks_like_text) {
+            // Evtest text format.
+            st_->is_binary = false;
+            st_->linebuf.clear();
+            st_->linebuf.append(header.data(), static_cast<std::size_t>(n));
+            return next;
+        }
+        // Raw binary input_event (no header) — e.g. piped from `intercept`.
+        // Try to seek back so the existing binary reader works unchanged.
+        if (st_->owns_fd && ::lseek(st_->fd, -n, SEEK_CUR) != -1) {
+            st_->is_binary = true;
+            return next;
+        }
+        // Cannot seek (pipe): stash the bytes we already read for the first event.
+        st_->is_binary = true;
+        std::memcpy(st_->header_buf.data(), header.data(), static_cast<std::size_t>(n));
+        st_->header_len = static_cast<std::size_t>(n);
         return next;
     }
     if (tag.code != load_event.code) {
@@ -77,6 +99,20 @@ context_action fs8::basic_replay::operator()(event_type& event, special_event co
         return exit;
     }
     if (st_->is_binary) {
+        // Finish assembling the first event if we stashed bytes during format detection.
+        if (st_->header_len > 0) {
+            std::memcpy(&event.native(), st_->header_buf.data(), st_->header_len);
+            auto       total = st_->header_len;
+            st_->header_len = 0;
+            while (total < detail::input_event_size) {
+                auto const nread = ::read(st_->fd, reinterpret_cast<char*>(&event.native()) + total, detail::input_event_size - total);
+                if (nread <= 0) {
+                    return exit;
+                }
+                total += static_cast<std::size_t>(nread);
+            }
+            return next;
+        }
         auto const result = ::read(st_->fd, &event.native(), sizeof(input_event));
         if (result == 0) {
             return exit; // EOF

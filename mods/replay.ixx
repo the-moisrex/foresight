@@ -1,6 +1,8 @@
 // Created by moisrex on 9/4/26.
 
 module;
+#include <array>
+#include <cstdint>
 #include <string>
 #include <string_view>
 export module fs8.mods:replay;
@@ -14,7 +16,8 @@ import fs8.lib.evtest;
 export namespace fs8 {
 
     namespace detail {
-        constexpr std::size_t format_header_size = 6;
+        constexpr std::size_t format_header_size  = 6;
+        constexpr std::size_t input_event_size    = 24; // sizeof(input_event) on 64-bit Linux
     } // namespace detail
 
     /// Pipeline mod that reads captured events from a file and injects them
@@ -39,6 +42,8 @@ export namespace fs8 {
             bool        owns_fd  = true;
             bool        is_binary = false;
             std::string linebuf;
+            std::array<char, detail::input_event_size> header_buf{}; // leftover bytes from format detection (pipe only)
+            std::size_t header_len = 0;
         };
 
         nullable_indirect<state> st_{};
