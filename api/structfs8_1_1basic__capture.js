@@ -10,6 +10,7 @@ var structfs8_1_1basic__capture =
     [ "is_open", "structfs8_1_1basic__capture.html#a316e3ee18c9b878bcbbc93238d72b5fe", null ],
     [ "operator()", "structfs8_1_1basic__capture.html#a77a1940c5084e9cf1da2beb1a4f446c6", null ],
     [ "operator()", "structfs8_1_1basic__capture.html#ab0cbe6774a857d11019d4d6723436507", null ],
+    [ "operator()", "structfs8_1_1basic__capture.html#a74b94dbc76a7c673c031de3bb8d70b79", null ],
     [ "operator[]", "structfs8_1_1basic__capture.html#a5cb7658d78a51e0a466ce611afc3fea5", null ],
     [ "operator[]", "structfs8_1_1basic__capture.html#a6d93e6ed911396c165e75528e802a9ec", null ],
     [ "operator[]", "structfs8_1_1basic__capture.html#a1645fa0d7ac7ce4bc0b8806175e8046a", null ],

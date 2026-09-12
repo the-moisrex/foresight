@@ -21,7 +21,7 @@ var dir_e32e21dff86b2f4c3e9cf44f437b74cb =
     [ "emitter.ixx", "emitter_8ixx.html", "emitter_8ixx" ],
     [ "group.ixx", "group_8ixx.html", "group_8ixx" ],
     [ "idle_detector.ixx", "idle__detector_8ixx.html", "idle__detector_8ixx" ],
-    [ "inout.cxx", "inout_8cxx.html", null ],
+    [ "inout.cxx", "inout_8cxx.html", "inout_8cxx" ],
     [ "inout.ixx", "inout_8ixx.html", "inout_8ixx" ],
     [ "input_manager.cxx", "input__manager_8cxx.html", "input__manager_8cxx" ],
     [ "input_manager.ixx", "input__manager_8ixx.html", "input__manager_8ixx" ],

@@ -55,6 +55,9 @@ var hierarchy =
       [ "fs8::pimpl_idiom< basic_autocomplete >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_autocomplete", "structfs8_1_1basic__autocomplete.html", null ]
       ] ],
+      [ "fs8::pimpl_idiom< basic_from_input >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_from_input", "structfs8_1_1basic__from__input.html", null ]
+      ] ],
       [ "fs8::pimpl_idiom< basic_input_manager >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_input_manager", "structfs8_1_1basic__input__manager.html", null ]
       ] ],
@@ -126,7 +129,6 @@ var hierarchy =
       [ "fs8::basic_evtest_output< Format >", "structfs8_1_1basic__evtest__output.html", null ],
       [ "fs8::basic_from_event_line< Format >", "structfs8_1_1basic__from__event__line.html", null ],
       [ "fs8::basic_from_evtest< Format >", "structfs8_1_1basic__from__evtest.html", null ],
-      [ "fs8::basic_from_input", "structfs8_1_1basic__from__input.html", null ],
       [ "fs8::basic_group_mod< Mods >", "structfs8_1_1basic__group__mod.html", null ],
       [ "fs8::basic_held", "structfs8_1_1basic__held.html", null ],
       [ "fs8::basic_held_gate< CondT >", "structfs8_1_1basic__held__gate.html", null ],
