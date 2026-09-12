@@ -84,6 +84,9 @@ var hierarchy =
       [ "fs8::pimpl_idiom< basic_record >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_record", "structfs8_1_1basic__record.html", null ]
       ] ],
+      [ "fs8::pimpl_idiom< basic_replay >", "structfs8_1_1pimpl__idiom.html", [
+        [ "fs8::basic_replay", "structfs8_1_1basic__replay.html", null ]
+      ] ],
       [ "fs8::pimpl_idiom< basic_scheduler >", "structfs8_1_1pimpl__idiom.html", [
         [ "fs8::basic_scheduler", "structfs8_1_1basic__scheduler.html", null ]
       ] ],
@@ -160,7 +163,6 @@ var hierarchy =
       [ "fs8::basic_quantifier", "structfs8_1_1basic__quantifier.html", null ],
       [ "fs8::basic_replace< N, EventType >", "structfs8_1_1basic__replace.html", null ],
       [ "fs8::basic_replace_code", "structfs8_1_1basic__replace__code.html", null ],
-      [ "fs8::basic_replay", "structfs8_1_1basic__replay.html", null ],
       [ "fs8::basic_router< Routes >", "structfs8_1_1basic__router.html", null ],
       [ "fs8::basic_scale_move", "structfs8_1_1basic__scale__move.html", null ],
       [ "fs8::basic_scale_pen", "structfs8_1_1basic__scale__pen.html", null ],
@@ -253,7 +255,6 @@ var hierarchy =
     [ "fs8::nullable_indirect< fs8::detail::router_state >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< fs8::plain_pimpl_idiom::impl >", "structfs8_1_1nullable__indirect.html", null ],
-    [ "fs8::nullable_indirect< state >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::nullable_indirect< state_type >", "structfs8_1_1nullable__indirect.html", null ],
     [ "fs8::idle_repeat::once", "structfs8_1_1idle__repeat_1_1once.html", null ],
     [ "fs8::op_not< Func >", "structfs8_1_1op__not.html", null ],

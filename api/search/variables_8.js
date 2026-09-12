@@ -12,7 +12,7 @@ var searchData=
   ['index_5fmask_9',['INDEX_MASK',['../structfs8_1_1aho__state.html#a8dc65ec738c578e33466693413b76e63',1,'fs8::aho_state']]],
   ['initial_5fscale_10',['initial_scale',['../structfs8_1_1momentum__config.html#ae21e8b313413dd51e1d13ea843036106',1,'fs8::momentum_config']]],
   ['initialized_11',['initialized',['../structfs8_1_1pimpl__idiom_1_1impl.html#a99fb6ba6c8e4441baff445e815e1cdbe',1,'fs8::pimpl_idiom::impl']]],
-  ['input_12',['input',['../namespacefs8_1_1attr.html#a9739be3e99c3e7df48bc8e28d7f81269',1,'fs8::attr::input'],['../namespacefs8.html#a9991a62443bff4eeea741e034b9728ba',1,'fs8::input']]],
+  ['input_12',['input',['../namespacefs8.html#a9991a62443bff4eeea741e034b9728ba',1,'fs8::input'],['../namespacefs8_1_1attr.html#a9739be3e99c3e7df48bc8e28d7f81269',1,'fs8::attr::input']]],
   ['input_5fevent_5fsize_13',['input_event_size',['../namespacefs8_1_1detail.html#ae27860f69131f41b0e90933c872a365a',1,'fs8::detail']]],
   ['input_5fmanager_14',['input_manager',['../namespacefs8.html#a804062ceba9799980345ac46a758f297',1,'fs8']]],
   ['input_5fsubsystem_15',['input_subsystem',['../namespacefs8_1_1attr.html#ae283e888b0f9053de683f77f7cd8bb6a',1,'fs8::attr']]],
@@ -34,10 +34,11 @@ var searchData=
   ['io_31',['io',['../structfs8_1_1pimpl__idiom_1_1impl.html#abf1c46954958674beef8bc5dbd6baafa',1,'fs8::pimpl_idiom::impl']]],
   ['io_5fmanager_32',['io_manager',['../namespacefs8.html#a94c045c9f25ce171f90ea715226c9df0',1,'fs8']]],
   ['is_5fanimating_33',['is_animating',['../structfs8_1_1pimpl__idiom_1_1impl.html#a625b67104c8f53e1e4f74b9abc078641',1,'fs8::pimpl_idiom::impl']]],
-  ['is_5fconstructible_5fat_5fcompile_5ftime_34',['is_constructible_at_compile_time',['../structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a',1,'fs8::var_type']]],
-  ['is_5fquery_35',['is_query',['../namespacefs8.html#aadc64fc1f9d5543954acb8c8ee2cfce7',1,'fs8']]],
-  ['is_5fquery_3c_20basic_5fdevice_5fquery_3c_20n_20_3e_20_3e_36',['is_query&lt; basic_device_query&lt; N &gt; &gt;',['../namespacefs8.html#af27f94630addc25ede7b41f43544cdad',1,'fs8']]],
-  ['is_5ftag_37',['is_tag',['../structfs8_1_1get__variables__tag.html#aafb7e269771441446c32174571d22068',1,'fs8::get_variables_tag::is_tag'],['../structfs8_1_1basic__pass__trigger__tag.html#a93a831f44d5ae7942683bbed86f1736d',1,'fs8::basic_pass_trigger_tag::is_tag'],['../structfs8_1_1basic__auto__mode__tag.html#a179809a5e6c77bfaf557b487f615a4b1',1,'fs8::basic_auto_mode_tag::is_tag']]],
-  ['is_5ftag_5ftype_38',['is_tag_type',['../namespacefs8_1_1detail.html#a78191c65d0f7563de2ee3f4e82886592',1,'fs8::detail']]],
-  ['is_5ftag_5ftype_3c_20special_5fevent_2c_20void_20_3e_39',['is_tag_type&lt; special_event, void &gt;',['../namespacefs8_1_1detail.html#adb43e00e6140916bd4b24c07bf52fc34',1,'fs8::detail']]]
+  ['is_5fbinary_34',['is_binary',['../structfs8_1_1pimpl__idiom_1_1impl.html#a9df4a368676b0c22750797369e061c67',1,'fs8::pimpl_idiom::impl']]],
+  ['is_5fconstructible_5fat_5fcompile_5ftime_35',['is_constructible_at_compile_time',['../structfs8_1_1var__type.html#a04ebedf1071fae6fd967718e6c3b411a',1,'fs8::var_type']]],
+  ['is_5fquery_36',['is_query',['../namespacefs8.html#aadc64fc1f9d5543954acb8c8ee2cfce7',1,'fs8']]],
+  ['is_5fquery_3c_20basic_5fdevice_5fquery_3c_20n_20_3e_20_3e_37',['is_query&lt; basic_device_query&lt; N &gt; &gt;',['../namespacefs8.html#af27f94630addc25ede7b41f43544cdad',1,'fs8']]],
+  ['is_5ftag_38',['is_tag',['../structfs8_1_1get__variables__tag.html#aafb7e269771441446c32174571d22068',1,'fs8::get_variables_tag::is_tag'],['../structfs8_1_1basic__pass__trigger__tag.html#a93a831f44d5ae7942683bbed86f1736d',1,'fs8::basic_pass_trigger_tag::is_tag'],['../structfs8_1_1basic__auto__mode__tag.html#a179809a5e6c77bfaf557b487f615a4b1',1,'fs8::basic_auto_mode_tag::is_tag']]],
+  ['is_5ftag_5ftype_39',['is_tag_type',['../namespacefs8_1_1detail.html#a78191c65d0f7563de2ee3f4e82886592',1,'fs8::detail']]],
+  ['is_5ftag_5ftype_3c_20special_5fevent_2c_20void_20_3e_40',['is_tag_type&lt; special_event, void &gt;',['../namespacefs8_1_1detail.html#adb43e00e6140916bd4b24c07bf52fc34',1,'fs8::detail']]]
 ];

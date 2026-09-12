@@ -14,5 +14,6 @@ var searchData=
   ['output_11',['output',['../namespacefs8.html#a7dc3fe91c5c1e5e25859f5eafbdfcff8',1,'fs8']]],
   ['output_5fflags_12',['output_flags',['../namespacefs8.html#a11d652fd27032411a9248c0a1f9da2e5',1,'fs8']]],
   ['owned_5ffd_13',['owned_fd',['../structfs8_1_1pimpl__idiom_1_1impl.html#a65394091f53da53e78bc4209bd0d7ead',1,'fs8::pimpl_idiom::impl']]],
-  ['owned_5fsysnames_14',['owned_sysnames',['../structfs8_1_1pimpl__idiom_1_1impl.html#a991eca0cc94976f8a46082072092adba',1,'fs8::pimpl_idiom::impl']]]
+  ['owned_5fsysnames_14',['owned_sysnames',['../structfs8_1_1pimpl__idiom_1_1impl.html#a991eca0cc94976f8a46082072092adba',1,'fs8::pimpl_idiom::impl']]],
+  ['owns_5ffd_15',['owns_fd',['../structfs8_1_1pimpl__idiom_1_1impl.html#afb8369a7555d545901ba27b3ad9ddc37',1,'fs8::pimpl_idiom::impl']]]
 ];
