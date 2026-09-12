@@ -169,6 +169,162 @@ state mod fails to build.
   allocate lazily at `start`; handlers are bound by reference and must outlive
   the pipeline.
 
+## Common utilities & idioms (read this before grepping)
+
+These are the building blocks used everywhere. Paths are relative to the repo
+root; import the listed module instead of re-deriving the pattern.
+
+### `consteval_copyable` — `utils/traits.ixx`, module `fs8.traits`
+
+Base class every mod derives from. Copying is allowed **only during constant
+evaluation**; a runtime copy calls `fprintf(stderr, ...)` + `std::abort()`
+(the check uses `if !consteval`). Moving is normal. The default ctor is
+hand-written (not `= default`) so clang emits it into the BMI for down-stream
+modules.
+
+```cpp
+struct [[nodiscard]] my_mod : consteval_copyable {
+    using consteval_copyable::consteval_copyable;
+};
+```
+
+`pretty_type_name<T>()` is a `consteval` helper returning the short type name
+from `__PRETTY_FUNCTION__` (e.g. `basic_abs2rel`). `fs8.traits` also holds the
+`detail::trim/type_token/extract_type/unqualified/short_name` string helpers.
+
+### pimpl idiom — `utils/pimpl.ixx`, module `fs8.pimpl`
+
+Two variants; both store a `nullable_indirect<Derived::impl>` named `pimpl` and
+provide a protected `init_impl(args...)`:
+
+| Base                    | Copyable at runtime? | Use for                                  |
+|-------------------------|----------------------|------------------------------------------|
+| `pimpl_idiom<Derived>`  | no (consteval only)  | pipeline mods (inherits `consteval_copyable`) |
+| `plain_pimpl_idiom<T>`  | yes (deep-clones)    | runners/services (`keyboard_runner`, `bash_runner`, `systemd_service`, ...) |
+
+Canonical pattern:
+
+```cpp
+// foo.ixx
+export module fs8.mods:foo;
+import fs8.pimpl;
+
+export namespace fs8 {
+    constexpr struct [[nodiscard]] basic_foo : pimpl_idiom<basic_foo> {
+        using pimpl_idiom::pimpl_idiom;
+        context_action operator()(special_event const& tag) noexcept;
+    } foo;
+}
+
+// foo.cxx
+module fs8.mods;
+struct fs8::pimpl_idiom<basic_foo>::impl { /* real members */ };
+```
+
+`impl` is only forward-declared in the header; define it as a specialization in
+the `.cxx`. Allocate lazily in `start` / on first use:
+`if (pimpl.get() == nullptr) init_impl();` (see `mods/io_manager.cxx:114`).
+Handlers are `std::function_ref` bound by reference — they must outlive the
+pipeline.
+
+### `nullable_indirect<T>` — `utils/nullable_indirect.ixx`, module `fs8.nullable_indirect`
+
+Nullable, allocator-aware owning pointer with value semantics: copy deep-clones
+through a type-erased `clone_fn`. A runtime copy of a consteval-only impl
+`std::abort()`s; the consteval branch constructs normally. Construct with the
+`static make(...)` / `make_allocated(...)` factories. Observers: `get()`,
+`operator*/->`, `operator bool`, `reset()`, `swap()`. This is the storage
+behind `pimpl_idiom`.
+
+### Logging — `main/log.ixx`, module `fs8.log`
+
+A single non-throwing global consteval object `fs8::log` that prints to `stderr`
+via `std::println` (terminates on formatting failure). Do **not** import
+`fs8.log` from `event.ixx` (circular). Usage:
+
+```cpp
+import fs8.log;
+log("Restarting pipeline...");
+log("io_manager: poll failed: {}", std::strerror(errno));
+log[event];          // prefix a message with an event
+log(event);          // type_name(), code_name(), value()
+```
+
+### Events — `main/event.ixx`, module `fs8.event`
+
+- `event_type` wraps a native `input_event` plus a `source_id`; it carries
+  `type/code/value/time`, `is(...)`/`is_of(...)`, `micro_time()`, `hash()`.
+- `special_event` is the lifecycle tag type (`start`, `no_init`, `load_event`,
+  `next_event`, `toggle_on`, `toggle_off`, `idle`); its `type` is
+  `special_event_type` (`EV_MAX + 1`), and `hashed()`/`operator+`/`==` make it
+  usable in `switch`.
+- `user_event`, `event_code`, `key_event` are plain POD-ish helpers;
+  `key_code`/`key_codes` build `EV_KEY` codes.
+- `source_id` (a `uint32_t`: high 16 = mod id, low 16 = source index) encodes
+  event origin: `make_source_id(mod, idx)`, `sid(mod[, idx])`, `mod_id_of<T>()`
+  (reads `T::mod_id` or hashes `__PRETTY_FUNCTION__`), plus `mod_id()` /
+  `source_index()` unpackers. `source_id_none == 0` means unset.
+
+### Context — `main/context.ixx`, module `fs8.context`
+
+- `basic_context<Mods...>` is the mod tuple + current event; `fs8::context` is
+  the empty one pipelines are built from.
+- `context_action { next, drop_event, recovery, exit }`.
+- `dynamic_context` is a `thread_binding<any_dynamic_context>` giving mods
+  type-erased access to the running context; bind with
+  `dynamic_scope scope{dynamic_context, *this}` (see `start_mods` /
+  `run_loop`).
+- `type_id<T>` (address-stable token) plus `mods<T>()` / `rmods<T>()` find mods
+  by type, `recursive` descending into routers/sub-pipelines.
+- Concepts: `Context`, `Modifier`, `OutputModifier`, `ContextWith`, `has_mod`,
+  `invokable_mod`, `PipelineTag`.
+
+### CLI — `main/cli.ixx`, module `fs8.cli` (re-exported by `fs8.utils`)
+
+Configure with method chaining, parse via `operator()(argc, argv)`:
+
+```cpp
+import fs8.cli;
+static constexpr auto args = fs8::arguments["default_device"]
+    .positional("device")
+    .add_flag({.name = "--grab", .alias = "-g", .help = "grab the device"});
+auto parsed = args(argc, argv);
+parsed.exit_if_needed();                  // handles -h/--help, -v/--version
+if (parsed.has_flag("--grab")) { ... }
+auto val = parsed.flag_value("--timeout"); // std::optional<std::string_view>
+```
+
+`parsed_args` is a range over positionals, so it can be piped through query tags
+(`parsed | grab | required`). `basic_arguments<N>` holds default positionals.
+
+### Small utilities (`utils/`)
+
+| Module (`import`)          | What's in it |
+|----------------------------|--------------|
+| `fs8.traits` (`utils/traits.ixx`) | `consteval_copyable`, `pretty_type_name`, string helpers |
+| `fs8.strings` (`utils/strings.ixx`) | `operator+(string_view) -> string`, `is_surrogate`, `is_empty`, `iequals` |
+| `fs8.hash` (`utils/hash.ixx`) | `ci_hash` (constexpr case-insensitive FNV-1a), FNV constants, runtime `fnv1a_init`/`fnv1a_hash` |
+| `fs8.easings` (`utils/easings.ixx`) | `linear`, `easeIn/Out{Quad,Cubic,Quart,Quint,Sine,Expo}` |
+| `dynamic_scoping` (`utils/dynamic_scoping.ixx`) | `global_binding`, `thread_binding`, `dynamic_scope`, `binder_instance`/`dynamically_scoped`/`polymorphic_scoped` |
+| `fs8.utils` (`main/utils.ixx`) | `noop`, `constexpr_constructible`, `construct_it_from`, `transform_to`, `into` |
+| `fs8.nullable_indirect` | see above |
+
+### Anatomy of a new mod (checklist)
+
+1. Write `mods/<name>.ixx` as `export module fs8.mods:<name>;`, put
+   `basic_<name>` in `export namespace fs8` inside `consteval_copyable` (via
+   `pimpl_idiom` if it holds state), and expose a constexpr instance `<name>`.
+2. Write `mods/<name>.cxx` as `module fs8.mods;` with the `impl` definition and
+   the method bodies.
+3. Register **both** files in the root `CMakeLists.txt` (`target_sources`
+   PRIVATE for `.cxx`, `FILE_SET foresight` for `.ixx`).
+4. Add `export import :<name>;` to `mods/mods.ixx`.
+5. `static_assert` the `Modifier`/`OutputModifier` concept where relevant and
+   any inter-mod dependency (e.g. "We need keys_state to be in the pipeline.").
+6. Handle lifecycle tags by inspecting `tag.code` in
+   `operator()(special_event const&)`; return `next`/`drop_event` for ordinary
+   events. All invocations must be `noexcept` (custom `log` etc. included).
+
 ## C++26 modules (the big gotcha)
 
 All library code is C++26 modules: interfaces are `.ixx`, paired with `.cxx`
