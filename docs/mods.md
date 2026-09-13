@@ -60,7 +60,7 @@ Everything lives in the `fs8` namespace. Full signatures are in the
 | `led_state` / `led_toggle` | State | Track keyboard LED state. |
 | `mouse_history` | State | Track current/previous mouse positions. |
 | `quantifier` / `mice_quantifier` | State | Threshold-step accumulation for movement. |
-| `tilt_state` | State | Track pen tilt (`ABS_TILT_X` / `ABS_TILT_Y`). |
+| `tilt_state` | State | Track pen tilt (`ABS_TILT_X` / `ABS_TILT_Y`) relative to a captured neutral hold. |
 | `var_type` | State | Typed pipeline variables (`context["name"]`). |
 | `startup_key_releases` | State | Sync pipeline with physical keyboard on launch. |
 | `device` (11 variants) | Condition | Filter by which device an event came from. |
@@ -234,14 +234,16 @@ pipeline (or in an enclosing pipeline, since sub-pipelines share the context).
 
 Detection and response are separate, so each pipeline picks the behaviour it
 wants. The domain (ABS before `abs2rel`, REL after), the tilt mapping (one
-factor vs per-axis) and the easing curve are chosen with compile-time tag
-objects, so none of it is checked at runtime.
+factor vs per-axis) and the easing curve are passed as ordinary callables, so
+you can use the provided ones or your own function of the matching signature.
 
 ```cpp
+import fs8.easings;
+
 context
-  | tilt_state
+  | tilt_state[tilt_base_options{.recenter_time = 3.0F}]
   | abs2rel
-  | tilt_speed[tilt_rel, tilt_isotropic, tilt_curve_out_cubic,
+  | tilt_speed[tilt_rel, tilt_isotropic, easeOutCubic<float>,
                tilt_speed_options{.base = 1.0F, .max = 2.5F, .start = 0.2F, .end = 1.0F}]
   | tilt_freeze[0.15F]                    // hold still while the hand stretches
   | tilt_push[tilt_rel, tilt_push_options{.gain = 2.0F, .dead_zone = 0.3F}]
@@ -250,9 +252,10 @@ context
 - `tilt_speed` scales movement between `base` (no tilt) and `max` (full tilt):
   `max > base` accelerates, `max < base` damps. Use `tilt_abs` to rewrite
   `ABS_X`/`ABS_Y` before `abs2rel`, or `tilt_rel` for `REL_X`/`REL_Y` after it.
-  `tilt_per_axis` maps `ABS_TILT_X -> X` and `ABS_TILT_Y -> Y`; `tilt_isotropic`
-  uses the tilt magnitude for both. Curves: `tilt_curve_linear`,
-  `tilt_curve_out_quad`, `tilt_curve_out_cubic`, `tilt_curve_out_sine`.
+  `tilt_per_axis` maps each tilt axis separately; `tilt_isotropic` uses the tilt
+  magnitude for both. The curve is any `float(float)` easing from
+  `fs8.easings` — e.g. `linear<float>`, `easeOutQuad<float>`,
+  `easeOutCubic<float>`, `easeOutSine<float>` — or your own function.
 - `tilt_freeze[threshold]` freezes movement while the per-event tilt change is
   at/above `threshold`. In `tilt_abs` domain it holds the emitted absolute
   position so `abs2rel` sees a zero delta; in `tilt_rel` domain it zeroes the
@@ -261,8 +264,23 @@ context
   events (merely tilting does not drift). `gain` is in pixels for `tilt_rel`
   and raw `ABS_*` counts for `tilt_abs`; `dead_zone` ignores small tilts.
 
+The three callables are `using`-style function pointers, so any free function
+(or captureless lambda) of the matching signature works:
+
+```cpp
+using tilt_domain_fn  = tilt_axis (*)(event_type const&) noexcept;
+using tilt_mapping_fn = void (*)(basic_tilt_state const&, float& t_x, float& t_y) noexcept;
+using tilt_curve_fn   = float (*)(float t) noexcept;
+```
+
+`tilt_abs`, `tilt_rel`, `tilt_isotropic` and `tilt_per_axis` are instances of
+those. Arguments can be given in any order; anything omitted keeps its default
+(`tilt_rel`, `tilt_isotropic`, `easeOutCubic<float>`).
+
 The scale factor is cached and recomputed only when the tilt actually changes
 (`tilt_state::version()`), so movement events cost a compare and a multiply.
+All of these read the **base-relative** tilt from `tilt_state`, so the user's
+natural hold is neutral (see `tilt_state` below).
 
 ### `autocomplete`
 
@@ -492,6 +510,24 @@ tilt range. Exposes `norm_x()`, `norm_y()`, `normalized_magnitude()`,
 `change()`, `is_tilted()` and `is_changing()`. Derived values are computed only
 on tilt events, and `version()` lets the actions cache their factor. Required
 by `tilt_speed`, `tilt_freeze`, `tilt_push`, `tilted` and `tilt_changing`.
+
+The values are relative to a **base (neutral) tilt** — the angle the user
+naturally holds the pen at — so a natural hold reads as zero and the actions
+respond to how far the pen is tilted *from* that hold:
+
+- The base is captured as a per-axis vector every time the pen comes into
+  proximity (`BTN_TOOL_*`), so picking the pen up re-zeroes it.
+- The base is also continuously recentered toward the current tilt, with a
+  configurable time constant:
+
+```cpp
+tilt_state[tilt_base_options{.recenter_time = 3.0F}]   // seconds; <= 0 disables
+```
+
+`recenter_time` is frame-rate independent (`alpha = 1 - exp(-dt / tau)`), so
+smaller values adapt faster but also absorb a deliberately held tilt sooner.
+`change()` stays measured from the raw tilt, so `tilt_freeze` is unaffected by
+the base. `base_x()` / `base_y()` expose the current base (normalized).
 
 ### `mouse_history`
 

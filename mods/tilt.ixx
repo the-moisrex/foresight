@@ -2,10 +2,12 @@
 
 module;
 #include <algorithm>
+#include <chrono>
 #include <concepts>
 #include <cstdint>
 #include <linux/input-event-codes.h>
 #include <type_traits>
+#include <utility>
 export module fs8.mods:tilt;
 import fs8.context;
 import fs8.devices.evdev;
@@ -16,47 +18,13 @@ import :input_manager;
 
 export namespace fs8 {
 
-    // ── Compile-time selection tags ────────────────────────────────────────
-    //
-    // These are passed to the action mods through `operator[]`; because they
-    // are types, the selection is resolved at compile time and disappears from
-    // the generated code (no runtime flag/branch).
-    //
-    //   tilt_speed[tilt_abs, tilt_per_axis, tilt_curve_out_cubic, {...}]
-    //
-    // Domains: which axis-space to rewrite (ABS before abs2rel, REL after).
-    // Mappings: how tilt maps to a scale factor (one factor vs per-axis).
-    // Curves: how the normalized tilt is eased before becoming a factor.
-
-    struct [[nodiscard]] tilt_abs_domain_t {};
-
-    struct [[nodiscard]] tilt_rel_domain_t {};
-
-    inline constexpr tilt_abs_domain_t tilt_abs{};
-    inline constexpr tilt_rel_domain_t tilt_rel{};
-
-    struct [[nodiscard]] tilt_isotropic_t {};
-
-    struct [[nodiscard]] tilt_per_axis_t {};
-
-    inline constexpr tilt_isotropic_t tilt_isotropic{};
-    inline constexpr tilt_per_axis_t  tilt_per_axis{};
-
-    struct [[nodiscard]] tilt_linear_t {};
-
-    struct [[nodiscard]] tilt_out_quad_t {};
-
-    struct [[nodiscard]] tilt_out_cubic_t {};
-
-    struct [[nodiscard]] tilt_out_sine_t {};
-
-    inline constexpr tilt_linear_t    tilt_curve_linear{};
-    inline constexpr tilt_out_quad_t  tilt_curve_out_quad{};
-    inline constexpr tilt_out_cubic_t tilt_curve_out_cubic{};
-    inline constexpr tilt_out_sine_t  tilt_curve_out_sine{};
-
     /// Default full-tilt speed factor (see `tilt_speed_options::max`).
     inline constexpr float tilt_default_max_speed_factor = 2.0F;
+
+    /// Fallback tilt range (device counts) used when the tablet doesn't expose
+    /// `ABS_TILT_X` / `ABS_TILT_Y` info. Keeps `tilt_state` usable and testable
+    /// on tilt-less pipelines.
+    inline constexpr float tilt_default_tilt_range = 9000.0F;
 
     /// Numeric knobs for `tilt_speed`. `base` is the factor at (or below)
     /// `start` tilt, `max` the factor at (or above) `end` tilt. `max < base`
@@ -68,10 +36,31 @@ export namespace fs8 {
         float end   = 1.0F;
     };
 
+    /// Controls `tilt_state`'s base-tilt (neutral) tracking.
+    ///
+    /// The base is the tilt the user naturally holds the pen at; it is
+    /// subtracted from the raw tilt so that the natural hold reads as zero.
+    struct [[nodiscard]] tilt_base_options {
+        /// Time constant of the continuous recenter, in seconds. Each tilt
+        /// frame drags the base toward the current tilt with
+        /// `alpha = 1 - exp(-dt / recenter_time)`, which makes the rate
+        /// independent of the tablet's report frequency. `<= 0` disables
+        /// continuous recentering (proximity capture still applies).
+        ///
+        /// Smaller values adapt faster but also absorb a deliberately held
+        /// tilt sooner; larger values preserve intentional tilts for longer.
+        float recenter_time = 2.0F;
+    };
+
     // ── State ──────────────────────────────────────────────────────────────
 
     /// Tracks the pen's absolute tilt (`ABS_TILT_X` / `ABS_TILT_Y`) and exposes
     /// normalized, cached values for the tilt action mods.
+    ///
+    /// The natural hold is tracked as a per-axis *base* tilt: it is captured
+    /// every time the pen comes into proximity and continuously recentered
+    /// toward the current tilt (see `tilt_base_options`). All exposed
+    /// normalized values are relative to that base.
     ///
     /// All derived values (normalized axes, magnitude, per-event change) are
     /// computed only when a tilt event arrives, so movement events never pay
@@ -91,13 +80,32 @@ export namespace fs8 {
         float         norm_y_    = 0.0F;
         float         magnitude_ = 0.0F; // normalized tilt magnitude, 0..1
         float         change_    = 0.0F; // normalized magnitude of the last tilt delta, 0..1
-        float         range_x_   = 9000.0F;
-        float         range_y_   = 9000.0F;
+        float         base_x_    = 0.0F; // normalized neutral tilt (subtracted from raw)
+        float         base_y_    = 0.0F; // normalized neutral tilt (subtracted from raw)
+        float         range_x_   = tilt_default_tilt_range;
+        float         range_y_   = tilt_default_tilt_range;
         std::uint32_t version_   = 1U;
 
-        void update(value_type value, bool is_x) noexcept;
+        tilt_base_options         options{};
+        std::chrono::microseconds last_update_time_{};
+        bool                      pending_base_capture_ = false;
+
+        void update(value_type value, bool is_x, std::chrono::microseconds now) noexcept;
+
+        /// Capture the current tilt as the neutral base (called on proximity).
+        void begin_proximity(std::chrono::microseconds now) noexcept;
+
+        /// Read `ABS_TILT_X` / `ABS_TILT_Y` ranges from `dev`. Returns false if
+        /// the device has no tilt axes (so the scan can try the next device).
+        bool seed_range(evdev const& dev) noexcept;
 
       public:
+        consteval basic_tilt_state operator[](tilt_base_options const& inp_options) const noexcept {
+            basic_tilt_state res{*this};
+            res.options = inp_options;
+            return res;
+        }
+
         context_action operator()(event_type const& event) noexcept;
 
         template <Context CtxT>
@@ -122,19 +130,10 @@ export namespace fs8 {
         /// usable on tilt-less pipelines.
         template <Context CtxT>
         void init(CtxT& ctx) noexcept {
+            reset();
             if constexpr (has_mod<basic_input_manager, CtxT>) {
                 for (evdev const& dev : ctx.mod(input_manager).devices()) {
-                    auto const* x_info = dev.abs_info(ABS_TILT_X);
-                    auto const* y_info = dev.abs_info(ABS_TILT_Y);
-                    if (x_info != nullptr && y_info != nullptr) {
-                        range_x_ = static_cast<float>(std::max(std::abs(x_info->minimum), std::abs(x_info->maximum)));
-                        range_y_ = static_cast<float>(std::max(std::abs(y_info->minimum), std::abs(y_info->maximum)));
-                        if (range_x_ <= 0.0F) {
-                            range_x_ = 9000.0F;
-                        }
-                        if (range_y_ <= 0.0F) {
-                            range_y_ = 9000.0F;
-                        }
+                    if (seed_range(dev)) {
                         break;
                     }
                 }
@@ -157,6 +156,14 @@ export namespace fs8 {
 
         [[nodiscard]] constexpr float change() const noexcept {
             return change_;
+        }
+
+        [[nodiscard]] constexpr float base_x() const noexcept {
+            return base_x_;
+        }
+
+        [[nodiscard]] constexpr float base_y() const noexcept {
+            return base_y_;
         }
 
         [[nodiscard]] constexpr std::uint32_t version() const noexcept {
@@ -216,133 +223,103 @@ export namespace fs8 {
         float threshold = 0.15F;
     } tilt_changing;
 
-    // ── Compile-time argument plumbing ─────────────────────────────────────
+    // ── Callables ──────────────────────────────────────────────────────────
+    //
+    // The tilt actions take real callables instead of tag structs, e.g.
+    //
+    //   tilt_speed[tilt_rel, tilt_isotropic, easeOutCubic<float>, {...}]
+    //
+    //   * a *domain* classifies the movement event: `tilt_abs` rewrites
+    //     `ABS_X`/`ABS_Y` (place before `abs2rel`), `tilt_rel` rewrites
+    //     `REL_X`/`REL_Y` (place after);
+    //   * a *mapping* turns the tilt state into per-axis normalized amounts:
+    //     `tilt_isotropic` uses the tilt magnitude, `tilt_per_axis` uses each
+    //     axis separately;
+    //   * a *curve* is any `float(float)` easing (see `fs8.easings`),
+    //     e.g. `linear<float>`, `easeOutCubic<float>`.
+    //
+    // Any of them can be replaced with your own function of the matching
+    // signature, which is also why they are passed as ordinary arguments.
+
+    /// Per-axis classification of a movement event, shared by all tilt actions.
+    struct [[nodiscard]] tilt_axis {
+        bool valid  = false;
+        bool is_x   = false;
+        bool is_abs = false;
+        bool reset  = false;
+    };
+
+    /// Scratch space the tilt domains keep between events.
+    struct [[nodiscard]] tilt_scale_state {
+        event_type::value_type x_last = 0;
+        event_type::value_type y_last = 0;
+        event_type::value_type x_out  = 0;
+        event_type::value_type y_out  = 0;
+        float                  x_eps  = 0.0F;
+        float                  y_eps  = 0.0F;
+        bool                   x_init = false;
+        bool                   y_init = false;
+    };
+
+    struct [[nodiscard]] tilt_push_options {
+        float gain      = 1.0F;
+        float dead_zone = 0.0F;
+    };
+
+    using tilt_domain_fn  = tilt_axis (*)(event_type const& event) noexcept;
+    using tilt_mapping_fn = void (*)(basic_tilt_state const& state, float& t_x, float& t_y) noexcept;
+    using tilt_curve_fn   = float (*)(float t) noexcept;
 
     namespace tilt_detail {
 
-        template <typename T>
-        struct domain_of {
-            static constexpr bool value = false;
-        };
+        // Domain classifiers.
 
-        template <>
-        struct domain_of<tilt_abs_domain_t> {
-            static constexpr bool value = true;
-        };
+        tilt_axis classify_abs(event_type const& event) noexcept;
+        tilt_axis classify_rel(event_type const& event) noexcept;
 
-        template <>
-        struct domain_of<tilt_rel_domain_t> {
-            static constexpr bool value = true;
-        };
+        // Tilt-to-amount mappings.
 
-        template <typename T>
-        struct mapping_of {
-            static constexpr bool value = false;
-        };
+        void isotropic_mapping(basic_tilt_state const& state, float& t_x, float& t_y) noexcept;
+        void per_axis_mapping(basic_tilt_state const& state, float& t_x, float& t_y) noexcept;
 
-        template <>
-        struct mapping_of<tilt_isotropic_t> {
-            static constexpr bool value = true;
-        };
+        // Domain application. Kept out of line so the actions stay declaration.
 
-        template <>
-        struct mapping_of<tilt_per_axis_t> {
-            static constexpr bool value = true;
-        };
-
-        template <typename T>
-        struct curve_of {
-            static constexpr bool value = false;
-        };
-
-        template <>
-        struct curve_of<tilt_linear_t> {
-            static constexpr bool value = true;
-        };
-
-        template <>
-        struct curve_of<tilt_out_quad_t> {
-            static constexpr bool value = true;
-        };
-
-        template <>
-        struct curve_of<tilt_out_cubic_t> {
-            static constexpr bool value = true;
-        };
-
-        template <>
-        struct curve_of<tilt_out_sine_t> {
-            static constexpr bool value = true;
-        };
-
-        template <template <typename> typename Pred, typename Default, typename... Ts>
-        struct first_match {
-            using type = Default;
-        };
-
-        template <template <typename> typename Pred, typename Default, typename T, typename... Ts>
-        struct first_match<Pred, Default, T, Ts...> {
-            using type = std::
-              conditional_t<Pred<std::remove_cvref_t<T>>::value, std::remove_cvref_t<T>, typename first_match<Pred, Default, Ts...>::type>;
-        };
-
-        /// Pull the (optional) `tilt_speed_options` out of an argument pack,
-        /// falling back to the defaults.
-        template <typename... Args>
-        [[nodiscard]] constexpr tilt_speed_options find_options(Args&&... args) noexcept {
-            tilt_speed_options result{};
-            auto const         assign = [&]<typename ArgT>(ArgT&& arg) noexcept {
-                if constexpr (std::same_as<std::remove_cvref_t<ArgT>, tilt_speed_options>) {
-                    result = arg;
-                }
-            };
-            (assign(std::forward<Args>(args)), ...);
-            return result;
-        }
+        context_action apply_speed(event_type& event, tilt_axis axis, tilt_scale_state& scale, float x_factor, float y_factor) noexcept;
+        context_action apply_freeze(event_type& event, tilt_axis axis, tilt_scale_state& scale, bool frozen) noexcept;
+        context_action apply_push(
+          event_type&              event,
+          tilt_axis                axis,
+          tilt_scale_state&        scale,
+          float                    x_norm,
+          float                    y_norm,
+          tilt_push_options const& options) noexcept;
 
     } // namespace tilt_detail
+
+    inline constexpr tilt_domain_fn  tilt_abs       = tilt_detail::classify_abs;
+    inline constexpr tilt_domain_fn  tilt_rel       = tilt_detail::classify_rel;
+    inline constexpr tilt_mapping_fn tilt_isotropic = tilt_detail::isotropic_mapping;
+    inline constexpr tilt_mapping_fn tilt_per_axis  = tilt_detail::per_axis_mapping;
 
     // ── Actions ────────────────────────────────────────────────────────────
 
     /// Rescale movement based on the pen's tilt.
     ///
     /// The factor is `base + (max - base) * curve(normalized_tilt)` and is
-    /// cached until the tilt actually changes. `tilt_per_axis` maps
-    /// `ABS_TILT_X -> X` and `ABS_TILT_Y -> Y`; `tilt_isotropic` uses the tilt
-    /// magnitude for both. `tilt_abs` rewrites `ABS_X`/`ABS_Y` (place before
-    /// `abs2rel`); `tilt_rel` rewrites `REL_X`/`REL_Y` (place after).
-    template <typename DomainT = tilt_rel_domain_t, typename MappingT = tilt_isotropic_t, typename CurveT = tilt_out_cubic_t>
-    struct [[nodiscard]] basic_tilt_speed : consteval_copyable {
+    /// cached until the tilt actually changes.
+    constexpr struct [[nodiscard]] basic_tilt_speed : consteval_copyable {
         using consteval_copyable::consteval_copyable;
-
-        using value_type = event_type::value_type;
 
       private:
         tilt_speed_options options{};
+        tilt_domain_fn     domain_  = tilt_rel;
+        tilt_mapping_fn    mapping_ = tilt_isotropic;
+        tilt_curve_fn      curve_   = easeOutCubic<float>;
 
-        float         x_factor_       = 1.0F;
-        float         y_factor_       = 1.0F;
-        std::uint32_t cached_version_ = 0U;
-        float         x_eps_          = 0.0F;
-        float         y_eps_          = 0.0F;
-        value_type    x_last_         = 0;
-        value_type    y_last_         = 0;
-        value_type    x_out_          = 0;
-        value_type    y_out_          = 0;
-        bool          x_init_         = false;
-        bool          y_init_         = false;
-
-        [[nodiscard]] static constexpr float curve(float const t) noexcept {
-            if constexpr (std::same_as<CurveT, tilt_out_quad_t>) {
-                return easeOutQuad(t);
-            } else if constexpr (std::same_as<CurveT, tilt_out_cubic_t>) {
-                return easeOutCubic(t);
-            } else if constexpr (std::same_as<CurveT, tilt_out_sine_t>) {
-                return easeOutSine(t);
-            } else {
-                return linear(t);
-            }
-        }
+        tilt_scale_state scale{};
+        float            x_factor_       = 1.0F;
+        float            y_factor_       = 1.0F;
+        std::uint32_t    cached_version_ = 0U;
 
         [[nodiscard]] float map(float const t) const noexcept {
             float const span = options.end - options.start;
@@ -352,366 +329,151 @@ export namespace fs8 {
             } else {
                 n = t >= options.start ? 1.0F : 0.0F;
             }
-            return options.base + ((options.max - options.base) * curve(n));
+            return options.base + ((options.max - options.base) * curve_(n));
         }
 
         void refresh(basic_tilt_state const& state) noexcept {
-            if constexpr (std::same_as<MappingT, tilt_per_axis_t>) {
-                x_factor_ = map(std::abs(state.norm_x()));
-                y_factor_ = map(std::abs(state.norm_y()));
-            } else {
-                float const factor = map(state.normalized_magnitude());
-                x_factor_          = factor;
-                y_factor_          = factor;
-            }
-        }
-
-        void reset_scale_state() noexcept {
-            x_eps_  = 0.0F;
-            y_eps_  = 0.0F;
-            x_init_ = false;
-            y_init_ = false;
-        }
-
-        context_action apply_abs(event_type& event) noexcept {
-            using enum context_action;
-            switch (event.hash()) {
-                case hashed(EV_ABS, ABS_X): {
-                    auto const value = event.value();
-                    if (!x_init_) {
-                        x_last_ = value;
-                        x_out_  = value;
-                        x_init_ = true;
-                        return next;
-                    }
-                    auto const delta    = static_cast<float>(value - x_last_);
-                    x_last_             = value;
-                    float const scaled  = (delta * x_factor_) + x_eps_;
-                    auto const  pixels  = static_cast<value_type>(scaled);
-                    x_eps_              = scaled - static_cast<float>(pixels);
-                    x_out_             += pixels;
-                    event.value(x_out_);
-                    return next;
-                }
-                case hashed(EV_ABS, ABS_Y): {
-                    auto const value = event.value();
-                    if (!y_init_) {
-                        y_last_ = value;
-                        y_out_  = value;
-                        y_init_ = true;
-                        return next;
-                    }
-                    auto const delta    = static_cast<float>(value - y_last_);
-                    y_last_             = value;
-                    float const scaled  = (delta * y_factor_) + y_eps_;
-                    auto const  pixels  = static_cast<value_type>(scaled);
-                    y_eps_              = scaled - static_cast<float>(pixels);
-                    y_out_             += pixels;
-                    event.value(y_out_);
-                    return next;
-                }
-                case hashed(EV_KEY, BTN_TOOL_PEN):
-                case hashed(EV_KEY, BTN_TOOL_RUBBER):
-                case hashed(EV_KEY, BTN_TOOL_BRUSH):
-                case hashed(EV_KEY, BTN_TOOL_PENCIL):
-                case hashed(EV_KEY, BTN_TOOL_AIRBRUSH):
-                case hashed(EV_KEY, BTN_TOOL_FINGER):
-                case hashed(EV_KEY, BTN_TOOL_MOUSE):
-                case hashed(EV_KEY, BTN_TOOL_LENS): reset_scale_state(); return next;
-                default: return next;
-            }
-        }
-
-        context_action apply_rel(event_type& event) noexcept {
-            using enum context_action;
-            switch (event.hash()) {
-                case hashed(EV_REL, REL_X): {
-                    float const scaled = (static_cast<float>(event.value()) * x_factor_) + x_eps_;
-                    auto const  out    = static_cast<value_type>(scaled);
-                    x_eps_             = scaled - static_cast<float>(out);
-                    event.value(out);
-                    return next;
-                }
-                case hashed(EV_REL, REL_Y): {
-                    float const scaled = (static_cast<float>(event.value()) * y_factor_) + y_eps_;
-                    auto const  out    = static_cast<value_type>(scaled);
-                    y_eps_             = scaled - static_cast<float>(out);
-                    event.value(out);
-                    return next;
-                }
-                case hashed(EV_KEY, BTN_TOOL_PEN):
-                case hashed(EV_KEY, BTN_TOOL_RUBBER):
-                case hashed(EV_KEY, BTN_TOOL_BRUSH):
-                case hashed(EV_KEY, BTN_TOOL_PENCIL):
-                case hashed(EV_KEY, BTN_TOOL_AIRBRUSH):
-                case hashed(EV_KEY, BTN_TOOL_FINGER):
-                case hashed(EV_KEY, BTN_TOOL_MOUSE):
-                case hashed(EV_KEY, BTN_TOOL_LENS): reset_scale_state(); return next;
-                default: return next;
-            }
+            float t_x = 0.0F;
+            float t_y = 0.0F;
+            mapping_(state, t_x, t_y);
+            x_factor_ = map(t_x);
+            y_factor_ = map(t_y);
         }
 
       public:
-        consteval basic_tilt_speed operator[](tilt_speed_options const& inp_options) const noexcept {
+        template <typename... Args>
+            requires((!detail::is_tag_type<std::decay_t<Args>>) && ...)
+        consteval basic_tilt_speed operator[](Args&&... args) const noexcept {
             basic_tilt_speed res{*this};
-            res.options = inp_options;
+            auto const       assign = [&res]<typename ArgT>(ArgT&& arg) constexpr noexcept {
+                using decayed = std::decay_t<ArgT>;
+                if constexpr (std::same_as<decayed, tilt_speed_options>) {
+                    res.options = std::forward<ArgT>(arg);
+                } else if constexpr (std::same_as<decayed, tilt_domain_fn>) {
+                    res.domain_ = std::forward<ArgT>(arg);
+                } else if constexpr (std::same_as<decayed, tilt_mapping_fn>) {
+                    res.mapping_ = std::forward<ArgT>(arg);
+                } else if constexpr (std::same_as<decayed, tilt_curve_fn>) {
+                    res.curve_ = std::forward<ArgT>(arg);
+                }
+            };
+            (assign(std::forward<Args>(args)), ...);
             return res;
         }
 
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
+            using enum context_action;
             static_assert(has_mod<basic_tilt_state, CtxT>, "We need tilt_state to be in the pipeline.");
             auto const& state = ctx.mod(tilt_state);
             if (cached_version_ != state.version()) {
                 refresh(state);
                 cached_version_ = state.version();
             }
-            if constexpr (std::same_as<DomainT, tilt_abs_domain_t>) {
-                return apply_abs(ctx.event());
-            } else {
-                return apply_rel(ctx.event());
+            auto const axis = domain_(ctx.event());
+            if (axis.reset) {
+                scale = {};
+                return next;
             }
+            if (!axis.valid) {
+                return next;
+            }
+            return tilt_detail::apply_speed(ctx.event(), axis, scale, x_factor_, y_factor_);
         }
-    };
-
-    struct [[nodiscard]] tilt_speed_builder {
-        template <typename... Args>
-        [[nodiscard]] consteval auto operator[](Args&&... args) const noexcept {
-            using domain_t  = tilt_detail::first_match<tilt_detail::domain_of, tilt_rel_domain_t, Args...>::type;
-            using mapping_t = tilt_detail::first_match<tilt_detail::mapping_of, tilt_isotropic_t, Args...>::type;
-            using curve_t   = tilt_detail::first_match<tilt_detail::curve_of, tilt_out_cubic_t, Args...>::type;
-
-            return basic_tilt_speed<domain_t, mapping_t, curve_t>{}.operator[](tilt_detail::find_options(std::forward<Args>(args)...));
-        }
-    };
-
-    /// `tilt_speed[tilt_rel, tilt_isotropic, tilt_curve_out_cubic, {.base=1, .max=3}]`
-    inline constexpr tilt_speed_builder tilt_speed{};
+    } tilt_speed;
 
     /// Freeze movement while the tilt is changing faster than `threshold`
     /// (the "hand is stretching, not moving the cursor" case).
     ///
     /// In `tilt_rel` domain movement events are zeroed; in `tilt_abs` domain
     /// the emitted `ABS_X`/`ABS_Y` is held so `abs2rel` sees a zero delta.
-    template <typename DomainT = tilt_rel_domain_t>
-    struct [[nodiscard]] basic_tilt_freeze : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_tilt_freeze : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
-        using value_type = event_type::value_type;
-
       private:
-        float      threshold = 0.15F;
-        value_type x_last_   = 0;
-        value_type y_last_   = 0;
-        value_type x_out_    = 0;
-        value_type y_out_    = 0;
-        bool       x_init_   = false;
-        bool       y_init_   = false;
-
-        void reset_hold() noexcept {
-            x_init_ = false;
-            y_init_ = false;
-        }
-
-        context_action apply_abs(event_type& event, bool const frozen) noexcept {
-            using enum context_action;
-            switch (event.hash()) {
-                case hashed(EV_ABS, ABS_X): {
-                    auto const value = event.value();
-                    if (!x_init_) {
-                        x_last_ = value;
-                        x_out_  = value;
-                        x_init_ = true;
-                        return next;
-                    }
-                    x_last_ = value;
-                    if (frozen) {
-                        event.value(x_out_); // hold: abs2rel sees a zero delta
-                    } else {
-                        x_out_ = value;
-                    }
-                    return next;
-                }
-                case hashed(EV_ABS, ABS_Y): {
-                    auto const value = event.value();
-                    if (!y_init_) {
-                        y_last_ = value;
-                        y_out_  = value;
-                        y_init_ = true;
-                        return next;
-                    }
-                    y_last_ = value;
-                    if (frozen) {
-                        event.value(y_out_);
-                    } else {
-                        y_out_ = value;
-                    }
-                    return next;
-                }
-                case hashed(EV_KEY, BTN_TOOL_PEN):
-                case hashed(EV_KEY, BTN_TOOL_RUBBER):
-                case hashed(EV_KEY, BTN_TOOL_BRUSH):
-                case hashed(EV_KEY, BTN_TOOL_PENCIL):
-                case hashed(EV_KEY, BTN_TOOL_AIRBRUSH):
-                case hashed(EV_KEY, BTN_TOOL_FINGER):
-                case hashed(EV_KEY, BTN_TOOL_MOUSE):
-                case hashed(EV_KEY, BTN_TOOL_LENS): reset_hold(); return next;
-                default: return next;
-            }
-        }
-
-        static context_action apply_rel(event_type& event, bool const frozen) noexcept {
-            using enum context_action;
-            switch (event.hash()) {
-                case hashed(EV_REL, REL_X):
-                case hashed(EV_REL, REL_Y):
-                    if (frozen) {
-                        event.value(0);
-                    }
-                    return next;
-                default: return next;
-            }
-        }
+        tilt_domain_fn   domain_   = tilt_rel;
+        float            threshold = 0.15F;
+        tilt_scale_state scale{};
 
       public:
-        consteval basic_tilt_freeze operator[](float const inp_threshold) const noexcept {
+        template <typename... Args>
+            requires((!detail::is_tag_type<std::decay_t<Args>>) && ...)
+        consteval basic_tilt_freeze operator[](Args&&... args) const noexcept {
             basic_tilt_freeze res{*this};
-            res.threshold = inp_threshold;
+            auto const        assign = [&res]<typename ArgT>(ArgT&& arg) constexpr noexcept {
+                using decayed = std::decay_t<ArgT>;
+                if constexpr (std::same_as<decayed, float>) {
+                    res.threshold = std::forward<ArgT>(arg);
+                } else if constexpr (std::same_as<decayed, tilt_domain_fn>) {
+                    res.domain_ = std::forward<ArgT>(arg);
+                }
+            };
+            (assign(std::forward<Args>(args)), ...);
             return res;
         }
 
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
+            using enum context_action;
             static_assert(has_mod<basic_tilt_state, CtxT>, "We need tilt_state to be in the pipeline.");
-            bool const frozen = ctx.mod(tilt_state).is_changing(threshold);
-            if constexpr (std::same_as<DomainT, tilt_abs_domain_t>) {
-                return apply_abs(ctx.event(), frozen);
-            } else {
-                return apply_rel(ctx.event(), frozen);
+            auto const axis = domain_(ctx.event());
+            if (axis.reset) {
+                scale = {};
+                return next;
             }
+            if (!axis.valid) {
+                return next;
+            }
+            bool const frozen = ctx.mod(tilt_state).is_changing(threshold);
+            return tilt_detail::apply_freeze(ctx.event(), axis, scale, frozen);
         }
-    };
-
-    inline constexpr basic_tilt_freeze<> tilt_freeze{};
-
-    struct [[nodiscard]] tilt_push_options {
-        float gain      = 1.0F;
-        float dead_zone = 0.0F;
-    };
+    } tilt_freeze;
 
     /// Nudge movement in the direction the pen is tilted, only on movement
     /// events (so merely tilting does not drift the cursor). `gain` is in the
     /// domain's units: pixels for `tilt_rel`, raw `ABS_*` counts for `tilt_abs`.
-    template <typename DomainT = tilt_rel_domain_t>
-    struct [[nodiscard]] basic_tilt_push : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_tilt_push : consteval_copyable {
         using consteval_copyable::consteval_copyable;
-
-        using value_type = event_type::value_type;
 
       private:
         tilt_push_options options{};
-
-        float      x_eps_  = 0.0F;
-        float      y_eps_  = 0.0F;
-        value_type x_last_ = 0;
-        value_type y_last_ = 0;
-        bool       x_init_ = false;
-        bool       y_init_ = false;
-
-        [[nodiscard]] static float push_for(float const norm, tilt_push_options const& opts) noexcept {
-            if (std::abs(norm) <= opts.dead_zone) {
-                return 0.0F;
-            }
-            return opts.gain * norm;
-        }
-
-        context_action apply_rel(event_type& event, basic_tilt_state const& state) noexcept {
-            using enum context_action;
-            switch (event.hash()) {
-                case hashed(EV_REL, REL_X): {
-                    float const scaled = static_cast<float>(event.value()) + push_for(state.norm_x(), options) + x_eps_;
-                    auto const  out    = static_cast<value_type>(scaled);
-                    x_eps_             = scaled - static_cast<float>(out);
-                    event.value(out);
-                    return next;
-                }
-                case hashed(EV_REL, REL_Y): {
-                    float const scaled = static_cast<float>(event.value()) + push_for(state.norm_y(), options) + y_eps_;
-                    auto const  out    = static_cast<value_type>(scaled);
-                    y_eps_             = scaled - static_cast<float>(out);
-                    event.value(out);
-                    return next;
-                }
-                default: return next;
-            }
-        }
-
-        context_action apply_abs(event_type& event, basic_tilt_state const& state) noexcept {
-            using enum context_action;
-            switch (event.hash()) {
-                case hashed(EV_ABS, ABS_X): {
-                    auto const value = event.value();
-                    if (!x_init_) {
-                        x_last_ = value;
-                        x_init_ = true;
-                        return next;
-                    }
-                    if (value == x_last_) {
-                        return next; // no movement: don't drift
-                    }
-                    x_last_            = value;
-                    float const scaled = static_cast<float>(value) + push_for(state.norm_x(), options) + x_eps_;
-                    auto const  out    = static_cast<value_type>(scaled);
-                    x_eps_             = scaled - static_cast<float>(out);
-                    event.value(out);
-                    return next;
-                }
-                case hashed(EV_ABS, ABS_Y): {
-                    auto const value = event.value();
-                    if (!y_init_) {
-                        y_last_ = value;
-                        y_init_ = true;
-                        return next;
-                    }
-                    if (value == y_last_) {
-                        return next;
-                    }
-                    y_last_            = value;
-                    float const scaled = static_cast<float>(value) + push_for(state.norm_y(), options) + y_eps_;
-                    auto const  out    = static_cast<value_type>(scaled);
-                    y_eps_             = scaled - static_cast<float>(out);
-                    event.value(out);
-                    return next;
-                }
-                default: return next;
-            }
-        }
+        tilt_domain_fn    domain_ = tilt_rel;
+        tilt_scale_state  scale{};
 
       public:
-        consteval basic_tilt_push operator[](tilt_push_options const& inp_options) const noexcept {
+        template <typename... Args>
+            requires((!detail::is_tag_type<std::decay_t<Args>>) && ...)
+        consteval basic_tilt_push operator[](Args&&... args) const noexcept {
             basic_tilt_push res{*this};
-            res.options = inp_options;
-            return res;
-        }
-
-        consteval basic_tilt_push operator[](float const gain) const noexcept {
-            basic_tilt_push res{*this};
-            res.options.gain = gain;
+            auto const      assign = [&res]<typename ArgT>(ArgT&& arg) constexpr noexcept {
+                using decayed = std::decay_t<ArgT>;
+                if constexpr (std::same_as<decayed, tilt_push_options>) {
+                    res.options = std::forward<ArgT>(arg);
+                } else if constexpr (std::same_as<decayed, float>) {
+                    res.options.gain = std::forward<ArgT>(arg);
+                } else if constexpr (std::same_as<decayed, tilt_domain_fn>) {
+                    res.domain_ = std::forward<ArgT>(arg);
+                }
+            };
+            (assign(std::forward<Args>(args)), ...);
             return res;
         }
 
         template <Context CtxT>
         context_action operator()(CtxT& ctx) noexcept {
+            using enum context_action;
             static_assert(has_mod<basic_tilt_state, CtxT>, "We need tilt_state to be in the pipeline.");
             auto const& state = ctx.mod(tilt_state);
-            if constexpr (std::same_as<DomainT, tilt_abs_domain_t>) {
-                return apply_abs(ctx.event(), state);
-            } else {
-                return apply_rel(ctx.event(), state);
+            auto const  axis  = domain_(ctx.event());
+            if (axis.reset) {
+                scale = {};
+                return next;
             }
+            if (!axis.valid) {
+                return next;
+            }
+            return tilt_detail::apply_push(ctx.event(), axis, scale, state.norm_x(), state.norm_y(), options);
         }
-    };
-
-    inline constexpr basic_tilt_push<> tilt_push{};
+    } tilt_push;
 
 } // namespace fs8
