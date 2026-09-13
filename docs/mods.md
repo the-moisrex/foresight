@@ -211,6 +211,29 @@ kalman_filter[q, r]             // 1D Kalman filter per axis
 
 All require `mouse_history` placed before them in the pipeline.
 
+### `split_move`
+
+Decompose each mouse-movement frame into smaller per-unit frames. A `REL_X=5`
+frame becomes five `REL_X=1` frames, each terminated by its own `SYN_REPORT`.
+Both axes are spread over the whole frame proportionally so they finish
+together: the longer axis emits more frames than the shorter one, interleaved
+as evenly as possible (e.g. two of the longer for one of the shorter). The total
+movement is preserved exactly.
+
+```cpp
+split_move       // unit chunks (REL_X=5 -> 5 x REL_X=1)
+split_move[2]    // REL_X=5 -> 2, 2, 1
+```
+
+The emitted frames are stamped with evenly spaced timestamps inside the frame's
+interval (previous `SYN` to current `SYN`), so velocity derived from event times
+ramps smoothly instead of sharing one instant.
+
+This is still a synchronous transformer -- it does no time management (no
+sleeps/scheduling), only timestamp rewriting, so all emitted frames are
+delivered in the same batch. Consumers that sum same-code `REL` events per `SYN`
+frame (libinput, X11) may still coalesce them.
+
 ### `momentum_scroll`
 
 Inertial scrolling after input stops. Tracks velocity and schedules momentum

@@ -188,6 +188,7 @@ target_sources(${LIB_NAME}
         mods/scheduler.ixx
         mods/singleton.ixx
         mods/smooth.ixx
+        mods/split_move.ixx
         mods/startup_key_releases.ixx
         mods/stopper.ixx
         mods/timed_typed.ixx
