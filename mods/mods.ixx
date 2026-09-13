@@ -46,6 +46,7 @@ export import :singleton;
 export import :smooth;
 export import :startup_key_releases;
 export import :stopper;
+export import :tilt;
 export import :timed_typed;
 export import :typed;
 export import :typer;

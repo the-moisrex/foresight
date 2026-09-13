@@ -53,9 +53,12 @@ int main(int const argc, char const* const* argv) try {
       | led_state
       | keys_state                               // Save key presses
       | mouse_history
+      | tilt_state
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
            context                               // Convert Drawing Tablet absolute moves into mouse moves
              | abs2rel
+             | tilt_speed[tilt_rel, tilt_isotropic, tilt_curve_out_cubic, tilt_speed_options{.base = 1.0F, .max = 5.0F}]
+             | tilt_freeze[0.2F]
              | pen2mice                          // Convert the buttons
              | drop_tablet
              | drop_big_jumps

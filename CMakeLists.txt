@@ -121,6 +121,7 @@ target_sources(${LIB_NAME}
         mods/scheduler.cxx
         mods/singleton.cxx
         mods/smooth.cxx
+        mods/tilt.cxx
         mods/timed_typed.cxx
         mods/typed.cxx
         mods/typer.cxx
@@ -190,6 +191,7 @@ target_sources(${LIB_NAME}
         mods/smooth.ixx
         mods/startup_key_releases.ixx
         mods/stopper.ixx
+        mods/tilt.ixx
         mods/timed_typed.ixx
         mods/typed.ixx
         mods/typer.ixx
