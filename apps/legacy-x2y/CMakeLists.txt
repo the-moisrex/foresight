@@ -1,0 +1,7 @@
+set(name legacy-x2y)
+add_executable(legacy-x2y)
+target_sources(legacy-x2y PRIVATE x2y.c)
+set_target_properties(legacy-x2y PROPERTIES OUTPUT_NAME legacy-x2y)
+set_target_properties(legacy-x2y PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(legacy-x2y PROPERTIES COMPILER_LANGUAGE C)
+set_target_properties(legacy-x2y PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")

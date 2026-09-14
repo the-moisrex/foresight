@@ -163,7 +163,7 @@ Usage: foresight [options] [action]
 The same result can also be achieved with the legacy pipe-based approach:
 
       $ keyboard=/dev/input/event1
-      $ foresight intercept -g $keyboard | x2y | foresight redirect $keyboard
+      $ foresight intercept -g $keyboard | legacy-x2y | foresight redirect $keyboard
 
 ---
 Partially inspired by these projects:

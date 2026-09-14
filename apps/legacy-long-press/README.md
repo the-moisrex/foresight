@@ -6,5 +6,5 @@ Usage:
 
 ```bash
 mouse=/dev/input/event1
-foresight intercept $mouse | long-press | foresight redirect $mouse
+foresight intercept $mouse | legacy-long-press | foresight redirect $mouse
 ```

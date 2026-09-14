@@ -170,7 +170,7 @@ The same x2y result can also be achieved with the legacy pipe-based approach:
 
 ````bash
     $ keyboard=/dev/input/event1
-    $ foresight intercept -g $keyboard | x2y | foresight redirect $keyboard
+    $ foresight intercept -g $keyboard | legacy-x2y | foresight redirect $keyboard
       -----------------------------   ---   ----------------------------
         |                              |      |
         |                              |      |
@@ -182,7 +182,7 @@ The same x2y result can also be achieved with the legacy pipe-based approach:
                                     /
              -----------------------
             /
-    $ cat x2y.c  # you can do it with any programming language you like
+    $ cat legacy-x2y.c  # you can do it with any programming language you like
       #include <stdio.h>
       #include <stdlib.h>
       #include <linux/input.h>

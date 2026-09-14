@@ -10,7 +10,7 @@ All library code lives behind C++26 modules; the directory layout mirrors the
 
 | Directory   | Modules / contents                                                      |
 |-------------|-------------------------------------------------------------------------|
-| `apps/`     | Example apps (`pen2mice`, `x2y`, ...). Each links `foresight::foresight`; register new ones via `add_subdirectory` in `apps/CMakeLists.txt`. |
+| `apps/`     | Example apps (`pen2mice`, `legacy-x2y`, ...). Each links `foresight::foresight`; register new ones via `add_subdirectory` in `apps/CMakeLists.txt`. |
 | `bash/`     | `fs8.bash` — `bash_runner` (embedded bash interpreter).                 |
 | `devices/`  | `fs8.devices.*` — `evdev`, `udev`, `queries`, `capabilities`, `key_codes`, and the generated `inputs-event-codes` (`fs8.devices.event_codes`). `uinput.ixx`/`uinput.cxx` are the `fs8.mods:uinput` partition (they live here but belong to the `fs8.mods` module). |
 | `io/`       | liburing header-only wrapper (via CPM). **Not a module.**               |

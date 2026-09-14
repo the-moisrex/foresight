@@ -67,7 +67,7 @@ records through unmodified pipes:
 
 ```bash
 keyboard=/dev/input/event1
-foresight intercept -g $keyboard | x2y | foresight redirect $keyboard
+foresight intercept -g $keyboard | legacy-x2y | foresight redirect $keyboard
 ```
 
 ## Creating a new app from a template
