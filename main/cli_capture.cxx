@@ -119,16 +119,14 @@ int run_replay_action(options const& opts) {
     auto const file = opts.replay_file.empty() ? std::string_view{"-"} : opts.replay_file;
 
     if (opts.live_view) {
-        static constinit auto pipeline =
-          fs8::context | fs8::stopper | fs8::replay | fs8::basic_condensed_view_output{};
+        static constinit auto pipeline = fs8::context | fs8::stopper | fs8::replay | fs8::condensed_view_output;
 
         auto& rep = pipeline.mod(fs8::replay);
         rep.set_file(file);
 
         pipeline();
     } else {
-        static constinit auto pipeline =
-          fs8::context | fs8::stopper | fs8::replay | fs8::std_output;
+        static constinit auto pipeline = fs8::context | fs8::stopper | fs8::replay | fs8::std_output;
 
         auto& rep = pipeline.mod(fs8::replay);
         rep.set_file(file);
