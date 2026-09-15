@@ -10,5 +10,6 @@ var module_fs8_8log =
     [ "fs8::basic_log::~basic_log", "module_fs8_8log.html#ae7a7084c56fedb6ca06fda11cec64cfa", null ],
     [ "fs8::basic_log::operator()", "module_fs8_8log.html#a3294a31e10258daf046a6f8aed5e2549", null ],
     [ "fs8::basic_log::operator[]", "module_fs8_8log.html#aac30d71ad5cb9c5ed395a1dab33800a0", null ],
+    [ "fs8::basic_log::operator()", "module_fs8_8log.html#a6a9f6fbdd6389c787a774d8128cf9f67", null ],
     [ "fs8::basic_log::operator()", "module_fs8_8log.html#ab278377214796554957e6d53b6cf09e6", null ]
 ];

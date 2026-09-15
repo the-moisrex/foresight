@@ -78,10 +78,12 @@ digraph "mods/idle_detector.ixx"
   Node20 -> Node29 [id="edge44_Node000020_Node000029",color="steelblue1",style="solid",tooltip=" "];
   Node29 [id="Node000029",label="fs8.log",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$log_8ixx.html",tooltip=" "];
   Node29 -> Node30 [id="edge45_Node000029_Node000030",color="steelblue1",style="solid",tooltip=" "];
-  Node30 [id="Node000030",label="print",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
-  Node29 -> Node7 [id="edge46_Node000029_Node000007",color="steelblue1",style="solid",tooltip=" "];
-  Node20 -> Node7 [id="edge47_Node000020_Node000007",color="steelblue1",style="solid",tooltip=" "];
-  Node1 -> Node23 [id="edge48_Node000001_Node000023",color="steelblue1",style="solid",tooltip=" "];
-  Node1 -> Node7 [id="edge49_Node000001_Node000007",color="steelblue1",style="solid",tooltip=" "];
-  Node1 -> Node20 [id="edge50_Node000001_Node000020",color="steelblue1",style="solid",tooltip=" "];
+  Node30 [id="Node000030",label="format",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node29 -> Node31 [id="edge46_Node000029_Node000031",color="steelblue1",style="solid",tooltip=" "];
+  Node31 [id="Node000031",label="print",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node29 -> Node7 [id="edge47_Node000029_Node000007",color="steelblue1",style="solid",tooltip=" "];
+  Node20 -> Node7 [id="edge48_Node000020_Node000007",color="steelblue1",style="solid",tooltip=" "];
+  Node1 -> Node23 [id="edge49_Node000001_Node000023",color="steelblue1",style="solid",tooltip=" "];
+  Node1 -> Node7 [id="edge50_Node000001_Node000007",color="steelblue1",style="solid",tooltip=" "];
+  Node1 -> Node20 [id="edge51_Node000001_Node000020",color="steelblue1",style="solid",tooltip=" "];
 }

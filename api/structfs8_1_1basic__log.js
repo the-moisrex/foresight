@@ -7,6 +7,7 @@ var structfs8_1_1basic__log =
     [ "~basic_log", "structfs8_1_1basic__log.html#ae7a7084c56fedb6ca06fda11cec64cfa", null ],
     [ "operator()", "structfs8_1_1basic__log.html#ab278377214796554957e6d53b6cf09e6", null ],
     [ "operator()", "structfs8_1_1basic__log.html#a3294a31e10258daf046a6f8aed5e2549", null ],
+    [ "operator()", "structfs8_1_1basic__log.html#a6a9f6fbdd6389c787a774d8128cf9f67", null ],
     [ "operator=", "structfs8_1_1basic__log.html#a72a5a537672ca82fc2715f1beeb95b7e", null ],
     [ "operator=", "structfs8_1_1basic__log.html#a0e46c561b2ba67e89105fb64af3dee3f", null ],
     [ "operator[]", "structfs8_1_1basic__log.html#aac30d71ad5cb9c5ed395a1dab33800a0", null ]
