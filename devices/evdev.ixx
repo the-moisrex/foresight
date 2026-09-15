@@ -88,6 +88,12 @@ namespace fs8 {
 
         ~evdev() noexcept;
 
+#ifndef NDEBUG
+        /// Create a fake pipe-backed device.  Returns an invalid device if
+        /// pipe() fails.  The caller owns the write_fd and must close it.
+        [[nodiscard]] static evdev make_pipe_device(int& write_fd) noexcept;
+#endif
+
         static constexpr evdev invalid(evdev_status const inp_status = evdev_status::unknown) noexcept {
             return evdev{nullptr, inp_status};
         }
@@ -110,6 +116,11 @@ namespace fs8 {
         /// check if everything is okay
         [[nodiscard]] bool is_ok() const noexcept {
             using enum evdev_status;
+#ifndef NDEBUG
+            if (pipe_read_fd_ >= 0) {
+                return status == success || status == success_grabbed;
+            }
+#endif
             return dev != nullptr && (status == success || status == success_grabbed);
         }
 
@@ -212,6 +223,9 @@ namespace fs8 {
       private:
         libevdev*    dev    = nullptr;
         evdev_status status = evdev_status::unknown;
+#ifndef NDEBUG
+        int pipe_read_fd_ = -1;
+#endif
     };
 
     /// Check if a freshly-opened device can be grabbed without disrupting a grab
