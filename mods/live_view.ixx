@@ -307,12 +307,12 @@ export namespace fs8 {
 
     /// Output modifier that displays events using the condensed_view format
     /// (mouse accumulation, key holds, ANSI colors). Used by `foresight replay --live`.
-    struct [[nodiscard]] basic_condensed_view_output : consteval_copyable {
+    constexpr struct [[nodiscard]] basic_condensed_view_output : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
-        int                                file_descriptor = STDOUT_FILENO;
-        nullable_indirect<condensed_view>  lv_;
+        int                               file_descriptor = STDOUT_FILENO;
+        nullable_indirect<condensed_view> lv_;
 
       public:
         constexpr basic_condensed_view_output() noexcept = default;
@@ -343,11 +343,11 @@ export namespace fs8 {
         void ensure_view() {
             if (!lv_) {
                 bool const is_terminal = ::isatty(file_descriptor) == 1;
-                lv_ = nullable_indirect<condensed_view>::make(is_terminal);
+                lv_                    = nullable_indirect<condensed_view>::make(is_terminal);
                 lv_->set_ansi(is_terminal);
             }
         }
-    };
+    } condensed_view_output;
 
     static_assert(OutputModifier<basic_condensed_view_output>, "Must be a output modifier.");
 
