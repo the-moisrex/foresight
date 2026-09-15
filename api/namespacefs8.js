@@ -705,6 +705,7 @@ var namespacefs8 =
     [ "capslock_off", "namespacefs8.html#a3a52a60bfad4a73fbe84a28fd767a848", null ],
     [ "capture", "namespacefs8.html#a82eb830ae1f0d74d3a44741729c85c3d", null ],
     [ "capture_default_naming", "namespacefs8.html#aa0c2a3cd1db8ac3404417bf1cf06788f", null ],
+    [ "condensed_view_output", "namespacefs8.html#acc5aba296462f5cb418bbd2d6bf4c846", null ],
     [ "context", "namespacefs8.html#a1f84efa1ecc04f2041d05aab1244b770", null ],
     [ "daily", "namespacefs8.html#a9d5af1802c08c1b93c2cd7cacbc3fa9b", null ],
     [ "debounce", "namespacefs8.html#a12b09e4ed6e98761e27825e9dd94b55c", null ],
