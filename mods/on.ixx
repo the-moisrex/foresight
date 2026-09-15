@@ -13,6 +13,7 @@ module;
 export module fs8.mods:on;
 
 export import fs8.utils;
+import fs8.event;
 import fs8.lib.mod_parser;
 import fs8.context;
 import fs8.traits;
@@ -147,9 +148,6 @@ namespace fs8 {
     struct [[nodiscard]] basic_on : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
-        template <typename CtxT>
-        static constexpr bool can_generate_events = (invokable_mod<Funcs, CtxT, special_event> || ...);
-
       private:
         [[no_unique_address]] CondT                cond;
         [[no_unique_address]] std::tuple<Funcs...> funcs;
@@ -191,25 +189,7 @@ namespace fs8 {
 
         /// Handle special events (start, next_event, etc.)
         context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
-            using enum context_action;
-            switch (tag.code) {
-                case start.code: { // start
-                    if (auto const action = invoke_mod(cond, ctx, start); !action) [[unlikely]] {
-                        return action;
-                    }
-                    return invoke_sub_pipeline(ctx, funcs, start);
-                }
-                case next_event.code: { // next_event
-                    if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
-                        return invoke_first_mod_of_sub_pipeline(ctx, funcs, next_event);
-                    }
-                    return drop_event;
-                }
-                case toggle_on.code: { // toggle_on / toggle_off
-                    return invoke_sub_pipeline(ctx, funcs, tag);
-                }
-                default: return drop_event;
-            }
+            return invoke_conditioned_sub_pipeline(cond, funcs, ctx, tag);
         }
 
         context_action operator()(Context auto& ctx) noexcept {
@@ -247,9 +227,6 @@ namespace fs8 {
     export template <typename CondT = basic_always_enable, typename... Funcs>
     struct [[nodiscard]] basic_once : consteval_copyable {
         using consteval_copyable::consteval_copyable;
-
-        template <typename CtxT>
-        static constexpr bool can_generate_events = (invokable_mod<Funcs, CtxT, special_event> || ...);
 
       private:
         [[no_unique_address]] CondT                cond;
@@ -289,25 +266,7 @@ namespace fs8 {
 
         /// Handle special events (start, next_event, etc.)
         context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
-            using enum context_action;
-            switch (tag.code) {
-                case start.code: { // start
-                    if (auto const action = invoke_mod(cond, ctx, start); !action) [[unlikely]] {
-                        return action;
-                    }
-                    return invoke_sub_pipeline(ctx, funcs, start);
-                }
-                case next_event.code: { // next_event
-                    if constexpr (can_generate_events<std::remove_cvref_t<decltype(ctx)>>) {
-                        return invoke_first_mod_of_sub_pipeline(ctx, funcs, next_event);
-                    }
-                    return drop_event;
-                }
-                case toggle_on.code: { // toggle_on / toggle_off
-                    return invoke_sub_pipeline(ctx, funcs, tag);
-                }
-                default: return drop_event;
-            }
+            return invoke_conditioned_sub_pipeline(cond, funcs, ctx, tag);
         }
 
         context_action operator()(Context auto& ctx) noexcept {
@@ -576,7 +535,7 @@ namespace fs8 {
                 return context_action::drop_event;
             }
             if (!pattern.empty()) {
-                count = fs8::parse_key_tags(pattern, codes);
+                count = parse_key_tags(pattern, codes);
             }
             return context_action::next;
         }

@@ -450,6 +450,34 @@ export namespace fs8 {
         return invoke_first_mod_of(ctx, mods, tag);
     }
 
+    /// True if any mod in the sub-pipeline can be invoked as a special_event provider.
+    template <typename CtxT, typename... Funcs>
+    concept can_generate_events = (invokable_mod<Funcs, CtxT, special_event> || ...);
+
+    /// Dispatch a special_event into a condition-gated sub-pipeline.
+    /// - start: check condition, then forward
+    /// - next_event: invoke first mod (provider)
+    /// - everything else: forward unconditionally
+    template <typename CondT, typename... Funcs, Context CtxT>
+    context_action invoke_conditioned_sub_pipeline(CondT &cond, std::tuple<Funcs...> &funcs, CtxT &ctx, special_event const &tag) noexcept {
+        using enum context_action;
+        switch (tag.code) {
+            case start.code: {
+                if (auto const action = invoke_mod(cond, ctx, start); !action) [[unlikely]] {
+                    return action;
+                }
+                return invoke_sub_pipeline(ctx, funcs, start);
+            }
+            case next_event.code: {
+                if constexpr (can_generate_events<std::remove_cvref_t<CtxT>>) {
+                    return invoke_first_mod_of_sub_pipeline(ctx, funcs, next_event);
+                }
+                return drop_event;
+            }
+            default: return invoke_sub_pipeline(ctx, funcs, tag);
+        }
+    }
+
     /// A unique, address-stable identity token for each mod type. Comparing
     /// `&type_id<M>` works across translation units because this is an inline
     /// variable template (COMDAT-merged), and distinct specializations are
