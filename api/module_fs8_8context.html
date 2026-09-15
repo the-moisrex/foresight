@@ -129,6 +129,9 @@ Concepts</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptfs8_1_1PipelineTag.html">fs8::PipelineTag</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptfs8_1_1can__generate__events.html">fs8::can_generate_events</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">True if any mod in the sub-pipeline can be invoked as a special_event provider. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptfs8_1_1has__variables.html">fs8::has_variables</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -320,6 +323,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ace88079d3933f75106bb627db246af14"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#ace88079d3933f75106bb627db246af14">fs8::invoke_first_mod_of_sub_pipeline</a> (CtxT &amp;ctx, std::tuple&lt; Funcs... &gt; &amp;mods, special_event const &amp;tag) noexcept</td></tr>
 <tr class="memdesc:ace88079d3933f75106bb627db246af14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enter a sub-pipeline, invoke_first_mod_of, exit.  <br /></td></tr>
 <tr class="separator:ace88079d3933f75106bb627db246af14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c4404f60022fc45312f47dd34a8febb" id="r_a5c4404f60022fc45312f47dd34a8febb"><td class="memTemplParams" colspan="2">template&lt;typename CondT , typename... Funcs, Context CtxT&gt; </td></tr>
+<tr class="memitem:a5c4404f60022fc45312f47dd34a8febb"><td class="memTemplItemLeft" align="right" valign="top">context_action&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a5c4404f60022fc45312f47dd34a8febb">fs8::invoke_conditioned_sub_pipeline</a> (CondT &amp;cond, std::tuple&lt; Funcs... &gt; &amp;funcs, CtxT &amp;ctx, special_event const &amp;tag) noexcept</td></tr>
+<tr class="separator:a5c4404f60022fc45312f47dd34a8febb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2207143450903bfdf94eacb382b716cb" id="r_a2207143450903bfdf94eacb382b716cb"><td class="memTemplParams" colspan="2">template&lt;typename Mod , typename Fn &gt; </td></tr>
 <tr class="memitem:a2207143450903bfdf94eacb382b716cb"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacefs8.html#a2207143450903bfdf94eacb382b716cb">fs8::walk_mod_tree</a> (Mod &amp;mod, Fn &amp;&amp;fn, std::size_t max_depth=SIZE_MAX) noexcept</td></tr>
 <tr class="separator:a2207143450903bfdf94eacb382b716cb"><td class="memSeparator" colspan="2">&#160;</td></tr>

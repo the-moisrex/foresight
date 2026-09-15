@@ -14,6 +14,7 @@ var concepts =
       [ "ContextWith", "conceptfs8_1_1ContextWith.html", null ],
       [ "invokable_mod", "conceptfs8_1_1invokable__mod.html", null ],
       [ "PipelineTag", "conceptfs8_1_1PipelineTag.html", null ],
+      [ "can_generate_events", "conceptfs8_1_1can__generate__events.html", null ],
       [ "constexpr_constructible", "conceptfs8_1_1constexpr__constructible.html", null ],
       [ "capture_format", "conceptfs8_1_1capture__format.html", null ],
       [ "capture_naming", "conceptfs8_1_1capture__naming.html", null ],

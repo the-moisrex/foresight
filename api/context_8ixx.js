@@ -25,6 +25,7 @@ var context_8ixx =
     [ "fs8::ContextWith", "conceptfs8_1_1ContextWith.html", null ],
     [ "fs8::invokable_mod", "conceptfs8_1_1invokable__mod.html", null ],
     [ "fs8::PipelineTag", "conceptfs8_1_1PipelineTag.html", null ],
+    [ "fs8::can_generate_events", "conceptfs8_1_1can__generate__events.html", null ],
     [ "mod_of", "context_8ixx.html#a6fa3325ef98e63b115b46887f8ec56a3", null ],
     [ "type_at", "context_8ixx.html#a83f96f34d94aaa7f361dead74176a2bf", null ],
     [ "context_action", "context_8ixx.html#ac5160ee6707deaad4917cbf8bd1e99bd", [
@@ -42,6 +43,7 @@ var context_8ixx =
     [ "fork_mod", "context_8ixx.html#a68564c15979579d5049927f0e641f866", null ],
     [ "invoke_cond", "context_8ixx.html#accc596373db79fdb43142cc0354957ce", null ],
     [ "invoke_cond_inorder", "context_8ixx.html#afd2bd8fbf808021c38a46e76fbf00349", null ],
+    [ "invoke_conditioned_sub_pipeline", "context_8ixx.html#a5c4404f60022fc45312f47dd34a8febb", null ],
     [ "invoke_first_mod_of", "context_8ixx.html#a53d41645c39e7f51086c87cd284c1a72", null ],
     [ "invoke_first_mod_of_sub_pipeline", "context_8ixx.html#ace88079d3933f75106bb627db246af14", null ],
     [ "invoke_mod", "context_8ixx.html#a36136e669c1e93ff18f748a135cb8bef", null ],
