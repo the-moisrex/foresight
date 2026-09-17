@@ -110,8 +110,8 @@ export namespace fs8 {
         value_type last_abs_x = 0;
         value_type last_abs_y = 0;
 
-        float x_scale_factor = 10.0F;
-        float y_scale_factor = 10.0F;
+        float x_scale_factor = 15.0F;
+        float y_scale_factor = 15.0F;
 
         float x_epsilon = 0.0F;
         float y_epsilon = 0.0F;
@@ -147,29 +147,39 @@ export namespace fs8 {
 
         template <Context CtxT>
         void operator()(CtxT& ctx, special_event const& tag) noexcept {
-            if (tag.code != toggle_off.code) {
-                return;
-            }
-            if constexpr (has_mod<basic_keys_state, CtxT>) {
-                auto const& keys = ctx.mod(keys_state);
-                for (code_type const tool :
-                     std::initializer_list<code_type>{
-                       BTN_TOOL_PEN,
-                       BTN_TOOL_RUBBER,
-                       BTN_TOOL_BRUSH,
-                       BTN_TOOL_PENCIL,
-                       BTN_TOOL_AIRBRUSH,
-                       BTN_TOOL_FINGER,
-                       BTN_TOOL_MOUSE,
-                       BTN_TOOL_LENS})
-                {
-                    if (keys.is_pressed(tool)) {
-                        std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 0});
-                        std::ignore = ctx.fork_emit(syn());
-                        std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 1});
-                        std::ignore = ctx.fork_emit(syn());
+            switch (tag.code) {
+                case start.code: {
+                    init_state();
+                    if constexpr (has_mod<basic_input_manager, CtxT>) {
+                        init(ctx);
                     }
+                    return;
                 }
+                case toggle_off.code: {
+                    if constexpr (has_mod<basic_keys_state, CtxT>) {
+                        auto const& keys = ctx.mod(keys_state);
+                        for (code_type const tool :
+                             std::initializer_list<code_type>{
+                               BTN_TOOL_PEN,
+                               BTN_TOOL_RUBBER,
+                               BTN_TOOL_BRUSH,
+                               BTN_TOOL_PENCIL,
+                               BTN_TOOL_AIRBRUSH,
+                               BTN_TOOL_FINGER,
+                               BTN_TOOL_MOUSE,
+                               BTN_TOOL_LENS})
+                        {
+                            if (keys.is_pressed(tool)) {
+                                std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 0});
+                                std::ignore = ctx.fork_emit(syn());
+                                std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 1});
+                                std::ignore = ctx.fork_emit(syn());
+                            }
+                        }
+                    }
+                    return;
+                }
+                default: return;
             }
         }
 
