@@ -56,8 +56,6 @@ namespace {
 
     inline constexpr int DRM_DISPLAY_MODE_LEN = 32;
 
-    inline constexpr int DRM_MODE_UNKNOWNCONNECTION = 0;
-
     struct drm_mode_modeinfo {
         uint32_t clock;
         uint16_t hdisplay, hsync_start, hsync_end, htotal, hskew;

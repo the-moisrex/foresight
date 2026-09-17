@@ -112,8 +112,8 @@ export namespace fs8 {
                 return next;
             }
 
-            auto const end   = event.micro_time();
-            auto const start = has_last_syn ? last_syn_time : (has_frame_start ? frame_start_time : end);
+            auto const end        = event.micro_time();
+            auto const frame_start = has_last_syn ? last_syn_time : (has_frame_start ? frame_start_time : end);
 
             // The current SYN becomes the interpolation base of the next frame.
             last_syn_time   = end;
@@ -146,11 +146,11 @@ export namespace fs8 {
             // are cross-multiplied so the whole thing stays in integers (no
             // division and no rounding drift).
             auto const frames = chunks_x + chunks_y;
-            auto const span   = end - start;
+            auto const span   = end - frame_start;
 
             value_type emitted   = 0;
             auto const next_time = [&]() noexcept {
-                return start + span * (++emitted) / frames;
+                return frame_start + span * (++emitted) / frames;
             };
 
             auto const emit_axis = [&](event_type::code_type const code, value_type& accum, std::chrono::microseconds const at) noexcept {

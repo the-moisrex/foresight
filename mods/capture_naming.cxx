@@ -66,19 +66,19 @@ std::string fs8::capture_uptime::filename(std::string_view const ext) noexcept {
 // ── capture_system_uptime ────────────────────────────────────────────────────
 
 std::string fs8::capture_system_uptime::filename(std::string_view const ext) noexcept {
-    auto const uptime = detail::system_uptime_seconds();
-    auto const now    = detail::now_epoch_seconds();
-    auto const boot   = now - uptime;
+    auto const sys_uptime = detail::system_uptime_seconds();
+    auto const now        = detail::now_epoch_seconds();
+    auto const boot       = now - sys_uptime;
     auto const ti     = detail::time_from_epoch(boot);
     return std::format("capture-boot-{:04d}{:02d}{:02d}-{:02d}0000{}", ti.year, ti.month, ti.day, ti.hour, ext);
 }
 
 bool fs8::capture_system_uptime::should_rotate(std::int64_t const last_rotation) noexcept {
-    auto const now     = detail::now_epoch_seconds();
-    auto const uptime  = detail::system_uptime_seconds();
-    auto const elapsed = now - last_rotation;
+    auto const now        = detail::now_epoch_seconds();
+    auto const sys_uptime = detail::system_uptime_seconds();
+    auto const elapsed    = now - last_rotation;
     // If current uptime is less than time elapsed since file was opened, a reboot happened.
-    return uptime < elapsed;
+    return sys_uptime < elapsed;
 }
 
 // ── capture_hourly ───────────────────────────────────────────────────────────
