@@ -238,6 +238,14 @@ export namespace fs8 {
         return invoke_mod(mod, ctx, context_action::next, args...);
     }
 
+    /// Ensure a sibling mod has been started.  Idempotent — calling start
+    /// twice is safe for well-behaved mods.
+    template <typename CtxT, typename ModT>
+        requires has_mod<ModT, CtxT>
+    context_action ensure_started(CtxT &ctx, ModT &mod) noexcept {
+        return invoke_mod(mod, ctx, start);
+    }
+
     template <typename CondT, typename... Args>
     constexpr bool invoke_cond_inorder(CondT &cond, Args &&...args) noexcept {
         using enum context_action;
