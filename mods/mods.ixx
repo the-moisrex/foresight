@@ -29,6 +29,7 @@ export import :lambda;
 export import :live_view;
 export import :modes;
 export import :momentum;
+export import :monitors;
 export import :mouse_state;
 export import :mouse_to_scroll;
 export import :on;

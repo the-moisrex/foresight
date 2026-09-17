@@ -56,8 +56,6 @@ namespace {
 
     inline constexpr int DRM_DISPLAY_MODE_LEN = 32;
 
-    inline constexpr int DRM_MODE_CONNECTED         = 1;
-    inline constexpr int DRM_MODE_DISCONNECTED      = 2;
     inline constexpr int DRM_MODE_UNKNOWNCONNECTION = 0;
 
     struct drm_mode_modeinfo {
@@ -127,9 +125,7 @@ namespace {
 
 namespace {
 
-    inline constexpr int RR_Connected         = 0;
-    inline constexpr int RR_Disconnected      = 1;
-    inline constexpr int RR_UnknownConnection = 2;
+    inline constexpr int RR_Connected = 0;
 
     struct XRRScreenResources {
         Time  timestamp;
@@ -253,7 +249,7 @@ namespace {
         }
 
         for (int i = 0; i < 4; ++i) {
-            std::size_t off = 54 + i * 18;
+            std::size_t off = 54 + static_cast<std::size_t>(i) * 18;
             if (off + 18 > data.size()) {
                 break;
             }
@@ -697,8 +693,8 @@ fs8::compositor::desktop_bounds fs8::compositor::compute_desktop_bounds(std::spa
 
     int32_t min_x = monitors[0].x;
     int32_t min_y = monitors[0].y;
-    auto    max_x = static_cast<int32_t>(monitors[0].x + monitors[0].width_px);
-    auto    max_y = static_cast<int32_t>(monitors[0].y + monitors[0].height_px);
+    int32_t max_x = monitors[0].x + static_cast<int32_t>(monitors[0].width_px);
+    int32_t max_y = monitors[0].y + static_cast<int32_t>(monitors[0].height_px);
 
     for (auto const& m : monitors) {
         if (m.x < min_x) {

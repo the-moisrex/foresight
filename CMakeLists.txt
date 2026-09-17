@@ -86,6 +86,10 @@ target_sources(${LIB_NAME}
         devices/queries.cxx
         devices/udev.cxx
         devices/uinput.cxx
+        compositor/drm_loader.cxx
+        compositor/monitor_detection.cxx
+        compositor/wayland_loader.cxx
+        compositor/x11_loader.cxx
         lib/event2unicode.cxx
         lib/evtest.cxx
         lib/how2type.cxx
@@ -110,6 +114,7 @@ target_sources(${LIB_NAME}
         mods/keys_state.cxx
         mods/live_view.cxx
         mods/momentum.cxx
+        mods/monitors.cxx
         mods/on.cxx
         mods/quantifier.cxx
         mods/record.cxx
@@ -135,6 +140,10 @@ target_sources(${LIB_NAME}
         devices/queries.ixx
         devices/udev.ixx
         devices/uinput.ixx
+        compositor/drm_loader.ixx
+        compositor/monitor_detection.ixx
+        compositor/wayland_loader.ixx
+        compositor/x11_loader.ixx
         lib/event2unicode.ixx
         lib/evtest.ixx
         lib/how2type.ixx
@@ -173,6 +182,7 @@ target_sources(${LIB_NAME}
         mods/modes.ixx
         mods/mods.ixx
         mods/momentum.ixx
+        mods/monitors.ixx
         mods/mouse_state.ixx
         mods/mouse_to_scroll.ixx
         mods/on.ixx

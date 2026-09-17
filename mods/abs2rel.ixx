@@ -1,5 +1,7 @@
 module;
 #include <cassert>
+#include <climits>
+#include <cstdint>
 #include <linux/input-event-codes.h>
 #include <utility>
 export module fs8.mods:abs2rel;
@@ -95,31 +97,38 @@ export namespace fs8 {
     constexpr struct [[nodiscard]] basic_abs2rel : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
-
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
+
+        static constexpr value_type states_loc   = (sizeof(value_type) * CHAR_BIT) - 3;
+        static constexpr value_type x_bit_loc    = states_loc;
+        static constexpr value_type y_bit_loc    = states_loc + 1;
+        static constexpr value_type x_init_state = 0b1U << static_cast<std::uint32_t>(x_bit_loc);
+        static constexpr value_type y_init_state = 0b1U << static_cast<std::uint32_t>(y_bit_loc);
 
       private:
         value_type last_abs_x = 0;
         value_type last_abs_y = 0;
 
-        // pixel per millimeter
         float x_scale_factor = 10.0F;
         float y_scale_factor = 10.0F;
 
         float x_epsilon = 0.0F;
         float y_epsilon = 0.0F;
 
-        // code_type   active_tool  = BTN_TOOL_PEN;
-
         bool inherit = true;
 
       public:
+        constexpr basic_abs2rel() noexcept = default;
+
         explicit constexpr basic_abs2rel(bool const inp_inherit) noexcept : inherit(inp_inherit) {}
+
+        consteval basic_abs2rel operator[](bool const inp_inherit) const noexcept {
+            return basic_abs2rel{inp_inherit};
+        }
 
         void init(evdev const& dev, float scale = 20.0F) noexcept;
 
-        /// Auto Initialize
         template <Context CtxT>
             requires has_mod<basic_input_manager, CtxT>
         void init(CtxT& ctx) noexcept {
@@ -134,18 +143,8 @@ export namespace fs8 {
             }
         }
 
-        // template <Context CtxT>
-        // void operator()(CtxT& ctx, special_event) noexcept {
-        //     init(ctx);
-        // }
-
-        consteval basic_abs2rel operator[](bool const inp_inherit) const noexcept {
-            return basic_abs2rel{inp_inherit};
-        }
-
         void operator()(special_event const& tag) noexcept;
 
-        /// this fixes flickering of the pen after we switched while the pen (in mouse mode) is still active.
         template <Context CtxT>
         void operator()(CtxT& ctx, special_event const& tag) noexcept {
             if (tag.code != toggle_off.code) {
@@ -165,7 +164,6 @@ export namespace fs8 {
                        BTN_TOOL_LENS})
                 {
                     if (keys.is_pressed(tool)) {
-                        // re-submit the events, in case they were ignored previously:
                         std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 0});
                         std::ignore = ctx.fork_emit(syn());
                         std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 1});
@@ -177,12 +175,34 @@ export namespace fs8 {
 
         context_action operator()(event_type& event) noexcept;
 
-        // template <Context CtxT>
-        // context_action operator()(CtxT& ctx) noexcept {
-        //     static_assert(has_mod<basic_drop_adjacent_repeats, CtxT>, "You need to drop syn repeats.");
-        //     return operator()(ctx.event());
-        // }
+      private:
+        void init_state() noexcept {
+            last_abs_x |= x_init_state;
+            last_abs_y |= y_init_state;
+            x_epsilon   = 0.0F;
+            y_epsilon   = 0.0F;
+        }
 
+        struct tablet_ranges {
+            float x = 0.0F;
+            float y = 0.0F;
+        };
+
+        static tablet_ranges read_tablet_ranges(basic_input_manager& im) noexcept {
+            for (auto const& dev : im.devices()) {
+                if (dev.has_abs_info()) {
+                    if (auto const* x = dev.abs_info(ABS_X); x != nullptr) {
+                        if (auto const* y = dev.abs_info(ABS_Y); y != nullptr) {
+                            return {
+                              .x = static_cast<float>(x->maximum - x->minimum),
+                              .y = static_cast<float>(y->maximum - y->minimum),
+                            };
+                        }
+                    }
+                }
+            }
+            return {};
+        }
     } abs2rel;
 
 } // namespace fs8

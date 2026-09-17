@@ -12,12 +12,6 @@ using fs8::basic_abs2rel;
 using fs8::context_action;
 using fs8::event_type;
 
-constexpr basic_abs2rel::value_type states_loc   = (sizeof(basic_abs2rel::value_type) * CHAR_BIT) - 3;
-constexpr basic_abs2rel::value_type x_bit_loc    = states_loc;
-constexpr basic_abs2rel::value_type y_bit_loc    = states_loc + 1;
-constexpr basic_abs2rel::value_type x_init_state = 0b1U << static_cast<std::uint32_t>(x_bit_loc);
-constexpr basic_abs2rel::value_type y_init_state = 0b1U << static_cast<std::uint32_t>(y_bit_loc);
-
 // For more information:
 // https://www.kernel.org/doc/Documentation/input/event-codes.txt
 context_action fs8::basic_pressure2mouse_clicks::operator()(event_type& event) noexcept {
@@ -156,10 +150,7 @@ void basic_abs2rel::operator()(special_event const& tag) noexcept {
     if (tag.code != start.code) {
         return;
     }
-    last_abs_x |= x_init_state;
-    last_abs_y |= y_init_state;
-    x_epsilon   = 0.F;
-    y_epsilon   = 0.F;
+    init_state();
 }
 
 context_action basic_abs2rel::operator()(event_type& event) noexcept {
@@ -206,7 +197,7 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
                 float const pixels_base  = delta / y_scale_factor + y_epsilon;
                 auto        pixels       = static_cast<value_type>(pixels_base);
                 y_epsilon                = pixels_base - static_cast<float>(pixels);
-                pixels                  &= ~(0 - (last_abs_y >> y_bit_loc)); // don't move if we're in init state
+                pixels                  &= ~(0 - (last_abs_y >> y_bit_loc));
                 event.type(EV_REL);
                 event.code(REL_Y);
                 event.value(pixels);
@@ -252,6 +243,5 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
         }
     }
 
-    // ++events_sent;
     return next;
 }
