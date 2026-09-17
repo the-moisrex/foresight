@@ -26,30 +26,6 @@ TEST(Uinput, SetDeviceFromQuery) {
     EXPECT_TRUE(vdev.init(fs8::keyboard));
     EXPECT_TRUE(vdev.is_ok());
     EXPECT_FALSE(vdev.devnode().empty());
-    vdev.close();
-}
-
-TEST(Uinput, SetDeviceFromQueryEmptyFallback) {
-    auto const res = fs8::verify_access_to_uinput();
-    if (res != fs8::uinput_access_result::available) {
-        GTEST_SKIP() << "uinput is not available: " << to_string(res);
-    }
-    fs8::basic_uinput vdev;
-    EXPECT_TRUE(vdev.set_device_from(fs8::query));
-    EXPECT_TRUE(vdev.is_ok());
-    vdev.close();
-}
-
-TEST(Uinput, SelfDevnodeHonorsSelfCreated) {
-    auto const res = fs8::verify_access_to_uinput();
-    if (res != fs8::uinput_access_result::available) {
-        GTEST_SKIP() << "uinput is not available: " << to_string(res);
-    }
-    fs8::basic_uinput vdev;
-    if (!vdev.init(fs8::keyboard)) {
-        GTEST_SKIP() << "Cannot create a virtual keyboard.";
-    }
-    EXPECT_TRUE(vdev.is_ok());
 
     // Self-created by default: reports the devnode so input_manager can skip it.
     EXPECT_EQ(vdev.self_devnode(), vdev.devnode());
@@ -61,6 +37,17 @@ TEST(Uinput, SelfDevnodeHonorsSelfCreated) {
 
     vdev.set_self_created(true);
     EXPECT_EQ(vdev.self_devnode(), vdev.devnode());
+    vdev.close();
+}
+
+TEST(Uinput, SetDeviceFromQueryEmptyFallback) {
+    auto const res = fs8::verify_access_to_uinput();
+    if (res != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(res);
+    }
+    fs8::basic_uinput vdev;
+    EXPECT_TRUE(vdev.set_device_from(fs8::query));
+    EXPECT_TRUE(vdev.is_ok());
     vdev.close();
 }
 
@@ -159,7 +146,7 @@ TEST(Uinput, SetDeviceFromQueryTabletFallbackHasCaps) {
     EXPECT_EQ(dev.match_caps(fs8::caps::tablet), 100);
 }
 
-TEST(Uinput, VirtualDeviceHasStandardMarkers) {
+TEST(Uinput, VirtualDeviceHasStandardMarkersAndChaining) {
     auto const res = fs8::verify_access_to_uinput();
     if (res != fs8::uinput_access_result::available) {
         GTEST_SKIP() << "uinput is not available: " << to_string(res);
@@ -171,43 +158,21 @@ TEST(Uinput, VirtualDeviceHasStandardMarkers) {
     auto const src_name = std::string{src.device_name()};
     auto const src_uniq = std::string{src.unique_identifier()};
 
-    fs8::basic_uinput vdev;
-    EXPECT_TRUE(fs8::finalize_device(vdev, src, {}));
-    ASSERT_TRUE(vdev.is_ok());
+    // Stage 1: real device -> virtual device A
+    fs8::basic_uinput vdev_a;
+    EXPECT_TRUE(fs8::finalize_device(vdev_a, src, {}));
+    ASSERT_TRUE(vdev_a.is_ok());
 
-    auto const syspath = std::filesystem::path{vdev.syspath()};
-    // Standard kernel marker: BUS_VIRTUAL
-    EXPECT_EQ(read_sysfs_file(syspath / "id" / "bustype"), "0006");
-    // Clean name.
-    EXPECT_EQ(read_sysfs_file(syspath / "name"), src_name + " (Virtual)");
-    // Origin chain marker in phys (uinput can't set the kernel uniq field).
-    auto const phys = read_sysfs_file(syspath / "phys");
-    EXPECT_TRUE(phys.starts_with("foresight:")) << phys;
+    // Standard sysfs markers on A.
+    auto const syspath_a = std::filesystem::path{vdev_a.syspath()};
+    EXPECT_EQ(read_sysfs_file(syspath_a / "id" / "bustype"), "0006");
+    EXPECT_EQ(read_sysfs_file(syspath_a / "name"), src_name + " (Virtual)");
+    auto const phys_a = read_sysfs_file(syspath_a / "phys");
+    EXPECT_TRUE(phys_a.starts_with("foresight:")) << phys_a;
     // The source device is deep-cloned: nothing it holds is modified.
     EXPECT_EQ(src.device_name(), src_name);
     EXPECT_EQ(src.unique_identifier(), src_uniq);
     EXPECT_EQ(src.get_status(), fs8::evdev_status::success);
-    vdev.close();
-}
-
-TEST(Uinput, VirtualDeviceChainingAppendsOrigin) {
-    auto const res = fs8::verify_access_to_uinput();
-    if (res != fs8::uinput_access_result::available) {
-        GTEST_SKIP() << "uinput is not available: " << to_string(res);
-    }
-    auto src = open_keyboard();
-    if (!src.is_ok()) {
-        GTEST_SKIP() << "No keyboard device found.";
-    }
-
-    // Stage 1: real device -> virtual device A
-    fs8::basic_uinput vdev_a;
-    ASSERT_TRUE(fs8::finalize_device(vdev_a, src, {}));
-    ASSERT_TRUE(vdev_a.is_ok());
-    auto const syspath_a = std::filesystem::path{vdev_a.syspath()};
-    auto const phys_a    = read_sysfs_file(syspath_a / "phys");
-    auto const name_a    = read_sysfs_file(syspath_a / "name");
-    ASSERT_TRUE(phys_a.starts_with("foresight:")) << phys_a;
 
     // Stage 2: virtual device A -> virtual device B (chaining). udev may not
     // have finished chmod'ing the device node yet (it starts at 0600
@@ -230,7 +195,7 @@ TEST(Uinput, VirtualDeviceChainingAppendsOrigin) {
     auto const expected_b = phys_a + "," + sysname_of(vdev_a.devnode());
     EXPECT_EQ(read_sysfs_file(syspath_b / "phys"), expected_b);
     // The name stays clean across hops (no "(Virtual) (Virtual)").
-    EXPECT_EQ(read_sysfs_file(syspath_b / "name"), name_a);
+    EXPECT_EQ(read_sysfs_file(syspath_b / "name"), read_sysfs_file(syspath_a / "name"));
 
     vdev_a.close();
     vdev_b.close();

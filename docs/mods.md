@@ -34,6 +34,7 @@ Everything lives in the `fs8` namespace. Full signatures are in the
 | `smooth` | Transformer | Mouse smoothing: `lerp`, `low_pass_filter`, `kalman_filter`. |
 | `momentum_scroll` | Transformer | Inertial scrolling after input stops. |
 | `scale_pen` / `scale_move` | Transformer | Scale pen or mouse movement by a factor. |
+| `tilt_speed` / `tilt_freeze` / `tilt_push` | Transformer | Tilt-based speed, freeze, and directional push. |
 | `debounce` | Filter | Drop events arriving too soon after the same code. |
 | `drop_*` (30+ variants) | Filter | Drop big jumps, init moves, fast repeats, etc. |
 | `enforce_key_state` | Filter | Enforce valid key state transitions. |
@@ -49,6 +50,7 @@ Everything lives in the `fs8` namespace. Full signatures are in the
 | `multi_click` | Condition | Double/triple click detection. |
 | `swipe_*` | Condition | Swipe detection (left/right/up/down). |
 | `led_on` / `led_off` | Condition | Keyboard LED state conditions. |
+| `tilted` / `tilt_changing` | Condition | Pen tilt magnitude / rate conditions. |
 | `op` | Condition | Boolean combinators (`&`, `\|`, `!`). |
 | `modes` / `switch_mode` | Control flow | Vim-like modes/layers. |
 | `on_fail` | Control flow | Invoke an action when a condition fails. |
@@ -58,6 +60,7 @@ Everything lives in the `fs8` namespace. Full signatures are in the
 | `led_state` / `led_toggle` | State | Track keyboard LED state. |
 | `mouse_history` | State | Track current/previous mouse positions. |
 | `quantifier` / `mice_quantifier` | State | Threshold-step accumulation for movement. |
+| `tilt_state` | State | Track pen tilt (`ABS_TILT_X` / `ABS_TILT_Y`) relative to a captured neutral hold. |
 | `var_type` | State | Typed pipeline variables (`context["name"]`). |
 | `startup_key_releases` | State | Sync pipeline with physical keyboard on launch. |
 | `device` (11 variants) | Condition | Filter by which device an event came from. |
@@ -211,6 +214,29 @@ kalman_filter[q, r]             // 1D Kalman filter per axis
 
 All require `mouse_history` placed before them in the pipeline.
 
+### `split_move`
+
+Decompose each mouse-movement frame into smaller per-unit frames. A `REL_X=5`
+frame becomes five `REL_X=1` frames, each terminated by its own `SYN_REPORT`.
+Both axes are spread over the whole frame proportionally so they finish
+together: the longer axis emits more frames than the shorter one, interleaved
+as evenly as possible (e.g. two of the longer for one of the shorter). The total
+movement is preserved exactly.
+
+```cpp
+split_move       // unit chunks (REL_X=5 -> 5 x REL_X=1)
+split_move[2]    // REL_X=5 -> 2, 2, 1
+```
+
+The emitted frames are stamped with evenly spaced timestamps inside the frame's
+interval (previous `SYN` to current `SYN`), so velocity derived from event times
+ramps smoothly instead of sharing one instant.
+
+This is still a synchronous transformer -- it does no time management (no
+sleeps/scheduling), only timestamp rewriting, so all emitted frames are
+delivered in the same batch. Consumers that sum same-code `REL` events per `SYN`
+frame (libinput, X11) may still coalesce them.
+
 ### `momentum_scroll`
 
 Inertial scrolling after input stops. Tracks velocity and schedules momentum
@@ -223,6 +249,61 @@ Scale movement events by a factor.
 ```cpp
 on[held[KEY_LEFTSHIFT], context | scale_move[0.5f] | scale_pen[0.5f]]
 ```
+
+### `tilt_speed` / `tilt_freeze` / `tilt_push`
+
+Pen-tilt driven movement control. All three require `tilt_state` earlier in the
+pipeline (or in an enclosing pipeline, since sub-pipelines share the context).
+
+Detection and response are separate, so each pipeline picks the behaviour it
+wants. The domain (ABS before `abs2rel`, REL after), the tilt mapping (one
+factor vs per-axis) and the easing curve are passed as ordinary callables, so
+you can use the provided ones or your own function of the matching signature.
+
+```cpp
+import fs8.easings;
+
+context
+  | tilt_state[tilt_base_options{.recenter_time = 3.0F}]
+  | abs2rel
+  | tilt_speed[tilt_rel, tilt_isotropic, easeOutCubic<float>,
+               tilt_speed_options{.base = 1.0F, .max = 2.5F, .start = 0.2F, .end = 1.0F}]
+  | tilt_freeze[0.15F]                    // hold still while the hand stretches
+  | tilt_push[tilt_rel, tilt_push_options{.gain = 2.0F, .dead_zone = 0.3F}]
+```
+
+- `tilt_speed` scales movement between `base` (no tilt) and `max` (full tilt):
+  `max > base` accelerates, `max < base` damps. Use `tilt_abs` to rewrite
+  `ABS_X`/`ABS_Y` before `abs2rel`, or `tilt_rel` for `REL_X`/`REL_Y` after it.
+  `tilt_per_axis` maps each tilt axis separately; `tilt_isotropic` uses the tilt
+  magnitude for both. The curve is any `float(float)` easing from
+  `fs8.easings` — e.g. `linear<float>`, `easeOutQuad<float>`,
+  `easeOutCubic<float>`, `easeOutSine<float>` — or your own function.
+- `tilt_freeze[threshold]` freezes movement while the per-event tilt change is
+  at/above `threshold`. In `tilt_abs` domain it holds the emitted absolute
+  position so `abs2rel` sees a zero delta; in `tilt_rel` domain it zeroes the
+  movement events.
+- `tilt_push[gain]` nudges movement in the tilt direction, only on movement
+  events (merely tilting does not drift). `gain` is in pixels for `tilt_rel`
+  and raw `ABS_*` counts for `tilt_abs`; `dead_zone` ignores small tilts.
+
+The three callables are `using`-style function pointers, so any free function
+(or captureless lambda) of the matching signature works:
+
+```cpp
+using tilt_domain_fn  = tilt_axis (*)(event_type const&) noexcept;
+using tilt_mapping_fn = void (*)(basic_tilt_state const&, float& t_x, float& t_y) noexcept;
+using tilt_curve_fn   = float (*)(float t) noexcept;
+```
+
+`tilt_abs`, `tilt_rel`, `tilt_isotropic` and `tilt_per_axis` are instances of
+those. Arguments can be given in any order; anything omitted keeps its default
+(`tilt_rel`, `tilt_isotropic`, `easeOutCubic<float>`).
+
+The scale factor is cached and recomputed only when the tilt actually changes
+(`tilt_state::version()`), so movement events cost a compare and a multiply.
+All of these read the **base-relative** tilt from `tilt_state`, so the user's
+natural hold is neutral (see `tilt_state` below).
 
 ### `autocomplete`
 
@@ -385,6 +466,15 @@ Conditions based on keyboard LED state. Requires `led_state` in the pipeline.
 on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL], ...]
 ```
 
+### `tilted` / `tilt_changing`
+
+Pen-tilt conditions. Require `tilt_state` in the pipeline.
+
+```cpp
+on[tilted[0.5F], ...]         // tilt magnitude (0..1) at/above the threshold
+on[tilt_changing[0.15F], ...] // per-event tilt change at/above the threshold
+```
+
 ### `op`
 
 Boolean combinators. `op` is an empty `and`; `op | condition` is the
@@ -435,6 +525,32 @@ Tracks the current state of every key via a bitset. Provides `is_pressed()`,
 `led_state` tracks keyboard LED state (CapsLock, NumLock, ScrollLock).
 `led_toggle` flips the CapsLock mode. Also provides `capslock_off`,
 `numlock_off`, `scrolllock_off`.
+
+### `tilt_state`
+
+Tracks the pen's `ABS_TILT_X` / `ABS_TILT_Y`, normalized against the device's
+tilt range. Exposes `norm_x()`, `norm_y()`, `normalized_magnitude()`,
+`change()`, `is_tilted()` and `is_changing()`. Derived values are computed only
+on tilt events, and `version()` lets the actions cache their factor. Required
+by `tilt_speed`, `tilt_freeze`, `tilt_push`, `tilted` and `tilt_changing`.
+
+The values are relative to a **base (neutral) tilt** — the angle the user
+naturally holds the pen at — so a natural hold reads as zero and the actions
+respond to how far the pen is tilted *from* that hold:
+
+- The base is captured as a per-axis vector every time the pen comes into
+  proximity (`BTN_TOOL_*`), so picking the pen up re-zeroes it.
+- The base is also continuously recentered toward the current tilt, with a
+  configurable time constant:
+
+```cpp
+tilt_state[tilt_base_options{.recenter_time = 3.0F}]   // seconds; <= 0 disables
+```
+
+`recenter_time` is frame-rate independent (`alpha = 1 - exp(-dt / tau)`), so
+smaller values adapt faster but also absorb a deliberately held tilt sooner.
+`change()` stays measured from the raw tilt, so `tilt_freeze` is unaffected by
+the base. `base_x()` / `base_y()` expose the current base (normalized).
 
 ### `mouse_history`
 

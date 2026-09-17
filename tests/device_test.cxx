@@ -12,6 +12,8 @@ import fs8.devices.udev;
 import fs8.devices.queries;
 import fs8.devices.evdev;
 
+#include "./common/fake_keyboard.hpp"
+
 using namespace fs8;
 
 namespace {
@@ -216,32 +218,6 @@ TEST(DeviceTest, FromInputMarksStdin) {
 }
 
 TEST(DeviceTest, InterceptMarksDeviceSource) {
-    if (!input_available()) {
-        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
-    }
-
-    // Build a uinput keyboard from an empty template whose phys is NOT the
-    // foresight chain marker, simulating a plain (real) keyboard.
-    libevdev* template_ptr = libevdev_new();
-    ASSERT_NE(template_ptr, nullptr);
-    libevdev_enable_event_type(template_ptr, EV_SYN);
-    libevdev_enable_event_type(template_ptr, EV_KEY);
-    for (event_type::code_type code = KEY_A; code <= KEY_C; ++code) {
-        libevdev_enable_event_code(template_ptr, EV_KEY, code, nullptr);
-    }
-    libevdev_set_name(template_ptr, "plain test keyboard");
-    libevdev_set_phys(template_ptr, "test:plain-keyboard");
-
-    evdev        template_dev{template_ptr, evdev_status::success};
-    basic_uinput uin;
-    if (!finalize_device(uin, template_dev, {})) {
-        GTEST_SKIP() << "Cannot create a plain virtual keyboard.";
-    }
-    if (!test::wait_for_openable(uin.devnode(), 3000)) {
-        uin.close();
-        GTEST_SKIP() << "Plain virtual keyboard did not become openable.";
-    }
-
     static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | record;
 
     auto& io  = pipeline.mod<basic_io_manager>();
@@ -250,23 +226,14 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
 
     EXPECT_EQ(pipeline(start), context_action::next);
 
-    // Bypass udev: add the virtual keyboard's node directly.
-    fs8::evdev opened = fs8::evdev{uin.devnode()};
-    ASSERT_TRUE(opened.is_ok());
-    ASSERT_FALSE(opened.physical_location().starts_with("foresight:"));
-    // Grab the virtual keyboard so the injected events reach only this process;
-    // otherwise the test types a real 'a' into whatever app has focus.
-    opened.grab_input(true);
-    if (opened.get_status() == fs8::evdev_status::grab_failure) {
-        uin.close();
-        GTEST_SKIP() << "Cannot grab the virtual keyboard (a grab may be held by the display server).";
-    }
-    int const expected_fd = opened.native_handle();
-    im.add(std::move(opened));
+    auto fake = test::make_fake_keyboard();
+    ASSERT_TRUE(fake.dev.is_ok());
+    int const expected_fd = fake.dev.native_handle();
+    im.add(std::move(fake.dev));
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
-    test::inject_key_down(uin.devnode());
+    fake.inject_key_down(KEY_A);
     EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
@@ -283,24 +250,9 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
     EXPECT_EQ(im.fd_of(source), expected_fd);
     EXPECT_FALSE(im.is_owned(source));
     EXPECT_FALSE(im.is_chained(source));
-
-    uin.close();
 }
 
 TEST(DeviceTest, DropOwnedDropsOwnedDeviceEvents) {
-    if (!input_available()) {
-        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
-    }
-
-    basic_uinput uin;
-    if (!uin(caps::keyboard, start)) {
-        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
-    }
-    if (!test::wait_for_openable(uin.devnode(), 3000)) {
-        uin.close();
-        GTEST_SKIP() << "Virtual keyboard did not become openable.";
-    }
-
     static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | drop_owned | record;
 
     auto& io  = pipeline.mod<basic_io_manager>();
@@ -309,28 +261,20 @@ TEST(DeviceTest, DropOwnedDropsOwnedDeviceEvents) {
 
     EXPECT_EQ(pipeline(start), context_action::next);
 
-    im.own_device(uin.devnode());
-
-    fs8::evdev opened = fs8::evdev{uin.devnode()};
-    ASSERT_TRUE(opened.is_ok());
-    opened.grab_input(true);
-    if (opened.get_status() == fs8::evdev_status::grab_failure) {
-        uin.close();
-        GTEST_SKIP() << "Cannot grab the virtual keyboard.";
-    }
-    im.add(std::move(opened));
+    auto fake = test::make_fake_keyboard();
+    ASSERT_TRUE(fake.dev.is_ok());
+    im.own_device(device_sysname(fake.dev));
+    im.add(std::move(fake.dev));
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
-    test::inject_key_down(uin.devnode());
+    fake.inject_key_down(KEY_A);
     EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     // `drop_owned` drops the event (it came back from our own device).
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::drop_event);
 
     EXPECT_TRUE(col.empty());
-
-    uin.close();
 }
 
 TEST(DeviceTest, DropEmittedDropsSynthesizedEvents) {
@@ -375,19 +319,6 @@ TEST(DeviceTest, DropEmittedLetsOwnedThrough) {
 }
 
 TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
-    if (!input_available()) {
-        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
-    }
-
-    basic_uinput uin;
-    if (!uin(caps::keyboard, start)) {
-        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
-    }
-    if (!test::wait_for_openable(uin.devnode(), 3000)) {
-        uin.close();
-        GTEST_SKIP() << "Virtual keyboard did not become openable.";
-    }
-
     static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | record;
 
     auto& io  = pipeline.mod<basic_io_manager>();
@@ -396,25 +327,15 @@ TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
 
     EXPECT_EQ(pipeline(start), context_action::next);
 
-    // This process "owns" the device; events read back from it carry its real
-    // device id, and `is_owned` reports it as ours.
-    im.own_device(uin.devnode());
-
-    fs8::evdev opened = fs8::evdev{uin.devnode()};
-    ASSERT_TRUE(opened.is_ok());
-    // Grab the virtual keyboard so the injected events reach only this process;
-    // otherwise the test types a real 'a' into whatever app has focus.
-    opened.grab_input(true);
-    if (opened.get_status() == fs8::evdev_status::grab_failure) {
-        uin.close();
-        GTEST_SKIP() << "Cannot grab the virtual keyboard (a grab may be held by the display server).";
-    }
-    int const expected_fd = opened.native_handle();
-    im.add(std::move(opened));
+    auto fake = test::make_fake_keyboard();
+    ASSERT_TRUE(fake.dev.is_ok());
+    im.own_device(device_sysname(fake.dev));
+    int const expected_fd = fake.dev.native_handle();
+    im.add(std::move(fake.dev));
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
-    test::inject_key_down(uin.devnode());
+    fake.inject_key_down(KEY_A);
     EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
@@ -425,8 +346,6 @@ TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
     EXPECT_NE(source, source_id_none); // it's the device id, not the synthesized marker
     EXPECT_EQ(im.fd_of(source), expected_fd);
     EXPECT_TRUE(im.is_owned(source));
-
-    uin.close();
 }
 
 TEST(DeviceTest, ChainedDeviceIsChained) {
@@ -504,19 +423,6 @@ TEST(DeviceTest, ChainedDeviceIsChained) {
 }
 
 TEST(DeviceTest, DropSelfDropsOwnedDeviceEvents) {
-    if (!input_available()) {
-        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
-    }
-
-    basic_uinput uin;
-    if (!uin(caps::keyboard, start)) {
-        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
-    }
-    if (!test::wait_for_openable(uin.devnode(), 3000)) {
-        uin.close();
-        GTEST_SKIP() << "Virtual keyboard did not become openable.";
-    }
-
     static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | drop_self | record;
 
     auto& io  = pipeline.mod<basic_io_manager>();
@@ -525,22 +431,14 @@ TEST(DeviceTest, DropSelfDropsOwnedDeviceEvents) {
 
     EXPECT_EQ(pipeline(start), context_action::next);
 
-    im.own_device(uin.devnode());
-
-    fs8::evdev opened = fs8::evdev{uin.devnode()};
-    ASSERT_TRUE(opened.is_ok());
-    // Grab the virtual keyboard so the injected events reach only this process;
-    // otherwise the test types a real 'a' into whatever app has focus.
-    opened.grab_input(true);
-    if (opened.get_status() == fs8::evdev_status::grab_failure) {
-        uin.close();
-        GTEST_SKIP() << "Cannot grab the virtual keyboard (a grab may be held by the display server).";
-    }
-    im.add(std::move(opened));
+    auto fake = test::make_fake_keyboard();
+    ASSERT_TRUE(fake.dev.is_ok());
+    im.own_device(device_sysname(fake.dev));
+    im.add(std::move(fake.dev));
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
-    test::inject_key_down(uin.devnode());
+    fake.inject_key_down(KEY_A);
     EXPECT_EQ(io(load_event), context_action::drop_event);
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
     // `drop_self` drops the last event (it came back from our own device).
@@ -548,6 +446,4 @@ TEST(DeviceTest, DropSelfDropsOwnedDeviceEvents) {
 
     // All events came back from our own device, so `drop_self` dropped them.
     EXPECT_TRUE(col.empty());
-
-    uin.close();
 }

@@ -12,6 +12,8 @@ import fs8.devices.udev;
 import fs8.devices.queries;
 import fs8.devices.evdev;
 
+#include "common/fake_keyboard.hpp"
+
 using namespace fs8;
 
 namespace {
@@ -47,10 +49,6 @@ namespace {
 } // namespace
 
 TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
-    if (!input_available()) {
-        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
-    }
-
     static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | record;
 
     auto& io  = pipeline.mod<basic_io_manager>();
@@ -59,52 +57,15 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
 
     EXPECT_EQ(pipeline(start), context_action::next);
 
-    basic_uinput uin;
-    udev_monitor probe;
-    if (!create_uinput_keyboard(uin, probe)) {
-        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
-    }
-
-    // The monitor FD is ready, so this drains the udev add without blocking.
-    EXPECT_EQ(io(load_event), context_action::drop_event);
-    if (im.devices().empty()) {
-        uin.close();
-        GTEST_SKIP() << "The uinput keyboard was not enumerated.";
-    }
+    auto fake = test::make_fake_keyboard();
+    ASSERT_TRUE(fake.dev.is_ok());
+    im.add(std::move(fake.dev));
 
     // A next_event with nothing pending sets up the watches and yields nothing.
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
-    EXPECT_TRUE(io.is_watched(im.devices().front().native_handle()));
 
-    // Grab the uinput keyboard so the injected events never reach the display
-    // server (otherwise the test types a real 'a' into whatever app has focus).
-    bool grabbed = false;
-    for (auto& dev : im.devices()) {
-        if (device_sysname(dev) != test::sysname_of(uin.devnode())) {
-            continue;
-        }
-        dev.grab_input(true);
-        grabbed = dev.get_status() != fs8::evdev_status::grab_failure;
-        break;
-    }
-    if (!grabbed) {
-        uin.close();
-        GTEST_SKIP() << "Cannot grab the virtual keyboard before injecting events.";
-    }
-
-    // Inject a key press into the device node.
-    int const fd = ::open(uin.devnode().data(), O_WRONLY | O_NONBLOCK);
-    ASSERT_GE(fd, 0);
-    input_event ev{};
-    ev.type  = EV_KEY;
-    ev.code  = KEY_A;
-    ev.value = 1;
-    ASSERT_EQ(::write(fd, &ev, sizeof(ev)), static_cast<ssize_t>(sizeof(ev)));
-    ev.type  = EV_SYN;
-    ev.code  = SYN_REPORT;
-    ev.value = 0;
-    ASSERT_EQ(::write(fd, &ev, sizeof(ev)), static_cast<ssize_t>(sizeof(ev)));
-    ::close(fd);
+    // Inject a key press into the pipe.
+    fake.inject_key_down(KEY_A);
 
     // The device FD is readable now; io_manager dispatches it to the interceptor.
     EXPECT_EQ(io(load_event), context_action::drop_event);
@@ -117,8 +78,6 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
     EXPECT_EQ(col.front().type(), EV_KEY);
     EXPECT_EQ(col.front().code(), KEY_A);
     EXPECT_EQ(col.front().value(), 1);
-
-    uin.close();
 }
 
 TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {

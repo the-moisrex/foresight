@@ -119,6 +119,7 @@ Tags are constexpr sentinels passed as the last argument:
 | `abs2rel`, `pen2mice`, `pen2touch`, `pressure2mouse_clicks` | Convert drawing-tablet absolute events into relative mouse events / clicks. |
 | `mouse_to_scroll` | Convert mouse movement into scroll-wheel events. Pure transformer; gate it with `hold_mod`. | `mice_quantifier` |
 | `smooth` (`lerp`, `low_pass_filter`, `kalman_filter`) | Smooth mouse movement. | `mouse_history` |
+| `split_move` | Decompose each mouse-movement frame into per-unit frames (`REL_X=5` -> 5x `REL_X=1`). | — |
 | `momentum` | Keep motion going after the input stops (`velocity_tracker`, `momentum_calculator`). | — |
 | `ignore_*` | Filters: `drop_big_jumps`, `drop_init_moves`, `drop_start_moves`, `drop_mouse_moves`, `drop_fast_repeats`, `drop_adjacent_repeats`, `drop_repeats_of`, `drop_keys`, `drop_abs`, `drop_tablet`, `drop_caps`, plus `drop_event` and `exit_pipeline`. | — |
 | `debounce` | Drop events arriving within a window of the same code. For `EV_KEY` codes a fast second press + its release are dropped; for other event types every event within the window is dropped. Any `event_code`: `debounce[BTN_LEFT]`, `debounce[{.type = EV_ABS, .code = ABS_X}]`. | — |

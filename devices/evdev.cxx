@@ -46,13 +46,23 @@ evdev::evdev(std::filesystem::path const& file) noexcept {
     set_file(file);
 }
 
-evdev::evdev(evdev&& inp) noexcept : dev{std::exchange(inp.dev, nullptr)}, status{std::exchange(inp.status, evdev_status::unknown)} {}
+evdev::evdev(evdev&& inp) noexcept
+    : dev{std::exchange(inp.dev, nullptr)}, status{std::exchange(inp.status, evdev_status::unknown)}
+#ifndef NDEBUG
+      ,
+      pipe_read_fd_{std::exchange(inp.pipe_read_fd_, -1)}
+#endif
+{
+}
 
 evdev& evdev::operator=(evdev&& other) noexcept {
     if (&other != this) {
         this->close();
         dev    = std::exchange(other.dev, nullptr);
         status = std::exchange(other.status, evdev_status::unknown);
+#ifndef NDEBUG
+        pipe_read_fd_ = std::exchange(other.pipe_read_fd_, -1);
+#endif
     }
     return *this;
 }
@@ -62,6 +72,14 @@ evdev::~evdev() noexcept {
 }
 
 void evdev::close() noexcept {
+#ifndef NDEBUG
+    if (pipe_read_fd_ >= 0) {
+        ::close(pipe_read_fd_);
+        pipe_read_fd_ = -1;
+        status        = evdev_status::unknown;
+        return;
+    }
+#endif
     if (is_fd_initialized() && is_ok()) {
         libevdev_grab(dev, LIBEVDEV_UNGRAB);
     }
@@ -118,6 +136,11 @@ void evdev::set_file(int const file) noexcept {
 }
 
 int evdev::native_handle() const noexcept {
+#ifndef NDEBUG
+    if (pipe_read_fd_ >= 0) {
+        return pipe_read_fd_;
+    }
+#endif
     if (dev == nullptr) [[unlikely]] {
         return -1;
     }
@@ -134,6 +157,13 @@ bool evdev::is_fd_initialized() const noexcept {
 
 void evdev::grab_input(bool const grab) noexcept {
     using enum evdev_status;
+#ifndef NDEBUG
+    if (pipe_read_fd_ >= 0) {
+        // Pipe-backed devices can't be grabbed; ungrab always succeeds.
+        status = grab ? grab_failure : success;
+        return;
+    }
+#endif
     if (!is_ok()) [[unlikely]] {
         return;
     }
@@ -424,6 +454,16 @@ bool evdev::operator==(evdev const& other) const noexcept {
 std::optional<input_event> evdev::next() noexcept {
     input_event input{};
 
+#ifndef NDEBUG
+    if (pipe_read_fd_ >= 0) {
+        auto const n = ::read(pipe_read_fd_, &input, sizeof(input));
+        if (static_cast<std::size_t>(n) == sizeof(input)) {
+            return input;
+        }
+        return std::nullopt;
+    }
+#endif
+
     if (dev == nullptr) [[unlikely]] {
         return std::nullopt;
     }
@@ -652,3 +692,23 @@ void fs8::release_all_keys(evdev& dev) noexcept {
         }
     }
 }
+
+#ifndef NDEBUG
+evdev evdev::make_pipe_device(int& write_fd) noexcept {
+    int fds[2];
+    if (::pipe(fds) < 0) [[unlikely]] {
+        write_fd = -1;
+        return evdev::invalid();
+    }
+    // Non-blocking read end so the interceptor never blocks.
+    auto const flags = ::fcntl(fds[0], F_GETFL);
+    if (flags >= 0) {
+        ::fcntl(fds[0], F_SETFL, flags | O_NONBLOCK);
+    }
+
+    write_fd = fds[1];
+    evdev result{nullptr, evdev_status::success};
+    result.pipe_read_fd_ = fds[0];
+    return result;
+}
+#endif
