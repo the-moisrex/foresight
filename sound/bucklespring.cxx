@@ -12,10 +12,6 @@ import :bucklespring;
 
 using fs8::bucklespring_synth;
 
-// ---------------------------------------------------------------------------
-// Biquad bandpass (constant-gain form) — the spring resonator
-// ---------------------------------------------------------------------------
-
 namespace {
 
     struct [[nodiscard]] biquad_bp {
@@ -24,16 +20,14 @@ namespace {
         float b2 = 0.0f;
         float a1 = 0.0f;
         float a2 = 0.0f;
-
         float z1 = 0.0f;
         float z2 = 0.0f;
 
-        constexpr void configure(float center, float q, float sample_rate) noexcept {
-            float const w0    = 6.283185307179586f * center / sample_rate;
+        constexpr void configure(float center, float q, float sr) noexcept {
+            float const w0 = 6.283185307179586f * center / sr;
             float const cos_w = std::cos(w0);
             float const sin_w = std::sin(w0);
             float const alpha = sin_w / (2.0f * q);
-
             b0 = alpha;
             b1 = 0.0f;
             b2 = -alpha;
@@ -42,51 +36,53 @@ namespace {
             a2 = (1.0f - alpha) * norm;
         }
 
-        [[nodiscard]] constexpr float tick(float input) noexcept {
-            float const y = b0 * input + z1;
-            z1 = b1 * input - a1 * y + z2;
-            z2 = b2 * input - a2 * y;
+        [[nodiscard]] constexpr float tick(float x) noexcept {
+            float const y = b0 * x + z1;
+            z1 = b1 * x - a1 * y + z2;
+            z2 = b2 * x - a2 * y;
             return y;
         }
     };
 
     struct [[nodiscard]] xorshift32 {
         uint32_t state;
-
-        constexpr explicit xorshift32(uint32_t seed) noexcept : state{seed ? seed : 1} {}
-
+        constexpr explicit xorshift32(uint32_t s) noexcept : state{s ? s : 1u} {}
         constexpr uint32_t next() noexcept {
             state ^= state << 13;
             state ^= state >> 17;
             state ^= state << 5;
             return state;
         }
-
         [[nodiscard]] constexpr float uniform() noexcept {
-            uint32_t const bits = next() & 0x00FFFFFFu;
-            return static_cast<float>(bits) / 8388608.0f - 1.0f;
+            return static_cast<float>(next() & 0x00FFFFFFu) / 8388608.0f - 1.0f;
+        }
+    };
+
+    // Pink noise via Voss-McCartney: 6 octave generators + high-pass residual.
+    struct [[nodiscard]] pink_noise {
+        float rows[6] = {};
+        float running = 0.0f;
+        uint32_t counter = 0;
+
+        [[nodiscard]] constexpr float tick(xorshift32& rng) noexcept {
+            ++counter;
+            uint32_t idx = 0;
+            uint32_t c = counter;
+            while ((c & 1u) == 0u && idx < 5u) {
+                c >>= 1u;
+                ++idx;
+            }
+            running -= rows[idx];
+            rows[idx] = rng.uniform();
+            running += rows[idx];
+            return (running + rows[0] + rng.uniform() * 0.5f) * 0.16f;
         }
     };
 
 } // anonymous namespace
 
 // ---------------------------------------------------------------------------
-// bucklespring_synth::render — IBM Model M bucklespring synthesis
-//
-// Three-phase model based on WAV analysis:
-//
-//   Phase 1 — Pre-delay (0 to pre_delay_ms):
-//     Very quiet noise. This is the initial key contact before the spring
-//     buckles. ~-25 dBFS in the real recordings.
-//
-//   Phase 2 — Click (pre_delay_ms to pre_delay_ms + click_ms):
-//     Sharp spike: linear ramp up to peak, then fast exponential decay.
-//     This is the spring buckling event. Mostly broadband noise.
-//
-//   Phase 3 — Ring (pre_delay_ms + click_ms onward):
-//     Tonal resonance at the spring's natural frequency (700-4000 Hz).
-//     Sine through a biquad bandpass. Exponential decay over ring_ms.
-//     Presses are 80% tonal (flatness ~0.45), releases 30% tonal (~0.61).
+// bucklespring_synth::render
 // ---------------------------------------------------------------------------
 
 void bucklespring_synth::render(
@@ -99,7 +95,6 @@ void bucklespring_synth::render(
     if (sample_rate == 0 || channels == 0) [[unlikely]] {
         return;
     }
-
     auto const frames = dest.size() / static_cast<std::size_t>(channels);
     if (frames == 0) [[unlikely]] {
         return;
@@ -107,86 +102,112 @@ void bucklespring_synth::render(
 
     auto const v = get_voice(keycode, pressed);
     float const inv_sr = 1.0f / static_cast<float>(sample_rate);
+    float const gain = pressed ? v.press_gain : v.release_gain;
 
-    // Time boundaries
-    float const pre_delay_sec = v.pre_delay_ms * 0.001f;
-    float const click_start_sec = pre_delay_sec;
-    float const click_end_sec = pre_delay_sec + v.click_ms * 0.001f;
-    float const ring_start_sec = click_end_sec;
+    // Per-key variation from keycode hash
+    uint32_t const hash = keycode * 2654435761u;
+    float const kv = static_cast<float>(hash & 0x3FFu) / 1024.0f; // [0, 1]
+    float const freq_shift = 1.0f + (kv - 0.5f) * 0.1f;          // +/-5%
 
-    // Click envelope: ramp to peak in first half, fast decay in second half
-    float const click_peak_sec = click_start_sec + v.click_ms * 0.0005f; // first 0.05ms
-    float const click_decay_sec = v.click_ms * 0.001f * 0.5f;           // 50% of click_ms
-    float const click_decay_inv = click_decay_sec > 0.0f ? 1.0f / click_decay_sec : 0.0f;
+    // Time boundaries (seconds)
+    float const pre_end = v.pre_delay_ms * 0.001f;
+    float const transient_end = pre_end + v.transient_ms * 0.001f;
 
-    // Ring envelope
-    float const ring_tau = v.ring_ms * 0.001f / 4.0f; // 4 time constants
+    // Three transient sub-events (contact, buckle, settle)
+    float const t_contact = pre_end;
+    float const t_buckle  = pre_end + 0.25f * 0.001f; // +0.25ms
+    float const t_settle  = pre_end + 1.0f * 0.001f;  // +1.0ms
+    // Decay time constants for each sub-event (very fast)
+    float const tc_contact = 0.08f * 0.001f; // 0.08ms
+    float const tc_buckle  = 0.15f * 0.001f; // 0.15ms
+    float const tc_settle  = 0.20f * 0.001f; // 0.20ms
+    float const tc_contact_inv = 1.0f / tc_contact;
+    float const tc_buckle_inv  = 1.0f / tc_buckle;
+    float const tc_settle_inv  = 1.0f / tc_settle;
+
+    // Ring exponential decay
+    float const ring_tau = v.ring_ms * 0.001f / 4.0f;
     float const ring_tau_inv = ring_tau > 0.0f ? 1.0f / ring_tau : 0.0f;
 
-    // Bandpass filter for spring resonance
-    biquad_bp filter;
-    filter.configure(v.ring_freq, v.ring_q, static_cast<float>(sample_rate));
+    // Dual bandpass filters
+    biquad_bp primary;
+    primary.configure(v.primary_freq * freq_shift, v.primary_q, static_cast<float>(sample_rate));
+    biquad_bp secondary;
+    secondary.configure(v.secondary_freq * freq_shift, v.secondary_q, static_cast<float>(sample_rate));
 
-    // PRNG
+    // Sine phases for tonal ring
+    float phase1 = 0.0f;
+    float phase2 = 0.0f;
+
+    // PRNG and pink noise
     xorshift32 rng{static_cast<uint32_t>(keycode) * 2654435761u + (pressed ? 0x9E3779B9u : 0u)};
-
-    // Sine phase for tonal ring
-    float phase = 0.0f;
-
-    float const gain = pressed ? v.press_gain : v.release_gain;
+    pink_noise pink;
 
     for (std::size_t i = 0; i < frames; ++i) {
         float const t = static_cast<float>(i) * inv_sr;
-        float const noise = rng.uniform();
+        float const white = rng.uniform();
+        float const pn = pink.tick(rng);
 
         float sample = 0.0f;
 
-        if (t < click_start_sec) {
-            // --- Phase 1: Pre-delay — quiet initial contact ---
-            sample = noise * 0.02f;
+        if (t < pre_end) {
+            // --- Phase 1: Pre-delay — very quiet initial contact ---
+            sample = pn * 0.015f;
 
-        } else if (t < click_end_sec) {
-            // --- Phase 2: Click — sharp spike with fast decay ---
-            float click_env;
-            if (t < click_peak_sec) {
-                // Ramp to peak
-                float const ramp = (t - click_start_sec) / (click_peak_sec - click_start_sec);
-                click_env = ramp;
-            } else {
-                // Fast exponential decay
-                float const d = t - click_peak_sec;
-                click_env = std::exp(-d * click_decay_inv);
+        } else if (t < transient_end) {
+            // --- Phase 2: Three-event transient ---
+            float env = 0.0f;
+
+            // Event 1: Contact (small, 0.6x)
+            if (t >= t_contact) {
+                float const d = t - t_contact;
+                env += 0.6f * std::exp(-d * tc_contact_inv);
             }
-            // Click is mostly noise
-            sample = noise * click_env * 0.8f;
+            // Event 2: Buckle (LARGE, 1.0x — the main event)
+            if (t >= t_buckle) {
+                float const d = t - t_buckle;
+                env += 1.0f * std::exp(-d * tc_buckle_inv);
+            }
+            // Event 3: Settle (medium, 0.45x)
+            if (t >= t_settle) {
+                float const d = t - t_settle;
+                env += 0.45f * std::exp(-d * tc_settle_inv);
+            }
+
+            // Transient is broadband noise (white + pink mix for ultrasonic content)
+            sample = (0.5f * white + 0.5f * pn) * env;
 
         } else {
-            // --- Phase 3: Ring — tonal spring resonance ---
-            float const ring_t = t - ring_start_sec;
+            // --- Phase 3: Ring — dual tonal resonance ---
+            float const ring_t = t - transient_end;
 
-            // Sine at spring frequency
-            phase += 6.283185307179586f * v.ring_freq * inv_sr;
-            if (phase > 6.283185307179586f) {
-                phase -= 6.283185307179586f;
-            }
-            float const tonal = std::sin(phase);
+            // Tonal: dual sine resonances
+            phase1 += 6.283185307179586f * v.primary_freq * freq_shift * inv_sr;
+            if (phase1 > 6.283185307179586f) phase1 -= 6.283185307179586f;
+            phase2 += 6.283185307179586f * v.secondary_freq * freq_shift * inv_sr;
+            if (phase2 > 6.283185307179586f) phase2 -= 6.283185307179586f;
 
-            // Bandpass-filtered noise
-            float const filtered_noise = filter.tick(noise);
+            float const tonal1 = std::sin(phase1);
+            float const tonal2 = std::sin(phase2) * v.secondary_level;
 
-            // Mix tonal and noise based on press/release
-            float const excitation = v.tonal_mix * tonal + (1.0f - v.tonal_mix) * filtered_noise;
+            // Bandpass-filtered pink noise for secondary resonance
+            float const filtered1 = primary.tick(pn);
+            float const filtered2 = secondary.tick(pn);
 
-            // Exponential decay envelope
-            float const ring_env = std::exp(-ring_t * ring_tau_inv);
+            // Press: mostly tonal (flatness ~0.45). Release: mostly noise (~0.61).
+            float const tonal_mix = pressed ? 0.75f : 0.25f;
+            float const tonal = tonal1 + tonal2;
+            float const resonant_noise = filtered1 + filtered2 * v.secondary_level;
+            float const excitation = tonal_mix * tonal + (1.0f - tonal_mix) * resonant_noise;
 
-            sample = excitation * ring_env;
+            // Exponential decay
+            float const env = std::exp(-ring_t * ring_tau_inv);
+            sample = excitation * env;
         }
 
-        // Apply gain and write to all channels
-        float const final_sample = sample * gain;
+        float const out = sample * gain;
         for (uint16_t ch = 0; ch < channels; ++ch) {
-            dest[static_cast<std::size_t>(i) * channels + ch] = final_sample;
+            dest[static_cast<std::size_t>(i) * channels + ch] = out;
         }
     }
 }
