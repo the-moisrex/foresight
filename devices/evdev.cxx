@@ -47,10 +47,11 @@ evdev::evdev(std::filesystem::path const& file) noexcept {
 }
 
 evdev::evdev(evdev&& inp) noexcept
-    : dev{std::exchange(inp.dev, nullptr)}, status{std::exchange(inp.status, evdev_status::unknown)}
+  : dev{std::exchange(inp.dev, nullptr)},
+    status{std::exchange(inp.status, evdev_status::unknown)}
 #ifndef NDEBUG
-      ,
-      pipe_read_fd_{std::exchange(inp.pipe_read_fd_, -1)}
+    ,
+    pipe_read_fd_{std::exchange(inp.pipe_read_fd_, -1)}
 #endif
 {
 }
@@ -338,14 +339,14 @@ bool evdev::has_cap(dev_cap_view const& inp_cap) const noexcept {
 }
 
 // returns percentage
-std::uint8_t evdev::match_cap(dev_cap_view const& inp_cap) const noexcept {
+uint8_t evdev::match_cap(dev_cap_view const& inp_cap) const noexcept {
     double count = 0;
     for (code_type const code : inp_cap.codes) {
         if (has_event_code(inp_cap.type, code)) {
             ++count;
         }
     }
-    return static_cast<std::uint8_t>(count / static_cast<double>(inp_cap.codes.size()) * 100);
+    return static_cast<uint8_t>(count / static_cast<double>(inp_cap.codes.size()) * 100);
 }
 
 bool evdev::has_caps(dev_caps_view const inp_caps) const noexcept {
@@ -354,7 +355,7 @@ bool evdev::has_caps(dev_caps_view const inp_caps) const noexcept {
     });
 }
 
-std::uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {
+uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {
     using enum caps_action;
     double count = 0;
     double all   = 0;
@@ -385,7 +386,7 @@ std::uint8_t evdev::match_caps(dev_caps_view const inp_caps) const noexcept {
     if (all == 0) {
         return 100;
     }
-    return static_cast<std::uint8_t>(std::max(0.0, count) / all * 100.0); // NOLINT(*-magic-numbers)
+    return static_cast<uint8_t>(std::max(0.0, count) / all * 100.0); // NOLINT(*-magic-numbers)
 }
 
 input_absinfo const* evdev::abs_info(code_type const code) const noexcept {
@@ -534,7 +535,7 @@ bool fs8::is_usable(evdev& dev) noexcept {
 }
 
 /// Compute the caps score and halve it if the device is grabbed by another process.
-std::uint8_t fs8::score_caps(evdev& dev, dev_caps_view const caps) noexcept {
+uint8_t fs8::score_caps(evdev& dev, dev_caps_view const caps) noexcept {
     if (caps.empty()) {
         return 0;
     }
@@ -663,7 +664,7 @@ void fs8::release_all_keys(evdev& dev) noexcept {
     if (!dev.has_event_type(EV_KEY)) {
         return;
     }
-    std::array<std::uint8_t, key_bitmap_bytes> bitmap{};
+    std::array<uint8_t, key_bitmap_bytes> bitmap{};
     if (!query_key_state(dev, bitmap)) [[unlikely]] {
         return;
     }
@@ -673,7 +674,7 @@ void fs8::release_all_keys(evdev& dev) noexcept {
         }
         for (std::size_t bit = 0; bit < 8; ++bit) {
             if (bitmap[i] & (1u << bit)) {
-                auto const       code = static_cast<std::uint16_t>(i * 8 + bit);
+                auto const       code = static_cast<uint16_t>(i * 8 + bit);
                 event_type const event{EV_KEY, code, 0};
                 log("Releasing key {} for device: {}", event.code_name(), dev.device_name());
                 auto const state = dev.grab();

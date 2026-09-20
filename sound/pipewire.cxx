@@ -151,9 +151,9 @@ namespace {
                 return;
             }
 
-            auto* dest = static_cast<std::int16_t*>(spa_data->data);
+            auto* dest = static_cast<int16_t*>(spa_data->data);
 
-            auto const capacity_frames = spa_data->maxsize / (sizeof(std::int16_t) * queue_channels);
+            auto const capacity_frames = spa_data->maxsize / (sizeof(int16_t) * queue_channels);
 
             auto const requested_frames = static_cast<std::size_t>(b->requested);
 
@@ -174,12 +174,12 @@ namespace {
                 if (s < -1.0f) {
                     s = -1.0f;
                 }
-                dest[i] = static_cast<std::int16_t>(s * 32767.0f);
+                dest[i] = static_cast<int16_t>(s * 32767.0f);
             }
 
             spa_data->chunk->offset = 0;
-            spa_data->chunk->stride = static_cast<std::int32_t>(sizeof(std::int16_t) * queue_channels);
-            spa_data->chunk->size   = static_cast<std::uint32_t>(n * sizeof(std::int16_t));
+            spa_data->chunk->stride = static_cast<int32_t>(sizeof(int16_t) * queue_channels);
+            spa_data->chunk->size   = static_cast<uint32_t>(n * sizeof(int16_t));
 
             a.stream_queue_buffer(self.pw_stream, b);
         }

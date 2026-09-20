@@ -25,7 +25,7 @@ using fs8::io_event;
 using fs8::io_fd;
 
 namespace {
-    void next_generation(std::uint32_t& state) noexcept {
+    void next_generation(uint32_t& state) noexcept {
         state ^= state << 13;
         state ^= state >> 17;
         state ^= state << 5;
@@ -51,15 +51,15 @@ namespace {
 
 template <>
 struct fs8::pimpl_idiom<basic_input_manager>::impl {
-    bool                                           started = false;
-    std::atomic<bool>                              stop_requested{false};
-    udev_monitor                                   monitor;
-    std::list<evdev>                               devs;                   // stable handles; todo: switch to std::hive once available
-    std::vector<query_provider_handle>             providers;
-    std::vector<device_change_handle>              listeners;
-    std::vector<std::string>                       owned_sysnames;         // uinput devices created by this process
-    std::uint32_t                                  devices_generation = 1; // must be non-zero for xorshift
-    std::unordered_map<std::uint32_t, fs8::evdev*> source_map;             // source_id → device (set by provider mods)
+    bool                                      started = false;
+    std::atomic<bool>                         stop_requested{false};
+    udev_monitor                              monitor;
+    std::list<evdev>                          devs;                   // stable handles; todo: switch to std::hive once available
+    std::vector<query_provider_handle>        providers;
+    std::vector<device_change_handle>         listeners;
+    std::vector<std::string>                  owned_sysnames;         // uinput devices created by this process
+    uint32_t                                  devices_generation = 1; // must be non-zero for xorshift
+    std::unordered_map<uint32_t, fs8::evdev*> source_map;             // source_id → device (set by provider mods)
 
     /// Devices are identified by their udev sysname (derived from the fd),
     /// which is the last component of their syspath; only nodes with a devnode
@@ -193,7 +193,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         }
     }
 
-    void notify_listeners(std::uint32_t const id, fs8::device_change const change) noexcept {
+    void notify_listeners(uint32_t const id, fs8::device_change const change) noexcept {
         for (auto& listener : listeners) {
             if (listener.invoke) {
                 listener.invoke(id, change);
@@ -262,7 +262,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
 
         // Candidates as (caps score, opened device). The score only ranks caps
         // queries; non-caps queries keep their enumeration order.
-        std::vector<std::pair<std::uint8_t, evdev>> candidates;
+        std::vector<std::pair<uint8_t, evdev>> candidates;
         candidates.reserve(16);
         for (auto const& entry : enumerator.list_entries()) {
             if (stop_requested.load(std::memory_order_relaxed)) [[unlikely]] {
@@ -288,7 +288,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 }
                 continue;
             }
-            std::uint8_t const score = score_caps(edev, cur_query.caps);
+            uint8_t const score = score_caps(edev, cur_query.caps);
             candidates.emplace_back(score, std::move(edev));
             found = true;
         }
@@ -396,7 +396,7 @@ bool basic_input_manager::is_owned_sysname(std::string_view const sysname) const
     });
 }
 
-std::uint32_t basic_input_manager::source_id_of(evdev const& dev) const noexcept {
+uint32_t basic_input_manager::source_id_of(evdev const& dev) const noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return source_id_none;
     }
@@ -407,7 +407,7 @@ std::uint32_t basic_input_manager::source_id_of(evdev const& dev) const noexcept
     return ci_hash(std::string_view{sysname});
 }
 
-fs8::evdev const* basic_input_manager::device_of(std::uint32_t const id) const noexcept {
+fs8::evdev const* basic_input_manager::device_of(uint32_t const id) const noexcept {
     if (id == source_id_none) [[unlikely]] {
         return nullptr;
     }
@@ -424,26 +424,26 @@ fs8::evdev const* basic_input_manager::device_of(std::uint32_t const id) const n
     return nullptr;
 }
 
-fs8::evdev* basic_input_manager::device_of(std::uint32_t const id) noexcept {
+fs8::evdev* basic_input_manager::device_of(uint32_t const id) noexcept {
     return const_cast<evdev*>(std::as_const(*this).device_of(id));
 }
 
-int basic_input_manager::fd_of(std::uint32_t const id) const noexcept {
+int basic_input_manager::fd_of(uint32_t const id) const noexcept {
     auto const* const dev = device_of(id);
     return dev != nullptr ? dev->native_handle() : -1;
 }
 
-std::string basic_input_manager::sysname_of(std::uint32_t const id) const noexcept {
+std::string basic_input_manager::sysname_of(uint32_t const id) const noexcept {
     auto const* const dev = device_of(id);
     return dev != nullptr ? device_sysname(*dev) : std::string{};
 }
 
-std::string_view basic_input_manager::name_of(std::uint32_t const id) const noexcept {
+std::string_view basic_input_manager::name_of(uint32_t const id) const noexcept {
     auto const* const dev = device_of(id);
     return dev != nullptr ? dev->device_name() : std::string_view{};
 }
 
-bool basic_input_manager::is_owned(std::uint32_t const id) const noexcept {
+bool basic_input_manager::is_owned(uint32_t const id) const noexcept {
     auto const* const dev = device_of(id);
     if (dev == nullptr) [[unlikely]] {
         return false;
@@ -451,7 +451,7 @@ bool basic_input_manager::is_owned(std::uint32_t const id) const noexcept {
     return is_owned(*dev);
 }
 
-bool basic_input_manager::is_chained(std::uint32_t const id) const noexcept {
+bool basic_input_manager::is_chained(uint32_t const id) const noexcept {
     auto const* const dev = device_of(id);
     if (dev == nullptr) [[unlikely]] {
         return false;
@@ -459,14 +459,14 @@ bool basic_input_manager::is_chained(std::uint32_t const id) const noexcept {
     return dev->physical_location().starts_with("foresight:");
 }
 
-void basic_input_manager::register_source(std::uint32_t const source_id, evdev& dev) noexcept {
+void basic_input_manager::register_source(uint32_t const source_id, evdev& dev) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;
     }
     pimpl->source_map[source_id] = &dev;
 }
 
-void basic_input_manager::unregister_source(std::uint32_t const source_id) noexcept {
+void basic_input_manager::unregister_source(uint32_t const source_id) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;
     }
@@ -517,7 +517,7 @@ std::ranges::subrange<std::list<fs8::evdev>::iterator> basic_input_manager::devi
     return std::ranges::subrange(pimpl->devs.begin(), pimpl->devs.end());
 }
 
-std::uint32_t basic_input_manager::devices_generation() const noexcept {
+uint32_t basic_input_manager::devices_generation() const noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return 0;
     }

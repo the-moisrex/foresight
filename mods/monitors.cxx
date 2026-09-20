@@ -76,8 +76,18 @@ struct fs8::pimpl_idiom<basic_monitors>::impl {
     }
 
     static bool same_monitor(monitor_info const& a, monitor_info const& b) noexcept {
-        return a.connector == b.connector && a.x == b.x && a.y == b.y && a.width_px == b.width_px
-               && a.height_px == b.height_px && a.is_primary == b.is_primary;
+        return a.connector
+               == b.connector
+               && a.x
+               == b.x
+               && a.y
+               == b.y
+               && a.width_px
+               == b.width_px
+               && a.height_px
+               == b.height_px
+               && a.is_primary
+               == b.is_primary;
     }
 
     static bool same_layout(std::vector<monitor_info> const& a, std::vector<monitor_info> const& b) noexcept {
@@ -98,8 +108,8 @@ struct fs8::pimpl_idiom<basic_monitors>::impl {
     bool refresh_internal() noexcept {
         auto       result  = enumerate_monitors();
         bool const changed = !same_layout(monitors, result.monitors);
-        monitors = std::move(result.monitors);
-        desktop  = compute_desktop_bounds(monitors);
+        monitors           = std::move(result.monitors);
+        desktop            = compute_desktop_bounds(monitors);
         if (changed) {
             log_layout();
         }

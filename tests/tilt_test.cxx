@@ -13,7 +13,7 @@ using namespace fs8;
 
 namespace {
 
-    [[nodiscard]] std::vector<event_type> axis_events(basic_record const& col, std::uint16_t const type, std::uint16_t const code) {
+    [[nodiscard]] std::vector<event_type> axis_events(basic_record const& col, uint16_t const type, uint16_t const code) {
         std::vector<event_type> result;
         for (auto const& event : col.without_syn()) {
             if (event.type() == type && event.code() == code) {
@@ -25,8 +25,7 @@ namespace {
 
     /// Build an event with an explicit timestamp (microseconds), so tests can
     /// drive the time-constant recenter deterministically.
-    [[nodiscard]] consteval event_type
-    timed(std::uint16_t const type, std::uint16_t const code, int const value, long long const ts_us) noexcept {
+    [[nodiscard]] consteval event_type timed(uint16_t const type, uint16_t const code, int const value, long long const ts_us) noexcept {
         event_type ev{static_cast<event_type::type_type>(type),
                       static_cast<event_type::code_type>(code),
                       static_cast<event_type::value_type>(value)};

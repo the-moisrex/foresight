@@ -29,14 +29,14 @@ namespace {
     /// never calls source_id_of() (which does a readlink syscall) or iterates
     /// im.devices() (a linked-list scan).
     struct watched_fd {
-        int           fd   = -1;
-        std::uint32_t id   = source_id_none;
-        fs8::evdev*   dev  = nullptr;
-        bool          dead = false;
+        int         fd   = -1;
+        uint32_t    id   = source_id_none;
+        fs8::evdev* dev  = nullptr;
+        bool        dead = false;
 
         constexpr watched_fd() noexcept = default;
 
-        constexpr watched_fd(int f, std::uint32_t i, fs8::evdev* d, bool ddd = false) noexcept : fd{f}, id{i}, dev{d}, dead{ddd} {}
+        constexpr watched_fd(int f, uint32_t i, fs8::evdev* d, bool ddd = false) noexcept : fd{f}, id{i}, dev{d}, dead{ddd} {}
     };
 } // namespace
 
@@ -58,7 +58,7 @@ struct fs8::pimpl_idiom<basic_interceptor>::impl {
     /// Last-seen value of input_manager::devices_generation().  When it has
     /// not changed since the last reconciliation and there are no disconnects,
     /// do_pop can skip the entire slow path.
-    std::uint32_t last_generation     = 0;
+    uint32_t last_generation          = 0;
 };
 
 void basic_interceptor::add(evdev&& dev) noexcept {
@@ -251,7 +251,7 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
             break;
         }
         if (io.watch(io_fd{.fd = dev_fd, .events = io_event::in}, *this)) {
-            auto const src_id                      = sid(intercept, static_cast<std::uint16_t>(pimpl->watched_count));
+            auto const src_id                      = sid(intercept, static_cast<uint16_t>(pimpl->watched_count));
             pimpl->watched[pimpl->watched_count++] = watched_fd{dev_fd, src_id, &dev};
             im.register_source(src_id, dev);
             log("Device '{}' (re)connected.", dev.device_name());

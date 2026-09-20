@@ -27,19 +27,19 @@ namespace fs8 {
      */
     export struct [[nodiscard]] aho_state {
         /// Number of bits for the index.
-        static constexpr std::uint32_t INDEX_BITS       = 24U;
+        static constexpr uint32_t INDEX_BITS       = 24U;
         /// Number of bits for the generation counter.
-        static constexpr std::uint32_t GENERATION_BITS  = 8U;
+        static constexpr uint32_t GENERATION_BITS  = 8U;
         /// Mask for extracting the index.
-        static constexpr std::uint32_t INDEX_MASK       = (1U << INDEX_BITS) - 1U;
+        static constexpr uint32_t INDEX_MASK       = (1U << INDEX_BITS) - 1U;
         /// Mask for extracting the generation.
-        static constexpr std::uint32_t GENERATION_MASK  = (1U << GENERATION_BITS) - 1U;
+        static constexpr uint32_t GENERATION_MASK  = (1U << GENERATION_BITS) - 1U;
         /// Shift amount for the generation bits.
-        static constexpr std::uint32_t GENERATION_SHIFT = INDEX_BITS;
+        static constexpr uint32_t GENERATION_SHIFT = INDEX_BITS;
 
       private:
-        std::uint32_t value : 24U; // The index bit-field (24 bits).
-        std::uint8_t  gen   : 8U;  // The generation bit-field (8 bits).
+        uint32_t value : 24U; // The index bit-field (24 bits).
+        uint8_t  gen   : 8U;  // The generation bit-field (8 bits).
       public:
         aho_state() noexcept                       = default;
         aho_state(aho_state&&) noexcept            = default;
@@ -52,34 +52,34 @@ namespace fs8 {
          * @brief Constructor from a raw 32-bit unsigned integer value.
          * @param raw_value The raw value to wrap.
          */
-        explicit constexpr aho_state(std::uint32_t const raw_value) noexcept
+        explicit constexpr aho_state(uint32_t const raw_value) noexcept
           : value{raw_value & INDEX_MASK},
-            gen{static_cast<std::uint8_t>((raw_value >> GENERATION_SHIFT) & GENERATION_MASK)} {}
+            gen{static_cast<uint8_t>((raw_value >> GENERATION_SHIFT) & GENERATION_MASK)} {}
 
         /**
          * @brief Constructor from separate index and generation values.
          * @param idx The index part (truncated to lower 24 bits).
          * @param inp_gen The generation part (truncated to lower 8 bits).
          */
-        constexpr aho_state(std::uint32_t const idx, std::uint8_t const inp_gen) noexcept : value{idx & INDEX_MASK}, gen{inp_gen} {
+        constexpr aho_state(uint32_t const idx, uint8_t const inp_gen) noexcept : value{idx & INDEX_MASK}, gen{inp_gen} {
             assert(idx <= INDEX_MASK);
         }
 
-        [[nodiscard]] constexpr std::uint32_t index() const noexcept {
+        [[nodiscard]] constexpr uint32_t index() const noexcept {
             return value;
         }
 
-        [[nodiscard]] constexpr std::uint8_t generation() const noexcept {
+        [[nodiscard]] constexpr uint8_t generation() const noexcept {
             return gen;
         }
 
         /// Get the next generation with the newly specified value
-        [[nodiscard]] constexpr aho_state next_generation(std::uint32_t const raw_value) const noexcept {
-            return aho_state{raw_value, static_cast<std::uint8_t>(gen + 1U)};
+        [[nodiscard]] constexpr aho_state next_generation(uint32_t const raw_value) const noexcept {
+            return aho_state{raw_value, static_cast<uint8_t>(gen + 1U)};
         }
 
         /// Increment the generation and set the new value
-        [[nodiscard]] constexpr aho_state& operator=(std::uint32_t const new_value) noexcept {
+        [[nodiscard]] constexpr aho_state& operator=(uint32_t const new_value) noexcept {
             value = new_value & INDEX_MASK;
             ++gen;
             return *this;
@@ -95,7 +95,7 @@ namespace fs8 {
         }
 
         // NOLINTNEXTLINE(*explicit*)
-        [[nodiscard]] explicit(false) constexpr operator std::uint32_t() const noexcept {
+        [[nodiscard]] explicit(false) constexpr operator uint32_t() const noexcept {
             return value;
         }
 
@@ -114,35 +114,35 @@ namespace fs8 {
     export struct [[nodiscard]] basic_search_engine : pimpl_idiom<basic_search_engine> {
         using pimpl_idiom::pimpl_idiom;
 
-        using state_type = std::uint32_t;
+        using state_type = uint32_t;
 
-        using output_link_type                    = std::uint32_t;
+        using output_link_type                    = uint32_t;
         static constexpr std::size_t MAX_PATTERNS = sizeof(output_link_type) * CHAR_BIT;
 
       private:
         /// Returns the number of states that the built machine has.
         /// States are numbered 0 up to the return value - 1, inclusive.
-        std::uint32_t build_machine();
+        uint32_t build_machine();
 
         // helpers
-        [[nodiscard]] state_type    find_child(state_type state, char32_t code) const noexcept;
-        [[nodiscard]] state_type    quick_find_child(state_type state, char32_t code) const noexcept;
-        [[nodiscard]] std::uint32_t add_child(state_type state, char32_t code, state_type child_index);
+        [[nodiscard]] state_type find_child(state_type state, char32_t code) const noexcept;
+        [[nodiscard]] state_type quick_find_child(state_type state, char32_t code) const noexcept;
+        [[nodiscard]] uint32_t   add_child(state_type state, char32_t code, state_type child_index);
 
       public:
         /**
          * Add a new pattern to search for
          * @param pattern It's a UTF-8-encoded string that we will try to find later on
          */
-        [[nodiscard("Don't lose your trigger id")]] std::uint16_t emplace_pattern(std::string_view pattern);
+        [[nodiscard("Don't lose your trigger id")]] uint16_t emplace_pattern(std::string_view pattern);
 
         /**
          * Process this new event, and return a new state
          */
         aho_state process(char32_t code_point, aho_state last_state) const noexcept;
 
-        void               matches(std::uint32_t state, std::function_ref<void(std::u32string_view)> callback) const;
-        [[nodiscard]] bool matches(std::uint32_t state, std::uint16_t trigger_id) const noexcept;
+        void               matches(uint32_t state, std::function_ref<void(std::u32string_view)> callback) const;
+        [[nodiscard]] bool matches(uint32_t state, uint16_t trigger_id) const noexcept;
 
         /// Initialize empty
         context_action operator()(special_event const& tag) noexcept;
@@ -154,7 +154,7 @@ namespace fs8 {
 
         /// Process and match
         [[nodiscard]] bool
-        search(event_type const& event, std::uint16_t trigger_id, xkb::basic_state const& keyboard_state, aho_state& state) const noexcept;
+        search(event_type const& event, uint16_t trigger_id, xkb::basic_state const& keyboard_state, aho_state& state) const noexcept;
 
         /// Process and match, but only within a time window.
         /// If more than `max_gap` passes between two relevant key events, the in-progress
@@ -163,7 +163,7 @@ namespace fs8 {
         /// pass the same variable across calls and keep it zero-initialized initially.
         [[nodiscard]] bool timed_search(
           event_type const&          event,
-          std::uint16_t              trigger_id,
+          uint16_t                   trigger_id,
           xkb::basic_state const&    keyboard_state,
           aho_state&                 state,
           std::chrono::microseconds  max_gap,
@@ -178,7 +178,7 @@ namespace fs8 {
     export constexpr struct [[nodiscard]] basic_typed : pimpl_idiom<basic_typed> {
         using pimpl_idiom::pimpl_idiom;
 
-        static constexpr std::uint16_t invalid_trigger_id = std::numeric_limits<std::uint16_t>::max();
+        static constexpr uint16_t invalid_trigger_id = std::numeric_limits<uint16_t>::max();
 
       private:
         std::string_view pattern;          // pattern string

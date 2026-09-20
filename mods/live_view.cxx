@@ -42,7 +42,7 @@ namespace {
         return ptr;
     }
 
-    void write_usec(char* pos, std::int32_t const usec) noexcept {
+    void write_usec(char* pos, int32_t const usec) noexcept {
         auto [ptr, ec]     = std::to_chars(pos, pos + 6, usec);
         auto const written = static_cast<std::size_t>(ptr - pos);
         if (written < 6) {
@@ -138,7 +138,7 @@ namespace {
             }
         }
 
-        void append_usec(std::int32_t const usec) noexcept {
+        void append_usec(int32_t const usec) noexcept {
             if (!ok) [[unlikely]] {
                 return;
             }
@@ -157,7 +157,7 @@ namespace {
             }
         }
 
-        void append_timestamp(std::int64_t const sec, std::int32_t const usec) noexcept {
+        void append_timestamp(std::int64_t const sec, int32_t const usec) noexcept {
             append_int(sec);
             append(".");
             append_usec(usec);
@@ -182,7 +182,7 @@ bool fs8::event_line_format::parse(std::string_view const line, parsed_evtest_ev
 std::string_view fs8::event_line_format::format(event_type const& event, std::span<char> const buf) const noexcept {
     auto const tv   = event.native().time;
     auto const sec  = static_cast<std::int64_t>(tv.tv_sec);
-    auto const usec = static_cast<std::int32_t>(tv.tv_usec);
+    auto const usec = static_cast<int32_t>(tv.tv_usec);
 
     auto* pos = buf.data();
 
@@ -284,7 +284,7 @@ fs8::condensed_view::condensed_view(bool const force_terminal) noexcept
   : terminal_mode_{force_terminal || isatty(STDOUT_FILENO) == 1},
     use_ansi_{terminal_mode_} {}
 
-fs8::device_live_state& fs8::condensed_view::state_for(std::uint32_t const id) {
+fs8::device_live_state& fs8::condensed_view::state_for(uint32_t const id) {
     return devices_[id];
 }
 
@@ -325,14 +325,14 @@ bool fs8::condensed_view::direction_changed(mouse_accum const& m, int const dx, 
     return cos_angle < direction_epsilon_;
 }
 
-std::string_view fs8::condensed_view::format_device_id(std::uint32_t const id, std::span<char> /*buf*/) noexcept {
+std::string_view fs8::condensed_view::format_device_id(uint32_t const id, std::span<char> /*buf*/) noexcept {
     return fs8::to_source_string(id);
 }
 
 std::string_view fs8::condensed_view::format_time(event_type const& event, std::span<char> const buf) noexcept {
     auto const tv   = event.native().time;
     auto const sec  = static_cast<std::int64_t>(tv.tv_sec);
-    auto const usec = static_cast<std::int32_t>(tv.tv_usec);
+    auto const usec = static_cast<int32_t>(tv.tv_usec);
 
     auto* pos = buf.data();
     pos       = write_int(buf, pos, sec);
@@ -365,7 +365,7 @@ void fs8::condensed_view::write_line(std::string_view const line, int const fd, 
     }
 }
 
-void fs8::condensed_view::write_mouse_summary(std::uint32_t const id, mouse_accum const& m, int const fd) {
+void fs8::condensed_view::write_mouse_summary(uint32_t const id, mouse_accum const& m, int const fd) {
     char         line_buf[256];
     line_builder lb{as_span(line_buf)};
 
@@ -379,7 +379,7 @@ void fs8::condensed_view::write_mouse_summary(std::uint32_t const id, mouse_accu
     lb.append_color(use_ansi_, ansi_dim);
     {
         auto const sec  = static_cast<std::int64_t>(m.last_event_time.count() / 1'000'000);
-        auto const usec = static_cast<std::int32_t>(m.last_event_time.count() % 1'000'000);
+        auto const usec = static_cast<int32_t>(m.last_event_time.count() % 1'000'000);
         lb.append_timestamp(sec, usec);
     }
     lb.append_color(use_ansi_, ansi_reset);
@@ -436,7 +436,7 @@ void fs8::condensed_view::write_mouse_summary(std::uint32_t const id, mouse_accu
     }
 }
 
-void fs8::condensed_view::write_diagnostic(std::uint32_t const id, sanitizer_issue const issue, event_type const& event, int const fd) {
+void fs8::condensed_view::write_diagnostic(uint32_t const id, sanitizer_issue const issue, event_type const& event, int const fd) {
     char         line_buf[256];
     line_builder lb{as_span(line_buf)};
 
@@ -470,7 +470,7 @@ void fs8::condensed_view::write_diagnostic(std::uint32_t const id, sanitizer_iss
     }
 }
 
-void fs8::condensed_view::write_key_event(std::uint32_t const id, event_type const& event, int const fd, char32_t const text) {
+void fs8::condensed_view::write_key_event(uint32_t const id, event_type const& event, int const fd, char32_t const text) {
     char         time_buf[32];
     auto const   time_str = format_time(event, as_span(time_buf));
     char         line_buf[256];
@@ -522,7 +522,7 @@ void fs8::condensed_view::write_key_event(std::uint32_t const id, event_type con
     }
 }
 
-void fs8::condensed_view::write_generic_event(std::uint32_t const id, event_type const& event, int const fd) {
+void fs8::condensed_view::write_generic_event(uint32_t const id, event_type const& event, int const fd) {
     char              fmt_buf[event_line_format_buf_size];
     event_line_format fmt;
     auto const        text = fmt.format(event, fmt_buf);
@@ -594,7 +594,7 @@ void fs8::condensed_view::write_generic_event(std::uint32_t const id, event_type
     }
 }
 
-void fs8::condensed_view::flush_mouse(std::uint32_t const id, device_live_state& st, int const fd) {
+void fs8::condensed_view::flush_mouse(uint32_t const id, device_live_state& st, int const fd) {
     if (st.mouse.event_count == 0) {
         return;
     }
@@ -602,7 +602,7 @@ void fs8::condensed_view::flush_mouse(std::uint32_t const id, device_live_state&
     st.mouse = mouse_accum{};
 }
 
-void fs8::condensed_view::flush_keyboard(std::uint32_t const /*id*/, device_live_state& /*st*/, int const /*fd*/) {}
+void fs8::condensed_view::flush_keyboard(uint32_t const /*id*/, device_live_state& /*st*/, int const /*fd*/) {}
 
 void fs8::condensed_view::flush(int const fd) {
     for (auto& [id, st] : devices_) {
@@ -622,7 +622,7 @@ void fs8::condensed_view::process_event(event_type const& event, int const fd, s
     auto const code  = event.code();
     auto const value = event.value();
 
-    constexpr auto is_mouse_rel = [](std::uint16_t t, std::uint16_t c) noexcept -> bool {
+    constexpr auto is_mouse_rel = [](uint16_t t, uint16_t c) noexcept -> bool {
         return t
                == EV_REL
                && (c == REL_X || c == REL_Y || c == REL_WHEEL || c == REL_HWHEEL || c == REL_WHEEL_HI_RES || c == REL_HWHEEL_HI_RES);

@@ -5,6 +5,7 @@ module;
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
+#include <linux/input-event-codes.h>
 #include <memory>
 #include <span>
 #include <type_traits>
@@ -21,20 +22,24 @@ import :io_manager;
 export namespace fs8 {
 
     /// Logical sound identifiers.
-    enum struct [[nodiscard]] sound_id : std::uint8_t {
-        tick,       ///< soft click
-        press,      ///< key/button down
-        release,    ///< key/button up
-        confirm,    ///< success / acknowledge
-        error,      ///< failure / deny
-        toggle_on,  ///< mode enabled
-        toggle_off, ///< mode disabled
+    enum struct [[nodiscard]] sound_id : uint8_t {
+        release = 0, ///< key/button up
+        press   = 1, ///< key/button down
+        tick,        ///< soft click
+        confirm,     ///< success / acknowledge
+        error,       ///< failure / deny
+        toggle_on,   ///< mode enabled
+        toggle_off,  ///< mode disabled
     };
+
+    [[nodiscard]] constexpr uint8_t operator+(sound_id const id) noexcept {
+        return std::to_underlying(id);
+    }
 
     /// Audio format supplied to a sound generator.
     struct [[nodiscard]] sound_format {
-        std::uint32_t sample_rate = 48'000;
-        std::uint16_t channels    = 2;
+        uint32_t sample_rate = 48'000;
+        uint16_t channels    = 2;
     };
 
     /// A sound generator produces audio for a given logical sound id.
@@ -56,16 +61,8 @@ export namespace fs8 {
         constexpr basic_synth() noexcept = default;
 
         [[nodiscard]] constexpr std::size_t duration_frames(sound_id const id, sound_format const fmt) const noexcept {
-            switch (id) {
-                case sound_id::tick: return static_cast<std::size_t>(fmt.sample_rate) * 20 / 1000;
-                case sound_id::press: return static_cast<std::size_t>(fmt.sample_rate) * 45 / 1000;
-                case sound_id::release: return static_cast<std::size_t>(fmt.sample_rate) * 45 / 1000;
-                case sound_id::confirm: return static_cast<std::size_t>(fmt.sample_rate) * 90 / 1000;
-                case sound_id::error: return static_cast<std::size_t>(fmt.sample_rate) * 140 / 1000;
-                case sound_id::toggle_on: return static_cast<std::size_t>(fmt.sample_rate) * 70 / 1000;
-                case sound_id::toggle_off: return static_cast<std::size_t>(fmt.sample_rate) * 70 / 1000;
-            }
-            return 0;
+            static constexpr std::array<uint8_t, 7u> ids{45, 45, 20, 90, 140, 70, 70};
+            return static_cast<std::size_t>(fmt.sample_rate) * ids[+id] / 1000;
         }
 
         void render(sound_id id, sound_format fmt, std::span<float> dest) const noexcept;
@@ -125,9 +122,17 @@ export namespace fs8 {
             return drop_event;
         }
 
-        /// Transformer: play press/release on key transitions.
-        context_action operator()(event_type& event) noexcept {
-            return process_event(event);
+        /// play press/release
+        context_action operator()(event_type const& event) noexcept {
+            using enum context_action;
+            if (event.type() != EV_KEY) {
+                return next;
+            }
+            if (event.value() <= 1) {
+                // key press and key up
+                play_sound(static_cast<sound_id>(event.value()));
+            }
+            return next;
         }
 
         /// Play a sound (called by the sink or transformer).
@@ -135,7 +140,6 @@ export namespace fs8 {
 
       private:
         context_action do_start(basic_io_manager& io) noexcept;
-        context_action process_event(event_type& event) noexcept;
     };
 
     /// Default player instance using basic_synth.

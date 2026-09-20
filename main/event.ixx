@@ -68,27 +68,27 @@ export namespace fs8 {
         return event.code == invalid_user_event.code;
     }
 
-    [[nodiscard]] constexpr std::uint32_t hashed(event_code const& code) noexcept {
-        static constexpr std::uint32_t shift  = std::countr_zero(std::bit_ceil<std::uint32_t>(KEY_MAX));
-        std::uint32_t                  hash   = 0;
-        hash                                 |= static_cast<std::uint32_t>(code.type) << shift;
-        hash                                 |= static_cast<std::uint32_t>(code.code);
+    [[nodiscard]] constexpr uint32_t hashed(event_code const& code) noexcept {
+        static constexpr uint32_t shift  = std::countr_zero(std::bit_ceil<uint32_t>(KEY_MAX));
+        uint32_t                  hash   = 0;
+        hash                            |= static_cast<uint32_t>(code.type) << shift;
+        hash                            |= static_cast<uint32_t>(code.code);
         return hash;
     }
 
-    [[nodiscard]] constexpr std::uint32_t hashed(key_event const& code) noexcept {
-        static constexpr std::uint32_t shift  = std::countr_zero(std::bit_ceil<std::uint32_t>(KEY_MAX));
-        std::uint32_t                  hash   = 0;
-        hash                                 |= static_cast<std::uint32_t>(code.code) << shift;
-        hash                                 |= static_cast<std::uint32_t>(code.value);
+    [[nodiscard]] constexpr uint32_t hashed(key_event const& code) noexcept {
+        static constexpr uint32_t shift  = std::countr_zero(std::bit_ceil<uint32_t>(KEY_MAX));
+        uint32_t                  hash   = 0;
+        hash                            |= static_cast<uint32_t>(code.code) << shift;
+        hash                            |= static_cast<uint32_t>(code.value);
         return hash;
     }
 
-    [[nodiscard]] constexpr key_event unhashed(std::uint32_t const hash) noexcept {
-        static constexpr std::uint32_t shift = std::countr_zero(std::bit_ceil<std::uint32_t>(KEY_MAX));
+    [[nodiscard]] constexpr key_event unhashed(uint32_t const hash) noexcept {
+        static constexpr uint32_t shift = std::countr_zero(std::bit_ceil<uint32_t>(KEY_MAX));
         return key_event{
-          .code  = static_cast<std::uint16_t>(hash >> shift),
-          .value = static_cast<std::uint16_t>(hash & ((1u << shift) - 1u)),
+          .code  = static_cast<uint16_t>(hash >> shift),
+          .value = static_cast<uint16_t>(hash & ((1u << shift) - 1u)),
         };
     }
 
@@ -101,13 +101,13 @@ export namespace fs8 {
         return event_codes<sizeof...(T)>{std::array<event_code, sizeof...(T)>{key_code(static_cast<event_code::code_type>(codes))...}};
     }
 
-    [[nodiscard]] constexpr std::uint32_t hashed(event_code::type_type const type, event_code::code_type const code) noexcept {
+    [[nodiscard]] constexpr uint32_t hashed(event_code::type_type const type, event_code::code_type const code) noexcept {
         return hashed(event_code{.type = type, .code = code});
     }
 
     // ── source_id ───────────────────────────────────────────────────────────
     //
-    // A source_id is a std::uint32_t that encodes the origin of an event:
+    // A source_id is a uint32_t that encodes the origin of an event:
     //
     //   High 16 bits — mod_id: identifies which pipeline mod generated the
     //                  event (intercept, from_input, scheduler, etc.).
@@ -120,21 +120,21 @@ export namespace fs8 {
     // combined with a mod-specific source index.
 
     /// Sentinel value meaning "unknown / unset source".
-    constexpr std::uint32_t source_id_none = 0;
+    constexpr uint32_t source_id_none = 0;
 
     /// Extract the mod_id (high 16 bits) from a source_id.
-    [[nodiscard]] constexpr std::uint16_t mod_id(std::uint32_t const src) noexcept {
-        return static_cast<std::uint16_t>(src >> 16);
+    [[nodiscard]] constexpr uint16_t mod_id(uint32_t const src) noexcept {
+        return static_cast<uint16_t>(src >> 16);
     }
 
     /// Extract the source_index (low 16 bits) from a source_id.
-    [[nodiscard]] constexpr std::uint16_t source_index(std::uint32_t const src) noexcept {
-        return static_cast<std::uint16_t>(src & 0xFFFFu);
+    [[nodiscard]] constexpr uint16_t source_index(uint32_t const src) noexcept {
+        return static_cast<uint16_t>(src & 0xFFFFu);
     }
 
     /// Pack a mod_id and source_index into a single source_id.
-    [[nodiscard]] constexpr std::uint32_t make_source_id(std::uint16_t const m, std::uint16_t const idx) noexcept {
-        return (static_cast<std::uint32_t>(m) << 16) | idx;
+    [[nodiscard]] constexpr uint32_t make_source_id(uint16_t const m, uint16_t const idx) noexcept {
+        return (static_cast<uint32_t>(m) << 16) | idx;
     }
 
     /// Derive a compile-time mod_id for a type T.  If T defines a static
@@ -144,33 +144,33 @@ export namespace fs8 {
     /// Only provider mods (intercept, from_input, scheduler, …) need a mod_id;
     /// the hash fallback gives them a unique value without manual registration.
     template <typename T>
-    [[nodiscard]] consteval std::uint16_t mod_id_of() noexcept {
+    [[nodiscard]] consteval uint16_t mod_id_of() noexcept {
         if constexpr (requires { T::mod_id; }) {
             return T::mod_id;
         } else {
             constexpr std::string_view name = __PRETTY_FUNCTION__;
-            return static_cast<std::uint16_t>(ci_hash(name));
+            return static_cast<uint16_t>(ci_hash(name));
         }
     }
 
     /// Shorthand: make_source_id(mod_id_of<decltype(mod)>(), idx).
     template <typename ModT>
-    [[nodiscard]] constexpr std::uint32_t sid(ModT const&, std::uint16_t const idx) noexcept {
+    [[nodiscard]] constexpr uint32_t sid(ModT const&, uint16_t const idx) noexcept {
         return make_source_id(mod_id_of<ModT>(), idx);
     }
 
     /// Shorthand: sid(mod, 0).
-    [[nodiscard]] constexpr std::uint32_t sid(auto const& mod) noexcept {
-        return sid(mod, std::uint16_t{0});
+    [[nodiscard]] constexpr uint32_t sid(auto const& mod) noexcept {
+        return sid(mod, uint16_t{0});
     }
 
     /// Extract the mod_id (high 16 bits) from a source_id.
-    [[nodiscard]] constexpr std::uint16_t sid(std::uint32_t const src) noexcept {
-        return static_cast<std::uint16_t>(src >> 16u);
+    [[nodiscard]] constexpr uint16_t sid(uint32_t const src) noexcept {
+        return static_cast<uint16_t>(src >> 16u);
     }
 
     /// Convert a source_id to a human-readable string (for diagnostics).
-    [[nodiscard]] std::string_view to_source_string(std::uint32_t source_id) noexcept;
+    [[nodiscard]] std::string_view to_source_string(uint32_t source_id) noexcept;
 
     // ── end source_id ───────────────────────────────────────────────────────
     struct [[nodiscard]] event_type {
@@ -398,21 +398,21 @@ export namespace fs8 {
             return *this;
         }
 
-        [[nodiscard]] constexpr std::uint32_t source() const noexcept {
+        [[nodiscard]] constexpr uint32_t source() const noexcept {
             return from;
         }
 
-        constexpr void source(std::uint32_t const inp_source) noexcept {
+        constexpr void source(uint32_t const inp_source) noexcept {
             from = inp_source;
         }
 
-        [[nodiscard]] constexpr std::uint32_t hash() const noexcept {
+        [[nodiscard]] constexpr uint32_t hash() const noexcept {
             return hashed(static_cast<event_code>(*this));
         }
 
       private:
-        input_event   ev{};
-        std::uint32_t from = source_id_none;
+        input_event ev{};
+        uint32_t    from = source_id_none;
     };
 
     [[nodiscard]] consteval event_type syn() noexcept {
@@ -461,11 +461,11 @@ export namespace fs8 {
         using value_type = event_type::value_type;
         using time_type  = event_type::time_type;
 
-        time_type     time  = {};
-        type_type     type  = special_event_type;
-        code_type     code  = 0;
-        value_type    value = 0;
-        std::uint32_t from  = source_id_none;
+        time_type  time  = {};
+        type_type  type  = special_event_type;
+        code_type  code  = 0;
+        value_type value = 0;
+        uint32_t   from  = source_id_none;
     };
 
     /// Lifecycle event constants. Each uses a unique `code` value; toggle
@@ -490,26 +490,26 @@ export namespace fs8 {
         return ev.type() == special_event_type;
     }
 
-    /// Hash a `special_event` into a `std::uint32_t` for use in `switch`/`case` and
+    /// Hash a `special_event` into a `uint32_t` for use in `switch`/`case` and
     /// comparison.  The hash encodes both `code` and `value` so that `toggle_on`
     /// and `toggle_off` (which share the same `code`) produce different hashes.
-    [[nodiscard]] constexpr std::uint32_t hashed(special_event const& ev) noexcept {
-        static constexpr std::uint32_t shift  = 6;
-        std::uint32_t                  hash   = 0;
-        hash                                 |= static_cast<std::uint32_t>(ev.code) << shift;
-        hash                                 |= static_cast<std::uint32_t>(ev.value) & 0x3Fu;
+    [[nodiscard]] constexpr uint32_t hashed(special_event const& ev) noexcept {
+        static constexpr uint32_t shift  = 6;
+        uint32_t                  hash   = 0;
+        hash                            |= static_cast<uint32_t>(ev.code) << shift;
+        hash                            |= static_cast<uint32_t>(ev.value) & 0x3Fu;
         return hash;
     }
 
     /// Unhash: recover the `code` from a hash produced by `hashed(special_event)`.
-    [[nodiscard]] constexpr special_event::code_type unhashed_special(std::uint32_t const hash) noexcept {
-        static constexpr std::uint32_t shift = 6;
+    [[nodiscard]] constexpr special_event::code_type unhashed_special(uint32_t const hash) noexcept {
+        static constexpr uint32_t shift = 6;
         return static_cast<special_event::code_type>(hash >> shift);
     }
 
     /// `operator+` returns the hash of a `special_event`, enabling
     /// `switch (tag + start)` patterns.
-    [[nodiscard]] constexpr std::uint32_t operator+(special_event const& ev) noexcept {
+    [[nodiscard]] constexpr uint32_t operator+(special_event const& ev) noexcept {
         return hashed(ev);
     }
 

@@ -127,8 +127,8 @@ namespace {
             eventfd_t val;
             eventfd_read(wakeup_fd, &val);
 
-            std::array<float, queue_sample_rate * queue_channels>        float_buf{};
-            std::array<std::int16_t, queue_sample_rate * queue_channels> int_buf{};
+            std::array<float, queue_sample_rate * queue_channels>   float_buf{};
+            std::array<int16_t, queue_sample_rate * queue_channels> int_buf{};
 
             auto const count = queue.pop(std::span<float>{float_buf});
             if (count == 0) [[unlikely]] {
@@ -145,11 +145,11 @@ namespace {
                 if (s < -1.0f) {
                     s = -1.0f;
                 }
-                dst[i] = static_cast<std::int16_t>(s * static_cast<float>(SHRT_MAX));
+                dst[i] = static_cast<int16_t>(s * static_cast<float>(SHRT_MAX));
             }
 
             auto        written    = std::size_t{0};
-            auto const  byte_count = count * sizeof(std::int16_t);
+            auto const  byte_count = count * sizeof(int16_t);
             auto const* raw        = reinterpret_cast<char const*>(int_buf.data());
 
             while (written < byte_count) {

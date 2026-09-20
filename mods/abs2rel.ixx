@@ -103,8 +103,8 @@ export namespace fs8 {
         static constexpr value_type states_loc   = (sizeof(value_type) * CHAR_BIT) - 3;
         static constexpr value_type x_bit_loc    = states_loc;
         static constexpr value_type y_bit_loc    = states_loc + 1;
-        static constexpr value_type x_init_state = 0b1U << static_cast<std::uint32_t>(x_bit_loc);
-        static constexpr value_type y_init_state = 0b1U << static_cast<std::uint32_t>(y_bit_loc);
+        static constexpr value_type x_init_state = 0b1U << static_cast<uint32_t>(x_bit_loc);
+        static constexpr value_type y_init_state = 0b1U << static_cast<uint32_t>(y_bit_loc);
 
       private:
         value_type last_abs_x = 0;

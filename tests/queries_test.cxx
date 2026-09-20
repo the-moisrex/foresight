@@ -144,7 +144,7 @@ TEST(ParseQueryTermTest, ValueContainsEquals) {
 class IsMatchedTest : public ::testing::Test {
   protected:
     // Helper function to easily create a query_term for testing
-    query_term create_term(std::string_view val, std::uint8_t percentage, query_target target = query_target::match_sysattr) {
+    query_term create_term(std::string_view val, uint8_t percentage, query_target target = query_target::match_sysattr) {
         query_term term{};
         term.value      = val; // Assuming 'value' is the target field string in query_term
         term.percentage = percentage;

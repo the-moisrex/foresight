@@ -17,7 +17,7 @@ import fs8.utils;
 
 namespace fs8 {
 
-    export enum struct [[nodiscard]] evdev_status : std::uint8_t {
+    export enum struct [[nodiscard]] evdev_status : uint8_t {
         unknown,
         success,
         success_grabbed,
@@ -37,7 +37,7 @@ namespace fs8 {
         return status == evdev_status::success || status == evdev_status::success_grabbed;
     }
 
-    export enum struct [[nodiscard]] grab_state : std::uint8_t {
+    export enum struct [[nodiscard]] grab_state : uint8_t {
         grabbing,     // this FD currently has the grab
         not_grabbing, // this FD does NOT have the grab
         error         // ENOTTY / EPERM / EACCES / unexpected error (check errno)
@@ -193,12 +193,12 @@ namespace fs8 {
         [[nodiscard]] bool has_cap(dev_cap_view const& inp_cap) const noexcept;
 
         /// returns a percentage of matches
-        [[nodiscard]] std::uint8_t match_cap(dev_cap_view const& inp_cap) const noexcept;
+        [[nodiscard]] uint8_t match_cap(dev_cap_view const& inp_cap) const noexcept;
 
         [[nodiscard]] bool has_caps(dev_caps_view inp_caps) const noexcept;
 
         /// returns a percentage of matches
-        [[nodiscard]] std::uint8_t match_caps(dev_caps_view inp_caps) const noexcept;
+        [[nodiscard]] uint8_t match_caps(dev_caps_view inp_caps) const noexcept;
 
         /// May return nullptr
         [[nodiscard]] input_absinfo const* abs_info(code_type code) const noexcept;
@@ -239,7 +239,7 @@ namespace fs8 {
     /// Compute the caps score and halve it if the device is grabbed by
     /// another process.  Restores the original grab state afterwards.  For
     /// non-caps queries the score is always 0, so the penalty never fires.
-    export [[nodiscard]] std::uint8_t score_caps(evdev& dev, dev_caps_view caps) noexcept;
+    export [[nodiscard]] uint8_t score_caps(evdev& dev, dev_caps_view caps) noexcept;
 
     /// sysname of an open device (e.g. "event10"), derived from its fd.
     export [[nodiscard]] std::string device_sysname(evdev const& dev) noexcept;

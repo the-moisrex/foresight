@@ -20,7 +20,7 @@ namespace fs8 {
     export constexpr code32_t event_encoded_code32_t = 0b1U << 30U;
 
     /// Is this key code a modifier key (ctrl/shift/alt/meta/caps/num/scroll)?
-    export [[nodiscard]] bool is_modifier_key(std::uint16_t const code) noexcept;
+    export [[nodiscard]] bool is_modifier_key(uint16_t const code) noexcept;
 
     using code32_callback   = std::function_ref<void(code32_t const &)>;
     using key_code_callback = std::function_ref<void(key_event const &)>;
@@ -30,7 +30,7 @@ namespace fs8 {
     /// keyup:   `[...]` — released keys, order doesn't matter
     /// ordered_keydown: `<<...>>` — keys must be pressed in the given order
     /// ordered_keyup:   `[[...]]` — keys must be released in the given order
-    export enum struct [[nodiscard]] modifier_mode : std::uint8_t {
+    export enum struct [[nodiscard]] modifier_mode : uint8_t {
         unknown         = 0,
         keydown         = 2,
         keyup           = 3,

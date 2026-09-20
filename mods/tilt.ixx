@@ -72,19 +72,19 @@ export namespace fs8 {
         using value_type = event_type::value_type;
 
       private:
-        value_type    tilt_x_    = 0;
-        value_type    tilt_y_    = 0;
-        value_type    last_x_    = 0;
-        value_type    last_y_    = 0;
-        float         norm_x_    = 0.0F;
-        float         norm_y_    = 0.0F;
-        float         magnitude_ = 0.0F; // normalized tilt magnitude, 0..1
-        float         change_    = 0.0F; // normalized magnitude of the last tilt delta, 0..1
-        float         base_x_    = 0.0F; // normalized neutral tilt (subtracted from raw)
-        float         base_y_    = 0.0F; // normalized neutral tilt (subtracted from raw)
-        float         range_x_   = tilt_default_tilt_range;
-        float         range_y_   = tilt_default_tilt_range;
-        std::uint32_t version_   = 1U;
+        value_type tilt_x_    = 0;
+        value_type tilt_y_    = 0;
+        value_type last_x_    = 0;
+        value_type last_y_    = 0;
+        float      norm_x_    = 0.0F;
+        float      norm_y_    = 0.0F;
+        float      magnitude_ = 0.0F; // normalized tilt magnitude, 0..1
+        float      change_    = 0.0F; // normalized magnitude of the last tilt delta, 0..1
+        float      base_x_    = 0.0F; // normalized neutral tilt (subtracted from raw)
+        float      base_y_    = 0.0F; // normalized neutral tilt (subtracted from raw)
+        float      range_x_   = tilt_default_tilt_range;
+        float      range_y_   = tilt_default_tilt_range;
+        uint32_t   version_   = 1U;
 
         tilt_base_options         options{};
         std::chrono::microseconds last_update_time_{};
@@ -166,7 +166,7 @@ export namespace fs8 {
             return base_y_;
         }
 
-        [[nodiscard]] constexpr std::uint32_t version() const noexcept {
+        [[nodiscard]] constexpr uint32_t version() const noexcept {
             return version_;
         }
 
@@ -319,7 +319,7 @@ export namespace fs8 {
         tilt_scale_state scale{};
         float            x_factor_       = 1.0F;
         float            y_factor_       = 1.0F;
-        std::uint32_t    cached_version_ = 0U;
+        uint32_t         cached_version_ = 0U;
 
         [[nodiscard]] float map(float const t) const noexcept {
             float const span = options.end - options.start;

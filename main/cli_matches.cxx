@@ -19,7 +19,7 @@ int run_matches(std::span<std::string_view const> const patterns, bool const ech
     // identically to library pipelines: `<...>`/`[...]`/`<<...>>`/`[[...]]`
     // and plain text.
     fs8::basic_search_engine    engine;
-    std::vector<std::uint16_t>  trigger_ids;
+    std::vector<uint16_t>       trigger_ids;
     std::vector<fs8::aho_state> states;
     trigger_ids.reserve(patterns.size());
     states.reserve(patterns.size());

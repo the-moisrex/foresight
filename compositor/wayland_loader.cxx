@@ -36,29 +36,28 @@ void fs8::compositor::wayland_lib_load(wayland_lib& lib) noexcept {
         }
     };
 
-    load(reinterpret_cast<void*&>(lib.display_connect),      "wl_display_connect");
-    load(reinterpret_cast<void*&>(lib.display_disconnect),   "wl_display_disconnect");
-    load(reinterpret_cast<void*&>(lib.display_get_fd),       "wl_display_get_fd");
-    load(reinterpret_cast<void*&>(lib.display_dispatch),     "wl_display_dispatch");
-    load(reinterpret_cast<void*&>(lib.display_roundtrip),    "wl_display_roundtrip");
-    load(reinterpret_cast<void*&>(lib.display_flush),        "wl_display_flush");
+    load(reinterpret_cast<void*&>(lib.display_connect), "wl_display_connect");
+    load(reinterpret_cast<void*&>(lib.display_disconnect), "wl_display_disconnect");
+    load(reinterpret_cast<void*&>(lib.display_get_fd), "wl_display_get_fd");
+    load(reinterpret_cast<void*&>(lib.display_dispatch), "wl_display_dispatch");
+    load(reinterpret_cast<void*&>(lib.display_roundtrip), "wl_display_roundtrip");
+    load(reinterpret_cast<void*&>(lib.display_flush), "wl_display_flush");
     // wl_display_get_registry / wl_registry_bind: not exported since Wayland 1.22+
     // (moved to inline header functions).  Implemented as wrappers below.
 
     // Proxy functions (for xdg-output protocol)
     load(reinterpret_cast<void*&>(lib.proxy_marshal_flags), "wl_proxy_marshal_flags");
-    load(reinterpret_cast<void*&>(lib.proxy_get_version),   "wl_proxy_get_version");
-    load(reinterpret_cast<void*&>(lib.proxy_add_listener),  "wl_proxy_add_listener");
-    load(reinterpret_cast<void*&>(lib.proxy_destroy),       "wl_proxy_destroy");
+    load(reinterpret_cast<void*&>(lib.proxy_get_version), "wl_proxy_get_version");
+    load(reinterpret_cast<void*&>(lib.proxy_add_listener), "wl_proxy_add_listener");
+    load(reinterpret_cast<void*&>(lib.proxy_destroy), "wl_proxy_destroy");
     load(reinterpret_cast<void*&>(lib.proxy_get_user_data), "wl_proxy_get_user_data");
     load(reinterpret_cast<void*&>(lib.proxy_set_user_data), "wl_proxy_set_user_data");
-    load(reinterpret_cast<void*&>(lib.proxy_get_id),        "wl_proxy_get_id");
+    load(reinterpret_cast<void*&>(lib.proxy_get_id), "wl_proxy_get_id");
 
     // Load the real wl_registry_interface from the library.  Our fabricated
     // one had events=NULL which caused wl_proxy_add_listener to crash when
     // it iterates interface->events[i].
-    auto* real_registry_iface = static_cast<wl_interface const*>(
-        dlsym(lib.handle, "wl_registry_interface"));
+    auto* real_registry_iface = static_cast<wl_interface const*>(dlsym(lib.handle, "wl_registry_interface"));
     if (!real_registry_iface) {
         log("wayland_loader: wl_registry_interface not found");
     }
@@ -72,27 +71,25 @@ void fs8::compositor::wayland_lib_load(wayland_lib& lib) noexcept {
         static fn_wl_proxy_marshal_flags s_marshal = nullptr;
         static fn_wl_proxy_get_version   s_get_ver = nullptr;
         static wl_interface const*       s_iface   = nullptr;
-        s_marshal = lib.proxy_marshal_flags;
-        s_get_ver = lib.proxy_get_version;
-        s_iface   = real_registry_iface;
-        lib.display_get_registry = [](wl_display* display) noexcept -> wl_registry* {
+        s_marshal                                  = lib.proxy_marshal_flags;
+        s_get_ver                                  = lib.proxy_get_version;
+        s_iface                                    = real_registry_iface;
+        lib.display_get_registry                   = [](wl_display* display) noexcept -> wl_registry* {
             auto version = s_get_ver(display);
-            return static_cast<wl_registry*>(
-                s_marshal(display, 1 /*opcode*/, s_iface, version, 0 /*flags*/));
+            return static_cast<wl_registry*>(s_marshal(display, 1 /*opcode*/, s_iface, version, 0 /*flags*/));
         };
         log("wayland_loader: display_get_registry implemented via wl_proxy_marshal_flags");
     }
 
     if (!lib.registry_bind && lib.proxy_marshal_flags && lib.proxy_get_version) {
         static fn_wl_proxy_marshal_flags s_marshal = nullptr;
-        s_marshal = lib.proxy_marshal_flags;
+        s_marshal                                  = lib.proxy_marshal_flags;
         lib.registry_bind = [](wl_registry* registry, uint32_t name, wl_interface const* iface, uint32_t version) noexcept -> void* {
             // "usun": u=name, s=iface->name, u=version, n=new_id (handled by iface param).
             // The version parameter of proxy_marshal_flags is the created proxy's version,
             // which must match the version sent on the wire (the requested version, NOT the
             // registry's version).
-            return s_marshal(registry, 0 /*opcode*/, iface, version, 0 /*flags*/,
-                             name, iface->name, version);
+            return s_marshal(registry, 0 /*opcode*/, iface, version, 0 /*flags*/, name, iface->name, version);
         };
         log("wayland_loader: registry_bind implemented via wl_proxy_marshal_flags");
     }

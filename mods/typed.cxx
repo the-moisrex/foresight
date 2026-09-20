@@ -21,8 +21,8 @@ using fs8::basic_typed;
 
 namespace {
 
-    std::uint32_t calc_children_mask(auto const &node) noexcept {
-        std::uint32_t mask = node.children_mask;
+    uint32_t calc_children_mask(auto const &node) noexcept {
+        uint32_t mask = node.children_mask;
         for (auto const &child : node.children) {
             mask |= child.first;
         }
@@ -33,15 +33,15 @@ namespace {
 template <>
 struct fs8::pimpl_idiom<basic_search_engine>::impl {
     struct node_type {
-        char32_t      value     = 0; // the incoming code point for this node (root = 0)
-        std::uint32_t out_link  = 0; // output bitmask (pattern IDs)
-        std::uint32_t fail_link = 0; // failure link (state index)
+        char32_t value     = 0; // the incoming code point for this node (root = 0)
+        uint32_t out_link  = 0; // output bitmask (pattern IDs)
+        uint32_t fail_link = 0; // failure link (state index)
 
         // children: pair<codepoint, state_index>. kept sorted by codepoint for binary search.
-        std::vector<std::pair<char32_t, std::uint32_t>> children;
+        std::vector<std::pair<char32_t, uint32_t>> children;
 
         // A mask for all children keys for faster failures
-        std::uint32_t children_mask = 0U;
+        uint32_t children_mask = 0U;
     };
 
     /// UTF-32-encoded patterns (some code points are special code points)
@@ -55,8 +55,8 @@ struct fs8::pimpl_idiom<basic_search_engine>::impl {
 
 template <>
 struct fs8::pimpl_idiom<basic_typed>::impl {
-    std::uint16_t trigger_id = basic_typed::invalid_trigger_id; // pattern id in the search engine
-    aho_state     aho_search_state{};                           // the state of where we are in search engine
+    uint16_t  trigger_id = basic_typed::invalid_trigger_id; // pattern id in the search engine
+    aho_state aho_search_state{};                           // the state of where we are in search engine
 };
 
 // NOLINTBEGIN(*-pro-bounds-constant-array-index)
@@ -88,7 +88,7 @@ basic_search_engine::state_type basic_search_engine::quick_find_child(state_type
     return find_child(state, code);
 }
 
-std::uint32_t basic_search_engine::add_child(state_type const state, char32_t code, state_type child_index) {
+uint32_t basic_search_engine::add_child(state_type const state, char32_t code, state_type child_index) {
     auto      &node     = pimpl->trie[state];
     auto      &children = pimpl->trie[state].children;
     auto const it       = std::lower_bound(children.begin(), children.end(), code, [](auto const &a, char32_t value) {
@@ -99,7 +99,7 @@ std::uint32_t basic_search_engine::add_child(state_type const state, char32_t co
     return calc_children_mask(node);
 }
 
-std::uint32_t basic_search_engine::build_machine() {
+uint32_t basic_search_engine::build_machine() {
     pimpl->trie.clear();
     {
         auto &root     = pimpl->trie.emplace_back(); // root node (index 0)
@@ -108,8 +108,8 @@ std::uint32_t basic_search_engine::build_machine() {
         root.fail_link = 0;
     }
 
-    std::uint32_t last_state = 1;
-    std::uint32_t index      = 0;
+    uint32_t last_state = 1;
+    uint32_t index      = 0;
 
     // Insert patterns into trie
     for (auto const &pattern : pimpl->patterns) {
@@ -179,24 +179,24 @@ std::uint32_t basic_search_engine::build_machine() {
     return last_state;
 }
 
-std::uint16_t basic_search_engine::emplace_pattern(std::string_view const pattern) {
+uint16_t basic_search_engine::emplace_pattern(std::string_view const pattern) {
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
     }
-    auto const    mode      = modifier_mode_of(pattern);
-    auto          e_pattern = encoded_modifiers(pattern);
-    auto const    it        = std::ranges::find(pimpl->patterns, e_pattern);
-    std::uint16_t index     = 0;
+    auto const mode      = modifier_mode_of(pattern);
+    auto       e_pattern = encoded_modifiers(pattern);
+    auto const it        = std::ranges::find(pimpl->patterns, e_pattern);
+    uint16_t   index     = 0;
     if (it == pimpl->patterns.end()) {
         // insert it if we didn't find it
         pimpl->patterns.emplace_back(std::move(e_pattern));
         pimpl->pattern_modes.push_back(mode);
-        index = static_cast<std::uint16_t>(pimpl->patterns.size() - 1);
+        index = static_cast<uint16_t>(pimpl->patterns.size() - 1);
 
         // Rebuild machine (can be optimized to incremental insertion if needed)
         build_machine();
     } else {
-        index = static_cast<std::uint16_t>(std::distance(pimpl->patterns.begin(), it));
+        index = static_cast<uint16_t>(std::distance(pimpl->patterns.begin(), it));
     }
     return index;
 }
@@ -217,7 +217,7 @@ fs8::aho_state basic_search_engine::process(char32_t const code_point, aho_state
     return last_state.next_generation(next);
 }
 
-void basic_search_engine::matches(std::uint32_t const state, std::function_ref<void(std::u32string_view)> callback) const {
+void basic_search_engine::matches(uint32_t const state, std::function_ref<void(std::u32string_view)> callback) const {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;
     }
@@ -233,7 +233,7 @@ void basic_search_engine::matches(std::uint32_t const state, std::function_ref<v
     }
 }
 
-bool basic_search_engine::matches(std::uint32_t const state, std::uint16_t const trigger_id) const noexcept {
+bool basic_search_engine::matches(uint32_t const state, uint16_t const trigger_id) const noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return false;
     }
@@ -263,7 +263,7 @@ fs8::context_action basic_search_engine::operator()(special_event const &tag) no
 
 bool basic_search_engine::search(
   event_type const       &event,
-  std::uint16_t const     trigger_id,
+  uint16_t const          trigger_id,
   xkb::basic_state const &keyboard_state,
   aho_state              &state) const noexcept {
     if (event.type() != EV_KEY) {
@@ -287,7 +287,7 @@ bool basic_search_engine::search(
 
 bool basic_search_engine::timed_search(
   event_type const               &event,
-  std::uint16_t const             trigger_id,
+  uint16_t const                  trigger_id,
   xkb::basic_state const         &keyboard_state,
   aho_state                      &state,
   std::chrono::microseconds const max_gap,

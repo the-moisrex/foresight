@@ -9,7 +9,7 @@ export module fs8.devices.event_codes;
 export namespace fs8 {
     struct keynames_type {
         std::string_view name;
-        std::uint16_t    value;
+        uint16_t         value;
     };
 
     constexpr std::array<keynames_type, 607> keynames = {

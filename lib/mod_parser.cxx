@@ -59,14 +59,14 @@ namespace {
     };
 
     /// Length of next utf-8 sequence
-    std::uint8_t utf8_sequence_length(char const src) noexcept {
+    uint8_t utf8_sequence_length(char const src) noexcept {
         return utf8_sequence_length_by_leading_byte.at(static_cast<unsigned char>(src));
     }
 
     struct mod_entry {
         std::u32string_view key;      // must refer to a static literal (we use U"...")
-        std::uint16_t       code;
-        std::uint32_t       hash = 0; // precomputed ci_hash(key)
+        uint16_t            code;
+        uint32_t            hash = 0; // precomputed ci_hash(key)
     };
 
     // Table of known names/synonyms. Add entries here as needed.
@@ -103,7 +103,7 @@ namespace {
      * This function finds alternative representations of common keys.
      */
     template <typename CharT>
-    std::uint16_t alternative_modifier(std::basic_string_view<CharT> const str) noexcept {
+    uint16_t alternative_modifier(std::basic_string_view<CharT> const str) noexcept {
         auto const hid = fs8::ci_hash(str);
 
         // probe over table entries, hash-first to avoid expensive compares
@@ -121,7 +121,7 @@ namespace {
     }
 
     template <typename CharT>
-    [[nodiscard]] std::uint16_t get_modifier_code(std::basic_string_view<CharT> const key) noexcept {
+    [[nodiscard]] uint16_t get_modifier_code(std::basic_string_view<CharT> const key) noexcept {
         auto const code = fs8::key_code_of(key);
         return code != 0 ? code : alternative_modifier(key);
     }
@@ -135,7 +135,7 @@ namespace {
     }
 
     [[nodiscard]] fs8::key_event to_event(fs8::code32_t const code) noexcept {
-        return fs8::unhashed(~static_cast<std::uint32_t>(fs8::event_encoded_code32_t) & static_cast<std::uint32_t>(code));
+        return fs8::unhashed(~static_cast<uint32_t>(fs8::event_encoded_code32_t) & static_cast<uint32_t>(code));
     }
 
     /// Check if we've run it through `to_code` or is it a normal Unicode code point
@@ -144,7 +144,7 @@ namespace {
     }
 } // namespace
 
-bool fs8::is_modifier_key(std::uint16_t const code) noexcept {
+bool fs8::is_modifier_key(uint16_t const code) noexcept {
     switch (code) {
         case KEY_LEFTCTRL:
         case KEY_RIGHTCTRL:
@@ -299,8 +299,7 @@ namespace {
 
     /// Collect the key codes from a modifier tag's content (brackets already stripped).
     template <typename CharT>
-    bool parse_modifier_codes(std::basic_string_view<CharT>                                     content,
-                              std::inplace_vector<std::uint16_t, max_simultaneous_key_presses> &keys) {
+    bool parse_modifier_codes(std::basic_string_view<CharT> content, std::inplace_vector<uint16_t, max_simultaneous_key_presses> &keys) {
         static constexpr std::array<CharT, 3>          delims{static_cast<CharT>('-'), static_cast<CharT>('+'), static_cast<CharT>(' ')};
         static constexpr std::basic_string_view<CharT> delims_str{delims.data(), delims.size()};
 
@@ -346,7 +345,7 @@ namespace {
         mod_str.remove_prefix(is_ordered_mode(mode) ? 2 : 1);
         mod_str.remove_suffix(is_ordered_mode(mode) ? 2 : 1);
 
-        std::inplace_vector<std::uint16_t, max_simultaneous_key_presses> keys;
+        std::inplace_vector<uint16_t, max_simultaneous_key_presses> keys;
         if (!parse_modifier_codes(mod_str, keys)) [[unlikely]] {
             return false;
         }
@@ -383,7 +382,7 @@ namespace {
         mod_str.remove_prefix(is_ordered_mode(mode) ? 2 : 1);
         mod_str.remove_suffix(is_ordered_mode(mode) ? 2 : 1);
 
-        std::inplace_vector<std::uint16_t, max_simultaneous_key_presses> keys;
+        std::inplace_vector<uint16_t, max_simultaneous_key_presses> keys;
         if (!parse_modifier_codes(mod_str, keys)) [[unlikely]] {
             return false;
         }
@@ -391,7 +390,7 @@ namespace {
         for (auto const code : keys) {
             callback(fs8::key_event{.code = code, .value = 1});
         }
-        for (auto cindex = static_cast<std::uint32_t>(keys.size()); cindex > 0; --cindex) {
+        for (auto cindex = static_cast<uint32_t>(keys.size()); cindex > 0; --cindex) {
             callback(fs8::key_event{.code = keys[cindex - 1], .value = 0});
         }
         return true;
@@ -489,7 +488,7 @@ std::size_t fs8::parse_key_tags(std::string_view const str, std::span<event_type
     bool        found_any = false;
 
     auto push_codes = [&](std::basic_string_view<char> const content) noexcept {
-        std::inplace_vector<std::uint16_t, max_simultaneous_key_presses> keys;
+        std::inplace_vector<uint16_t, max_simultaneous_key_presses> keys;
         if (!parse_modifier_codes(content, keys)) [[unlikely]] {
             return;
         }

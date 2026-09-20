@@ -22,9 +22,9 @@ namespace fs8 {
     export constexpr struct [[nodiscard]] basic_timed_typed : pimpl_idiom<basic_timed_typed> {
         using pimpl_idiom::pimpl_idiom;
 
-        static constexpr std::uint16_t invalid_trigger_id = std::numeric_limits<std::uint16_t>::max();
-        using duration_type                               = std::chrono::microseconds;
-        static constexpr duration_type default_duration   = std::chrono::milliseconds(2000);
+        static constexpr uint16_t invalid_trigger_id    = std::numeric_limits<uint16_t>::max();
+        using duration_type                             = std::chrono::microseconds;
+        static constexpr duration_type default_duration = std::chrono::milliseconds(2000);
 
       private:
         std::string_view pattern;          // pattern string

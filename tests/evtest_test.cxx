@@ -297,8 +297,8 @@ struct minimal_evtest_format {
         auto rest = line.substr(type_pos + 5);
 
         // Parse type number.
-        std::uint16_t type_val = 0;
-        auto [p1, ec1]         = std::from_chars(rest.data(), rest.data() + rest.size(), type_val);
+        uint16_t type_val = 0;
+        auto [p1, ec1]    = std::from_chars(rest.data(), rest.data() + rest.size(), type_val);
         if (ec1 != std::errc{}) {
             return false;
         }
@@ -311,8 +311,8 @@ struct minimal_evtest_format {
         rest.remove_prefix(6);
 
         // Parse code number.
-        std::uint16_t code_val = 0;
-        auto [p2, ec2]         = std::from_chars(rest.data(), rest.data() + rest.size(), code_val);
+        uint16_t code_val = 0;
+        auto [p2, ec2]    = std::from_chars(rest.data(), rest.data() + rest.size(), code_val);
         if (ec2 != std::errc{}) {
             return false;
         }
@@ -325,8 +325,8 @@ struct minimal_evtest_format {
         rest.remove_prefix(7);
 
         // Parse value number.
-        std::int32_t val = 0;
-        auto [p3, ec3]   = std::from_chars(rest.data(), rest.data() + rest.size(), val);
+        int32_t val    = 0;
+        auto [p3, ec3] = std::from_chars(rest.data(), rest.data() + rest.size(), val);
         if (ec3 != std::errc{}) {
             return false;
         }

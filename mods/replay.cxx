@@ -76,8 +76,8 @@ struct fs8::pimpl_idiom<basic_replay>::impl {
             return exit;
         }
         // Check binary magic: FFS8 (0x38534646) + version (u16)
-        constexpr std::uint32_t binary_magic = 0x3853'4646u;
-        std::uint32_t           file_magic{};
+        constexpr uint32_t binary_magic = 0x3853'4646u;
+        uint32_t           file_magic{};
         std::memcpy(&file_magic, header.data(), sizeof(file_magic));
         if (file_magic == binary_magic) {
             is_binary = true;

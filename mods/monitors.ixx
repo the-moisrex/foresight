@@ -19,7 +19,7 @@ export namespace fs8 {
     /// Literal, consteval-friendly monitor name (usable in pipeline expressions).
     struct [[nodiscard]] monitor_name {
         std::array<char, 32> data{};
-        std::uint8_t         len = 0;
+        uint8_t              len = 0;
 
         constexpr monitor_name() noexcept = default;
 
@@ -27,7 +27,7 @@ export namespace fs8 {
             auto const n = static_cast<std::size_t>(std::min(sv.size(), std::size_t{31}));
             std::copy_n(sv.begin(), n, data.begin());
             data[n] = '\0';
-            len     = static_cast<std::uint8_t>(n);
+            len     = static_cast<uint8_t>(n);
         }
 
         [[nodiscard]] constexpr std::string_view view() const noexcept {

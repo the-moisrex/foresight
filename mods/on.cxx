@@ -24,21 +24,21 @@ bool basic_swipe_detector::is_active(value_type const x_axis, value_type const y
            && (signbit(cur_y) == signbit(y_axis) || y_axis == 0); // Y
 }
 
-std::pair<std::uint16_t, std::uint16_t> basic_swipe_detector::passed_threshold_count(
+std::pair<uint16_t, uint16_t> basic_swipe_detector::passed_threshold_count(
   value_type const x_axis,
   value_type const y_axis) const noexcept {
     using std::abs;
     using std::signbit; // Required for checking signs
 
-    std::uint16_t x_multiples = 0;
-    std::uint16_t y_multiples = 0;
+    uint16_t x_multiples = 0;
+    uint16_t y_multiples = 0;
 
     // Calculate multiples for X
     if (x_axis != 0) {
         // Check if cur_x and x_axis have the same sign (or if cur_x is zero)
         // If they do, then calculate multiples. Otherwise, the count is 0.
         if (signbit(cur_x) == signbit(x_axis)) {
-            x_multiples = static_cast<std::uint16_t>(abs(cur_x) / abs(x_axis));
+            x_multiples = static_cast<uint16_t>(abs(cur_x) / abs(x_axis));
         }
     }
     // If x_axis is 0, x_multiples remains 0, which is correct.
@@ -47,7 +47,7 @@ std::pair<std::uint16_t, std::uint16_t> basic_swipe_detector::passed_threshold_c
     if (y_axis != 0) {
         // Check if cur_y and y_axis have the same sign (or if cur_y is zero)
         if (signbit(cur_y) == signbit(y_axis)) {
-            y_multiples = static_cast<std::uint16_t>(abs(cur_y) / abs(y_axis));
+            y_multiples = static_cast<uint16_t>(abs(cur_y) / abs(y_axis));
         }
     }
     // If y_axis is 0, y_multiples remains 0, which is correct.

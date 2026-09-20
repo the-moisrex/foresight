@@ -36,7 +36,7 @@ export namespace fs8 {
     };
 
     /// Whether a device was just connected or disconnected.
-    enum struct [[nodiscard]] device_change : std::uint8_t {
+    enum struct [[nodiscard]] device_change : uint8_t {
         connected,
         disconnected
     };
@@ -47,8 +47,8 @@ export namespace fs8 {
     /// `input_manager::device_of(id)`; for disconnect events the device has
     /// already been removed.
     struct [[nodiscard]] device_change_handle {
-        void const*                                                          identity = nullptr;
-        std::move_only_function<void(std::uint32_t, device_change) noexcept> invoke;
+        void const*                                                     identity = nullptr;
+        std::move_only_function<void(uint32_t, device_change) noexcept> invoke;
     };
 
     /// Type-erase a provider object into a `query_provider_handle`. May throw
@@ -115,38 +115,38 @@ export namespace fs8 {
         /// The legacy sysname hash of a device, used only for device-change
         /// listener callbacks.  New code should use the mod_id-prefixed
         /// source_id from events and resolve via `device_of()`.
-        [[nodiscard]] std::uint32_t source_id_of(evdev const& dev) const noexcept;
+        [[nodiscard]] uint32_t source_id_of(evdev const& dev) const noexcept;
 
         /// Register a source_id → device mapping.  Called by provider mods
         /// (e.g. intercept) that create mod_id-prefixed source_ids so that
         /// `device_of(source_id)` can resolve them back to live devices.
-        void register_source(std::uint32_t source_id, evdev& dev) noexcept;
+        void register_source(uint32_t source_id, evdev& dev) noexcept;
 
         /// Unregister a previously registered source_id.
-        void unregister_source(std::uint32_t source_id) noexcept;
+        void unregister_source(uint32_t source_id) noexcept;
 
         /// Resolve a source_id back to the live device, or nullptr if it is
         /// unknown or the device has been removed.  First checks the source_id
         /// map (populated by provider mods), then falls back to a sysname-hash
         /// lookup for backward compatibility with device-change listeners.
-        [[nodiscard]] evdev*       device_of(std::uint32_t id) noexcept;
-        [[nodiscard]] evdev const* device_of(std::uint32_t id) const noexcept;
+        [[nodiscard]] evdev*       device_of(uint32_t id) noexcept;
+        [[nodiscard]] evdev const* device_of(uint32_t id) const noexcept;
 
         /// The open file descriptor of the device, or -1 if unknown.
-        [[nodiscard]] int fd_of(std::uint32_t id) const noexcept;
+        [[nodiscard]] int fd_of(uint32_t id) const noexcept;
 
         /// The sysname of the device (e.g. "event9"), or empty if unknown.
-        [[nodiscard]] std::string sysname_of(std::uint32_t id) const noexcept;
+        [[nodiscard]] std::string sysname_of(uint32_t id) const noexcept;
 
         /// The device name, or empty if unknown.
-        [[nodiscard]] std::string_view name_of(std::uint32_t id) const noexcept;
+        [[nodiscard]] std::string_view name_of(uint32_t id) const noexcept;
 
         /// Whether `id` belongs to a uinput device this process created.
-        [[nodiscard]] bool is_owned(std::uint32_t id) const noexcept;
+        [[nodiscard]] bool is_owned(uint32_t id) const noexcept;
 
         /// Whether `id` belongs to another process's foresight virtual device
         /// (its phys starts with "foresight:").
-        [[nodiscard]] bool is_chained(std::uint32_t id) const noexcept;
+        [[nodiscard]] bool is_chained(uint32_t id) const noexcept;
 
         /// A range view over the owned devices (stable handles: the storage is a
         /// `std::list`, so adds/removes never invalidate existing devices).
@@ -156,7 +156,7 @@ export namespace fs8 {
         /// Opaque generation token that changes on every device add/remove.
         /// Used only for equality checks; not ordered.  The value is
         /// randomized so overflow is practically impossible.
-        [[nodiscard]] std::uint32_t devices_generation() const noexcept;
+        [[nodiscard]] uint32_t devices_generation() const noexcept;
 
         /// Start monitoring; also used by `intercept` to trigger enumeration.
         context_action start(basic_io_manager& io) noexcept;

@@ -18,7 +18,7 @@
 
 /// Holds all the user options for everything situation that this software can handle
 struct options {
-    enum struct action_type : std::uint8_t {
+    enum struct action_type : uint8_t {
         none = 0,
         help,
         intercept,

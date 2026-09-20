@@ -25,7 +25,7 @@ export namespace fs8 {
     constexpr std::string_view empty_uinput_name = "Empty-Device";
 
 
-    enum struct [[nodiscard]] uinput_access_result : std::uint8_t {
+    enum struct [[nodiscard]] uinput_access_result : uint8_t {
         available,
 
         device_not_found,       // /dev/uinput does not exist

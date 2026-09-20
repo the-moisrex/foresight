@@ -47,9 +47,9 @@ export namespace fs8 {
 
     /// Parse result extended with source_id.
     struct [[nodiscard]] event_line_parse_result {
-        user_event    event;
-        double        time   = 0;
-        std::uint32_t source = source_id_none;
+        user_event event;
+        double     time   = 0;
+        uint32_t   source = source_id_none;
     };
 
     // ── State structs for condensed_view ─────────────────────────────────────
@@ -73,17 +73,17 @@ export namespace fs8 {
 
     /// A key currently held down.
     struct [[nodiscard]] held_key {
-        std::uint16_t             code = KEY_MAX;
+        uint16_t                  code = KEY_MAX;
         std::chrono::microseconds press_time{};
         bool                      has_intervening_events = false;
     };
 
     /// Per-device state for the condensed view.
     struct [[nodiscard]] device_live_state {
-        mouse_accum                                 mouse{};
-        std::unordered_map<std::uint16_t, held_key> held_keys;
-        std::optional<xkb::basic_state>             xkb_state;
-        sanitizer_issue                             pending_issue = sanitizer_issue::none;
+        mouse_accum                            mouse{};
+        std::unordered_map<uint16_t, held_key> held_keys;
+        std::optional<xkb::basic_state>        xkb_state;
+        sanitizer_issue                        pending_issue = sanitizer_issue::none;
     };
 
     // ── Condensed view ──────────────────────────────────────────────────────
@@ -100,13 +100,13 @@ export namespace fs8 {
     /// fall back to `event_line_format` with a device prefix.
     struct [[nodiscard]] condensed_view {
       private:
-        bool                                                 terminal_mode_     = false;
-        bool                                                 use_ansi_          = false;
-        float                                                direction_epsilon_ = 0.0f;
-        std::chrono::microseconds                            flush_timeout_{16'000}; // 16ms (~60fps)
-        std::unordered_map<std::uint32_t, device_live_state> devices_;
-        xkb::context                                         xkb_ctx_;
-        std::optional<xkb::keymap>                           xkb_keymap_;
+        bool                                            terminal_mode_     = false;
+        bool                                            use_ansi_          = false;
+        float                                           direction_epsilon_ = 0.0f;
+        std::chrono::microseconds                       flush_timeout_{16'000}; // 16ms (~60fps)
+        std::unordered_map<uint32_t, device_live_state> devices_;
+        xkb::context                                    xkb_ctx_;
+        std::optional<xkb::keymap>                      xkb_keymap_;
 
       public:
         /// Construct a condensed view. Detects terminal mode if term_fd is a TTY.
@@ -139,29 +139,29 @@ export namespace fs8 {
         void flush(int fd);
 
         /// Get per-device state, creating if needed.
-        [[nodiscard]] device_live_state& state_for(std::uint32_t id);
+        [[nodiscard]] device_live_state& state_for(uint32_t id);
 
       private:
         /// Flush accumulated mouse movement for one device.
-        void flush_mouse(std::uint32_t id, device_live_state& st, int fd);
+        void flush_mouse(uint32_t id, device_live_state& st, int fd);
 
         /// Flush keyboard buffer for one device.
-        void flush_keyboard(std::uint32_t id, device_live_state& st, int fd);
+        void flush_keyboard(uint32_t id, device_live_state& st, int fd);
 
         /// Write a formatted line to fd, with optional \r for terminal live update.
         void write_line(std::string_view line, int fd, bool is_live_status = false);
 
         /// Format and write a mouse accumulation summary.
-        void write_mouse_summary(std::uint32_t id, mouse_accum const& m, int fd);
+        void write_mouse_summary(uint32_t id, mouse_accum const& m, int fd);
 
         /// Format and write a diagnostic annotation.
-        void write_diagnostic(std::uint32_t id, sanitizer_issue issue, event_type const& event, int fd);
+        void write_diagnostic(uint32_t id, sanitizer_issue issue, event_type const& event, int fd);
 
         /// Format and write a key event with text column.
-        void write_key_event(std::uint32_t id, event_type const& event, int fd, char32_t text = U'\0');
+        void write_key_event(uint32_t id, event_type const& event, int fd, char32_t text = U'\0');
 
         /// Format and write a generic (non-key, non-mouse) event.
-        void write_generic_event(std::uint32_t id, event_type const& event, int fd);
+        void write_generic_event(uint32_t id, event_type const& event, int fd);
 
         /// Check if a mouse direction change occurred.
         [[nodiscard]] bool direction_changed(mouse_accum const& m, int dx, int dy) const noexcept;
@@ -173,7 +173,7 @@ export namespace fs8 {
         [[nodiscard]] char32_t key_to_text(device_live_state& st, event_type const& event);
 
         /// Format a device-id prefix like "dev3a".
-        [[nodiscard]] static std::string_view format_device_id(std::uint32_t id, std::span<char> buf) noexcept;
+        [[nodiscard]] static std::string_view format_device_id(uint32_t id, std::span<char> buf) noexcept;
 
         /// Format a timestamp.
         [[nodiscard]] static std::string_view format_time(event_type const& event, std::span<char> buf) noexcept;

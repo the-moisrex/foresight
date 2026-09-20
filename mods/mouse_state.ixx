@@ -23,7 +23,7 @@ export namespace fs8 {
         using value_type = event_type::value_type;
 
         static_assert(N > 1, "History is too small.");
-        static_assert(N < std::numeric_limits<std::uint16_t>::max(), "History is too big.");
+        static_assert(N < std::numeric_limits<uint16_t>::max(), "History is too big.");
 
         struct [[nodiscard]] position {
             value_type x = 0;
@@ -32,8 +32,8 @@ export namespace fs8 {
 
       private:
         std::array<position, N> hist{};
-        std::uint16_t           fill_index = 0;
-        std::uint16_t           cur_index  = 0;
+        uint16_t                fill_index = 0;
+        uint16_t                cur_index  = 0;
 
       public:
         [[nodiscard]] constexpr position const& cur() const noexcept {
@@ -46,12 +46,12 @@ export namespace fs8 {
             return hist.at(cur_index);
         }
 
-        [[nodiscard]] constexpr position prev(std::int16_t const last = 1) const noexcept {
+        [[nodiscard]] constexpr position prev(int16_t const last = 1) const noexcept {
             assert(last > 0);
-            assert(last < static_cast<std::int16_t>(hist.size()));
-            std::int16_t prev_index = static_cast<std::int16_t>(cur_index) - last;
+            assert(last < static_cast<int16_t>(hist.size()));
+            int16_t prev_index = static_cast<int16_t>(cur_index) - last;
             if (prev_index < 0) {
-                prev_index += static_cast<std::int16_t>(hist.size());
+                prev_index += static_cast<int16_t>(hist.size());
             }
             return hist.at(prev_index);
         }

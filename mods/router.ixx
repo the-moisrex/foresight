@@ -61,7 +61,7 @@ namespace fs8 {
         struct router_state;
 
         void router_set_caps(nullable_indirect<router_state>& state, device_query const* queries_begin, std::size_t queries_count) noexcept;
-        std::int32_t router_lookup(router_state& state, std::uint32_t hashed_value, bool is_syn_event) noexcept;
+        int32_t router_lookup(router_state& state, uint32_t hashed_value, bool is_syn_event) noexcept;
     } // namespace detail
 } // namespace fs8
 
@@ -116,10 +116,10 @@ export namespace fs8 {
 
       private:
         // equals to 9
-        static constexpr std::uint16_t shift = std::bit_width<std::uint16_t>(KEY_MAX) - 1U;
+        static constexpr uint16_t shift = std::bit_width<uint16_t>(KEY_MAX) - 1U;
 
-        [[nodiscard]] static constexpr std::uint16_t hash(event_code const event) noexcept {
-            return static_cast<std::uint16_t>(event.type << shift) | static_cast<std::uint16_t>(event.code);
+        [[nodiscard]] static constexpr uint16_t hash(event_code const event) noexcept {
+            return static_cast<uint16_t>(event.type << shift) | static_cast<uint16_t>(event.code);
         }
 
         // outputs

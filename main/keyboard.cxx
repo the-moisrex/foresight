@@ -33,7 +33,7 @@ void keyboard_runner::to_string() {
     }
     pimpl->str.reserve(pimpl->events.size());
     for (auto const &[_, _, code, _] : pimpl->events) {
-        char const cur = fs8::to_char(static_cast<std::uint8_t>(code));
+        char const cur = fs8::to_char(static_cast<uint8_t>(code));
         pimpl->str.push_back(cur);
     }
 }
@@ -56,8 +56,8 @@ void keyboard_runner::backspace(std::size_t count) {
 void keyboard_runner::put(std::string_view const text) {
     for (auto const cur_char : text) {
         put(input_event{.time  = timeval{},
-                        .type  = EV_KEY,                              // key type
-                        .code  = static_cast<std::uint8_t>(cur_char), // code
+                        .type  = EV_KEY,                         // key type
+                        .code  = static_cast<uint8_t>(cur_char), // code
                         .value = KEY_PRESS});
     }
 }

@@ -10,11 +10,11 @@ using fs8::basic_low_pass_filter;
 
 template <>
 struct fs8::pimpl_idiom<fs8::basic_lerp>::impl {
-    bool         had_movement = false;
-    std::int32_t cur_x        = 0;
-    std::int32_t cur_y        = 0;
+    bool    had_movement = false;
+    int32_t cur_x        = 0;
+    int32_t cur_y        = 0;
 
-    void accumulate(std::uint16_t const code, basic_lerp::value_type const value) noexcept {
+    void accumulate(uint16_t const code, basic_lerp::value_type const value) noexcept {
         had_movement = true;
         switch (code) {
             case REL_X: cur_x += value; break;
@@ -43,14 +43,14 @@ struct fs8::pimpl_idiom<fs8::basic_lerp>::impl {
 
 template <>
 struct fs8::pimpl_idiom<fs8::basic_low_pass_filter>::impl {
-    float        prev_x       = 0.f;
-    float        prev_y       = 0.f;
-    bool         had_movement = false;
-    bool         initialized  = false;
-    std::int32_t acc_x        = 0;
-    std::int32_t acc_y        = 0;
+    float   prev_x       = 0.f;
+    float   prev_y       = 0.f;
+    bool    had_movement = false;
+    bool    initialized  = false;
+    int32_t acc_x        = 0;
+    int32_t acc_y        = 0;
 
-    void accumulate(std::uint16_t const code, basic_low_pass_filter::value_type const value) noexcept {
+    void accumulate(uint16_t const code, basic_low_pass_filter::value_type const value) noexcept {
         had_movement = true;
         switch (code) {
             case REL_X: acc_x += value; break;
@@ -95,16 +95,16 @@ struct fs8::pimpl_idiom<fs8::basic_low_pass_filter>::impl {
 
 template <>
 struct fs8::pimpl_idiom<fs8::basic_kalman_filter>::impl {
-    float        est_x        = 0.f;
-    float        est_y        = 0.f;
-    float        cov_x        = 0.f;
-    float        cov_y        = 0.f;
-    bool         had_movement = false;
-    bool         initialized  = false;
-    std::int32_t acc_x        = 0;
-    std::int32_t acc_y        = 0;
+    float   est_x        = 0.f;
+    float   est_y        = 0.f;
+    float   cov_x        = 0.f;
+    float   cov_y        = 0.f;
+    bool    had_movement = false;
+    bool    initialized  = false;
+    int32_t acc_x        = 0;
+    int32_t acc_y        = 0;
 
-    void accumulate(std::uint16_t const code, basic_kalman_filter::value_type const value) noexcept {
+    void accumulate(uint16_t const code, basic_kalman_filter::value_type const value) noexcept {
         had_movement = true;
         switch (code) {
             case REL_X: acc_x += value; break;
@@ -160,7 +160,7 @@ struct fs8::pimpl_idiom<fs8::basic_kalman_filter>::impl {
 
 // basic_lerp forwarding
 
-void basic_lerp::accumulate(std::uint16_t const code, value_type const value) noexcept {
+void basic_lerp::accumulate(uint16_t const code, value_type const value) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
     }
@@ -190,7 +190,7 @@ void basic_lerp::reset() noexcept {
 
 // basic_low_pass_filter forwarding
 
-void basic_low_pass_filter::accumulate(std::uint16_t const code, value_type const value) noexcept {
+void basic_low_pass_filter::accumulate(uint16_t const code, value_type const value) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
     }
@@ -220,7 +220,7 @@ void basic_low_pass_filter::reset() noexcept {
 
 // basic_kalman_filter forwarding
 
-void basic_kalman_filter::accumulate(std::uint16_t const code, value_type const value) noexcept {
+void basic_kalman_filter::accumulate(uint16_t const code, value_type const value) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
     }

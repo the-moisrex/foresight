@@ -985,7 +985,7 @@ namespace fs8 {
         /// Returns the number of times X and Y have passed
         /// multiples of their respective thresholds.
         /// Returns a std::pair where .first is x_multiples_passed and .second is y_multiples_passed.
-        [[nodiscard]] std::pair<std::uint16_t, std::uint16_t> passed_threshold_count(value_type x_axis, value_type y_axis) const noexcept;
+        [[nodiscard]] std::pair<uint16_t, uint16_t> passed_threshold_count(value_type x_axis, value_type y_axis) const noexcept;
 
         void operator()(event_type const& event) noexcept;
     } swipe_detector;
@@ -997,7 +997,7 @@ namespace fs8 {
         value_type x_axis = 0;
         value_type y_axis = 0;
 
-        std::uint16_t count = 0;
+        uint16_t count = 0;
 
       public:
         constexpr basic_swipe(value_type const inp_x_axis, value_type const inp_y_axis) noexcept : x_axis{inp_x_axis}, y_axis{inp_y_axis} {}
@@ -1027,15 +1027,15 @@ namespace fs8 {
 
       private:
         user_event    usr{};
-        std::uint8_t  count              = 2;
+        uint8_t       count              = 2;
         duration_type duration_threshold = default_threshold;
-        std::uint8_t  cur_count          = 0;
+        uint8_t       cur_count          = 0;
         duration_type last_click{};
 
       public:
         constexpr explicit basic_multi_click(
           user_event const&   inp_usr_event,
-          std::uint8_t const  inp_count     = 2,
+          uint8_t const       inp_count     = 2,
           duration_type const dur_threshold = default_threshold) noexcept
           : usr{inp_usr_event},
             count{inp_count},
@@ -1043,7 +1043,7 @@ namespace fs8 {
 
         constexpr explicit basic_multi_click(
           event_code const&   inp_usr_event,
-          std::uint8_t const  inp_count     = 2,
+          uint8_t const       inp_count     = 2,
           duration_type const dur_threshold = default_threshold) noexcept
           : basic_multi_click{
               user_event{.type = inp_usr_event.type, .code = inp_usr_event.code, .value = 0},
@@ -1053,7 +1053,7 @@ namespace fs8 {
 
         constexpr explicit basic_multi_click(
           code_type const&    code,
-          std::uint8_t const  inp_count = 2,
+          uint8_t const       inp_count = 2,
           duration_type const dur_threshold =
             std::chrono::milliseconds{
               200
@@ -1061,13 +1061,13 @@ namespace fs8 {
           : basic_multi_click{user_event{.type = EV_KEY, .code = code, .value = 0}, inp_count, dur_threshold} {}
 
         consteval auto operator[](user_event const&   inp_usr_event,
-                                  std::uint8_t const  inp_count     = 2,
+                                  uint8_t const       inp_count     = 2,
                                   duration_type const dur_threshold = default_threshold) const noexcept {
             return basic_multi_click{inp_usr_event, inp_count, dur_threshold};
         }
 
         consteval auto operator[](event_code const&   inp_usr_event,
-                                  std::uint8_t const  inp_count     = 2,
+                                  uint8_t const       inp_count     = 2,
                                   duration_type const dur_threshold = default_threshold) const noexcept {
             return basic_multi_click{
               user_event{.type = inp_usr_event.type, .code = inp_usr_event.code, .value = 0},
@@ -1077,7 +1077,7 @@ namespace fs8 {
         }
 
         consteval auto operator[](code_type const&    code,
-                                  std::uint8_t const  inp_count     = 2,
+                                  uint8_t const       inp_count     = 2,
                                   duration_type const dur_threshold = std::chrono::milliseconds{200}) const noexcept {
             return basic_multi_click{
               user_event{.type = EV_KEY, .code = code, .value = 0},

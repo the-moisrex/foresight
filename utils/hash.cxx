@@ -4,12 +4,12 @@ module;
 #include <cstdint>
 module fs8.hash;
 
-void fs8::fnv1a_init(std::uint32_t& hash) noexcept {
+void fs8::fnv1a_init(uint32_t& hash) noexcept {
     hash = FNV1A_32_INIT;
 }
 
-void fs8::fnv1a_hash(std::uint32_t& hash, char32_t const uch) noexcept {
-    hash ^= static_cast<std::uint32_t>(uch);
+void fs8::fnv1a_hash(uint32_t& hash, char32_t const uch) noexcept {
+    hash ^= static_cast<uint32_t>(uch);
     hash *= FNV1A_32_PRIME;
 }
 

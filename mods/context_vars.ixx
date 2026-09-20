@@ -116,7 +116,7 @@ export namespace fs8 {
     constexpr std::size_t variable_not_found = std::string_view::npos;
 
     // template <std::size_t N>
-    // [[nodiscard]] consteval bool contains_hash(std::array<std::string_view, N> const arr, std::uint32_t hash) noexcept {
+    // [[nodiscard]] consteval bool contains_hash(std::array<std::string_view, N> const arr, uint32_t hash) noexcept {
     //     for (auto const str : arr) {
     //         if (ci_hash(str) == hash) {
     //             return true;
@@ -128,27 +128,27 @@ export namespace fs8 {
     // /**
     //  * Find the variable's index
     //  */
-    // template <std::size_t, std::uint32_t, typename...>
+    // template <std::size_t, uint32_t, typename...>
     // struct variable_index {};
     //
-    // template <std::size_t Index, std::uint32_t Hash, typename ModT, typename... ModsT>
+    // template <std::size_t Index, uint32_t Hash, typename ModT, typename... ModsT>
     // struct variable_index<Index, Hash, ModT, ModsT...> {
     //     static constexpr std::size_t value = variable_index<Index + 1U, Hash, ModsT...>::value;
     // };
     //
-    // template <std::size_t Index, std::uint32_t Hash, typename ModT, typename... ModsT>
+    // template <std::size_t Index, uint32_t Hash, typename ModT, typename... ModsT>
     //     requires(has_variables<ModT> && contains_hash(std::declval<ModT>().operator[](get_variables), Hash))
     // struct variable_index<Index, Hash, ModT, ModsT...> {
     //     static constexpr std::size_t value = Index;
     // };
     //
     // // End condition
-    // template <std::size_t Index, std::uint32_t Hash>
+    // template <std::size_t Index, uint32_t Hash>
     // struct variable_index<Index, Hash> {
     //     static constexpr std::size_t value = variable_not_found;
     // };
     //
-    // template <std::uint32_t Hash, typename... ModsT>
+    // template <uint32_t Hash, typename... ModsT>
     // constexpr std::size_t variable_index_v = variable_index<0U, Hash, ModsT...>::value;
 
     /**
@@ -157,8 +157,8 @@ export namespace fs8 {
      */
     struct [[nodiscard]] variable_pointer {
         std::string_view name; // variable name
-        std::uint32_t    hash; // hash of the variable name
-        std::uint32_t    index;
+        uint32_t         hash; // hash of the variable name
+        uint32_t         index;
     };
 
     /// Extract variables
@@ -176,7 +176,7 @@ export namespace fs8 {
                             values.at(index + sub_index) =
                               variable_pointer{.name  = variable_name,
                                                .hash  = ci_hash(variable_name),
-                                               .index = static_cast<std::uint32_t>(index)};
+                                               .index = static_cast<uint32_t>(index)};
                             ++sub_index;
                         }
                         ++index;

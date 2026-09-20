@@ -16,7 +16,7 @@ import :on_fail;
 export namespace fs8 {
 
     /// Describes what kind of problem the sanitizer detected for an event.
-    enum struct [[nodiscard]] sanitizer_issue : std::uint8_t {
+    enum struct [[nodiscard]] sanitizer_issue : uint8_t {
         none,               ///< event is clean
         adjacent_syn,       ///< duplicate SYN_REPORT (no data since last syn)
         zero_mouse_moves,   ///< mouse move events that move nowhere

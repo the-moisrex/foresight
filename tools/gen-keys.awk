@@ -23,7 +23,7 @@ BEGIN {
     print "export namespace fs8 {"
     print "\tstruct keynames_type {";
     print "\t\tstd::string_view name;";
-    print "\t\tstd::uint16_t value;";
+    print "\t\tuint16_t value;";
     print "\t};"
 }
 

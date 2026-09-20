@@ -86,9 +86,9 @@ bool fs8::parse_evtest_line(std::string_view const line, parsed_evtest_event& ou
         out.time = 0;
     }
 
-    auto const type  = parse_field<std::uint16_t>(str, "type ");
-    auto const code  = parse_field<std::uint16_t>(str, "code ");
-    auto const value = parse_field<std::int32_t>(str, "value ");
+    auto const type  = parse_field<uint16_t>(str, "type ");
+    auto const code  = parse_field<uint16_t>(str, "code ");
+    auto const value = parse_field<int32_t>(str, "value ");
     if (!type || !code || !value) [[unlikely]] {
         return false;
     }

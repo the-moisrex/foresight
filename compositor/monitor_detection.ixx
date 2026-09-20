@@ -12,7 +12,7 @@ export module fs8.compositor.monitor_detection;
 export namespace fs8::compositor {
 
     /// Display server type detected at runtime.
-    enum struct [[nodiscard]] display_server : std::uint8_t {
+    enum struct [[nodiscard]] display_server : uint8_t {
         unknown,
         wayland,
         x11,

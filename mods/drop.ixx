@@ -239,13 +239,13 @@ export namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
       private:
-        std::uint32_t emit_threshold = 50;
-        std::uint32_t emitted_count{0};
+        uint32_t emit_threshold = 50;
+        uint32_t emitted_count{0};
 
       public:
-        constexpr explicit basic_drop_start_moves(std::uint32_t const inp_time_threshold) noexcept : emit_threshold{inp_time_threshold} {}
+        constexpr explicit basic_drop_start_moves(uint32_t const inp_time_threshold) noexcept : emit_threshold{inp_time_threshold} {}
 
-        consteval basic_drop_start_moves operator[](std::uint32_t const inp_time_threshold) const noexcept {
+        consteval basic_drop_start_moves operator[](uint32_t const inp_time_threshold) const noexcept {
             return basic_drop_start_moves{inp_time_threshold};
         }
 

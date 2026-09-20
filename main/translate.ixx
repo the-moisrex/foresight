@@ -71,7 +71,7 @@ export namespace fs8 {
       '/'       // 53
     };
 
-    [[nodiscard]] constexpr char to_char(std::uint8_t const inp_char) noexcept {
+    [[nodiscard]] constexpr char to_char(uint8_t const inp_char) noexcept {
         // NOLINTNEXTLINE(*-pro-bounds-constant-array-index)
         return inp_char >= visual_keys.size() ? null_key : visual_keys[inp_char];
     }

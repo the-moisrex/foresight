@@ -35,7 +35,7 @@ namespace {
     }
 } // anonymous namespace
 
-enum struct gesture_type : std::uint8_t {
+enum struct gesture_type : uint8_t {
     none,
     swipe_left,
     swipe_right,
@@ -48,15 +48,15 @@ static constexpr std::array<code_type, 4> all_buttons{BTN_LEFT, BTN_RIGHT, BTN_M
 
 struct gesture_detector {
   private:
-    std::int32_t               start_x = 0;
-    std::int32_t               start_y = 0;
-    std::int32_t               x       = 0;
-    std::int32_t               y       = 0;
+    int32_t               start_x = 0;
+    int32_t               start_y = 0;
+    int32_t               x       = 0;
+    int32_t               y       = 0;
     std::span<code_type const> btns;
     bool                       is_pressed = false;
 
-    std::int32_t min_swipe_distance         = 100; // Pixels: Min movement on primary axis for a swipe
-    std::int32_t max_perpendicular_movement = 50;  // Pixels: Max movement on secondary axis for a swap
+    int32_t min_swipe_distance         = 100; // Pixels: Min movement on primary axis for a swipe
+    int32_t max_perpendicular_movement = 50;  // Pixels: Max movement on secondary axis for a swap
 
   public:
     explicit gesture_detector(std::span<code_type const> const inp_btns) noexcept : btns(inp_btns) {}
@@ -115,15 +115,15 @@ struct gesture_detector {
         return none;
     }
 
-    [[nodiscard]] std::uint32_t distance_x() const noexcept {
-        return static_cast<std::uint32_t>(std::abs(x));
+    [[nodiscard]] uint32_t distance_x() const noexcept {
+        return static_cast<uint32_t>(std::abs(x));
     }
 
-    [[nodiscard]] std::uint32_t distance_y() const noexcept {
-        return static_cast<std::uint32_t>(std::abs(y));
+    [[nodiscard]] uint32_t distance_y() const noexcept {
+        return static_cast<uint32_t>(std::abs(y));
     }
 
-    [[nodiscard]] std::uint32_t distance() const noexcept {
+    [[nodiscard]] uint32_t distance() const noexcept {
         return std::max(distance_x(), distance_y());
     }
 };

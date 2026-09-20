@@ -127,7 +127,7 @@ void basic_synth::render(sound_id const id, sound_format const fmt, std::span<fl
 
         float const sample = std::sin(phase) * envelope * 0.15f;
 
-        for (std::uint16_t ch = 0; ch < fmt.channels; ++ch) {
+        for (uint16_t ch = 0; ch < fmt.channels; ++ch) {
             dest[static_cast<std::size_t>(i) * fmt.channels + ch] = sample;
         }
     }
@@ -191,20 +191,6 @@ context_action basic_sound_player<basic_synth>::do_start(basic_io_manager& io) n
             (void) io.watch(io_fd{.fd = fd, .events = static_cast<io_event>(pimpl->backend->watch_events())}, *pimpl);
         }
         pimpl->started = true;
-    }
-    return next;
-}
-
-template <>
-context_action basic_sound_player<basic_synth>::process_event(event_type& event) noexcept {
-    using enum context_action;
-    if (event.type() != EV_KEY) {
-        return next;
-    }
-    if (event.value() == 1) {
-        play_sound(sound_id::press);
-    } else if (event.value() == 0) {
-        play_sound(sound_id::release);
     }
     return next;
 }

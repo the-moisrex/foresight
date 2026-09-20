@@ -15,8 +15,8 @@ using fs8::event_type;
 
 bool fs8::capture_binary_format::write_header(int const fd) noexcept {
     struct __attribute__((packed)) {
-        std::uint32_t magic;
-        std::uint16_t version;
+        uint32_t magic;
+        uint16_t version;
     } constexpr hdr{magic, version};
 
     auto const result = ::write(fd, &hdr, sizeof(hdr));

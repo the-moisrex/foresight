@@ -49,7 +49,7 @@ export namespace fs8 {
     /**
      * Matching Action Type
      */
-    enum struct [[nodiscard]] query_target : std::uint8_t {
+    enum struct [[nodiscard]] query_target : uint8_t {
         match_subsystem = 0U, // Match the device's kernel subsystem, e.g. "block", "net", "usb"
         match_sysattr   = 1U, // Match a sysfs attribute exposed under /sys for the device
         match_property  = 2U, // Match a udev property / environment value, e.g. ENV{ID_FS_TYPE}
@@ -97,7 +97,7 @@ export namespace fs8 {
         ///   100% means exactly
         ///   101% means normal udev matching which can use '*' and '?' and '[...]'
         /// anything less means fuzzy search match
-        std::uint8_t percentage = 100; // NOLINT(*-magic-numbers)
+        uint8_t percentage = 100; // NOLINT(*-magic-numbers)
 
         // NOLINTEND(*-non-private-member-variables-in-classes)
         [[nodiscard]] constexpr bool operator==(query_term const&) const noexcept = default;
@@ -150,11 +150,11 @@ export namespace fs8 {
 
         /// Hard limit on caps support
         /// If any device matched would have less than this number matched capabilities, we remove them.
-        std::uint8_t caps_support_percentage = 50; // NOLINT(*-magic-numbers)
+        uint8_t caps_support_percentage = 50; // NOLINT(*-magic-numbers)
 
         /// Multiple Matches are allowed or not?
         /// Default: 1
-        std::uint8_t matches_limit = 1;
+        uint8_t matches_limit = 1;
 
         /// If we should grab the device's events and not give it to anyone else
         bool grab = false;
@@ -205,10 +205,10 @@ export namespace fs8 {
         // NOLINTBEGIN(*-non-private-member-variables-in-classes)
 
         std::array<query_term, 16> storage{};
-        std::uint8_t               count                   = 0;
+        uint8_t                    count                   = 0;
         dev_caps_view              caps                    = +caps::nothing;
-        std::uint8_t               caps_support_percentage = 50;
-        std::uint8_t               matches_limit           = 1;
+        uint8_t                    caps_support_percentage = 50;
+        uint8_t                    matches_limit           = 1;
         bool                       grab                    = false;
         bool                       fail_on_no_match        = false;
 
@@ -219,7 +219,7 @@ export namespace fs8 {
 
         /// Copy the fields of a `device_query` into inline storage.
         constexpr void set(device_query const& inp_query) noexcept {
-            count = static_cast<std::uint8_t>(inp_query.fields.size());
+            count = static_cast<uint8_t>(inp_query.fields.size());
             for (std::size_t i = 0; i < count; ++i) {
                 storage[i] = inp_query.fields[i];
             }
@@ -284,13 +284,13 @@ export namespace fs8 {
     constexpr struct [[nodiscard]] allow_multiple_matches_tag {
         template <std::size_t N>
         constexpr void operator()(basic_device_query<N>& out_query) const noexcept {
-            out_query.matches_limit = std::numeric_limits<std::uint8_t>::max();
+            out_query.matches_limit = std::numeric_limits<uint8_t>::max();
         }
     } allow_multiple_matches;
 
     constexpr struct [[nodiscard]] matches_limit {
       private:
-        std::uint8_t limit = 1;
+        uint8_t limit = 1;
 
       public:
         matches_limit() noexcept                           = default;
@@ -305,7 +305,7 @@ export namespace fs8 {
             out_query.matches_limit = limit;
         }
 
-        constexpr matches_limit operator[](std::uint8_t const inp_limit) const noexcept {
+        constexpr matches_limit operator[](uint8_t const inp_limit) const noexcept {
             matches_limit res;
             res.limit = inp_limit;
             return res;
@@ -314,7 +314,7 @@ export namespace fs8 {
 
     constexpr struct [[nodiscard]] matches_percentage {
       private:
-        std::uint8_t percentage = 100;
+        uint8_t percentage = 100;
 
       public:
         matches_percentage() noexcept                                = default;
@@ -329,7 +329,7 @@ export namespace fs8 {
             out_query.caps_support_percentage = percentage;
         }
 
-        constexpr matches_percentage operator[](std::uint8_t const inp_percentage) const noexcept {
+        constexpr matches_percentage operator[](uint8_t const inp_percentage) const noexcept {
             assert(inp_percentage <= 100);
             matches_percentage res;
             res.percentage = inp_percentage;
@@ -396,7 +396,7 @@ export namespace fs8 {
     consteval query_target unmatch(query_target const action) {
         using enum query_target;
         auto const val         = std::to_underlying(action);
-        auto const base_action = static_cast<std::uint8_t>(val & ~std::to_underlying(nomatch_flag));
+        auto const base_action = static_cast<uint8_t>(val & ~std::to_underlying(nomatch_flag));
 
         if (base_action > std::to_underlying(match_property)) {
             throw std::invalid_argument("Matching action cannot be unmatched!");
@@ -657,7 +657,7 @@ export namespace fs8 {
         device_query query{};
 
         // The index of the query
-        std::uint8_t query_index = 0;
+        uint8_t query_index = 0;
     };
 
     constexpr query_term match_subsystem(std::string_view const sub, std::string_view const devtype = {}) noexcept {
@@ -686,7 +686,7 @@ export namespace fs8 {
         (match(enumerator, queries), ...);
         enumerator.scan_devices();
 
-        std::uint8_t index = 0;
+        uint8_t index = 0;
         for (auto const& cur_query : {queries...}) {
             for (auto device : filter_devices(enumerator, cur_query)) {
                 co_yield udev_device_pick{.device = std::move(device), .query = cur_query, .query_index = index};

@@ -10,7 +10,7 @@ using fs8::basic_timed_typed;
 
 template <>
 struct fs8::pimpl_idiom<basic_timed_typed>::impl {
-    std::uint16_t             trigger_id = basic_timed_typed::invalid_trigger_id; // pattern id in the search engine
+    uint16_t                  trigger_id = basic_timed_typed::invalid_trigger_id; // pattern id in the search engine
     fs8::aho_state            aho_search_state{};                                 // the state of where we are in search engine
     std::chrono::microseconds last_time{};                                        // the time of the last relevant key event
 };

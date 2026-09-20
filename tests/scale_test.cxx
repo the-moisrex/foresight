@@ -193,8 +193,8 @@ TEST(ScaleMoveTest, HalvesRelativeMovement) {
     pipeline();
 
     // Sum all REL_X values (ignoring SYN).
-    std::int32_t total_x = 0;
-    std::int32_t total_y = 0;
+    int32_t total_x = 0;
+    int32_t total_y = 0;
     for (auto const& event : col.without_syn()) {
         if (event.type() == EV_REL && event.code() == REL_X) {
             total_x += event.value();
@@ -224,7 +224,7 @@ TEST(ScaleMoveTest, DoublesRelativeMovement) {
 
     pipeline();
 
-    std::int32_t total_x = 0;
+    int32_t total_x = 0;
     for (auto const& event : col.without_syn()) {
         if (event.type() == EV_REL && event.code() == REL_X) {
             total_x += event.value();
@@ -256,7 +256,7 @@ TEST(ScaleMoveTest, EpsilonAccumulatesForSmallMovements) {
 
     pipeline();
 
-    std::int32_t total_x = 0;
+    int32_t total_x = 0;
     for (auto const& event : col.without_syn()) {
         if (event.type() == EV_REL && event.code() == REL_X) {
             total_x += event.value();

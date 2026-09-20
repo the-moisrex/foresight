@@ -129,7 +129,7 @@ export namespace fs8 {
     /**
      * Actions that each mod can take
      */
-    enum struct [[nodiscard]] context_action : std::uint8_t {
+    enum struct [[nodiscard]] context_action : uint8_t {
         next,       // pass it to the next mod
         drop_event, // drop this event
         recovery,   // recovery mode, or watching mode, or restart mode

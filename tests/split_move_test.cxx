@@ -47,8 +47,8 @@ namespace {
         return frames;
     }
 
-    std::int32_t sum_of(std::vector<user_event> const& frame, std::uint16_t const code) {
-        std::int32_t total = 0;
+    int32_t sum_of(std::vector<user_event> const& frame, uint16_t const code) {
+        int32_t total = 0;
         for (auto const& event : frame) {
             if (event.type == EV_REL && event.code == code) {
                 total += event.value;
@@ -57,7 +57,7 @@ namespace {
         return total;
     }
 
-    using axis_event = std::pair<std::uint16_t, std::int32_t>;
+    using axis_event = std::pair<uint16_t, int32_t>;
 
     /// The sequence of REL (code, value) events, ignoring SYNs.
     std::vector<axis_event> axis_order(std::span<event_type const> const events) {
@@ -108,8 +108,8 @@ TEST(SplitMoveTest, DistributesAxesProportionally) {
     };
     EXPECT_EQ(axis_order(col.events()), expected);
 
-    std::int32_t total_x = 0;
-    std::int32_t total_y = 0;
+    int32_t total_x = 0;
+    int32_t total_y = 0;
     for (auto const& frame : frames) {
         total_x += sum_of(frame, REL_X);
         total_y += sum_of(frame, REL_Y);
@@ -194,8 +194,8 @@ TEST(SplitMoveTest, HandlesNegativeValues) {
     };
     EXPECT_EQ(axis_order(col.events()), expected);
 
-    std::int32_t total_x = 0;
-    std::int32_t total_y = 0;
+    int32_t total_x = 0;
+    int32_t total_y = 0;
     for (auto const& frame : frames) {
         EXPECT_EQ(frame.back().type, EV_SYN);
         total_x += sum_of(frame, REL_X);

@@ -148,7 +148,7 @@ namespace fs8 {
             // emit the events:
             if constexpr (N > 1) {
                 if (event.value() == 0) {
-                    for (std::uint8_t index = N - 1; index > 0; --index) {
+                    for (uint8_t index = N - 1; index > 0; --index) {
                         std::ignore = ctx.fork_emit(event | to[index]);
                         std::ignore = ctx.fork_emit(syn());
                     }
@@ -156,7 +156,7 @@ namespace fs8 {
                     // replace the last one:
                     event |= to[0];
                 } else {
-                    for (std::uint8_t index = 0; index < N - 1; ++index) {
+                    for (uint8_t index = 0; index < N - 1; ++index) {
                         std::ignore = ctx.fork_emit(event | to[index]);
                         std::ignore = ctx.fork_emit(syn());
                     }

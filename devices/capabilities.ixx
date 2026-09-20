@@ -20,7 +20,7 @@ namespace fs8 {
         std::array<code_type, N> codes;
     };
 
-    export enum struct [[nodiscard]] caps_action : std::uint8_t {
+    export enum struct [[nodiscard]] caps_action : uint8_t {
         append,
         remove_codes,
         remove_type,

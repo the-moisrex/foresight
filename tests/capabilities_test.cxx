@@ -151,7 +151,7 @@ TEST(CapsMatch, ThresholdPresetsWriteSupportPercentage) {
 
     // matches_percentage is consteval_copyable, so it cannot survive a runtime
     // range-pipe capture; verify it through a compile-time application instead.
-    auto apply_explicit = [](std::uint8_t const percentage) consteval {
+    auto apply_explicit = [](uint8_t const percentage) consteval {
         auto q = (fs8::query | caps::tablet);
         q      = (q | matches_percentage[percentage]);
         return q.caps_support_percentage;

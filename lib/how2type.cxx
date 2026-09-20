@@ -25,7 +25,7 @@ constexpr std::size_t MAX_TYPE_MAP_ENTRIES = 32;
 namespace {
     struct modifier_map_entry {
         xkb_mod_index_t index;
-        std::uint16_t   keycode;
+        uint16_t        keycode;
         xkb_mod_mask_t  mask;
     };
 
@@ -215,7 +215,7 @@ namespace {
         // Prepare a press event
         fs8::user_event const ev_press{
           .type  = EV_KEY,
-          .code  = static_cast<std::uint16_t>(evcode),
+          .code  = static_cast<uint16_t>(evcode),
           .value = 1 // press
         };
         // time can be zeroed (caller can set real timestamps if desired)
@@ -223,7 +223,7 @@ namespace {
         // Prepare a release event
         fs8::user_event const ev_release{
           .type  = EV_KEY,
-          .code  = static_cast<std::uint16_t>(evcode),
+          .code  = static_cast<uint16_t>(evcode),
           .value = 0 // release
         };
 

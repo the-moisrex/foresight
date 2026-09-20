@@ -42,7 +42,7 @@ export namespace fs8 {
         std::size_t max_steps  = 16;
         float (*easing)(float) = easeOutQuad<float>;
 
-        void                              accumulate(std::uint16_t code, value_type value) noexcept;
+        void                              accumulate(uint16_t code, value_type value) noexcept;
         bool                              take_frame() noexcept;
         std::pair<value_type, value_type> position() const noexcept;
         void                              reset() noexcept;
@@ -80,11 +80,11 @@ export namespace fs8 {
                 reset();
                 return next;
             }
-            std::int32_t const steps = std::min<std::int32_t>(mag, static_cast<std::int32_t>(max_steps));
+            int32_t const steps = std::min<int32_t>(mag, static_cast<int32_t>(max_steps));
 
             value_type prev_x = 0;
             value_type prev_y = 0;
-            for (std::int32_t step = 1; step <= steps; ++step) {
+            for (int32_t step = 1; step <= steps; ++step) {
                 auto const t     = easing(static_cast<float>(step) / static_cast<float>(steps));
                 auto const out_x = static_cast<value_type>(std::round(t * static_cast<float>(cur_x)));
                 auto const out_y = static_cast<value_type>(std::round(t * static_cast<float>(cur_y)));
@@ -140,7 +140,7 @@ export namespace fs8 {
       private:
         float alpha = 0.95f;
 
-        void                                            accumulate(std::uint16_t code, value_type value) noexcept;
+        void                                            accumulate(uint16_t code, value_type value) noexcept;
         smoothed                                        filter_frame(value_type cur_x, value_type cur_y) noexcept;
         [[nodiscard]] std::pair<value_type, value_type> position() const noexcept;
         void                                            reset() noexcept;
@@ -219,7 +219,7 @@ export namespace fs8 {
         float q = 0.1f;
         float r = 0.5f;
 
-        void                                            accumulate(std::uint16_t code, value_type value) noexcept;
+        void                                            accumulate(uint16_t code, value_type value) noexcept;
         smoothed                                        filter_frame(value_type cur_x, value_type cur_y) noexcept;
         [[nodiscard]] std::pair<value_type, value_type> position() const noexcept;
         void                                            reset() noexcept;

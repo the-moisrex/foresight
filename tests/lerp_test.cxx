@@ -26,8 +26,8 @@ namespace {
         return frames;
     }
 
-    std::int32_t sum_of(std::vector<user_event> const& frame, std::uint16_t const code) {
-        std::int32_t total = 0;
+    int32_t sum_of(std::vector<user_event> const& frame, uint16_t const code) {
+        int32_t total = 0;
         for (auto const& event : frame) {
             if (event.type == EV_REL && event.code == code) {
                 total += event.value;
@@ -60,8 +60,8 @@ TEST(SmoothTest, LerpReproducesMovementAndPairsAxes) {
     auto const frames = group_frames(col.events());
     ASSERT_FALSE(frames.empty());
 
-    std::int32_t total_x = 0;
-    std::int32_t total_y = 0;
+    int32_t total_x = 0;
+    int32_t total_y = 0;
     for (auto const& frame : frames) {
         total_x += sum_of(frame, REL_X);
         total_y += sum_of(frame, REL_Y);
@@ -90,8 +90,8 @@ TEST(SmoothTest, LerpReproducesMovementAndPairsAxes) {
 
     // The emitted steps accumulate exactly to the input totals; the first
     // input frame (3,3) is fully emitted before the second one (9,9) starts.
-    std::int32_t cumulative_x = 0;
-    bool         reached_3    = false;
+    int32_t cumulative_x = 0;
+    bool    reached_3    = false;
     for (auto const& frame : frames) {
         cumulative_x += sum_of(frame, REL_X);
         if (cumulative_x == 3) {
@@ -124,8 +124,8 @@ TEST(SmoothTest, LerpKeepsSmallMovements) {
     ASSERT_GE(frames.size(), 2U);
 
     // Total output must equal total input.
-    std::int32_t total_x = 0;
-    std::int32_t total_y = 0;
+    int32_t total_x = 0;
+    int32_t total_y = 0;
     for (auto const& frame : frames) {
         total_x += sum_of(frame, REL_X);
         total_y += sum_of(frame, REL_Y);
@@ -157,7 +157,7 @@ TEST(SmoothTest, LerpLeavesNonMovementFramesAlone) {
     ASSERT_EQ(frames.size(), 6U);
 
     // The movement frame's steps accumulate to exactly 5 on the X axis.
-    std::int32_t total_x = 0;
+    int32_t total_x = 0;
     for (std::size_t i = 0; i + 1 < frames.size(); ++i) {
         total_x += sum_of(frames[i], REL_X);
     }

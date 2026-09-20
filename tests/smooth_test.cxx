@@ -30,8 +30,8 @@ namespace {
         return frames;
     }
 
-    std::int32_t sum_of(std::vector<user_event> const& frame, std::uint16_t const code) {
-        std::int32_t total = 0;
+    int32_t sum_of(std::vector<user_event> const& frame, uint16_t const code) {
+        int32_t total = 0;
         for (auto const& event : frame) {
             if (event.type == EV_REL && event.code == code) {
                 total += event.value;
@@ -81,8 +81,8 @@ TEST(SmoothTest, LowPassPassesConstantInput) {
 
     auto const frames = group_frames(col.events());
     ASSERT_EQ(frames.size(), 3U);
-    std::int32_t total_x = 0;
-    std::int32_t total_y = 0;
+    int32_t total_x = 0;
+    int32_t total_y = 0;
     for (auto const& frame : frames) {
         expect_movement_frame(frame);
         EXPECT_EQ(sum_of(frame, REL_X), 10);
@@ -221,7 +221,7 @@ TEST(SmoothTest, KalmanApproachesStepInput) {
     ASSERT_EQ(frames.size(), 4U);
     EXPECT_EQ(sum_of(frames[0], REL_X), 5);
 
-    std::int32_t prev = sum_of(frames[0], REL_X);
+    int32_t prev = sum_of(frames[0], REL_X);
     for (std::size_t i = 1; i < frames.size(); ++i) {
         auto const cur = sum_of(frames[i], REL_X);
         EXPECT_GT(cur, prev); // moves toward the measurement

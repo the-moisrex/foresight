@@ -9,11 +9,11 @@ module;
 module fs8.lib.xkb.event2unicode;
 
 namespace {
-    constexpr int           evdev_offset      = 8;
-    constexpr std::uint16_t KEY_STATE_RELEASE = 0;
+    constexpr int      evdev_offset      = 8;
+    constexpr uint16_t KEY_STATE_RELEASE = 0;
 
-    // constexpr std::uint16_t KEY_STATE_PRESS   = 1;
-    // constexpr std::uint16_t KEY_STATE_REPEAT  = 2;
+    // constexpr uint16_t KEY_STATE_PRESS   = 1;
+    // constexpr uint16_t KEY_STATE_REPEAT  = 2;
 
     // Shared core
     template <typename Fn>
@@ -24,8 +24,8 @@ namespace {
 
         auto const keycode = static_cast<xkb_keycode_t>(evdev_offset + event.code);
 
-        bool const is_release = static_cast<std::uint16_t>(event.value) == KEY_STATE_RELEASE;
-        bool const is_repeat  = static_cast<std::uint16_t>(event.value) == 2;
+        bool const is_release = static_cast<uint16_t>(event.value) == KEY_STATE_RELEASE;
+        bool const is_repeat  = static_cast<uint16_t>(event.value) == 2;
 
         // No Unicode for releases
         if (is_release) {

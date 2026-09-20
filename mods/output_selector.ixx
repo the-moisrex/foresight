@@ -38,14 +38,14 @@ namespace fs8 {
     struct [[nodiscard]] basic_output_selector : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
-        static_assert(sizeof...(Outputs) <= std::numeric_limits<std::uint8_t>::max(), "Too many output types.");
+        static_assert(sizeof...(Outputs) <= std::numeric_limits<uint8_t>::max(), "Too many output types.");
 
       private:
         std::variant<Outputs...> outputs_{};
 
       public:
-        [[nodiscard]] constexpr std::uint8_t selected() const noexcept {
-            return static_cast<std::uint8_t>(outputs_.index());
+        [[nodiscard]] constexpr uint8_t selected() const noexcept {
+            return static_cast<uint8_t>(outputs_.index());
         }
 
         constexpr void set_selected(std::size_t const index) noexcept {
@@ -129,9 +129,9 @@ namespace fs8 {
     /// fs8::output_flags.configure(output, parsed);
     /// ```
     struct [[nodiscard]] output_flag_group {
-        consteval explicit output_flag_group(std::uint8_t const sel = 0) noexcept : default_selected_(sel) {}
+        consteval explicit output_flag_group(uint8_t const sel = 0) noexcept : default_selected_(sel) {}
 
-        consteval output_flag_group operator[](std::uint8_t const sel) const noexcept {
+        consteval output_flag_group operator[](uint8_t const sel) const noexcept {
             return output_flag_group{sel};
         }
 
@@ -163,7 +163,7 @@ namespace fs8 {
         }
 
       private:
-        std::uint8_t default_selected_ = 0;
+        uint8_t default_selected_ = 0;
 
         static constexpr flag flag_{
           .name        = "--output",
@@ -172,7 +172,7 @@ namespace fs8 {
           .takes_value = true,
         };
 
-        [[nodiscard]] static constexpr std::uint8_t index_of(std::string_view const name) noexcept {
+        [[nodiscard]] static constexpr uint8_t index_of(std::string_view const name) noexcept {
             if (name == "stdout") {
                 return 0;
             }

@@ -7,7 +7,7 @@ module;
 #include <string_view>
 module fs8.event;
 
-[[nodiscard]] std::string_view fs8::to_source_string(std::uint32_t const source_id) noexcept {
+[[nodiscard]] std::string_view fs8::to_source_string(uint32_t const source_id) noexcept {
     if (source_id == source_id_none) {
         return {"none"};
     }

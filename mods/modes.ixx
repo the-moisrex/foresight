@@ -12,8 +12,8 @@ namespace fs8 {
 
     namespace detail {
         struct modes_caller_info {
-            void* instance                         = nullptr;
-            void (*switch_fn)(void*, std::uint8_t) = nullptr;
+            void* instance                    = nullptr;
+            void (*switch_fn)(void*, uint8_t) = nullptr;
         };
 
         modes_caller_info& current_modes_caller() noexcept {
@@ -32,9 +32,9 @@ namespace fs8 {
         // todo: add support for condition functions to return the mode directly
         [[no_unique_address]] CondT     cond;
         [[no_unique_address]] mods_type mods;
-        std::uint8_t                    mode = 0;
+        uint8_t                         mode = 0;
 
-        static_assert(sizeof...(Mods) <= std::numeric_limits<std::uint8_t>::max(), "Too many mods.");
+        static_assert(sizeof...(Mods) <= std::numeric_limits<uint8_t>::max(), "Too many mods.");
 
       public:
         explicit consteval basic_modes(CondT inp_cond, Mods... inp_mods) noexcept : cond{inp_cond}, mods{inp_mods...} {}
@@ -45,8 +45,8 @@ namespace fs8 {
             return basic_modes<std::remove_cvref_t<InpCondT>, std::remove_cvref_t<InpMods>...>{inp_cond, inp_mods...};
         }
 
-        constexpr void switch_mode(std::uint8_t const in_mode) noexcept {
-            mode = std::clamp<std::uint8_t>(0, in_mode, sizeof...(Mods) - 1);
+        constexpr void switch_mode(uint8_t const in_mode) noexcept {
+            mode = std::clamp<uint8_t>(0, in_mode, sizeof...(Mods) - 1);
         }
 
         /// The mods of this context, exposed for recursion into sub-pipelines.
@@ -64,7 +64,7 @@ namespace fs8 {
             assert(mode < sizeof...(Mods));
             auto prev = detail::current_modes_caller();
             detail::current_modes_caller() =
-              detail::modes_caller_info{.instance = this, .switch_fn = [](void* p, std::uint8_t const m) noexcept {
+              detail::modes_caller_info{.instance = this, .switch_fn = [](void* p, uint8_t const m) noexcept {
                                             static_cast<basic_modes*>(p)->switch_mode(m);
                                         }};
             auto const result              = invoke_mod_at(ctx, mods, mode);
@@ -79,12 +79,12 @@ namespace fs8 {
         using consteval_copyable::consteval_copyable;
 
       private:
-        std::uint8_t mode = 0;
+        uint8_t mode = 0;
 
       public:
-        explicit constexpr basic_switch_mode(std::uint8_t const in_mode) noexcept : mode{in_mode} {}
+        explicit constexpr basic_switch_mode(uint8_t const in_mode) noexcept : mode{in_mode} {}
 
-        consteval basic_switch_mode operator[](std::uint8_t const in_mode) const noexcept {
+        consteval basic_switch_mode operator[](uint8_t const in_mode) const noexcept {
             return basic_switch_mode{in_mode};
         }
 

@@ -384,8 +384,8 @@ TEST(InputManager, CapsScoringPrefersFullKeyboardOverPartial) {
     // Synthetic: test match_caps scoring without real devices.
     // A device with all requested capabilities must score higher than one missing some.
     // Use a custom dev_caps_view for a small, self-contained query.
-    static constexpr std::uint16_t led_codes[] = {LED_NUML, LED_CAPSL, LED_SCROLLL};
-    dev_cap_view const             test_query{.type = EV_LED, .codes = led_codes};
+    static constexpr uint16_t led_codes[] = {LED_NUML, LED_CAPSL, LED_SCROLLL};
+    dev_cap_view const        test_query{.type = EV_LED, .codes = led_codes};
 
     // Full device: has all keyboard LEDs.
     libevdev* const full_ptr = libevdev_new();

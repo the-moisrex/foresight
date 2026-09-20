@@ -44,7 +44,7 @@ export namespace fs8::xkb {
         void emit(keymap const& map, std::u8string_view str, user_event_callback callback);
         void emit(keymap const& map, std::string_view str, user_event_callback callback);
 
-        enum struct output_syntax : std::uint8_t {
+        enum struct output_syntax : uint8_t {
             evtest,
             cpp_code,
             // todo: add `libinput debug-events` syntax

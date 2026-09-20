@@ -42,7 +42,7 @@ export namespace fs8 {
             mgr.add_device_change_listener({
               .identity = this,
               .invoke =
-                [&mgr](std::uint32_t const id, device_change const change) noexcept {
+                [&mgr](uint32_t const id, device_change const change) noexcept {
                     if (change != device_change::connected) {
                         return;
                     }

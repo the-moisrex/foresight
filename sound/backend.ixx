@@ -23,12 +23,12 @@ export namespace fs8 {
     /// (ALSA, OSS), the backend creates its own eventfd and returns it from
     /// `watch_fd()`.
     struct [[nodiscard]] audio_backend {
-        audio_backend()                                      = default;
-        audio_backend(audio_backend const&)                  = delete;
-        audio_backend& operator=(audio_backend const&)       = delete;
-        audio_backend(audio_backend&&)                       = delete;
-        audio_backend& operator=(audio_backend&&)            = delete;
-        virtual ~audio_backend()                             = default;
+        audio_backend()                                = default;
+        audio_backend(audio_backend const&)            = delete;
+        audio_backend& operator=(audio_backend const&) = delete;
+        audio_backend(audio_backend&&)                 = delete;
+        audio_backend& operator=(audio_backend&&)      = delete;
+        virtual ~audio_backend()                       = default;
 
         /// Open the audio device (no threads created).
         virtual bool start() noexcept = 0;
@@ -50,13 +50,12 @@ export namespace fs8 {
         }
     };
 
-    inline constexpr std::uint32_t queue_sample_rate = 48'000;
-    inline constexpr std::uint16_t queue_channels    = 2;
+    inline constexpr uint32_t queue_sample_rate = 48'000;
+    inline constexpr uint16_t queue_channels    = 2;
 
     /// Raw sample count; round up to the next power of two for bitmask access.
-    inline constexpr std::size_t queue_raw_count =
-        static_cast<std::size_t>(queue_sample_rate) * queue_channels;
-    inline constexpr std::size_t queue_capacity = [] {
+    inline constexpr std::size_t queue_raw_count = static_cast<std::size_t>(queue_sample_rate) * queue_channels;
+    inline constexpr std::size_t queue_capacity  = [] {
         std::size_t v = 1;
         while (v < queue_raw_count) {
             v <<= 1u;
@@ -94,8 +93,7 @@ export namespace fs8 {
             } else {
                 // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
                 std::memcpy(d + idx, samples.data(), head * sizeof(float));
-                std::memcpy(d, samples.data() + head,
-                            (samples.size() - head) * sizeof(float));
+                std::memcpy(d, samples.data() + head, (samples.size() - head) * sizeof(float));
                 // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             }
             write_pos_.store(w + samples.size(), std::memory_order_release);
@@ -121,8 +119,7 @@ export namespace fs8 {
             } else {
                 // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
                 std::memcpy(destination.data(), d + idx, head * sizeof(float));
-                std::memcpy(destination.data() + head, d,
-                            (count - head) * sizeof(float));
+                std::memcpy(destination.data() + head, d, (count - head) * sizeof(float));
                 // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             }
             read_pos_.store(r + count, std::memory_order_release);
@@ -130,8 +127,8 @@ export namespace fs8 {
         }
 
       private:
-        std::atomic<std::size_t> read_pos_{0};
-        std::atomic<std::size_t> write_pos_{0};
+        std::atomic<std::size_t>          read_pos_{0};
+        std::atomic<std::size_t>          write_pos_{0};
         std::array<float, queue_capacity> data_{};
     };
 

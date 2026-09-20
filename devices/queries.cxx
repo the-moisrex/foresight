@@ -52,7 +52,7 @@ namespace {
         return j == pattern.size();
     }
 
-    [[nodiscard]] std::uint8_t calculate_similarity(std::string_view const s1, std::string_view const s2) noexcept {
+    [[nodiscard]] uint8_t calculate_similarity(std::string_view const s1, std::string_view const s2) noexcept {
         // NOLINTBEGIN(*-magic-numbers)
         if (s1.empty() && s2.empty()) {
             return 100;
@@ -87,7 +87,7 @@ namespace {
         }
 
         std::size_t const max_len = std::max(s1.size(), s2.size());
-        return static_cast<std::uint8_t>(100 - (dist.back() * 100 / max_len));
+        return static_cast<uint8_t>(100 - (dist.back() * 100 / max_len));
         // NOLINTEND(*-magic-numbers)
     }
 
@@ -266,8 +266,8 @@ fs8::evdev fs8::device(device_query const& inp_query) noexcept {
     match(enumerator, inp_query);
     enumerator.scan_devices();
 
-    evdev        best{};
-    std::uint8_t best_score = 0;
+    evdev   best{};
+    uint8_t best_score = 0;
 
     for (auto const& entry : enumerator.list_entries()) {
         auto dev = udev_device{entry};
@@ -428,7 +428,7 @@ bool fs8::has_property(device_query const& inp_query, std::string_view const key
 }
 
 std::generator<fs8::udev_device> fs8::filter_devices(udev_enumerate const& enumerate, device_query const& inp_query) noexcept {
-    std::uint8_t limit = inp_query.matches_limit;
+    uint8_t limit = inp_query.matches_limit;
 
     for (auto const& entry : enumerate.list_entries()) {
         auto dev = udev_device{entry};

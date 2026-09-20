@@ -23,8 +23,8 @@ namespace {
         ASSERT_GE(fd, 0);
 
         struct __attribute__((packed)) {
-            std::uint32_t magic;
-            std::uint16_t version;
+            uint32_t magic;
+            uint16_t version;
         } constexpr header{0x3853'4646u, 1};
 
         ASSERT_EQ(::write(fd, &header, sizeof(header)), static_cast<ssize_t>(sizeof(header)));
@@ -47,7 +47,7 @@ namespace {
         for (auto const& ev : events) {
             auto const tv   = ev.native().time;
             auto const sec  = static_cast<std::int64_t>(tv.tv_sec);
-            auto const usec = static_cast<std::int32_t>(tv.tv_usec);
+            auto const usec = static_cast<int32_t>(tv.tv_usec);
 
             std::string line =
               "Event: time "
@@ -396,8 +396,8 @@ TEST(ReplayTest, HeaderOnlyFileReturnsExitOnLoad) {
         ASSERT_GE(fd, 0);
 
         struct __attribute__((packed)) {
-            std::uint32_t magic;
-            std::uint16_t version;
+            uint32_t magic;
+            uint16_t version;
         } constexpr hdr{0x3853'4646u, 1};
 
         ASSERT_EQ(::write(fd, &hdr, sizeof(hdr)), static_cast<ssize_t>(sizeof(hdr)));
