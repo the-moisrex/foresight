@@ -1,7 +1,6 @@
 // Created by moisrex on 9/18/26.
 
 module;
-#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -12,7 +11,7 @@ module;
 module fs8.mods;
 
 import :sound;
-import :backend;
+import fs8.sound;
 import :io_manager;
 import fs8.context;
 import fs8.event;
@@ -20,10 +19,9 @@ import fs8.log;
 
 using fs8::audio_backend;
 using fs8::basic_io_manager;
-using fs8::basic_sound_player;
+using fs8::basic_sound_player_core;
 using fs8::basic_synth;
 using fs8::context_action;
-using fs8::event_type;
 using fs8::io_event;
 using fs8::io_fd;
 using fs8::make_audio_backend;
@@ -33,12 +31,11 @@ using fs8::sound_format;
 using fs8::sound_id;
 
 // ---------------------------------------------------------------------------
-// basic_sound_player<basic_synth>::impl
+// basic_sound_player_core::impl
 // ---------------------------------------------------------------------------
 
 template <>
-struct fs8::pimpl_idiom<basic_sound_player<basic_synth>>::impl {
-    basic_synth                    gen{};
+struct fs8::pimpl_idiom<basic_sound_player_core>::impl {
     std::unique_ptr<audio_backend> backend;
     void (*on_ready)(void* ctx) noexcept = nullptr;
     void* on_ready_ctx                   = nullptr;
@@ -134,49 +131,13 @@ void basic_synth::render(sound_id const id, sound_format const fmt, std::span<fl
 }
 
 // ---------------------------------------------------------------------------
-// basic_sound_player<basic_synth> — play_sound
+// basic_sound_player_core — ensure_backend
 // ---------------------------------------------------------------------------
 
-template <>
-void basic_sound_player<basic_synth>::play_sound(sound_id const id) noexcept {
-    if (pimpl.get() == nullptr) [[unlikely]] {
-        init_impl();
-        pimpl->gen = gen_;
-    }
-
-    sound_format const fmt{
-      .sample_rate = queue_sample_rate,
-      .channels    = queue_channels,
-    };
-
-    auto const frames = gen_.duration_frames(id, fmt);
-    if (frames == 0) [[unlikely]] {
-        return;
-    }
-
-    constexpr std::size_t max_frames = queue_sample_rate * 150 / 1000;
-    if (frames > max_frames) [[unlikely]] {
-        return;
-    }
-
-    std::array<float, max_frames * queue_channels> samples{};
-    gen_.render(id, fmt, std::span<float>{samples.data(), frames * queue_channels});
-    auto const total = frames * queue_channels;
-    if (pimpl->backend) {
-        (void) pimpl->backend->push(std::span<float const>{samples.data(), total});
-    }
-}
-
-// ---------------------------------------------------------------------------
-// basic_sound_player<basic_synth> — do_start
-// ---------------------------------------------------------------------------
-
-template <>
-context_action basic_sound_player<basic_synth>::do_start(basic_io_manager& io) noexcept {
+context_action basic_sound_player_core::ensure_backend(basic_io_manager& io) noexcept {
     using enum context_action;
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
-        pimpl->gen = gen_;
     }
     if (!pimpl->started) {
         auto result         = make_audio_backend();
@@ -193,4 +154,14 @@ context_action basic_sound_player<basic_synth>::do_start(basic_io_manager& io) n
         pimpl->started = true;
     }
     return next;
+}
+
+// ---------------------------------------------------------------------------
+// basic_sound_player_core — push_samples
+// ---------------------------------------------------------------------------
+
+void basic_sound_player_core::push_samples(std::span<float const> const samples) noexcept {
+    if (pimpl && pimpl->backend) {
+        (void) pimpl->backend->push(samples);
+    }
 }

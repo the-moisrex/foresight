@@ -10,7 +10,7 @@ module;
 #include <memory>
 #include <span>
 
-export module fs8.mods:backend;
+export module fs8.sound;
 
 export namespace fs8 {
 

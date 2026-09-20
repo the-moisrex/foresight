@@ -3,9 +3,8 @@
 module;
 #include <memory>
 
-module fs8.mods;
+module fs8.sound;
 
-import :backend;
 import fs8.log;
 
 using fs8::audio_backend;

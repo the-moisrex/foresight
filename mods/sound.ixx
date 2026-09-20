@@ -1,14 +1,13 @@
 // Created by moisrex on 9/18/26.
 
 module;
+#include <array>
 #include <cmath>
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <linux/input-event-codes.h>
-#include <memory>
 #include <span>
-#include <type_traits>
 #include <utility>
 
 export module fs8.mods:sound;
@@ -17,6 +16,7 @@ import fs8.event;
 import fs8.log;
 import fs8.traits;
 import fs8.pimpl;
+import fs8.sound;
 import :io_manager;
 
 export namespace fs8 {
@@ -74,6 +74,22 @@ export namespace fs8 {
     template <sound_generator>
     struct basic_sound_sink;
 
+    /// Non-template base that owns the audio backend and pimpl.
+    ///
+    /// Separates the template-independent backend lifecycle (init, push,
+    /// io_manager registration) from the template-dependent generator.
+    struct [[nodiscard]] basic_sound_player_core : pimpl_idiom<basic_sound_player_core> {
+        using pimpl_idiom::pimpl_idiom;
+
+        constexpr basic_sound_player_core() noexcept = default;
+
+        /// Initialise the audio backend (called on start).
+        context_action ensure_backend(basic_io_manager& io) noexcept;
+
+        /// Push interleaved samples to the audio backend.
+        void push_samples(std::span<float const> samples) noexcept;
+    };
+
     /// Play synthesized audio through the system audio backend (PipeWire,
     /// loaded at runtime via dlsym, with graceful fallback).
     ///
@@ -90,16 +106,12 @@ export namespace fs8 {
     ///
     /// To use a custom generator:
     /// @code
-    ///   | fs8::sound_player.with(my_synth{})
+    ///   | fs8::basic_sound_player(my_synth{})
     /// @endcode
     template <sound_generator Gen = basic_synth>
-    struct [[nodiscard]] basic_sound_player : pimpl_idiom<basic_sound_player<Gen>> {
-        using pimpl_idiom<basic_sound_player>::pimpl_idiom;
-
-      private:
+    struct [[nodiscard]] basic_sound_player : basic_sound_player_core {
         Gen gen_{};
 
-      public:
         constexpr basic_sound_player() noexcept = default;
 
         constexpr explicit basic_sound_player(Gen const& g) noexcept : gen_{g} {}
@@ -117,7 +129,7 @@ export namespace fs8 {
                           "sound_player requires io_manager in the pipeline. "
                           "Place it in the main pipeline, not in a router sub-pipeline.");
             if (tag.code == start.code) {
-                return do_start(ctx.mod(io_manager));
+                return ensure_backend(ctx.mod(io_manager));
             }
             return drop_event;
         }
@@ -129,17 +141,32 @@ export namespace fs8 {
                 return next;
             }
             if (event.value() <= 1) {
-                // key press and key up
                 play_sound(static_cast<sound_id>(event.value()));
             }
             return next;
         }
 
         /// Play a sound (called by the sink or transformer).
-        void play_sound(sound_id id) noexcept;
+        void play_sound(sound_id id) noexcept {
+            sound_format const fmt{
+              .sample_rate = queue_sample_rate,
+              .channels    = queue_channels,
+            };
 
-      private:
-        context_action do_start(basic_io_manager& io) noexcept;
+            auto const frames = gen_.duration_frames(id, fmt);
+            if (frames == 0) [[unlikely]] {
+                return;
+            }
+
+            constexpr std::size_t max_frames = queue_sample_rate * 150 / 1000;
+            if (frames > max_frames) [[unlikely]] {
+                return;
+            }
+
+            std::array<float, max_frames * queue_channels> samples{};
+            gen_.render(id, fmt, std::span<float>{samples.data(), frames * queue_channels});
+            push_samples(std::span<float const>{samples.data(), frames * queue_channels});
+        }
     };
 
     /// Default player instance using basic_synth.
