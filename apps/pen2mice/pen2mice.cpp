@@ -53,6 +53,7 @@ int main(int const argc, char const* const* argv) try {
       | scheduler
       | led_state
       | keys_state // Save key presses
+      | sound_player
       | mouse_history
       | tilt_state[tilt_base_options{.recenter_time = 3.0F}]
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL],
@@ -60,10 +61,10 @@ int main(int const argc, char const* const* argv) try {
              | abs2rel
              | tilt_speed[tilt_rel]
              | tilt_freeze[0.2F]
-             | pen2mice                          // Convert the buttons
+             | pen2mice              // Convert the buttons
              | drop_tablet
              | drop_big_jumps
-             | drop_fast_left_clicks             // Ignore fast left clicks
+             | drop_fast_left_clicks // Ignore fast left clicks
              | split_move
              | update_mod[keys_state]
              | update_mod[mouse_history]]

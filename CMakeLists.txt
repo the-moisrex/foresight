@@ -132,6 +132,14 @@ target_sources(${LIB_NAME}
         mods/typer.cxx
         utils/hash.cxx
         utils/parsing.cxx
+        mods/sound.cxx
+        sound/backend.cxx
+        sound/pipewire.cxx
+        sound/alsa.cxx
+        sound/oss.cxx
+)
+
+target_sources(${LIB_NAME}
         PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES
         bash/bash_runner.ixx
         devices/capabilities.ixx
@@ -215,6 +223,8 @@ target_sources(${LIB_NAME}
         utils/pimpl.ixx
         utils/strings.ixx
         utils/traits.ixx
+        mods/sound.ixx
+        sound/backend.ixx
 )
 
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)
@@ -225,13 +235,26 @@ set_target_properties(${LIB_NAME} PROPERTIES
 target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${LIBEVDEV_INCLUDE_DIRS})
 target_compile_options(${LIB_NAME} PRIVATE ${LIBEVDEV_CFLAGS})
 target_link_options(${LIB_NAME} PRIVATE ${LIBEVDEV_LDFLAGS})
+
+
 target_compile_definitions(${LIB_NAME}
         PUBLIC FORESIGHT_VERSION="${PROJECT_VERSION}"
 )
+
+# Optional PipeWire headers only (no linking — loaded at runtime via dlsym).
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(PIPEWIRE QUIET libpipewire-0.3)
+endif()
+if(PIPEWIRE_FOUND)
+    target_include_directories(${LIB_NAME} SYSTEM PRIVATE ${PIPEWIRE_INCLUDE_DIRS})
+endif()
+
 target_link_libraries(${LIB_NAME}
         PUBLIC libevdev
         PUBLIC udev
         PUBLIC xkbcommon
+        PRIVATE dl
 )
 
 install(TARGETS ${LIB_NAME}

@@ -45,6 +45,7 @@ export import :scale;
 export import :scheduler;
 export import :singleton;
 export import :smooth;
+export import :sound;
 export import :split_move;
 export import :startup_key_releases;
 export import :stopper;
