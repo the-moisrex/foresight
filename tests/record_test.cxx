@@ -168,9 +168,9 @@ TEST(RecordTest, RunAsCallback) {
     run                     rec{[&events](user_event const &event) noexcept {
         events.push_back(event);
     }};
-    rec(user_event{.type = EV_KEY, .code = KEY_A, .value = 1});
-    rec(user_event{.type = EV_KEY, .code = KEY_B, .value = 1});
-    rec(user_event{.type = EV_KEY, .code = KEY_C, .value = 1});
+    std::ignore = rec(user_event{.type = EV_KEY, .code = KEY_A, .value = 1});
+    std::ignore = rec(user_event{.type = EV_KEY, .code = KEY_B, .value = 1});
+    std::ignore = rec(user_event{.type = EV_KEY, .code = KEY_C, .value = 1});
 
     ASSERT_EQ(events.size(), 3U);
     EXPECT_EQ(events.at(0).code, KEY_A);

@@ -40,6 +40,7 @@ struct fs8::pimpl_idiom<basic_sound_player_core>::impl {
     void (*on_ready)(void* ctx) noexcept = nullptr;
     void* on_ready_ctx                   = nullptr;
     bool  started                        = false;
+    bool  paused                         = false;
 
     context_action operator()(io_fd& /*io*/) noexcept {
         if (on_ready) {
@@ -79,13 +80,13 @@ void basic_synth::render(sound_id const id, sound_format const fmt, std::span<fl
 
     voice_params v{};
     switch (id) {
-        case tick: v = {1800.0f, 1800.0f, 0.020f, 0.001f, 6.0f}; break;
-        case press: v = {880.0f, 660.0f, 0.045f, 0.001f, 4.0f}; break;
-        case release: v = {660.0f, 440.0f, 0.045f, 0.001f, 4.0f}; break;
-        case confirm: v = {740.0f, 1180.0f, 0.090f, 0.002f, 3.0f}; break;
-        case error: v = {320.0f, 180.0f, 0.140f, 0.002f, 2.5f}; break;
-        case toggle_on: v = {520.0f, 780.0f, 0.070f, 0.002f, 3.5f}; break;
-        case toggle_off: v = {780.0f, 520.0f, 0.070f, 0.002f, 3.5f}; break;
+        case tick: v = {.freq = 1800.0f, .freq_end = 1800.0f, .duration = 0.020f, .attack = 0.001f, .decay_pow = 6.0f}; break;
+        case press: v = {.freq = 880.0f, .freq_end = 660.0f, .duration = 0.045f, .attack = 0.001f, .decay_pow = 4.0f}; break;
+        case release: v = {.freq = 660.0f, .freq_end = 440.0f, .duration = 0.045f, .attack = 0.001f, .decay_pow = 4.0f}; break;
+        case confirm: v = {.freq = 740.0f, .freq_end = 1180.0f, .duration = 0.090f, .attack = 0.002f, .decay_pow = 3.0f}; break;
+        case error: v = {.freq = 320.0f, .freq_end = 180.0f, .duration = 0.140f, .attack = 0.002f, .decay_pow = 2.5f}; break;
+        case toggle_on: v = {.freq = 520.0f, .freq_end = 780.0f, .duration = 0.070f, .attack = 0.002f, .decay_pow = 3.5f}; break;
+        case toggle_off: v = {.freq = 780.0f, .freq_end = 520.0f, .duration = 0.070f, .attack = 0.002f, .decay_pow = 3.5f}; break;
     }
 
     if (fmt.channels == 0 || fmt.sample_rate == 0 || v.duration <= v.attack) [[unlikely]] {
@@ -164,4 +165,26 @@ void basic_sound_player_core::push_samples(std::span<float const> const samples)
     if (pimpl && pimpl->backend) {
         (void) pimpl->backend->push(samples);
     }
+}
+
+// ---------------------------------------------------------------------------
+// basic_sound_player_core — pause control
+// ---------------------------------------------------------------------------
+
+bool basic_sound_player_core::toggle_pause() noexcept {
+    if (!pimpl) [[unlikely]] {
+        return false;
+    }
+    return pimpl->paused = !pimpl->paused;
+}
+
+void basic_sound_player_core::set_paused(bool const paused) noexcept {
+    if (!pimpl) [[unlikely]] {
+        return;
+    }
+    pimpl->paused = paused;
+}
+
+bool basic_sound_player_core::is_paused() const noexcept {
+    return pimpl && pimpl->paused;
 }

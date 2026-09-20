@@ -88,6 +88,15 @@ export namespace fs8 {
 
         /// Push interleaved samples to the audio backend.
         void push_samples(std::span<float const> samples) noexcept;
+
+        /// Toggle the paused state. When paused, no sounds are played.
+        bool toggle_pause() noexcept;
+
+        /// Set the paused state explicitly.
+        void set_paused(bool paused) noexcept;
+
+        /// Returns true if the player is paused.
+        [[nodiscard]] bool is_paused() const noexcept;
     };
 
     /// Play synthesized audio through the system audio backend (PipeWire,
@@ -137,6 +146,9 @@ export namespace fs8 {
         /// play press/release
         context_action operator()(event_type const& event) noexcept {
             using enum context_action;
+            if (is_paused()) {
+                return next;
+            }
             if (event.type() != EV_KEY) {
                 return next;
             }
@@ -195,5 +207,15 @@ export namespace fs8 {
             return context_action::next;
         }
     };
+
+    constexpr struct [[nodiscard]] basic_toggle_sound_pause {
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx) const noexcept {
+            using enum context_action;
+            return ctx.mod(sound_player).toggle_pause() ? next : drop_event;
+        }
+    } toggle_sound_pause;
+
+
 
 } // namespace fs8

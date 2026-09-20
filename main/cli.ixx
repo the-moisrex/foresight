@@ -2,6 +2,7 @@ module;
 #include <array>
 #include <cstddef>
 #include <cstdlib>
+#include <initializer_list>
 #include <iterator>
 #include <optional>
 #include <print>

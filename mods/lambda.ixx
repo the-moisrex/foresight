@@ -4,6 +4,7 @@ module;
 #include <concepts>
 #include <utility>
 export module fs8.mods:lambda;
+import fs8.context;
 
 export namespace fs8 {
 
@@ -38,7 +39,35 @@ export namespace fs8 {
         constexpr run& operator=(run&&) noexcept = default;
         constexpr ~run()                         = default;
 
-        using Bases::operator()...;
+        template <Context CtxT>
+        constexpr context_action operator()(CtxT& ctx) noexcept {
+            using enum context_action;
+            context_action action = next;
+            std::ignore           = ((action = invoke_mod(static_cast<Bases&>(*this), ctx), action == next) && ...);
+            return action;
+        }
+
+        constexpr context_action operator()(event_type& event) noexcept {
+            using enum context_action;
+            context_action action = next;
+            std::ignore           = ((action = invoke_mod(static_cast<Bases&>(*this), event), action == next) && ...);
+            return action;
+        }
+
+        constexpr context_action operator()(event_type const& event) const noexcept {
+            using enum context_action;
+            context_action action = next;
+            std::ignore           = ((action = invoke_mod(static_cast<Bases const&>(*this), event), action == next) && ...);
+            return action;
+        }
+
+        constexpr context_action operator()(user_event const& usr) const noexcept {
+            using enum context_action;
+            event_type     event{usr};
+            context_action action = next;
+            std::ignore           = ((action = invoke_mod(static_cast<Bases const&>(*this), event), action == next) && ...);
+            return action;
+        }
     };
 
     template <typename... Ts>
