@@ -38,32 +38,23 @@ int main(int const argc, char const* const* argv) try {
 
     if (parsed.has_flag("--bucklespring")) {
         log("key-sounds: using bucklespring sound profile.");
-        static constinit auto pipeline =
-          context
-          | io_manager
-          | input_manager
-          | intercept[keyboard | required]
-          | on[basic_multi_click{KEY_PAUSE}, run{[](Context auto& ctx) noexcept {
-                       log("{} Toggle Pause triggered.", ctx.event().micro_time());
-                       return toggle_sound_pause(ctx);
-                   }}]
-          | basic_sound_player(bucklespring_synth{});
-        setup(pipeline);
-        pipeline();
+        dynamic_synth::register_synth(bucklespring_synth{});
     } else {
-        static constinit auto pipeline =
-          context
-          | io_manager
-          | input_manager
-          | intercept[keyboard | required]
-          | on[basic_multi_click{KEY_PAUSE}, run{[](Context auto& ctx) noexcept {
-                       log("{} Toggle Pause triggered.", ctx.event().micro_time());
-                       return toggle_sound_pause(ctx);
-                   }}]
-          | sound_player;
-        setup(pipeline);
-        pipeline();
+        dynamic_synth::register_synth(basic_synth{});
     }
+
+    static constinit auto pipeline =
+      context
+      | io_manager
+      | input_manager
+      | intercept[keyboard | required]
+      | on[basic_multi_click{KEY_PAUSE}, run{[](Context auto& ctx) noexcept {
+                   log("{} Toggle Pause triggered.", ctx.event().micro_time());
+                   return toggle_sound_pause(ctx);
+               }}]
+      | basic_sound_player(dynamic_synth{});
+    setup(pipeline);
+    pipeline();
 
     return 0;
 } catch (std::runtime_error const& err) {

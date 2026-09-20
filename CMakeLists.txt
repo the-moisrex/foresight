@@ -138,6 +138,7 @@ target_sources(${LIB_NAME}
         sound/alsa.cxx
         sound/oss.cxx
         sound/bucklespring.cxx
+        sound/chime.cxx
 )
 
 target_sources(${LIB_NAME}
@@ -227,7 +228,8 @@ target_sources(${LIB_NAME}
         mods/sound.ixx
         sound/backend.ixx
         sound/bucklespring.ixx
-        sound/bucklespring_data.ixx
+        sound/chime.ixx
+        sound/chime_data.ixx
 )
 
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)

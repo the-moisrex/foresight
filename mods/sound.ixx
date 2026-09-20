@@ -8,6 +8,7 @@ module;
 #include <cstdint>
 #include <linux/input-event-codes.h>
 #include <span>
+#include <tuple>
 #include <utility>
 
 export module fs8.mods:sound;
@@ -59,6 +60,48 @@ export namespace fs8 {
     };
 
     static_assert(sound_generator<basic_synth>);
+
+    /// Type-erased sound generator that dispatches through function pointers.
+    ///
+    /// Use `dynamic_synth::register_synth(my_synth{})` to wire any
+    /// `sound_generator` into a single `basic_sound_player` type, avoiding
+    /// template bloat when the generator is chosen at runtime.
+    struct [[nodiscard]] dynamic_synth {
+        [[nodiscard]] std::size_t duration_frames(event_type const& event, sound_format const fmt) const noexcept {
+            return s_duration_fn ? s_duration_fn(event, fmt) : 0;
+        }
+
+        void render(event_type const& event, sound_format const fmt, std::span<float> dest) const noexcept {
+            if (s_render_fn) {
+                s_render_fn(event, fmt, dest);
+            }
+        }
+
+        /// Register a `sound_generator` as the active synth.
+        ///
+        /// Calling this multiple times replaces the previous registration.
+        /// The generator instance is a function-local `static const`, so it
+        /// is initialised once and lives for the duration of the program.
+        template <sound_generator Gen>
+        static void register_synth(Gen const& = Gen{}) {
+            static Gen const gen{};
+            s_duration_fn = +[](event_type const& e, sound_format const f) noexcept -> std::size_t {
+                return gen.duration_frames(e, f);
+            };
+            s_render_fn = +[](event_type const& e, sound_format const f, std::span<float> d) noexcept {
+                gen.render(e, f, d);
+            };
+        }
+
+      private:
+        using duration_fn_t = std::size_t (*)(event_type const&, sound_format const) noexcept;
+        using render_fn_t   = void (*)(event_type const&, sound_format const, std::span<float>) noexcept;
+
+        inline static duration_fn_t s_duration_fn = nullptr;
+        inline static render_fn_t   s_render_fn   = nullptr;
+    };
+
+    static_assert(sound_generator<dynamic_synth>);
 
     // Forward declaration for the sink.
     template <sound_generator>
@@ -208,7 +251,18 @@ export namespace fs8 {
         template <Context CtxT>
         context_action operator()(CtxT& ctx) const noexcept {
             using enum context_action;
-            return ctx.mod(sound_player).toggle_pause() ? next : drop_event;
+            context_action result = next;
+            std::apply(
+              [&](auto&... mod) noexcept {
+                  (([&]() noexcept {
+                      if constexpr (requires { mod.toggle_pause(); }) {
+                          result = mod.toggle_pause() ? next : drop_event;
+                      }
+                  }()),
+                   ...);
+              },
+              ctx.get_mods());
+            return result;
         }
     } toggle_sound_pause;
 
