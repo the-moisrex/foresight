@@ -21,51 +21,41 @@ import :io_manager;
 
 export namespace fs8 {
 
-    /// Logical sound identifiers.
-    enum struct [[nodiscard]] sound_id : uint8_t {
-        release = 0, ///< key/button up
-        press   = 1, ///< key/button down
-        tick,        ///< soft click
-        confirm,     ///< success / acknowledge
-        error,       ///< failure / deny
-        toggle_on,   ///< mode enabled
-        toggle_off,  ///< mode disabled
-    };
-
-    [[nodiscard]] constexpr uint8_t operator+(sound_id const id) noexcept {
-        return std::to_underlying(id);
-    }
-
     /// Audio format supplied to a sound generator.
     struct [[nodiscard]] sound_format {
         uint32_t sample_rate = 48'000;
         uint16_t channels    = 2;
     };
 
-    /// A sound generator produces audio for a given logical sound id.
+    /// A sound generator produces audio for a given input event.
     ///
     /// This is the extension point: implement this concept to provide a
     /// different palette (FM synth, wavetable, sampled assets, ...) without
     /// touching the player.  `render` must be `noexcept` and write
     /// `duration_frames * format.channels` interleaved float samples into
-    /// the destination span.
+    /// the destination span.  Return 0 from `duration_frames` for events
+    /// this generator does not handle.
     template <typename T>
-    concept sound_generator = requires(T const& gen, sound_id const id, sound_format const fmt, std::span<float> dest) {
-        { gen.duration_frames(id, fmt) } noexcept -> std::convertible_to<std::size_t>;
-        { gen.render(id, fmt, dest) } noexcept;
+    concept sound_generator = requires(T const& gen, event_type const& event, sound_format const fmt, std::span<float> dest) {
+        { gen.duration_frames(event, fmt) } noexcept -> std::convertible_to<std::size_t>;
+        { gen.render(event, fmt, dest) } noexcept;
     };
 
     /// A tiny self-contained synthesizer: sine carrier with exponential
-    /// decay, per-sound-id pitch.  No assets, no dependencies.
+    /// decay, per-event pitch.  No assets, no dependencies.
     struct [[nodiscard]] basic_synth {
         constexpr basic_synth() noexcept = default;
 
-        [[nodiscard]] constexpr std::size_t duration_frames(sound_id const id, sound_format const fmt) const noexcept {
-            static constexpr std::array<uint8_t, 7u> ids{45, 45, 20, 90, 140, 70, 70};
-            return static_cast<std::size_t>(fmt.sample_rate) * ids[+id] / 1000;
+        [[nodiscard]] constexpr std::size_t duration_frames(event_type const& event, sound_format const fmt) const noexcept {
+            if (event.type() != EV_KEY || event.value() > 1) {
+                return 0;
+            }
+            // value 0 = release, value 1 = press
+            static constexpr std::array<uint8_t, 2u> ids{45, 45};
+            return static_cast<std::size_t>(fmt.sample_rate) * ids[event.value()] / 1000;
         }
 
-        void render(sound_id id, sound_format fmt, std::span<float> dest) const noexcept;
+        void render(event_type const& event, sound_format fmt, std::span<float> dest) const noexcept;
     };
 
     static_assert(sound_generator<basic_synth>);
@@ -110,7 +100,7 @@ export namespace fs8 {
     ///
     /// As a *factory* it creates explicit sinks for use inside `on[...]`:
     /// @code
-    ///   | fs8::on[fs8::keydown[KEY_ENTER], fs8::sound_player.play(fs8::sound_id::confirm)]
+    ///   | fs8::on[fs8::keydown[KEY_ENTER], fs8::sound_player.play(KEY_ENTER, true)]
     /// @endcode
     ///
     /// To use a custom generator:
@@ -125,9 +115,9 @@ export namespace fs8 {
 
         constexpr explicit basic_sound_player(Gen const& g) noexcept : gen_{g} {}
 
-        /// Create a sink that plays the given sound when invoked.
-        [[nodiscard]] consteval basic_sound_sink<Gen> play(sound_id const id) const noexcept {
-            return basic_sound_sink<Gen>{id};
+        /// Create a sink that plays a key event sound when invoked.
+        [[nodiscard]] consteval basic_sound_sink<Gen> play(uint16_t const code, bool const pressed) const noexcept {
+            return basic_sound_sink<Gen>{code, pressed};
         }
 
         /// Lifecycle: initialise the audio backend on start.
@@ -143,7 +133,7 @@ export namespace fs8 {
             return drop_event;
         }
 
-        /// play press/release
+        /// Play press/release sounds for key events.
         context_action operator()(event_type const& event) noexcept {
             using enum context_action;
             if (is_paused()) {
@@ -153,19 +143,19 @@ export namespace fs8 {
                 return next;
             }
             if (event.value() <= 1) {
-                play_sound(static_cast<sound_id>(event.value()));
+                play_event(event);
             }
             return next;
         }
 
-        /// Play a sound (called by the sink or transformer).
-        void play_sound(sound_id id) noexcept {
+        /// Render and push audio for the given event.
+        void play_event(event_type const& event) noexcept {
             sound_format const fmt{
               .sample_rate = queue_sample_rate,
               .channels    = queue_channels,
             };
 
-            auto const frames = gen_.duration_frames(id, fmt);
+            auto const frames = gen_.duration_frames(event, fmt);
             if (frames == 0) [[unlikely]] {
                 return;
             }
@@ -176,7 +166,7 @@ export namespace fs8 {
             }
 
             std::array<float, max_frames * queue_channels> samples{};
-            gen_.render(id, fmt, std::span<float>{samples.data(), frames * queue_channels});
+            gen_.render(event, fmt, std::span<float>{samples.data(), frames * queue_channels});
             push_samples(std::span<float const>{samples.data(), frames * queue_channels});
         }
     };
@@ -186,24 +176,30 @@ export namespace fs8 {
 
     static_assert(Modifier<basic_sound_player<basic_synth>>);
 
-    /// A lightweight sink mod that plays a specific sound when invoked by
-    /// `on[...]`.  Finds the player via `ctx.mod(...)` at runtime.
+    /// A lightweight sink mod that plays a key event sound when invoked by
+    /// `on[...]`.  Stores the keycode and pressed state; reconstructs a
+    /// minimal event at invocation time.  Finds the player via
+    /// `ctx.mod(...)` at runtime.
     template <sound_generator Gen>
     struct [[nodiscard]] basic_sound_sink : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
-        sound_id id_ = sound_id::tick;
+        uint16_t code_    = 0;
+        bool     pressed_ = false;
 
       public:
         constexpr basic_sound_sink() noexcept = default;
 
-        constexpr explicit basic_sound_sink(sound_id const id) noexcept : id_{id} {}
+        constexpr basic_sound_sink(uint16_t const code, bool const pressed) noexcept
+            : code_{code}, pressed_{pressed} {}
 
         template <Context CtxT>
             requires has_mod<basic_sound_player<Gen>, CtxT>
         context_action operator()(CtxT& ctx) noexcept {
-            ctx.mod(basic_sound_player<Gen>{}).play_sound(id_);
+            event_type event;
+            event.set(EV_KEY, code_, pressed_ ? 1 : 0);
+            ctx.mod(basic_sound_player<Gen>{}).play_event(event);
             return context_action::next;
         }
     };
@@ -215,7 +211,5 @@ export namespace fs8 {
             return ctx.mod(sound_player).toggle_pause() ? next : drop_event;
         }
     } toggle_sound_pause;
-
-
 
 } // namespace fs8

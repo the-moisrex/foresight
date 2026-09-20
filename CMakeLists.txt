@@ -137,6 +137,7 @@ target_sources(${LIB_NAME}
         sound/pipewire.cxx
         sound/alsa.cxx
         sound/oss.cxx
+        sound/bucklespring.cxx
 )
 
 target_sources(${LIB_NAME}
@@ -225,6 +226,8 @@ target_sources(${LIB_NAME}
         utils/traits.ixx
         mods/sound.ixx
         sound/backend.ixx
+        sound/bucklespring.ixx
+        sound/bucklespring_data.ixx
 )
 
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)

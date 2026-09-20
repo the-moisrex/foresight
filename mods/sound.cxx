@@ -22,13 +22,13 @@ using fs8::basic_io_manager;
 using fs8::basic_sound_player_core;
 using fs8::basic_synth;
 using fs8::context_action;
+using fs8::event_type;
 using fs8::io_event;
 using fs8::io_fd;
 using fs8::make_audio_backend;
 using fs8::queue_channels;
 using fs8::queue_sample_rate;
 using fs8::sound_format;
-using fs8::sound_id;
 
 // ---------------------------------------------------------------------------
 // basic_sound_player_core::impl
@@ -65,8 +65,10 @@ struct fs8::pimpl_idiom<basic_sound_player_core>::impl {
 // basic_synth::render
 // ---------------------------------------------------------------------------
 
-void basic_synth::render(sound_id const id, sound_format const fmt, std::span<float> const dest) const noexcept {
-    using enum sound_id;
+void basic_synth::render(event_type const& event, sound_format const fmt, std::span<float> const dest) const noexcept {
+    if (event.type() != EV_KEY || event.value() > 1) [[unlikely]] {
+        return;
+    }
 
     constexpr float pi = 3.14159265358979323846f;
 
@@ -78,15 +80,12 @@ void basic_synth::render(sound_id const id, sound_format const fmt, std::span<fl
         float decay_pow;
     };
 
+    // value 0 = release, value 1 = press
     voice_params v{};
-    switch (id) {
-        case tick: v = {.freq = 1800.0f, .freq_end = 1800.0f, .duration = 0.020f, .attack = 0.001f, .decay_pow = 6.0f}; break;
-        case press: v = {.freq = 880.0f, .freq_end = 660.0f, .duration = 0.045f, .attack = 0.001f, .decay_pow = 4.0f}; break;
-        case release: v = {.freq = 660.0f, .freq_end = 440.0f, .duration = 0.045f, .attack = 0.001f, .decay_pow = 4.0f}; break;
-        case confirm: v = {.freq = 740.0f, .freq_end = 1180.0f, .duration = 0.090f, .attack = 0.002f, .decay_pow = 3.0f}; break;
-        case error: v = {.freq = 320.0f, .freq_end = 180.0f, .duration = 0.140f, .attack = 0.002f, .decay_pow = 2.5f}; break;
-        case toggle_on: v = {.freq = 520.0f, .freq_end = 780.0f, .duration = 0.070f, .attack = 0.002f, .decay_pow = 3.5f}; break;
-        case toggle_off: v = {.freq = 780.0f, .freq_end = 520.0f, .duration = 0.070f, .attack = 0.002f, .decay_pow = 3.5f}; break;
+    if (event.value() == 1) {
+        v = {.freq = 880.0f, .freq_end = 660.0f, .duration = 0.045f, .attack = 0.001f, .decay_pow = 4.0f};
+    } else {
+        v = {.freq = 660.0f, .freq_end = 440.0f, .duration = 0.045f, .attack = 0.001f, .decay_pow = 4.0f};
     }
 
     if (fmt.channels == 0 || fmt.sample_rate == 0 || v.duration <= v.attack) [[unlikely]] {

@@ -5,7 +5,7 @@ import fs8;
 static constexpr auto args =
   fs8::arguments["Key Sounds"]
     .positional("device")
-    .add_flag({.name = "--bucklespring", .alias = "-b", .help = "Use bucklespring key sounds (not yet implemented)."})
+    .add_flag({.name = "--bucklespring", .alias = "-b", .help = "Use bucklespring key sounds from a real IBM Model M."})
     .help(R"TEXT(
 Usage: key-sounds [device] [options]
 
@@ -14,7 +14,7 @@ No events are grabbed or forwarded — this is a passive listener.
 
 Arguments:
     -h | --help             Print help.
-    -b | --bucklespring     Use bucklespring key sounds (not yet implemented).
+    -b | --bucklespring     Use bucklespring key sounds (IBM Model M).
 
 Positionals:
     device                  The keyboard device query (default: any keyboard).
@@ -32,24 +32,38 @@ int main(int const argc, char const* const* argv) try {
     auto const parsed = args(argc, argv);
     parsed.exit_if_needed();
 
+    auto setup = [&](auto& pipe) {
+        pipe.mod(intercept).add(parsed | required);
+    };
+
     if (parsed.has_flag("--bucklespring")) {
-        log("key-sounds: bucklespring mode is not yet implemented.");
-        return 1;
+        log("key-sounds: using bucklespring sound profile.");
+        static constinit auto pipeline =
+          context
+          | io_manager
+          | input_manager
+          | intercept[keyboard | required]
+          | on[basic_multi_click{KEY_PAUSE}, run{[](Context auto& ctx) noexcept {
+                       log("{} Toggle Pause triggered.", ctx.event().micro_time());
+                       return toggle_sound_pause(ctx);
+                   }}]
+          | basic_sound_player(bucklespring_synth{});
+        setup(pipeline);
+        pipeline();
+    } else {
+        static constinit auto pipeline =
+          context
+          | io_manager
+          | input_manager
+          | intercept[keyboard | required]
+          | on[basic_multi_click{KEY_PAUSE}, run{[](Context auto& ctx) noexcept {
+                       log("{} Toggle Pause triggered.", ctx.event().micro_time());
+                       return toggle_sound_pause(ctx);
+                   }}]
+          | sound_player;
+        setup(pipeline);
+        pipeline();
     }
-
-    static constinit auto pipeline =
-      context
-      | io_manager
-      | input_manager
-      | intercept[keyboard | required]
-      | on[basic_multi_click{KEY_PAUSE}, run{[](Context auto& ctx) noexcept {
-               log("{} Toggle Pause triggered.", ctx.event().micro_time());
-               return toggle_sound_pause(ctx);
-           }}]
-      | sound_player;
-
-    pipeline.mod(intercept).add(parsed | required);
-    pipeline();
 
     return 0;
 } catch (std::runtime_error const& err) {

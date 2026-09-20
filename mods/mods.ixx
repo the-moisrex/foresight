@@ -46,6 +46,8 @@ export import :scheduler;
 export import :singleton;
 export import :smooth;
 export import :sound;
+export import :bucklespring;
+export import :bucklespring_data;
 export import :split_move;
 export import :startup_key_releases;
 export import :stopper;
