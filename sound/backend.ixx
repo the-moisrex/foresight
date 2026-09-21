@@ -39,6 +39,12 @@ export namespace fs8 {
         /// Non-blocking push of interleaved samples into the SPSC queue.
         virtual bool push(std::span<float const> samples) noexcept = 0;
 
+        /// Set a pull-based audio callback.  When set, the backend calls
+        /// this instead of popping from the SPSC queue.  Returns the number
+        /// of float samples written to dest.
+        using process_fn = std::size_t (*)(void* ctx, std::span<float> dest) noexcept;
+        virtual void set_process_callback(process_fn /*fn*/, void* /*ctx*/) noexcept {}
+
         /// fd to watch with io_manager (-1 = no fd to watch).
         [[nodiscard]] virtual int watch_fd() const noexcept {
             return -1;

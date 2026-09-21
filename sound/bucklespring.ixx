@@ -13,14 +13,14 @@ import fs8.event;
 
 export namespace fs8 {
 
-    struct bucklespring_voice;
+    struct bucklespring_params;
 
     /// Synthesizer for IBM Model M bucklespring keystroke sounds.
     struct [[nodiscard]] bucklespring_synth {
         constexpr bucklespring_synth() noexcept = default;
 
-        /// Look up the voice parameters for a given keycode and press state.
-        [[nodiscard]] bucklespring_voice const& voice(uint8_t keycode, bool pressed) const noexcept;
+        /// Look up the synthesis parameters for a given keycode and press state.
+        [[nodiscard]] bucklespring_params const& params(uint8_t keycode, bool pressed) const noexcept;
 
         /// Duration in audio frames for the given keycode and press state.
         [[nodiscard]] std::size_t duration_frames(uint8_t keycode, bool pressed, uint32_t sample_rate) const noexcept;

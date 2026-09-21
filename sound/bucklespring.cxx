@@ -13,19 +13,19 @@ import :bucklespring;
 import :bucklespring_data;
 
 using fs8::bucklespring_synth;
-using fs8::bucklespring_voice;
+using fs8::bucklespring_params;
 
 // ---------------------------------------------------------------------------
-// bucklespring_synth::voice / duration_frames
+// bucklespring_synth::params / duration_frames
 // ---------------------------------------------------------------------------
 
-bucklespring_voice const& bucklespring_synth::voice(uint8_t const keycode, bool const pressed) const noexcept {
+bucklespring_params const& bucklespring_synth::params(uint8_t const keycode, bool const pressed) const noexcept {
     auto const& table = pressed ? bucklespring_press_params : bucklespring_release_params;
     return table[keycode];
 }
 
 std::size_t bucklespring_synth::duration_frames(uint8_t const keycode, bool const pressed, uint32_t const sample_rate) const noexcept {
-    auto const& v         = voice(keycode, pressed);
+    auto const& v         = params(keycode, pressed);
     float const total_ms  = 1.5f + v.ring_ms * 8.0f;
     float const capped_ms = total_ms < 150.0f ? total_ms : 150.0f;
     return static_cast<std::size_t>(static_cast<float>(sample_rate) * capped_ms / 1000.0f);
@@ -138,29 +138,34 @@ void bucklespring_synth::render(
         return;
     }
 
-    auto const& v      = voice(keycode, pressed);
+    auto const& v      = params(keycode, pressed);
     float const inv_sr = 1.0f / static_cast<float>(sample_rate);
     float const sr     = static_cast<float>(sample_rate);
 
     float const gain = db_to_linear(v.peak_dbfs);
 
-    float const transient_end = 2.0f * ms_to_sec;
+    // Extended transient: 8ms multi-stage envelope matching the
+    // characteristic buckle mechanism (contact → bottom → settle).
+    float const transient_end = 8.0f * ms_to_sec;
 
     float const t_contact      = 0.16f * ms_to_sec;
-    float const t_buckle       = 0.60f * ms_to_sec;
-    float const t_settle       = 1.06f * ms_to_sec;
-    float const tc_contact_inv = 1.0f / (0.10f * ms_to_sec);
-    float const tc_buckle_inv  = 1.0f / (0.20f * ms_to_sec);
-    float const tc_settle_inv  = 1.0f / (0.25f * ms_to_sec);
+    float const t_bottom       = 1.20f * ms_to_sec;
+    float const t_settle       = 3.00f * ms_to_sec;
+    float const t_ring_in      = 5.50f * ms_to_sec;
+    float const tc_contact_inv = 1.0f / (0.15f * ms_to_sec);
+    float const tc_bottom_inv  = 1.0f / (0.40f * ms_to_sec);
+    float const tc_settle_inv  = 1.0f / (0.60f * ms_to_sec);
+    float const tc_ring_in_inv = 1.0f / (0.80f * ms_to_sec);
 
     float const ring_tau     = v.ring_ms * ring_ms_scale * ms_to_sec / 2.0f;
     float const ring_tau_inv = ring_tau > 0.0f ? 1.0f / ring_tau : 0.0f;
 
     biquad_bp res1;
     biquad_bp res2;
-    float const freq_scale = 0.65f; // shift resonances lower for heavier sound
-    res1.configure(v.primary_freq * freq_scale, v.primary_q, sr);
-    res2.configure(v.secondary_freq * freq_scale, v.secondary_q, sr);
+    // Use raw frequencies (no scaling) for brightness matching reference.
+    // Reduce Q by ~3x for broader, more mechanical resonance.
+    res1.configure(v.primary_freq, v.primary_q / 3.0f, sr);
+    res2.configure(v.secondary_freq, v.secondary_q / 3.0f, sr);
 
     xorshift32 rng{static_cast<uint32_t>(keycode) * 2'654'435'761u + (pressed ? 0x9E37'79B9u : 0u)};
     pink_noise pink;
@@ -176,7 +181,7 @@ void bucklespring_synth::render(
     int const            delay_len            = std::min(static_cast<int>(sr * 0.018f), delay_max);
     float                delay_buf[delay_max] = {};
     int                  delay_idx            = 0;
-    float const delay_feedback       = 0.40f;
+    float const delay_feedback       = 0.10f; // reduced — reference has no comb ringing
 
     for (std::size_t i = 0; i < frames; ++i) {
         float const t     = static_cast<float>(i) * inv_sr;
@@ -187,7 +192,7 @@ void bucklespring_synth::render(
         float const raw = 0.05f * white + 0.45f * pn;
         float const r1 = res1.tick(raw);
         float const r2 = res2.tick(raw);
-        // Blend: mostly filtered (metallic character) + some raw (warmth/body)
+        // Blend: mostly filtered (mechanical character) + some raw (warmth/body)
         float const colored = 0.2f * raw + 0.4f * (r1 + r2);
 
         float sample = 0.0f;
@@ -196,19 +201,23 @@ void bucklespring_synth::render(
             float env = 0.0f;
             if (t >= t_contact) {
                 float const d  = t - t_contact;
-                env           += 0.7f * std::exp(-d * tc_contact_inv);
+                env           += 0.5f * std::exp(-d * tc_contact_inv);
             }
-            if (t >= t_buckle) {
-                float const d  = t - t_buckle;
-                env           += 1.3f * std::exp(-d * tc_buckle_inv);
+            if (t >= t_bottom) {
+                float const d  = t - t_bottom;
+                env           += 1.0f * std::exp(-d * tc_bottom_inv);
             }
             if (t >= t_settle) {
                 float const d  = t - t_settle;
-                env           += 0.55f * std::exp(-d * tc_settle_inv);
+                env           += 0.7f * std::exp(-d * tc_settle_inv);
+            }
+            if (t >= t_ring_in) {
+                float const d  = t - t_ring_in;
+                env           += 0.3f * std::exp(-d * tc_ring_in_inv);
             }
             // Transient: bright click + low thump for weight
-            float const thump = std::max(0.0f, std::sin(t * 37.699f)) * 0.6f; // ~60 Hz
-            sample = (0.4f * white + 0.05f * pn + thump) * env;
+            float const thump = std::max(0.0f, std::sin(t * 37.699f)) * 0.4f; // ~60 Hz
+            sample = (0.5f * white + 0.1f * pn + thump) * env;
 
         } else {
             float const ring_t = t - transient_end;

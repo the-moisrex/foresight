@@ -134,6 +134,14 @@ namespace {
         void**            callback_pack = nullptr;
         int               loop_fd       = -1;
 
+        process_fn on_process_fn = nullptr;
+        void*      on_process_ctx = nullptr;
+
+        void set_process_callback(process_fn fn, void* ctx) noexcept override {
+            on_process_fn = fn;
+            on_process_ctx = ctx;
+        }
+
         static void process_cb(void* userdata) noexcept {
             auto& self = *static_cast<pipewire_backend*>(userdata);
             auto& a    = api();
@@ -161,8 +169,14 @@ namespace {
             auto const count = frames * queue_channels;
 
             std::array<float, queue_sample_rate * queue_channels> tmp{};
-            auto const                                            n      = std::min(count, tmp.size());
-            auto const                                            filled = self.queue.pop(std::span<float>{tmp.data(), n});
+            auto const                                            n = std::min(count, tmp.size());
+
+            std::size_t filled = 0;
+            if (self.on_process_fn) {
+                filled = self.on_process_fn(self.on_process_ctx, std::span<float>{tmp.data(), n});
+            } else {
+                filled = self.queue.pop(std::span<float>{tmp.data(), n});
+            }
 
             auto const* src = tmp.data();
             for (std::size_t i = 0; i < n; ++i) {

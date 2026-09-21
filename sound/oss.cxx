@@ -46,6 +46,14 @@ namespace {
         int          fd        = -1;
         int          wakeup_fd = -1;
 
+        process_fn on_process_fn = nullptr;
+        void*      on_process_ctx = nullptr;
+
+        void set_process_callback(process_fn fn, void* ctx) noexcept override {
+            on_process_fn = fn;
+            on_process_ctx = ctx;
+        }
+
         bool start() noexcept override {
             if (fd >= 0) {
                 return true;
@@ -129,7 +137,12 @@ namespace {
             std::array<float, queue_sample_rate * queue_channels>   float_buf{};
             std::array<int16_t, queue_sample_rate * queue_channels> int_buf{};
 
-            auto const count = queue.pop(std::span<float>{float_buf});
+            std::size_t count = 0;
+            if (on_process_fn) {
+                count = on_process_fn(on_process_ctx, std::span<float>{float_buf});
+            } else {
+                count = queue.pop(std::span<float>{float_buf});
+            }
             if (count == 0) [[unlikely]] {
                 return;
             }

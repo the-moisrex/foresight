@@ -107,9 +107,20 @@ export namespace fs8 {
     template <sound_generator>
     struct basic_sound_sink;
 
+    /// Sound slot pool constants.
+    inline constexpr std::size_t max_slot_frames  = queue_sample_rate * 150 / 1000;          // 7200
+    inline constexpr std::size_t max_slot_samples = max_slot_frames * queue_channels;       // 14400
+    inline constexpr std::size_t slot_pool_size   = 16;
+
+    /// Returned by acquire_slot: a span into a slot buffer + its index.
+    struct [[nodiscard]] slot_buffer {
+        std::span<float> samples{};
+        std::size_t      index = 0;
+    };
+
     /// Non-template base that owns the audio backend and pimpl.
     ///
-    /// Separates the template-independent backend lifecycle (init, push,
+    /// Separates the template-independent backend lifecycle (init,
     /// io_manager registration) from the template-dependent generator.
     struct [[nodiscard]] basic_sound_player_core : pimpl_idiom<basic_sound_player_core> {
         using pimpl_idiom::pimpl_idiom;
@@ -119,8 +130,13 @@ export namespace fs8 {
         /// Initialise the audio backend (called on start).
         context_action ensure_backend(basic_io_manager& io) noexcept;
 
-        /// Push interleaved samples to the audio backend.
-        void push_samples(std::span<float const> samples) noexcept;
+        /// Acquire a sound slot for rendering.  Returns an empty span if
+        /// the pool is exhausted and no slot could be stolen.
+        [[nodiscard]] slot_buffer acquire_slot(std::size_t sample_count) noexcept;
+
+        /// Mark a previously acquired slot as active.  Computes peak
+        /// amplitude for slot-stealing heuristics.
+        void commit_slot(std::size_t index, std::size_t sample_count) noexcept;
 
         /// Toggle the paused state. When paused, no sounds are played.
         bool toggle_pause() noexcept;
@@ -191,7 +207,8 @@ export namespace fs8 {
             return next;
         }
 
-        /// Render and push audio for the given event.
+        /// Render into a sound slot.  The audio backend pulls mixed
+        /// audio from active slots on demand (via the on_process callback).
         void play_event(event_type const& event) noexcept {
             sound_format const fmt{
               .sample_rate = queue_sample_rate,
@@ -203,14 +220,18 @@ export namespace fs8 {
                 return;
             }
 
-            constexpr std::size_t max_frames = queue_sample_rate * 150 / 1000;
-            if (frames > max_frames) [[unlikely]] {
+            auto const sample_count = frames * queue_channels;
+            if (sample_count > max_slot_samples) [[unlikely]] {
                 return;
             }
 
-            std::array<float, max_frames * queue_channels> samples{};
-            gen_.render(event, fmt, std::span<float>{samples.data(), frames * queue_channels});
-            push_samples(std::span<float const>{samples.data(), frames * queue_channels});
+            auto slot = acquire_slot(sample_count);
+            if (slot.samples.empty()) [[unlikely]] {
+                return;
+            }
+
+            gen_.render(event, fmt, slot.samples);
+            commit_slot(slot.index, sample_count);
         }
     };
 

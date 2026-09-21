@@ -99,6 +99,14 @@ namespace {
         snd_pcm_t*   pcm       = nullptr;
         int          wakeup_fd = -1;
 
+        process_fn on_process_fn = nullptr;
+        void*      on_process_ctx = nullptr;
+
+        void set_process_callback(process_fn fn, void* ctx) noexcept override {
+            on_process_fn = fn;
+            on_process_ctx = ctx;
+        }
+
         bool start() noexcept override {
             if (pcm != nullptr) {
                 return true;
@@ -179,7 +187,12 @@ namespace {
             eventfd_read(wakeup_fd, &val);
 
             std::array<float, queue_sample_rate * queue_channels> buf{};
-            auto const                                            count = queue.pop(std::span<float>{buf});
+            std::size_t count = 0;
+            if (on_process_fn) {
+                count = on_process_fn(on_process_ctx, std::span<float>{buf});
+            } else {
+                count = queue.pop(std::span<float>{buf});
+            }
             if (count == 0) [[unlikely]] {
                 return;
             }
