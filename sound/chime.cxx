@@ -4,6 +4,7 @@ module;
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <numbers>
 #include <span>
 
 module fs8.mods;
@@ -37,7 +38,7 @@ namespace {
 
         /// Compute coefficients from center frequency, Q, and sample rate.
         constexpr void configure(float center, float q, float sample_rate) noexcept {
-            float const w0    = 6.283185307179586f * center / sample_rate;
+            float const w0    = std::numbers::pi_v<float> * 2.0f * center / sample_rate;
             float const cos_w = std::cos(w0);
             float const sin_w = std::sin(w0);
             float const alpha = sin_w / (2.0f * q);
@@ -78,8 +79,8 @@ namespace {
         /// Return a float in [-1, 1).
         [[nodiscard]] constexpr float uniform() noexcept {
             // Use 24 bits of mantissa for float precision
-            uint32_t const bits = next() & 0x00FFFFFFu;
-            return static_cast<float>(bits) / 8388608.0f - 1.0f;
+            uint32_t const bits = next() & 0x00FF'FFFFu;
+            return static_cast<float>(bits) / 8'388'608.0f - 1.0f;
         }
     };
 
@@ -130,7 +131,7 @@ void chime_synth::render(
     filter.configure(start_freq, v.q_factor, static_cast<float>(sample_rate));
 
     // PRNG seeded from keycode for per-key randomness
-    xorshift32 rng{static_cast<uint32_t>(keycode) * 2654435761u + (pressed ? 0x9E3779B9u : 0u)};
+    xorshift32 rng{static_cast<uint32_t>(keycode) * 2'654'435'761u + (pressed ? 0x9E37'79B9u : 0u)};
 
     // Sine phase accumulator for tonal component
     float phase = 0.0f;
@@ -159,9 +160,9 @@ void chime_synth::render(
         float const noise = rng.uniform();
 
         // --- Tonal component ---
-        phase += 6.283185307179586f * current_freq * inv_sr;
-        if (phase > 6.283185307179586f) {
-            phase -= 6.283185307179586f;
+        phase += std::numbers::pi_v<float> * 2.0f * current_freq * inv_sr;
+        if (phase > std::numbers::pi_v<float> * 2.0f) {
+            phase -= std::numbers::pi_v<float> * 2.0f;
         }
         float const tonal = std::sin(phase);
 
