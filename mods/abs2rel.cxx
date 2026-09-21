@@ -12,6 +12,10 @@ using fs8::basic_abs2rel;
 using fs8::context_action;
 using fs8::event_type;
 
+static constexpr event_type::value_type states_loc     = (sizeof(event_type::value_type) * CHAR_BIT) - 3;
+static constexpr uint32_t               bit_loc        = states_loc;
+static constexpr uint32_t               init_state_bit = 0b1U << static_cast<uint32_t>(bit_loc);
+
 // For more information:
 // https://www.kernel.org/doc/Documentation/input/event-codes.txt
 context_action fs8::basic_pressure2mouse_clicks::operator()(event_type& event) noexcept {
@@ -180,28 +184,30 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
         // Absolute position event from a tablet
         switch (code) {
             case ABS_X: {
-                auto const  delta        = static_cast<float>(value - (last_abs_x & ~x_init_state));
-                float const pixels_base  = delta / x_scale_factor + x_epsilon;
-                auto        pixels       = static_cast<value_type>(pixels_base);
-                x_epsilon                = pixels_base - static_cast<float>(pixels);
-                pixels                  &= ~(0 - (last_abs_x >> x_bit_loc)); // don't move if we're in init state
+                auto const  delta       = static_cast<float>(value - static_cast<value_type>(last_abs_x & ~init_state_bit));
+                float const pixels_base = (delta / x_scale_factor) + x_epsilon;
+                auto        pixels      = static_cast<value_type>(pixels_base);
+                x_epsilon               = pixels_base - static_cast<float>(pixels);
+
+                // don't move if we're in init state
+                pixels &= static_cast<value_type>(~(0 - (last_abs_x >> bit_loc)));
                 event.type(EV_REL);
                 event.code(REL_X);
                 event.value(pixels);
-                // log("X {} {:x}", pixels, (0 - (last_abs_x >> x_bit_loc)));
+                // log("X {} {:x} {}", pixels, (0 - (last_abs_x >> bit_loc)), last_abs_x);
                 last_abs_x = value;
                 break;
             }
             case ABS_Y: {
-                auto const  delta        = static_cast<float>(value - (last_abs_y & ~y_init_state));
-                float const pixels_base  = delta / y_scale_factor + y_epsilon;
+                auto const  delta        = static_cast<float>(value - static_cast<value_type>(last_abs_y & ~init_state_bit));
+                float const pixels_base  = (delta / y_scale_factor) + y_epsilon;
                 auto        pixels       = static_cast<value_type>(pixels_base);
                 y_epsilon                = pixels_base - static_cast<float>(pixels);
-                pixels                  &= ~(0 - (last_abs_y >> y_bit_loc));
+                pixels                  &= static_cast<value_type>(~(0 - (last_abs_y >> bit_loc)));
                 event.type(EV_REL);
                 event.code(REL_Y);
                 event.value(pixels);
-                // log("Y {} {:x}", pixels, (0 - (last_abs_y >> y_bit_loc)));
+                // log("Y {} {:x} {}", pixels, (0 - (last_abs_y >> bit_loc)), last_abs_y);
                 last_abs_y = value;
                 break;
             }
@@ -226,8 +232,8 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
                 // case BTN_TOOL_TRIPLETAP:
                 // case BTN_TOOL_QUADTAP:
                 // active_tool = code;
-                last_abs_x |= x_init_state;
-                last_abs_y |= y_init_state;
+                last_abs_x |= init_state_bit;
+                last_abs_y |= init_state_bit;
                 x_epsilon   = 0.F;
                 y_epsilon   = 0.F;
                 [[fallthrough]];
@@ -244,4 +250,27 @@ context_action basic_abs2rel::operator()(event_type& event) noexcept {
     }
 
     return next;
+}
+
+void basic_abs2rel::init_state() noexcept {
+    last_abs_x |= init_state_bit;
+    last_abs_y |= init_state_bit;
+    x_epsilon   = 0.0F;
+    y_epsilon   = 0.0F;
+}
+
+basic_abs2rel::tablet_ranges basic_abs2rel::read_tablet_ranges(basic_input_manager& im) noexcept {
+    for (auto const& dev : im.devices()) {
+        if (dev.has_abs_info()) {
+            if (auto const* x = dev.abs_info(ABS_X); x != nullptr) {
+                if (auto const* y = dev.abs_info(ABS_Y); y != nullptr) {
+                    return {
+                      .x = static_cast<float>(x->maximum - x->minimum),
+                      .y = static_cast<float>(y->maximum - y->minimum),
+                    };
+                }
+            }
+        }
+    }
+    return {};
 }

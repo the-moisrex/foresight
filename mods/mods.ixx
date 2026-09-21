@@ -54,3 +54,4 @@ export import :typed;
 export import :typer;
 export import :uinput;
 export import :vars;
+export import :velocity;

@@ -1,7 +1,7 @@
 module;
 #include <cassert>
-#include <climits>
 #include <cstdint>
+#include <initializer_list>
 #include <linux/input-event-codes.h>
 #include <utility>
 export module fs8.mods:abs2rel;
@@ -100,15 +100,9 @@ export namespace fs8 {
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
-        static constexpr value_type states_loc   = (sizeof(value_type) * CHAR_BIT) - 3;
-        static constexpr value_type x_bit_loc    = states_loc;
-        static constexpr value_type y_bit_loc    = states_loc + 1;
-        static constexpr value_type x_init_state = 0b1U << static_cast<std::uint32_t>(x_bit_loc);
-        static constexpr value_type y_init_state = 0b1U << static_cast<std::uint32_t>(y_bit_loc);
-
       private:
-        value_type last_abs_x = 0;
-        value_type last_abs_y = 0;
+        uint32_t last_abs_x = 0;
+        uint32_t last_abs_y = 0;
 
         float x_scale_factor = 15.0F;
         float y_scale_factor = 15.0F;
@@ -186,33 +180,14 @@ export namespace fs8 {
         context_action operator()(event_type& event) noexcept;
 
       private:
-        void init_state() noexcept {
-            last_abs_x |= x_init_state;
-            last_abs_y |= y_init_state;
-            x_epsilon   = 0.0F;
-            y_epsilon   = 0.0F;
-        }
+        void init_state() noexcept;
 
         struct tablet_ranges {
             float x = 0.0F;
             float y = 0.0F;
         };
 
-        static tablet_ranges read_tablet_ranges(basic_input_manager& im) noexcept {
-            for (auto const& dev : im.devices()) {
-                if (dev.has_abs_info()) {
-                    if (auto const* x = dev.abs_info(ABS_X); x != nullptr) {
-                        if (auto const* y = dev.abs_info(ABS_Y); y != nullptr) {
-                            return {
-                              .x = static_cast<float>(x->maximum - x->minimum),
-                              .y = static_cast<float>(y->maximum - y->minimum),
-                            };
-                        }
-                    }
-                }
-            }
-            return {};
-        }
+        static tablet_ranges read_tablet_ranges(basic_input_manager& im) noexcept;
     } abs2rel;
 
 } // namespace fs8

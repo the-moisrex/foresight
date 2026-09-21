@@ -205,6 +205,7 @@ target_sources(${LIB_NAME}
         mods/tilt.ixx
         mods/timed_typed.ixx
         mods/typed.ixx
+        mods/velocity.ixx
         mods/typer.ixx
         mods/vars.ixx
         utils/dynamic_scoping.ixx

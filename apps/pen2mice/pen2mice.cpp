@@ -64,7 +64,7 @@ int main(int const argc, char const* const* argv) try {
              | drop_tablet
              | drop_big_jumps
              | drop_fast_left_clicks             // Ignore fast left clicks
-             | split_move
+             | velocity[split_move]
              | update_mod[keys_state]
              | update_mod[mouse_history]]
       | swipe_detector                           // Detects swipes
