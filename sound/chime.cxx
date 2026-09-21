@@ -9,6 +9,7 @@ module;
 module fs8.mods;
 
 import :chime;
+import :chime_data;
 
 using fs8::chime_synth;
 using fs8::chime_voice;

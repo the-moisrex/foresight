@@ -49,6 +49,7 @@ export import :sound;
 export import :chime;
 export import :chime_data;
 export import :bucklespring;
+export import :bucklespring_data;
 export import :split_move;
 export import :startup_key_releases;
 export import :stopper;
