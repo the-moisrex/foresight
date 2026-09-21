@@ -110,26 +110,32 @@ void bucklespring_synth::render(
     float const freq_shift = 1.0f + (kv - 0.5f) * 0.06f;
 
     // Time boundaries (seconds)
-    float const transient_end = 1.5f * 0.001f;
+    float const transient_end = 2.0f * 0.001f;
 
-    // Three transient sub-events (contact, buckle, settle)
+    // Three transient sub-events (contact, buckle, settle) — heavier/clunkier
     float const t_contact = 0.16f * 0.001f;
     float const t_buckle  = 0.60f * 0.001f;
     float const t_settle  = 1.06f * 0.001f;
-    float const tc_contact_inv = 1.0f / (0.08f * 0.001f);
-    float const tc_buckle_inv  = 1.0f / (0.15f * 0.001f);
-    float const tc_settle_inv  = 1.0f / (0.20f * 0.001f);
+    float const tc_contact_inv = 1.0f / (0.10f * 0.001f);
+    float const tc_buckle_inv  = 1.0f / (0.20f * 0.001f);
+    float const tc_settle_inv  = 1.0f / (0.25f * 0.001f);
 
-    // Ring exponential decay
-    float const ring_tau = v.ring_ms * 0.001f / 4.0f;
+    // Ring exponential decay — longer tail for echoy character
+    float const ring_tau = v.ring_ms * 0.001f / 2.0f;
     float const ring_tau_inv = ring_tau > 0.0f ? 1.0f / ring_tau : 0.0f;
 
+    // Short delay for spring resonance echo
+    static constexpr int delay_max = 882;  // 20ms at 44100 Hz
+    int const delay_len = std::min(static_cast<int>(static_cast<float>(sample_rate) * 0.02f), delay_max);
+    float delay_buf[delay_max] = {};
+    int delay_idx = 0;
+    float const delay_feedback = 0.35f;
+
     // --- Additive sine oscillators (3 partials) ---
-    // Frequencies: primary, secondary, and a detuned third at ~1.4x primary
-    // Each gets a random initial phase for inharmonic character
-    float const f1 = v.primary_freq * freq_shift;
-    float const f2 = v.secondary_freq * freq_shift;
-    float const f3 = f1 * 1.414f;  // sqrt(2) ratio — inharmonic
+    // Lowered frequencies for warmer, clunkier sound
+    float const f1 = v.primary_freq * freq_shift * 0.7f;
+    float const f2 = v.secondary_freq * freq_shift * 0.4f;
+    float const f3 = f2 * 0.55f;
 
     float phase1 = kv * 6.283185307179586f;               // random initial phase
     float phase2 = (1.0f - kv) * 6.283185307179586f;
@@ -139,10 +145,10 @@ void bucklespring_synth::render(
     float const phase_inc2 = 6.283185307179586f * f2 * inv_sr;
     float const phase_inc3 = 6.283185307179586f * f3 * inv_sr;
 
-    // Relative amplitudes of the 3 partials (primary strongest)
-    float const a1 = 0.4f;
-    float const a2 = 0.25f;
-    float const a3 = 0.15f;
+    // Relative amplitudes of the 3 partials (primary dominant, lower = warmer)
+    float const a1 = 0.55f;
+    float const a2 = 0.12f;
+    float const a3 = 0.08f;
 
     // Noise component for the mechanical click
     float const noise_level = pressed ? 0.20f : 0.25f;
@@ -150,6 +156,11 @@ void bucklespring_synth::render(
     // PRNG and noise
     xorshift32 rng{static_cast<uint32_t>(keycode) * 2654435761u + (pressed ? 0x9E3779B9u : 0u)};
     pink_noise pink;
+
+    // 1-pole low-pass for warm, clunky character
+    // Cutoff ~700 Hz: alpha = 2*pi*fc / (2*pi*fc + fs)
+    float const lp_alpha = 4398.0f / (4398.0f + static_cast<float>(sample_rate));
+    float lp_state = 0.0f;
 
     for (std::size_t i = 0; i < frames; ++i) {
         float const t = static_cast<float>(i) * inv_sr;
@@ -160,21 +171,24 @@ void bucklespring_synth::render(
 
         if (t < transient_end) {
             // --- Phase 1: Transient (3 sub-events) ---
-            // Mostly broadband noise — the sharp mechanical click
+            // Heavy mechanical clunk: noise + low-frequency thump
             float env = 0.0f;
             if (t >= t_contact) {
                 float const d = t - t_contact;
-                env += 0.6f * std::exp(-d * tc_contact_inv);
+                env += 0.7f * std::exp(-d * tc_contact_inv);
             }
             if (t >= t_buckle) {
                 float const d = t - t_buckle;
-                env += 1.0f * std::exp(-d * tc_buckle_inv);
+                env += 1.3f * std::exp(-d * tc_buckle_inv);
             }
             if (t >= t_settle) {
                 float const d = t - t_settle;
-                env += 0.45f * std::exp(-d * tc_settle_inv);
+                env += 0.55f * std::exp(-d * tc_settle_inv);
             }
-            sample = (0.7f * white + 0.3f * pn) * env;
+            // Low thump: half-wave rectified sine at ~120 Hz for bottom-out weight
+            float const thump_phase = t * 75.398f;  // 2*pi*120
+            float const thump = std::max(0.0f, std::sin(thump_phase)) * 0.6f;
+            sample = (0.5f * white + 0.15f * pn + thump) * env;
 
         } else {
             // --- Phase 2: Ring (additive sines + noise) ---
@@ -195,7 +209,20 @@ void bucklespring_synth::render(
                               + a3 * std::sin(phase3);
 
             // Mix: sines for metallic ring, noise for mechanical texture
-            sample = (tonal + noise_level * pn) * env;
+            float const tonal_env = (tonal + noise_level * pn) * env;
+
+            // Read from delay line for echoy spring resonance
+            int const read_idx = (delay_idx - delay_len + delay_max) % delay_max;
+            float const delayed = delay_buf[read_idx];
+
+            // Mix dry + delayed, write back with feedback
+            float const mixed = tonal_env + delayed * delay_feedback;
+            delay_buf[delay_idx] = mixed;
+            delay_idx = (delay_idx + 1) % delay_max;
+
+            // Low-pass filter: progressive roll-off
+            lp_state = mixed + (1.0f - lp_alpha) * (lp_state - mixed);
+            sample = lp_state;
         }
 
         float const out = sample * gain;
