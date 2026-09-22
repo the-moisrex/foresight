@@ -16,12 +16,12 @@ export namespace fs8 {
 
     /// Offset + length into the attack PCM blob for one (keycode, pressed) pair.
     struct [[nodiscard]] attack_entry {
-        uint32_t offset; ///< byte offset into bucklespring_attack_blob
-        uint16_t frames; ///< number of mono int16 samples
+        uint32_t offset;  ///< byte offset into bucklespring_attack_blob
+        uint16_t frames;  ///< number of mono int16 samples
     };
 
     /// Concatenated int16 PCM attack samples (mono, 44100 Hz, peak-normalized).
-    extern uint8_t const  bucklespring_attack_blob[];
+    extern uint8_t const bucklespring_attack_blob[];
     extern uint32_t const bucklespring_attack_blob_size;
 
     /// Lookup table: [keycode][pressed] -> attack_entry.

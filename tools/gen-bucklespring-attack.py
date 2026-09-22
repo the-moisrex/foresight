@@ -134,15 +134,15 @@ export namespace fs8 {
     };
 
     /// Concatenated int16 PCM attack samples (mono, 44100 Hz, peak-normalized).
-    extern const uint8_t bucklespring_attack_blob[];
-    extern const uint32_t bucklespring_attack_blob_size;
+    extern uint8_t const bucklespring_attack_blob[];
+    extern uint32_t const bucklespring_attack_blob_size;
 
     /// Lookup table: [keycode][pressed] -> attack_entry.
     /// Missing keys fall back to a nearby measured key's attack.
-    extern const std::array<std::array<attack_entry, 2>, 256> bucklespring_attack_table;
+    extern std::array<std::array<attack_entry, 2>, 256> const bucklespring_attack_table;
 
     /// Attack sample rate (always 44100; resampled at render time).
-    inline constexpr uint32_t attack_sample_rate = 44100;
+    inline constexpr uint32_t attack_sample_rate = 44'100;
 
 } // namespace fs8
 """
@@ -170,14 +170,14 @@ def generate_cxx(blob: bytes, table: list[tuple[int, int]]) -> str:
     lines.append("")
 
     # Blob
-    lines.append(f"const uint8_t fs8::bucklespring_attack_blob[] = {{")
+    lines.append("uint8_t const fs8::bucklespring_attack_blob[] = {")
     # Write as hex, 16 bytes per line
     for i in range(0, len(blob), 16):
         chunk = blob[i : i + 16]
         hex_vals = ", ".join(f"0x{b:02x}" for b in chunk)
         lines.append(f"    {hex_vals},")
-    lines.append(f"}};")
-    lines.append(f"const uint32_t fs8::bucklespring_attack_blob_size = {len(blob)};")
+    lines.append("};")
+    lines.append(f"uint32_t const fs8::bucklespring_attack_blob_size = {len(blob)};")
     lines.append("")
 
     # Table
