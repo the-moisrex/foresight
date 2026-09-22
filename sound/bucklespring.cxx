@@ -26,7 +26,7 @@ bucklespring_params const& bucklespring_synth::params(uint8_t const keycode, boo
 
 std::size_t bucklespring_synth::duration_frames(uint8_t const keycode, bool const pressed, uint32_t const sample_rate) const noexcept {
     auto const& v         = params(keycode, pressed);
-    float const total_ms  = 1.5f + v.ring_ms * 8.0f;
+    float const total_ms  = v.snap_ms + v.ring_ms * 1.6f + 10.0f;  // snap + ring + tail
     float const capped_ms = total_ms < 150.0f ? total_ms : 150.0f;
     return static_cast<std::size_t>(static_cast<float>(sample_rate) * capped_ms / 1000.0f);
 }
@@ -37,38 +37,34 @@ std::size_t bucklespring_synth::duration_frames(uint8_t const keycode, bool cons
 
 namespace {
 
-    constexpr float two_pi        = std::numbers::pi_v<float> * 2.0f;
-    constexpr float ring_ms_scale = 8.0f;
-    constexpr float ms_to_sec     = 0.001f;
+    constexpr float two_pi    = std::numbers::pi_v<float> * 2.0f;
+    constexpr float ms_to_sec = 0.001f;
 
+    // RBJ constant-power bandpass (TDF-II).
     struct [[nodiscard]] biquad_bp {
         float b0 = 0.0f;
-        float b1 = 0.0f;
         float b2 = 0.0f;
         float a1 = 0.0f;
         float a2 = 0.0f;
-
         float z1 = 0.0f;
         float z2 = 0.0f;
 
         constexpr void configure(float center, float q, float sr) noexcept {
             float const w0    = two_pi * center / sr;
-            float const cos_w = std::cos(w0);
             float const sin_w = std::sin(w0);
+            float const cos_w = std::cos(w0);
             float const alpha = sin_w / (2.0f * q);
-
-            b0 = alpha;
-            b1 = 0.0f;
-            b2 = -alpha;
-            float const norm = 1.0f / (1.0f + alpha);
+            float const norm  = 1.0f / (1.0f + alpha);
+            b0 = alpha * norm;
+            b2 = -alpha * norm;
             a1 = -2.0f * cos_w * norm;
             a2 = (1.0f - alpha) * norm;
         }
 
-        [[nodiscard]] constexpr float tick(float input) noexcept {
-            float const y = b0 * input + z1;
-            z1 = b1 * input - a1 * y + z2;
-            z2 = b2 * input - a2 * y;
+        [[nodiscard]] constexpr float tick(float x) noexcept {
+            float const y = b0 * x + z1;
+            z1 = b2 * x - a1 * y + z2;
+            z2 = -a2 * y;
             return y;
         }
     };
@@ -119,9 +115,14 @@ namespace {
 // ---------------------------------------------------------------------------
 // bucklespring_synth::render
 //
-// Noise-dominant synthesis: pink noise colored by two per-key biquad resonances
-// matching the measured spring barrel modes. Bright transient (white noise) +
-// dark ring (pink noise). HP at 300 Hz + LP at 10 kHz shape the spectrum.
+// Modal synthesis with two Gaussian excitation bursts:
+//   1. Contact click  (contact_ms)  — small, fast
+//   2. Buckle snap    (snap_ms)     — large, drives the resonators hard
+//
+// Noise color crossfades smoothly: white → pink over ~5 ms.
+// Two parallel bandpass resonators at measured frequencies.
+// Ring decays exponentially from snap_ms.
+// No delay line — reference has no comb structure.
 // ---------------------------------------------------------------------------
 
 void bucklespring_synth::render(
@@ -142,108 +143,139 @@ void bucklespring_synth::render(
     float const inv_sr = 1.0f / static_cast<float>(sample_rate);
     float const sr     = static_cast<float>(sample_rate);
 
-    float const gain = db_to_linear(v.peak_dbfs);
+    // ------------------------------------------------------------------
+    // 4 resonators — clustered modes create beating / mechanical complexity.
+    // Modes 1–2 from measured data; 3–4 derived at 1.3× and 1.7×.
+    // Q ≈ 10–12: long enough to ring, short enough to overlap.
+    // ------------------------------------------------------------------
+    biquad_bp res1, res2, res3, res4;
+    res1.configure(v.primary_freq,       11.0f, sr);
+    res2.configure(v.secondary_freq,     10.0f, sr);
+    res3.configure(v.primary_freq*1.3f,  12.0f, sr);
+    res4.configure(v.secondary_freq*1.7f,10.0f, sr);
 
-    // Extended transient: 8ms multi-stage envelope matching the
-    // characteristic buckle mechanism (contact → bottom → settle).
-    float const transient_end = 8.0f * ms_to_sec;
-
-    float const t_contact      = 0.16f * ms_to_sec;
-    float const t_bottom       = 1.20f * ms_to_sec;
-    float const t_settle       = 3.00f * ms_to_sec;
-    float const t_ring_in      = 5.50f * ms_to_sec;
-    float const tc_contact_inv = 1.0f / (0.15f * ms_to_sec);
-    float const tc_bottom_inv  = 1.0f / (0.40f * ms_to_sec);
-    float const tc_settle_inv  = 1.0f / (0.60f * ms_to_sec);
-    float const tc_ring_in_inv = 1.0f / (0.80f * ms_to_sec);
-
-    float const ring_tau     = v.ring_ms * ring_ms_scale * ms_to_sec / 2.0f;
-    float const ring_tau_inv = ring_tau > 0.0f ? 1.0f / ring_tau : 0.0f;
-
-    biquad_bp res1;
-    biquad_bp res2;
-    // Use raw frequencies (no scaling) for brightness matching reference.
-    // Reduce Q by ~3x for broader, more mechanical resonance.
-    res1.configure(v.primary_freq, v.primary_q / 3.0f, sr);
-    res2.configure(v.secondary_freq, v.secondary_q / 3.0f, sr);
-
-    xorshift32 rng{static_cast<uint32_t>(keycode) * 2'654'435'761u + (pressed ? 0x9E37'79B9u : 0u)};
+    // ------------------------------------------------------------------
+    // Noise generators
+    // ------------------------------------------------------------------
+    xorshift32 rng{static_cast<uint32_t>(keycode) * 2'654'435'761u + (pressed ? 0x9E37'79B9u : 0x85EB'CA6Bu)};
     pink_noise pink;
 
-    float const lp_alpha = 62'832.0f / (62'832.0f + sr);
+    // ------------------------------------------------------------------
+    // Timing — asymmetric envelope: sharp attack, exponential decay
+    // ------------------------------------------------------------------
+    float const contact_t  = v.contact_ms * ms_to_sec;
+    float const snap_t     = v.snap_ms * ms_to_sec;
+    float const attack_end = contact_t + 0.2f * ms_to_sec;  // sharp ~0.2ms attack
+
+    // ------------------------------------------------------------------
+    // Filtering — gentle HP/LP
+    // ------------------------------------------------------------------
+    float const hp_alpha = 1.0f - std::exp(-two_pi * 200.0f * inv_sr);
+    float       hp_state = 0.0f;
+    float const lp_alpha = 1.0f - std::exp(-two_pi * 14000.0f * inv_sr);
     float       lp_state = 0.0f;
 
-    float const hp_alpha     = 0.9859f; // ~100 Hz cutoff — keeps keyboard body/weight
-    float       hp_x_prev    = 0.0f;
-    float       hp_y_prev    = 0.0f;
+    float const gain = db_to_linear(v.peak_dbfs);
 
-    static constexpr int delay_max            = 794;
-    int const            delay_len            = std::min(static_cast<int>(sr * 0.018f), delay_max);
-    float                delay_buf[delay_max] = {};
-    int                  delay_idx            = 0;
-    float const delay_feedback       = 0.10f; // reduced — reference has no comb ringing
-
+    // ------------------------------------------------------------------
+    // Per-sample loop
+    // ------------------------------------------------------------------
     for (std::size_t i = 0; i < frames; ++i) {
-        float const t     = static_cast<float>(i) * inv_sr;
+        float const t = static_cast<float>(i) * inv_sr;
+
+        // -- Noise sources ------------------------------------------------
         float const white = rng.uniform();
         float const pn    = pink.tick(rng);
 
-        // Noise through resonances — resonances color the noise, not replace it
-        float const raw = 0.05f * white + 0.45f * pn;
-        float const r1 = res1.tick(raw);
-        float const r2 = res2.tick(raw);
-        // Blend: mostly filtered (mechanical character) + some raw (warmth/body)
-        float const colored = 0.2f * raw + 0.4f * (r1 + r2);
+        // Smooth color crossfade: bright at attack, darker later
+        float const bright_wt = std::exp(-t * 250.0f);
+        float const noise     = (0.6f + 0.4f * bright_wt) * white
+                              + (0.4f - 0.2f * bright_wt) * pn;
 
-        float sample = 0.0f;
-
-        if (t < transient_end) {
-            float env = 0.0f;
-            if (t >= t_contact) {
-                float const d  = t - t_contact;
-                env           += 0.5f * std::exp(-d * tc_contact_inv);
-            }
-            if (t >= t_bottom) {
-                float const d  = t - t_bottom;
-                env           += 1.0f * std::exp(-d * tc_bottom_inv);
-            }
-            if (t >= t_settle) {
-                float const d  = t - t_settle;
-                env           += 0.7f * std::exp(-d * tc_settle_inv);
-            }
-            if (t >= t_ring_in) {
-                float const d  = t - t_ring_in;
-                env           += 0.3f * std::exp(-d * tc_ring_in_inv);
-            }
-            // Transient: bright click + low thump for weight
-            float const thump = std::max(0.0f, std::sin(t * 37.699f)) * 0.4f; // ~60 Hz
-            sample = (0.5f * white + 0.1f * pn + thump) * env;
-
-        } else {
-            float const ring_t = t - transient_end;
-            float const env    = std::exp(-ring_t * ring_tau_inv);
-
-            // Ring: colored noise (resonances shape the spectrum)
-            float const tonal_env = colored * env;
-
-            int const   read_idx = (delay_idx - delay_len + delay_max) % delay_max;
-            float const delayed  = delay_buf[read_idx];
-
-            float const mixed    = tonal_env + delayed * delay_feedback;
-            delay_buf[delay_idx] = mixed;
-            delay_idx            = (delay_idx + 1) % delay_max;
-
-            lp_state = mixed + (1.0f - lp_alpha) * (lp_state - mixed);
-
-            float const hp_y = lp_state - hp_x_prev + hp_alpha * hp_y_prev;
-            hp_x_prev        = lp_state;
-            hp_y_prev        = hp_y;
-            sample           = hp_y;
+        // -- Asymmetric envelope ------------------------------------------
+        // Sharp attack (0→1 in 0.2ms), then exponential decay.
+        float env = 0.0f;
+        if (t < attack_end) {
+            // Parabolic rise: fast but not instantaneous
+            float const x = (t - contact_t) / (attack_end - contact_t);
+            env = x * x * (3.0f - 2.0f * x);  // smoothstep
+        } else if (t >= contact_t) {
+            // Exponential decay from peak
+            env = std::exp(-(t - attack_end) / (v.ring_ms * ms_to_sec));
         }
+
+        // The snap Gaussian adds a second energy surge at snap_t.
+        // This gives the "two-burst" character: contact + buckle.
+        float const snap_gauss = (t >= snap_t)
+            ? std::exp(-((t - snap_t) / (v.snap_bw_ms * ms_to_sec))
+                       * ((t - snap_t) / (v.snap_bw_ms * ms_to_sec)))
+            : 0.0f;
+        env += snap_gauss * 0.6f;
+
+        // -- Excitation: impulse + noise, shaped by envelope ---------------
+        // The impulse drives the resonators; noise adds broadband click.
+        float const impulse = env * 1.8f;
+
+        // -- 4 resonators in parallel (modal bank) -------------------------
+        float const r1 = res1.tick(impulse);
+        float const r2 = res2.tick(impulse);
+        float const r3 = res3.tick(impulse);
+        float const r4 = res4.tick(impulse);
+
+        // Weighted mix of modes — modes 1 & 2 dominant (measured),
+        // modes 3 & 4 fill the cluster.
+        float const tonal = 0.40f * r1 + 0.35f * r2
+                          + 0.15f * r3 + 0.10f * r4;
+
+        // -- Noise-modulated ring -----------------------------------------
+        // Mix noise into the ring path so it's never a pure tone.
+        // The noise modulation index decreases over time (brighter early).
+        float const mod_index = 0.3f * bright_wt + 0.05f;
+        float const modulated_ring = tonal * (1.0f + noise * mod_index);
+
+        // -- Click: broadband noise burst at the very start ---------------
+        float const click = noise * env * 0.5f;
+
+        // -- Body: low-frequency sine for mechanical weight ---------------
+        float const body_freq = 280.0f + static_cast<float>(keycode & 0x0F) * 15.0f;
+        float body_env = 0.0f;
+        if (t >= contact_t && t < contact_t + 12.0f * ms_to_sec) {
+            body_env = std::exp(-(t - contact_t) / (3.0f * ms_to_sec));
+        }
+        float const body = std::sin(two_pi * body_freq * t) * body_env * 0.25f;
+
+        // -- Combine ------------------------------------------------------
+        float sample = modulated_ring + click + body;
+
+        // -- Spectral shaping ---------------------------------------------
+        hp_state += hp_alpha * (sample - hp_state);
+        sample = sample - hp_state;
+        lp_state += lp_alpha * (sample - lp_state);
+        sample = lp_state;
 
         float const out = sample * gain;
         for (uint16_t ch = 0; ch < channels; ++ch) {
             dest[static_cast<std::size_t>(i) * channels + ch] = out;
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Peak normalization: scan for the actual peak and scale to peak_dbfs.
+    // This guarantees the output matches the measured reference level
+    // regardless of parameter variation.
+    // ------------------------------------------------------------------
+    float peak = 0.0f;
+    for (std::size_t i = 0; i < dest.size(); ++i) {
+        float const a = std::abs(dest[i]);
+        if (a > peak) {
+            peak = a;
+        }
+    }
+    if (peak > 1.0e-9f) {
+        float const target = db_to_linear(v.peak_dbfs);
+        float const scale  = target / peak;
+        for (std::size_t i = 0; i < dest.size(); ++i) {
+            dest[i] *= scale;
         }
     }
 }

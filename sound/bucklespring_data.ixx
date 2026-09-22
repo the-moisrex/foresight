@@ -19,8 +19,9 @@ export namespace fs8 {
         float secondary_q;        ///< secondary bandpass Q
         float ring_ms;            ///< resonance decay time (ms)
         float peak_dbfs;          ///< target peak amplitude (dBFS)
-        float transient_slope;    ///< transient noise slope (dB/oct)
-        float ring_slope;         ///< ring noise slope (dB/oct)
+        float contact_ms;         ///< time of first energy peak — keycap contact (ms)
+        float snap_ms;            ///< time of buckle snap — the loud event (ms)
+        float snap_bw_ms;         ///< snap burst width (~0.5–1.5 ms)
     };
 
     extern const std::array<bucklespring_params, 256> bucklespring_press_params;
