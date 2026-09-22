@@ -22,7 +22,7 @@ import numpy as np
 
 # ---------------------------------------------------------------------------
 # Voice parameters extracted from bucklespring_data.cxx
-# Format: (primary_freq, primary_q, secondary_freq, secondary_q, ring_ms, peak_dbfs, transient_slope, ring_slope)
+# Format: (primary_freq, primary_q, secondary_freq, secondary_q, ring_ms, peak_dbfs, contact_ms, snap_ms)
 # ---------------------------------------------------------------------------
 
 PRESS_PARAMS = {}
@@ -34,11 +34,11 @@ def parse_data_file(path: Path) -> None:
 
     # Match press_params array
     press_match = re.search(
-        r'const std::array<bucklespring_voice, 256> fs8::bucklespring_press_params = \{\{\s*\n(.*?)\}\};',
+        r'const std::array<bucklespring_params, 256> fs8::bucklespring_press_params = \{\{\s*\n(.*?)\}\};',
         text, re.DOTALL
     )
     release_match = re.search(
-        r'const std::array<bucklespring_voice, 256> fs8::bucklespring_release_params = \{\{\s*\n(.*?)\}\};',
+        r'const std::array<bucklespring_params, 256> fs8::bucklespring_release_params = \{\{\s*\n(.*?)\}\};',
         text, re.DOTALL
     )
 
@@ -328,7 +328,7 @@ def main():
     parser.add_argument("--key", type=str, default=None, help="Keycode hex (e.g. 0x1e). If omitted, render all measured keys.")
     parser.add_argument("-p", "--pressed", type=int, default=1, choices=[0, 1], help="1=press (default), 0=release")
     parser.add_argument("--sr", type=int, default=44100, help="Sample rate")
-    parser.add_argument("--wav-dir", type=str, default="/home/moisrex/Projects/tmp/bucklespring/wav", help="Reference WAV directory")
+    parser.add_argument("--wav-dir", type=str, required=True, help="Reference WAV directory")
     args = parser.parse_args()
 
     # Parse voice parameters

@@ -139,6 +139,7 @@ target_sources(${LIB_NAME}
         sound/oss.cxx
         sound/bucklespring.cxx
         sound/bucklespring_data.cxx
+        sound/bucklespring_attack.cxx
         sound/chime.cxx
         sound/chime_data.cxx
 )
@@ -231,6 +232,7 @@ target_sources(${LIB_NAME}
         sound/backend.ixx
         sound/bucklespring.ixx
         sound/bucklespring_data.ixx
+        sound/bucklespring_attack.ixx
         sound/chime.ixx
         sound/chime_data.ixx
 )
