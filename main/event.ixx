@@ -461,15 +461,17 @@ export namespace fs8 {
         using value_type = event_type::value_type;
         using time_type  = event_type::time_type;
 
-        time_type     time  = {};
-        type_type     type  = special_event_type;
-        code_type     code  = 0;
-        value_type    value = 0;
-        std::uint32_t from  = source_id_none;
+        time_type     time    = {};
+        type_type     type    = special_event_type;
+        code_type     code    = 0;
+        value_type    value   = 0;
+        std::uint32_t from    = source_id_none;
+        void*         payload = nullptr;
     };
 
     /// Lifecycle event constants. Each uses a unique `code` value; toggle
     /// events encode their state in the `value` field (1 = on, 0 = off).
+    constexpr special_event null_event{.type = special_event_type, .code = std::numeric_limits<special_event::code_type>::max()};
     constexpr special_event start{.type = special_event_type, .code = 0};
     constexpr special_event no_init{.type = special_event_type, .code = 1};
     constexpr special_event load_event{.type = special_event_type, .code = 2};
@@ -478,6 +480,29 @@ export namespace fs8 {
     constexpr special_event toggle_off{.type = special_event_type, .code = 4, .value = 0};
     constexpr special_event idle{.type = special_event_type, .code = 5};
     constexpr special_event monitors_updated{.type = special_event_type, .code = 6};
+
+    [[nodiscard]] constexpr bool operator==(special_event const& lhs, special_event const& rhs) noexcept {
+        // ignoring time and payload
+        return lhs.type == rhs.type && lhs.code == rhs.code && lhs.value == rhs.value && lhs.from == rhs.from;
+    }
+
+    /// Get the payload in the correct type
+    ///
+    /// If you want to add a payload to an event, overload this function like this:
+    /// @code
+    /// template <special_event SEvent>
+    ///   requires (idle == SEvent)
+    /// [[nodiscard]] constexpr int& payload(special_event& event) noexcept {
+    ///     return *static_cast<int*>(event.payload)
+    /// }
+    /// @endcode
+    ///
+    /// And use it like this:
+    /// int& stuff = payload<idle>(event);
+    template <special_event>
+    constexpr void payload(special_event&) noexcept {
+        static_assert(false, "No payload registered.");
+    }
 
     /// Check whether a `special_event` matches a given lifecycle code.
     [[nodiscard]] constexpr bool is_special(special_event const& ev, special_event::code_type const code) noexcept {
