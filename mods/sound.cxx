@@ -20,6 +20,7 @@ import fs8.context;
 import fs8.event;
 import fs8.log;
 
+using fs8::apply_slot_fade;
 using fs8::audio_backend;
 using fs8::basic_io_manager;
 using fs8::basic_sound_player_core;
@@ -49,9 +50,9 @@ namespace {
 
         bool active = false;
 
-        float         gain          = 1.0f;
-        float         peak          = 0.0f;
-        std::uint64_t start_serial  = 0;
+        float         gain         = 1.0f;
+        float         peak         = 0.0f;
+        std::uint64_t start_serial = 0;
     };
 
 } // anonymous namespace
@@ -84,9 +85,9 @@ struct fs8::pimpl_idiom<basic_sound_player_core>::impl {
         }
 
         // Steal: lowest peak amplitude, oldest as tie-breaker.
-        std::size_t    best        = 0;
-        float          best_peak   = slots[0].peak;
-        std::uint64_t  best_serial = slots[0].start_serial;
+        std::size_t   best        = 0;
+        float         best_peak   = slots[0].peak;
+        std::uint64_t best_serial = slots[0].start_serial;
 
         for (std::size_t i = 1; i < slots.size(); ++i) {
             auto const& s = slots[i];
@@ -156,8 +157,8 @@ struct fs8::pimpl_idiom<basic_sound_player_core>::impl {
             if (!s.active) {
                 continue;
             }
-            auto const n = std::min(samples_to_mix, s.total_samples - s.read_pos);
-            s.read_pos += n;
+            auto const n  = std::min(samples_to_mix, s.total_samples - s.read_pos);
+            s.read_pos   += n;
             if (s.read_pos >= s.total_samples) {
                 s.active        = false;
                 s.read_pos      = 0;
@@ -289,8 +290,8 @@ context_action basic_sound_player_core::ensure_backend(basic_io_manager& io) noe
         if (int const fd = pimpl->backend->watch_fd(); fd >= 0) {
             (void) io.watch(io_fd{.fd = fd, .events = static_cast<io_event>(pimpl->backend->watch_events())}, *pimpl);
         }
-        pimpl->started    = true;
-        pimpl->slots      = {};
+        pimpl->started     = true;
+        pimpl->slots       = {};
         pimpl->next_serial = 1;
     }
     return next;
@@ -309,7 +310,7 @@ slot_buffer basic_sound_player_core::acquire_slot(std::size_t const sample_count
     }
 
     auto const index = pimpl->choose_slot();
-    auto& s          = pimpl->slots[index];
+    auto&      s     = pimpl->slots[index];
 
     // Prepare the slot for rendering.
     s.active        = false; // hidden until commit
@@ -326,6 +327,34 @@ slot_buffer basic_sound_player_core::acquire_slot(std::size_t const sample_count
 }
 
 // ---------------------------------------------------------------------------
+// apply_slot_fade
+// ---------------------------------------------------------------------------
+
+void fs8::apply_slot_fade(std::span<float> const samples) noexcept {
+    constexpr float pi = 3.14159265358979323846f;
+
+    if (samples.empty()) {
+        return;
+    }
+    std::size_t const frames = samples.size() / queue_channels;
+    std::size_t const fade   = std::min(slot_fade_frames, frames);
+    if (fade == 0) {
+        return;
+    }
+
+    for (std::size_t f = 0; f < fade; ++f) {
+        // Raised cosine: 1 at the start of the fade region, exactly 0 on
+        // the last frame.
+        float const       x     = static_cast<float>(f + 1) / static_cast<float>(fade);
+        float const       gain  = 0.5f * (1.0f + std::cos(pi * x));
+        std::size_t const frame = frames - fade + f;
+        for (uint16_t ch = 0; ch < queue_channels; ++ch) {
+            samples[frame * queue_channels + ch] *= gain;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // basic_sound_player_core — commit_slot
 // ---------------------------------------------------------------------------
 
@@ -335,6 +364,9 @@ void basic_sound_player_core::commit_slot(std::size_t const index, std::size_t c
     }
 
     auto& s = pimpl->slots[index];
+
+    // Force the slot to end at digital silence — no dead stop mid-ring.
+    apply_slot_fade(std::span{s.buffer.data(), sample_count});
 
     // Compute peak amplitude for slot-stealing heuristics.
     float peak = 0.0f;

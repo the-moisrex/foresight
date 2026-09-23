@@ -11,7 +11,7 @@ import :chime_data;
 using fs8::chime_voice;
 
 // clang-format off
-const std::array<chime_voice, 256> chime_press_params = {{
+const std::array<chime_voice, 256> fs8::chime_press_params = {{
         { 900.0f, 3000.0f, 1.20f, 3.00f, 3.00f, 45.00f, 0.500f, 38.00f, 0.750f, 180.0f, 0.1000f },  // 0x00
         { 1059.7f, 100.0f, 10.60f, 8.23f, 4.51f, 15.03f, 0.500f, 331.79f, 0.000f, 193.8f, 0.2504f },  // 0x01
         { 242.6f, 100.0f, 2.43f, 2.47f, 4.94f, 16.46f, 0.500f, 329.02f, 0.000f, 699.8f, 0.3000f },  // 0x02
@@ -270,7 +270,7 @@ const std::array<chime_voice, 256> chime_press_params = {{
         { 4522.1f, 561.4f, 8.05f, 0.44f, 1.00f, 3.18f, 0.500f, 20.06f, 0.000f, 5812.5f, 0.3000f }  // 0xff
     }};
 
-const std::array<chime_voice, 256> chime_release_params = {{
+const std::array<chime_voice, 256> fs8::chime_release_params = {{
         { 900.0f, 3000.0f, 1.20f, 3.00f, 3.00f, 45.00f, 0.500f, 38.00f, 0.750f, 180.0f, 0.1000f },  // 0x00
         { 871.1f, 100.0f, 8.71f, 1.61f, 3.87f, 12.90f, 0.500f, 331.97f, 0.000f, 37.7f, 0.3000f },  // 0x01
         { 589.3f, 100.0f, 5.89f, 23.99f, 7.12f, 23.73f, 0.500f, 311.88f, 0.000f, 43.1f, 0.3000f },  // 0x02

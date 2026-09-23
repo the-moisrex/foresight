@@ -97,8 +97,8 @@ export namespace fs8 {
         using duration_fn_t = std::size_t (*)(event_type const&, sound_format const) noexcept;
         using render_fn_t   = void (*)(event_type const&, sound_format const, std::span<float>) noexcept;
 
-        inline static duration_fn_t s_duration_fn = nullptr;
-        inline static render_fn_t   s_render_fn   = nullptr;
+        static inline duration_fn_t s_duration_fn = nullptr;
+        static inline render_fn_t   s_render_fn   = nullptr;
     };
 
     static_assert(sound_generator<dynamic_synth>);
@@ -108,9 +108,19 @@ export namespace fs8 {
     struct basic_sound_sink;
 
     /// Sound slot pool constants.
-    inline constexpr std::size_t max_slot_frames  = queue_sample_rate * 150 / 1000;          // 7200
-    inline constexpr std::size_t max_slot_samples = max_slot_frames * queue_channels;       // 14400
+    inline constexpr std::size_t max_slot_frames  = queue_sample_rate * 150 / 1000;   // 7200
+    inline constexpr std::size_t max_slot_samples = max_slot_frames * queue_channels; // 14400
     inline constexpr std::size_t slot_pool_size   = 16;
+    /// Length of the raised-cosine end fade applied to every committed slot
+    /// (5 ms), so playback always reaches digital silence instead of stopping
+    /// dead mid-ring (very audible on headphones).
+    inline constexpr std::size_t slot_fade_frames = queue_sample_rate * 5 / 1000; // 240
+
+    /// Apply the slot end fade in-place to an interleaved (`queue_channels`)
+    /// slot buffer: the last `slot_fade_frames` frames are multiplied by a
+    /// raised-cosine ramp ending at exactly 0.  Samples before the fade
+    /// region are left untouched.
+    void apply_slot_fade(std::span<float> samples) noexcept;
 
     /// Returned by acquire_slot: a span into a slot buffer + its index.
     struct [[nodiscard]] slot_buffer {
@@ -134,8 +144,8 @@ export namespace fs8 {
         /// the pool is exhausted and no slot could be stolen.
         [[nodiscard]] slot_buffer acquire_slot(std::size_t sample_count) noexcept;
 
-        /// Mark a previously acquired slot as active.  Computes peak
-        /// amplitude for slot-stealing heuristics.
+        /// Mark a previously acquired slot as active.  Applies the end fade
+        /// and computes peak amplitude for slot-stealing heuristics.
         void commit_slot(std::size_t index, std::size_t sample_count) noexcept;
 
         /// Toggle the paused state. When paused, no sounds are played.
@@ -255,8 +265,7 @@ export namespace fs8 {
       public:
         constexpr basic_sound_sink() noexcept = default;
 
-        constexpr basic_sound_sink(uint16_t const code, bool const pressed) noexcept
-            : code_{code}, pressed_{pressed} {}
+        constexpr basic_sound_sink(uint16_t const code, bool const pressed) noexcept : code_{code}, pressed_{pressed} {}
 
         template <Context CtxT>
             requires has_mod<basic_sound_player<Gen>, CtxT>
@@ -276,10 +285,10 @@ export namespace fs8 {
             std::apply(
               [&](auto&... mod) noexcept {
                   (([&]() noexcept {
-                      if constexpr (requires { mod.toggle_pause(); }) {
-                          result = mod.toggle_pause() ? next : drop_event;
-                      }
-                  }()),
+                       if constexpr (requires { mod.toggle_pause(); }) {
+                           result = mod.toggle_pause() ? next : drop_event;
+                       }
+                   }()),
                    ...);
               },
               ctx.get_mods());

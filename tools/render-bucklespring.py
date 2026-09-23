@@ -22,7 +22,7 @@ import numpy as np
 
 # ---------------------------------------------------------------------------
 # Voice parameters extracted from bucklespring_data.cxx
-# Format: (primary_freq, primary_q, secondary_freq, secondary_q, ring_ms, peak_dbfs, contact_ms, snap_ms)
+# Format: (primary_freq, primary_q, secondary_freq, secondary_q, ring_ms, peak_dbfs, contact_ms, snap_ms, snap_bw_ms)
 # ---------------------------------------------------------------------------
 
 PRESS_PARAMS = {}
@@ -85,7 +85,7 @@ class Xorshift32:
 # ---------------------------------------------------------------------------
 
 TWO_PI = 2.0 * np.pi
-RING_MS_SCALE = 10.0  # tuned to match reference durations and crest factor
+RING_MS_SCALE = 7.0  # ~7 decay time-constants (≈ -60 dB), mirrors C++ duration_frames
 MS_TO_SEC = 0.001
 
 
@@ -105,18 +105,18 @@ def render_key(keycode: int, pressed: bool, sample_rate: int = 44100) -> np.ndar
         raise ValueError(f"Key 0x{keycode:02x} not found in data")
 
     v = params[keycode]
-    primary_freq, primary_q, secondary_freq, secondary_q, ring_ms, peak_dbfs, _, _ = v
+    primary_freq, primary_q, secondary_freq, secondary_q, ring_ms, peak_dbfs, contact_ms, snap_ms, _ = v
 
     gain = db_to_linear(peak_dbfs)
     sr = float(sample_rate)
 
-    # Duration
-    total_ms = 1.5 + ring_ms * RING_MS_SCALE
+    # Duration — mirror of bucklespring_synth::duration_frames
+    total_ms = snap_ms + ring_ms * RING_MS_SCALE + contact_ms + 1.0
     capped_ms = min(total_ms, 150.0)
     frames = int(sr * capped_ms / 1000.0)
 
-    # Ring decay
-    ring_tau = ring_ms * RING_MS_SCALE * MS_TO_SEC / 2.0
+    # Ring decay — envelope time constant is ring_ms (C++ bucklespring.cxx)
+    ring_tau = ring_ms * MS_TO_SEC
     ring_tau_inv = 1.0 / ring_tau if ring_tau > 0.0 else 0.0
 
     # PRNG

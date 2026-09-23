@@ -29,8 +29,11 @@ bucklespring_params const& bucklespring_synth::params(uint8_t const keycode, boo
 }
 
 std::size_t bucklespring_synth::duration_frames(uint8_t const keycode, bool const pressed, uint32_t const sample_rate) const noexcept {
-    auto const& v         = params(keycode, pressed);
-    float const total_ms  = v.snap_ms + v.ring_ms * 1.6f + 10.0f;  // snap + ring + tail
+    auto const& v = params(keycode, pressed);
+    // ~7 decay time-constants after the snap (the envelope starts at
+    // contact_ms + 0.2 ms), so the ring dies out at ≈ -60 dB naturally
+    // instead of being truncated while still audible.
+    float const total_ms  = v.snap_ms + v.ring_ms * 7.0f + v.contact_ms + 1.0f;
     float const capped_ms = total_ms < 150.0f ? total_ms : 150.0f;
     return static_cast<std::size_t>(static_cast<float>(sample_rate) * capped_ms / 1000.0f);
 }
