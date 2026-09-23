@@ -56,7 +56,7 @@ export namespace fs8 {
 
         /// Forward queries/devices to input_manager; ensure it started.
         template <Context ContextT>
-        context_action operator()(ContextT& ctx, special_event const& tag) noexcept {
+        context_action operator()(ContextT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             switch (tag.code) {
                 case 0: // start

@@ -533,7 +533,11 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
             return false;
         }
         if (im != nullptr) [[likely]] {
-            im->own_device(self.devnode());
+            auto dev_str = self.devnode();
+            if (dynamic_context->broadcast(we_own_device + &dev_str) != context_action::next) [[unlikely]] {
+                log("  No one to tell we own this tool.");
+                return false;
+            }
         }
     }
     return true;
@@ -779,11 +783,11 @@ bool basic_uinput::init(device_query const& inp_query) noexcept {
     return set_device_from(inp_query);
 }
 
-bool basic_uinput::operator()(dev_caps_view const caps_view, [[maybe_unused]] special_event const& tag) noexcept {
+bool basic_uinput::operator()(dev_caps_view const caps_view, [[maybe_unused]] control_event const& tag) noexcept {
     return init(caps_view);
 }
 
-bool basic_uinput::operator()(device_query const& inp_query, [[maybe_unused]] special_event const& tag) noexcept {
+bool basic_uinput::operator()(device_query const& inp_query, [[maybe_unused]] control_event const& tag) noexcept {
     return init(inp_query);
 }
 

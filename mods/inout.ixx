@@ -52,7 +52,7 @@ export namespace fs8 {
         constexpr explicit basic_from_input(int const inp_fd) noexcept : file_descriptor{inp_fd} {}
 
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             static constexpr bool has_io_man = has_mod<basic_io_manager, CtxT>;
             switch (tag.code) {
@@ -130,7 +130,7 @@ export namespace fs8 {
             file_descriptor = inp_fd;
         }
 
-        context_action operator()(event_type& event, special_event const& tag) noexcept try {
+        context_action operator()(event_type& event, control_event const& tag) noexcept try {
             using enum context_action;
             if (tag.code != load_event.code) {
                 return drop_event;

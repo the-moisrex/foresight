@@ -50,7 +50,7 @@ export namespace fs8 {
         using code_type = event_type::code_type;
 
         template <Context CtxT>
-        void operator()(CtxT& ctx, special_event const& tag) const noexcept {
+        void operator()(CtxT& ctx, control_event const& tag) const noexcept {
             if (tag.code != start.code) {
                 return;
             }
@@ -143,10 +143,10 @@ export namespace fs8 {
             }
         }
 
-        void operator()(special_event const& tag) noexcept;
+        void operator()(control_event const& tag) noexcept;
 
         template <Context CtxT>
-        void operator()(CtxT& ctx, special_event const& tag) noexcept {
+        void operator()(CtxT& ctx, control_event const& tag) noexcept {
             switch (tag.code) {
                 case start.code: {
                     init_state();

@@ -108,7 +108,7 @@ export namespace fs8 {
 
         /// Handle start: configure io_manager timeout and register idle callback.
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             static_assert(has_mod<basic_io_manager, CtxT>, "Required mod");
             using enum context_action;
 

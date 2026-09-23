@@ -88,7 +88,7 @@ export namespace fs8 {
         /// Unregister the idle callback.
         void clear_idle_callback() noexcept;
 
-        context_action operator()(special_event const& tag) noexcept;
+        context_action operator()(control_event const& tag) noexcept;
 
       private:
         [[nodiscard]] bool watch(io_fd const& fd, io_callback const& cb) noexcept;

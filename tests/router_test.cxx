@@ -16,7 +16,7 @@ namespace {
     struct counting_mod {
         int* counter;
 
-        context_action operator()(special_event const& tag) noexcept {
+        context_action operator()(control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }
@@ -52,7 +52,7 @@ namespace {
     struct query_consumer {
         query_record* record;
 
-        context_action operator()(Context auto&, device_query const& inp_query, special_event const& tag) noexcept {
+        context_action operator()(Context auto&, device_query const& inp_query, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }

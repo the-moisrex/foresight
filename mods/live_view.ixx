@@ -300,7 +300,7 @@ export namespace fs8 {
             file_descriptor = inp_fd;
         }
 
-        context_action operator()(event_type& event, special_event const& tag) noexcept;
+        context_action operator()(event_type& event, control_event const& tag) noexcept;
     };
 
     constexpr basic_from_event_line<> from_event_line;

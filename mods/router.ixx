@@ -163,7 +163,7 @@ export namespace fs8 {
 
         /// Pass-through the init
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }

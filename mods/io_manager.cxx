@@ -144,7 +144,7 @@ bool basic_io_manager::watch(io_fd const& fd, io_callback const& cb) noexcept tr
     return false;
 }
 
-context_action basic_io_manager::operator()(special_event const& tag) noexcept {
+context_action basic_io_manager::operator()(control_event const& tag) noexcept {
     using enum context_action;
     switch (tag.code) {
         case 0: // start

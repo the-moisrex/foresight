@@ -193,21 +193,21 @@ export namespace fs8 {
         bool set_device_from(device_query const& inp_query) noexcept;
 
         /// Set the caps on start
-        bool operator()(dev_caps_view caps_view, special_event const& tag) noexcept;
+        bool operator()(dev_caps_view caps_view, control_event const& tag) noexcept;
 
         /// Set the device on start
-        bool operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, [[maybe_unused]] special_event const& tag) noexcept {
+        bool operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, [[maybe_unused]] control_event const& tag) noexcept {
             return operator()(caps_view, start);
         }
 
         /// Set the device based on the query on start
-        bool operator()(device_query const& inp_query, special_event const& tag) noexcept;
+        bool operator()(device_query const& inp_query, control_event const& tag) noexcept;
 
         /// Set the device based on the query on start, preferring the devices
         /// known to the input_manager when it's available in the pipeline.
         template <typename CtxT>
             requires requires(CtxT& ctx) { ctx.mod(input_manager).devices(); }
-        bool operator()(CtxT& ctx, device_query const& inp_query, special_event const& tag) noexcept {
+        bool operator()(CtxT& ctx, device_query const& inp_query, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return true;
             }
@@ -228,7 +228,11 @@ export namespace fs8 {
             }
             log("uinput: no matching device in input_manager, trying set_device_from");
             if (set_device_from(inp_query)) {
-                inp_man.own_device(devnode());
+                auto node_str = devnode();
+                if (ctx.broadcast(we_own_device + &node_str) != context_action::next) [[unlikely]] {
+                    log("uinput: we need to tell input manager that we own some device.");
+                    return false;
+                }
                 return true;
             }
             log("uinput: set_device_from failed");
@@ -239,7 +243,7 @@ export namespace fs8 {
         /// The first device in the input_manager, we automatically find it, and use that one
         template <std::ranges::range R>
             requires std::convertible_to<std::ranges::range_value_t<R>, evdev>
-        bool operator()(R&& devs, special_event const& tag) noexcept {
+        bool operator()(R&& devs, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return true;
             }
@@ -264,7 +268,7 @@ export namespace fs8 {
         /// Find the device if possible on start
         /// The first device in the input_manager, we automatically find it, and use that one
         template <ContextWith<basic_input_manager> CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             if (tag.code != start.code) {
                 return drop_event;
@@ -274,10 +278,14 @@ export namespace fs8 {
             }
             if (auto const res = verify_access_to_uinput(); res != uinput_access_result::available) [[unlikely]] {
                 log("Uinput init error: {}", to_string(res));
-                return recovery;
+                return exit;
             }
             if (operator()(ctx.mod(input_manager).devices(), start)) {
-                ctx.mod(input_manager).own_device(devnode());
+                auto node_str = devnode();
+                if (ctx.broadcast(we_own_device + &node_str) != next) [[unlikely]] {
+                    log("uinput: we need to tell input manager that we own device, but it's not there.");
+                    return exit;
+                }
                 return next;
             }
             return recovery;

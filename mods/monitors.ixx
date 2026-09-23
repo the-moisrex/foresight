@@ -47,7 +47,7 @@ export namespace fs8 {
 
         template <Context CtxT>
             requires has_mod<basic_io_manager, CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             switch (tag.code) {
                 case start.code: {
                     if (auto const action = do_start(ctx.mod(io_manager)); action != context_action::next) {

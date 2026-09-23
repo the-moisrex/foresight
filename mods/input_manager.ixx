@@ -159,14 +159,17 @@ export namespace fs8 {
         [[nodiscard]] std::uint32_t devices_generation() const noexcept;
 
         /// Start monitoring; also used by `intercept` to trigger enumeration.
+        /// todo: we should make this private
         context_action start(basic_io_manager& io) noexcept;
 
         template <Context ContextT>
-        context_action operator()(ContextT& ctx, special_event const& tag) noexcept {
-            if (tag.code != fs8::start.code) {
-                return context_action::drop_event;
+        context_action operator()(ContextT& ctx, control_event const& tag) noexcept {
+            using enum context_action;
+            switch (tag.code) {
+                case fs8::start.code: return start(ctx.mod(io_manager));
+                case we_own_device.code: own_device(payload<we_own_device>(tag)); return next;
+                default: return drop_event;
             }
-            return start(ctx.mod(io_manager));
         }
 
         /// Pass-through: input_manager doesn't consume events, but it must be

@@ -17,7 +17,7 @@ import fs8.lib.evtest;
 using fs8::basic_replay;
 using fs8::context_action;
 using fs8::event_type;
-using fs8::special_event;
+using fs8::control_event;
 
 template <>
 struct fs8::pimpl_idiom<basic_replay>::impl {
@@ -216,7 +216,7 @@ void basic_replay::set_file(std::string_view path) noexcept {
     pimpl->file_path = std::string{path};
 }
 
-context_action basic_replay::operator()(event_type& event, special_event const& tag) noexcept {
+context_action basic_replay::operator()(event_type& event, control_event const& tag) noexcept {
     using enum context_action;
     if (tag.code == fs8::start.code) {
         if (pimpl.get() == nullptr) [[unlikely]] {

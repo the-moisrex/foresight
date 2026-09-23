@@ -24,7 +24,7 @@ namespace {
 
     /// A minimal mod that only reacts to `start`.
     struct start_aware_mod {
-        constexpr context_action operator()(Context auto&, special_event const& tag) noexcept {
+        constexpr context_action operator()(Context auto&, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }
@@ -39,7 +39,7 @@ namespace {
 
     /// Records whether the dynamic context was bound when it was invoked.
     struct bound_probe {
-        constexpr context_action operator()(Context auto&, special_event const& tag) noexcept {
+        constexpr context_action operator()(Context auto&, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }

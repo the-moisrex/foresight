@@ -447,22 +447,25 @@ export namespace fs8 {
         return event.type == EV_SYN;
     }
 
-    /// Sentinel type value used by all lifecycle events.
-    constexpr auto special_event_type = static_cast<event_type::type_type>(EV_MAX + 1);
+    /// Sentinel type value used by general lifecycle events.
+    constexpr auto general_control_event = static_cast<event_type::type_type>(EV_MAX + 1);
+
+    /// Marked as required.
+    constexpr auto required_control_event = static_cast<event_type::type_type>(EV_MAX + 2);
 
     /// A lifecycle event (tag replacement) that shares the same field layout
     /// as `event_type` so mods can handle both regular events and lifecycle
     /// events in a single overload if desired. The `type` field is set to
     /// `EV_MAX + 1` (a value no real kernel event will ever use) so callers
     /// can distinguish lifecycle events from real input events.
-    struct [[nodiscard]] special_event {
+    struct [[nodiscard]] control_event {
         using type_type  = event_type::type_type;
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
         using time_type  = event_type::time_type;
 
         time_type     time    = {};
-        type_type     type    = special_event_type;
+        type_type     type    = general_control_event;
         code_type     code    = 0;
         value_type    value   = 0;
         std::uint32_t from    = source_id_none;
@@ -471,17 +474,42 @@ export namespace fs8 {
 
     /// Lifecycle event constants. Each uses a unique `code` value; toggle
     /// events encode their state in the `value` field (1 = on, 0 = off).
-    constexpr special_event null_event{.type = special_event_type, .code = std::numeric_limits<special_event::code_type>::max()};
-    constexpr special_event start{.type = special_event_type, .code = 0};
-    constexpr special_event no_init{.type = special_event_type, .code = 1};
-    constexpr special_event load_event{.type = special_event_type, .code = 2};
-    constexpr special_event next_event{.type = special_event_type, .code = 3};
-    constexpr special_event toggle_on{.type = special_event_type, .code = 4, .value = 1};
-    constexpr special_event toggle_off{.type = special_event_type, .code = 4, .value = 0};
-    constexpr special_event idle{.type = special_event_type, .code = 5};
-    constexpr special_event monitors_updated{.type = special_event_type, .code = 6};
+    constexpr control_event null_event{.code = std::numeric_limits<control_event::code_type>::max()};
+    constexpr control_event start{.code = 0};      // start event
+    constexpr control_event no_init{.code = 1};
+    constexpr control_event load_event{.code = 2}; // wait for next events to be loaded, so we can call next to get them
+    constexpr control_event next_event{.code = 3}; // get the next event
+    constexpr control_event toggle_on{.code = 4, .value = 1};
+    constexpr control_event toggle_off{.code = 4, .value = 0};
+    constexpr control_event idle{.code = 5};       // go into idle state
+    constexpr control_event monitors_updated{.code = 6};
 
-    [[nodiscard]] constexpr bool operator==(special_event const& lhs, special_event const& rhs) noexcept {
+    // we own this device now; payload: devnode(std::string_view)
+    constexpr control_event we_own_device{.type = required_control_event, .code = 7};
+
+    [[nodiscard]] constexpr std::string_view to_string(control_event const& event) noexcept {
+        switch (event.type) {
+            case general_control_event:
+            case required_control_event:
+                break;
+            [[unlikely]] default:
+                return {"Unknown-Control-Event"};
+        }
+        switch (event.code) {
+            case null_event.code: return {"Null"};
+            case start.code: return {"Start"};
+            case no_init.code: return {"No-Init"};
+            case load_event.code: return {"Load"};
+            case next_event.code: return {"Next"};
+            case toggle_on.code: return toggle_off.value == event.value ? std::string_view{"Toggle-Off"} : std::string_view{"Toggle-On"};
+            case idle.code: return {"Idle"};
+            case monitors_updated.code: return {"Monitors-Updated"};
+            case we_own_device.code: return {"We-Own-Device"};
+            default: return {"Unknown-Control-Code"};
+        }
+    }
+
+    [[nodiscard]] constexpr bool operator==(control_event const& lhs, control_event const& rhs) noexcept {
         // ignoring time and payload
         return lhs.type == rhs.type && lhs.code == rhs.code && lhs.value == rhs.value && lhs.from == rhs.from;
     }
@@ -490,35 +518,55 @@ export namespace fs8 {
     ///
     /// If you want to add a payload to an event, overload this function like this:
     /// @code
-    /// template <special_event SEvent>
-    ///   requires (idle == SEvent)
-    /// [[nodiscard]] constexpr int& payload(special_event& event) noexcept {
+    /// template <control_event CEvent>
+    ///   requires (idle == CEvent)
+    /// [[nodiscard]] constexpr int& payload(control_event& event) noexcept {
     ///     return *static_cast<int*>(event.payload)
     /// }
     /// @endcode
     ///
     /// And use it like this:
     /// int& stuff = payload<idle>(event);
-    template <special_event>
-    constexpr void payload(special_event&) noexcept {
+    template <control_event>
+    constexpr void payload(control_event&) noexcept {
         static_assert(false, "No payload registered.");
     }
 
-    /// Check whether a `special_event` matches a given lifecycle code.
-    [[nodiscard]] constexpr bool is_special(special_event const& ev, special_event::code_type const code) noexcept {
-        return ev.type == special_event_type && ev.code == code;
+    template <control_event CEvent>
+        requires(we_own_device == CEvent)
+    [[nodiscard]] constexpr std::string_view payload(control_event const& event) noexcept {
+        if (event.payload == nullptr) [[unlikely]] {
+            std::terminate();
+        }
+        return *static_cast<std::string_view*>(event.payload);
+    }
+
+    /// Add payload
+    /// The reason why we don't allow const payload is because we're using `void*` in payload, and we want to force you to use this utility
+    /// properly and make sure you don't cause dangling pointers problem by using this.
+    template <typename PayloadType>
+        requires(!std::is_const_v<PayloadType>)
+    [[nodiscard]] constexpr control_event operator+(control_event const& event, PayloadType* payload) noexcept {
+        control_event result = event;
+        result.payload       = static_cast<void*>(payload);
+        return result;
+    }
+
+    /// Check whether a `control_event` matches a given lifecycle code.
+    [[nodiscard]] constexpr bool is_special(control_event const& ev, control_event::code_type const code) noexcept {
+        return ev.type == general_control_event && ev.code == code;
     }
 
     /// Check whether an `event_type` is actually a lifecycle event (shouldn't
     /// happen in practice, but guards against data corruption).
     [[nodiscard]] constexpr bool is_special(event_type const& ev) noexcept {
-        return ev.type() == special_event_type;
+        return ev.type() == general_control_event;
     }
 
-    /// Hash a `special_event` into a `std::uint32_t` for use in `switch`/`case` and
+    /// Hash a `control_event` into a `std::uint32_t` for use in `switch`/`case` and
     /// comparison.  The hash encodes both `code` and `value` so that `toggle_on`
     /// and `toggle_off` (which share the same `code`) produce different hashes.
-    [[nodiscard]] constexpr std::uint32_t hashed(special_event const& ev) noexcept {
+    [[nodiscard]] constexpr std::uint32_t hashed(control_event const& ev) noexcept {
         static constexpr std::uint32_t shift  = 6;
         std::uint32_t                  hash   = 0;
         hash                                 |= static_cast<std::uint32_t>(ev.code) << shift;
@@ -526,29 +574,24 @@ export namespace fs8 {
         return hash;
     }
 
-    /// Unhash: recover the `code` from a hash produced by `hashed(special_event)`.
-    [[nodiscard]] constexpr special_event::code_type unhashed_special(std::uint32_t const hash) noexcept {
+    /// Unhash: recover the `code` from a hash produced by `hashed(control_event)`.
+    [[nodiscard]] constexpr control_event::code_type unhashed_special(std::uint32_t const hash) noexcept {
         static constexpr std::uint32_t shift = 6;
-        return static_cast<special_event::code_type>(hash >> shift);
+        return static_cast<control_event::code_type>(hash >> shift);
     }
 
-    /// `operator+` returns the hash of a `special_event`, enabling
+    /// `operator+` returns the hash of a `control_event`, enabling
     /// `switch (tag + start)` patterns.
-    [[nodiscard]] constexpr std::uint32_t operator+(special_event const& ev) noexcept {
+    [[nodiscard]] constexpr std::uint32_t operator+(control_event const& ev) noexcept {
         return hashed(ev);
     }
 
-    /// Two `special_event`s are equal iff they carry the same `code` and `value`.
-    [[nodiscard]] constexpr bool operator==(special_event const& lhs, special_event const& rhs) noexcept {
-        return lhs.code == rhs.code && lhs.value == rhs.value;
+    /// Check whether an `event_type` matches a `control_event` by code.
+    [[nodiscard]] constexpr bool operator==(event_type const& lhs, control_event const& rhs) noexcept {
+        return lhs.type() == general_control_event && lhs.code() == rhs.code;
     }
 
-    /// Check whether an `event_type` matches a `special_event` by code.
-    [[nodiscard]] constexpr bool operator==(event_type const& lhs, special_event const& rhs) noexcept {
-        return lhs.type() == special_event_type && lhs.code() == rhs.code;
-    }
-
-    [[nodiscard]] constexpr bool operator==(special_event const& lhs, event_type const& rhs) noexcept {
+    [[nodiscard]] constexpr bool operator==(control_event const& lhs, event_type const& rhs) noexcept {
         return rhs == lhs;
     }
 

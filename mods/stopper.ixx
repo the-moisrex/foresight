@@ -22,7 +22,7 @@ export namespace fs8 {
             return stopped ? exit : next;
         }
 
-        context_action operator()(special_event const&) const noexcept {
+        context_action operator()(control_event const&) const noexcept {
             using enum context_action;
             return stopped ? exit : drop_event;
         }

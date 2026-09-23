@@ -122,7 +122,7 @@ namespace fs8 {
         }
 
         template <Context CtxT, typename... TagTs>
-            requires(sizeof...(TagTs) == 1 && (std::same_as<std::remove_cvref_t<TagTs>, special_event> && ...))
+            requires(sizeof...(TagTs) == 1 && (std::same_as<std::remove_cvref_t<TagTs>, control_event> && ...))
         context_action operator()(CtxT& ctx, TagTs... tags) noexcept {
             using enum context_action;
             // Lifecycle events (toggle_on/toggle_off) are for the `on` block, not the
@@ -223,7 +223,7 @@ namespace fs8 {
             name_filter{inp_filter} {}
 
         /// Handle lifecycle events (toggle_on / toggle_off) transparently.
-        context_action operator()(special_event const& tag) noexcept {
+        context_action operator()(control_event const& tag) noexcept {
             using enum context_action;
             return is_lifecycle_event(tag) ? next : drop_event;
         }

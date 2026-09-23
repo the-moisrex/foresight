@@ -58,17 +58,17 @@ export namespace fs8 {
 
         ///  Tag forwarding (start, toggle_on, toggle_off only)
         template <Context CtxT>
-            requires(invokable_mod<CondT, CtxT, special_event> || invokable_mod<ActionT, CtxT, special_event>)
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+            requires(invokable_mod<CondT, CtxT, control_event> || invokable_mod<ActionT, CtxT, control_event>)
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
-            if constexpr (invokable_mod<CondT, CtxT, special_event> && invokable_mod<ActionT, CtxT, special_event>) {
+            if constexpr (invokable_mod<CondT, CtxT, control_event> && invokable_mod<ActionT, CtxT, control_event>) {
                 if (auto const res = invoke_mod(cond, ctx, tag); res != next) [[unlikely]] {
                     return res;
                 }
                 return invoke_mod(action, ctx, tag);
-            } else if constexpr (invokable_mod<CondT, CtxT, special_event>) {
+            } else if constexpr (invokable_mod<CondT, CtxT, control_event>) {
                 return invoke_mod(cond, ctx, tag);
-            } else if constexpr (invokable_mod<ActionT, CtxT, special_event>) {
+            } else if constexpr (invokable_mod<ActionT, CtxT, control_event>) {
                 return invoke_mod(action, ctx, tag);
             } else {
                 static_assert(false, "This path should be unreachable.");

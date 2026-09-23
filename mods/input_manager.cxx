@@ -51,15 +51,15 @@ namespace {
 
 template <>
 struct fs8::pimpl_idiom<basic_input_manager>::impl {
-    bool                                           started = false;
-    std::atomic<bool>                              stop_requested{false};
-    udev_monitor                                   monitor;
-    std::list<evdev>                               devs;                   // stable handles; todo: switch to std::hive once available
-    std::vector<query_provider_handle>             providers;
-    std::vector<device_change_handle>              listeners;
-    std::vector<std::string>                       owned_sysnames;         // uinput devices created by this process
-    std::uint32_t                                  devices_generation = 1; // must be non-zero for xorshift
-    std::unordered_map<std::uint32_t, fs8::evdev*> source_map;             // source_id → device (set by provider mods)
+    bool                                      started = false;
+    std::atomic<bool>                         stop_requested{false};
+    udev_monitor                              monitor;
+    std::list<evdev>                          devs;                   // stable handles; todo: switch to std::hive once available
+    std::vector<query_provider_handle>        providers;
+    std::vector<device_change_handle>         listeners;
+    std::vector<std::string>                  owned_sysnames;         // uinput devices created by this process
+    std::uint32_t                             devices_generation = 1; // must be non-zero for xorshift
+    std::unordered_map<std::uint32_t, evdev*> source_map;             // source_id → device (set by provider mods)
 
     /// Devices are identified by their udev sysname (derived from the fd),
     /// which is the last component of their syspath; only nodes with a devnode
@@ -181,8 +181,8 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 devs.emplace_back(std::move(edev));
                 next_generation(devices_generation);
                 added         = true;
-                auto const id = fs8::ci_hash(std::string_view{fs8::device_sysname(devs.back())});
-                notify_listeners(id, fs8::device_change::connected);
+                auto const id = ci_hash(std::string_view{device_sysname(devs.back())});
+                notify_listeners(id, device_change::connected);
             }
         }
     }
@@ -193,7 +193,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         }
     }
 
-    void notify_listeners(std::uint32_t const id, fs8::device_change const change) noexcept {
+    void notify_listeners(std::uint32_t const id, device_change const change) noexcept {
         for (auto& listener : listeners) {
             if (listener.invoke) {
                 listener.invoke(id, change);

@@ -76,7 +76,7 @@ namespace fs8 {
             events = new_events;
         }
 
-        context_action operator()(event_type& event, special_event const& tag) noexcept;
+        context_action operator()(event_type& event, control_event const& tag) noexcept;
     } scheduled_emitter;
 
     export template <std::size_t N>
@@ -235,7 +235,7 @@ namespace fs8 {
         // }
 
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             if (tag.code != load_event.code) {
                 return drop_event;

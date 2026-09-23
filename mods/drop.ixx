@@ -249,7 +249,7 @@ export namespace fs8 {
             return basic_drop_start_moves{inp_time_threshold};
         }
 
-        void           operator()(special_event const& tag) noexcept;
+        void           operator()(control_event const& tag) noexcept;
         context_action operator()(event_type const& event) noexcept;
     } drop_start_moves;
 
@@ -331,7 +331,7 @@ export namespace fs8 {
         std::array<bool, max_keys>   pressed{};
 
       public:
-        constexpr void operator()(special_event const& tag) noexcept {
+        constexpr void operator()(control_event const& tag) noexcept {
             if (tag.code == start.code) {
                 pressed = {};
             }
@@ -398,7 +398,7 @@ export namespace fs8 {
 
         template <typename CtxT>
             requires has_mod<basic_input_manager, CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }
@@ -426,7 +426,7 @@ export namespace fs8 {
         bool tool_active = false;
 
       public:
-        constexpr void operator()(special_event const& tag) noexcept {
+        constexpr void operator()(control_event const& tag) noexcept {
             if (tag.code == start.code) {
                 tool_active = false;
             }

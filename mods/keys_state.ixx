@@ -88,7 +88,7 @@ export namespace fs8 {
 
         /// Register a device-change listener to seed key state on connect.
         template <ContextWith<basic_input_manager> CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             if (tag.code != start.code) {
                 return drop_event;
@@ -155,7 +155,7 @@ export namespace fs8 {
         /// current CapsLock LED) so the mode indicator is correct at startup.
         /// Must run after the devices are open (i.e. after `input_manager`).
         template <ContextWith<basic_input_manager> CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }

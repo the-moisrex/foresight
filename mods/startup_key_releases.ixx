@@ -26,7 +26,7 @@ export namespace fs8 {
 
         /// Register a device-change listener and check already-enumerated devices.
         template <ContextWith<basic_input_manager> CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             if (tag.code != start.code) {
                 return drop_event;

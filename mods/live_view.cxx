@@ -777,7 +777,7 @@ void fs8::condensed_view::process_event(event_type const& event, int const fd, s
 // ── basic_from_event_line ──────────────────────────────────────────────────
 
 template <fs8::EvtestFormat Format>
-context_action fs8::basic_from_event_line<Format>::operator()(event_type& event, special_event const& tag) noexcept {
+context_action fs8::basic_from_event_line<Format>::operator()(event_type& event, control_event const& tag) noexcept {
     using enum context_action;
     if (tag.code != load_event.code) {
         return drop_event;

@@ -109,7 +109,7 @@ export namespace fs8 {
         context_action operator()(event_type const& event) noexcept;
 
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             if (tag.code == start.code) {
                 init(ctx);

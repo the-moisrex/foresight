@@ -82,6 +82,13 @@ namespace fs8 {
     template <typename ModConcept, typename... Funcs>
     using mod_of = mod_of_t<ModConcept, Funcs...>::type;
 
+    /// A unique, address-stable identity token for each mod type. Comparing
+    /// `&type_id<M>` works across translation units because this is an inline
+    /// variable template (COMDAT-merged), and distinct specializations are
+    /// distinct objects.
+    template <typename T>
+    inline constexpr std::type_identity<std::remove_cvref_t<T>> type_id{};
+
 } // namespace fs8
 
 // ============================================================================
@@ -146,7 +153,7 @@ export namespace fs8 {
 
     namespace detail {
         template <typename... Args>
-        constexpr bool args_contain_special_event = (std::same_as<std::remove_cvref_t<Args>, special_event> || ...);
+        constexpr bool args_contain_special_event = (std::same_as<std::remove_cvref_t<Args>, control_event> || ...);
 
         /// True if T has a `static constexpr bool is_tag = true` member, or is `special_event`.
         /// Used to exclude sentinel types (get_variables_tag, auto_mode_tag,
@@ -158,13 +165,13 @@ export namespace fs8 {
         inline constexpr bool is_tag_type<T, std::void_t<decltype(std::remove_cvref_t<T>::is_tag)>> = std::remove_cvref_t<T>::is_tag;
 
         template <>
-        inline constexpr bool is_tag_type<special_event, void> = true;
+        inline constexpr bool is_tag_type<control_event, void> = true;
     } // namespace detail
 
     /// Concept for pipeline lifecycle tags. All lifecycle events are
     /// `special_event`; this replaces the old `Tag` concept.
     template <typename T>
-    concept PipelineTag = std::same_as<std::remove_cvref_t<T>, special_event>;
+    concept PipelineTag = std::same_as<std::remove_cvref_t<T>, control_event>;
 
     template <typename ModT, typename... Args>
     context_action invoke_mod_inorder(ModT &mod, context_action const default_action, Args &&...args) noexcept {
@@ -205,7 +212,7 @@ export namespace fs8 {
         } else if constexpr (std::invocable<ModT, CtxT &, Args...>) {
             return invoke_mod_inorder(mod, default_action, ctx, args...);
         } else if constexpr (
-          sizeof...(Args) == 1 && std::same_as<std::remove_cvref_t<type_at<0, Args...>>, special_event> && std::invocable<ModT, Args...>)
+          sizeof...(Args) == 1 && std::same_as<std::remove_cvref_t<type_at<0, Args...>>, control_event> && std::invocable<ModT, Args...>)
         {
             // When the single arg is a special_event, try it as a standalone calling convention.
             // This allows mods to accept `(special_event)` or `(special_event const&)` directly.
@@ -218,8 +225,8 @@ export namespace fs8 {
         } else if constexpr (sizeof...(Args) >= 2) {
             // Some mods don't accept the first argument (e.g. the device_query the router
             // pushes down a pipeline); drop the leading non-tag argument and retry with fewer args.
-            if constexpr (!std::same_as<std::remove_cvref_t<type_at<0, Args...>>, special_event>
-                          && std::same_as<std::remove_cvref_t<type_at<sizeof...(Args) - 1, Args...>>, special_event>)
+            if constexpr (!std::same_as<std::remove_cvref_t<type_at<0, Args...>>, control_event>
+                          && std::same_as<std::remove_cvref_t<type_at<sizeof...(Args) - 1, Args...>>, control_event>)
             {
                 return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
                     auto const args_tuple = std::tuple{args...};
@@ -360,8 +367,8 @@ export namespace fs8 {
             return invoke_mod(get<Index>(funcs), ctx, default_action, args...);
         } else if constexpr (sizeof...(Args) >= 2) {
             // Let invoke_mod's drop fallback try calling this mod with fewer args.
-            if constexpr (!std::same_as<std::remove_cvref_t<type_at<0, Args...>>, special_event>
-                          && std::same_as<std::remove_cvref_t<type_at<sizeof...(Args) - 1, Args...>>, special_event>)
+            if constexpr (!std::same_as<std::remove_cvref_t<type_at<0, Args...>>, control_event>
+                          && std::same_as<std::remove_cvref_t<type_at<sizeof...(Args) - 1, Args...>>, control_event>)
             {
                 auto guard = fork_index_guard{ctx.current_frame().fork_index, Index + 1U};
                 return invoke_mod(get<Index>(funcs), ctx, default_action, args...);
@@ -378,7 +385,7 @@ export namespace fs8 {
     context_action invoke_mods(CtxT &ctx, std::tuple<Mods...> &mods, Args... args) noexcept {
         using enum context_action;
         if constexpr (sizeof...(Args) == 1) {
-            if constexpr (std::same_as<std::remove_cvref_t<type_at<0, Args...>>, special_event>) {
+            if constexpr (std::same_as<std::remove_cvref_t<type_at<0, Args...>>, control_event>) {
                 // Special events (start, load_event, etc.) should be delivered to ALL mods.
                 // Mods that don't handle a code return drop_event — we ignore those and
                 // keep the last "interesting" result (next, recovery, exit).
@@ -446,28 +453,28 @@ export namespace fs8 {
 
     /// Enter a sub-pipeline, invoke_mods with a special_event, exit.
     template <Context CtxT, typename... Funcs>
-    context_action invoke_sub_pipeline(CtxT &ctx, std::tuple<Funcs...> &mods, special_event const &tag) noexcept {
+    context_action invoke_sub_pipeline(CtxT &ctx, std::tuple<Funcs...> &mods, control_event const &tag) noexcept {
         auto guard = sub_pipeline_guard<CtxT, Funcs...>{ctx, mods};
         return invoke_mods(ctx, mods, tag);
     }
 
     /// Enter a sub-pipeline, invoke_first_mod_of, exit.
     template <Context CtxT, typename... Funcs>
-    context_action invoke_first_mod_of_sub_pipeline(CtxT &ctx, std::tuple<Funcs...> &mods, special_event const &tag) noexcept {
+    context_action invoke_first_mod_of_sub_pipeline(CtxT &ctx, std::tuple<Funcs...> &mods, control_event const &tag) noexcept {
         auto guard = sub_pipeline_guard<CtxT, Funcs...>{ctx, mods};
         return invoke_first_mod_of(ctx, mods, tag);
     }
 
     /// True if any mod in the sub-pipeline can be invoked as a special_event provider.
     template <typename CtxT, typename... Funcs>
-    concept can_generate_events = (invokable_mod<Funcs, CtxT, special_event> || ...);
+    concept can_generate_events = (invokable_mod<Funcs, CtxT, control_event> || ...);
 
     /// Dispatch a special_event into a condition-gated sub-pipeline.
     /// - start: check condition, then forward
     /// - next_event: invoke first mod (provider)
     /// - everything else: forward unconditionally
     template <typename CondT, typename... Funcs, Context CtxT>
-    context_action invoke_conditioned_sub_pipeline(CondT &cond, std::tuple<Funcs...> &funcs, CtxT &ctx, special_event const &tag) noexcept {
+    context_action invoke_conditioned_sub_pipeline(CondT &cond, std::tuple<Funcs...> &funcs, CtxT &ctx, control_event const &tag) noexcept {
         using enum context_action;
         switch (tag.code) {
             case start.code: {
@@ -486,21 +493,11 @@ export namespace fs8 {
         }
     }
 
-    /// A unique, address-stable identity token for each mod type. Comparing
-    /// `&type_id<M>` works across translation units because this is an inline
-    /// variable template (COMDAT-merged), and distinct specializations are
-    /// distinct objects.
-    template <typename T>
-    struct type_id_t {};
-
-    template <typename T>
-    inline constexpr type_id_t<T> type_id{};
-
     /// Depth-first walk: call fn(mod) for every mod in the tree,
     /// recursing into sub_mods() when present.
     /// When max_depth > 0, descend into sub_mods(); at 0 stop at the current node.
     template <typename Mod, typename Fn>
-    void walk_mod_tree(Mod &mod, Fn &&fn, std::size_t max_depth = SIZE_MAX) noexcept {
+    void walk_mod_tree(Mod &mod, Fn &&fn, std::size_t const max_depth = SIZE_MAX) noexcept {
         fn(mod);
         if constexpr (requires { mod.sub_mods(); }) {
             if (max_depth > 0) {
@@ -515,7 +512,7 @@ export namespace fs8 {
 
     /// True if tag is a lifecycle event (toggle_on or toggle_off).
     /// Both share the same code; they are distinguished by value.
-    [[nodiscard]] constexpr bool is_lifecycle_event(special_event const &tag) noexcept {
+    [[nodiscard]] constexpr bool is_lifecycle_event(control_event const &tag) noexcept {
         return tag.code == toggle_on.code;
     }
 
@@ -540,7 +537,7 @@ export namespace fs8 {
         virtual void                            event(event_type const &) noexcept = 0;
 
         /// Invoke the mod at `index` with the given default action and optional special event.
-        virtual context_action invoke_mod(std::size_t index, context_action default_action, special_event const &tag) noexcept = 0;
+        virtual context_action invoke_mod(std::size_t index, context_action default_action, control_event const &tag) noexcept = 0;
 
         /// Invoke the mod at `index` with the given default action (no special event — plain call).
         virtual context_action invoke_mod(std::size_t index, context_action default_action) noexcept = 0;
@@ -550,6 +547,10 @@ export namespace fs8 {
 
         /// Re-emit `inp_event` through the mods starting at `from_index`.
         virtual context_action reemit(std::size_t from_index, event_type const &inp_event) noexcept = 0;
+
+        /// Broadcast special events to all mods that accept them
+        virtual context_action broadcast(control_event &event) noexcept       = 0;
+        virtual context_action broadcast(control_event const &event) noexcept = 0;
 
         /// Invoke `out` for the devnode of every mod in the pipeline that
         /// self-identifies as a device creator (recursing into sub-pipelines).
@@ -599,7 +600,7 @@ export namespace fs8 {
         [[nodiscard]] std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> mods(T const & = {}) const noexcept {
             std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> out;
             self->for_each_mod_of(
-              &type_id<std::remove_cvref_t<T>>,
+              &type_id<T>,
               [&](void *ptr) noexcept {
                   out.emplace_back(*static_cast<std::remove_cvref_t<T> *>(ptr));
               },
@@ -612,7 +613,7 @@ export namespace fs8 {
         [[nodiscard]] std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> rmods(T const & = {}) const noexcept {
             std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> out;
             self->for_each_mod_of(
-              &type_id<std::remove_cvref_t<T>>,
+              &type_id<T>,
               [&](void *ptr) noexcept {
                   out.emplace_back(*static_cast<std::remove_cvref_t<T> *>(ptr));
               },
@@ -697,8 +698,20 @@ export namespace fs8 {
         }
 
         /// Broadcast a special event to ALL mods in this pipeline.
-        context_action broadcast(special_event const &tag) noexcept {
-            return invoke_mods(*this, mods_, tag);
+        context_action broadcast(control_event const &event) noexcept {
+            auto const res = invoke_mods(*this, mods_, event);
+            if (event.type == required_control_event && res != context_action::next) {
+                log("A required control event was not handled; control code: {} ({})", event.code, to_string(event));
+            }
+            return res;
+        }
+
+        context_action broadcast(control_event &event) noexcept {
+            auto const res = invoke_mods(*this, mods_, event);
+            if (event.type == required_control_event && res != context_action::next) {
+                log("A required control event was not handled; control code: {} ({})", event.code, to_string(event));
+            }
+            return res;
         }
 
         template <typename Func, typename Self>
@@ -816,7 +829,7 @@ export namespace fs8 {
             std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> out;
             collect_mods_of(
               *this,
-              &type_id<std::remove_cvref_t<T>>,
+              &type_id<T>,
               [&](void *ptr) noexcept {
                   out.emplace_back(*static_cast<std::remove_cvref_t<T> *>(ptr));
               },
@@ -830,7 +843,7 @@ export namespace fs8 {
             std::vector<std::reference_wrapper<std::remove_cvref_t<T>>> out;
             collect_mods_of(
               *this,
-              &type_id<std::remove_cvref_t<T>>,
+              &type_id<T>,
               [&](void *ptr) noexcept {
                   out.emplace_back(*static_cast<std::remove_cvref_t<T> *>(ptr));
               },
@@ -838,7 +851,7 @@ export namespace fs8 {
             return out;
         }
 
-        context_action operator()(special_event const &tag) noexcept {
+        context_action operator()(control_event const &tag) noexcept {
             switch (tag.code) {
                 case start.code:      // start
                     return start_mods();
@@ -899,7 +912,7 @@ export namespace fs8 {
             dynamic_scope scope{dynamic_context, *this};
             using enum context_action;
             using self_type = basic_context<std::remove_cvref_t<Funcs>...>;
-            static_assert(((invokable_mod<Funcs, self_type> || invokable_mod<Funcs, self_type, special_event>) && ...),
+            static_assert(((invokable_mod<Funcs, self_type> || invokable_mod<Funcs, self_type, control_event>) && ...),
                           "At least one of the mods are not callable");
             for (;;) {
                 // Try next_event providers (non-blocking event pull).
@@ -950,7 +963,7 @@ export namespace fs8 {
         }
 
         /// Pass-through a special_event to the mods.
-        context_action operator()(Context auto &ctx, special_event const &tag) noexcept {
+        context_action operator()(Context auto &ctx, control_event const &tag) noexcept {
             return invoke_sub_pipeline(ctx, mods_, tag);
         }
 
@@ -995,7 +1008,7 @@ namespace fs8 {
 
     /// Run the mod at a runtime `Index` (compile-time dispatch) with the given special_event.
     template <std::size_t Index, Context CtxT>
-    constexpr context_action invoke_mod_with_special(CtxT &ctx, special_event const &tag, context_action const default_action) noexcept {
+    constexpr context_action invoke_mod_with_special(CtxT &ctx, control_event const &tag, context_action const default_action) noexcept {
         return fork_mod<Index>(ctx, ctx.get_mods(), default_action, tag);
     }
 
@@ -1080,7 +1093,7 @@ namespace fs8 {
         }
 
         context_action
-        invoke_mod(std::size_t const index, context_action const default_action, special_event const &tag) noexcept override {
+        invoke_mod(std::size_t const index, context_action const default_action, control_event const &tag) noexcept override {
             return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
                 context_action action = default_action;
                 std::ignore = (((I == index) ? (action = invoke_mod_with_special<I>(*ctx, tag, default_action), true) : false) || ...);
@@ -1101,6 +1114,14 @@ namespace fs8 {
             auto const res    = invoke_mods_from(*ctx, ctx->get_mods(), from_index);
             ctx->event(cur_ev);
             return res;
+        }
+
+        context_action broadcast(control_event &tag) noexcept override {
+            return ctx->broadcast(tag);
+        }
+
+        context_action broadcast(control_event const &tag) noexcept override {
+            return ctx->broadcast(tag);
         }
 
         void for_each_self_devnode(std::function_ref<void(std::string_view)> out) noexcept override {
@@ -1152,13 +1173,21 @@ namespace fs8 {
             return fork_emit(event_type{inp_type, inp_code, inp_val});
         }
 
+        context_action broadcast(control_event &tag) noexcept {
+            return ctx->broadcast(tag);
+        }
+
+        context_action broadcast(control_event const &tag) noexcept {
+            return ctx->broadcast(tag);
+        }
+
         /// Invoke the mod at NIndex directly (no tag).
         context_action operator()() noexcept {
             return ctx->invoke_mod(NIndex, context_action::next);
         }
 
         /// Invoke the mod at NIndex with the given special_event.
-        context_action operator()(special_event const &tag) noexcept {
+        context_action operator()(control_event const &tag) noexcept {
             return ctx->invoke_mod(NIndex, context_action::next, tag);
         }
     };
