@@ -7,7 +7,7 @@ module;
 #include <array>
 #include <cstdint>
 
-export module fs8.mods:chime_data;
+export module fs8.sound:chime_data;
 
 export namespace fs8 {
 

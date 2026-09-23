@@ -9,11 +9,10 @@ module;
 export module fs8.mods:bucklespring;
 
 import :sound;
+import fs8.sound;
 import fs8.event;
 
 export namespace fs8 {
-
-    struct bucklespring_params;
 
     /// Synthesizer for IBM Model M bucklespring keystroke sounds.
     struct [[nodiscard]] bucklespring_synth {

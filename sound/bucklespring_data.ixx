@@ -7,7 +7,7 @@ module;
 #include <array>
 #include <cstdint>
 
-export module fs8.mods:bucklespring_data;
+export module fs8.sound:bucklespring_data;
 
 export namespace fs8 {
 

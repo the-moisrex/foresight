@@ -8,6 +8,7 @@
 #include <span>
 #include <vector>
 import fs8.mods;
+import fs8.sound;
 
 using namespace fs8;
 

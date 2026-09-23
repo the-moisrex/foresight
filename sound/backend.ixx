@@ -12,6 +12,11 @@ module;
 
 export module fs8.sound;
 
+// Synth parameter tables live in this module; GCC cannot import another
+// module's partition directly (`import M:P;`), so re-export them here.
+export import :chime_data;
+export import :bucklespring_data;
+
 export namespace fs8 {
 
     /// Audio output backend interface.

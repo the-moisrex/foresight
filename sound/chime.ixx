@@ -10,8 +10,8 @@ module;
 
 export module fs8.mods:chime;
 
-import :chime_data;
 import :sound;
+import fs8.sound;
 import fs8.event;
 
 export namespace fs8 {

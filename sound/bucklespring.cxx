@@ -11,7 +11,7 @@ module;
 module fs8.mods;
 
 import :bucklespring;
-import :bucklespring_data;
+import fs8.sound;
 import :bucklespring_attack;
 
 using fs8::bucklespring_synth;

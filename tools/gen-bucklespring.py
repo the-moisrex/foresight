@@ -237,7 +237,7 @@ def generate_cxx():
     lines.append("module;")
     lines.append("#include <array>")
     lines.append("")
-    lines.append("module fs8.mods;")
+    lines.append("module fs8.sound;")
     lines.append("")
     lines.append("import :bucklespring_data;")
     lines.append("")

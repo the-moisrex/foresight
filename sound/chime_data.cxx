@@ -4,7 +4,7 @@
 module;
 #include <array>
 
-module fs8.mods;
+module fs8.sound;
 
 import :chime_data;
 
