@@ -8,11 +8,11 @@ module fs8.sound;
 
 import :bucklespring_data;
 
-using fs8::bucklespring_params;
+using fs8::click_params;
 
 // clang-format off
 
-const std::array<bucklespring_params, 256> fs8::bucklespring_press_params = {{
+const std::array<click_params, 256> fs8::bucklespring_press_params = {{
         { 3405.5f, 19.7f, 1428.6f, 5.9f, 4.2f, -3.8f, 0.118f, 1.349f, 0.8f },  // 0x00
         { 9076.0f, 54.0f, 2784.0f, 8.0f, 4.0f, -5.7f, 0.045f, 0.998f, 0.8f },  // 0x01  // ESC (measured)
         { 1002.0f, 5.0f, 501.0f, 5.0f, 9.8f, -1.6f, 0.272f, 2.834f, 0.8f },  // 0x02  // 1_KEY (measured)
@@ -271,7 +271,7 @@ const std::array<bucklespring_params, 256> fs8::bucklespring_press_params = {{
         { 1104.8f, 5.0f, 1246.8f, 7.4f, 3.9f, -2.2f, 0.187f, 1.553f, 0.8f },  // 0xff
 }};
 
-const std::array<bucklespring_params, 256> fs8::bucklespring_release_params = {{
+const std::array<click_params, 256> fs8::bucklespring_release_params = {{
         { 2637.4f, 7.1f, 1472.4f, 5.9f, 3.9f, -4.9f, 0.118f, 1.200f, 0.8f },  // 0x00
         { 6450.0f, 12.0f, 2934.0f, 8.0f, 3.0f, -9.5f, 0.045f, 0.500f, 0.8f },  // 0x01  // ESC (measured)
         { 1503.0f, 1.7f, 1421.0f, 3.0f, 4.5f, -2.3f, 0.272f, 1.000f, 0.8f },  // 0x02  // 1_KEY (measured)

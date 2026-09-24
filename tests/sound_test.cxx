@@ -33,31 +33,35 @@ namespace {
         return buf;
     }
 
-} // namespace
+    // The click-engine duration must cover ~7 envelope time-constants so the
+    // ring decays to ≈ -60 dB on its own; none of the 512 parameter rows may
+    // hit the 150 ms slot cap (which would truncate mid-ring).
+    template <sound_generator Gen>
+    void check_click_duration(Gen const& gen) {
+        for (uint16_t code = 0; code < 256; ++code) {
+            for (bool const pressed : {false, true}) {
+                auto const& v        = gen.params(static_cast<uint8_t>(code), pressed);
+                float const total_ms = v.snap_ms + v.ring_ms * 7.0f + v.contact_ms + 1.0f;
 
-// The bucklespring duration must cover ~7 envelope time-constants so the ring
-// decays to ≈ -60 dB on its own; none of the 512 parameter rows may hit the
-// 150 ms slot cap (which would truncate mid-ring).
-TEST(SoundTest, BucklespringDurationCoversSevenTauRing) {
-    bucklespring_synth const gen;
+                ASSERT_LE(total_ms, 150.0f) << "code 0x" << std::hex << code;
 
-    for (uint16_t code = 0; code < 256; ++code) {
-        for (bool const pressed : {false, true}) {
-            auto const& v        = gen.params(static_cast<uint8_t>(code), pressed);
-            float const total_ms = v.snap_ms + v.ring_ms * 7.0f + v.contact_ms + 1.0f;
+                auto const frames = gen.duration_frames(static_cast<uint8_t>(code), pressed, fmt.sample_rate);
+                EXPECT_EQ(frames, static_cast<std::size_t>(static_cast<float>(fmt.sample_rate) * total_ms / 1000.0f));
+                ASSERT_LE(frames * fmt.channels, max_slot_samples);
 
-            ASSERT_LE(total_ms, 150.0f) << "code 0x" << std::hex << code;
-
-            auto const frames = gen.duration_frames(static_cast<uint8_t>(code), pressed, fmt.sample_rate);
-            EXPECT_EQ(frames, static_cast<std::size_t>(static_cast<float>(fmt.sample_rate) * total_ms / 1000.0f));
-            ASSERT_LE(frames * fmt.channels, max_slot_samples);
-
-            // Envelope level at the cut: elapsed time since attack_end is
-            // snap_ms + 7*ring_ms + 0.8 ms, so exp(-elapsed/ring) <= e^-7.
-            float const elapsed_ms = total_ms - (v.contact_ms + 0.2f);
-            EXPECT_LE(std::exp(-elapsed_ms / v.ring_ms), 1.1e-3f);
+                // Envelope level at the cut: elapsed time since attack_end is
+                // snap_ms + 7*ring_ms + 0.8 ms, so exp(-elapsed/ring) <= e^-7.
+                float const elapsed_ms = total_ms - (v.contact_ms + 0.2f);
+                EXPECT_LE(std::exp(-elapsed_ms / v.ring_ms), 1.1e-3f);
+            }
         }
     }
+
+} // namespace
+
+TEST(SoundTest, ClickDurationCoversSevenTauRing) {
+    check_click_duration(bucklespring_synth{});
+    check_click_duration(modelf_synth{});
 }
 
 // Every generator plays through the player, which fades the last
@@ -65,6 +69,7 @@ TEST(SoundTest, BucklespringDurationCoversSevenTauRing) {
 // body untouched.
 TEST(SoundTest, FadedGeneratorsEndAtSilence) {
     bucklespring_synth const buckle;
+    modelf_synth const       modelf;
     chime_synth const        chime;
     basic_synth const        basic;
 
@@ -72,7 +77,8 @@ TEST(SoundTest, FadedGeneratorsEndAtSilence) {
         for (int const value : {0, 1}) {
             auto const ev = make_key_event(code, value);
 
-            std::array<std::vector<float>, 3> bufs{render(buckle, ev), render(chime, ev), render(basic, ev)};
+            std::array<std::vector<float>, 4> bufs{render(buckle, ev), render(modelf, ev), render(chime, ev),
+                                                   render(basic, ev)};
             for (auto& buf : bufs) {
                 ASSERT_FALSE(buf.empty());
                 auto const before = buf;

@@ -1,11 +1,14 @@
+#include <array>
 #include <linux/input-event-codes.h>
 #include <stdexcept>
+#include <string_view>
 import fs8;
 
 static constexpr auto args =
   fs8::arguments["Key Sounds"]
     .positional("device")
-    .add_flag({.name = "--bucklespring", .alias = "-b", .help = "Use bucklespring key sounds from a real IBM Model M."})
+    .add_flag({.name = "--profile", .alias = "-p", .help = "Sound profile to use (default: basic).", .takes_value = true})
+    .add_flag({.name = "--bucklespring", .alias = "-b", .help = "Shorthand for --profile bucklespring."})
     .help(R"TEXT(
 Usage: key-sounds [device] [options]
 
@@ -14,7 +17,8 @@ No events are grabbed or forwarded — this is a passive listener.
 
 Arguments:
     -h | --help             Print help.
-    -b | --bucklespring     Use bucklespring key sounds (IBM Model M).
+    -p | --profile <name>   Sound profile: basic, bucklespring, chime, modelf (default: basic).
+    -b | --bucklespring     Shorthand for --profile bucklespring.
 
 Positionals:
     device                  The keyboard device query (default: any keyboard).
@@ -26,6 +30,56 @@ Device queries are device names, paths (e.g. /dev/input/event1), or udev
 terms (e.g. "name=event0", "keyboard").
 )TEXT");
 
+namespace {
+
+    /// One row per selectable sound profile; add new profiles here.
+    struct profile_entry {
+        std::string_view name;
+        void (*reg)();
+    };
+
+    void register_basic() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::basic_synth{});
+    }
+
+    void register_bucklespring() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::bucklespring_synth{});
+    }
+
+    void register_chime() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::chime_synth{});
+    }
+
+    void register_modelf() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::modelf_synth{});
+    }
+
+    constexpr std::array profiles = {
+      profile_entry{       .name = "basic",        .reg = register_basic},
+      profile_entry{.name = "bucklespring", .reg = register_bucklespring},
+      profile_entry{       .name = "chime",        .reg = register_chime},
+      profile_entry{      .name = "modelf",       .reg = register_modelf},
+    };
+
+    /// Look up `name` in the dispatch table and register it as the active
+    /// synth.  Returns false (after listing the valid names) if unknown.
+    bool select_profile(std::string_view const name) noexcept {
+        for (profile_entry const& entry : profiles) {
+            if (entry.name == name) {
+                entry.reg();
+                fs8::log("key-sounds: using {} sound profile.", name);
+                return true;
+            }
+        }
+        fs8::log("key-sounds: unknown sound profile \"{}\". Valid profiles:", name);
+        for (profile_entry const& entry : profiles) {
+            fs8::log("  {}", entry.name);
+        }
+        return false;
+    }
+
+} // namespace
+
 int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
 
@@ -36,11 +90,14 @@ int main(int const argc, char const* const* argv) try {
         pipe.mod(intercept).add(parsed | required);
     };
 
-    if (parsed.has_flag("--bucklespring")) {
-        log("key-sounds: using bucklespring sound profile.");
-        dynamic_synth::register_synth(bucklespring_synth{});
-    } else {
-        dynamic_synth::register_synth(basic_synth{});
+    std::string_view profile = "basic";
+    if (auto const selected = parsed.flag_value("--profile")) {
+        profile = *selected;
+    } else if (parsed.has_flag("--bucklespring")) {
+        profile = "bucklespring";
+    }
+    if (!select_profile(profile)) {
+        return 1;
     }
 
     static constinit auto pipeline =
@@ -49,9 +106,9 @@ int main(int const argc, char const* const* argv) try {
       | input_manager
       | intercept[keyboard | required]
       | on[basic_multi_click{KEY_PAUSE}, run{[](Context auto& ctx) noexcept {
-                   log("{} Toggle Pause triggered.", ctx.event().micro_time());
-                   return toggle_sound_pause(ctx);
-               }}]
+               log("{} Toggle Pause triggered.", ctx.event().micro_time());
+               return toggle_sound_pause(ctx);
+           }}]
       | basic_sound_player(dynamic_synth{});
     setup(pipeline);
     pipeline();

@@ -34,11 +34,11 @@ def parse_data_file(path: Path) -> None:
 
     # Match press_params array
     press_match = re.search(
-        r'const std::array<bucklespring_params, 256> fs8::bucklespring_press_params = \{\{\s*\n(.*?)\}\};',
+        r'const std::array<click_params, 256> fs8::bucklespring_press_params = \{\{\s*\n(.*?)\}\};',
         text, re.DOTALL
     )
     release_match = re.search(
-        r'const std::array<bucklespring_params, 256> fs8::bucklespring_release_params = \{\{\s*\n(.*?)\}\};',
+        r'const std::array<click_params, 256> fs8::bucklespring_release_params = \{\{\s*\n(.*?)\}\};',
         text, re.DOTALL
     )
 

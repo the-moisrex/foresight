@@ -140,6 +140,8 @@ target_sources(${LIB_NAME}
         sound/bucklespring.cxx
         sound/bucklespring_data.cxx
         sound/bucklespring_attack.cxx
+        sound/modelf.cxx
+        sound/modelf_data.cxx
         sound/chime.cxx
         sound/chime_data.cxx
 )
@@ -230,9 +232,12 @@ target_sources(${LIB_NAME}
         utils/traits.ixx
         mods/sound.ixx
         sound/backend.ixx
+        sound/dsp.ixx
         sound/bucklespring.ixx
         sound/bucklespring_data.ixx
         sound/bucklespring_attack.ixx
+        sound/modelf.ixx
+        sound/modelf_data.ixx
         sound/chime.ixx
         sound/chime_data.ixx
 )

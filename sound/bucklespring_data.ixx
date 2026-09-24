@@ -11,8 +11,10 @@ export module fs8.sound:bucklespring_data;
 
 export namespace fs8 {
 
-    /// Per-keycode synthesis parameters.
-    struct bucklespring_params {
+    /// Per-keycode synthesis parameters for the click engine
+    /// (`fs8::detail::render_click`).  Shared by every click-style profile:
+    /// each profile supplies its own 256-row press/release arrays.
+    struct click_params {
         float primary_freq;       ///< main spring resonance (Hz)
         float primary_q;          ///< primary bandpass Q
         float secondary_freq;     ///< secondary resonance (Hz)
@@ -24,7 +26,7 @@ export namespace fs8 {
         float snap_bw_ms;         ///< snap burst width (~0.5–1.5 ms)
     };
 
-    extern const std::array<bucklespring_params, 256> bucklespring_press_params;
-    extern const std::array<bucklespring_params, 256> bucklespring_release_params;
+    extern const std::array<click_params, 256> bucklespring_press_params;
+    extern const std::array<click_params, 256> bucklespring_release_params;
 
 } // namespace fs8
