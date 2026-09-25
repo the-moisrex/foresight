@@ -154,6 +154,11 @@ target_sources(${LIB_NAME}
         sound/alps_data.cxx
         sound/chime.cxx
         sound/chime_data.cxx
+        sound/fm.cxx
+        sound/chiptune.cxx
+        sound/piano.cxx
+        sound/marimba.cxx
+        sound/wavetable.cxx
 )
 
 target_sources(${LIB_NAME}
@@ -260,6 +265,11 @@ target_sources(${LIB_NAME}
         sound/alps_data.ixx
         sound/chime.ixx
         sound/chime_data.ixx
+        sound/fm.ixx
+        sound/chiptune.ixx
+        sound/piano.ixx
+        sound/marimba.ixx
+        sound/wavetable.ixx
 )
 
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)

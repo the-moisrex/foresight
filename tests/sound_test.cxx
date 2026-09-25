@@ -61,6 +61,23 @@ namespace {
         }
     }
 
+    // The param-less palettes (FM, chiptune, piano, marimba, wavetable)
+    // have no parameter table to verify the duration formula against, but
+    // they must still fit the player's 150 ms slot budget for every
+    // keycode, on both press and release.
+    template <sound_generator Gen>
+    void check_slot_duration(Gen const& gen) {
+        for (uint16_t code = 0; code < 256; ++code) {
+            for (int const value : {0, 1}) {
+                auto const ev     = make_key_event(code, value);
+                auto const frames = gen.duration_frames(ev, fmt);
+                EXPECT_GT(frames, 0U) << "code 0x" << std::hex << code << " value " << value;
+                EXPECT_LE(frames, max_slot_frames) << "code 0x" << std::hex << code << " value " << value;
+                EXPECT_LE(frames * fmt.channels, max_slot_samples) << "code 0x" << std::hex << code << " value " << value;
+            }
+        }
+    }
+
 } // namespace
 
 TEST(SoundTest, ClickDurationCoversSevenTauRing) {
@@ -71,6 +88,14 @@ TEST(SoundTest, ClickDurationCoversSevenTauRing) {
     check_click_duration(typewriter_synth{});
     check_click_duration(mx_blue_synth{});
     check_click_duration(alps_synth{});
+}
+
+TEST(SoundTest, SynthPalettesFitSlotBudget) {
+    check_slot_duration(fm_synth{});
+    check_slot_duration(chiptune_synth{});
+    check_slot_duration(piano_synth{});
+    check_slot_duration(marimba_synth{});
+    check_slot_duration(wavetable_synth{});
 }
 
 // Every generator plays through the player, which fades the last
@@ -86,12 +111,17 @@ TEST(SoundTest, FadedGeneratorsEndAtSilence) {
     alps_synth const         alps;
     chime_synth const        chime;
     basic_synth const        basic;
+    fm_synth const           fm;
+    chiptune_synth const     chiptune;
+    piano_synth const        piano;
+    marimba_synth const      marimba;
+    wavetable_synth const    wavetable;
 
     for (uint16_t const code : test_keys) {
         for (int const value : {0, 1}) {
             auto const ev = make_key_event(code, value);
 
-            std::array<std::vector<float>, 9> bufs{
+            std::array<std::vector<float>, 14> bufs{
               render(buckle, ev),
               render(modelf, ev),
               render(linear, ev),
@@ -100,7 +130,12 @@ TEST(SoundTest, FadedGeneratorsEndAtSilence) {
               render(mx_blue, ev),
               render(alps, ev),
               render(chime, ev),
-              render(basic, ev)};
+              render(basic, ev),
+              render(fm, ev),
+              render(chiptune, ev),
+              render(piano, ev),
+              render(marimba, ev),
+              render(wavetable, ev)};
             for (auto& buf : bufs) {
                 ASSERT_FALSE(buf.empty());
                 auto const before = buf;
@@ -252,6 +287,11 @@ TEST(SoundTest, DumpProfilesWhenRequested) {
     alps_synth const         alps;
     chime_synth const        chime;
     basic_synth const        basic;
+    fm_synth const           fm;
+    chiptune_synth const     chiptune;
+    piano_synth const        piano;
+    marimba_synth const      marimba;
+    wavetable_synth const    wavetable;
 
     dump_synth(dir, "bucklespring", buckle);
     dump_synth(dir, "modelf", modelf);
@@ -262,4 +302,9 @@ TEST(SoundTest, DumpProfilesWhenRequested) {
     dump_synth(dir, "alps", alps);
     dump_synth(dir, "chime", chime);
     dump_synth(dir, "basic", basic);
+    dump_synth(dir, "fm", fm);
+    dump_synth(dir, "chiptune", chiptune);
+    dump_synth(dir, "piano", piano);
+    dump_synth(dir, "marimba", marimba);
+    dump_synth(dir, "wavetable", wavetable);
 }

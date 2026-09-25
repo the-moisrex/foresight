@@ -18,7 +18,8 @@ No events are grabbed or forwarded — this is a passive listener.
 Arguments:
     -h | --help             Print help.
     -p | --profile <name>   Sound profile: basic, bucklespring, chime, modelf, linear, topre,
-                            typewriter, mx_blue, alps (default: basic).
+                            typewriter, mx_blue, alps, fm, chiptune, piano, marimba,
+                            wavetable (default: basic).
     -b | --bucklespring     Shorthand for --profile bucklespring.
 
 Positionals:
@@ -75,6 +76,26 @@ namespace {
         fs8::dynamic_synth::register_synth(fs8::alps_synth{});
     }
 
+    void register_fm() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::fm_synth{});
+    }
+
+    void register_chiptune() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::chiptune_synth{});
+    }
+
+    void register_piano() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::piano_synth{});
+    }
+
+    void register_marimba() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::marimba_synth{});
+    }
+
+    void register_wavetable() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::wavetable_synth{});
+    }
+
     constexpr std::array profiles = {
       profile_entry{       .name = "basic",        .reg = register_basic},
       profile_entry{.name = "bucklespring", .reg = register_bucklespring},
@@ -85,6 +106,11 @@ namespace {
       profile_entry{  .name = "typewriter",   .reg = register_typewriter},
       profile_entry{     .name = "mx_blue",      .reg = register_mx_blue},
       profile_entry{        .name = "alps",         .reg = register_alps},
+      profile_entry{          .name = "fm",           .reg = register_fm},
+      profile_entry{    .name = "chiptune",     .reg = register_chiptune},
+      profile_entry{       .name = "piano",        .reg = register_piano},
+      profile_entry{     .name = "marimba",      .reg = register_marimba},
+      profile_entry{   .name = "wavetable",    .reg = register_wavetable},
     };
 
     /// Look up `name` in the dispatch table and register it as the active
