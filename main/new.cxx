@@ -22,8 +22,13 @@ namespace fs8 {
 
 // GCC 16 recognises #embed from C23 but warns under -Wpedantic because it
 // is not yet a standard C++26 feature.  Silence the warning until GCC catches up.
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc23-extensions"
+#elif defined(__GNUC__)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wc23-extensions"
+#pragma GCC diagnostic ignored "-Wc++23-extensions"
+#endif
 
         // Embedded template files.  Paths resolve relative to this source file.
 
@@ -61,21 +66,21 @@ namespace fs8 {
 #embed "../templates/auto-typer/CMakePresets.json"
         };
 
-        // x2y
+        // legacy-x2y
         constexpr char x2y_cmake_data[] = {
-#embed "../templates/x2y/CMakeLists.txt"
+#embed "../templates/legacy-x2y/CMakeLists.txt"
         };
         constexpr char x2y_app_data[] = {
-#embed "../templates/x2y/{{name}}.c"
+#embed "../templates/legacy-x2y/{{name}}.c"
         };
         constexpr char x2y_readme_data[] = {
-#embed "../templates/x2y/README.md"
+#embed "../templates/legacy-x2y/README.md"
         };
         constexpr char x2y_clang_format_data[] = {
-#embed "../templates/x2y/.clang-format"
+#embed "../templates/legacy-x2y/.clang-format"
         };
         constexpr char x2y_presets_data[] = {
-#embed "../templates/x2y/CMakePresets.json"
+#embed "../templates/legacy-x2y/CMakePresets.json"
         };
 
         // keyboard-replacer
@@ -129,7 +134,11 @@ namespace fs8 {
 #embed "../templates/mouse/CMakePresets.json"
         };
 
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
 
         // NOLINTEND(*-avoid-c-arrays)
 
@@ -232,8 +241,8 @@ namespace fs8 {
                        .files       = basic_files,
                        },
           app_template{
-                       .name        = "x2y",
-                       .description = "Tiny raw-C stdin/stdout event filter.",
+                       .name        = "legacy-x2y",
+                       .description = "Tiny raw-C stdin/stdout event filter (legacy, no pipeline).",
                        .files       = x2y_files,
                        },
           app_template{

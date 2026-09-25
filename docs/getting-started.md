@@ -37,7 +37,7 @@ The build produces:
 
 - `libforesight` — the library
 - `foresight` — the CLI binary (see [CLI](cli.md))
-- The example apps from [`apps/`](apps.md) (e.g. `pen2mice`, `x2y`)
+- The example apps from [`apps/`](apps.md) (e.g. `pen2mice`, `legacy-x2y`)
 
 ## Running tests
 
