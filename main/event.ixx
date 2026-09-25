@@ -487,27 +487,27 @@ export namespace fs8 {
     // we own this device now; payload: devnode(std::string_view)
     constexpr control_event we_own_device{.type = required_control_event, .code = 7};
 
-    [[nodiscard]] constexpr std::string_view to_string(control_event const& event) noexcept {
-        switch (event.type) {
-            case general_control_event:
-            case required_control_event:
-                break;
-            [[unlikely]] default:
-                return {"Unknown-Control-Event"};
-        }
-        switch (event.code) {
-            case null_event.code: return {"Null"};
-            case start.code: return {"Start"};
-            case no_init.code: return {"No-Init"};
-            case load_event.code: return {"Load"};
-            case next_event.code: return {"Next"};
-            case toggle_on.code: return toggle_off.value == event.value ? std::string_view{"Toggle-Off"} : std::string_view{"Toggle-On"};
-            case idle.code: return {"Idle"};
-            case monitors_updated.code: return {"Monitors-Updated"};
-            case we_own_device.code: return {"We-Own-Device"};
-            default: return {"Unknown-Control-Code"};
-        }
-    }
+    // register a query provider; payload: query_provider_handle (moved-from by handler)
+    constexpr control_event register_query_provider{.type = required_control_event, .code = 8};
+    // hand a manually-added device over (moved-from by handler); payload: evdev
+    constexpr control_event add_evdev_device{.type = required_control_event, .code = 9};
+    // record a source_id → device mapping; payload: source_registration
+    constexpr control_event source_registered{.type = required_control_event, .code = 10};
+    // drop a source_id mapping; payload: std::uint32_t
+    constexpr control_event source_unregistered{.type = required_control_event, .code = 11};
+    // Device-list notifications share one code; `value` discriminates:
+    //   0 = bulk list change (no payload) — "re-pull via enumerate_devices if you care"
+    //   1 = a device was connected (payload: evdev)
+    //   2 = a device was disconnected (payload: legacy sysname hash)
+    // Switch on `tag.code` to observe any mutation; compare the full event
+    // (e.g. `tag == device_connected`) to filter by kind.
+    constexpr control_event devices_changed{.code = 12};
+    constexpr control_event device_connected{.code = 12, .value = 1};
+    constexpr control_event device_disconnected{.code = 12, .value = 2};
+    // synchronously fill a caller-owned device_list; payload: device_list
+    constexpr control_event enumerate_devices{.type = required_control_event, .code = 13};
+
+    [[nodiscard]] std::string_view to_string(control_event const& event) noexcept;
 
     [[nodiscard]] constexpr bool operator==(control_event const& lhs, control_event const& rhs) noexcept {
         // ignoring time and payload
@@ -539,6 +539,15 @@ export namespace fs8 {
             std::terminate();
         }
         return *static_cast<std::string_view*>(event.payload);
+    }
+
+    template <control_event CEvent>
+        requires(source_unregistered == CEvent || device_disconnected == CEvent)
+    [[nodiscard]] constexpr std::uint32_t payload(control_event const& event) noexcept {
+        if (event.payload == nullptr) [[unlikely]] {
+            std::terminate();
+        }
+        return *static_cast<std::uint32_t*>(event.payload);
     }
 
     /// Add payload

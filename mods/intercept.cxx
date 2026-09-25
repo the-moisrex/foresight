@@ -25,25 +25,38 @@ using fs8::sid;
 using fs8::source_id_none;
 
 namespace {
-    /// A tracked fd entry: caches the source_id and evdev pointer so the hot path
-    /// never calls source_id_of() (which does a readlink syscall) or iterates
-    /// im.devices() (a linked-list scan).
+    /// A tracked fd entry: caches the source_id, evdev pointer, and a copy of
+    /// the device name so the hot path never calls source_id_of() (readlink)
+    /// or iterates the device list, and disconnect logging never touches a
+    /// pointer that input_manager may already have erased.
     struct watched_fd {
-        int           fd   = -1;
-        std::uint32_t id   = source_id_none;
-        fs8::evdev*   dev  = nullptr;
-        bool          dead = false;
+        int                  fd   = -1;
+        std::uint32_t        id   = source_id_none;
+        fs8::evdev*          dev  = nullptr;
+        bool                 dead = false;
+        std::array<char, 64> name{};
 
         constexpr watched_fd() noexcept = default;
 
-        constexpr watched_fd(int f, std::uint32_t i, fs8::evdev* d, bool ddd = false) noexcept : fd{f}, id{i}, dev{d}, dead{ddd} {}
+        watched_fd(int f, std::uint32_t i, fs8::evdev* d, std::string_view const device_name, bool ddd = false) noexcept
+          : fd{f},
+            id{i},
+            dev{d},
+            dead{ddd} {
+            auto const len = std::min(device_name.size(), name.size() - 1);
+            std::ranges::copy_n(device_name.begin(), static_cast<std::ptrdiff_t>(len), name.begin());
+            name[len] = '\0';
+        }
+
+        [[nodiscard]] constexpr std::string_view device_name() const noexcept {
+            return {name.data()};
+        }
     };
 } // namespace
 
 template <>
 struct fs8::pimpl_idiom<basic_interceptor>::impl {
-    basic_input_manager*       im = nullptr;
-    std::list<fs8::evdev>      manual_devs;
+    std::list<evdev>           manual_devs; // todo: maybe use std::hive?
     std::deque<event_type>     pending;
     std::array<watched_fd, 16> watched{};
     std::size_t                watched_count = 0;
@@ -55,10 +68,10 @@ struct fs8::pimpl_idiom<basic_interceptor>::impl {
     /// re-watched before udev's "remove" event arrives.
     std::array<int, 16> dead_fds{};
     std::size_t         dead_fd_count = 0;
-    /// Last-seen value of input_manager::devices_generation().  When it has
-    /// not changed since the last reconciliation and there are no disconnects,
-    /// do_pop can skip the entire slow path.
-    std::uint32_t last_generation     = 0;
+    /// Whether the device list may have changed since the last reconciliation.
+    /// Starts true so the first pop always builds the watch table; set again
+    /// whenever input_manager broadcasts `devices_changed`.
+    bool dirty                        = true;
 };
 
 void basic_interceptor::add(evdev&& dev) noexcept {
@@ -88,39 +101,46 @@ std::span<device_query const> basic_interceptor::queries() noexcept {
     return {query_cache.data(), queries_count};
 }
 
-context_action basic_interceptor::do_start(basic_input_manager& im, basic_io_manager& io) noexcept try {
+void basic_interceptor::mark_dirty() noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+    pimpl->dirty = true;
+}
+
+context_action basic_interceptor::do_start() noexcept try {
     using enum context_action;
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
     }
 
-    pimpl->im = &im;
-
     // Queries stay owned here; register as a provider so `input_manager` can
     // pull them again (e.g. on `requery`) instead of copying them over.
-    im.add_query_provider(provider_handle(*this));
-
-    // If `input_manager` started before us, it already enumerated without any
-    // queries registered; re-run the enumeration now that we're a provider
-    // (no-op when it hasn't started yet, so both pipeline orderings work).
-    im.requery();
+    auto handle = provider_handle(*this);
+    if (auto const res = dynamic_context.broadcast(register_query_provider + &handle); res != next) [[unlikely]] {
+        log("interceptor: query registration failed.");
+        return res;
+    }
 
     for (auto& dev : pimpl->manual_devs) {
-        im.add(std::move(dev));
+        if (auto const res = dynamic_context.broadcast(add_evdev_device + &dev); res != next) [[unlikely]] {
+            log("interceptor: adding device failed.");
+            return res;
+        }
     }
     pimpl->manual_devs.clear();
 
-    return im.start(io);
+    return next;
 } catch (...) {
     return context_action::exit;
 }
 
 context_action basic_interceptor::operator()(io_fd& fd) noexcept try {
     using enum context_action;
-    if (pimpl->im == nullptr) [[unlikely]] {
+    if (pimpl.get() == nullptr) [[unlikely]] {
         return next;
     }
-    // Table lookup: find the watched_fd entry by fd — no device-list iteration.
+    // Table lookup: find the watched_fd entry for fd — no device-list iteration.
     for (std::size_t i = 0; i < pimpl->watched_count; ++i) {
         auto& entry = pimpl->watched[i];
         if (entry.fd != fd.fd) {
@@ -128,7 +148,9 @@ context_action basic_interceptor::operator()(io_fd& fd) noexcept try {
         }
         if ((std::to_underlying(fd.revents) & (POLLERR | POLLHUP | POLLNVAL)) != 0) [[unlikely]] {
             if (pimpl->disconnect_count == 0) [[likely]] {
-                auto const name = entry.dev->device_name();
+                // Use the name cached at watch time: input_manager may have
+                // already erased the evdev this entry points at.
+                auto const name = entry.device_name();
                 auto const len  = std::min(name.size(), pimpl->first_disconnect_name.size() - 1);
                 std::ranges::copy_n(name.begin(), static_cast<std::ptrdiff_t>(len), pimpl->first_disconnect_name.begin());
                 pimpl->first_disconnect_name[len] = '\0';
@@ -151,8 +173,9 @@ context_action basic_interceptor::operator()(io_fd& fd) noexcept try {
     return context_action::next;
 }
 
-std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, basic_io_manager& io) noexcept try {
-    if (pimpl->im == nullptr) [[unlikely]] {
+std::optional<event_type> basic_interceptor::do_pop(basic_io_manager& io, context_action& action) noexcept try {
+    using enum context_action;
+    if (pimpl.get() == nullptr) [[unlikely]] {
         return std::nullopt;
     }
 
@@ -165,30 +188,22 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
 
     // Skip reconciliation when nothing changed: no devices added/removed
     // and no disconnects detected since the last reconciliation.
-    if (pimpl->disconnect_count == 0 && im.devices_generation() == pimpl->last_generation) [[likely]] {
+    if (pimpl->disconnect_count == 0 && !pimpl->dirty) [[likely]] {
         return std::nullopt;
     }
 
-    // Build a flat lookup table of (fd, evdev*) from the linked list once,
-    // avoiding repeated O(n) list scans for each watched fd.
-    struct fd_entry {
-        int         fd;
-        fs8::evdev* dev;
-    };
-
-    std::array<fd_entry, 16> device_table{};
-    std::size_t              device_count = 0;
-    for (auto& dev : im.devices()) {
-        if (device_count < device_table.size()) {
-            device_table[device_count++] = {dev.native_handle(), &dev};
-        }
+    // Snapshot the device list into a stack buffer (no callbacks, no heap).
+    auto snap = tracked_devices(dynamic_context);
+    if (!snap) [[unlikely]] {
+        action = snap.action();
+        return std::nullopt;
     }
 
-    // Helper: find a device by fd in the flat table (O(n) but n is small).
-    auto find_device = [&](int fd) noexcept -> fs8::evdev* {
-        for (std::size_t i = 0; i < device_count; ++i) {
-            if (device_table[i].fd == fd) {
-                return device_table[i].dev;
+    // Helper: find a device by fd in the snapshot (O(n) but n is small).
+    auto find_device = [&](int const fd) noexcept -> evdev* {
+        for (evdev* dev : snap) {
+            if (dev->native_handle() == fd) {
+                return dev;
             }
         }
         return nullptr;
@@ -198,7 +213,7 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
     // and watch new devices in a single combined pass.
     pimpl->dead_fd_count = 0;
 
-    // Pass A: for each live watched entry, find it in device_table, mark that
+    // Pass A: for each live watched entry, find it in the snapshot, mark that
     // device as tracked, and refresh the cached pointer.  Entries that are
     // dead or whose device vanished are left unmarked for eviction.
     std::array<bool, 16> device_tracked{};
@@ -209,15 +224,19 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
         bool const alive    = live_dev != nullptr && !entry.dead;
         if (!alive) {
             io.unwatch(entry.fd);
-            pimpl->im->unregister_source(entry.id);
+            std::uint32_t unreg_id = entry.id;
+            if (auto const res = dynamic_context.broadcast(source_unregistered + &unreg_id); is_exiting(res)) {
+                action = res;
+                return std::nullopt;
+            }
             if (pimpl->dead_fd_count < pimpl->dead_fds.size()) {
                 pimpl->dead_fds[pimpl->dead_fd_count++] = entry.fd;
             }
             continue;
         }
         // Mark this device as already tracked.
-        for (std::size_t d = 0; d < device_count; ++d) {
-            if (device_table[d].fd == entry.fd) {
+        for (std::size_t d = 0; d < snap.size(); ++d) {
+            if (snap[d] == live_dev) {
                 device_tracked[d] = true;
                 break;
             }
@@ -231,12 +250,12 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
     pimpl->watched_count = write;
 
     // Pass B: watch devices not yet tracked.
-    for (std::size_t d = 0; d < device_count; ++d) {
+    for (std::size_t d = 0; d < snap.size(); ++d) {
         if (device_tracked[d]) {
             continue;
         }
-        auto&     dev     = *device_table[d].dev;
-        int const dev_fd  = device_table[d].fd;
+        auto&     dev     = *snap[d];
+        int const dev_fd  = dev.native_handle();
         bool      is_dead = false;
         for (std::size_t i = 0; i < pimpl->dead_fd_count; ++i) {
             if (pimpl->dead_fds[i] == dev_fd) {
@@ -252,13 +271,18 @@ std::optional<event_type> basic_interceptor::do_pop(basic_input_manager& im, bas
         }
         if (io.watch(io_fd{.fd = dev_fd, .events = io_event::in}, *this)) {
             auto const src_id                      = sid(intercept, static_cast<std::uint16_t>(pimpl->watched_count));
-            pimpl->watched[pimpl->watched_count++] = watched_fd{dev_fd, src_id, &dev};
-            im.register_source(src_id, dev);
-            log("Device '{}' (re)connected.", dev.device_name());
+            auto const dname                       = dev.device_name();
+            pimpl->watched[pimpl->watched_count++] = watched_fd{dev_fd, src_id, &dev, dname};
+            source_registration reg{src_id, &dev};
+            if (auto const res = dynamic_context.broadcast(source_registered + &reg); fs8::is_exiting(res)) {
+                action = res;
+                return std::nullopt;
+            }
+            log("Device '{}' (re)connected.", dname);
         }
     }
 
-    pimpl->last_generation = im.devices_generation();
+    pimpl->dirty = false;
 
     // Log a batch summary for disconnects detected during the last load_event.
     if (pimpl->disconnect_count > 0) [[unlikely]] {

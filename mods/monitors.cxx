@@ -11,7 +11,6 @@ module fs8.mods;
 import fs8.compositor.monitor_detection;
 import fs8.devices.udev;
 import fs8.log;
-import :input_manager;
 
 using fs8::basic_monitors;
 using fs8::context_action;
@@ -28,7 +27,7 @@ struct fs8::pimpl_idiom<basic_monitors>::impl {
     float effective_tablet_range_x = 0.0f;
     float effective_tablet_range_y = 0.0f;
 
-    fs8::udev_monitor drm_monitor{};
+    udev_monitor      drm_monitor{};
     std::atomic<bool> hotplug_pending{false};
 
     void log_layout() const noexcept {
@@ -76,8 +75,18 @@ struct fs8::pimpl_idiom<basic_monitors>::impl {
     }
 
     static bool same_monitor(monitor_info const& a, monitor_info const& b) noexcept {
-        return a.connector == b.connector && a.x == b.x && a.y == b.y && a.width_px == b.width_px
-               && a.height_px == b.height_px && a.is_primary == b.is_primary;
+        return a.connector
+               == b.connector
+               && a.x
+               == b.x
+               && a.y
+               == b.y
+               && a.width_px
+               == b.width_px
+               && a.height_px
+               == b.height_px
+               && a.is_primary
+               == b.is_primary;
     }
 
     static bool same_layout(std::vector<monitor_info> const& a, std::vector<monitor_info> const& b) noexcept {
@@ -98,8 +107,8 @@ struct fs8::pimpl_idiom<basic_monitors>::impl {
     bool refresh_internal() noexcept {
         auto       result  = enumerate_monitors();
         bool const changed = !same_layout(monitors, result.monitors);
-        monitors = std::move(result.monitors);
-        desktop  = compute_desktop_bounds(monitors);
+        monitors           = std::move(result.monitors);
+        desktop            = compute_desktop_bounds(monitors);
         if (changed) {
             log_layout();
         }

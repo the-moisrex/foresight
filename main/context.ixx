@@ -97,10 +97,10 @@ namespace fs8 {
 export namespace fs8 {
     template <typename T>
     concept Context = requires(T ctx) {
-        typename T::mods_type;
+        // typename T::mods_type;
         ctx.event();
-        ctx.get_mods();
-        ctx.fork_emit();
+        ctx.fork_emit(syn());
+        ctx.broadcast(start);
     };
 
     template <typename T>
@@ -143,7 +143,16 @@ export namespace fs8 {
         exit,       // exit the software
     };
 
-    [[nodiscard]] std::string_view to_string(context_action action) noexcept;
+    [[nodiscard]] constexpr std::string_view to_string(context_action const action) noexcept {
+        using enum context_action;
+        switch (action) {
+            case next: return {"Next"};
+            case drop_event: return {"Drop-Event"};
+            case recovery: return {"Recovery"};
+            case exit: return {"Exit"};
+        }
+        return {"Unknown-Action"};
+    }
 
     template <typename ModT, typename CtxT, typename... Args>
     concept invokable_mod =
@@ -552,6 +561,10 @@ export namespace fs8 {
         virtual context_action broadcast(control_event &event) noexcept       = 0;
         virtual context_action broadcast(control_event const &event) noexcept = 0;
 
+        /// Fork Emit
+        virtual context_action fork_emit(event_type &event) noexcept       = 0;
+        virtual context_action fork_emit(event_type const &event) noexcept = 0;
+
         /// Invoke `out` for the devnode of every mod in the pipeline that
         /// self-identifies as a device creator (recursing into sub-pipelines).
         virtual void for_each_self_devnode(std::function_ref<void(std::string_view)> out) noexcept = 0;
@@ -619,6 +632,23 @@ export namespace fs8 {
               },
               true);
             return out;
+        }
+
+        /// Broadcast a control event to all mods in the currently bound pipeline.
+        context_action broadcast(control_event const &event) const noexcept {
+            return self->broadcast(event);
+        }
+
+        context_action broadcast(control_event &event) const noexcept {
+            return self->broadcast(event);
+        }
+
+        context_action fork_emit(event_type const &event) const noexcept {
+            return self->fork_emit(event);
+        }
+
+        context_action fork_emit(event_type &event) const noexcept {
+            return self->fork_emit(event);
         }
     } dynamic_context;
 
@@ -985,7 +1015,7 @@ export namespace fs8 {
 // ============================================================================
 namespace fs8 {
 
-    [[nodiscard]] constexpr bool is_exiting(context_action const action) noexcept {
+    export [[nodiscard]] constexpr bool is_exiting(context_action const action) noexcept {
         using enum context_action;
         return action == recovery || action == exit;
     }
@@ -1116,12 +1146,20 @@ namespace fs8 {
             return res;
         }
 
-        context_action broadcast(control_event &tag) noexcept override {
-            return ctx->broadcast(tag);
+        context_action broadcast(control_event &event) noexcept override {
+            return ctx->broadcast(event);
         }
 
-        context_action broadcast(control_event const &tag) noexcept override {
-            return ctx->broadcast(tag);
+        context_action broadcast(control_event const &event) noexcept override {
+            return ctx->broadcast(event);
+        }
+
+        context_action fork_emit(event_type &event) noexcept override {
+            return ctx->fork_emit(event);
+        }
+
+        context_action fork_emit(event_type const &event) noexcept override {
+            return ctx->fork_emit(event);
         }
 
         void for_each_self_devnode(std::function_ref<void(std::string_view)> out) noexcept override {

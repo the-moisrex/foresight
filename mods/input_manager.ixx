@@ -2,12 +2,12 @@
 
 module;
 #include <cstdint>
-#include <functional>
+#include <inplace_vector>
 #include <list>
 #include <memory>
 #include <ranges>
-#include <span>
 #include <string>
+#include <utility>
 export module fs8.mods:input_manager;
 import fs8.context;
 import fs8.devices.evdev;
@@ -16,52 +16,6 @@ import :io_manager;
 import fs8.pimpl;
 
 export namespace fs8 {
-
-    /// A type-erased reference to a registered query provider. The handle owns
-    /// a small closure that references the provider object, which must outlive
-    /// the input_manager (same requirement as `io_manager` handlers, since the
-    /// identity is its address).
-    struct [[nodiscard]] query_provider_handle {
-        void const*                                                       identity = nullptr;
-        std::move_only_function<std::span<device_query const>() noexcept> invoke;
-
-        [[nodiscard]] std::span<device_query const> operator()() noexcept {
-            return invoke ? invoke() : std::span<device_query const>{};
-        }
-    };
-
-    template <typename T>
-    concept query_provider = requires(T& p) {
-        { p.queries() } noexcept -> std::same_as<std::span<device_query const>>;
-    };
-
-    /// Whether a device was just connected or disconnected.
-    enum struct [[nodiscard]] device_change : std::uint8_t {
-        connected,
-        disconnected
-    };
-
-    /// A type-erased listener that is notified when a device is connected or
-    /// disconnected.  The listener receives the source_id and the change type.
-    /// For connect events the device can be resolved via
-    /// `input_manager::device_of(id)`; for disconnect events the device has
-    /// already been removed.
-    struct [[nodiscard]] device_change_handle {
-        void const*                                                          identity = nullptr;
-        std::move_only_function<void(std::uint32_t, device_change) noexcept> invoke;
-    };
-
-    /// Type-erase a provider object into a `query_provider_handle`. May throw
-    /// (constructing the closure), so callers must handle it.
-    template <query_provider ProviderT>
-    [[nodiscard]] query_provider_handle provider_handle(ProviderT& provider) {
-        return query_provider_handle{
-          .identity = std::addressof(provider),
-          .invoke   = [&provider]() noexcept -> std::span<device_query const> {
-              return provider.queries();
-          },
-        };
-    }
 
     /**
      * Monitor and manage input devices.
@@ -77,10 +31,6 @@ export namespace fs8 {
 
         /// Register a query provider by reference (idempotent per provider).
         void add_query_provider(query_provider_handle provider);
-
-        /// Register a listener that is notified on device connect/disconnect.
-        /// Idempotent by identity pointer.
-        void add_device_change_listener(device_change_handle listener);
 
         /// Re-ask every registered provider for its queries, then re-run
         /// enumeration and rebuild the udev monitor filter so hotplug
@@ -112,9 +62,8 @@ export namespace fs8 {
         /// Whether the sysname (e.g. "event9") belongs to one of our devices.
         [[nodiscard]] bool is_owned_sysname(std::string_view sysname) const noexcept;
 
-        /// The legacy sysname hash of a device, used only for device-change
-        /// listener callbacks.  New code should use the mod_id-prefixed
-        /// source_id from events and resolve via `device_of()`.
+        /// The legacy sysname hash of a device (event source_id for devices that
+        /// have no provider-registered source_id).
         [[nodiscard]] std::uint32_t source_id_of(evdev const& dev) const noexcept;
 
         /// Register a source_id → device mapping.  Called by provider mods
@@ -128,7 +77,7 @@ export namespace fs8 {
         /// Resolve a source_id back to the live device, or nullptr if it is
         /// unknown or the device has been removed.  First checks the source_id
         /// map (populated by provider mods), then falls back to a sysname-hash
-        /// lookup for backward compatibility with device-change listeners.
+        /// lookup.
         [[nodiscard]] evdev*       device_of(std::uint32_t id) noexcept;
         [[nodiscard]] evdev const* device_of(std::uint32_t id) const noexcept;
 
@@ -153,11 +102,6 @@ export namespace fs8 {
         [[nodiscard]] std::ranges::subrange<std::list<evdev>::const_iterator> devices() const noexcept;
         [[nodiscard]] std::ranges::subrange<std::list<evdev>::iterator>       devices() noexcept;
 
-        /// Opaque generation token that changes on every device add/remove.
-        /// Used only for equality checks; not ordered.  The value is
-        /// randomized so overflow is practically impossible.
-        [[nodiscard]] std::uint32_t devices_generation() const noexcept;
-
         /// Start monitoring; also used by `intercept` to trigger enumeration.
         /// todo: we should make this private
         context_action start(basic_io_manager& io) noexcept;
@@ -168,6 +112,31 @@ export namespace fs8 {
             switch (tag.code) {
                 case fs8::start.code: return start(ctx.mod(io_manager));
                 case we_own_device.code: own_device(payload<we_own_device>(tag)); return next;
+                case register_query_provider.code:
+                    add_query_provider(std::move(payload<register_query_provider>(tag)));
+
+                    // If `input_manager` started before us, it already enumerated without any
+                    // queries registered; re-run the enumeration now that we're a provider
+                    // (no-op when it hasn't started yet, so both pipeline orderings work).
+                    requery();
+                    return next;
+                case add_evdev_device.code: add(std::move(payload<add_evdev_device>(tag))); return next;
+                case source_registered.code: {
+                    auto const reg = payload<source_registered>(tag);
+                    register_source(reg.source_id, *reg.device);
+                    return next;
+                }
+                case source_unregistered.code: unregister_source(payload<source_unregistered>(tag)); return next;
+                case enumerate_devices.code: {
+                    auto& list = payload<enumerate_devices>(tag);
+                    for (auto& dev : devices()) {
+                        if (list.size() == list.capacity()) [[unlikely]] {
+                            break; // inplace_vector::push_back past capacity is UB
+                        }
+                        list.push_back(&dev);
+                    }
+                    return next;
+                }
                 default: return drop_event;
             }
         }
@@ -181,5 +150,68 @@ export namespace fs8 {
         /// io_manager callback for the udev monitor FD only.
         context_action operator()(io_fd const& ready_fd) noexcept;
     } input_manager;
+
+    struct [[nodiscard]] device_list_snapshot {
+        constexpr device_list_snapshot(context_action const inp_action, device_list inp_devices) noexcept
+          : action_{inp_action},
+            devices_{std::move(inp_devices)} {}
+
+        /// `true` to proceed; `false` on recovery/exit (take `action()`).
+        [[nodiscard]] explicit operator bool() const noexcept {
+            return !is_exiting(action_);
+        }
+
+        [[nodiscard]] context_action action() const noexcept {
+            return action_;
+        }
+
+        [[nodiscard]] auto begin() const noexcept {
+            return devices_.begin();
+        }
+
+        [[nodiscard]] auto end() const noexcept {
+            return devices_.end();
+        }
+
+        [[nodiscard]] auto size() const noexcept {
+            return devices_.size();
+        }
+
+        [[nodiscard]] auto empty() const noexcept {
+            return devices_.empty();
+        }
+
+        [[nodiscard]] auto const& operator[](std::size_t const index) const noexcept {
+            return devices_[index];
+        }
+
+        [[nodiscard]] auto& operator[](std::size_t const index) noexcept {
+            return devices_[index];
+        }
+
+      private:
+        context_action action_;
+        device_list    devices_;
+    };
+
+    /// Pull the input_manager's device list via the `enumerate_devices`
+    /// broadcast. Accepts a Context (uses `.broadcast`) or `dynamic_context`.
+    ///
+    /// Returns a snapshot: a range of `evdev*` plus the broadcast's
+    /// `context_action`. `operator bool` is `true` while the action is safe
+    /// to continue with (`!is_exiting`); on an exiting action the list is
+    /// cleared so callers never seed from a partial/aborted enumeration.
+    /// (`device_list` is held by the local snapshot and returned through a
+    /// deduced type, not named in the interface: a by-value `inplace_vector`
+    /// member in an exported type corrupts GCC BMIs.)
+    template <Context CtxT>
+    device_list_snapshot tracked_devices(CtxT&& ctx) noexcept {
+        device_list devices;
+        auto const  action = ctx.broadcast(enumerate_devices + &devices);
+        if (is_exiting(action)) [[unlikely]] {
+            devices.clear();
+        }
+        return device_list_snapshot{action, std::move(devices)};
+    }
 
 } // namespace fs8

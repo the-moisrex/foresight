@@ -135,9 +135,13 @@ export namespace fs8 {
             if (!inherit) {
                 return;
             }
-            for (evdev const& dev : ctx.mod(input_manager).devices()) {
-                if (dev.has_abs_info()) {
-                    init(dev);
+            auto snap = tracked_devices(ctx);
+            if (!snap) [[unlikely]] {
+                return;
+            }
+            for (evdev* dev : snap) {
+                if (dev->has_abs_info()) {
+                    init(*dev);
                     break;
                 }
             }
@@ -191,27 +195,6 @@ export namespace fs8 {
             last_abs_y |= y_init_state;
             x_epsilon   = 0.0F;
             y_epsilon   = 0.0F;
-        }
-
-        struct tablet_ranges {
-            float x = 0.0F;
-            float y = 0.0F;
-        };
-
-        static tablet_ranges read_tablet_ranges(basic_input_manager& im) noexcept {
-            for (auto const& dev : im.devices()) {
-                if (dev.has_abs_info()) {
-                    if (auto const* x = dev.abs_info(ABS_X); x != nullptr) {
-                        if (auto const* y = dev.abs_info(ABS_Y); y != nullptr) {
-                            return {
-                              .x = static_cast<float>(x->maximum - x->minimum),
-                              .y = static_cast<float>(y->maximum - y->minimum),
-                            };
-                        }
-                    }
-                }
-            }
-            return {};
         }
     } abs2rel;
 

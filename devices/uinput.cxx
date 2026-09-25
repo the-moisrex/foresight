@@ -466,8 +466,7 @@ namespace {
 /// Copy a matching device into a virtual (uinput) device, applying caps.
 /// If `best` is not valid, falls back to an empty device and applies caps.
 /// The source device is deep-cloned; it is never modified or freed.
-bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view const caps_view, basic_input_manager* const im) noexcept
-  try {
+bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view const caps_view) noexcept try {
     using enum caps_action;
     if (best.is_ok()) {
         // Work on an independent copy: the caller (e.g. input_manager) may
@@ -532,12 +531,10 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
             log("  Error: {}", self.error().message());
             return false;
         }
-        if (im != nullptr) [[likely]] {
-            auto dev_str = self.devnode();
-            if (dynamic_context->broadcast(we_own_device + &dev_str) != context_action::next) [[unlikely]] {
-                log("  No one to tell we own this tool.");
-                return false;
-            }
+        auto dev_str = self.devnode();
+        if (dynamic_context->broadcast(we_own_device + &dev_str) != context_action::next) [[unlikely]] {
+            log("  No one to tell we own this tool.");
+            return false;
         }
     }
     return true;

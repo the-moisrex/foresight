@@ -131,11 +131,13 @@ export namespace fs8 {
         template <Context CtxT>
         void init(CtxT& ctx) noexcept {
             reset();
-            if constexpr (has_mod<basic_input_manager, CtxT>) {
-                for (evdev const& dev : ctx.mod(input_manager).devices()) {
-                    if (seed_range(dev)) {
-                        break;
-                    }
+            auto snap = tracked_devices(ctx);
+            if (!snap) [[unlikely]] {
+                return;
+            }
+            for (evdev* dev : snap) {
+                if (seed_range(*dev)) {
+                    break;
                 }
             }
         }

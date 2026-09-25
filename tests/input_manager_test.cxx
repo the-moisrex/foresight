@@ -5,14 +5,18 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <filesystem>
+#include <libevdev/libevdev-uinput.h>
 #include <libevdev/libevdev.h>
 #include <span>
+#include <string_view>
 
 import fs8.mods;
 import fs8.devices.udev;
 import fs8.devices.queries;
 import fs8.devices.evdev;
+import dynamic_scoping;
 
 using namespace fs8;
 
@@ -44,7 +48,89 @@ namespace {
         }
     };
 
+    /// Counts device-list control events pushed by input_manager while a
+    /// dynamic scope is bound (mirrors what intercept / keys_state consume).
+    /// The three kinds share code 13; distinguish them by full event equality.
+    inline int devices_changed_count  = 0;
+    inline int device_connected_count = 0;
+
+    /// True when `im` is tracking an event device with the given sysname
+    /// (e.g. "event5"). Immune to unrelated devices that happen to match the
+    /// query, which is what made bare count assertions flaky.
+    [[nodiscard]] bool has_sysname(basic_input_manager const& im, std::string_view const sysname) noexcept {
+        for (auto const& dev : im.devices()) {
+            if (device_sysname(dev) == sysname) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// Pump `load_event` until `pred` holds or `timeout_ms` elapses.
+    /// A short idle timeout keeps `load_event` from blocking forever when the
+    /// monitor stays quiet (background udev traffic only wakes it briefly).
+    /// Returns `pred()` on exit.
+    template <typename Pred>
+    [[nodiscard]] bool pump_until(basic_io_manager& io, int const timeout_ms, Pred pred) {
+        if (pred()) {
+            return true;
+        }
+        io.set_idle_timeout(std::chrono::milliseconds{50});
+        auto const deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds{timeout_ms};
+        bool       ok       = false;
+        while (!ok && std::chrono::steady_clock::now() < deadline) {
+            (void) io(load_event);
+            ok = pred();
+        }
+        io.clear_idle_timeout();
+        return ok;
+    }
+
+    /// Pump `load_event` for at least `duration_ms` so queued udev events are
+    /// drained into the pipeline (used when the expected outcome is "nothing
+    /// was added", so there is no count/sysname change to wait for).
+    void pump_for(basic_io_manager& io, int const duration_ms) {
+        io.set_idle_timeout(std::chrono::milliseconds{20});
+        auto const deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds{duration_ms};
+        do {
+            (void) io(load_event);
+        } while (std::chrono::steady_clock::now() < deadline);
+        io.clear_idle_timeout();
+    }
+
+    /// Wait until the probe monitor delivers a udev event for `sysname`
+    /// (any action). Drains unrelated background events without counting them.
+    [[nodiscard]] bool wait_for_probe_sysname(udev_monitor& probe, std::string_view const sysname, int timeout_ms) {
+        while (timeout_ms > 0) {
+            if (test::wait_for_event(probe.file_descriptor(), std::min(timeout_ms, 50))) {
+                while (auto dev = probe.next_device()) {
+                    if (dev.sysname() == sysname) {
+                        return true;
+                    }
+                }
+            }
+            timeout_ms -= 50;
+        }
+        return false;
+    }
+
 } // namespace
+
+/// A mod that tallies the push-model notifications from input_manager.
+constexpr struct [[nodiscard]] change_counter {
+    constexpr context_action operator()(control_event const& tag) const noexcept {
+        using enum context_action;
+        if (tag == devices_changed) {
+            ++devices_changed_count;
+            return next;
+        }
+        if (tag == device_connected) {
+            ++device_connected_count;
+            return next;
+        }
+        return drop_event;
+    }
+} change_counter;
 
 TEST(InputManager, StartupRegistersOnlyTheUdevMonitorFd) {
     auto& io = manager();
@@ -163,6 +249,53 @@ TEST(InputManager, ManualAdditionsAreStoredButNotRediscovered) {
     EXPECT_EQ(std::ranges::distance(im.devices()), 2);
 }
 
+TEST(InputManager, AddBroadcastsDeviceConnectedOnce) {
+    static constinit auto pipeline = context | io_manager | input_manager | change_counter;
+
+    devices_changed_count  = 0;
+    device_connected_count = 0;
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(pipeline(start), context_action::next);
+
+    auto&      im     = pipeline.mod<basic_input_manager>();
+    auto const before = std::ranges::distance(im.devices());
+
+    im.add(evdev::invalid(evdev_status::success));
+
+    // Merged push events: one device_connected (value 1), no separate bulk
+    // devices_changed for a single add.
+    EXPECT_EQ(devices_changed_count, 0) << "add() must not broadcast a separate bulk devices_changed.";
+    EXPECT_EQ(device_connected_count, 1) << "add() must broadcast device_connected once.";
+    EXPECT_EQ(std::ranges::distance(im.devices()), before + 1);
+
+    // Without a bound scope the same call is a silent list update.
+    devices_changed_count  = 0;
+    device_connected_count = 0;
+    {
+        auto const outer = dynamic_context.exchange(nullptr);
+        im.add(evdev::invalid(evdev_status::success));
+        dynamic_context.exchange(outer);
+    }
+    EXPECT_EQ(devices_changed_count, 0) << "Unbound add() must not broadcast.";
+    EXPECT_EQ(device_connected_count, 0) << "Unbound add() must not broadcast.";
+}
+
+TEST(InputManager, TrackedDevicesReturnsSnapshot) {
+    static constinit auto pipeline = context | io_manager | input_manager;
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(pipeline(start), context_action::next);
+
+    auto snap = tracked_devices(pipeline);
+    EXPECT_TRUE(snap);
+    EXPECT_EQ(snap.action(), context_action::next);
+    EXPECT_EQ(snap.size(), static_cast<std::size_t>(std::ranges::distance(pipeline.mod<basic_input_manager>().devices())));
+    for (evdev* dev : snap) {
+        ASSERT_NE(dev, nullptr);
+    }
+}
+
 TEST(InputManager, UnexpectedCallbackFdIsIgnoredSafely) {
     basic_input_manager im;
 
@@ -192,48 +325,50 @@ TEST(InputManager, HotplugAddsAndRemovesMatchingDevices) {
     auto&                 io               = hotplug_pipeline.mod<basic_io_manager>();
     auto&                 im               = hotplug_pipeline.mod<basic_input_manager>();
 
-    test_query_provider provider(query + attr::input_subsystem + attr::event_sysname);
+    // Scope by a unique name so background udev traffic (pen2mice,
+    // key-sounds, leftover virtual devices) can never enter `im.devices()`
+    // and shift the counts under us.
+    test_query_provider provider(query + attr::input_subsystem + attr::event_sysname + attr::name["Foresight Hotplug AddRemove*"]);
     im.add_query_provider(provider_handle(provider));
     if (hotplug_pipeline(start) != context_action::next) {
         GTEST_SKIP() << "Cannot start the pipeline.";
     }
 
+    // Drain any stale udev events left over from a prior run before sampling.
+    pump_for(io, 100);
     auto const before = std::ranges::distance(im.devices());
 
-    // Probe monitor confirms udev delivers events to the netlink socket so the
-    // blocking `load_event` dispatch below cannot hang the test.
-    udev_monitor probe;
-    probe.match_device("input");
-    probe.enable();
-
     basic_uinput uin;
-    if (!uin(caps::keyboard, start)) {
-        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
+    uin.set_device(LIBEVDEV_UINPUT_OPEN_MANAGED, "Foresight Hotplug AddRemove");
+    if (!uin.is_ok()) {
+        GTEST_SKIP() << "Cannot create a virtual uinput device.";
     }
-    // The device node may be missing or not yet openable if udev is still
-    // applying permissions or another process (e.g. a competing instance)
-    // is interfering; give it a moment and otherwise skip.
     if (!test::wait_for_openable(uin.devnode(), 3000)) {
         uin.close();
         GTEST_SKIP() << "The virtual device node was never openable.";
     }
 
-    bool const add_delivered = test::wait_for_event(probe.file_descriptor(), 5000);
-    if (!add_delivered) {
-        uin.close();
-        GTEST_SKIP() << "udev did not deliver the add event.";
-    }
-    EXPECT_EQ(io(load_event), context_action::drop_event);
-    EXPECT_GT(std::ranges::distance(im.devices()), before) << "Hotplug add was not registered.";
+    auto const our_sysname = test::sysname_of(uin.devnode());
+
+    // Wait for the pipeline to observe *our* device, not merely for any udev
+    // event (the old probe fired for unrelated input devices too).
+    EXPECT_TRUE(pump_until(io,
+                           5000,
+                           [&] {
+                               return has_sysname(im, our_sysname);
+                           }))
+      << "Hotplug add was not registered.";
+    EXPECT_EQ(std::ranges::distance(im.devices()), before + 1) << "Exactly our device must be tracked after add.";
 
     uin.close();
 
-    bool const remove_delivered = test::wait_for_event(probe.file_descriptor(), 5000);
-    if (!remove_delivered) {
-        GTEST_SKIP() << "udev did not deliver the remove event.";
-    }
-    EXPECT_EQ(io(load_event), context_action::drop_event);
-    EXPECT_EQ(std::ranges::distance(im.devices()), before) << "Hotplug remove was not registered.";
+    EXPECT_TRUE(pump_until(io,
+                           5000,
+                           [&] {
+                               return !has_sysname(im, our_sysname);
+                           }))
+      << "Hotplug remove was not registered.";
+    EXPECT_EQ(std::ranges::distance(im.devices()), before) << "Device list must return to its pre-add size.";
 }
 
 TEST(InputManager, OwnedDeviceIsNotReaddedByHotplug) {
@@ -249,57 +384,67 @@ TEST(InputManager, OwnedDeviceIsNotReaddedByHotplug) {
     auto&                 io               = hotplug_pipeline.mod<basic_io_manager>();
     auto&                 im               = hotplug_pipeline.mod<basic_input_manager>();
 
-    test_query_provider provider(query + attr::input_subsystem + attr::event_sysname);
+    // Unique names isolate us from background udev traffic entirely.
+    test_query_provider provider(query + attr::input_subsystem + attr::event_sysname + attr::name["Foresight Hotplug Owned*"]);
     im.add_query_provider(provider_handle(provider));
     if (hotplug_pipeline(start) != context_action::next) {
         GTEST_SKIP() << "Cannot start the pipeline.";
     }
 
+    pump_for(io, 100);
     auto const before = std::ranges::distance(im.devices());
 
+    // Probe filtered to our devices' sysnames so unrelated input events
+    // (pen2mice / key-sounds churn) cannot satisfy the waits below.
     udev_monitor probe;
     probe.match_device("input");
     probe.enable();
 
     // A device we own: must never be re-enumerated even when udev reports it.
     basic_uinput owned_uin;
-    if (!owned_uin(caps::keyboard, start)) {
-        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
+    owned_uin.set_device(LIBEVDEV_UINPUT_OPEN_MANAGED, "Foresight Hotplug Owned");
+    if (!owned_uin.is_ok()) {
+        GTEST_SKIP() << "Cannot create a virtual uinput device.";
     }
     if (!test::wait_for_openable(owned_uin.devnode(), 3000)) {
         owned_uin.close();
         GTEST_SKIP() << "The owned device node was never openable.";
     }
+    auto const owned_sysname = test::sysname_of(owned_uin.devnode());
     im.own_device(owned_uin.devnode());
 
-    bool const owned_add = test::wait_for_event(probe.file_descriptor(), 5000);
-    if (!owned_add) {
+    if (!wait_for_probe_sysname(probe, owned_sysname, 5000)) {
         owned_uin.close();
         GTEST_SKIP() << "udev did not deliver the owned add event.";
     }
-    EXPECT_EQ(io(load_event), context_action::drop_event);
-    EXPECT_EQ(std::ranges::distance(im.devices()), before) << "An owned (self-created) device must not be enumerated back in.";
+    // Give the pipeline a moment to drain the event it just received.
+    pump_for(io, 200);
+    EXPECT_FALSE(has_sysname(im, owned_sysname)) << "An owned (self-created) device must not be enumerated back in.";
+    EXPECT_EQ(std::ranges::distance(im.devices()), before) << "Owned device must leave the tracked list unchanged.";
 
-    // A foreign device must still be picked up by hotplug.
+    // A foreign device must still be picked up by hotplug. Same name prefix
+    // so it matches the scoped query above.
     basic_uinput foreign_uin;
-    if (!foreign_uin(caps::keyboard, start)) {
+    foreign_uin.set_device(LIBEVDEV_UINPUT_OPEN_MANAGED, "Foresight Hotplug Owned Foreign");
+    if (!foreign_uin.is_ok()) {
         owned_uin.close();
-        GTEST_SKIP() << "Cannot create a foreign virtual uinput keyboard.";
+        GTEST_SKIP() << "Cannot create a foreign virtual uinput device.";
     }
     if (!test::wait_for_openable(foreign_uin.devnode(), 3000)) {
         owned_uin.close();
         foreign_uin.close();
         GTEST_SKIP() << "The foreign device node was never openable.";
     }
+    auto const foreign_sysname = test::sysname_of(foreign_uin.devnode());
 
-    bool const foreign_add = test::wait_for_event(probe.file_descriptor(), 5000);
-    if (!foreign_add) {
-        owned_uin.close();
-        foreign_uin.close();
-        GTEST_SKIP() << "udev did not deliver the foreign add event.";
-    }
-    EXPECT_EQ(io(load_event), context_action::drop_event);
-    EXPECT_GT(std::ranges::distance(im.devices()), before) << "A foreign (unowned) device must still be enumerated by hotplug.";
+    EXPECT_TRUE(pump_until(io,
+                           5000,
+                           [&] {
+                               return has_sysname(im, foreign_sysname);
+                           }))
+      << "A foreign (unowned) device must still be enumerated by hotplug.";
+    EXPECT_EQ(std::ranges::distance(im.devices()), before + 1) << "Only the foreign device may be added.";
+    EXPECT_FALSE(has_sysname(im, owned_sysname)) << "Owned device must stay absent after foreign add.";
 
     owned_uin.close();
     foreign_uin.close();

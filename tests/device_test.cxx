@@ -11,6 +11,7 @@ import fs8.mods;
 import fs8.devices.udev;
 import fs8.devices.queries;
 import fs8.devices.evdev;
+import dynamic_scoping;
 
 #include "./common/fake_keyboard.hpp"
 
@@ -224,6 +225,7 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
     auto& im  = pipeline.mod<basic_input_manager>();
     auto& col = pipeline.mod<basic_record>();
 
+    dynamic_scope scope{dynamic_context, pipeline};
     EXPECT_EQ(pipeline(start), context_action::next);
 
     auto fake = test::make_fake_keyboard();
@@ -259,6 +261,7 @@ TEST(DeviceTest, DropOwnedDropsOwnedDeviceEvents) {
     auto& im  = pipeline.mod<basic_input_manager>();
     auto& col = pipeline.mod<basic_record>();
 
+    dynamic_scope scope{dynamic_context, pipeline};
     EXPECT_EQ(pipeline(start), context_action::next);
 
     auto fake = test::make_fake_keyboard();
@@ -325,6 +328,7 @@ TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
     auto& im  = pipeline.mod<basic_input_manager>();
     auto& col = pipeline.mod<basic_record>();
 
+    dynamic_scope scope{dynamic_context, pipeline};
     EXPECT_EQ(pipeline(start), context_action::next);
 
     auto fake = test::make_fake_keyboard();
@@ -389,6 +393,7 @@ TEST(DeviceTest, ChainedDeviceIsChained) {
     auto& im  = pipeline.mod<basic_input_manager>();
     auto& col = pipeline.mod<basic_record>();
 
+    dynamic_scope scope{dynamic_context, pipeline};
     EXPECT_EQ(pipeline(start), context_action::next);
 
     fs8::evdev opened = fs8::evdev{uin.devnode()};
@@ -429,6 +434,7 @@ TEST(DeviceTest, DropSelfDropsOwnedDeviceEvents) {
     auto& im  = pipeline.mod<basic_input_manager>();
     auto& col = pipeline.mod<basic_record>();
 
+    dynamic_scope scope{dynamic_context, pipeline};
     EXPECT_EQ(pipeline(start), context_action::next);
 
     auto fake = test::make_fake_keyboard();

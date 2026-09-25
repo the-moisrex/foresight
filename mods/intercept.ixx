@@ -59,14 +59,16 @@ export namespace fs8 {
         context_action operator()(ContextT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             switch (tag.code) {
-                case 0: // start
-                    return do_start(ctx.mod(input_manager), ctx.mod(io_manager));
-                case 3: // next_event
-                    if (auto const ev = do_pop(ctx.mod(input_manager), ctx.mod(io_manager)); ev.has_value()) [[unlikely]] {
+                case start.code: return do_start();
+                case next_event.code: {
+                    context_action action = drop_event;
+                    if (auto const ev = do_pop(ctx.mod(io_manager), action); ev.has_value()) [[unlikely]] {
                         ctx.event(*ev);
                         return next;
                     }
-                    return drop_event;
+                    return action;
+                }
+                case devices_changed.code: mark_dirty(); return next; // also catches connected/disconnected (merged code)
                 default: return drop_event;
             }
         }
@@ -83,8 +85,9 @@ export namespace fs8 {
             queries_count = index;
         }
 
-        context_action            do_start(basic_input_manager& im, basic_io_manager& io) noexcept;
-        std::optional<event_type> do_pop(basic_input_manager& im, basic_io_manager& io) noexcept;
+        context_action            do_start() noexcept;
+        std::optional<event_type> do_pop(basic_io_manager& io, context_action& action) noexcept;
+        void                      mark_dirty() noexcept;
 
         std::array<owned_query, 16>  owned_queries{}; // consteval-copyable part
         std::size_t                  queries_count = 0;

@@ -86,27 +86,29 @@ export namespace fs8 {
         /// Seed key state from a device's EVIOCGKEY bitmap.
         void seed_from_device(evdev const& dev) noexcept;
 
-        /// Register a device-change listener to seed key state on connect.
+        /// Seed existing devices at start and on every hotplug connect.
         template <ContextWith<basic_input_manager> CtxT>
         context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
-            if (tag.code != start.code) {
-                return drop_event;
+            switch (tag.code) {
+                case start.code: {
+                    auto snap = tracked_devices(ctx);
+                    if (!snap) [[unlikely]] {
+                        return snap.action();
+                    }
+                    for (evdev* dev : snap) {
+                        seed_from_device(*dev);
+                    }
+                    return next;
+                }
+                case devices_changed.code:
+                    if (tag == device_connected) {
+                        seed_from_device(payload<device_connected>(tag));
+                        return next;
+                    }
+                    return drop_event;
+                default: return drop_event;
             }
-            ctx.mod(input_manager)
-              .add_device_change_listener({
-                .identity = this,
-                .invoke =
-                  [this, &input_manager = ctx.mod(input_manager)](std::uint32_t const id, device_change const change) noexcept {
-                      if (change != device_change::connected) {
-                          return;
-                      }
-                      if (auto* dev = input_manager.device_of(id); dev != nullptr) {
-                          seed_from_device(*dev);
-                      }
-                  },
-              });
-            return next;
         }
     } keys_state;
 
@@ -164,22 +166,26 @@ export namespace fs8 {
 
         /// Find the hardware keyboard (the device with LED_CAPSL) and copy the
         /// current LED values into our local LED state.
-        template <Context CtxT>
+        template <ContextWith<basic_input_manager> CtxT>
         context_action seed(CtxT& ctx) noexcept {
             using enum context_action;
-            for (evdev const& dev : ctx.mod(input_manager).devices()) {
-                if (!dev.has_event_code(EV_LED, LED_CAPSL)) {
+            auto snap = tracked_devices(ctx);
+            if (!snap) [[unlikely]] {
+                return snap.action();
+            }
+            for (evdev* dev : snap) {
+                if (!dev->has_event_code(EV_LED, LED_CAPSL)) {
                     continue;
                 }
                 int  value = 0;
                 bool found = false;
                 for (code_type led = 0; led < LED_MAX; ++led) {
-                    if (libevdev_fetch_event_value(dev.device_ptr(), EV_LED, led, &value) == 0) {
+                    if (libevdev_fetch_event_value(dev->device_ptr(), EV_LED, led, &value) == 0) {
                         this->leds.at(led) = static_cast<event_type::value_type>(value);
                         found              = true;
                     }
                 }
-                if (found) [[likely]] {
+                if (found) {
                     break;
                 }
             }

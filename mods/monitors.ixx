@@ -8,6 +8,7 @@ module;
 export module fs8.mods:monitors;
 import fs8.compositor.monitor_detection;
 import fs8.context;
+import fs8.devices.evdev;
 import fs8.event;
 import fs8.log;
 import fs8.pimpl;
@@ -53,21 +54,24 @@ export namespace fs8 {
                     if (auto const action = do_start(ctx.mod(io_manager)); action != context_action::next) {
                         return action;
                     }
-                    if constexpr (has_mod<basic_input_manager, CtxT>) {
-                        for (auto const& dev : ctx.mod(input_manager).devices()) {
-                            if (dev.has_abs_info()) {
-                                float range_x = 0.0f;
-                                float range_y = 0.0f;
-                                if (auto const* x = dev.abs_info(ABS_X); x != nullptr) {
-                                    range_x = static_cast<float>(x->maximum - x->minimum);
-                                }
-                                if (auto const* y = dev.abs_info(ABS_Y); y != nullptr) {
-                                    range_y = static_cast<float>(y->maximum - y->minimum);
-                                }
-                                set_effective_tablet_range(range_x, range_y);
-                                break;
-                            }
+                    auto snap = tracked_devices(ctx);
+                    if (!snap) [[unlikely]] {
+                        return snap.action();
+                    }
+                    for (evdev const* dev : snap) {
+                        if (!dev->has_abs_info()) {
+                            continue;
                         }
+                        float range_x = 0.0f;
+                        float range_y = 0.0f;
+                        if (auto const* x = dev->abs_info(ABS_X); x != nullptr) {
+                            range_x = static_cast<float>(x->maximum - x->minimum);
+                        }
+                        if (auto const* y = dev->abs_info(ABS_Y); y != nullptr) {
+                            range_y = static_cast<float>(y->maximum - y->minimum);
+                        }
+                        set_effective_tablet_range(range_x, range_y);
+                        break;
                     }
                     return context_action::next;
                 }

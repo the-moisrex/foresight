@@ -59,8 +59,7 @@ export namespace fs8 {
     /// Copy a matching device into a virtual (uinput) device, applying caps.
     /// If `best` is not valid, falls back to an empty device and applies caps.
     /// The source device is deep-cloned; it is never modified or freed.
-    [[nodiscard]] bool
-    finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view, basic_input_manager* im = nullptr) noexcept;
+    [[nodiscard]] bool finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view) noexcept;
 
     /**
      * A virtual device
@@ -218,13 +217,16 @@ export namespace fs8 {
             // Prefer the devices the input_manager already knows about (they're
             // already open and matched against queries); fall back to a fresh
             // udev enumeration otherwise.
-            auto& inp_man = ctx.mod(input_manager);
-            for (auto& cur_dev : inp_man.devices()) {
-                if (!fs8::matches(cur_dev, inp_query) || !fs8::is_usable(cur_dev)) {
+            auto snap = tracked_devices(ctx);
+            if (!snap) [[unlikely]] {
+                return false;
+            }
+            for (evdev* cur_dev : snap) {
+                if (!matches(*cur_dev, inp_query) || !is_usable(*cur_dev)) {
                     continue;
                 }
-                log("uinput: matched device '{}', finalizing...", cur_dev.device_name());
-                return fs8::finalize_device(*this, cur_dev, inp_query.caps, &inp_man);
+                log("uinput: matched device '{}', finalizing...", cur_dev->device_name());
+                return finalize_device(*this, *cur_dev, inp_query.caps);
             }
             log("uinput: no matching device in input_manager, trying set_device_from");
             if (set_device_from(inp_query)) {
@@ -280,7 +282,22 @@ export namespace fs8 {
                 log("Uinput init error: {}", to_string(res));
                 return exit;
             }
-            if (operator()(ctx.mod(input_manager).devices(), start)) {
+            auto snap = tracked_devices(ctx);
+            if (!snap) [[unlikely]] {
+                return snap.action();
+            }
+            bool matched = false;
+            for (evdev* cur_dev : snap) {
+                if (matched) {
+                    break;
+                }
+                set_device(*cur_dev);
+                if (!is_ok()) [[unlikely]] {
+                    log("  Failed to set device: {}", cur_dev->device_name());
+                }
+                matched = true;
+            }
+            if (matched && is_ok()) {
                 auto node_str = devnode();
                 if (ctx.broadcast(we_own_device + &node_str) != next) [[unlikely]] {
                     log("uinput: we need to tell input manager that we own device, but it's not there.");
@@ -304,7 +321,7 @@ export namespace fs8 {
             self_created_ = value;
         }
 
-        friend bool finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view, basic_input_manager* im) noexcept;
+        friend bool finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view) noexcept;
 
       private:
         bool self_created_ = true;

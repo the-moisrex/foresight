@@ -9,6 +9,7 @@ module;
 export module fs8.mods:drop;
 import fs8.context;
 import fs8.devices.capabilities;
+import fs8.devices.evdev;
 import fs8.traits;
 import fs8.log;
 import :debounce;
@@ -402,11 +403,15 @@ export namespace fs8 {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }
-            for (auto const& dev : ctx.mod(input_manager).devices()) {
-                if (auto const* x = dev.abs_info(ABS_X); x != nullptr) {
-                    if (auto const* y = dev.abs_info(ABS_Y); y != nullptr) {
+            auto snap = tracked_devices(ctx);
+            if (!snap) [[unlikely]] {
+                return snap.action();
+            }
+            for (evdev* dev : snap) {
+                if (auto const* x = dev->abs_info(ABS_X); x != nullptr) {
+                    if (auto const* y = dev->abs_info(ABS_Y); y != nullptr) {
                         seed_pen_bounds(x->minimum, x->maximum, y->minimum, y->maximum);
-                        return context_action::next;
+                        break;
                     }
                 }
             }
