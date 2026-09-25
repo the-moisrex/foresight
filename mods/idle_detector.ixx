@@ -60,7 +60,7 @@ export namespace fs8 {
 
     /**
      * Detect pipeline idle (no input events for a configurable period) and
-     * broadcast an `idle` special event to all mods.
+     * broadcast an `idle` control event to all mods.
      *
      * Relies on `io_manager` for the actual poll timeout.  The idle event's
      * `.value` carries the idle duration in microseconds so downstream mods

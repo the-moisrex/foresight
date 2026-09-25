@@ -187,7 +187,7 @@ namespace fs8 {
               ctx.get_mods());
         }
 
-        /// Handle special events (start, next_event, etc.)
+        /// Handle control events (start, next_event, etc.)
         context_action operator()(Context auto& ctx, control_event const& tag) noexcept {
             return invoke_conditioned_sub_pipeline(cond, funcs, ctx, tag);
         }
@@ -264,7 +264,7 @@ namespace fs8 {
               ctx.get_mods());
         }
 
-        /// Handle special events (start, next_event, etc.)
+        /// Handle control events (start, next_event, etc.)
         context_action operator()(Context auto& ctx, control_event const& tag) noexcept {
             return invoke_conditioned_sub_pipeline(cond, funcs, ctx, tag);
         }

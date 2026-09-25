@@ -127,7 +127,7 @@ namespace fs8 {
             using enum context_action;
             // Lifecycle events (toggle_on/toggle_off) are for the `on` block, not the
             // benchmarked mods.  Forwarding them would cause inner mods (which don't
-            // handle special events) to return drop_event, making the on block abort.
+            // handle control events) to return drop_event, making the on block abort.
             return [&]<typename Tag>(Tag const& tag) noexcept -> context_action {
                 if (is_lifecycle_event(tag)) {
                     return next;

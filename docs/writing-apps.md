@@ -41,7 +41,7 @@ forms depending on what it accepts:
 
 - `mod(ctx)` — sees the whole context (event + sibling mods).
 - `mod(event)` — only needs the current event.
-- `mod(ctx, tag)` — a *tag* request, e.g. `special_event`.
+- `mod(ctx, tag)` — a *tag* request, e.g. `control_event`.
 
 Mods return a `context_action`:
 

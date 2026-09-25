@@ -561,17 +561,6 @@ export namespace fs8 {
         return result;
     }
 
-    /// Check whether a `control_event` matches a given lifecycle code.
-    [[nodiscard]] constexpr bool is_special(control_event const& ev, control_event::code_type const code) noexcept {
-        return ev.type == general_control_event && ev.code == code;
-    }
-
-    /// Check whether an `event_type` is actually a lifecycle event (shouldn't
-    /// happen in practice, but guards against data corruption).
-    [[nodiscard]] constexpr bool is_special(event_type const& ev) noexcept {
-        return ev.type() == general_control_event;
-    }
-
     /// Hash a `control_event` into a `std::uint32_t` for use in `switch`/`case` and
     /// comparison.  The hash encodes both `code` and `value` so that `toggle_on`
     /// and `toggle_off` (which share the same `code`) produce different hashes.
@@ -581,12 +570,6 @@ export namespace fs8 {
         hash                                 |= static_cast<std::uint32_t>(ev.code) << shift;
         hash                                 |= static_cast<std::uint32_t>(ev.value) & 0x3Fu;
         return hash;
-    }
-
-    /// Unhash: recover the `code` from a hash produced by `hashed(control_event)`.
-    [[nodiscard]] constexpr control_event::code_type unhashed_special(std::uint32_t const hash) noexcept {
-        static constexpr std::uint32_t shift = 6;
-        return static_cast<control_event::code_type>(hash >> shift);
     }
 
     /// `operator+` returns the hash of a `control_event`, enabling

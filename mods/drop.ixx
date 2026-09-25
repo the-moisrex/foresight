@@ -373,7 +373,7 @@ export namespace fs8 {
 
     /// Ignore pen ABS values that fall outside the device-reported bounds.
     ///
-    /// Pen bounds are seeded from `input_manager` on `special_event`.  Only
+    /// Pen bounds are seeded from `input_manager` on `control_event`.  Only
     /// `ABS_X` and `ABS_Y` events are checked.
     constexpr struct [[nodiscard]] basic_drop_pen_out_of_bounds : consteval_copyable {
         using consteval_copyable::consteval_copyable;

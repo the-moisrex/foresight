@@ -75,7 +75,7 @@ export namespace fs8 {
 
         // ── Pipeline interface ───────────────────────────────────────────────
 
-        /// receives special events (standalone use, no pipeline context needed).
+        /// receives control events (standalone use, no pipeline context needed).
         context_action operator()(control_event const& tag) noexcept {
             using enum context_action;
             switch (tag.code) {
@@ -102,7 +102,7 @@ export namespace fs8 {
             }
         }
 
-        /// receives special events from the context (pipeline use).
+        /// receives control events from the context (pipeline use).
         template <Context CtxT>
         context_action operator()(CtxT&, control_event const& tag) noexcept {
             return operator()(tag);

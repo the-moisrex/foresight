@@ -11,7 +11,7 @@ using namespace fs8;
 
 namespace {
 
-    /// A mod that only accepts `special_event` and the plain context, so the router has to drop the
+    /// A mod that only accepts `control_event` and the plain context, so the router has to drop the
     /// device_query it pushes down the pipeline before the mod can be started.
     struct counting_mod {
         int* counter;

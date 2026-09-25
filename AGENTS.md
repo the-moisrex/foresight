@@ -45,6 +45,7 @@ cmake --build --preset debug-gcc
 - `cmake --workflow --preset debug-gcc` = configure + build + test.
 - There is **no CI that compiles or runs the C++** (`.github/workflows/docs.yml`
   only builds docs) — verify locally after changes.
+- Prefer running the individual tests, and run the full tests at the end.
 
 ## The pipeline and mods (core concept)
 
@@ -213,7 +214,7 @@ import fs8.pimpl;
 export namespace fs8 {
     constexpr struct [[nodiscard]] basic_foo : pimpl_idiom<basic_foo> {
         using pimpl_idiom::pimpl_idiom;
-        context_action operator()(special_event const& tag) noexcept;
+        context_action operator()(control_event const& tag) noexcept;
     } foo;
 }
 
@@ -255,9 +256,9 @@ log(event);          // type_name(), code_name(), value()
 
 - `event_type` wraps a native `input_event` plus a `source_id`; it carries
   `type/code/value/time`, `is(...)`/`is_of(...)`, `micro_time()`, `hash()`.
-- `special_event` is the lifecycle tag type (`start`, `no_init`, `load_event`,
+- `control_event` is the lifecycle tag type (`start`, `no_init`, `load_event`,
   `next_event`, `toggle_on`, `toggle_off`, `idle`); its `type` is
-  `special_event_type` (`EV_MAX + 1`), and `hashed()`/`operator+`/`==` make it
+  `general_control_event` (`EV_MAX + 1`), and `hashed()`/`operator+`/`==` make it
   usable in `switch`.
 - `user_event`, `event_code`, `key_event` are plain POD-ish helpers;
   `key_code`/`key_codes` build `EV_KEY` codes.
@@ -323,7 +324,7 @@ auto val = parsed.flag_value("--timeout"); // std::optional<std::string_view>
 5. `static_assert` the `Modifier`/`OutputModifier` concept where relevant and
    any inter-mod dependency (e.g. "We need keys_state to be in the pipeline.").
 6. Handle lifecycle tags by inspecting `tag.code` in
-   `operator()(special_event const&)`; return `next`/`drop_event` for ordinary
+   `operator()(control_event const&)`; return `next`/`drop_event` for ordinary
    events. All invocations must be `noexcept` (custom `log` etc. included).
 
 ## C++26 modules (the big gotcha)

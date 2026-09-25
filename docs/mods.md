@@ -100,7 +100,7 @@ events itself -- `intercept` is the event provider.
 ### `idle_detector`
 
 Detects pipeline idle (no events for a configurable period) and broadcasts an
-`idle` special event. Supports repeat patterns: `once`,
+`idle` control event. Supports repeat patterns: `once`,
 `consistent<PeriodUs>`, `exponential<BaseUs>`.
 
 ### `scheduler`
