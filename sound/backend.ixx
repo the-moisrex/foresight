@@ -24,6 +24,7 @@ export import :topre_data;
 export import :typewriter_data;
 export import :mx_blue_data;
 export import :alps_data;
+export import :sampled_data;
 
 export namespace fs8 {
 

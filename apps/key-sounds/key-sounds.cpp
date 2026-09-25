@@ -19,7 +19,7 @@ Arguments:
     -h | --help             Print help.
     -p | --profile <name>   Sound profile: basic, bucklespring, chime, modelf, linear, topre,
                             typewriter, mx_blue, alps, fm, chiptune, piano, marimba,
-                            wavetable (default: basic).
+                            wavetable, sampled (default: basic).
     -b | --bucklespring     Shorthand for --profile bucklespring.
 
 Positionals:
@@ -96,6 +96,10 @@ namespace {
         fs8::dynamic_synth::register_synth(fs8::wavetable_synth{});
     }
 
+    void register_sampled() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::sampled_synth{});
+    }
+
     constexpr std::array profiles = {
       profile_entry{       .name = "basic",        .reg = register_basic},
       profile_entry{.name = "bucklespring", .reg = register_bucklespring},
@@ -111,6 +115,7 @@ namespace {
       profile_entry{       .name = "piano",        .reg = register_piano},
       profile_entry{     .name = "marimba",      .reg = register_marimba},
       profile_entry{   .name = "wavetable",    .reg = register_wavetable},
+      profile_entry{     .name = "sampled",      .reg = register_sampled},
     };
 
     /// Look up `name` in the dispatch table and register it as the active

@@ -159,6 +159,8 @@ target_sources(${LIB_NAME}
         sound/piano.cxx
         sound/marimba.cxx
         sound/wavetable.cxx
+        sound/sampled.cxx
+        sound/sampled_data.cxx
 )
 
 target_sources(${LIB_NAME}
@@ -270,6 +272,8 @@ target_sources(${LIB_NAME}
         sound/piano.ixx
         sound/marimba.ixx
         sound/wavetable.ixx
+        sound/sampled.ixx
+        sound/sampled_data.ixx
 )
 
 target_compile_features(${LIB_NAME} PUBLIC cxx_std_26)

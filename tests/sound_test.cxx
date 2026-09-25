@@ -96,6 +96,7 @@ TEST(SoundTest, SynthPalettesFitSlotBudget) {
     check_slot_duration(piano_synth{});
     check_slot_duration(marimba_synth{});
     check_slot_duration(wavetable_synth{});
+    check_slot_duration(sampled_synth{});
 }
 
 // Every generator plays through the player, which fades the last
@@ -116,12 +117,13 @@ TEST(SoundTest, FadedGeneratorsEndAtSilence) {
     piano_synth const        piano;
     marimba_synth const      marimba;
     wavetable_synth const    wavetable;
+    sampled_synth const      sampled;
 
     for (uint16_t const code : test_keys) {
         for (int const value : {0, 1}) {
             auto const ev = make_key_event(code, value);
 
-            std::array<std::vector<float>, 14> bufs{
+            std::array<std::vector<float>, 15> bufs{
               render(buckle, ev),
               render(modelf, ev),
               render(linear, ev),
@@ -135,7 +137,8 @@ TEST(SoundTest, FadedGeneratorsEndAtSilence) {
               render(chiptune, ev),
               render(piano, ev),
               render(marimba, ev),
-              render(wavetable, ev)};
+              render(wavetable, ev),
+              render(sampled, ev)};
             for (auto& buf : bufs) {
                 ASSERT_FALSE(buf.empty());
                 auto const before = buf;
@@ -292,6 +295,7 @@ TEST(SoundTest, DumpProfilesWhenRequested) {
     piano_synth const        piano;
     marimba_synth const      marimba;
     wavetable_synth const    wavetable;
+    sampled_synth const      sampled;
 
     dump_synth(dir, "bucklespring", buckle);
     dump_synth(dir, "modelf", modelf);
@@ -307,4 +311,5 @@ TEST(SoundTest, DumpProfilesWhenRequested) {
     dump_synth(dir, "piano", piano);
     dump_synth(dir, "marimba", marimba);
     dump_synth(dir, "wavetable", wavetable);
+    dump_synth(dir, "sampled", sampled);
 }
