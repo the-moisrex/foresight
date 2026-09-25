@@ -19,6 +19,11 @@ export import :dsp;
 export import :chime_data;
 export import :bucklespring_data;
 export import :modelf_data;
+export import :linear_data;
+export import :topre_data;
+export import :typewriter_data;
+export import :mx_blue_data;
+export import :alps_data;
 
 export namespace fs8 {
 
@@ -51,6 +56,7 @@ export namespace fs8 {
         /// this instead of popping from the SPSC queue.  Returns the number
         /// of float samples written to dest.
         using process_fn = std::size_t (*)(void* ctx, std::span<float> dest) noexcept;
+
         virtual void set_process_callback(process_fn /*fn*/, void* /*ctx*/) noexcept {}
 
         /// fd to watch with io_manager (-1 = no fd to watch).

@@ -98,8 +98,11 @@ void fs8::detail::render_click(
     // Modes 1–2 from the parameter table; 3–4 derived at opts.ratio_a/b.
     // ------------------------------------------------------------------
     biquad_bp_power res1, res2, res3, res4;
-    res1.configure(v.primary_freq, opts.q1, sr);
-    res2.configure(v.secondary_freq, opts.q2, sr);
+    auto const      table_q = [](float const q) {
+        return std::clamp(q, 3.0f, 60.0f);
+    };
+    res1.configure(v.primary_freq, opts.q_from_table ? table_q(v.primary_q) : opts.q1, sr);
+    res2.configure(v.secondary_freq, opts.q_from_table ? table_q(v.secondary_q) : opts.q2, sr);
     res3.configure(v.primary_freq * opts.ratio_a, opts.q3, sr);
     res4.configure(v.secondary_freq * opts.ratio_b, opts.q4, sr);
 
@@ -144,11 +147,19 @@ void fs8::detail::render_click(
           * pn;
 
         // -- Asymmetric envelope ------------------------------------------
+        // contact_ms is a pre-delay: silence until the contact, then a fast
+        // smoothstep attack into the ring.  Sub-millisecond contacts (the
+        // Model M's measured 0.19 ms) keep the historical smoothstep across
+        // the whole window; a genuine pre-delay (> 1 ms) must be silent
+        // beforehand — the unclamped smoothstep would evaluate its rising
+        // branch far to the left of t = contact and explode.
         float env = 0.0f;
-        if (t < attack_end) {
+        if (contact_t > 1.0f * ms_to_sec && t < contact_t) {
+            env = 0.0f;
+        } else if (t < attack_end) {
             float const x = (t - contact_t) / (attack_end - contact_t);
             env           = x * x * (3.0f - 2.0f * x);
-        } else if (t >= contact_t) {
+        } else {
             env = std::exp(-(t - attack_end) / (v.ring_ms * ms_to_sec));
         }
 

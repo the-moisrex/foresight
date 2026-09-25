@@ -1,4 +1,4 @@
-// Auto-generated companion header for tools/gen-modelf.py.
+// Companion header for tools/gen-click-profile.py.
 //
 // Per-keycode Model F parameter arrays (definitions in modelf_data.cxx).
 

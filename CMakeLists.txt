@@ -142,6 +142,16 @@ target_sources(${LIB_NAME}
         sound/bucklespring_attack.cxx
         sound/modelf.cxx
         sound/modelf_data.cxx
+        sound/linear.cxx
+        sound/linear_data.cxx
+        sound/topre.cxx
+        sound/topre_data.cxx
+        sound/typewriter.cxx
+        sound/typewriter_data.cxx
+        sound/mx_blue.cxx
+        sound/mx_blue_data.cxx
+        sound/alps.cxx
+        sound/alps_data.cxx
         sound/chime.cxx
         sound/chime_data.cxx
 )
@@ -238,6 +248,16 @@ target_sources(${LIB_NAME}
         sound/bucklespring_attack.ixx
         sound/modelf.ixx
         sound/modelf_data.ixx
+        sound/linear.ixx
+        sound/linear_data.ixx
+        sound/topre.ixx
+        sound/topre_data.ixx
+        sound/typewriter.ixx
+        sound/typewriter_data.ixx
+        sound/mx_blue.ixx
+        sound/mx_blue_data.ixx
+        sound/alps.ixx
+        sound/alps_data.ixx
         sound/chime.ixx
         sound/chime_data.ixx
 )

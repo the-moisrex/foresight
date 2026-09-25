@@ -151,3 +151,6 @@ fabric.properties
 # Docs
 site/
 .venv-docs/
+
+# Python tooling
+tools/__pycache__/

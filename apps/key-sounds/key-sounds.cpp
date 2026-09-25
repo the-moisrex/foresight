@@ -17,7 +17,8 @@ No events are grabbed or forwarded — this is a passive listener.
 
 Arguments:
     -h | --help             Print help.
-    -p | --profile <name>   Sound profile: basic, bucklespring, chime, modelf (default: basic).
+    -p | --profile <name>   Sound profile: basic, bucklespring, chime, modelf, linear, topre,
+                            typewriter, mx_blue, alps (default: basic).
     -b | --bucklespring     Shorthand for --profile bucklespring.
 
 Positionals:
@@ -54,11 +55,36 @@ namespace {
         fs8::dynamic_synth::register_synth(fs8::modelf_synth{});
     }
 
+    void register_linear() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::linear_synth{});
+    }
+
+    void register_topre() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::topre_synth{});
+    }
+
+    void register_typewriter() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::typewriter_synth{});
+    }
+
+    void register_mx_blue() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::mx_blue_synth{});
+    }
+
+    void register_alps() noexcept {
+        fs8::dynamic_synth::register_synth(fs8::alps_synth{});
+    }
+
     constexpr std::array profiles = {
       profile_entry{       .name = "basic",        .reg = register_basic},
       profile_entry{.name = "bucklespring", .reg = register_bucklespring},
       profile_entry{       .name = "chime",        .reg = register_chime},
       profile_entry{      .name = "modelf",       .reg = register_modelf},
+      profile_entry{      .name = "linear",       .reg = register_linear},
+      profile_entry{       .name = "topre",        .reg = register_topre},
+      profile_entry{  .name = "typewriter",   .reg = register_typewriter},
+      profile_entry{     .name = "mx_blue",      .reg = register_mx_blue},
+      profile_entry{        .name = "alps",         .reg = register_alps},
     };
 
     /// Look up `name` in the dispatch table and register it as the active

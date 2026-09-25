@@ -70,6 +70,11 @@ namespace fs8::detail {
         float q2                 = 10.0f;
         float q3                 = 12.0f;
         float q4                 = 10.0f;
+        /// Take res1/res2 Q from the parameter table (`res1_q`/`res2_q`,
+        /// clamped to [3, 60]) instead of `q1`/`q2`.  The table columns are
+        /// spectral-width measurements of the reference recording, so each
+        /// profile (and key) gets its measured resonance sharpness.
+        bool  q_from_table       = false;
         float w1                 = 0.40f; ///< tonal mix weights
         float w2                 = 0.35f;
         float w3                 = 0.15f;
