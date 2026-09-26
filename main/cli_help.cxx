@@ -122,7 +122,7 @@ the given path (whose filename becomes the app name).
 
 Positionals (interchangeable):
     name                  The app name/path; e.g. "my-app" or "subdir/my-app".
-    template              The template to use; e.g. "basic", "x2y", "auto-typer".
+    template              The template to use; e.g. "basic", "legacy-x2y", "auto-typer".
                           Omitted, defaults to "basic". An argument matching a
                           known template is treated as the template.
 

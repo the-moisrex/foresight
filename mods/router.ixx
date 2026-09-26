@@ -5,7 +5,6 @@ module;
 #include <cstddef>
 #include <cstdint>
 #include <libevdev/libevdev.h>
-#include <linux/uinput.h>
 #include <ranges>
 #include <type_traits>
 export module fs8.mods:router;
@@ -16,7 +15,6 @@ import fs8.event;
 import fs8.log;
 import fs8.utils;
 import fs8.nullable_indirect;
-import :input_manager;
 import fs8.traits;
 
 namespace fs8 {
@@ -163,7 +161,7 @@ export namespace fs8 {
 
         /// Pass-through the init
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }

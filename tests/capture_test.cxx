@@ -119,7 +119,7 @@ TEST(CaptureTest, ToggleOffFlushes) {
     EXPECT_EQ(cap.buffer_size(), 2U);
 
     // Idle opens the file and flushes the buffer.
-    (void) cap(special_event{.code = idle.code});
+    (void) cap(control_event{.code = idle.code});
     EXPECT_TRUE(cap.is_open());
     EXPECT_EQ(cap.buffer_size(), 0U);
 
@@ -136,7 +136,7 @@ TEST(CaptureTest, IdleFlushesToFile) {
     EXPECT_EQ(cap.buffer_size(), 2U);
 
     // Idle should open file and flush the buffer.
-    (void) cap(special_event{.code = idle.code});
+    (void) cap(control_event{.code = idle.code});
     EXPECT_EQ(cap.buffer_size(), 0U);
     EXPECT_TRUE(cap.is_open());
 }
@@ -155,12 +155,12 @@ TEST(CaptureTest, BinaryFormatRoundtrip) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    (void) rep(ev_start, special_event{.code = start.code});
+    (void) rep(ev_start, control_event{.code = start.code});
 
     std::vector<event_type> replayed;
     for (int i = 0; i < 10; ++i) {
         event_type ev{};
-        auto const result = rep(ev, special_event{.code = load_event.code});
+        auto const result = rep(ev, control_event{.code = load_event.code});
         if (result == context_action::exit) {
             break;
         }
@@ -192,12 +192,12 @@ TEST(CaptureTest, EvtestFormatRoundtrip) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    (void) rep(ev_start, special_event{.code = start.code});
+    (void) rep(ev_start, control_event{.code = start.code});
 
     std::vector<event_type> replayed;
     for (int i = 0; i < 10; ++i) {
         event_type ev{};
-        auto const result = rep(ev, special_event{.code = load_event.code});
+        auto const result = rep(ev, control_event{.code = load_event.code});
         if (result == context_action::exit) {
             break;
         }
@@ -231,7 +231,7 @@ TEST(CaptureTest, AccessorsReportCorrectState) {
     EXPECT_EQ(cap.buffered()[0].code(), REL_X);
 
     // Idle opens file and flushes.
-    (void) cap(special_event{.code = idle.code});
+    (void) cap(control_event{.code = idle.code});
     EXPECT_TRUE(cap.is_open());
     EXPECT_EQ(cap.buffer_size(), 0U);
 }
@@ -263,10 +263,10 @@ TEST(ReplayTest, BinaryFormatDetection) {
     rep.set_file(tmp);
 
     event_type ev{};
-    auto const result = rep(ev, special_event{.code = start.code});
+    auto const result = rep(ev, control_event{.code = start.code});
     EXPECT_EQ(result, context_action::next);
 
-    auto const load_result = rep(ev, special_event{.code = load_event.code});
+    auto const load_result = rep(ev, control_event{.code = load_event.code});
     EXPECT_EQ(load_result, context_action::next);
     EXPECT_EQ(ev.type(), EV_KEY);
     EXPECT_EQ(ev.code(), KEY_A);
@@ -286,10 +286,10 @@ TEST(ReplayTest, EvtestFormatDetection) {
     rep.set_file(tmp);
 
     event_type ev{};
-    auto const result = rep(ev, special_event{.code = start.code});
+    auto const result = rep(ev, control_event{.code = start.code});
     EXPECT_EQ(result, context_action::next);
 
-    auto const load_result = rep(ev, special_event{.code = load_event.code});
+    auto const load_result = rep(ev, control_event{.code = load_event.code});
     EXPECT_EQ(load_result, context_action::next);
     EXPECT_EQ(ev.type(), EV_KEY);
     EXPECT_EQ(ev.code(), KEY_B);
@@ -313,12 +313,12 @@ TEST(ReplayTest, ReplaysBinaryEvents) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    (void) rep(ev_start, special_event{.code = start.code});
+    (void) rep(ev_start, control_event{.code = start.code});
 
     std::vector<event_type> replayed;
     for (int i = 0; i < 10; ++i) {
         event_type ev{};
-        auto const result = rep(ev, special_event{.code = load_event.code});
+        auto const result = rep(ev, control_event{.code = load_event.code});
         if (result == context_action::exit) {
             break;
         }
@@ -350,12 +350,12 @@ TEST(ReplayTest, ReplaysEvtestEvents) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    (void) rep(ev_start, special_event{.code = start.code});
+    (void) rep(ev_start, control_event{.code = start.code});
 
     std::vector<event_type> replayed;
     for (int i = 0; i < 10; ++i) {
         event_type ev{};
-        auto const result = rep(ev, special_event{.code = load_event.code});
+        auto const result = rep(ev, control_event{.code = load_event.code});
         if (result == context_action::exit) {
             break;
         }
@@ -377,7 +377,7 @@ TEST(ReplayTest, ReplaysEvtestEvents) {
 TEST(ReplayTest, NoFileSetReturnsExit) {
     basic_replay rep{};
     event_type   ev{};
-    auto const   result = rep(ev, special_event{.code = start.code});
+    auto const   result = rep(ev, control_event{.code = start.code});
     EXPECT_EQ(result, context_action::exit);
 }
 
@@ -385,7 +385,7 @@ TEST(ReplayTest, MissingFileReturnsExit) {
     basic_replay rep{};
     rep.set_file("/tmp/nonexistent_replay_file.bin");
     event_type ev{};
-    auto const result = rep(ev, special_event{.code = start.code});
+    auto const result = rep(ev, control_event{.code = start.code});
     EXPECT_EQ(result, context_action::exit);
 }
 
@@ -407,9 +407,9 @@ TEST(ReplayTest, HeaderOnlyFileReturnsExitOnLoad) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev{};
-    (void) rep(ev, special_event{.code = start.code});
+    (void) rep(ev, control_event{.code = start.code});
 
-    auto const result = rep(ev, special_event{.code = load_event.code});
+    auto const result = rep(ev, control_event{.code = load_event.code});
     EXPECT_EQ(result, context_action::exit);
 
     unlink(tmp);
@@ -420,7 +420,7 @@ TEST(ReplayTest, NonStartTagReturnsDrop) {
     rep.set_file("/tmp/anything.bin");
 
     event_type ev{};
-    auto const result = rep(ev, special_event{.code = toggle_on.code, .value = 1});
+    auto const result = rep(ev, control_event{.code = toggle_on.code, .value = 1});
     EXPECT_EQ(result, context_action::drop_event);
 }
 
@@ -435,10 +435,10 @@ TEST(ReplayTest, NonLoadTagReturnsDrop) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    (void) rep(ev_start, special_event{.code = start.code});
+    (void) rep(ev_start, control_event{.code = start.code});
 
     event_type ev{};
-    auto const result = rep(ev, special_event{.code = toggle_on.code, .value = 1});
+    auto const result = rep(ev, control_event{.code = toggle_on.code, .value = 1});
     EXPECT_EQ(result, context_action::drop_event);
 
     unlink(tmp);
@@ -485,7 +485,7 @@ TEST(CapturePipelineTest, IdleFlushesCaptureToFile) {
     EXPECT_EQ(cap.buffer_size(), 4U);
 
     // Manually trigger idle to flush the buffer.
-    (void) cap(special_event{.code = idle.code});
+    (void) cap(control_event{.code = idle.code});
     EXPECT_EQ(cap.buffer_size(), 0U);
 }
 
@@ -502,12 +502,12 @@ TEST(CapturePipelineTest, ReplayInPipelineReplaysEvents) {
     basic_replay rep{};
     rep.set_file(tmp);
     event_type ev_start{};
-    (void) rep(ev_start, special_event{.code = start.code});
+    (void) rep(ev_start, control_event{.code = start.code});
 
     std::vector<event_type> captured;
     for (int i = 0; i < 10; ++i) {
         event_type ev{};
-        auto const result = rep(ev, special_event{.code = load_event.code});
+        auto const result = rep(ev, control_event{.code = load_event.code});
         if (result == context_action::exit) {
             break;
         }
@@ -548,7 +548,7 @@ TEST(CapturePipelineTest, CaptureReplayRoundtrip) {
 
     auto& cap = cap_pipeline.mod<basic_capture<capture_binary_format, capture_daily>>();
     cap_pipeline();
-    (void) cap(special_event{.code = idle.code});
+    (void) cap(control_event{.code = idle.code});
 
     struct stat st{};
     ASSERT_EQ(::stat(expected.c_str(), &st), 0);
@@ -560,11 +560,11 @@ TEST(CapturePipelineTest, CaptureReplayRoundtrip) {
         basic_replay rep{};
         rep.set_file(expected);
         event_type ev_start{};
-        (void) rep(ev_start, special_event{.code = start.code});
+        (void) rep(ev_start, control_event{.code = start.code});
 
         for (int i = 0; i < 20; ++i) {
             event_type ev{};
-            auto const result = rep(ev, special_event{.code = load_event.code});
+            auto const result = rep(ev, control_event{.code = load_event.code});
             if (result == context_action::exit) {
                 break;
             }

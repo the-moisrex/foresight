@@ -69,7 +69,7 @@ std::string fs8::capture_system_uptime::filename(std::string_view const ext) noe
     auto const sys_uptime = detail::system_uptime_seconds();
     auto const now        = detail::now_epoch_seconds();
     auto const boot       = now - sys_uptime;
-    auto const ti     = detail::time_from_epoch(boot);
+    auto const ti         = detail::time_from_epoch(boot);
     return std::format("capture-boot-{:04d}{:02d}{:02d}-{:02d}0000{}", ti.year, ti.month, ti.day, ti.hour, ext);
 }
 

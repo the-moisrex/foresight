@@ -50,7 +50,7 @@ namespace {
         explicit consteval basic_tilt_feed(std::array<event_type, N> const inp) noexcept : events{inp} {}
 
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             if (tag.code != load_event.code) {
                 return drop_event;

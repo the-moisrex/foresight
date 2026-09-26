@@ -6,7 +6,7 @@ This example converts the key `x` on your keyboard to `y` when you press it on y
 Usage:
 
 ```bash
-./x2y
+./legacy-x2y
 ```
 
 
@@ -38,5 +38,5 @@ The same result can also be achieved by piping through a standalone filter:
 
 ```bash
 keyboard=/dev/input/event1
-foresight intercept $keyboard | x2y | foresight redirect $keyboard
+foresight intercept $keyboard | legacy-x2y | foresight redirect $keyboard
 ```

@@ -109,10 +109,21 @@ export namespace fs8 {
     //
     // A source_id is a std::uint32_t that encodes the origin of an event:
     //
-    //   High 16 bits — mod_id: identifies which pipeline mod generated the
-    //                  event (intercept, from_input, scheduler, etc.).
+    //   Bit  31     — owned:     the event was read back from a uinput
+    //                            device this process created.
+    //   Bit  30     — chained:   the event came from a foresight virtual
+    //                            device (its phys starts with "foresight:").
+    //   Bits 29-16 — mod_id (14 bits): identifies which pipeline mod
+    //                  generated the event (intercept, from_input,
+    //                  scheduler, etc.).
     //   Low  16 bits — source_index: a mod-private identifier (e.g. device
     //                  index for intercept, tick index for scheduler).
+    //
+    // The two origin bits are stamped by the provider mod that assigns the
+    // source id (intercept asks input_manager via the in/out `source_info`
+    // payload of the source_* family), so ownership/chained checks are a bit
+    // test — no lookup.  Identity comparisons must mask them off (use the
+    // helpers below; `make_source_id`/`sid(...)` never produce them).
     //
     // A value of 0 (source_id_none) means "unknown / unset" — the default
     // for newly constructed events.  Mods that synthesise events (emit,
@@ -122,9 +133,41 @@ export namespace fs8 {
     /// Sentinel value meaning "unknown / unset source".
     constexpr std::uint32_t source_id_none = 0;
 
-    /// Extract the mod_id (high 16 bits) from a source_id.
+    /// Origin bit: read back from a uinput device this process created.
+    constexpr std::uint32_t source_id_owned        = 1u << 31u;
+    /// Origin bit: read from another process's foresight virtual device
+    /// (phys starts with "foresight:").
+    constexpr std::uint32_t source_id_chained      = 1u << 30u;
+    /// Mask that strips the origin bits (the identity part of a source_id).
+    constexpr std::uint32_t source_id_payload_mask = ~(source_id_owned | source_id_chained);
+    /// Mask of the mod_id field (bits 29-16).
+    constexpr std::uint32_t source_id_mod_id_mask  = 0x3FFFu << 16u;
+
+    /// Whether `src` carries the owned origin bit.
+    [[nodiscard]] constexpr bool is_owned_source(std::uint32_t const src) noexcept {
+        return (src & source_id_owned) != 0;
+    }
+
+    /// Whether `src` carries the chained origin bit.
+    [[nodiscard]] constexpr bool is_chained_source(std::uint32_t const src) noexcept {
+        return (src & source_id_chained) != 0;
+    }
+
+    /// The identity part of `src` (origin bits stripped) — what identity
+    /// comparisons (`device_is`, `drop_origin`, mod lookups, …) must use.
+    [[nodiscard]] constexpr std::uint32_t identity_of(std::uint32_t const src) noexcept {
+        return src & source_id_payload_mask;
+    }
+
+    /// OR the given origin bits (`source_id_owned` / `source_id_chained`)
+    /// into an identity source_id.
+    [[nodiscard]] constexpr std::uint32_t with_origin(std::uint32_t const src, std::uint32_t const origin_bits) noexcept {
+        return (src & source_id_payload_mask) | (origin_bits & ~source_id_payload_mask);
+    }
+
+    /// Extract the mod_id (bits 29-16) from a source_id.
     [[nodiscard]] constexpr std::uint16_t mod_id(std::uint32_t const src) noexcept {
-        return static_cast<std::uint16_t>(src >> 16);
+        return static_cast<std::uint16_t>((src & source_id_mod_id_mask) >> 16u);
     }
 
     /// Extract the source_index (low 16 bits) from a source_id.
@@ -133,8 +176,10 @@ export namespace fs8 {
     }
 
     /// Pack a mod_id and source_index into a single source_id.
+    /// The mod_id is masked to its 14 bits so it can never collide with the
+    /// origin bits; the result never carries origin bits.
     [[nodiscard]] constexpr std::uint32_t make_source_id(std::uint16_t const m, std::uint16_t const idx) noexcept {
-        return (static_cast<std::uint32_t>(m) << 16) | idx;
+        return ((static_cast<std::uint32_t>(m) << 16u) & source_id_mod_id_mask) | idx;
     }
 
     /// Derive a compile-time mod_id for a type T.  If T defines a static
@@ -143,13 +188,15 @@ export namespace fs8 {
     ///
     /// Only provider mods (intercept, from_input, scheduler, …) need a mod_id;
     /// the hash fallback gives them a unique value without manual registration.
+    /// The result is masked to 14 bits (the top two source_id bits are the
+    /// owned/chained origin flags).
     template <typename T>
     [[nodiscard]] consteval std::uint16_t mod_id_of() noexcept {
         if constexpr (requires { T::mod_id; }) {
-            return T::mod_id;
+            return static_cast<std::uint16_t>(T::mod_id & 0x3FFFu);
         } else {
             constexpr std::string_view name = __PRETTY_FUNCTION__;
-            return static_cast<std::uint16_t>(ci_hash(name));
+            return static_cast<std::uint16_t>(ci_hash(name) & 0x3FFFu);
         }
     }
 
@@ -164,9 +211,10 @@ export namespace fs8 {
         return sid(mod, std::uint16_t{0});
     }
 
-    /// Extract the mod_id (high 16 bits) from a source_id.
+    /// Extract the mod_id (bits 29-16) from a source_id (origin bits masked
+    /// off).
     [[nodiscard]] constexpr std::uint16_t sid(std::uint32_t const src) noexcept {
-        return static_cast<std::uint16_t>(src >> 16u);
+        return mod_id(src);
     }
 
     /// Convert a source_id to a human-readable string (for diagnostics).
@@ -447,53 +495,149 @@ export namespace fs8 {
         return event.type == EV_SYN;
     }
 
-    /// Sentinel type value used by all lifecycle events.
-    constexpr auto special_event_type = static_cast<event_type::type_type>(EV_MAX + 1);
+    /// Sentinel type value used by general lifecycle events.
+    constexpr auto general_control_event = static_cast<event_type::type_type>(EV_MAX + 1);
+
+    /// Marked as required.
+    constexpr auto required_control_event = static_cast<event_type::type_type>(EV_MAX + 2);
 
     /// A lifecycle event (tag replacement) that shares the same field layout
     /// as `event_type` so mods can handle both regular events and lifecycle
     /// events in a single overload if desired. The `type` field is set to
     /// `EV_MAX + 1` (a value no real kernel event will ever use) so callers
     /// can distinguish lifecycle events from real input events.
-    struct [[nodiscard]] special_event {
+    struct [[nodiscard]] control_event {
         using type_type  = event_type::type_type;
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
         using time_type  = event_type::time_type;
 
-        time_type     time  = {};
-        type_type     type  = special_event_type;
-        code_type     code  = 0;
-        value_type    value = 0;
-        std::uint32_t from  = source_id_none;
+        time_type     time    = {};
+        type_type     type    = general_control_event;
+        code_type     code    = 0;
+        value_type    value   = 0;
+        std::uint32_t from    = source_id_none;
+        void*         payload = nullptr;
     };
 
     /// Lifecycle event constants. Each uses a unique `code` value; toggle
     /// events encode their state in the `value` field (1 = on, 0 = off).
-    constexpr special_event start{.type = special_event_type, .code = 0};
-    constexpr special_event no_init{.type = special_event_type, .code = 1};
-    constexpr special_event load_event{.type = special_event_type, .code = 2};
-    constexpr special_event next_event{.type = special_event_type, .code = 3};
-    constexpr special_event toggle_on{.type = special_event_type, .code = 4, .value = 1};
-    constexpr special_event toggle_off{.type = special_event_type, .code = 4, .value = 0};
-    constexpr special_event idle{.type = special_event_type, .code = 5};
-    constexpr special_event monitors_updated{.type = special_event_type, .code = 6};
+    constexpr control_event null_event{.code = std::numeric_limits<control_event::code_type>::max()};
+    constexpr control_event start{.code = 0};      // start event
+    constexpr control_event no_init{.code = 1};
+    constexpr control_event load_event{.code = 2}; // wait for next events to be loaded, so we can call next to get them
+    constexpr control_event next_event{.code = 3}; // get the next event
+    constexpr control_event toggle_on{.code = 4, .value = 1};
+    constexpr control_event toggle_off{.code = 4, .value = 0};
+    constexpr control_event idle{.code = 5};       // go into idle state
+    constexpr control_event monitors_updated{.code = 6};
 
-    /// Check whether a `special_event` matches a given lifecycle code.
-    [[nodiscard]] constexpr bool is_special(special_event const& ev, special_event::code_type const code) noexcept {
-        return ev.type == special_event_type && ev.code == code;
+    // we own this device now; payload: devnode(std::string_view)
+    constexpr control_event we_own_device{.type = required_control_event, .code = 7};
+
+    // register a query provider; payload: query_provider_handle (moved-from by handler)
+    constexpr control_event register_query_provider{.type = required_control_event, .code = 8};
+    // hand a manually-added device over (moved-from by handler); payload: evdev
+    constexpr control_event add_evdev_device{.type = required_control_event, .code = 9};
+    // Source-id lifecycle: one code; `value` selects the operation and every
+    // variant carries the same payload, `source_info` (devices/evdev.ixx):
+    //   0 = register:   in/out — input_manager ORs the origin bits
+    //                   (source_id_owned / source_id_chained) into
+    //                   payload.source_id; the registering mod reads them back
+    //   1 = unregister: payload.source_id (identity); device is nullptr —
+    //                   the device may already be dead
+    //   2 = owned:      a device became owned after it was registered;
+    //                   payload.source_id arrives prefilled with the owned bit
+    // Switch on `tag.code` to observe any mutation; compare the full event
+    // (e.g. `tag == source_owned`) to filter by kind.
+    constexpr control_event source_registered{.type = required_control_event, .code = 10, .value = 0};
+    constexpr control_event source_unregistered{.type = required_control_event, .code = 10, .value = 1};
+    constexpr control_event source_owned{.type = required_control_event, .code = 10, .value = 2};
+    // Device-list notifications share one code; `value` discriminates:
+    //   0 = bulk list change (no payload) — "re-pull via enumerate_devices if you care"
+    //   1 = a device was connected (payload: evdev)
+    //   2 = a device was disconnected (payload: legacy sysname hash)
+    // Switch on `tag.code` to observe any mutation; compare the full event
+    // (e.g. `tag == device_connected`) to filter by kind.
+    constexpr control_event devices_changed{.code = 12};
+    constexpr control_event device_connected{.code = 12, .value = 1};
+    constexpr control_event device_disconnected{.code = 12, .value = 2};
+    // synchronously fill a caller-owned device_list; payload: device_list
+    constexpr control_event enumerate_devices{.type = required_control_event, .code = 13};
+
+    // Configure the poller.  One code; `value` selects the operation and each
+    // variant carries its own payload type (see mods/io_manager.ixx).  Results
+    // are written back into the payload, so "there is no io_manager in this
+    // pipeline" and "the io_manager refused this fd" are both readable from the
+    // payload — the returned context_action is not the contract here.
+    //   0 = watch an fd  (payload: io_watch_request, in/out)
+    //   1 = stop watching an fd (payload: int, the fd)
+    //   2 = set the idle timeout (payload: std::chrono::microseconds; 0 disables)
+    //   3 = replace the idle callback (payload: basic_io_manager::idle_callback,
+    //       moved in; an empty callback clears it)
+    constexpr control_event io_watch{.type = required_control_event, .code = 14, .value = 0};
+    constexpr control_event io_unwatch{.type = required_control_event, .code = 14, .value = 1};
+    constexpr control_event io_idle_timeout{.type = required_control_event, .code = 14, .value = 2};
+    constexpr control_event io_idle_callback{.type = required_control_event, .code = 14, .value = 3};
+
+    [[nodiscard]] std::string_view to_string(control_event const& event) noexcept;
+
+    [[nodiscard]] constexpr bool operator==(control_event const& lhs, control_event const& rhs) noexcept {
+        // ignoring time and payload
+        return lhs.type == rhs.type && lhs.code == rhs.code && lhs.value == rhs.value && lhs.from == rhs.from;
     }
 
-    /// Check whether an `event_type` is actually a lifecycle event (shouldn't
-    /// happen in practice, but guards against data corruption).
-    [[nodiscard]] constexpr bool is_special(event_type const& ev) noexcept {
-        return ev.type() == special_event_type;
+    /// Get the payload in the correct type
+    ///
+    /// If you want to add a payload to an event, overload this function like this:
+    /// @code
+    /// template <control_event CEvent>
+    ///   requires (idle == CEvent)
+    /// [[nodiscard]] constexpr int& payload(control_event& event) noexcept {
+    ///     return *static_cast<int*>(event.payload)
+    /// }
+    /// @endcode
+    ///
+    /// And use it like this:
+    /// int& stuff = payload<idle>(event);
+    template <control_event>
+    constexpr void payload(control_event&) noexcept {
+        static_assert(false, "No payload registered.");
     }
 
-    /// Hash a `special_event` into a `std::uint32_t` for use in `switch`/`case` and
+    template <control_event CEvent>
+        requires(we_own_device == CEvent)
+    [[nodiscard]] constexpr std::string_view payload(control_event const& event) noexcept {
+        if (event.payload == nullptr) [[unlikely]] {
+            std::terminate();
+        }
+        return *static_cast<std::string_view*>(event.payload);
+    }
+
+    template <control_event CEvent>
+        requires(device_disconnected == CEvent)
+    [[nodiscard]] constexpr std::uint32_t payload(control_event const& event) noexcept {
+        if (event.payload == nullptr) [[unlikely]] {
+            std::terminate();
+        }
+        return *static_cast<std::uint32_t*>(event.payload);
+    }
+
+    /// Add payload
+    /// The reason why we don't allow const payload is because we're using `void*` in payload, and we want to force you to use this utility
+    /// properly and make sure you don't cause dangling pointers problem by using this.
+    template <typename PayloadType>
+        requires(!std::is_const_v<PayloadType>)
+    [[nodiscard]] constexpr control_event operator+(control_event const& event, PayloadType* payload) noexcept {
+        control_event result = event;
+        result.payload       = static_cast<void*>(payload);
+        return result;
+    }
+
+    /// Hash a `control_event` into a `std::uint32_t` for use in `switch`/`case` and
     /// comparison.  The hash encodes both `code` and `value` so that `toggle_on`
     /// and `toggle_off` (which share the same `code`) produce different hashes.
-    [[nodiscard]] constexpr std::uint32_t hashed(special_event const& ev) noexcept {
+    [[nodiscard]] constexpr std::uint32_t hashed(control_event const& ev) noexcept {
         static constexpr std::uint32_t shift  = 6;
         std::uint32_t                  hash   = 0;
         hash                                 |= static_cast<std::uint32_t>(ev.code) << shift;
@@ -501,29 +645,18 @@ export namespace fs8 {
         return hash;
     }
 
-    /// Unhash: recover the `code` from a hash produced by `hashed(special_event)`.
-    [[nodiscard]] constexpr special_event::code_type unhashed_special(std::uint32_t const hash) noexcept {
-        static constexpr std::uint32_t shift = 6;
-        return static_cast<special_event::code_type>(hash >> shift);
-    }
-
-    /// `operator+` returns the hash of a `special_event`, enabling
+    /// `operator+` returns the hash of a `control_event`, enabling
     /// `switch (tag + start)` patterns.
-    [[nodiscard]] constexpr std::uint32_t operator+(special_event const& ev) noexcept {
+    [[nodiscard]] constexpr std::uint32_t operator+(control_event const& ev) noexcept {
         return hashed(ev);
     }
 
-    /// Two `special_event`s are equal iff they carry the same `code` and `value`.
-    [[nodiscard]] constexpr bool operator==(special_event const& lhs, special_event const& rhs) noexcept {
-        return lhs.code == rhs.code && lhs.value == rhs.value;
+    /// Check whether an `event_type` matches a `control_event` by code.
+    [[nodiscard]] constexpr bool operator==(event_type const& lhs, control_event const& rhs) noexcept {
+        return lhs.type() == general_control_event && lhs.code() == rhs.code;
     }
 
-    /// Check whether an `event_type` matches a `special_event` by code.
-    [[nodiscard]] constexpr bool operator==(event_type const& lhs, special_event const& rhs) noexcept {
-        return lhs.type() == special_event_type && lhs.code() == rhs.code;
-    }
-
-    [[nodiscard]] constexpr bool operator==(special_event const& lhs, event_type const& rhs) noexcept {
+    [[nodiscard]] constexpr bool operator==(control_event const& lhs, event_type const& rhs) noexcept {
         return rhs == lhs;
     }
 

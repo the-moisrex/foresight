@@ -36,7 +36,7 @@ export namespace fs8 {
         // ── Pipeline interface ───────────────────────────────────────────────
 
         /// Handle start and load_event tags.
-        context_action operator()(event_type& event, special_event const& tag) noexcept;
+        context_action operator()(event_type& event, control_event const& tag) noexcept;
     };
 
     /// Default replay: auto-detect format.

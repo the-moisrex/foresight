@@ -11,6 +11,7 @@ import fs8.mods;
 import fs8.devices.udev;
 import fs8.devices.queries;
 import fs8.devices.evdev;
+import dynamic_scoping;
 
 #include "common/fake_keyboard.hpp"
 
@@ -55,6 +56,10 @@ TEST(Interceptor, LoadEventThenNextEventDeliversToCollector) {
     auto& im  = pipeline.mod<basic_input_manager>();
     auto& col = pipeline.mod<basic_record>();
 
+    // Intercept broadcasts (enumerate_devices, source_registered, ...) go
+    // through dynamic_context, which must be bound even outside run_loop.
+    dynamic_scope scope{dynamic_context, pipeline};
+
     EXPECT_EQ(pipeline(start), context_action::next);
 
     auto fake = test::make_fake_keyboard();
@@ -90,6 +95,12 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
     auto& io  = pipeline.mod<basic_io_manager>();
     auto& im  = pipeline.mod<basic_input_manager>();
     auto& col = pipeline.mod<basic_record>();
+
+    // Bind for the whole test: the udev hotplug path only announces the
+    // merged devices_changed family (`device_connected`, code 13) while a
+    // dynamic context is bound, and these tests drive `io(load_event)`
+    // outside `run_loop`.
+    dynamic_scope scope{dynamic_context, pipeline};
 
     EXPECT_EQ(pipeline(start), context_action::next);
 

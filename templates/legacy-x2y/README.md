@@ -1,6 +1,6 @@
 # {{name}}
 
-A Foresight app created from the `x2y` template: a tiny C filter that reads
+A Foresight app created from the `legacy-x2y` template: a tiny C filter that reads
 `input_event`s from stdin, modifies them, and writes them to stdout.
 
 ## Build

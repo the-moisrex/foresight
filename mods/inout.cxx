@@ -34,22 +34,48 @@ struct fs8::pimpl_idiom<fs8::basic_from_input>::impl {
     bool                   eof = false;
 };
 
-context_action fs8::basic_from_input::do_start(basic_io_manager& io) noexcept {
+context_action fs8::basic_from_input::operator()(event_type& event, control_event const& tag) noexcept {
+    using enum context_action;
+    switch (tag.code) {
+        case start.code: return do_start();
+        case next_event.code: return poll_driven ? do_pop(event) : drop_event;
+        case load_event.code:
+            // poll_driven: io_manager handles blocking.
+            // otherwise: we read stdin ourselves (redirect mode).
+            return poll_driven ? drop_event : do_read(event);
+        default: return drop_event;
+    }
+}
+
+context_action fs8::basic_from_input::do_start() noexcept {
     using enum context_action;
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
     }
     pimpl->eof = false;
     pimpl->pending.clear();
+    poll_driven = false;
+
+    auto req = watch_of(io_fd{.fd = file_descriptor, .events = io_event::in}, *this);
+    if (auto const res = dynamic_context.broadcast(io_watch + &req); is_exiting(res)) {
+        return res;
+    }
+    if (req.status == io_watch_status::failed) [[unlikely]] {
+        log("from_input: failed to register fd {} with io_manager", file_descriptor);
+        return exit;
+    }
+    if (req.status != io_watch_status::registered) {
+        // No io_manager in this pipeline: redirect mode, we read stdin
+        // ourselves from `load_event` and the fd stays blocking.
+        return next;
+    }
+
+    poll_driven      = true;
     // Set non-blocking so the io_manager callback drain loop terminates with
     // EAGAIN instead of blocking inside poll-ready dispatch.
     auto const flags = ::fcntl(file_descriptor, F_GETFL, 0);
     if (flags >= 0) {
         std::ignore = ::fcntl(file_descriptor, F_SETFL, flags | O_NONBLOCK);
-    }
-    if (!io.watch(io_fd{.fd = file_descriptor, .events = io_event::in}, *this)) [[unlikely]] {
-        log("from_input: failed to register fd {} with io_manager", file_descriptor);
-        return exit;
     }
     return next;
 }

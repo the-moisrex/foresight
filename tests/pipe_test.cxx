@@ -18,12 +18,12 @@ namespace {
 
     std::vector<event_type> make_test_events() {
         return {
-          event_type{EV_KEY, KEY_A, 1},
-          event_type{EV_SYN, SYN_REPORT, 0},
-          event_type{EV_KEY, KEY_A, 0},
-          event_type{EV_SYN, SYN_REPORT, 0},
-          event_type{EV_REL, REL_X, 10},
-          event_type{EV_SYN, SYN_REPORT, 0},
+          event_type{EV_KEY,      KEY_A,  1},
+          event_type{EV_SYN, SYN_REPORT,  0},
+          event_type{EV_KEY,      KEY_A,  0},
+          event_type{EV_SYN, SYN_REPORT,  0},
+          event_type{EV_REL,      REL_X, 10},
+          event_type{EV_SYN, SYN_REPORT,  0},
         };
     }
 
@@ -108,7 +108,7 @@ TEST(PipeTest, StdOutputWritesRawBinary) {
 
     {
         basic_std_output out{fds[1]};
-        auto const events = make_test_events();
+        auto const       events = make_test_events();
         for (auto const& ev : events) {
             EXPECT_TRUE(out.emit(ev));
         }
@@ -140,11 +140,11 @@ TEST(PipeTest, StdOutputToFromInputRoundtrip) {
 
     // Step 1: Write events through std_output (simulates intercept's stdout).
     {
-        basic_std_output out{fds[1]};
+        basic_std_output  out{fds[1]};
         std::vector const events = {
-          event_type{EV_KEY, KEY_B, 1},
+          event_type{EV_KEY,      KEY_B, 1},
           event_type{EV_SYN, SYN_REPORT, 0},
-          event_type{EV_KEY, KEY_B, 0},
+          event_type{EV_KEY,      KEY_B, 0},
           event_type{EV_SYN, SYN_REPORT, 0},
         };
         for (auto const& ev : events) {
@@ -199,9 +199,9 @@ TEST(PipeTest, ReplayReadsRawBinaryFromStdin) {
     ASSERT_EQ(::dup2(fds[0], STDIN_FILENO), STDIN_FILENO);
     ::close(fds[0]);
 
-    auto pipeline = context | stopper | replay | record;
-    auto& rep = pipeline.mod<basic_replay>();
-    rep.set_file("-");  // stdin mode
+    auto  pipeline = context | stopper | replay | record;
+    auto& rep      = pipeline.mod<basic_replay>();
+    rep.set_file("-"); // stdin mode
     pipeline();
 
     ASSERT_EQ(::dup2(saved_stdin, STDIN_FILENO), STDIN_FILENO);
@@ -227,11 +227,11 @@ TEST(PipeTest, StdOutputToReplayStdinRoundtrip) {
 
     // Step 1: Write events through std_output.
     {
-        basic_std_output out{fds[1]};
+        basic_std_output  out{fds[1]};
         std::vector const events = {
-          event_type{EV_KEY, KEY_C, 1},
+          event_type{EV_KEY,      KEY_C, 1},
           event_type{EV_SYN, SYN_REPORT, 0},
-          event_type{EV_KEY, KEY_C, 0},
+          event_type{EV_KEY,      KEY_C, 0},
           event_type{EV_SYN, SYN_REPORT, 0},
         };
         for (auto const& ev : events) {
@@ -246,9 +246,9 @@ TEST(PipeTest, StdOutputToReplayStdinRoundtrip) {
     ASSERT_EQ(::dup2(fds[0], STDIN_FILENO), STDIN_FILENO);
     ::close(fds[0]);
 
-    auto pipeline = context | stopper | replay | record;
-    auto& rep = pipeline.mod<basic_replay>();
-    rep.set_file("-");  // stdin
+    auto  pipeline = context | stopper | replay | record;
+    auto& rep      = pipeline.mod<basic_replay>();
+    rep.set_file("-"); // stdin
     pipeline();
 
     ASSERT_EQ(::dup2(saved_stdin, STDIN_FILENO), STDIN_FILENO);
@@ -307,8 +307,8 @@ TEST(PipeTest, FromInputToCaptureFileToReplayRoundtrip) {
     write_binary_capture_file(tmp, read_events);
 
     // Step 3: Replay from the file via pipeline.
-    auto replay_pipeline = context | stopper | replay | record;
-    auto& rep = replay_pipeline.mod<basic_replay>();
+    auto  replay_pipeline = context | stopper | replay | record;
+    auto& rep             = replay_pipeline.mod<basic_replay>();
     rep.set_file(tmp);
     replay_pipeline();
 

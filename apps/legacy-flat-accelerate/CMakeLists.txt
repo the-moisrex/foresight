@@ -1,4 +1,4 @@
-set(name flat-accelerate)
+set(name legacy-flat-accelerate)
 add_executable(${name})
 target_sources(${name} PRIVATE flat-accelerate.cpp)
 set_target_properties(${name} PROPERTIES OUTPUT_NAME ${name})

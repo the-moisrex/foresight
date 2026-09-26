@@ -4,6 +4,7 @@ module;
 #include <array>
 #include <cassert>
 #include <coroutine>
+#include <functional>
 #include <generator>
 #include <ranges>
 #include <span>
@@ -177,6 +178,45 @@ export namespace fs8 {
 
     using device_query = basic_device_query<>;
     constexpr basic_device_query<0> query{};
+
+    /// A type-erased reference to a registered query provider. The handle owns
+    /// a small closure that references the provider object, which must outlive
+    /// the input_manager (same requirement as `io_manager` handlers, since the
+    /// identity is its address).
+    struct [[nodiscard]] query_provider_handle {
+        void const*                                                       identity = nullptr;
+        std::move_only_function<std::span<device_query const>() noexcept> invoke;
+
+        [[nodiscard]] std::span<device_query const> operator()() noexcept {
+            return invoke ? invoke() : std::span<device_query const>{};
+        }
+    };
+
+    template <typename T>
+    concept query_provider = requires(T& p) {
+        { p.queries() } noexcept -> std::same_as<std::span<device_query const>>;
+    };
+
+    /// Type-erase a provider object into a `query_provider_handle`. May throw
+    /// (constructing the closure), so callers must handle it.
+    template <query_provider ProviderT>
+    [[nodiscard]] query_provider_handle provider_handle(ProviderT& provider) {
+        return query_provider_handle{
+          .identity = std::addressof(provider),
+          .invoke   = [&provider]() noexcept -> std::span<device_query const> {
+              return provider.queries();
+          },
+        };
+    }
+
+    template <control_event CEvent>
+        requires(register_query_provider == CEvent)
+    [[nodiscard]] constexpr query_provider_handle& payload(control_event const& event) noexcept {
+        if (event.payload == nullptr) [[unlikely]] {
+            std::terminate();
+        }
+        return *static_cast<query_provider_handle*>(event.payload);
+    }
 
     template <typename T>
     inline constexpr bool is_query = false;

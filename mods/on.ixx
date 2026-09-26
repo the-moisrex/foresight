@@ -187,8 +187,8 @@ namespace fs8 {
               ctx.get_mods());
         }
 
-        /// Handle special events (start, next_event, etc.)
-        context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
+        /// Handle control events (start, next_event, etc.)
+        context_action operator()(Context auto& ctx, control_event const& tag) noexcept {
             return invoke_conditioned_sub_pipeline(cond, funcs, ctx, tag);
         }
 
@@ -264,8 +264,8 @@ namespace fs8 {
               ctx.get_mods());
         }
 
-        /// Handle special events (start, next_event, etc.)
-        context_action operator()(Context auto& ctx, special_event const& tag) noexcept {
+        /// Handle control events (start, next_event, etc.)
+        context_action operator()(Context auto& ctx, control_event const& tag) noexcept {
             return invoke_conditioned_sub_pipeline(cond, funcs, ctx, tag);
         }
 
@@ -472,7 +472,7 @@ namespace fs8 {
         }
 
         /// Resolve the pattern string into key codes when the pipeline starts.
-        context_action operator()(special_event const& tag) noexcept {
+        context_action operator()(control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }
@@ -530,7 +530,7 @@ namespace fs8 {
         }
 
         /// Resolve the pattern string into key codes when the pipeline starts.
-        context_action operator()(special_event const& tag) noexcept {
+        context_action operator()(control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }

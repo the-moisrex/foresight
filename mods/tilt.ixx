@@ -109,7 +109,7 @@ export namespace fs8 {
         context_action operator()(event_type const& event) noexcept;
 
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             if (tag.code == start.code) {
                 init(ctx);
@@ -131,11 +131,13 @@ export namespace fs8 {
         template <Context CtxT>
         void init(CtxT& ctx) noexcept {
             reset();
-            if constexpr (has_mod<basic_input_manager, CtxT>) {
-                for (evdev const& dev : ctx.mod(input_manager).devices()) {
-                    if (seed_range(dev)) {
-                        break;
-                    }
+            auto snap = tracked_devices(ctx);
+            if (!snap) [[unlikely]] {
+                return;
+            }
+            for (evdev* dev : snap) {
+                if (seed_range(*dev)) {
+                    break;
                 }
             }
         }

@@ -4,7 +4,7 @@ The repository ships a set of example apps under [`apps/`](https://github.com/th
 They are small, focused demonstrations of what you can build with the Foresight library — from
 simple intercept/redirect filters to full pipeline apps.
 
-## x2y
+## legacy-x2y
 
 Change `x` on your keyboard to `y` when you press it. The simplest possible
 example, written in plain C — no Foresight library needed, just the
@@ -34,25 +34,26 @@ any event — bouncing keyboard keys, noisy tablet axes, double-firing scroll
 wheels. The window defaults to 30ms and is adjustable via `-t | --time`
 (e.g. `debounce --time 50ms`).
 
-## flat-accelerate
+## legacy-flat-accelerate
 
-Accelerates the mouse through a `foresight intercept | flat-accelerate | foresight redirect`
+Accelerates the mouse through a `foresight intercept | legacy-flat-accelerate | foresight redirect`
 pipeline.
 
-## drop-big-jumps
+## legacy-drop-big-jumps
 
 Drops the big jumps of a faulty mouse.
 
-## long-press
+## legacy-long-press
 
 Turns a long press into a right-click action.
 
-## on-gestures
+## legacy-on-gestures
 
 Turns `Meta` + `Ctrl` + mouse move into scrollbars.
 
 ## Writing your own
 
-Each app links against the Foresight library (`foresight::foresight`) and
-compiles as C++26. To scaffold a new app, see [writing your own app](writing-apps.md)
+Pipeline apps link against the Foresight library (`foresight::foresight`) and
+compile as C++26. Legacy apps are standalone filters that don't use the library.
+To scaffold a new app, see [writing your own app](writing-apps.md)
 or use the CLI's `foresight new` template generator.

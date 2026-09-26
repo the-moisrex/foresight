@@ -2,11 +2,15 @@
 
 #include "common/tests_common_pch.hpp"
 
+#include <chrono>
+
+import dynamic_scoping;
 import fs8.mods;
 
 using namespace fs8;
 
-static constinit auto io_pipeline = context | io_manager;
+static constinit auto io_pipeline   = context | io_manager;
+static constinit auto bare_pipeline = context;
 
 namespace {
 
@@ -71,6 +75,10 @@ namespace {
     static_assert((io_event::in & ~io_event::in) == static_cast<io_event>(0));
     static_assert(has(io_event::pri, io_event::pri));
     static_assert(has(io_event::nval, io_event::nval));
+
+    /// The idle callback is owned by the (file-static) pipeline, so whatever it
+    /// mutates has to outlive the test body too.
+    int idle_fired = 0; // NOLINT(*-global-variables)
 
     [[nodiscard]] auto& manager() noexcept {
         return io_pipeline.mod<basic_io_manager>();
@@ -327,6 +335,114 @@ TEST(IOManager, DuplicateWatchReplacesEventsMask) {
     // The events mask is replaced, not OR'd with the earlier one.
     EXPECT_EQ(handler.info.events, io_event::in);
 
+    mgr.clear();
+    close(fds[0]);
+    close(fds[1]);
+}
+
+TEST(IOManager, WatchViaBroadcastRegistersAndDispatches) {
+    auto& mgr = manager();
+    mgr.clear();
+
+    int fds[2];
+    ASSERT_EQ(pipe(fds), 0);
+
+    read_handler handler;
+    auto         req = watch_of(io_fd{.fd = fds[0], .events = io_event::in}, handler);
+
+    {
+        dynamic_scope scope{dynamic_context, io_pipeline};
+        EXPECT_EQ(dynamic_context.broadcast(io_watch + &req), context_action::next);
+    }
+    // Callers read the payload, never the returned action.
+    EXPECT_EQ(req.status, io_watch_status::registered);
+    EXPECT_TRUE(mgr.is_watched(fds[0]));
+
+    char const byte = 'x';
+    ASSERT_EQ(write(fds[1], &byte, 1), 1);
+
+    ASSERT_EQ(mgr(load_event), context_action::drop_event);
+    EXPECT_STREQ(handler.buf.data(), "x");
+
+    mgr.clear();
+    close(fds[0]);
+    close(fds[1]);
+}
+
+TEST(IOManager, BroadcastUnwatchRemovesFd) {
+    auto& mgr = manager();
+    mgr.clear();
+
+    int fds[2];
+    ASSERT_EQ(pipe(fds), 0);
+
+    read_handler handler;
+    ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
+
+    int gone = fds[0];
+    {
+        dynamic_scope scope{dynamic_context, io_pipeline};
+        EXPECT_EQ(dynamic_context.broadcast(io_unwatch + &gone), context_action::next);
+    }
+    EXPECT_FALSE(mgr.is_watched(fds[0]));
+    EXPECT_TRUE(mgr.empty());
+
+    close(fds[0]);
+    close(fds[1]);
+}
+
+TEST(IOManager, BroadcastWatchWithoutPollerReportsNoPoller) {
+    read_handler handler;
+    auto         req = watch_of(io_fd{.fd = 3}, handler);
+
+    dynamic_scope scope{dynamic_context, bare_pipeline};
+    EXPECT_EQ(dynamic_context.broadcast(io_watch + &req), context_action::drop_event);
+    EXPECT_EQ(req.status, io_watch_status::no_poller);
+}
+
+TEST(IOManager, BroadcastWatchRejectsNegativeFd) {
+    auto& mgr = manager();
+    mgr.clear();
+
+    read_handler handler;
+    auto         req = watch_of(io_fd{.fd = -1}, handler);
+
+    dynamic_scope scope{dynamic_context, io_pipeline};
+    EXPECT_EQ(dynamic_context.broadcast(io_watch + &req), context_action::next);
+    EXPECT_EQ(req.status, io_watch_status::failed);
+    EXPECT_TRUE(mgr.empty());
+}
+
+TEST(IOManager, BroadcastIdleConfigFiresCallback) {
+    auto& mgr = manager();
+    mgr.clear();
+    idle_fired = 0;
+
+    int fds[2];
+    ASSERT_EQ(pipe(fds), 0);
+
+    // Something to watch so `load_event` reaches poll() at all.
+    read_handler handler;
+    ASSERT_TRUE(mgr.watch(io_fd{.fd = fds[0], .events = io_event::in}, handler));
+
+    auto                            timeout = std::chrono::microseconds{1000};
+    basic_io_manager::idle_callback cb      = [](std::chrono::microseconds) noexcept -> context_action {
+        ++idle_fired;
+        return context_action::next;
+    };
+
+    {
+        dynamic_scope scope{dynamic_context, io_pipeline};
+        EXPECT_EQ(dynamic_context.broadcast(io_idle_timeout + &timeout), context_action::next);
+        EXPECT_EQ(dynamic_context.broadcast(io_idle_callback + &cb), context_action::next);
+    }
+
+    // The pipe is empty, so poll() times out and the idle callback runs.
+    ASSERT_EQ(mgr(load_event), context_action::drop_event);
+    EXPECT_EQ(idle_fired, 1);
+
+    mgr.clear_idle_timeout();
+    mgr.clear_idle_callback();
     mgr.clear();
     close(fds[0]);
     close(fds[1]);

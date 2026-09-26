@@ -8,8 +8,8 @@ module;
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
-#include <dlfcn.h>
 #include <cstring>
+#include <dlfcn.h>
 #include <filesystem>
 #include <fstream>
 #include <span>
@@ -295,7 +295,7 @@ namespace {
 
             // Extract connector name from sysfs entry (e.g. "card1-HDMI-A-2" → "HDMI-A-2").
             {
-                auto dash = name.find('-');
+                auto dash     = name.find('-');
                 mon.connector = (dash != std::string::npos) ? name.substr(dash + 1) : name;
                 mon.name      = mon.connector;
             }
@@ -480,8 +480,7 @@ namespace {
         // Load the real wl_output_interface from libwayland.  Our fabricated
         // placeholder has event_count=0 which may confuse the server-side
         // wl_closure_lookup_objects when validating the output argument.
-        auto* real_wl_output_iface = static_cast<wl_interface const*>(
-            dlsym(wl.handle, "wl_output_interface"));
+        auto* real_wl_output_iface = static_cast<wl_interface const*>(dlsym(wl.handle, "wl_output_interface"));
         if (!real_wl_output_iface) {
             fs8::log("monitor_detection: wl_output_interface not found via dlsym, using fabricated");
         }
@@ -501,12 +500,13 @@ namespace {
         struct wl_out_handle {
             void* proxy = nullptr;
         };
+
         std::vector<wl_out_handle> wl_outs;
         wl_outs.reserve(reg_state.outputs.size());
 
         for (auto const& out : reg_state.outputs) {
             auto const* out_iface = real_wl_output_iface ? real_wl_output_iface : &ifaces.wl_output;
-            auto* wl_out = wl.registry_bind(registry, out.id, out_iface, std::min(out.version, 4U));
+            auto*       wl_out    = wl.registry_bind(registry, out.id, out_iface, std::min(out.version, 4U));
             if (!wl_out) {
                 fs8::log("monitor_detection: registry_bind failed for wl_output id={}", out.id);
                 continue;
@@ -514,12 +514,15 @@ namespace {
 
             auto const wl_out_id = wl.proxy_get_id(wl_out);
             fs8::log("monitor_detection: bound wl_output id={} -> proxy_id={}, calling get_xdg_output (manager_id={})",
-                     out.id, wl_out_id, wl.proxy_get_id(manager));
+                     out.id,
+                     wl_out_id,
+                     wl.proxy_get_id(manager));
 
             // get_xdg_output: opcode 1, signature "no" (new_id + object).
             // The 'n' (new_id) vararg must be NULL — the actual interface is
             // passed as the 3rd parameter to wl_proxy_marshal_flags.
-            auto* xdg = wl.proxy_marshal_flags(manager, 1 /*get_xdg_output*/, &ifaces.output, manager_version, 0 /*flags*/, nullptr, wl_out);
+            auto* xdg =
+              wl.proxy_marshal_flags(manager, 1 /*get_xdg_output*/, &ifaces.output, manager_version, 0 /*flags*/, nullptr, wl_out);
 
             if (!xdg) {
                 fs8::log("monitor_detection: get_xdg_output returned NULL for wl_output id={}", out.id);
@@ -547,13 +550,14 @@ namespace {
             for (int i = 0; i < 100; ++i) {
                 bool all_done = true;
                 for (auto const& h : handles) {
-                    if (!h.state->got_position || !h.state->got_name ||
-                        h.state->logical_w == 0 || h.state->logical_h == 0) {
+                    if (!h.state->got_position || !h.state->got_name || h.state->logical_w == 0 || h.state->logical_h == 0) {
                         all_done = false;
                         break;
                     }
                 }
-                if (all_done) break;
+                if (all_done) {
+                    break;
+                }
 
                 // Dispatch available events (may block until one arrives).
                 wl.display_dispatch(display);

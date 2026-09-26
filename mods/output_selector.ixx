@@ -80,9 +80,9 @@ namespace fs8 {
               outputs_);
         }
 
-        /// Forward start_tag to the selected output if it accepts (CtxT&, special_event).
+        /// Forward start_tag to the selected output if it accepts (CtxT&, control_event).
         template <typename CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }

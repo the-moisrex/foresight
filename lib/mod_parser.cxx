@@ -17,6 +17,9 @@ import fs8.lib.xkb.event2unicode;
 import fs8.log;
 import fs8.strings;
 
+// Suppress std::inplace_vector deprecation warning (GCC 16 stdlib issue, not our code).
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 using fs8::user_event;
 
 // NOLINTBEGIN(*-magic-numbers)

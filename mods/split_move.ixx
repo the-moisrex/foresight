@@ -112,7 +112,7 @@ export namespace fs8 {
                 return next;
             }
 
-            auto const end        = event.micro_time();
+            auto const end         = event.micro_time();
             auto const frame_start = has_last_syn ? last_syn_time : (has_frame_start ? frame_start_time : end);
 
             // The current SYN becomes the interpolation base of the next frame.

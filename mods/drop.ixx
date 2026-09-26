@@ -9,6 +9,7 @@ module;
 export module fs8.mods:drop;
 import fs8.context;
 import fs8.devices.capabilities;
+import fs8.devices.evdev;
 import fs8.traits;
 import fs8.log;
 import :debounce;
@@ -249,7 +250,7 @@ export namespace fs8 {
             return basic_drop_start_moves{inp_time_threshold};
         }
 
-        void           operator()(special_event const& tag) noexcept;
+        void           operator()(control_event const& tag) noexcept;
         context_action operator()(event_type const& event) noexcept;
     } drop_start_moves;
 
@@ -331,7 +332,7 @@ export namespace fs8 {
         std::array<bool, max_keys>   pressed{};
 
       public:
-        constexpr void operator()(special_event const& tag) noexcept {
+        constexpr void operator()(control_event const& tag) noexcept {
             if (tag.code == start.code) {
                 pressed = {};
             }
@@ -372,7 +373,7 @@ export namespace fs8 {
 
     /// Ignore pen ABS values that fall outside the device-reported bounds.
     ///
-    /// Pen bounds are seeded from `input_manager` on `special_event`.  Only
+    /// Pen bounds are seeded from `input_manager` on `control_event`.  Only
     /// `ABS_X` and `ABS_Y` events are checked.
     constexpr struct [[nodiscard]] basic_drop_pen_out_of_bounds : consteval_copyable {
         using consteval_copyable::consteval_copyable;
@@ -398,15 +399,19 @@ export namespace fs8 {
 
         template <typename CtxT>
             requires has_mod<basic_input_manager, CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
             }
-            for (auto const& dev : ctx.mod(input_manager).devices()) {
-                if (auto const* x = dev.abs_info(ABS_X); x != nullptr) {
-                    if (auto const* y = dev.abs_info(ABS_Y); y != nullptr) {
+            auto snap = tracked_devices(ctx);
+            if (!snap) [[unlikely]] {
+                return snap.action();
+            }
+            for (evdev* dev : snap) {
+                if (auto const* x = dev->abs_info(ABS_X); x != nullptr) {
+                    if (auto const* y = dev->abs_info(ABS_Y); y != nullptr) {
                         seed_pen_bounds(x->minimum, x->maximum, y->minimum, y->maximum);
-                        return context_action::next;
+                        break;
                     }
                 }
             }
@@ -426,7 +431,7 @@ export namespace fs8 {
         bool tool_active = false;
 
       public:
-        constexpr void operator()(special_event const& tag) noexcept {
+        constexpr void operator()(control_event const& tag) noexcept {
             if (tag.code == start.code) {
                 tool_active = false;
             }

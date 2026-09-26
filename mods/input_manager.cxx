@@ -25,12 +25,6 @@ using fs8::io_event;
 using fs8::io_fd;
 
 namespace {
-    void next_generation(std::uint32_t& state) noexcept {
-        state ^= state << 13;
-        state ^= state >> 17;
-        state ^= state << 5;
-    }
-
     /// A udev add/bind/change notification can arrive before the device node is
     /// bounded number of times before giving up on a device.
     [[nodiscard]] fs8::evdev open_device(fs8::device_query const& query, fs8::udev_device const& dev, int const retries = 15) {
@@ -54,12 +48,31 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
     bool                                           started = false;
     std::atomic<bool>                              stop_requested{false};
     udev_monitor                                   monitor;
-    std::list<evdev>                               devs;                   // stable handles; todo: switch to std::hive once available
+    std::list<evdev>                               devs;           // stable handles; todo: switch to std::hive once available
     std::vector<query_provider_handle>             providers;
-    std::vector<device_change_handle>              listeners;
-    std::vector<std::string>                       owned_sysnames;         // uinput devices created by this process
-    std::uint32_t                                  devices_generation = 1; // must be non-zero for xorshift
-    std::unordered_map<std::uint32_t, fs8::evdev*> source_map;             // source_id → device (set by provider mods)
+    std::vector<std::string>                       owned_sysnames; // uinput devices created by this process
+    std::unordered_map<std::uint32_t, source_info> source_map;     // identity source_id → source_info (origin flags live in source_id)
+
+    /// Announce a newly tracked device to the pipeline (single merged
+    /// devices_changed-family broadcast; `value == 1`).
+    void announce_connected(evdev& dev) noexcept {
+        if (!dynamic_context.bound()) {
+            return;
+        }
+        if (auto const res = dynamic_context->broadcast(device_connected + &dev); is_exiting(res)) {
+            log("device_connected broadcast ended with {}", to_string(res));
+        }
+    }
+
+    /// Announce a removed device (merged family, `value == 2`).
+    void announce_disconnected(uint32_t id) noexcept {
+        if (!dynamic_context.bound()) {
+            return;
+        }
+        if (auto const res = dynamic_context->broadcast(device_disconnected + &id); is_exiting(res)) {
+            log("device_disconnected broadcast ended with {}", to_string(res));
+        }
+    }
 
     /// Devices are identified by their udev sysname (derived from the fd),
     /// which is the last component of their syspath; only nodes with a devnode
@@ -77,10 +90,25 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         if (name.empty()) [[unlikely]] {
             return;
         }
-        std::erase_if(devs, [&](evdev const& dev) noexcept {
-            return device_sysname(dev) == name;
+        // Drop source_id mappings first, while the devices are still alive
+        // (device_sysname dereferences them; after erase_if they dangle).
+        std::erase_if(source_map, [&](auto const& kv) noexcept {
+            return kv.second.device == nullptr || device_sysname(*kv.second.device) == name;
         });
-        next_generation(devices_generation);
+        uint32_t id     = 0;
+        bool     erased = false;
+        std::erase_if(devs, [&](evdev const& dev) noexcept {
+            if (device_sysname(dev) != name) {
+                return false;
+            }
+            id     = ci_hash(std::string_view{name});
+            erased = true;
+            return true;
+        });
+        if (!erased) {
+            return;
+        }
+        announce_disconnected(id);
     }
 
     /// Whether a sysname belongs to a device this pipeline created itself.
@@ -128,23 +156,9 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
             return;
         }
 
-        // log("DEBUG add_udev_device: action={} syspath={} sysname={} subsystem={} ID_INPUT={} ID_INPUT_KEYBOARD={}",
-        //     action,
-        //     path,
-        //     name,
-        //     event_dev.subsystem(),
-        //     event_dev.property("ID_INPUT"),
-        //     event_dev.property("ID_INPUT_KEYBOARD"));
 
         if (action == "remove" || action == "unbind") {
-            // Compute the source_id before erasing so listeners can identify it.
-            if (!name.empty()) {
-                auto const id = ci_hash(std::string_view{name});
-                erase_by_sysname(name);
-                notify_listeners(id, fs8::device_change::disconnected);
-            } else {
-                erase_by_sysname(name);
-            }
+            erase_by_sysname(name);
             return;
         }
 
@@ -179,10 +193,8 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                     continue;
                 }
                 devs.emplace_back(std::move(edev));
-                next_generation(devices_generation);
-                added         = true;
-                auto const id = fs8::ci_hash(std::string_view{fs8::device_sysname(devs.back())});
-                notify_listeners(id, fs8::device_change::connected);
+                added = true;
+                announce_connected(devs.back());
             }
         }
     }
@@ -190,14 +202,6 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
     void drain() {
         while (auto event_dev = monitor.next_device()) {
             add_udev_device(std::move(event_dev));
-        }
-    }
-
-    void notify_listeners(std::uint32_t const id, fs8::device_change const change) noexcept {
-        for (auto& listener : listeners) {
-            if (listener.invoke) {
-                listener.invoke(id, change);
-            }
         }
     }
 
@@ -307,8 +311,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 break;
             }
             devs.emplace_back(std::move(edev));
-            auto const id = ci_hash(std::string_view{device_sysname(devs.back())});
-            notify_listeners(id, device_change::connected);
+            announce_connected(devs.back());
             --remaining;
         }
         return found;
@@ -320,7 +323,7 @@ void basic_input_manager::add(evdev&& inp_dev) {
         init_impl();
     }
     pimpl->devs.emplace_back(std::move(inp_dev));
-    next_generation(pimpl->devices_generation);
+    pimpl->announce_connected(pimpl->devs.back());
 }
 
 void basic_input_manager::add_query_provider(query_provider_handle provider) {
@@ -337,22 +340,6 @@ void basic_input_manager::add_query_provider(query_provider_handle provider) {
         return; // already registered; keep a single handle per provider
     }
     pimpl->providers.push_back(std::move(provider));
-}
-
-void basic_input_manager::add_device_change_listener(device_change_handle listener) {
-    if (pimpl.get() == nullptr) [[unlikely]] {
-        init_impl();
-    }
-    if (listener.identity == nullptr) [[unlikely]] {
-        return;
-    }
-    auto const found = std::ranges::find_if(pimpl->listeners, [&](device_change_handle const& cur) noexcept {
-        return cur.identity == listener.identity;
-    });
-    if (found != pimpl->listeners.end()) [[unlikely]] {
-        return; // already registered; keep a single handle per listener
-    }
-    pimpl->listeners.push_back(std::move(listener));
 }
 
 void basic_input_manager::own_device(std::string_view const devnode) noexcept {
@@ -377,6 +364,27 @@ void basic_input_manager::own_device(std::string_view const devnode) noexcept {
     } catch (...) {
         log("Possibly allocation failure");
         // Allocation failure: silently drop.
+        return;
+    }
+    // A device that was registered *before* this tag becomes owned
+    // retroactively: set the origin bit on its stored source_id here and tell
+    // the provider mods that cache ids (intercept) via `source_owned`, so
+    // future events are stamped with `source_id_owned`.
+    for (auto& kv : pimpl->source_map) {
+        auto& info = kv.second;
+        if (is_owned_source(info.source_id) || info.device == nullptr) [[unlikely]] {
+            continue;
+        }
+        if (device_sysname(*info.device) != sysname) {
+            continue;
+        }
+        info.source_id |= source_id_owned;
+        if (!dynamic_context.bound()) {
+            continue;
+        }
+        // Broadcast a copy: receivers must not touch the map's storage.
+        source_info note = info;
+        std::ignore      = dynamic_context.broadcast(source_owned + &note);
     }
 }
 
@@ -408,16 +416,23 @@ std::uint32_t basic_input_manager::source_id_of(evdev const& dev) const noexcept
 }
 
 fs8::evdev const* basic_input_manager::device_of(std::uint32_t const id) const noexcept {
-    if (id == source_id_none) [[unlikely]] {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return nullptr;
+    }
+    // The identity part of the id: origin bits (owned/chained) are flags,
+    // not identity.
+    auto const key = identity_of(id);
+    if (key == source_id_none) [[unlikely]] {
         return nullptr;
     }
     // Fast path: check the source_id map (set by provider mods like intercept).
-    if (auto const it = pimpl->source_map.find(id); it != pimpl->source_map.end()) {
-        return it->second;
+    if (auto const it = pimpl->source_map.find(key); it != pimpl->source_map.end()) {
+        return it->second.device;
     }
-    // Fallback: check by ci_hash(sysname) — used by device change listeners.
+    // Fallback: check by ci_hash(sysname) for ids that were never registered
+    // (identity-compare: the legacy hash's top bits are meaningless flags).
     for (evdev const& dev : pimpl->devs) {
-        if (source_id_of(dev) == id) {
+        if (identity_of(source_id_of(dev)) == key) {
             return &dev;
         }
     }
@@ -444,6 +459,14 @@ std::string_view basic_input_manager::name_of(std::uint32_t const id) const noex
 }
 
 bool basic_input_manager::is_owned(std::uint32_t const id) const noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return false;
+    }
+    // Fast path: the origin bits cached in the stored source_id (no readlink).
+    if (auto const it = pimpl->source_map.find(identity_of(id)); it != pimpl->source_map.end()) {
+        return is_owned_source(it->second.source_id);
+    }
+    // Unregistered id: resolve the device the slow way, if it exists at all.
     auto const* const dev = device_of(id);
     if (dev == nullptr) [[unlikely]] {
         return false;
@@ -452,6 +475,13 @@ bool basic_input_manager::is_owned(std::uint32_t const id) const noexcept {
 }
 
 bool basic_input_manager::is_chained(std::uint32_t const id) const noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return false;
+    }
+    // Fast path: the origin bits cached in the stored source_id.
+    if (auto const it = pimpl->source_map.find(identity_of(id)); it != pimpl->source_map.end()) {
+        return is_chained_source(it->second.source_id);
+    }
     auto const* const dev = device_of(id);
     if (dev == nullptr) [[unlikely]] {
         return false;
@@ -459,18 +489,30 @@ bool basic_input_manager::is_chained(std::uint32_t const id) const noexcept {
     return dev->physical_location().starts_with("foresight:");
 }
 
-void basic_input_manager::register_source(std::uint32_t const source_id, evdev& dev) noexcept {
+void basic_input_manager::register_source(fs8::source_info& info) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;
     }
-    pimpl->source_map[source_id] = &dev;
+    if (info.device != nullptr) {
+        // One readlink + phys check per registration (not per event). The
+        // answer goes into info.source_id: the origin bits are the in/out
+        // channel the sender reads back.
+        auto const sysname = device_sysname(*info.device);
+        if (!sysname.empty() && is_owned_sysname(sysname)) {
+            info.source_id |= source_id_owned;
+        }
+        if (info.device->physical_location().starts_with("foresight:")) {
+            info.source_id |= source_id_chained;
+        }
+    }
+    pimpl->source_map[info.source_id & source_id_payload_mask] = info;
 }
 
 void basic_input_manager::unregister_source(std::uint32_t const source_id) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;
     }
-    pimpl->source_map.erase(source_id);
+    pimpl->source_map.erase(source_id & source_id_payload_mask);
 }
 
 void basic_input_manager::request_stop() noexcept {
@@ -517,13 +559,6 @@ std::ranges::subrange<std::list<fs8::evdev>::iterator> basic_input_manager::devi
     return std::ranges::subrange(pimpl->devs.begin(), pimpl->devs.end());
 }
 
-std::uint32_t basic_input_manager::devices_generation() const noexcept {
-    if (pimpl.get() == nullptr) [[unlikely]] {
-        return 0;
-    }
-    return pimpl->devices_generation;
-}
-
 context_action basic_input_manager::operator()(io_fd const& ready_fd) noexcept {
     using enum context_action;
     if (pimpl.get() == nullptr) [[unlikely]] {
@@ -542,7 +577,7 @@ context_action basic_input_manager::operator()(io_fd const& ready_fd) noexcept {
     return next;
 }
 
-context_action basic_input_manager::start(basic_io_manager& io) noexcept try {
+context_action basic_input_manager::start() noexcept try {
     using enum context_action;
 
     if (pimpl.get() == nullptr) [[unlikely]] {
@@ -578,7 +613,11 @@ context_action basic_input_manager::start(basic_io_manager& io) noexcept try {
 
     // Re-register the monitor FD after restarts too; `io_manager` clears all
     // registrations on `start`, and `watch` replaces in place if already there.
-    if (!io.watch(io_fd{.fd = pimpl->monitor.file_descriptor(), .events = io_event::in}, *this)) [[unlikely]] {
+    auto req = watch_of(io_fd{.fd = pimpl->monitor.file_descriptor(), .events = io_event::in}, *this);
+    if (auto const res = dynamic_context.broadcast(io_watch + &req); is_exiting(res)) {
+        return res;
+    }
+    if (req.status != io_watch_status::registered) [[unlikely]] {
         log("Cannot register the udev monitor.");
         return exit;
     }
@@ -586,4 +625,42 @@ context_action basic_input_manager::start(basic_io_manager& io) noexcept try {
     return next;
 } catch (...) {
     return context_action::recovery;
+}
+
+context_action basic_input_manager::operator()(control_event const& event) noexcept {
+    using enum context_action;
+    switch (event.code) {
+        case fs8::start.code: return start();
+        case we_own_device.code: own_device(payload<we_own_device>(event)); return next;
+        case register_query_provider.code:
+            add_query_provider(std::move(payload<register_query_provider>(event)));
+
+            // If `input_manager` started before us, it already enumerated without any
+            // queries registered; re-run the enumeration now that we're a provider
+            // (no-op when it hasn't started yet, so both pipeline orderings work).
+            requery();
+            return next;
+        case add_evdev_device.code: add(std::move(payload<add_evdev_device>(event))); return next;
+        case source_registered.code: // whole family (code 10): register/unregister/owned
+            switch (event.value) {
+                case source_registered.value: register_source(payload<source_registered>(event)); return next;
+                case source_unregistered.value: unregister_source(payload<source_unregistered>(event).source_id); return next;
+                // `source_owned` is sent by own_device below; nothing to do on
+                // the sending side, but claim it so the required broadcast
+                // doesn't warn in pipelines without a watcher mod.
+                case source_owned.value: return next;
+                default: return drop_event;
+            }
+        case enumerate_devices.code: {
+            auto& list = payload<enumerate_devices>(event);
+            for (auto& dev : devices()) {
+                if (list.size() == list.capacity()) [[unlikely]] {
+                    break; // inplace_vector::push_back past capacity is UB
+                }
+                list.push_back(&dev);
+            }
+            return next;
+        }
+        default: return drop_event;
+    }
 }
