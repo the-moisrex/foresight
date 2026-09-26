@@ -148,6 +148,7 @@ target_sources(${LIB_NAME}
         sound/topre_data.cxx
         sound/typewriter.cxx
         sound/typewriter_data.cxx
+        sound/typewriter_attack.cxx
         sound/mx_blue.cxx
         sound/mx_blue_data.cxx
         sound/alps.cxx
@@ -261,6 +262,7 @@ target_sources(${LIB_NAME}
         sound/topre_data.ixx
         sound/typewriter.ixx
         sound/typewriter_data.ixx
+        sound/typewriter_attack.ixx
         sound/mx_blue.ixx
         sound/mx_blue_data.ixx
         sound/alps.ixx

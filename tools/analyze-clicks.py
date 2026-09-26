@@ -25,12 +25,22 @@ for the shared click engine, either per key or as aggregate statistics:
                   double-strike / chime / contact layers are actually
                   present in the reference recordings.
 
+  envelope mode   (--envelope) measures the FULL-band envelope decay of each
+                  keystroke: the slow-stage time constant (polyfit of the
+                  tail between -10 and -45 dB) plus the -20/-40/-60 dB
+                  crossing times.  This is what a profile's ring_ms must
+                  reproduce -- ring_ms derived from hf/lf *band* decay (the
+                  --structure numbers) under-measures the audible tail by an
+                  order of magnitude (the typewriter bug: 3.4 ms measured,
+                  ~120 ms audible).
+
 WAV/mp3 inputs are converted to 44.1 kHz mono s16 via ffmpeg when needed.
 
 Examples:
     python3 tools/analyze-clicks.py --per-key ~/.cache/foresight-sound-refs/cherrybuckle/wav
     python3 tools/analyze-clicks.py ~/.cache/foresight-sound-refs/realforce_87u.wav
     python3 tools/analyze-clicks.py --structure ~/.cache/foresight-sound-refs/typewriter_bigsoundbank.wav
+    python3 tools/analyze-clicks.py --envelope ~/.cache/foresight-sound-refs/typewriter_bigsoundbank.wav
 """
 
 import argparse
@@ -413,6 +423,123 @@ def run_structure(paths: list[Path], per_key: Path | None) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Envelope mode (--envelope): full-band decay -> ring_ms source of truth
+# ---------------------------------------------------------------------------
+
+
+def slow_tau_ms(env: np.ndarray, sr: int) -> float:
+    """Slow-stage exp decay constant of `env` after its peak (ms).
+
+    Fits log(env) between the -10 dB and -45 dB crossings, skipping the fast
+    modal die-off (first ~10 dB) and the attack; falls back to the deepest
+    part of the tail when -45 dB is never reached inside the window.
+    """
+    pk = float(env.max())
+    if pk <= 1e-9:
+        return float("nan")
+    seg = env[int(np.argmax(env)):].astype(np.float64)
+    if seg.size < 8:
+        return float("nan")
+    db = 20.0 * np.log10(np.maximum(seg / pk, 1e-6))
+
+    below10 = np.flatnonzero(db <= -10.0)
+    if not below10.size:
+        return float("nan")
+    i1 = int(below10[0])
+    below45 = np.flatnonzero(db <= -45.0)
+    if below45.size:
+        i2 = int(below45[0])
+    elif float(db.min()) <= -20.0:
+        i2 = int(db.size - 1)  # window cut the tail short: fit what we have
+    else:
+        return float("nan")
+    if i2 - i1 < 4:
+        return float("nan")
+
+    t = np.arange(i1, i2 + 1, dtype=np.float64) / sr
+    y = np.log(np.maximum(seg[i1 : i2 + 1], pk * 1e-6))
+    slope = float(np.polyfit(t, y, 1)[0])
+    if slope >= -1e-9:
+        return float("nan")
+    return float(np.clip(-1000.0 / slope, 0.5, 400.0))
+
+
+def measure_envelope(env: np.ndarray, sr: int) -> dict[str, float] | None:
+    """Envelope-decay stats of one keystroke window (peak as t=0 reference)."""
+    if env.size < 64:
+        return None
+    pk = float(env.max())
+    if pk <= 1e-7:
+        return None
+    seg = env[int(np.argmax(env)):].astype(np.float64)
+    db = 20.0 * np.log10(np.maximum(seg / pk, 1e-6))
+
+    def cross(level: float) -> float:
+        idx = np.flatnonzero(db <= level)
+        return float(idx[0]) * 1000.0 / sr if idx.size else float("nan")
+
+    return {
+        "env_tau_ms": slow_tau_ms(env, sr),
+        "t20_ms": cross(-20.0),
+        "t40_ms": cross(-40.0),
+        "t60_ms": cross(-60.0),
+    }
+
+
+def report_envelope(events: list[dict[str, float]]) -> None:
+    fields = ["env_tau_ms", "t20_ms", "t40_ms", "t60_ms"]
+    print(f"# envelope: {len(events)} events", file=sys.stderr)
+    print(f"# {'field':<12} {'median':>10} {'q25':>10} {'q75':>10} {'n':>5}", file=sys.stderr)
+    for name in fields:
+        vals = np.array([e[name] for e in events if name in e and np.isfinite(e[name])])
+        if not vals.size:
+            print(f"# {name:<12} {'-':>10}", file=sys.stderr)
+            continue
+        print(
+            f"# {name:<12} {np.median(vals):>10.1f} {np.percentile(vals, 25):>10.1f} "
+            f"{np.percentile(vals, 75):>10.1f} {vals.size:>5d}",
+            file=sys.stderr,
+        )
+    tau = np.array([e["env_tau_ms"] for e in events if np.isfinite(e["env_tau_ms"])])
+    if tau.size:
+        med = float(np.median(tau))
+        print(
+            f"# ring_ms target: median slow-stage tau {med:.1f} ms "
+            f"(generator budget caps ring near 21 ms)",
+            file=sys.stderr,
+        )
+
+
+def run_envelope(paths: list[Path], per_key: Path | None) -> None:
+    events: list[dict[str, float]] = []
+    if per_key is not None:
+        files = sorted(p for p in per_key.glob("*-0.wav"))
+        for p in files:
+            x, sr = load_wav(p)
+            ev = measure_envelope(rms_envelope(x, sr, win_ms=1.0), sr)
+            if ev is not None:
+                events.append(ev)
+        print(f"# {per_key}: {len(events)} press events", file=sys.stderr)
+    for path in paths:
+        x, sr = load_wav(path)
+        env = rms_envelope(x, sr, win_ms=1.0)
+        file_peak = float(env.max())
+        if file_peak <= 1e-7:
+            print(f"# {path.name}: silent", file=sys.stderr)
+            continue
+        kept = 0
+        for a, b in detect_events(env, sr, file_peak):
+            ev = measure_envelope(env[a:b], sr)
+            if ev is not None:
+                events.append(ev)
+                kept += 1
+        print(f"# {path.name}: {kept} events", file=sys.stderr)
+    if not events:
+        raise SystemExit("no events measured")
+    report_envelope(events)
+
+
+# ---------------------------------------------------------------------------
 # Per-key mode
 # ---------------------------------------------------------------------------
 
@@ -545,11 +672,15 @@ def main() -> None:
                         help="directory of <hex>-<state>.wav files (cherrybuckle convention)")
     parser.add_argument("--structure", action="store_true",
                         help="report envelope-structure statistics (strikes, band decays) instead of click_params")
+    parser.add_argument("--envelope", action="store_true",
+                        help="report full-envelope decay statistics (slow-stage tau, dB crossings) for ring_ms")
     parser.add_argument("recordings", nargs="*", type=Path,
                         help="continuous recordings for aggregate statistics")
     args = parser.parse_args()
 
-    if args.structure:
+    if args.envelope:
+        run_envelope(args.recordings, args.per_key)
+    elif args.structure:
         run_structure(args.recordings, args.per_key)
     elif args.per_key:
         run_per_key(args.per_key)

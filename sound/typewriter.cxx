@@ -8,11 +8,15 @@ module;
 module fs8.mods;
 
 import :typewriter;
-import :sound;        // sound_generator concept (static_assert below)
-import :bucklespring; // shared click engine (module-internal fs8::detail)
+import :typewriter_attack; // recorded typebar transient (press only)
+import :sound;             // sound_generator concept (static_assert below)
+import :bucklespring;      // shared click engine (module-internal fs8::detail)
 import fs8.sound;
 
 using fs8::click_params;
+using fs8::typewriter_attack_blob;
+using fs8::typewriter_attack_rate;
+using fs8::typewriter_attack_table;
 using fs8::typewriter_synth;
 using fs8::detail::click_attack;
 using fs8::detail::click_duration_frames;
@@ -31,7 +35,8 @@ namespace {
       .q2             = 26.0f,
       .q3             = 20.0f,
       .q4             = 22.0f,
-      .q_from_table   = true, // measured spectral widths (res1_q / res2_q)
+      .q_from_table   = true,   // measured spectral widths (res1_q / res2_q)
+      .q_max          = 170.0f, // measured Q ~155; default 60 killed pings at ~4 ms
       .w1             = 0.40f,
       .w2             = 0.30f,
       .w3             = 0.18f,
@@ -66,8 +71,15 @@ void typewriter_synth::render(
   uint32_t const         sample_rate,
   uint16_t const         channels,
   std::span<float> const dest) const noexcept {
-    // Pure synthesis: no recorded attack transient.
-    render_click(params(keycode, pressed), typewriter_opts, click_attack{}, keycode, pressed, sample_rate, channels, dest);
+    // Press: recorded typebar transient (CC0 reference), synthetic tail
+    // crossfades in after 12 ms.  Release: pure synthesis — the key-return
+    // tick has no typebar strike.
+    click_attack attack{};
+    if (pressed) {
+        auto const& e = typewriter_attack_table[keycode];
+        attack        = click_attack{typewriter_attack_blob + e.offset, e.frames, typewriter_attack_rate};
+    }
+    render_click(params(keycode, pressed), typewriter_opts, attack, keycode, pressed, sample_rate, channels, dest);
 }
 
 static_assert(fs8::sound_generator<fs8::typewriter_synth>);

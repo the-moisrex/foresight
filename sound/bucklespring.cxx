@@ -98,8 +98,8 @@ void fs8::detail::render_click(
     // Modes 1–2 from the parameter table; 3–4 derived at opts.ratio_a/b.
     // ------------------------------------------------------------------
     biquad_bp_power res1, res2, res3, res4;
-    auto const      table_q = [](float const q) {
-        return std::clamp(q, 3.0f, 60.0f);
+    auto const      table_q = [&opts](float const q) {
+        return std::clamp(q, 3.0f, opts.q_max);
     };
     res1.configure(v.primary_freq, opts.q_from_table ? table_q(v.primary_q) : opts.q1, sr);
     res2.configure(v.secondary_freq, opts.q_from_table ? table_q(v.secondary_q) : opts.q2, sr);

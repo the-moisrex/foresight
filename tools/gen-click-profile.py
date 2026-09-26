@@ -115,6 +115,13 @@ class Profile:
     default_category: str = DEFAULT_CATEGORY
     jitter: Jitter = Jitter()
     release: ReleaseRule = ReleaseRule()
+    # Envelope re-audit (`analyze-clicks.py --envelope`) multiplier applied to
+    # every ring column.  The `--structure` band-window measurement fits ring
+    # inside a 24 ms window and cannot see the envelope's slow stage, so its
+    # ring column under-measures the audible tail; ring_scale rebases it to
+    # the reference's envelope anchor (see the audit note on each profile).
+    # Applied before finalize(), so the 150 ms slot budget still caps it.
+    ring_scale: float = 1.0
 
     @staticmethod
     def finalize(row: tuple[float, ...]) -> tuple[float, ...]:
@@ -142,12 +149,21 @@ class Profile:
             out[4] = max(0.5, int(budget * 10.0) / 10.0)
         return tuple(out)
 
+    def _scale_ring(self, row: tuple[float, ...]) -> tuple[float, ...]:
+        """Apply the profile's envelope ring_scale (release derives need no
+        scale: they start from the already-scaled press row)."""
+        if self.ring_scale == 1.0:
+            return row
+        out = list(row)
+        out[4] *= self.ring_scale
+        return tuple(out)
+
     def press_row(self, keycode: int) -> tuple[float, ...]:
         m = self.measured.get(keycode)
         if m is not None and m[0] is not None:
-            return self.finalize(m[0])
+            return self.finalize(self._scale_ring(m[0]))
         row = self.category_row(keycode)
-        return self.finalize(row)
+        return self.finalize(self._scale_ring(row))
 
     def category_row(self, keycode: int) -> tuple[float, ...]:
         row = self.categories.get(get_category(keycode))
@@ -171,7 +187,7 @@ class Profile:
     def release_row(self, keycode: int) -> tuple[float, ...]:
         m = self.measured.get(keycode)
         if m is not None and m[1] is not None:
-            return self.finalize(m[1])
+            return self.finalize(self._scale_ring(m[1]))
         p = list(self.press_row(keycode))
         p[4] *= self.release.ring_mul
         p[5] += self.release.peak_delta
@@ -202,11 +218,13 @@ PROFILES: dict[str, Profile] = {
     ),
     # Linear switches (MX Red-class): no click jacket, smooth travel — the
     # sound is the bottom-out thud.  Seed: median of 168 detected keystrokes
-    # in mx_red_commons.wav (tools/analyze-clicks.py).  Measured ring (24 ms)
-    # includes room/desk resonance of the typing recording; the dry synth only
-    # needs the switch's own decay, so it is rebased down to ~8 ms.  peak_dbfs
-    # is rebased from event-relative (-14.4 dB) to loudness parity with the
-    # existing profiles.
+    # in mx_red_commons.wav (tools/analyze-clicks.py).  peak_dbfs is rebased
+    # from event-relative (-14.4 dB) to loudness parity with the existing
+    # profiles.
+    # Envelope re-audit (--envelope): floor-dominated (t40 never reached in
+    # any of the 168 strikes), so the anchor is the floor-free fast stage:
+    # t20 22.4 ms ⇒ tau ~9.7 ms, vs the band-window rings' 8 ms median —
+    # ring_scale 1.2 lands the categories at 8.4–11.4 ms (median 9.6).
     "linear": Profile(
         title="Linear",
         categories={
@@ -218,11 +236,16 @@ PROFILES: dict[str, Profile] = {
             "punctuation":  (1300.0,  25.0,   2800.0, 45.0,   8.0,  -8.2,   0.000, 3.70,  2.0),
             "numpad":       (1350.0,  26.0,   2900.0, 46.0,   7.5,  -8.8,   0.000, 3.60,  1.9),
         },
+        ring_scale=1.2,
     ),
     # Topre electrostatic capacitive (rubber dome): the pooled median of 774
     # keystrokes across realforce_87u, hhkb_type_s, fc660c_silenced and
     # novatouch (tools/analyze-clicks.py).  Soft dome thock — rebased like
-    # `linear` (room-included ring 24 ms -> dry 8 ms; peak to loudness parity).
+    # `linear` (room-included ring -> dry value; peak to loudness parity).
+    # Envelope re-audit (--envelope): floor-dominated on these quiet switches
+    # (t40 reached in ~1% of 774 strikes); the floor-free fast stage is
+    # t20 10.6–12.5 ms ⇒ tau ~4.6–5.4 ms, already below the current
+    # 6.5–9.5 ms rings — verified unchanged.
     "topre": Profile(
         title="Topre",
         categories={
@@ -236,23 +259,35 @@ PROFILES: dict[str, Profile] = {
         },
     ),
     # Manual typewriter: 50 typebar strikes in typewriter_bigsoundbank.wav —
-    # instant sharp attack (snap 0.6 ms), short tight ring (3.4 ms), loud
-    # metallic pings at 3.1–7.0 kHz with very narrow modes (median Q ~155).
-    # The measured secondary sits near-unison with the primary (typebars ring
-    # as one cluster), so the category secondary is placed a guard-band below.
-    # Wide mode jitter mirrors the measured q25/q75 spread (per-bar pings).
+    # instant sharp attack (snap 0.6 ms), metallic pings at 3.1–7.0 kHz with
+    # very narrow modes (median Q ~155; needs opts.q_max=170 — the engine's
+    # Q=60 clamp cut every ping to ~4 ms of decay).
+    # Envelope re-audit (--envelope): slow-stage tau 71.6 ms (q25 40.1),
+    # t40 71.1 ms (44/50 strikes), t60 214.6 ms (13/50) — the old 3.4 ms
+    # band-window ring measured the FAST stage only (t20 6.2 ms) and made
+    # every strike a ~25 ms pen tap.  21.0 ms is the geometric middle of
+    # t40/4.6 = 15.4 and t60/6.9 = 31, and lands exactly at the 148.5 ms
+    # slot budget for snap 0.6.  The measured secondary sits near-unison
+    # with the primary (typebars ring as one cluster), so the category
+    # secondary is placed a guard-band below.  Wide mode jitter mirrors the
+    # measured q25/q75 spread (per-bar pings).
     "typewriter": Profile(
         title="Typewriter",
         categories={
             #                  res1_f  res1_q  res2_f  res2_q  ring   peak   contact snap   snap_bw
-            "alpha":        (4600.0,  150.0,  2600.0, 120.0,  3.4,  -6.0,   0.000, 0.60,  1.0),
-            "number":       (4800.0,  160.0,  2700.0, 125.0,  3.3,  -6.2,   0.000, 0.58,  1.0),
-            "modifier":     (2400.0,  100.0,  1300.0, 80.0,   5.0,  -5.0,   0.000, 1.20,  1.6),
-            "function":     (5200.0,  170.0,  2900.0, 130.0,  3.0,  -7.0,   0.000, 0.55,  0.9),
-            "punctuation":  (4400.0,  150.0,  2500.0, 115.0,  3.5,  -6.1,   0.000, 0.62,  1.1),
-            "numpad":       (4700.0,  155.0,  2650.0, 120.0,  3.2,  -6.8,   0.000, 0.58,  1.0),
+            "alpha":        (4600.0,  150.0,  2600.0, 120.0,  21.0,  -6.0,   0.000, 0.60,  1.0),
+            "number":       (4800.0,  160.0,  2700.0, 125.0,  21.0,  -6.2,   0.000, 0.58,  1.0),
+            "modifier":     (2400.0,  100.0,  1300.0, 80.0,   21.0,  -5.0,   0.000, 1.20,  1.6),
+            "function":     (5200.0,  170.0,  2900.0, 130.0,  21.0,  -7.0,   0.000, 0.55,  0.9),
+            "punctuation":  (4400.0,  150.0,  2500.0, 115.0,  21.0,  -6.1,   0.000, 0.62,  1.1),
+            "numpad":       (4700.0,  155.0,  2650.0, 120.0,  21.0,  -6.8,   0.000, 0.58,  1.0),
         },
         jitter=Jitter(mode_spread=0.30, ring_spread=0.15, peak_spread=3.0, snap_spread=0.5),
+        # Press = typebar strike; release = quiet key-return tick (issue
+        # #338).  ring_mul 0.3 + a 3 dB cut keeps the release at ~45 ms and
+        # clearly under the press — the default 0.65 rule scaled the strike
+        # ring into a ~95 ms release.
+        release=ReleaseRule(ring_mul=0.3, peak_delta=-3.0),
     ),
     # Cherry MX Blue (click jacket): 104 keycodes measured per-key from the
     # GPL-2.0 cherrybuckle reference set (105 press/104 release WAVs, analysis
@@ -262,6 +297,11 @@ PROFILES: dict[str, Profile] = {
     # is excluded: its capture measured a 13 kHz Q=300 beep, not a click.
     # Releases of unmeasured keys follow the measured upstroke style
     # (faster snap, slightly louder, same ring).
+    # Envelope re-audit (--envelope, cherrybuckle/wav): floor-free slow
+    # stage — t40 62.2 ms reached in 105/105 strikes ⇒ tau 13.5 ms, while
+    # the band-window rings fit inside 24 ms (press median 5.90, release
+    # 6.20) — ring_scale 2.2881 rebases press+release rings to 13.5 ms
+    # median; finalize() caps any row that would exceed the 150 ms slot.
     "mx_blue": Profile(
         title="MX Blue",
         categories={
@@ -380,6 +420,7 @@ PROFILES: dict[str, Profile] = {
             0xff: ((6105.5, 34.7, 2250.0, 21.3, 2.8, -4.3, 0.000, 0.542, 1.0), (5730.5, 61.1, 703.1, 8.6, 5.3, -8.0, 0.000, 0.812, 1.7)),
         },
         release=ReleaseRule(ring_mul=1.0, peak_delta=0.4, snap_mul=0.3, snap_bw_mul=1.4),
+        ring_scale=2.2881,
     ),
     # Alps SKCM Orange: 114 keystrokes in the freesound #680714 preview
     # (analysis only — no audio in this repo).  Crisp leaf click with a fast
@@ -387,6 +428,12 @@ PROFILES: dict[str, Profile] = {
     # secondary sits inside the guard band of the primary (median ratio 1.29),
     # so the category secondary is placed above it instead.  ring/peak rebased
     # like the other recording-derived profiles.
+    # Alps SKCM Orange (click leaf): alps_skcm_orange_680714.mp3, 114
+    # strikes (tools/analyze-clicks.py).
+    # Envelope re-audit (--envelope): t40 49.3 ms reached in only 25/114
+    # strikes (room-floor dominated) — the floor-free anchor is t20 9.4 ms
+    # ⇒ tau ~4.1 ms, already below the current 6–8.5 ms rings — verified
+    # unchanged.
     "alps": Profile(
         title="Alps",
         categories={
