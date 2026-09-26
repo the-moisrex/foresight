@@ -3,6 +3,7 @@
 module;
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -68,6 +69,11 @@ struct fs8::pimpl_idiom<basic_sound_player_core>::impl {
     void* on_ready_ctx                   = nullptr;
     bool  started                        = false;
     bool  paused                         = false;
+    /// Master click volume in dBFS (0 = unity; `volume_muted_db` = silent);
+    /// written by the pipeline thread (hotkey handlers) and read by
+    /// `fill_mixed_audio` on the audio thread — hence atomic (relaxed: a
+    /// single float load/store, ordering irrelevant here).
+    std::atomic<float> volume_db{0.0f};
 
     std::array<sound_slot, slot_pool_size> slots{};
     std::uint64_t                          next_serial = 1;
@@ -124,7 +130,9 @@ struct fs8::pimpl_idiom<basic_sound_player_core>::impl {
         }
 
         // Mix up to dest.size() samples.
-        auto const samples_to_mix = std::min(max_remaining, dest.size());
+        auto const  samples_to_mix = std::min(max_remaining, dest.size());
+        auto const  volume_db      = self.volume_db.load(std::memory_order_relaxed);
+        float const volume         = volume_db <= volume_muted_db ? 0.0f : std::pow(10.0f, volume_db / 20.0f);
 
         std::fill_n(dest.begin(), samples_to_mix, 0.0f);
 
@@ -140,9 +148,9 @@ struct fs8::pimpl_idiom<basic_sound_player_core>::impl {
             }
         }
 
-        // Clamp to [-1, 1].
+        // Apply master volume, then clamp to [-1, 1].
         for (std::size_t i = 0; i < samples_to_mix; ++i) {
-            float s = dest[i];
+            float s = dest[i] * volume;
             if (s > 1.0f) {
                 s = 1.0f;
             }
@@ -402,4 +410,53 @@ void basic_sound_player_core::set_paused(bool const paused) noexcept {
 
 bool basic_sound_player_core::is_paused() const noexcept {
     return pimpl && pimpl->paused;
+}
+
+// ---------------------------------------------------------------------------
+// basic_sound_player_core — volume control
+// ---------------------------------------------------------------------------
+
+void basic_sound_player_core::set_volume(float const gain) noexcept {
+    if (!pimpl) [[unlikely]] {
+        init_impl();
+    }
+    float const db = gain <= 0.0f ? volume_muted_db : std::clamp(20.0f * std::log10(gain), volume_min_db, volume_max_db);
+    pimpl->volume_db.store(db, std::memory_order_relaxed);
+}
+
+float basic_sound_player_core::get_volume() const noexcept {
+    if (!pimpl) [[unlikely]] {
+        return 1.0f;
+    }
+    float const db = pimpl->volume_db.load(std::memory_order_relaxed);
+    return db <= volume_muted_db ? 0.0f : std::pow(10.0f, db / 20.0f);
+}
+
+float basic_sound_player_core::volume_up() noexcept {
+    return adjust_volume(volume_step_db);
+}
+
+float basic_sound_player_core::volume_down() noexcept {
+    return adjust_volume(-volume_step_db);
+}
+
+float basic_sound_player_core::adjust_volume(float const delta_db) noexcept {
+    if (!pimpl) [[unlikely]] {
+        init_impl();
+    }
+    float db = pimpl->volume_db.load(std::memory_order_relaxed);
+    if (delta_db > 0.0f) {
+        db = db <= volume_muted_db ? volume_min_db : std::min(db + delta_db, volume_max_db);
+    } else if (db <= volume_min_db) {
+        db = volume_muted_db;
+    } else {
+        db = std::max(db + delta_db, volume_min_db);
+    }
+    pimpl->volume_db.store(db, std::memory_order_relaxed);
+    if (db <= volume_muted_db) {
+        log("sound: volume muted.");
+    } else {
+        log("sound: volume {:+.1f} dB.", db);
+    }
+    return get_volume();
 }

@@ -195,6 +195,84 @@ TEST(SoundTest, SlotFadeHandlesShortBuffers) {
 }
 
 // ---------------------------------------------------------------------------
+// Sound profile registry (fs8.mods:sound_profiles) + volume control
+// ---------------------------------------------------------------------------
+TEST(SoundTest, ProfileRegistrySelectsByNameAndIndex) {
+    EXPECT_EQ(sound_profile_count(), 15U);
+
+    EXPECT_TRUE(select_profile("typewriter"));
+    EXPECT_EQ(current_sound_profile_name(), "typewriter");
+    EXPECT_EQ(current_sound_profile_index(), 6U);          // 0-based slot of typewriter
+
+    EXPECT_FALSE(select_profile("does-not-exist"));
+    EXPECT_EQ(current_sound_profile_name(), "typewriter"); // unchanged on failure
+
+    EXPECT_TRUE(select_sound_profile_at(sound_profile_count() - 1));
+    EXPECT_EQ(current_sound_profile_name(), "sampled");
+
+    EXPECT_FALSE(select_sound_profile_at(sound_profile_count())); // out of bounds
+    EXPECT_EQ(current_sound_profile_name(), "sampled");           // unchanged on failure
+}
+
+TEST(SoundTest, ProfileCycleWrapsAround) {
+    EXPECT_TRUE(select_sound_profile_at(sound_profile_count() - 1));
+    EXPECT_TRUE(cycle_sound_profile(+1));
+    EXPECT_EQ(current_sound_profile_name(), "basic");
+
+    EXPECT_TRUE(cycle_sound_profile(-1));
+    EXPECT_EQ(current_sound_profile_name(), "sampled");
+}
+
+TEST(SoundTest, ProfileActionModsAdvanceTheRegistry) {
+    basic_context<>   ctx; // default-constructed (runtime copies of contexts abort)
+    std::size_t const before = current_sound_profile_index();
+
+    EXPECT_EQ(next_sound_profile(ctx), context_action::next);
+    EXPECT_EQ(current_sound_profile_index(), (before + 1) % sound_profile_count());
+
+    EXPECT_EQ(prev_sound_profile(ctx), context_action::next);
+    EXPECT_EQ(current_sound_profile_index(), before);
+
+    EXPECT_EQ(select_sound_profile[5](ctx), context_action::next);
+    EXPECT_EQ(current_sound_profile_name(), "topre");
+}
+
+TEST(SoundTest, VolumeStepsClampBetweenBounds) {
+    float const max_gain  = std::pow(10.0f, volume_max_db / 20.0f);
+    float const min_gain  = std::pow(10.0f, volume_min_db / 20.0f);
+    float const step_gain = std::pow(10.0f, volume_step_db / 20.0f);
+
+    basic_sound_player<basic_synth> player;
+    EXPECT_FLOAT_EQ(player.get_volume(), 1.0f); // default: unity (0 dB)
+
+    player.set_volume(0.5f);
+    EXPECT_NEAR(player.get_volume(), 0.5f, 1e-6f);
+
+    player.set_volume(100.0f); // clamps to +6 dB
+    EXPECT_NEAR(player.get_volume(), max_gain, 1e-6f);
+
+    player.set_volume(-1.0f);  // non-positive gains mute
+    EXPECT_FLOAT_EQ(player.get_volume(), 0.0f);
+
+    player.set_volume(1.0f);
+    EXPECT_NEAR(player.volume_up(), step_gain, 1e-6f); // +3 dB
+    EXPECT_FLOAT_EQ(player.volume_down(), 1.0f);       // back to unity
+
+    for (int i = 0; i < 16; ++i) {
+        (void) player.volume_up();
+    }
+    EXPECT_NEAR(player.get_volume(), max_gain, 1e-6f); // stuck at the ceiling
+    EXPECT_NEAR(player.volume_up(), max_gain, 1e-6f);  // ... and stays there
+
+    for (int i = 0; i < 32; ++i) {
+        (void) player.volume_down();
+    }
+    EXPECT_FLOAT_EQ(player.get_volume(), 0.0f);    // exact silence, never below
+    EXPECT_FLOAT_EQ(player.volume_down(), 0.0f);   // ... still silent
+    EXPECT_FLOAT_EQ(player.volume_up(), min_gain); // unmute → quietest step
+}
+
+// ---------------------------------------------------------------------------
 // Development aid: render every profile to WAVs and print FNV-1a hashes.
 //
 //   FS8_DUMP_DIR=/tmp/dump ./test-sound --gtest_filter='*DumpProfiles*'

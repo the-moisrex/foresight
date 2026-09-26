@@ -1,4 +1,3 @@
-#include <array>
 #include <linux/input-event-codes.h>
 #include <stdexcept>
 #include <string_view>
@@ -27,115 +26,14 @@ Positionals:
 
 Keyboard shortcuts:
     Double click 'Pause'    Toggle sound on/off.
+    Meta + F9 / F10         Next / previous sound profile.
+    Meta + 1..9             Select profile #1..#9 of the list above
+                            (#1 basic, #2 bucklespring, ... #9 alps).
+    Meta + VolumeDown/Up    Lower / raise click volume (-3 dB / +3 dB).
 
 Device queries are device names, paths (e.g. /dev/input/event1), or udev
 terms (e.g. "name=event0", "keyboard").
 )TEXT");
-
-namespace {
-
-    /// One row per selectable sound profile; add new profiles here.
-    struct profile_entry {
-        std::string_view name;
-        void (*reg)();
-    };
-
-    void register_basic() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::basic_synth{});
-    }
-
-    void register_bucklespring() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::bucklespring_synth{});
-    }
-
-    void register_chime() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::chime_synth{});
-    }
-
-    void register_modelf() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::modelf_synth{});
-    }
-
-    void register_linear() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::linear_synth{});
-    }
-
-    void register_topre() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::topre_synth{});
-    }
-
-    void register_typewriter() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::typewriter_synth{});
-    }
-
-    void register_mx_blue() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::mx_blue_synth{});
-    }
-
-    void register_alps() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::alps_synth{});
-    }
-
-    void register_fm() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::fm_synth{});
-    }
-
-    void register_chiptune() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::chiptune_synth{});
-    }
-
-    void register_piano() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::piano_synth{});
-    }
-
-    void register_marimba() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::marimba_synth{});
-    }
-
-    void register_wavetable() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::wavetable_synth{});
-    }
-
-    void register_sampled() noexcept {
-        fs8::dynamic_synth::register_synth(fs8::sampled_synth{});
-    }
-
-    constexpr std::array profiles = {
-      profile_entry{       .name = "basic",        .reg = register_basic},
-      profile_entry{.name = "bucklespring", .reg = register_bucklespring},
-      profile_entry{       .name = "chime",        .reg = register_chime},
-      profile_entry{      .name = "modelf",       .reg = register_modelf},
-      profile_entry{      .name = "linear",       .reg = register_linear},
-      profile_entry{       .name = "topre",        .reg = register_topre},
-      profile_entry{  .name = "typewriter",   .reg = register_typewriter},
-      profile_entry{     .name = "mx_blue",      .reg = register_mx_blue},
-      profile_entry{        .name = "alps",         .reg = register_alps},
-      profile_entry{          .name = "fm",           .reg = register_fm},
-      profile_entry{    .name = "chiptune",     .reg = register_chiptune},
-      profile_entry{       .name = "piano",        .reg = register_piano},
-      profile_entry{     .name = "marimba",      .reg = register_marimba},
-      profile_entry{   .name = "wavetable",    .reg = register_wavetable},
-      profile_entry{     .name = "sampled",      .reg = register_sampled},
-    };
-
-    /// Look up `name` in the dispatch table and register it as the active
-    /// synth.  Returns false (after listing the valid names) if unknown.
-    bool select_profile(std::string_view const name) noexcept {
-        for (profile_entry const& entry : profiles) {
-            if (entry.name == name) {
-                entry.reg();
-                fs8::log("key-sounds: using {} sound profile.", name);
-                return true;
-            }
-        }
-        fs8::log("key-sounds: unknown sound profile \"{}\". Valid profiles:", name);
-        for (profile_entry const& entry : profiles) {
-            fs8::log("  {}", entry.name);
-        }
-        return false;
-    }
-
-} // namespace
 
 int main(int const argc, char const* const* argv) try {
     using namespace fs8; // NOLINT(*-using-namespace)
@@ -162,10 +60,29 @@ int main(int const argc, char const* const* argv) try {
       | io_manager
       | input_manager
       | intercept[keyboard | required]
+      | keys_state
       | on[basic_multi_click{KEY_PAUSE}, run{[](Context auto& ctx) noexcept {
                log("{} Toggle Pause triggered.", ctx.event().micro_time());
                return toggle_sound_pause(ctx);
            }}]
+      // Profile switching: the handler runs before the player, so the
+      // trigger key clicks with the *new* profile already active.
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_F9], next_sound_profile]
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_F10], prev_sound_profile]
+      // Meta+1..9 → profiles #1..#9 (see `--help` for the numbered list).
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_1], select_sound_profile[0]]
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_2], select_sound_profile[1]]
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_3], select_sound_profile[2]]
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_4], select_sound_profile[3]]
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_5], select_sound_profile[4]]
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_6], select_sound_profile[5]]
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_7], select_sound_profile[6]]
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_8], select_sound_profile[7]]
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_9], select_sound_profile[8]]
+      // Master click volume: applied by the mixer, so it also affects
+      // sounds that are already playing.
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_VOLUMEDOWN], sound_volume_down]
+      | on[pressed_any[KEY_LEFTMETA, KEY_RIGHTMETA] & keydown[KEY_VOLUMEUP], sound_volume_up]
       | basic_sound_player(dynamic_synth{});
     setup(pipeline);
     pipeline();

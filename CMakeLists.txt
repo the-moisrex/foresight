@@ -249,6 +249,7 @@ target_sources(${LIB_NAME}
         utils/strings.ixx
         utils/traits.ixx
         mods/sound.ixx
+        mods/sound_profiles.ixx
         sound/backend.ixx
         sound/dsp.ixx
         sound/bucklespring.ixx

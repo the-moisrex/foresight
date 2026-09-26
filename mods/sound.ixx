@@ -116,6 +116,15 @@ export namespace fs8 {
     /// dead mid-ring (very audible on headphones).
     inline constexpr std::size_t slot_fade_frames = queue_sample_rate * 5 / 1000; // 240
 
+    /// Master click-volume bounds and step, in dBFS.  `volume_muted_db` is
+    /// a sentinel below `volume_min_db` meaning "silent": it lets
+    /// `volume_down` reach exact silence and `volume_up` unmute back to the
+    /// quietest step (a purely multiplicative ramp could never leave 0).
+    inline constexpr float volume_min_db   = -60.0f;
+    inline constexpr float volume_max_db   = 6.0f;
+    inline constexpr float volume_step_db  = 3.0f;
+    inline constexpr float volume_muted_db = -200.0f;
+
     /// Apply the slot end fade in-place to an interleaved (`queue_channels`)
     /// slot buffer: the last `slot_fade_frames` frames are multiplied by a
     /// raised-cosine ramp ending at exactly 0.  Samples before the fade
@@ -156,6 +165,30 @@ export namespace fs8 {
 
         /// Returns true if the player is paused.
         [[nodiscard]] bool is_paused() const noexcept;
+
+        /// Set the master click volume from a linear gain (≤ 0 mutes, above
+        /// `volume_max_db` clamps).  The gain is applied by the mixer, so it
+        /// also affects sounds that are already playing.
+        void set_volume(float gain) noexcept;
+
+        /// Current master click volume as a linear gain (0 when muted).
+        [[nodiscard]] float get_volume() const noexcept;
+
+        /// Raise the master click volume by `volume_step_db` (+3 dB),
+        /// unmuting to `volume_min_db` first.  Clamped to `volume_max_db`.
+        /// Returns the new linear gain.
+        float volume_up() noexcept;
+
+        /// Lower the master click volume by `volume_step_db` (-3 dB), down
+        /// to `volume_min_db` and then to exact silence.  Returns the new
+        /// linear gain.
+        float volume_down() noexcept;
+
+      private:
+        /// Step the stored dB value by `delta_db` with mute/unmute and
+        /// bounds handling, store it, log the result, and return the new
+        /// linear gain.
+        float adjust_volume(float delta_db) noexcept;
     };
 
     /// Play synthesized audio through the system audio backend (PipeWire,
@@ -295,5 +328,44 @@ export namespace fs8 {
             return result;
         }
     } toggle_sound_pause;
+
+    /// Raise the player's master click volume by 3 dB (clamped).  Returns
+    /// `next`, so the trigger key still clicks — at the new volume.
+    constexpr struct [[nodiscard]] basic_sound_volume_up {
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx) const noexcept {
+            std::apply(
+              [&](auto&... mod) noexcept {
+                  (([&]() noexcept {
+                       if constexpr (requires { mod.volume_up(); }) {
+                           (void) mod.volume_up();
+                       }
+                   }()),
+                   ...);
+              },
+              ctx.get_mods());
+            return context_action::next;
+        }
+    } sound_volume_up;
+
+    /// Lower the player's master click volume by 3 dB (clamped to
+    /// silence).  Returns `next`, so the trigger key still clicks — at the
+    /// new volume.
+    constexpr struct [[nodiscard]] basic_sound_volume_down {
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx) const noexcept {
+            std::apply(
+              [&](auto&... mod) noexcept {
+                  (([&]() noexcept {
+                       if constexpr (requires { mod.volume_down(); }) {
+                           (void) mod.volume_down();
+                       }
+                   }()),
+                   ...);
+              },
+              ctx.get_mods());
+            return context_action::next;
+        }
+    } sound_volume_down;
 
 } // namespace fs8

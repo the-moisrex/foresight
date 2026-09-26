@@ -60,6 +60,7 @@ export import :piano;
 export import :marimba;
 export import :wavetable;
 export import :sampled;
+export import :sound_profiles;
 export import :split_move;
 export import :startup_key_releases;
 export import :stopper;
