@@ -2,10 +2,10 @@ module;
 #include <algorithm>
 #include <atomic>
 #include <cstdint>
-#include <linux/input-event-codes.h>
 #include <span>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 module fs8.mods;
 import fs8.compositor.monitor_detection;
@@ -116,7 +116,7 @@ struct fs8::pimpl_idiom<basic_monitors>::impl {
     }
 };
 
-context_action basic_monitors::do_start(basic_io_manager& io) noexcept {
+context_action basic_monitors::do_start() noexcept {
     using enum context_action;
 
     if (pimpl.get() == nullptr) [[unlikely]] {
@@ -130,7 +130,11 @@ context_action basic_monitors::do_start(basic_io_manager& io) noexcept {
         pimpl->drm_monitor.enable();
     }
 
-    if (!io.watch(io_fd{.fd = pimpl->drm_monitor.file_descriptor(), .events = io_event::in}, *this)) {
+    // Without an `io_manager` there is nobody to wake us on DRM hotplug, but
+    // the enumeration above already ran — degrade instead of failing.
+    auto req    = watch_of(io_fd{.fd = pimpl->drm_monitor.file_descriptor(), .events = io_event::in}, *this);
+    std::ignore = dynamic_context.broadcast(io_watch + &req);
+    if (req.status == io_watch_status::failed) [[unlikely]] {
         log("monitors: failed to register DRM monitor fd");
     }
 

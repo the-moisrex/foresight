@@ -63,6 +63,14 @@ module fs8.event;
                 case device_disconnected.value: return {"Device-Disconnected"};
                 default: return {"Devices-Changed"};
             }
+        case io_watch.code: // io_watch/io_unwatch/io_idle_timeout/io_idle_callback share this code
+            switch (event.value) {
+                case io_watch.value: return {"Io-Watch"};
+                case io_unwatch.value: return {"Io-Unwatch"};
+                case io_idle_timeout.value: return {"Io-Idle-Timeout"};
+                case io_idle_callback.value: return {"Io-Idle-Callback"};
+                default: return {"Io-Config"};
+            }
         default: return {"Unknown-Control-Code"};
     }
 }

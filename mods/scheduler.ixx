@@ -83,21 +83,11 @@ namespace fs8 {
         /// next_event provider: call the first due callback, emit its events.
         context_action operator()(event_type& event, control_event const& tag) noexcept;
 
-        /// Register the timer fd with io_manager.
-        template <Context CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
-            if (tag.code != start.code) {
-                return context_action::drop_event;
-            }
-            if constexpr (has_mod<basic_io_manager, CtxT>) {
-                return do_start(ctx.mod(io_manager));
-            } else {
-                return context_action::next;
-            }
-        }
+        /// Register the timer fd with io_manager.  Pipelines without an
+        /// `io_manager` keep working: the timerfd is dropped and `next_event`
+        /// polling drives the ticks.
+        context_action operator()(control_event const& event) noexcept;
 
-      private:
-        context_action do_start(basic_io_manager& io) noexcept;
     } scheduler;
 
     static_assert(Modifier<basic_scheduler>);

@@ -144,10 +144,10 @@ bool basic_io_manager::watch(io_fd const& fd, io_callback const& cb) noexcept tr
     return false;
 }
 
-context_action basic_io_manager::operator()(control_event const& tag) noexcept {
+context_action basic_io_manager::operator()(control_event const& event) noexcept {
     using enum context_action;
-    switch (tag.code) {
-        case 0: // start
+    switch (event.code) {
+        case start.code:
             try {
                 // Drop stale registrations from a previous pipeline run before the mods
                 // re-register their handlers.
@@ -162,8 +162,24 @@ context_action basic_io_manager::operator()(control_event const& tag) noexcept {
             } catch (...) {
                 return exit;
             }
-        case 2:    // load_event
-            break; // fall through to load_event logic below
+        case load_event.code: break; // fall through to load_event logic below
+        case io_watch.code: {
+            // io_watch / io_unwatch / io_idle_timeout / io_idle_callback share
+            // one code; `value` picks the operation.  Everything here writes its
+            // result into the caller-owned payload, so this always reports
+            // `next` — callers read the payload, never this action.
+            switch (event.value) {
+                case io_watch.value: {
+                    auto& req  = payload<io_watch>(event);
+                    req.status = watch(req.fd, req.callback) ? io_watch_status::registered : io_watch_status::failed;
+                    return next;
+                }
+                case io_unwatch.value: unwatch(payload<io_unwatch>(event)); return next;
+                case io_idle_timeout.value: set_idle_timeout(payload<io_idle_timeout>(event)); return next;
+                case io_idle_callback.value: set_idle_callback(std::move(payload<io_idle_callback>(event))); return next;
+                default: return drop_event;
+            }
+        }
         default: return drop_event;
     }
 

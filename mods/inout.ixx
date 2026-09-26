@@ -47,39 +47,19 @@ export namespace fs8 {
 
       private:
         int file_descriptor = STDIN_FILENO;
+        /// Set at `start` from the `io_watch` result: when an `io_manager`
+        /// picked the fd up, it owns the blocking wait (`load_event`) and we
+        /// only drain through its readiness callback.  Without one we read
+        /// stdin ourselves, blocking, so the fd must stay blocking too.
+        bool poll_driven    = false;
 
       public:
         constexpr explicit basic_from_input(int const inp_fd) noexcept : file_descriptor{inp_fd} {}
 
-        template <Context CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
-            using enum context_action;
-            static constexpr bool has_io_man = has_mod<basic_io_manager, CtxT>;
-            switch (tag.code) {
-                case start.code:
-                    if constexpr (has_io_man) {
-                        return do_start(ctx.mod(io_manager));
-                    } else {
-                        return next;
-                    }
-                case next_event.code:
-                    if constexpr (has_io_man) {
-                        return do_pop(ctx.event());
-                    } else {
-                        return drop_event;
-                    }
-                case load_event.code:
-                    if constexpr (has_io_man) {
-                        return drop_event; // io_manager handles blocking
-                    } else {
-                        return do_read(ctx.event());
-                    }
-                default: return drop_event;
-            }
-        }
+        context_action operator()(event_type& event, control_event const& tag) noexcept;
 
       private:
-        context_action do_start(basic_io_manager& io) noexcept;
+        context_action do_start() noexcept;
         context_action do_pop(event_type& ctx_event) noexcept;
         context_action do_read(event_type& event) noexcept;
 

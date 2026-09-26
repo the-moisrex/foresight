@@ -87,7 +87,7 @@ export namespace fs8 {
         void seed_from_device(evdev const& dev) noexcept;
 
         /// Seed existing devices at start and on every hotplug connect.
-        template <ContextWith<basic_input_manager> CtxT>
+        template <Context CtxT>
         context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             switch (tag.code) {
@@ -156,7 +156,7 @@ export namespace fs8 {
         /// Seed the LED state from the hardware device (e.g. the keyboard's
         /// current CapsLock LED) so the mode indicator is correct at startup.
         /// Must run after the devices are open (i.e. after `input_manager`).
-        template <ContextWith<basic_input_manager> CtxT>
+        template <Context CtxT>
         context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             if (tag.code != start.code) {
                 return context_action::drop_event;
@@ -166,7 +166,7 @@ export namespace fs8 {
 
         /// Find the hardware keyboard (the device with LED_CAPSL) and copy the
         /// current LED values into our local LED state.
-        template <ContextWith<basic_input_manager> CtxT>
+        template <Context CtxT>
         context_action seed(CtxT& ctx) noexcept {
             using enum context_action;
             auto snap = tracked_devices(ctx);

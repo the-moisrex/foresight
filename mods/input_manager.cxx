@@ -522,7 +522,7 @@ context_action basic_input_manager::operator()(io_fd const& ready_fd) noexcept {
     return next;
 }
 
-context_action basic_input_manager::start(basic_io_manager& io) noexcept try {
+context_action basic_input_manager::start() noexcept try {
     using enum context_action;
 
     if (pimpl.get() == nullptr) [[unlikely]] {
@@ -558,7 +558,11 @@ context_action basic_input_manager::start(basic_io_manager& io) noexcept try {
 
     // Re-register the monitor FD after restarts too; `io_manager` clears all
     // registrations on `start`, and `watch` replaces in place if already there.
-    if (!io.watch(io_fd{.fd = pimpl->monitor.file_descriptor(), .events = io_event::in}, *this)) [[unlikely]] {
+    auto req = watch_of(io_fd{.fd = pimpl->monitor.file_descriptor(), .events = io_event::in}, *this);
+    if (auto const res = dynamic_context.broadcast(io_watch + &req); is_exiting(res)) {
+        return res;
+    }
+    if (req.status != io_watch_status::registered) [[unlikely]] {
         log("Cannot register the udev monitor.");
         return exit;
     }
@@ -566,4 +570,38 @@ context_action basic_input_manager::start(basic_io_manager& io) noexcept try {
     return next;
 } catch (...) {
     return context_action::recovery;
+}
+
+context_action basic_input_manager::operator()(control_event const& event) noexcept {
+    using enum context_action;
+    switch (event.code) {
+        case fs8::start.code: return start();
+        case we_own_device.code: own_device(payload<we_own_device>(event)); return next;
+        case register_query_provider.code:
+            add_query_provider(std::move(payload<register_query_provider>(event)));
+
+            // If `input_manager` started before us, it already enumerated without any
+            // queries registered; re-run the enumeration now that we're a provider
+            // (no-op when it hasn't started yet, so both pipeline orderings work).
+            requery();
+            return next;
+        case add_evdev_device.code: add(std::move(payload<add_evdev_device>(event))); return next;
+        case source_registered.code: {
+            auto const reg = payload<source_registered>(event);
+            register_source(reg.source_id, *reg.device);
+            return next;
+        }
+        case source_unregistered.code: unregister_source(payload<source_unregistered>(event)); return next;
+        case enumerate_devices.code: {
+            auto& list = payload<enumerate_devices>(event);
+            for (auto& dev : devices()) {
+                if (list.size() == list.capacity()) [[unlikely]] {
+                    break; // inplace_vector::push_back past capacity is UB
+                }
+                list.push_back(&dev);
+            }
+            return next;
+        }
+        default: return drop_event;
+    }
 }

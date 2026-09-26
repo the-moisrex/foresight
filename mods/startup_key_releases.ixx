@@ -1,13 +1,11 @@
 // Created by moisrex on 8/28/26.
 
 module;
-#include <cstdint>
 #include <linux/input-event-codes.h>
 export module fs8.mods:startup_key_releases;
 import fs8.event;
 import fs8.context;
 import fs8.traits;
-import fs8.log;
 import fs8.devices.evdev;
 import :input_manager;
 
@@ -26,10 +24,10 @@ export namespace fs8 {
 
         /// Seed already-enumerated devices at start and release keys on every
         /// subsequent connect.
-        template <ContextWith<basic_input_manager> CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx, control_event const& event) noexcept {
             using enum context_action;
-            switch (tag.code) {
+            switch (event.code) {
                 case start.code: {
                     auto snap = tracked_devices(ctx);
                     if (!snap) [[unlikely]] {
@@ -43,8 +41,8 @@ export namespace fs8 {
                     return next;
                 }
                 case devices_changed.code:
-                    if (tag == device_connected) {
-                        if (auto& dev = payload<device_connected>(tag); dev.has_event_type(EV_KEY)) {
+                    if (event == device_connected) {
+                        if (auto& dev = payload<device_connected>(event); dev.has_event_type(EV_KEY)) {
                             release_all_keys(dev);
                         }
                         return next;

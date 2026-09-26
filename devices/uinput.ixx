@@ -269,7 +269,7 @@ export namespace fs8 {
 
         /// Find the device if possible on start
         /// The first device in the input_manager, we automatically find it, and use that one
-        template <ContextWith<basic_input_manager> CtxT>
+        template <Context CtxT>
         context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
             if (tag.code != start.code) {

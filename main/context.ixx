@@ -1020,7 +1020,7 @@ namespace fs8 {
         return action == recovery || action == exit;
     }
 
-    [[nodiscard]] constexpr bool operator!(context_action const action) noexcept {
+    export [[nodiscard]] constexpr bool operator!(context_action const action) noexcept {
         return is_exiting(action);
     }
 

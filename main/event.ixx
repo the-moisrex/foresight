@@ -124,7 +124,7 @@ export namespace fs8 {
 
     /// Extract the mod_id (high 16 bits) from a source_id.
     [[nodiscard]] constexpr std::uint16_t mod_id(std::uint32_t const src) noexcept {
-        return static_cast<std::uint16_t>(src >> 16);
+        return static_cast<std::uint16_t>(src >> 16u);
     }
 
     /// Extract the source_index (low 16 bits) from a source_id.
@@ -134,7 +134,7 @@ export namespace fs8 {
 
     /// Pack a mod_id and source_index into a single source_id.
     [[nodiscard]] constexpr std::uint32_t make_source_id(std::uint16_t const m, std::uint16_t const idx) noexcept {
-        return (static_cast<std::uint32_t>(m) << 16) | idx;
+        return (static_cast<std::uint32_t>(m) << 16u) | idx;
     }
 
     /// Derive a compile-time mod_id for a type T.  If T defines a static
@@ -506,6 +506,21 @@ export namespace fs8 {
     constexpr control_event device_disconnected{.code = 12, .value = 2};
     // synchronously fill a caller-owned device_list; payload: device_list
     constexpr control_event enumerate_devices{.type = required_control_event, .code = 13};
+
+    // Configure the poller.  One code; `value` selects the operation and each
+    // variant carries its own payload type (see mods/io_manager.ixx).  Results
+    // are written back into the payload, so "there is no io_manager in this
+    // pipeline" and "the io_manager refused this fd" are both readable from the
+    // payload — the returned context_action is not the contract here.
+    //   0 = watch an fd  (payload: io_watch_request, in/out)
+    //   1 = stop watching an fd (payload: int, the fd)
+    //   2 = set the idle timeout (payload: std::chrono::microseconds; 0 disables)
+    //   3 = replace the idle callback (payload: basic_io_manager::idle_callback,
+    //       moved in; an empty callback clears it)
+    constexpr control_event io_watch{.type = required_control_event, .code = 14, .value = 0};
+    constexpr control_event io_unwatch{.type = required_control_event, .code = 14, .value = 1};
+    constexpr control_event io_idle_timeout{.type = required_control_event, .code = 14, .value = 2};
+    constexpr control_event io_idle_callback{.type = required_control_event, .code = 14, .value = 3};
 
     [[nodiscard]] std::string_view to_string(control_event const& event) noexcept;
 

@@ -84,12 +84,42 @@ and feeds their events in.
 intercept[keyboard | required | grab, mouse | grab]
 ```
 
-Needs `io_manager` and `input_manager` in the pipeline.
+Needs `input_manager` in the pipeline. `io_manager` is optional: without it
+devices are still read, but fd readiness is polled by `next_event` instead of
+waking the pipeline.
 
 ### `io_manager`
 
 Poll-based fd readiness manager. Registers file descriptors, waits for events,
 and dispatches each ready fd to its handler. Supports idle timeout.
+
+Mods never reach into it with `ctx.mod(io_manager)` — they configure it by
+broadcasting one of the four `io_*` control events (they share control code 14;
+`value` picks the operation) and read the result back out of the payload:
+
+| Event | Payload | Direction |
+|-------|---------|-----------|
+| `io_watch` | `io_watch_request` (`fd`, `callback`, `status`) | register an fd |
+| `io_unwatch` | `int` (the fd) | unregister an fd |
+| `io_idle_timeout` | `std::chrono::microseconds` | arm / disarm the idle timeout |
+| `io_idle_callback` | `basic_io_manager::idle_callback` (moved out) | install the idle callback |
+
+`io_watch` is the only one with a reply: build it with
+`watch_of(fd, handler)`, then
+
+```cpp
+auto req = watch_of(io_fd{.fd = fd, .events = io_event::in}, handler);
+std::ignore = dynamic_context.broadcast(io_watch + &req);
+if (req.status != io_watch_status::registered) { /* handle it */ }
+```
+
+`io_watch_status` is `no_poller` (no `io_manager` in this pipeline),
+`failed` (present but refused the fd), or `registered`. Callers read the
+payload, never the returned `context_action`.
+
+Without an `io_manager`, all four broadcasts go unhandled (the framework logs
+"A required control event was not handled"), `io_watch` reports `no_poller`,
+and every caller keeps working.
 
 ### `input_manager`
 
@@ -101,12 +131,15 @@ events itself -- `intercept` is the event provider.
 
 Detects pipeline idle (no events for a configurable period) and broadcasts an
 `idle` control event. Supports repeat patterns: `once`,
-`consistent<PeriodUs>`, `exponential<BaseUs>`.
+`consistent<PeriodUs>`, `exponential<BaseUs>`. Arms the `io_manager` timeout
+via `io_idle_timeout` / `io_idle_callback`, so without an `io_manager` there is
+no idle source (and the framework logs the unhandled events).
 
 ### `scheduler`
 
 Timer-based event scheduler using `timerfd` registered with `io_manager`.
-Required by `momentum_scroll`.
+Required by `momentum_scroll`. Without an `io_manager` the timerfd is dropped
+and `next_event` polling drives the ticks instead.
 
 ### `replay`
 

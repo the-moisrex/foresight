@@ -62,7 +62,7 @@ export namespace fs8 {
                 case start.code: return do_start();
                 case next_event.code: {
                     context_action action = drop_event;
-                    if (auto const ev = do_pop(ctx.mod(io_manager), action); ev.has_value()) [[unlikely]] {
+                    if (auto const ev = do_pop(action); ev.has_value()) [[unlikely]] {
                         ctx.event(*ev);
                         return next;
                     }
@@ -86,7 +86,7 @@ export namespace fs8 {
         }
 
         context_action            do_start() noexcept;
-        std::optional<event_type> do_pop(basic_io_manager& io, context_action& action) noexcept;
+        std::optional<event_type> do_pop(context_action& action) noexcept;
         void                      mark_dirty() noexcept;
 
         std::array<owned_query, 16>  owned_queries{}; // consteval-copyable part

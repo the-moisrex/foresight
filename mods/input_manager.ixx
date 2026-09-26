@@ -103,43 +103,13 @@ export namespace fs8 {
         [[nodiscard]] std::ranges::subrange<std::list<evdev>::iterator>       devices() noexcept;
 
         /// Start monitoring; also used by `intercept` to trigger enumeration.
+        /// Registers the udev monitor fd through an `io_watch` broadcast, so
+        /// this pipeline needs an `io_manager` somewhere (it reports `exit`
+        /// otherwise).
         /// todo: we should make this private
-        context_action start(basic_io_manager& io) noexcept;
+        context_action start() noexcept;
 
-        template <Context ContextT>
-        context_action operator()(ContextT& ctx, control_event const& tag) noexcept {
-            using enum context_action;
-            switch (tag.code) {
-                case fs8::start.code: return start(ctx.mod(io_manager));
-                case we_own_device.code: own_device(payload<we_own_device>(tag)); return next;
-                case register_query_provider.code:
-                    add_query_provider(std::move(payload<register_query_provider>(tag)));
-
-                    // If `input_manager` started before us, it already enumerated without any
-                    // queries registered; re-run the enumeration now that we're a provider
-                    // (no-op when it hasn't started yet, so both pipeline orderings work).
-                    requery();
-                    return next;
-                case add_evdev_device.code: add(std::move(payload<add_evdev_device>(tag))); return next;
-                case source_registered.code: {
-                    auto const reg = payload<source_registered>(tag);
-                    register_source(reg.source_id, *reg.device);
-                    return next;
-                }
-                case source_unregistered.code: unregister_source(payload<source_unregistered>(tag)); return next;
-                case enumerate_devices.code: {
-                    auto& list = payload<enumerate_devices>(tag);
-                    for (auto& dev : devices()) {
-                        if (list.size() == list.capacity()) [[unlikely]] {
-                            break; // inplace_vector::push_back past capacity is UB
-                        }
-                        list.push_back(&dev);
-                    }
-                    return next;
-                }
-                default: return drop_event;
-            }
-        }
+        context_action operator()(control_event const& event) noexcept;
 
         /// Pass-through: input_manager doesn't consume events, but it must be
         /// callable in the pipeline dispatch.
@@ -152,9 +122,18 @@ export namespace fs8 {
     } input_manager;
 
     struct [[nodiscard]] device_list_snapshot {
-        constexpr device_list_snapshot(context_action const inp_action, device_list inp_devices) noexcept
-          : action_{inp_action},
-            devices_{std::move(inp_devices)} {}
+        constexpr device_list_snapshot(context_action const inp_action, device_list&& inp_devices) noexcept : action_{inp_action} {
+#ifdef __clang__
+            devices_ = std::move(inp_devices);
+#else
+            for (auto const dev : inp_devices) {
+                if (count_ == tracked_device_capacity) [[unlikely]] {
+                    break;
+                }
+                devices_[count_++] = dev;
+            }
+#endif
+        }
 
         /// `true` to proceed; `false` on recovery/exit (take `action()`).
         [[nodiscard]] explicit operator bool() const noexcept {
@@ -166,32 +145,68 @@ export namespace fs8 {
         }
 
         [[nodiscard]] auto begin() const noexcept {
-            return devices_.begin();
+            return data();
         }
 
         [[nodiscard]] auto end() const noexcept {
-            return devices_.end();
+            return data() + count();
         }
 
         [[nodiscard]] auto size() const noexcept {
-            return devices_.size();
+            return count();
         }
 
         [[nodiscard]] auto empty() const noexcept {
-            return devices_.empty();
+            return count() == 0;
         }
 
         [[nodiscard]] auto const& operator[](std::size_t const index) const noexcept {
-            return devices_[index];
+            return data()[index];
         }
 
         [[nodiscard]] auto& operator[](std::size_t const index) noexcept {
-            return devices_[index];
+            return data()[index];
         }
 
       private:
-        context_action action_;
-        device_list    devices_;
+        [[nodiscard]] evdev* const* data() const noexcept {
+#ifdef __clang__
+            return devices_.data();
+#else
+            return devices_;
+#endif
+        }
+
+        [[nodiscard]] evdev** data() noexcept {
+#ifdef __clang__
+            return devices_.data();
+#else
+            return devices_;
+#endif
+        }
+
+        [[nodiscard]] std::size_t count() const noexcept {
+#ifdef __clang__
+            return devices_.size();
+#else
+            return count_;
+#endif
+        }
+
+        context_action action_ = context_action::exit;
+#ifdef __clang__
+        device_list devices_{};
+#else
+        /// todo: on GCC use `device_list` (`std::inplace_vector`) here too —
+        /// but NOT before GCC fixes bugzilla c++/124478 / c++/125144: a
+        /// by-value `inplace_vector` member in an exported type makes every
+        /// consumer of this BMI die with "failed to read compiled module
+        /// cluster N: Bad file data". Reproduced on GCC 16.2.1
+        /// (Arch gcc-16.2.1+r23+gd564253eb6c8-1); Clang is unaffected and
+        /// already stores `device_list`.
+        evdev*      devices_[tracked_device_capacity]{};
+        std::size_t count_ = 0;
+#endif
     };
 
     /// Pull the input_manager's device list via the `enumerate_devices`
@@ -201,11 +216,12 @@ export namespace fs8 {
     /// `context_action`. `operator bool` is `true` while the action is safe
     /// to continue with (`!is_exiting`); on an exiting action the list is
     /// cleared so callers never seed from a partial/aborted enumeration.
-    /// (`device_list` is held by the local snapshot and returned through a
-    /// deduced type, not named in the interface: a by-value `inplace_vector`
-    /// member in an exported type corrupts GCC BMIs.)
+    /// (Storage differs by compiler: Clang stores the `inplace_vector` member
+    /// directly, GCC copies it into a raw array because a by-value
+    /// `inplace_vector` member in an exported type corrupts its BMI. See the
+    /// todo on `device_list_snapshot`.)
     template <Context CtxT>
-    device_list_snapshot tracked_devices(CtxT&& ctx) noexcept {
+    device_list_snapshot tracked_devices(CtxT& ctx) noexcept {
         device_list devices;
         auto const  action = ctx.broadcast(enumerate_devices + &devices);
         if (is_exiting(action)) [[unlikely]] {

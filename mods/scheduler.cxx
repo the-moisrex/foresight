@@ -13,7 +13,6 @@ module;
 module fs8.mods;
 import fs8.log;
 
-using fs8::basic_io_manager;
 using fs8::basic_scheduler;
 using fs8::context_action;
 using fs8::event_type;
@@ -36,7 +35,6 @@ struct fs8::pimpl_idiom<basic_scheduler>::impl {
 
     int                               timer_fd = -1;
     std::array<tick_entry, max_ticks> ticks{};
-    basic_io_manager*                 io = nullptr;
 
     [[nodiscard]] bool has_active() const noexcept {
         return std::ranges::any_of(ticks, [](auto const& t) {
@@ -81,32 +79,6 @@ struct fs8::pimpl_idiom<basic_scheduler>::impl {
         }
     }
 };
-
-context_action basic_scheduler::do_start(basic_io_manager& io) noexcept try {
-    using enum context_action;
-    if (pimpl.get() == nullptr) {
-        init_impl();
-    }
-    pimpl->io = &io;
-
-    if (pimpl->timer_fd < 0) {
-        pimpl->timer_fd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
-        if (pimpl->timer_fd < 0) [[unlikely]] {
-            log("scheduler: timerfd_create failed: {}", std::strerror(errno));
-            return exit;
-        }
-    }
-
-    if (!io.is_watched(pimpl->timer_fd)) {
-        if (!io.watch(io_fd{.fd = pimpl->timer_fd, .events = io_event::in}, *this)) [[unlikely]] {
-            log("scheduler: failed to register timer fd with io_manager");
-            return exit;
-        }
-    }
-    return next;
-} catch (...) {
-    return context_action::exit;
-}
 
 context_action basic_scheduler::operator()(io_fd const& fd) noexcept try {
     using enum context_action;
@@ -198,6 +170,42 @@ context_action basic_scheduler::operator()(event_type& event, control_event cons
     }
 
     return drop_event;
+}
+
+context_action basic_scheduler::operator()(control_event const& event) noexcept try {
+    using enum context_action;
+    if (event.code != start.code) {
+        return drop_event;
+    }
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+
+    if (pimpl->timer_fd < 0) {
+        pimpl->timer_fd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
+        if (pimpl->timer_fd < 0) [[unlikely]] {
+            log("scheduler: timerfd_create failed: {}", std::strerror(errno));
+            return exit;
+        }
+    }
+
+    auto req = watch_of(io_fd{.fd = pimpl->timer_fd, .events = io_event::in}, *this);
+    if (auto const res = dynamic_context.broadcast(io_watch + &req); is_exiting(res)) {
+        return res;
+    }
+    switch (req.status) {
+        case io_watch_status::failed: log("scheduler: failed to register timer fd with io_manager"); return exit;
+        case io_watch_status::no_poller:
+            // Nobody to wake us: drop the timerfd so `rearm_timer()` stays a
+            // no-op and `next_event` polling drives the ticks instead.
+            ::close(pimpl->timer_fd);
+            pimpl->timer_fd = -1;
+            return next;
+        case io_watch_status::registered: break;
+    }
+    return next;
+} catch (...) {
+    return context_action::exit;
 }
 
 basic_scheduler::tick_handle

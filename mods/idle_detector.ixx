@@ -107,16 +107,21 @@ export namespace fs8 {
         // ── Pipeline mod interface ───────────────────────────────────────────
 
         /// Handle start: configure io_manager timeout and register idle callback.
+        /// Both go out as `io_idle_*` broadcasts, so a pipeline without an
+        /// `io_manager` simply has no idle source (the framework logs the
+        /// unhandled control event) instead of failing to compile.
         template <Context CtxT>
         context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
-            static_assert(has_mod<basic_io_manager, CtxT>, "Required mod");
             using enum context_action;
 
-            auto& io = ctx.mod(io_manager);
             switch (tag.code) {
                 case start.code: {
-                    io.set_idle_timeout(idle_period_);
-                    io.set_idle_callback([&](std::chrono::microseconds) noexcept {
+                    auto timeout = idle_period_;
+                    if (auto const res = ctx.broadcast(io_idle_timeout + &timeout); is_exiting(res)) [[unlikely]] {
+                        return res;
+                    }
+
+                    basic_io_manager::idle_callback cb = [&](std::chrono::microseconds) noexcept -> context_action {
                         switch (auto const res = ctx.broadcast(idle)) {
                             [[unlikely]] case exit:
                             [[unlikely]] case recovery:
@@ -126,10 +131,14 @@ export namespace fs8 {
 
                         // Re-arm for the next idle cycle unless the pattern is fire-once.
                         if (auto const next_timeout = repeat_(idle_period_); next_timeout.count() > 0) {
-                            io.set_idle_timeout(next_timeout);
+                            auto arm    = next_timeout;
+                            std::ignore = ctx.broadcast(io_idle_timeout + &arm);
                         }
                         return next;
-                    });
+                    };
+                    if (auto const res = ctx.broadcast(io_idle_callback + &cb); is_exiting(res)) [[unlikely]] {
+                        return res;
+                    }
                     return next;
                 }
                 default: break;

@@ -99,7 +99,7 @@ Tags are constexpr sentinels passed as the last argument:
 **Event providers** (put events into the pipeline):
 | Mod | What it does | Needs in pipeline |
 |-----|--------------|-------------------|
-| `intercept` | Query-driven provider; reads kernel devices matching `device_query`es and feeds their events in. | `io_manager`, `input_manager` |
+| `intercept` | Query-driven provider; reads kernel devices matching `device_query`es and feeds their events in. | `input_manager` (`io_manager` optional: wakes the pipeline instead of polling) |
 | `io_manager` | poll()-based fd readiness; watches fds, wakes the pipeline via `load_event`. | — |
 | `input_manager` | Owns/monitors devices: resolves queries, hotplug, "which device did this event come from?". | — |
 | `from_input` | Reads raw events from stdin (redirect mode). | — |
@@ -266,6 +266,14 @@ log(event);          // type_name(), code_name(), value()
   event origin: `make_source_id(mod, idx)`, `sid(mod[, idx])`, `mod_id_of<T>()`
   (reads `T::mod_id` or hashes `__PRETTY_FUNCTION__`), plus `mod_id()` /
   `source_index()` unpackers. `source_id_none == 0` means unset.
+- Mods that need a *service* rather than a shared condition talk to it with a
+  `required_control_event` carrying a payload pointer: build with `ev + &arg`
+  (non-const only), read back with `payload<ev>(tag)` — see the `io_*` family
+  (code 14, `value` 0..3: `io_watch`, `io_unwatch`, `io_idle_timeout`,
+  `io_idle_callback`) in `mods/io_manager.ixx`, built with `watch_of(fd, handler)`
+  and answered through `io_watch_status`. Callers read the payload, never the
+  returned `context_action`; if nobody handles it the framework logs "A required
+  control event was not handled". No `has_mod` guard is used for these.
 
 ### Context — `main/context.ixx`, module `fs8.context`
 

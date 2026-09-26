@@ -47,11 +47,10 @@ export namespace fs8 {
         using pimpl_idiom::pimpl_idiom;
 
         template <Context CtxT>
-            requires has_mod<basic_io_manager, CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
-            switch (tag.code) {
+        context_action operator()(CtxT& ctx, control_event const& event) noexcept {
+            switch (event.code) {
                 case start.code: {
-                    if (auto const action = do_start(ctx.mod(io_manager)); action != context_action::next) {
+                    if (auto const action = do_start(); action != context_action::next) {
                         return action;
                     }
                     auto snap = tracked_devices(ctx);
@@ -105,7 +104,7 @@ export namespace fs8 {
         [[nodiscard]] bool refresh() noexcept;
 
       private:
-        context_action     do_start(basic_io_manager& io) noexcept;
+        context_action     do_start() noexcept;
         [[nodiscard]] bool consume_hotplug_pending() noexcept;
     } monitors;
 

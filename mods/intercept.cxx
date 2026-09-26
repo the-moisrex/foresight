@@ -173,7 +173,7 @@ context_action basic_interceptor::operator()(io_fd& fd) noexcept try {
     return context_action::next;
 }
 
-std::optional<event_type> basic_interceptor::do_pop(basic_io_manager& io, context_action& action) noexcept try {
+std::optional<event_type> basic_interceptor::do_pop(context_action& action) noexcept try {
     using enum context_action;
     if (pimpl.get() == nullptr) [[unlikely]] {
         return std::nullopt;
@@ -223,7 +223,8 @@ std::optional<event_type> basic_interceptor::do_pop(basic_io_manager& io, contex
         auto*      live_dev = find_device(entry.fd);
         bool const alive    = live_dev != nullptr && !entry.dead;
         if (!alive) {
-            io.unwatch(entry.fd);
+            int gone_fd            = entry.fd;
+            std::ignore            = dynamic_context.broadcast(io_unwatch + &gone_fd);
             std::uint32_t unreg_id = entry.id;
             if (auto const res = dynamic_context.broadcast(source_unregistered + &unreg_id); is_exiting(res)) {
                 action = res;
@@ -269,7 +270,9 @@ std::optional<event_type> basic_interceptor::do_pop(basic_io_manager& io, contex
         if (pimpl->watched_count >= pimpl->watched.size()) [[unlikely]] {
             break;
         }
-        if (io.watch(io_fd{.fd = dev_fd, .events = io_event::in}, *this)) {
+        auto req    = watch_of(io_fd{.fd = dev_fd, .events = io_event::in}, *this);
+        std::ignore = dynamic_context.broadcast(io_watch + &req);
+        if (req.status == io_watch_status::registered) {
             auto const src_id                      = sid(intercept, static_cast<std::uint16_t>(pimpl->watched_count));
             auto const dname                       = dev.device_name();
             pimpl->watched[pimpl->watched_count++] = watched_fd{dev_fd, src_id, &dev, dname};
