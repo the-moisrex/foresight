@@ -117,7 +117,8 @@ Tags are constexpr sentinels passed as the last argument:
 | Mod | What it does |
 |-----|--------------|
 | `replace` / `put` | Rewrite one key/chord into another sequence. |
-| `abs2rel`, `pen2mice`, `pen2touch`, `pressure2mouse_clicks` | Convert drawing-tablet absolute events into relative mouse events / clicks. |
+| `abs2rel`, `pen2mice`, `pressure2mouse_clicks` | Convert drawing-tablet absolute events into relative mouse events / clicks. |
+| `pen2touch` | Convert drawing-tablet pen events into a Type-B multitouch touchpad stream (also reshapes the `uinput` device via `profile_device`). |
 | `mouse_to_scroll` | Convert mouse movement into scroll-wheel events. Pure transformer; gate it with `hold_mod`. | `mice_quantifier` |
 | `smooth` (`lerp`, `low_pass_filter`, `kalman_filter`) | Smooth mouse movement. | `mouse_history` |
 | `split_move` | Decompose each mouse-movement frame into per-unit frames (`REL_X=5` -> 5x `REL_X=1`). | — |
@@ -288,6 +289,10 @@ log(event);          // type_name(), code_name(), value()
   and answered through `io_watch_status`. Callers read the payload, never the
   returned `context_action`; if nobody handles it the framework logs "A required
   control event was not handled". No `has_mod` guard is used for these.
+- `profile_device` (code 11, payload `evdev&`, *general* so unhandled stays
+  silent) is broadcast by `uinput`'s `finalize_device` right before the virtual
+  device is created: handlers reshape the mutable template in place (e.g.
+  `pen2touch` turns a tablet clone into a multitouch touchpad).
 
 ### Context — `main/context.ixx`, module `fs8.context`
 

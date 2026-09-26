@@ -218,7 +218,22 @@ Translate a pen tablet's buttons/tools into mouse clicks.
 
 ### `pen2touch`
 
-Convert pen events to touch events.
+Convert pen events into a single-contact Type-B multitouch stream:
+`BTN_TOOL_*` is renamed to `BTN_TOOL_FINGER`, `BTN_TOUCH` opens/closes an
+`ABS_MT_TRACKING_ID` contact, and `ABS_X`/`ABS_Y`/`ABS_PRESSURE` are mirrored
+into `ABS_MT_POSITION_X`/`Y`/`ABS_MT_PRESSURE` (the legacy axes are kept).
+Stylus buttons, tilt, and tool width are dropped.
+
+The mod also answers the `profile_device` control event: when the pipeline's
+`uinput` creates the virtual device, `pen2touch` reshapes the device template
+(a clone of the tablet) into a multitouch touchpad — strips the tablet
+tool buttons/axes, enables the MT slots with proper absinfo, and sets
+`INPUT_PROP_POINTER` — so libinput sees a touchpad instead of a second
+tablet.
+
+```cpp
+intercept[tablet | required] | pen2touch | output
+```
 
 ### `pressure2mouse_clicks`
 

@@ -16,7 +16,7 @@ so that libinput / Wayland / X.Org see a single-finger touchpad contact.
 Arguments:
     -h | --help               Print help.
     -g | --grab               Grab the device exclusively.
-    -o | --output             Output solution: stdout, uinput, evtest, live-view (default: stdout)
+    -o | --output             Output selection: stdout, uinput, evtest, live-view (default: stdout)
 
 Positionals:
     pen_device                The drawing tablet/pen device query.

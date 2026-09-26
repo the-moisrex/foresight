@@ -1,9 +1,13 @@
-#include "common/tests_common_pch.hpp"
+#include "./common/test_helpers.hpp"
+#include "./common/tests_common_pch.hpp"
 
 #include <cstdint>
+#include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
 #include <span>
 #include <vector>
+import dynamic_scoping;
+import fs8.devices.evdev;
 import fs8.mods;
 
 using namespace fs8;
@@ -23,7 +27,30 @@ namespace {
         return out;
     }
 
-/// Count events matching a given type+code.
+    /// Build an in-memory tablet-like source device: pen tool, stylus
+    /// button, position/pressure/tilt axes, and the DIRECT property —
+    /// everything the profile broadcast is supposed to get rid of.
+    fs8::evdev make_tablet_template() {
+        auto src = fs8::evdev{libevdev_new(), fs8::evdev_status::success};
+        src.device_name("Pen2Touch Test Tablet");
+        libevdev_set_id_bustype(src.device_ptr(), BUS_USB);
+        src.enable_event_type(EV_SYN);
+        src.enable_event_code(EV_KEY, BTN_TOUCH);
+        src.enable_event_code(EV_KEY, BTN_TOOL_PEN);
+        src.enable_event_code(EV_KEY, BTN_STYLUS);
+        static constexpr input_absinfo x_info{.minimum = 0, .maximum = 32'767, .resolution = 100};
+        static constexpr input_absinfo y_info{.minimum = 0, .maximum = 32'767, .resolution = 100};
+        static constexpr input_absinfo pressure_info{.minimum = 0, .maximum = 8191};
+        static constexpr input_absinfo tilt_info{.minimum = -900, .maximum = 900};
+        src.abs_info(ABS_X, x_info);
+        src.abs_info(ABS_Y, y_info);
+        src.abs_info(ABS_PRESSURE, pressure_info);
+        src.abs_info(ABS_TILT_X, tilt_info);
+        src.enable_property(INPUT_PROP_DIRECT);
+        return src;
+    }
+
+    /// Count events matching a given type+code.
 
 } // namespace
 
@@ -533,4 +560,214 @@ TEST(Pen2TouchTest, NoTouchDownNoMTEvents) {
     EXPECT_TRUE(tid.empty());
     auto const pos_x = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
     EXPECT_TRUE(pos_x.empty());
+}
+
+// ---------------------------------------------------------------------------
+// Touch-up selects the slot before writing the tracking ID
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, TouchUpSelectsSlotBeforeTrackingId) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY,  BTN_TOUCH, 1},
+        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY,  BTN_TOUCH, 0},
+        {EV_SYN, SYN_REPORT, 0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    auto const  events    = col.events();
+    std::size_t end_index = events.size();
+    for (std::size_t i = 0; i < events.size(); ++i) {
+        if (events[i].type() == EV_ABS && events[i].code() == ABS_MT_TRACKING_ID && events[i].value() == -1) {
+            end_index = i;
+        }
+    }
+    ASSERT_LT(end_index, events.size()) << "no contact end emitted";
+    ASSERT_GT(end_index, 0U);
+    auto const& prev = events[end_index - 1];
+    EXPECT_EQ(prev.type(), EV_ABS);
+    EXPECT_EQ(prev.code(), ABS_MT_SLOT);
+    EXPECT_EQ(prev.value(), 0);
+}
+
+// ---------------------------------------------------------------------------
+// toggle_off releases a stale contact (no keys_state required)
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, ToggleOffReleasesContact) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY,  BTN_TOUCH, 1},
+        {EV_SYN, SYN_REPORT, 0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline(); // touch-down only; emit_all exhausts and the pipeline exits
+
+    // The contact is still open: disabling the mod must close it even
+    // though this pipeline has no keys_state.
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(dynamic_context->broadcast(toggle_off), context_action::next);
+
+    auto const tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_GE(tid.size(), 2U);
+    EXPECT_GE(tid[0].value(), 0);
+    EXPECT_EQ(tid[1].value(), -1);
+}
+
+// ---------------------------------------------------------------------------
+// Tool leaving mid-contact ends the contact
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, ToolOutEndsContact) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN,   1},
+        {EV_SYN,   SYN_REPORT,   0},
+        {EV_ABS,        ABS_X, 100},
+        {EV_ABS,        ABS_Y, 200},
+        {EV_SYN,   SYN_REPORT,   0},
+        {EV_KEY,    BTN_TOUCH,   1},
+        {EV_SYN,   SYN_REPORT,   0},
+        // Tool disappears without a BTN_TOUCH=0.
+        {EV_KEY, BTN_TOOL_PEN,   0},
+        {EV_SYN,   SYN_REPORT,   0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    auto const tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_GE(tid.size(), 2U);
+    EXPECT_GE(tid[0].value(), 0);
+    EXPECT_EQ(tid[1].value(), -1);
+
+    // The mod also synthesizes the missing BTN_TOUCH=0.
+    auto const touch = collect(col.events(), EV_KEY, BTN_TOUCH);
+    ASSERT_GE(touch.size(), 2U);
+    EXPECT_EQ(touch[0].value(), 1);
+    EXPECT_EQ(touch[1].value(), 0);
+}
+
+// ---------------------------------------------------------------------------
+// profile_device: the tablet template becomes a touchpad
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, ProfileDeviceReshapesTabletTemplate) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto          pipeline = context | pen2touch | record;
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+
+    // Tablet parts are gone.
+    EXPECT_FALSE(tmpl.has_event_code(EV_KEY, BTN_TOOL_PEN));
+    EXPECT_FALSE(tmpl.has_event_code(EV_KEY, BTN_STYLUS));
+    EXPECT_FALSE(tmpl.has_event_code(EV_ABS, ABS_TILT_X));
+    EXPECT_FALSE(tmpl.has_property(INPUT_PROP_DIRECT));
+
+    // Touchpad parts are there.
+    EXPECT_TRUE(tmpl.has_event_code(EV_KEY, BTN_TOUCH));
+    EXPECT_TRUE(tmpl.has_event_code(EV_KEY, BTN_TOOL_FINGER));
+    EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_SLOT));
+    EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_TRACKING_ID));
+    EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_POSITION_X));
+    EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_POSITION_Y));
+    EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_PRESSURE));
+    EXPECT_TRUE(tmpl.has_property(INPUT_PROP_POINTER));
+
+    // Legacy axes keep the source ranges (values pass through 1:1).
+    ASSERT_NE(tmpl.abs_info(ABS_X), nullptr);
+    EXPECT_EQ(tmpl.abs_info(ABS_X)->maximum, 32'767);
+
+    // MT absinfo: bounded tracking ids, position copied from ABS_X.
+    ASSERT_NE(tmpl.abs_info(ABS_MT_TRACKING_ID), nullptr);
+    EXPECT_EQ(tmpl.abs_info(ABS_MT_TRACKING_ID)->minimum, 0);
+    EXPECT_EQ(tmpl.abs_info(ABS_MT_TRACKING_ID)->maximum, 65'535);
+    ASSERT_NE(tmpl.abs_info(ABS_MT_POSITION_X), nullptr);
+    EXPECT_EQ(tmpl.abs_info(ABS_MT_POSITION_X)->maximum, 32'767);
+    EXPECT_EQ(tmpl.abs_info(ABS_MT_POSITION_X)->resolution, 100);
+    ASSERT_NE(tmpl.abs_info(ABS_MT_SLOT), nullptr);
+    EXPECT_EQ(tmpl.abs_info(ABS_MT_SLOT)->maximum, 0); // single contact
+}
+
+TEST(Pen2TouchTest, ProfileDeviceIgnoredWithoutMod) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto          pipeline = context | record;
+    dynamic_scope scope{dynamic_context, pipeline};
+    std::ignore = dynamic_context->broadcast(profile_device + &tmpl);
+
+    // A general control event that nobody handles must leave the template
+    // alone (and must not log a "required event not handled" warning).
+    EXPECT_TRUE(tmpl.has_event_code(EV_KEY, BTN_TOOL_PEN));
+    EXPECT_TRUE(tmpl.has_property(INPUT_PROP_DIRECT));
+    EXPECT_FALSE(tmpl.has_event_code(EV_ABS, ABS_MT_SLOT));
+    EXPECT_FALSE(tmpl.has_property(INPUT_PROP_POINTER));
+}
+
+// ---------------------------------------------------------------------------
+// End-to-end: finalize_device creates a real multitouch touchpad
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, FinalizeDeviceCreatesTouchpad) {
+    auto const res = fs8::verify_access_to_uinput();
+    if (res != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(res);
+    }
+
+    auto src = make_tablet_template();
+    ASSERT_TRUE(src.is_ok());
+
+    fs8::basic_uinput vdev;
+    {
+        auto          pipeline = context | pen2touch | record;
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_TRUE(fs8::finalize_device(vdev, src, {}));
+    }
+    ASSERT_TRUE(vdev.is_ok());
+    if (!fs8::test::wait_for_openable(vdev.devnode(), 3000)) {
+        vdev.close();
+        GTEST_SKIP() << "Virtual touchpad did not become openable.";
+    }
+
+    fs8::evdev created{vdev.devnode()};
+    ASSERT_TRUE(created.is_ok()) << vdev.devnode();
+
+    // Touchpad keys: fingers yes, pen tools no.
+    EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_TOUCH));
+    EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_TOOL_FINGER));
+    EXPECT_FALSE(created.has_event_code(EV_KEY, BTN_TOOL_PEN));
+    EXPECT_FALSE(created.has_event_code(EV_KEY, BTN_STYLUS));
+    // Tilt is gone, MT is in.
+    EXPECT_FALSE(created.has_event_code(EV_ABS, ABS_TILT_X));
+    EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_SLOT));
+    EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_TRACKING_ID));
+    EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_POSITION_X));
+    EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_POSITION_Y));
+    EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_PRESSURE));
+
+    ASSERT_NE(created.abs_info(ABS_MT_TRACKING_ID), nullptr);
+    EXPECT_EQ(created.abs_info(ABS_MT_TRACKING_ID)->maximum, 65'535);
+    ASSERT_NE(created.abs_info(ABS_MT_POSITION_X), nullptr);
+    EXPECT_EQ(created.abs_info(ABS_MT_POSITION_X)->maximum, 32'767);
+
+    EXPECT_TRUE(created.has_property(INPUT_PROP_POINTER));
+    EXPECT_FALSE(created.has_property(INPUT_PROP_DIRECT));
+
+    vdev.close();
 }

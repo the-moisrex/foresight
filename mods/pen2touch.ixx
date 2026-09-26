@@ -1,13 +1,15 @@
 // Created by moisrex on 9/17/26.
 
 module;
-#include <climits>
 #include <cstdint>
+#include <initializer_list>
 #include <linux/input-event-codes.h>
+#include <linux/input.h>
 #include <utility>
 export module fs8.mods:pen2touch;
 import :keys_state;
 import fs8.context;
+import fs8.devices.evdev;
 import fs8.event;
 import fs8.traits;
 
@@ -39,6 +41,13 @@ export namespace fs8 {
     /// Stylus buttons (BTN_STYLUS / BTN_STYLUS2 / BTN_STYLUS3), tilt
     /// (ABS_TILT_X / ABS_TILT_Y), and tool width (ABS_TOOL_WIDTH) are
     /// dropped because they have no touchpad equivalent.
+    ///
+    /// The mod also answers the `profile_device` control event: when the
+    /// pipeline's `uinput` is about to create the virtual device, this mod
+    /// reshapes the template (a clone of the tablet) into a multitouch
+    /// touchpad — stripping the tablet tool buttons/axes, enabling the MT
+    /// slots with proper absinfo, and fixing the input properties — so
+    /// libinput sees a touchpad instead of a second tablet.
     ///
     /// Place this *before* any mod that would consume ABS_X/ABS_Y (such as
     /// abs2rel) or *instead of* abs2rel when touchpad-style output is
@@ -82,9 +91,11 @@ export namespace fs8 {
         /// Slot reported in MT events; always 0 for a single-contact device.
         static constexpr value_type mt_slot = 0;
 
-        /// Monotonically increasing tracking ID generator.
+        /// Monotonically increasing tracking ID generator.  Bounded by the
+        /// advertised ABS_MT_TRACKING_ID range (0..65535) so the kernel never
+        /// clamps or rejects an id.
         [[nodiscard]] value_type next_tracking_id() noexcept {
-            if (tracking_id_ == INT_MAX) {
+            if (tracking_id_ >= 65535) {
                 tracking_id_ = 0;
             } else {
                 ++tracking_id_;
@@ -141,14 +152,105 @@ export namespace fs8 {
             if (!touching_) {
                 return;
             }
+            // Select the slot first: every MT event belongs to the currently
+            // selected slot.
+            emit(ctx, EV_ABS, ABS_MT_SLOT, mt_slot);
             emit(ctx, EV_ABS, ABS_MT_TRACKING_ID, -1);
-            touching_ = false;
+            touching_      = false;
+            have_x_        = false;
+            have_y_        = false;
+            have_pressure_ = false;
+        }
+
+        /// Pick the source axis' absinfo when it exists, otherwise fall back
+        /// to `fallback` (used when the template has no source device to
+        /// copy the ranges from).
+        [[nodiscard]] static input_absinfo absinfo_from(evdev const& tmpl, code_type const source, input_absinfo const& fallback) noexcept {
+            if (auto const* info = tmpl.abs_info(source); info != nullptr) {
+                return *info;
+            }
+            return fallback;
+        }
+
+        /// Reshape the not-yet-created virtual device so it advertises as a
+        /// single-contact multitouch touchpad instead of a tablet clone.
+        /// Called through the `profile_device` control event from uinput's
+        /// finalize_device, before the template hits /dev/uinput.
+        static void profile_template(evdev& tmpl) noexcept {
+            // ── Strip the tablet identity ──────────────────────────────
+            // Tool proximity + stylus buttons: no touchpad equivalent (the
+            // mod renames the tool to BTN_TOOL_FINGER at runtime, so that
+            // key must be the one advertised).
+            for (code_type const btn : std::initializer_list<code_type>{
+                   BTN_TOOL_PEN,
+                   BTN_TOOL_RUBBER,
+                   BTN_TOOL_BRUSH,
+                   BTN_TOOL_PENCIL,
+                   BTN_TOOL_AIRBRUSH,
+                   BTN_TOOL_MOUSE,
+                   BTN_TOOL_LENS,
+                   BTN_STYLUS,
+                   BTN_STYLUS2,
+                   BTN_STYLUS3})
+            {
+                if (tmpl.has_event_code(EV_KEY, btn)) {
+                    tmpl.disable_event_code(EV_KEY, btn);
+                }
+            }
+            // Stylus-only axes.
+            for (code_type const code : std::initializer_list<code_type>{ABS_TILT_X, ABS_TILT_Y, ABS_TOOL_WIDTH}) {
+                if (tmpl.has_event_code(EV_ABS, code)) {
+                    tmpl.disable_event_code(EV_ABS, code);
+                }
+            }
+            // The parts of the touch profile we actually emit.
+            tmpl.enable_event_code(EV_KEY, BTN_TOUCH);
+            tmpl.enable_event_code(EV_KEY, BTN_TOOL_FINGER);
+
+            // ── Multitouch absinfo ─────────────────────────────────────
+            static constexpr input_absinfo slot_info{.minimum = 0, .maximum = 0};
+            static constexpr input_absinfo tracking_info{.minimum = 0, .maximum = 65535};
+            static constexpr input_absinfo xy_fallback{.minimum = 0, .maximum = 32767};
+            static constexpr input_absinfo pressure_fallback{.minimum = 0, .maximum = 1023};
+
+            // Position/pressure mirror the source axes one-to-one, so copy
+            // their ranges when the source is part of the template.
+            tmpl.abs_info(ABS_MT_SLOT, slot_info);
+            tmpl.abs_info(ABS_MT_TRACKING_ID, tracking_info);
+            tmpl.abs_info(ABS_MT_POSITION_X, absinfo_from(tmpl, ABS_X, xy_fallback));
+            tmpl.abs_info(ABS_MT_POSITION_Y, absinfo_from(tmpl, ABS_Y, xy_fallback));
+            tmpl.abs_info(ABS_MT_PRESSURE, absinfo_from(tmpl, ABS_PRESSURE, pressure_fallback));
+
+            // The mod also forwards the legacy single-touch axes.
+            if (!tmpl.has_abs_info(ABS_X)) {
+                tmpl.abs_info(ABS_X, xy_fallback);
+            }
+            if (!tmpl.has_abs_info(ABS_Y)) {
+                tmpl.abs_info(ABS_Y, xy_fallback);
+            }
+            if (!tmpl.has_abs_info(ABS_PRESSURE)) {
+                tmpl.abs_info(ABS_PRESSURE, pressure_fallback);
+            }
+
+            // ── Input properties ───────────────────────────────────────
+            // Inherited properties (notably INPUT_PROP_DIRECT from direct
+            // tablets) would make libinput classify the device as a
+            // touchscreen; a touchpad is a POINTER.
+            for (unsigned prop = 0; prop <= INPUT_PROP_MAX; ++prop) {
+                if (prop == INPUT_PROP_POINTER) {
+                    continue;
+                }
+                if (tmpl.has_property(prop)) {
+                    tmpl.disable_property(prop);
+                }
+            }
+            tmpl.enable_property(INPUT_PROP_POINTER);
         }
 
       public:
         /// Handle lifecycle tags (start, toggle_off).
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, special_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             using enum context_action;
 
             switch (tag.code) {
@@ -180,13 +282,17 @@ export namespace fs8 {
                 }
                 case toggle_off.code:
                     // If the mod is disabled mid-contact, clean up so we
-                    // don't leak a stale tracking ID.
-                    if (touching_) {
-                        if constexpr (has_mod<basic_keys_state, CtxT>) {
-                            end_contact(ctx);
-                        }
-                    }
+                    // don't leak a stale tracking ID.  end_contact needs no
+                    // pipeline mod, so this works with or without
+                    // keys_state.
+                    end_contact(ctx);
                     reset();
+                    return next;
+
+                case profile_device.code:
+                    // uinput is about to create the virtual device: turn the
+                    // tablet clone into a multitouch touchpad.
+                    profile_template(payload<profile_device>(tag));
                     return next;
 
                 default: return drop_event;
@@ -218,6 +324,13 @@ export namespace fs8 {
                         case BTN_TOOL_MOUSE:
                         case BTN_TOOL_LENS:
                             tool_active_ = event.value() != 0;
+                            if (!tool_active_ && touching_) {
+                                // The tool vanished mid-contact; the tablet
+                                // may never send BTN_TOUCH=0 afterwards, so
+                                // close the contact ourselves.
+                                emit(ctx, EV_KEY, BTN_TOUCH, 0);
+                                end_contact(ctx);
+                            }
                             event.code(BTN_TOOL_FINGER);
                             return next;
 
