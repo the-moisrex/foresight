@@ -68,6 +68,7 @@ module fs8.event;
                 case source_owned.value: return {"Source-Owned"};
                 default: return {"Source-Event"};
             }
+        case profile_device.code: return {"Profile-Device"};
         case enumerate_devices.code: return {"Enumerate-Devices"};
         case devices_changed.code:
             switch (event.value) {

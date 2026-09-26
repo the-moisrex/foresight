@@ -206,6 +206,12 @@ namespace fs8 {
         [[nodiscard]] bool                 has_abs_info(code_type code = ABS_X) const noexcept;
         void                               abs_info(code_type abs_code, input_absinfo const& abs_info) noexcept;
 
+        /// Device properties (`INPUT_PROP_*`). Like the caps mutators, these
+        /// only work before the device fd is initialized.
+        [[nodiscard]] bool has_property(unsigned prop) const noexcept;
+        void               enable_property(unsigned prop) noexcept;
+        void               disable_property(unsigned prop) noexcept;
+
         [[nodiscard]] bool operator==(evdev const& other) const noexcept;
 
         /**
@@ -287,7 +293,7 @@ namespace fs8 {
     export using device_list = std::inplace_vector<evdev*, tracked_device_capacity>;
 
     export template <control_event CEvent>
-        requires(add_evdev_device == CEvent || device_connected == CEvent)
+        requires(add_evdev_device == CEvent || device_connected == CEvent || profile_device == CEvent)
     [[nodiscard]] constexpr evdev& payload(control_event const& event) noexcept {
         if (event.payload == nullptr) [[unlikely]] {
             std::terminate();

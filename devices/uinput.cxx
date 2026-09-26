@@ -506,6 +506,15 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
         if (!append_caps(clone, caps_view)) [[unlikely]] {
             return false;
         }
+        // Offer the template before it becomes a real device so mods can
+        // reshape it (e.g. pen2touch turning the tablet clone into a
+        // multitouch touchpad).  General event: unhandled is fine.
+        if (dynamic_context.bound()) {
+            if (auto const res = dynamic_context->broadcast(profile_device + &clone); is_exiting(res)) [[unlikely]] {
+                log("  profile_device broadcast aborted virtual-device creation.");
+                return false;
+            }
+        }
         self.set_device(clone, guard.fd < 0 ? LIBEVDEV_UINPUT_OPEN_MANAGED : guard.fd);
         if (!self.is_ok()) [[unlikely]] {
             log("  Device initialization failed: {}", clone.device_name());
@@ -525,6 +534,12 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
         if (!append_caps(device_template, caps_view)) [[unlikely]] {
             return false;
         }
+        if (dynamic_context.bound()) {
+            if (auto const res = dynamic_context->broadcast(profile_device + &device_template); is_exiting(res)) [[unlikely]] {
+                log("  profile_device broadcast aborted virtual-device creation.");
+                return false;
+            }
+        }
         self.set_device(device_template);
         if (!self.is_ok()) [[unlikely]] {
             log("  Device init failed.");
@@ -532,9 +547,11 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
             return false;
         }
         auto dev_str = self.devnode();
-        if (dynamic_context->broadcast(we_own_device + &dev_str) != context_action::next) [[unlikely]] {
-            log("  No one to tell we own this tool.");
-            return false;
+        if (dynamic_context.bound()) {
+            if (dynamic_context->broadcast(we_own_device + &dev_str) != context_action::next) [[unlikely]] {
+                log("  No one to tell we own this tool.");
+                return false;
+            }
         }
     }
     return true;

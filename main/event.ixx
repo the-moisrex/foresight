@@ -553,6 +553,11 @@ export namespace fs8 {
     constexpr control_event source_registered{.type = required_control_event, .code = 10, .value = 0};
     constexpr control_event source_unregistered{.type = required_control_event, .code = 10, .value = 1};
     constexpr control_event source_owned{.type = required_control_event, .code = 10, .value = 2};
+    // Offer a not-yet-created virtual device (payload: evdev, the mutable
+    // template) so mods can reshape it — e.g. pen2touch turning a tablet
+    // clone into a multitouch touchpad — before it hits /dev/uinput.
+    // General on purpose: pipelines without a profiler must stay silent.
+    constexpr control_event profile_device{.code = 11};
     // Device-list notifications share one code; `value` discriminates:
     //   0 = bulk list change (no payload) — "re-pull via enumerate_devices if you care"
     //   1 = a device was connected (payload: evdev)

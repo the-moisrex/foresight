@@ -414,6 +414,31 @@ void evdev::abs_info(code_type const abs_code, input_absinfo const& abs_info) no
     libevdev_set_abs_info(dev, abs_code, &abs_info);
 }
 
+bool evdev::has_property(unsigned const prop) const noexcept {
+    if (dev == nullptr || prop > INPUT_PROP_MAX) [[unlikely]] {
+        return false;
+    }
+    return libevdev_has_property(dev, prop) == 1;
+}
+
+void evdev::enable_property(unsigned const prop) noexcept {
+    if (dev == nullptr || prop > INPUT_PROP_MAX) [[unlikely]] {
+        return;
+    }
+    if (libevdev_enable_property(dev, prop) != 0) [[unlikely]] {
+        status = evdev_status::failed_to_set_options;
+    }
+}
+
+void evdev::disable_property(unsigned const prop) noexcept {
+    if (dev == nullptr || prop > INPUT_PROP_MAX) [[unlikely]] {
+        return;
+    }
+    if (libevdev_disable_property(dev, prop) != 0) [[unlikely]] {
+        status = evdev_status::failed_to_set_options;
+    }
+}
+
 bool evdev::operator==(evdev const& other) const noexcept {
     auto const dev2 = other.dev;
     if (dev == dev2) {

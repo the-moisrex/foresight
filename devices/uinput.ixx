@@ -258,8 +258,10 @@ export namespace fs8 {
                 //     continue;
                 // }
 
-                set_device(cur_dev);
-                if (!is_ok()) [[unlikely]] {
+                // Route through finalize_device so the device gets the
+                // standard virtual markers (name/phys/BUS_VIRTUAL) and the
+                // profile_device broadcast like every other creation path.
+                if (!finalize_device(*this, cur_dev, dev_caps_view{})) [[unlikely]] {
                     log("  Failed to set device: {}", cur_dev.device_name());
                 }
                 break;
@@ -291,11 +293,12 @@ export namespace fs8 {
                 if (matched) {
                     break;
                 }
-                set_device(*cur_dev);
-                if (!is_ok()) [[unlikely]] {
+                // Route through finalize_device: standard virtual markers +
+                // profile_device broadcast (see finalize_device).
+                matched = finalize_device(*this, *cur_dev, dev_caps_view{});
+                if (!matched) [[unlikely]] {
                     log("  Failed to set device: {}", cur_dev->device_name());
                 }
-                matched = true;
             }
             if (matched && is_ok()) {
                 auto node_str = devnode();
