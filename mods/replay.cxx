@@ -16,8 +16,8 @@ import fs8.lib.evtest;
 
 using fs8::basic_replay;
 using fs8::context_action;
-using fs8::event_type;
 using fs8::control_event;
+using fs8::event_type;
 
 template <>
 struct fs8::pimpl_idiom<basic_replay>::impl {

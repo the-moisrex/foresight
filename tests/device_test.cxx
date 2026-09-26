@@ -252,6 +252,8 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
     EXPECT_EQ(im.fd_of(source), expected_fd);
     EXPECT_FALSE(im.is_owned(source));
     EXPECT_FALSE(im.is_chained(source));
+    EXPECT_FALSE(is_owned_source(source));
+    EXPECT_FALSE(is_chained_source(source));
 }
 
 TEST(DeviceTest, DropOwnedDropsOwnedDeviceEvents) {
@@ -350,6 +352,7 @@ TEST(DeviceTest, OwnedDeviceIsResolvableAndOwned) {
     EXPECT_NE(source, source_id_none); // it's the device id, not the synthesized marker
     EXPECT_EQ(im.fd_of(source), expected_fd);
     EXPECT_TRUE(im.is_owned(source));
+    EXPECT_TRUE(is_owned_source(source));
 }
 
 TEST(DeviceTest, ChainedDeviceIsChained) {
@@ -385,7 +388,7 @@ TEST(DeviceTest, ChainedDeviceIsChained) {
       | intercept[keyboard]
       | input_manager
       | run{[](auto& ctx) noexcept {
-            saw_chained = saw_chained || from_chained(ctx);
+            saw_chained = saw_chained || from_chained(ctx.event());
         }}
       | record;
 
@@ -422,6 +425,8 @@ TEST(DeviceTest, ChainedDeviceIsChained) {
     EXPECT_NE(im.device_of(source), nullptr);
     EXPECT_FALSE(im.is_owned(source));
     EXPECT_TRUE(im.is_chained(source));
+    EXPECT_FALSE(is_owned_source(source));
+    EXPECT_TRUE(is_chained_source(source));
     EXPECT_TRUE(saw_chained);
 
     uin.close();
@@ -452,4 +457,118 @@ TEST(DeviceTest, DropSelfDropsOwnedDeviceEvents) {
 
     // All events came back from our own device, so `drop_self` dropped them.
     EXPECT_TRUE(col.empty());
+}
+
+TEST(DeviceTest, DevicePredicatesIgnoreOriginBits) {
+    constexpr auto base    = make_source_id(0x42, 7);
+    constexpr auto flagged = with_origin(base, source_id_owned | source_id_chained);
+    constexpr auto other   = make_source_id(0x43, 1);
+
+    event_type ev{};
+    ev.source(flagged);
+
+    // Identity-based predicates match despite the origin bits.
+    EXPECT_TRUE(device_is(base)(ev));
+    EXPECT_TRUE(device_is(flagged)(ev));
+    EXPECT_FALSE(device_is(other)(ev));
+    EXPECT_TRUE(from_device(ev));
+    EXPECT_EQ(drop_origin[base](ev), context_action::drop_event);
+    EXPECT_EQ(drop_origin[other](ev), context_action::next);
+    EXPECT_EQ(drop_device[flagged](ev), context_action::drop_event);
+    EXPECT_EQ(only_device[base](ev), context_action::next);
+    EXPECT_EQ(only_device[other](ev), context_action::drop_event);
+
+    // Origin-bit predicates see the flags.
+    EXPECT_TRUE(from_chained(ev));
+    EXPECT_FALSE(drop_owned(ev));
+    EXPECT_FALSE(drop_self(ev));
+    EXPECT_FALSE(self_emitted(ev));
+    // drop_emitted returns true = keep: a device-sourced event is never
+    // "synthesized", even with origin bits set.
+    EXPECT_TRUE(drop_emitted(ev));
+    EXPECT_FALSE(from_stdin(ev));
+
+    // Unflagged device source: not owned, not chained.
+    event_type plain_ev{};
+    plain_ev.source(base);
+    EXPECT_TRUE(drop_owned(plain_ev));
+    EXPECT_TRUE(drop_self(plain_ev));
+    EXPECT_FALSE(from_chained(plain_ev));
+}
+
+TEST(DeviceTest, LateOwnedDeviceGetsOriginBitStamped) {
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager | record;
+
+    auto& io  = pipeline.mod<basic_io_manager>();
+    auto& im  = pipeline.mod<basic_input_manager>();
+    auto& col = pipeline.mod<basic_record>();
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(pipeline(start), context_action::next);
+
+    auto fake = test::make_fake_keyboard();
+    ASSERT_TRUE(fake.dev.is_ok());
+    int const pipe_fd = fake.dev.native_handle();
+    // Registered before this process ever tagged the device as its own.
+    im.add(std::move(fake.dev));
+
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
+
+    // The pipeline also watches live system keyboards, which may emit their
+    // own events while this test runs — drain until our KEY_A shows up.
+    fake.inject_key_down(KEY_A);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
+    event_type first_ev{};
+    for (int i = 0; i < 8; ++i) {
+        if (invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event) != context_action::next) {
+            break;
+        }
+        if (invoke_mods(pipeline, pipeline.get_mods()) != context_action::next) {
+            break;
+        }
+        if (!col.empty()) {
+            first_ev = col.back();
+        }
+        if (first_ev.code() == KEY_A && im.fd_of(first_ev.source()) == pipe_fd) {
+            break;
+        }
+    }
+    ASSERT_EQ(first_ev.code(), KEY_A);
+    auto const first = first_ev.source();
+    EXPECT_FALSE(is_owned_source(first));
+    EXPECT_FALSE(im.is_owned(first));
+
+    // Tag it after registration: input_manager broadcasts `source_owned` and
+    // intercept stamps the origin bit into its cached source id.
+    ASSERT_EQ(im.fd_of(first), pipe_fd); // sanity: it really is our pipe device
+    im.own_device(im.sysname_of(first));
+    EXPECT_TRUE(im.is_owned(first));
+
+    fake.inject_key_down(KEY_B);
+    EXPECT_EQ(io(load_event), context_action::drop_event);
+    // Drain events (the first inject's SYN_REPORT is still queued) until KEY_B
+    // shows up.
+    event_type last{};
+    for (int i = 0; i < 8; ++i) {
+        if (invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event) != context_action::next) {
+            break;
+        }
+        if (invoke_mods(pipeline, pipeline.get_mods()) != context_action::next) {
+            break;
+        }
+        if (!col.empty()) {
+            last = col.back();
+        }
+        // Only our pipe-backed keyboard's KEY_B ends the drain: the pipeline
+        // also watches live system keyboards, which may emit their own events
+        // while this test runs.
+        if (last.code() == KEY_B && identity_of(last.source()) == identity_of(first)) {
+            break;
+        }
+    }
+    ASSERT_EQ(last.code(), KEY_B);
+    auto const second = last.source();
+    EXPECT_TRUE(is_owned_source(second));
+    EXPECT_EQ(identity_of(second), identity_of(first));
+    EXPECT_EQ(im.fd_of(second), im.fd_of(first));
 }

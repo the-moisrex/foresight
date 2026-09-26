@@ -23,11 +23,11 @@ namespace fs8 {
 // GCC 16 recognises #embed from C23 but warns under -Wpedantic because it
 // is not yet a standard C++26 feature.  Silence the warning until GCC catches up.
 #if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wc23-extensions"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wc23-extensions"
 #elif defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wc++23-extensions"
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wc++23-extensions"
 #endif
 
         // Embedded template files.  Paths resolve relative to this source file.
@@ -135,9 +135,9 @@ namespace fs8 {
         };
 
 #if defined(__clang__)
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 #elif defined(__GNUC__)
-#pragma GCC diagnostic pop
+#    pragma GCC diagnostic pop
 #endif
 
         // NOLINTEND(*-avoid-c-arrays)

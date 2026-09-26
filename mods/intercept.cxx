@@ -108,6 +108,20 @@ void basic_interceptor::mark_dirty() noexcept {
     pimpl->dirty = true;
 }
 
+void basic_interceptor::stamp_owned(std::uint32_t const source_id) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return;
+    }
+    auto const key = source_id & source_id_payload_mask;
+    for (std::size_t i = 0; i < pimpl->watched_count; ++i) {
+        auto& entry = pimpl->watched[i];
+        if ((entry.id & source_id_payload_mask) == key) {
+            entry.id |= source_id & ~source_id_payload_mask;
+            return;
+        }
+    }
+}
+
 context_action basic_interceptor::do_start() noexcept try {
     using enum context_action;
     if (pimpl.get() == nullptr) [[unlikely]] {
@@ -223,10 +237,12 @@ std::optional<event_type> basic_interceptor::do_pop(context_action& action) noex
         auto*      live_dev = find_device(entry.fd);
         bool const alive    = live_dev != nullptr && !entry.dead;
         if (!alive) {
-            int gone_fd            = entry.fd;
-            std::ignore            = dynamic_context.broadcast(io_unwatch + &gone_fd);
-            std::uint32_t unreg_id = entry.id;
-            if (auto const res = dynamic_context.broadcast(source_unregistered + &unreg_id); is_exiting(res)) {
+            int gone_fd = entry.fd;
+            std::ignore = dynamic_context.broadcast(io_unwatch + &gone_fd);
+            // The device may already be gone, so only the identity part
+            // travels — it lives in source_info::source_id.
+            source_info unreg{entry.id & source_id_payload_mask, nullptr};
+            if (auto const res = dynamic_context.broadcast(source_unregistered + &unreg); is_exiting(res)) {
                 action = res;
                 return std::nullopt;
             }
@@ -273,14 +289,19 @@ std::optional<event_type> basic_interceptor::do_pop(context_action& action) noex
         auto req    = watch_of(io_fd{.fd = dev_fd, .events = io_event::in}, *this);
         std::ignore = dynamic_context.broadcast(io_watch + &req);
         if (req.status == io_watch_status::registered) {
-            auto const src_id                      = sid(intercept, static_cast<std::uint16_t>(pimpl->watched_count));
-            auto const dname                       = dev.device_name();
-            pimpl->watched[pimpl->watched_count++] = watched_fd{dev_fd, src_id, &dev, dname};
-            source_registration reg{src_id, &dev};
+            auto const src_id = sid(intercept, static_cast<std::uint16_t>(pimpl->watched_count));
+            auto const dname  = dev.device_name();
+            // Ask input_manager whether this device is ours or another
+            // foresight process's; it answers by ORing the origin bits into
+            // reg.source_id (in/out through the shared payload), so every
+            // event we drain from this fd carries them — ownership checks
+            // downstream are then a bit test.
+            source_info reg{src_id, &dev};
             if (auto const res = dynamic_context.broadcast(source_registered + &reg); fs8::is_exiting(res)) {
                 action = res;
                 return std::nullopt;
             }
+            pimpl->watched[pimpl->watched_count++] = watched_fd{dev_fd, reg.source_id, &dev, dname};
             log("Device '{}' (re)connected.", dname);
         }
     }

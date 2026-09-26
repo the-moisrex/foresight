@@ -109,10 +109,21 @@ export namespace fs8 {
     //
     // A source_id is a std::uint32_t that encodes the origin of an event:
     //
-    //   High 16 bits — mod_id: identifies which pipeline mod generated the
-    //                  event (intercept, from_input, scheduler, etc.).
+    //   Bit  31     — owned:     the event was read back from a uinput
+    //                            device this process created.
+    //   Bit  30     — chained:   the event came from a foresight virtual
+    //                            device (its phys starts with "foresight:").
+    //   Bits 29-16 — mod_id (14 bits): identifies which pipeline mod
+    //                  generated the event (intercept, from_input,
+    //                  scheduler, etc.).
     //   Low  16 bits — source_index: a mod-private identifier (e.g. device
     //                  index for intercept, tick index for scheduler).
+    //
+    // The two origin bits are stamped by the provider mod that assigns the
+    // source id (intercept asks input_manager via the in/out `source_info`
+    // payload of the source_* family), so ownership/chained checks are a bit
+    // test — no lookup.  Identity comparisons must mask them off (use the
+    // helpers below; `make_source_id`/`sid(...)` never produce them).
     //
     // A value of 0 (source_id_none) means "unknown / unset" — the default
     // for newly constructed events.  Mods that synthesise events (emit,
@@ -122,9 +133,41 @@ export namespace fs8 {
     /// Sentinel value meaning "unknown / unset source".
     constexpr std::uint32_t source_id_none = 0;
 
-    /// Extract the mod_id (high 16 bits) from a source_id.
+    /// Origin bit: read back from a uinput device this process created.
+    constexpr std::uint32_t source_id_owned        = 1u << 31u;
+    /// Origin bit: read from another process's foresight virtual device
+    /// (phys starts with "foresight:").
+    constexpr std::uint32_t source_id_chained      = 1u << 30u;
+    /// Mask that strips the origin bits (the identity part of a source_id).
+    constexpr std::uint32_t source_id_payload_mask = ~(source_id_owned | source_id_chained);
+    /// Mask of the mod_id field (bits 29-16).
+    constexpr std::uint32_t source_id_mod_id_mask  = 0x3FFFu << 16u;
+
+    /// Whether `src` carries the owned origin bit.
+    [[nodiscard]] constexpr bool is_owned_source(std::uint32_t const src) noexcept {
+        return (src & source_id_owned) != 0;
+    }
+
+    /// Whether `src` carries the chained origin bit.
+    [[nodiscard]] constexpr bool is_chained_source(std::uint32_t const src) noexcept {
+        return (src & source_id_chained) != 0;
+    }
+
+    /// The identity part of `src` (origin bits stripped) — what identity
+    /// comparisons (`device_is`, `drop_origin`, mod lookups, …) must use.
+    [[nodiscard]] constexpr std::uint32_t identity_of(std::uint32_t const src) noexcept {
+        return src & source_id_payload_mask;
+    }
+
+    /// OR the given origin bits (`source_id_owned` / `source_id_chained`)
+    /// into an identity source_id.
+    [[nodiscard]] constexpr std::uint32_t with_origin(std::uint32_t const src, std::uint32_t const origin_bits) noexcept {
+        return (src & source_id_payload_mask) | (origin_bits & ~source_id_payload_mask);
+    }
+
+    /// Extract the mod_id (bits 29-16) from a source_id.
     [[nodiscard]] constexpr std::uint16_t mod_id(std::uint32_t const src) noexcept {
-        return static_cast<std::uint16_t>(src >> 16u);
+        return static_cast<std::uint16_t>((src & source_id_mod_id_mask) >> 16u);
     }
 
     /// Extract the source_index (low 16 bits) from a source_id.
@@ -133,8 +176,10 @@ export namespace fs8 {
     }
 
     /// Pack a mod_id and source_index into a single source_id.
+    /// The mod_id is masked to its 14 bits so it can never collide with the
+    /// origin bits; the result never carries origin bits.
     [[nodiscard]] constexpr std::uint32_t make_source_id(std::uint16_t const m, std::uint16_t const idx) noexcept {
-        return (static_cast<std::uint32_t>(m) << 16u) | idx;
+        return ((static_cast<std::uint32_t>(m) << 16u) & source_id_mod_id_mask) | idx;
     }
 
     /// Derive a compile-time mod_id for a type T.  If T defines a static
@@ -143,13 +188,15 @@ export namespace fs8 {
     ///
     /// Only provider mods (intercept, from_input, scheduler, …) need a mod_id;
     /// the hash fallback gives them a unique value without manual registration.
+    /// The result is masked to 14 bits (the top two source_id bits are the
+    /// owned/chained origin flags).
     template <typename T>
     [[nodiscard]] consteval std::uint16_t mod_id_of() noexcept {
         if constexpr (requires { T::mod_id; }) {
-            return T::mod_id;
+            return static_cast<std::uint16_t>(T::mod_id & 0x3FFFu);
         } else {
             constexpr std::string_view name = __PRETTY_FUNCTION__;
-            return static_cast<std::uint16_t>(ci_hash(name));
+            return static_cast<std::uint16_t>(ci_hash(name) & 0x3FFFu);
         }
     }
 
@@ -164,9 +211,10 @@ export namespace fs8 {
         return sid(mod, std::uint16_t{0});
     }
 
-    /// Extract the mod_id (high 16 bits) from a source_id.
+    /// Extract the mod_id (bits 29-16) from a source_id (origin bits masked
+    /// off).
     [[nodiscard]] constexpr std::uint16_t sid(std::uint32_t const src) noexcept {
-        return static_cast<std::uint16_t>(src >> 16u);
+        return mod_id(src);
     }
 
     /// Convert a source_id to a human-readable string (for diagnostics).
@@ -491,10 +539,20 @@ export namespace fs8 {
     constexpr control_event register_query_provider{.type = required_control_event, .code = 8};
     // hand a manually-added device over (moved-from by handler); payload: evdev
     constexpr control_event add_evdev_device{.type = required_control_event, .code = 9};
-    // record a source_id → device mapping; payload: source_registration
-    constexpr control_event source_registered{.type = required_control_event, .code = 10};
-    // drop a source_id mapping; payload: std::uint32_t
-    constexpr control_event source_unregistered{.type = required_control_event, .code = 11};
+    // Source-id lifecycle: one code; `value` selects the operation and every
+    // variant carries the same payload, `source_info` (devices/evdev.ixx):
+    //   0 = register:   in/out — input_manager ORs the origin bits
+    //                   (source_id_owned / source_id_chained) into
+    //                   payload.source_id; the registering mod reads them back
+    //   1 = unregister: payload.source_id (identity); device is nullptr —
+    //                   the device may already be dead
+    //   2 = owned:      a device became owned after it was registered;
+    //                   payload.source_id arrives prefilled with the owned bit
+    // Switch on `tag.code` to observe any mutation; compare the full event
+    // (e.g. `tag == source_owned`) to filter by kind.
+    constexpr control_event source_registered{.type = required_control_event, .code = 10, .value = 0};
+    constexpr control_event source_unregistered{.type = required_control_event, .code = 10, .value = 1};
+    constexpr control_event source_owned{.type = required_control_event, .code = 10, .value = 2};
     // Device-list notifications share one code; `value` discriminates:
     //   0 = bulk list change (no payload) — "re-pull via enumerate_devices if you care"
     //   1 = a device was connected (payload: evdev)
@@ -557,7 +615,7 @@ export namespace fs8 {
     }
 
     template <control_event CEvent>
-        requires(source_unregistered == CEvent || device_disconnected == CEvent)
+        requires(device_disconnected == CEvent)
     [[nodiscard]] constexpr std::uint32_t payload(control_event const& event) noexcept {
         if (event.payload == nullptr) [[unlikely]] {
             std::terminate();

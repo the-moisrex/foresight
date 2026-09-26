@@ -612,10 +612,12 @@ void fs8::condensed_view::flush(int const fd) {
 }
 
 void fs8::condensed_view::process_event(event_type const& event, int const fd, sanitizer_issue const issue) {
-    auto& st = state_for(event.source());
+    // Device identity: origin bits (owned/chained) are flags, not identity.
+    auto const src = identity_of(event.source());
+    auto&      st  = state_for(src);
 
     if (issue != sanitizer_issue::none) {
-        write_diagnostic(event.source(), issue, event, fd);
+        write_diagnostic(src, issue, event, fd);
     }
 
     auto const type  = event.type();
@@ -641,7 +643,7 @@ void fs8::condensed_view::process_event(event_type const& event, int const fd, s
           || (st.mouse.event_count > 0 && (now - st.mouse.last_event_time) > flush_timeout_);
 
         if (should_flush) {
-            flush_mouse(event.source(), st, fd);
+            flush_mouse(src, st, fd);
         }
 
         if (st.mouse.event_count == 0) {
@@ -679,7 +681,7 @@ void fs8::condensed_view::process_event(event_type const& event, int const fd, s
         // Don't flush on every SYN — let accumulation handle it via direction change or timeout
     } else if (type == EV_KEY) {
         if (st.mouse.event_count > 0) {
-            flush_mouse(event.source(), st, fd);
+            flush_mouse(src, st, fd);
         }
 
         auto const text = key_to_text(st, event);
@@ -687,7 +689,7 @@ void fs8::condensed_view::process_event(event_type const& event, int const fd, s
         if (value == 1) {
             held_key hk{.code = code, .press_time = event.micro_time()};
             st.held_keys[code] = hk;
-            write_key_event(event.source(), event, fd, text);
+            write_key_event(src, event, fd, text);
             return;
         }
         if (value == 0) {
@@ -711,7 +713,7 @@ void fs8::condensed_view::process_event(event_type const& event, int const fd, s
 
                     // Device ID prefix
                     lb.append_color(use_ansi_, ansi_dim);
-                    lb.append(format_device_id(event.source(), lb.span));
+                    lb.append(format_device_id(src, lb.span));
                     lb.append(" ");
                     lb.append_color(use_ansi_, ansi_reset);
 
@@ -765,12 +767,12 @@ void fs8::condensed_view::process_event(event_type const& event, int const fd, s
             }
         }
 
-        write_key_event(event.source(), event, fd, text);
+        write_key_event(src, event, fd, text);
     } else {
         if (st.mouse.event_count > 0) {
-            flush_mouse(event.source(), st, fd);
+            flush_mouse(src, st, fd);
         }
-        write_generic_event(event.source(), event, fd);
+        write_generic_event(src, event, fd);
     }
 }
 

@@ -9,7 +9,6 @@ export module fs8.mods:device;
 import fs8.context;
 import fs8.event;
 import fs8.traits;
-import :input_manager;
 import :inout;
 import :scheduler;
 import :idle_detector;
@@ -20,7 +19,7 @@ export namespace fs8 {
     /// own uinput device, or another process's foresight virtual device).
     constexpr struct [[nodiscard]] basic_from_device {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            auto const src = event.source();
+            auto const src = identity_of(event.source());
             // todo: this is not a clean implemenation:
             return src != source_id_none && src != sid(from_input) && src != sid(scheduler);
         }
@@ -29,13 +28,14 @@ export namespace fs8 {
     /// True when the event was read from stdin (redirect mode).
     constexpr struct [[nodiscard]] basic_from_stdin {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return event.source() == sid(from_input);
+            return identity_of(event.source()) == sid(from_input);
         }
     } from_stdin;
 
     /// True when the event was synthesized by this pipeline (an emitter or a
     /// fork). Events read back from this process's own uinput devices carry a
-    /// device id instead; check `input_manager::is_owned` for those.
+    /// device id plus the `source_id_owned` origin bit instead; check
+    /// `drop_owned` for those.
     constexpr struct [[nodiscard]] basic_self_emitted {
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
             return event.source() == source_id_none;
@@ -44,19 +44,20 @@ export namespace fs8 {
 
     /// True when the event came from another process's foresight virtual
     /// device (its phys is "foresight:...").
+    /// Reads the `source_id_chained` origin bit stamped by the provider mod.
     constexpr struct [[nodiscard]] basic_from_chained {
-        template <Context ContextT>
-        [[nodiscard]] constexpr bool operator()(ContextT& ctx) const noexcept {
-            return ctx.mod(input_manager).is_chained(ctx.event().source());
+        [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
+            return is_chained_source(event.source());
         }
     } from_chained;
 
     /// Predicate: `device_is(id)(event)` is true when `event` came from `id`.
+    /// Identity comparison: the owned/chained origin bits are ignored.
     struct [[nodiscard]] basic_device_is {
         std::uint32_t id = source_id_none;
 
         [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
-            return event.source() == id;
+            return identity_of(event.source()) == identity_of(id);
         }
     };
 
@@ -95,8 +96,9 @@ export namespace fs8 {
 
         context_action operator()(event_type const& event) const noexcept {
             using enum context_action;
+            auto const src = identity_of(event.source());
             for (std::uint32_t const origin : origins) {
-                if (event.source() == origin) {
+                if (src == identity_of(origin)) {
                     return drop_event;
                 }
             }
@@ -107,18 +109,11 @@ export namespace fs8 {
     constexpr basic_drop_origin<0> drop_origin;
 
     /// Convenience: drop synthesized events (`source_id_none`) and events read
-    /// back from this process's own uinput devices.
+    /// back from this process's own uinput devices (`source_id_owned`).
     constexpr struct [[nodiscard]] basic_drop_self {
-        context_action operator()(Context auto& ctx) const noexcept {
-            using enum context_action;
-            auto const& event = ctx.event();
-            if (event.source() == source_id_none) [[unlikely]] {
-                return drop_event;
-            }
-            if (ctx.mod(input_manager).is_owned(event.source())) [[unlikely]] {
-                return drop_event;
-            }
-            return next;
+        [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
+            auto const src = event.source();
+            return src != source_id_none && !is_owned_source(src);
         }
     } drop_self;
 
@@ -126,12 +121,8 @@ export namespace fs8 {
     /// Unlike `drop_self`, this does NOT drop events synthesized by emit/fork
     /// (`source_id_none`).
     constexpr struct [[nodiscard]] basic_drop_owned {
-        context_action operator()(Context auto& ctx) const noexcept {
-            using enum context_action;
-            if (ctx.mod(input_manager).is_owned(ctx.event().source())) [[unlikely]] {
-                return drop_event;
-            }
-            return next;
+        [[nodiscard]] constexpr bool operator()(event_type const& event) const noexcept {
+            return !is_owned_source(event.source());
         }
     } drop_owned;
 
@@ -168,8 +159,9 @@ export namespace fs8 {
 
         context_action operator()(event_type const& event) const noexcept {
             using enum context_action;
+            auto const src = identity_of(event.source());
             for (std::uint32_t const device : devices) {
-                if (event.source() == device) {
+                if (src == identity_of(device)) {
                     return drop_event;
                 }
             }
@@ -203,8 +195,9 @@ export namespace fs8 {
 
         context_action operator()(event_type const& event) const noexcept {
             using enum context_action;
+            auto const src = identity_of(event.source());
             for (std::uint32_t const device : devices) {
-                if (event.source() == device) {
+                if (src == identity_of(device)) {
                     return next;
                 }
             }

@@ -52,8 +52,11 @@ export namespace fs8 {
         /// Record a device node (e.g. "/dev/input/event9") of a uinput device
         /// that this process created. Devices are only ever *tagged*; they are
         /// still enumerated and watched like any other device, and events read
-        /// back from them carry their normal device id. `is_owned` answers
-        /// whether a device id belongs to one of ours.
+        /// back from them carry their normal device id plus the
+        /// `source_id_owned` origin bit (answered through the in/out
+        /// `source_registered` payload, or pushed via `source_owned` for
+        /// devices registered before the tag). `is_owned` answers whether a
+        /// device id belongs to one of ours.
         void own_device(std::string_view devnode) noexcept;
 
         /// Whether `dev` is a uinput device created by this process.
@@ -66,10 +69,14 @@ export namespace fs8 {
         /// have no provider-registered source_id).
         [[nodiscard]] std::uint32_t source_id_of(evdev const& dev) const noexcept;
 
-        /// Register a source_id → device mapping.  Called by provider mods
-        /// (e.g. intercept) that create mod_id-prefixed source_ids so that
-        /// `device_of(source_id)` can resolve them back to live devices.
-        void register_source(std::uint32_t source_id, evdev& dev) noexcept;
+        /// Register a source_id → device mapping and answer the origin flags:
+        /// ORs the `source_id_owned` / `source_id_chained` bits into
+        /// `info.source_id` (one sysname/phys check each) so the registering
+        /// mod reads them straight back from the id it caches. Called by
+        /// provider mods (e.g. intercept) that create mod_id-prefixed
+        /// source_ids so that `device_of(source_id)` can resolve them back to
+        /// live devices.
+        void register_source(source_info& info) noexcept;
 
         /// Unregister a previously registered source_id.
         void unregister_source(std::uint32_t source_id) noexcept;
@@ -91,10 +98,12 @@ export namespace fs8 {
         [[nodiscard]] std::string_view name_of(std::uint32_t id) const noexcept;
 
         /// Whether `id` belongs to a uinput device this process created.
+        /// O(1): reads the flags cached when the source was registered.
         [[nodiscard]] bool is_owned(std::uint32_t id) const noexcept;
 
         /// Whether `id` belongs to another process's foresight virtual device
-        /// (its phys starts with "foresight:").
+        /// (its phys starts with "foresight:"). O(1): reads the flags cached
+        /// when the source was registered.
         [[nodiscard]] bool is_chained(std::uint32_t id) const noexcept;
 
         /// A range view over the owned devices (stable handles: the storage is a

@@ -45,13 +45,13 @@ namespace {
 
 template <>
 struct fs8::pimpl_idiom<basic_input_manager>::impl {
-    bool                                      started = false;
-    std::atomic<bool>                         stop_requested{false};
-    udev_monitor                              monitor;
-    std::list<evdev>                          devs;           // stable handles; todo: switch to std::hive once available
-    std::vector<query_provider_handle>        providers;
-    std::vector<std::string>                  owned_sysnames; // uinput devices created by this process
-    std::unordered_map<std::uint32_t, evdev*> source_map;     // source_id → device (set by provider mods)
+    bool                                           started = false;
+    std::atomic<bool>                              stop_requested{false};
+    udev_monitor                                   monitor;
+    std::list<evdev>                               devs;           // stable handles; todo: switch to std::hive once available
+    std::vector<query_provider_handle>             providers;
+    std::vector<std::string>                       owned_sysnames; // uinput devices created by this process
+    std::unordered_map<std::uint32_t, source_info> source_map;     // identity source_id → source_info (origin flags live in source_id)
 
     /// Announce a newly tracked device to the pipeline (single merged
     /// devices_changed-family broadcast; `value == 1`).
@@ -93,7 +93,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         // Drop source_id mappings first, while the devices are still alive
         // (device_sysname dereferences them; after erase_if they dangle).
         std::erase_if(source_map, [&](auto const& kv) noexcept {
-            return kv.second == nullptr || device_sysname(*kv.second) == name;
+            return kv.second.device == nullptr || device_sysname(*kv.second.device) == name;
         });
         uint32_t id     = 0;
         bool     erased = false;
@@ -364,6 +364,27 @@ void basic_input_manager::own_device(std::string_view const devnode) noexcept {
     } catch (...) {
         log("Possibly allocation failure");
         // Allocation failure: silently drop.
+        return;
+    }
+    // A device that was registered *before* this tag becomes owned
+    // retroactively: set the origin bit on its stored source_id here and tell
+    // the provider mods that cache ids (intercept) via `source_owned`, so
+    // future events are stamped with `source_id_owned`.
+    for (auto& kv : pimpl->source_map) {
+        auto& info = kv.second;
+        if (is_owned_source(info.source_id) || info.device == nullptr) [[unlikely]] {
+            continue;
+        }
+        if (device_sysname(*info.device) != sysname) {
+            continue;
+        }
+        info.source_id |= source_id_owned;
+        if (!dynamic_context.bound()) {
+            continue;
+        }
+        // Broadcast a copy: receivers must not touch the map's storage.
+        source_info note = info;
+        std::ignore      = dynamic_context.broadcast(source_owned + &note);
     }
 }
 
@@ -395,16 +416,23 @@ std::uint32_t basic_input_manager::source_id_of(evdev const& dev) const noexcept
 }
 
 fs8::evdev const* basic_input_manager::device_of(std::uint32_t const id) const noexcept {
-    if (id == source_id_none) [[unlikely]] {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return nullptr;
+    }
+    // The identity part of the id: origin bits (owned/chained) are flags,
+    // not identity.
+    auto const key = identity_of(id);
+    if (key == source_id_none) [[unlikely]] {
         return nullptr;
     }
     // Fast path: check the source_id map (set by provider mods like intercept).
-    if (auto const it = pimpl->source_map.find(id); it != pimpl->source_map.end()) {
-        return it->second;
+    if (auto const it = pimpl->source_map.find(key); it != pimpl->source_map.end()) {
+        return it->second.device;
     }
-    // Fallback: check by ci_hash(sysname) for ids that were never registered.
+    // Fallback: check by ci_hash(sysname) for ids that were never registered
+    // (identity-compare: the legacy hash's top bits are meaningless flags).
     for (evdev const& dev : pimpl->devs) {
-        if (source_id_of(dev) == id) {
+        if (identity_of(source_id_of(dev)) == key) {
             return &dev;
         }
     }
@@ -431,6 +459,14 @@ std::string_view basic_input_manager::name_of(std::uint32_t const id) const noex
 }
 
 bool basic_input_manager::is_owned(std::uint32_t const id) const noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return false;
+    }
+    // Fast path: the origin bits cached in the stored source_id (no readlink).
+    if (auto const it = pimpl->source_map.find(identity_of(id)); it != pimpl->source_map.end()) {
+        return is_owned_source(it->second.source_id);
+    }
+    // Unregistered id: resolve the device the slow way, if it exists at all.
     auto const* const dev = device_of(id);
     if (dev == nullptr) [[unlikely]] {
         return false;
@@ -439,6 +475,13 @@ bool basic_input_manager::is_owned(std::uint32_t const id) const noexcept {
 }
 
 bool basic_input_manager::is_chained(std::uint32_t const id) const noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        return false;
+    }
+    // Fast path: the origin bits cached in the stored source_id.
+    if (auto const it = pimpl->source_map.find(identity_of(id)); it != pimpl->source_map.end()) {
+        return is_chained_source(it->second.source_id);
+    }
     auto const* const dev = device_of(id);
     if (dev == nullptr) [[unlikely]] {
         return false;
@@ -446,18 +489,30 @@ bool basic_input_manager::is_chained(std::uint32_t const id) const noexcept {
     return dev->physical_location().starts_with("foresight:");
 }
 
-void basic_input_manager::register_source(std::uint32_t const source_id, evdev& dev) noexcept {
+void basic_input_manager::register_source(fs8::source_info& info) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;
     }
-    pimpl->source_map[source_id] = &dev;
+    if (info.device != nullptr) {
+        // One readlink + phys check per registration (not per event). The
+        // answer goes into info.source_id: the origin bits are the in/out
+        // channel the sender reads back.
+        auto const sysname = device_sysname(*info.device);
+        if (!sysname.empty() && is_owned_sysname(sysname)) {
+            info.source_id |= source_id_owned;
+        }
+        if (info.device->physical_location().starts_with("foresight:")) {
+            info.source_id |= source_id_chained;
+        }
+    }
+    pimpl->source_map[info.source_id & source_id_payload_mask] = info;
 }
 
 void basic_input_manager::unregister_source(std::uint32_t const source_id) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;
     }
-    pimpl->source_map.erase(source_id);
+    pimpl->source_map.erase(source_id & source_id_payload_mask);
 }
 
 void basic_input_manager::request_stop() noexcept {
@@ -586,12 +641,16 @@ context_action basic_input_manager::operator()(control_event const& event) noexc
             requery();
             return next;
         case add_evdev_device.code: add(std::move(payload<add_evdev_device>(event))); return next;
-        case source_registered.code: {
-            auto const reg = payload<source_registered>(event);
-            register_source(reg.source_id, *reg.device);
-            return next;
-        }
-        case source_unregistered.code: unregister_source(payload<source_unregistered>(event)); return next;
+        case source_registered.code: // whole family (code 10): register/unregister/owned
+            switch (event.value) {
+                case source_registered.value: register_source(payload<source_registered>(event)); return next;
+                case source_unregistered.value: unregister_source(payload<source_unregistered>(event).source_id); return next;
+                // `source_owned` is sent by own_device below; nothing to do on
+                // the sending side, but claim it so the required broadcast
+                // doesn't warn in pipelines without a watcher mod.
+                case source_owned.value: return next;
+                default: return drop_event;
+            }
         case enumerate_devices.code: {
             auto& list = payload<enumerate_devices>(event);
             for (auto& dev : devices()) {

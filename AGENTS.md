@@ -262,10 +262,24 @@ log(event);          // type_name(), code_name(), value()
   usable in `switch`.
 - `user_event`, `event_code`, `key_event` are plain POD-ish helpers;
   `key_code`/`key_codes` build `EV_KEY` codes.
-- `source_id` (a `uint32_t`: high 16 = mod id, low 16 = source index) encodes
-  event origin: `make_source_id(mod, idx)`, `sid(mod[, idx])`, `mod_id_of<T>()`
+- `source_id` (a `uint32_t`: bits 30/31 are the `source_id_chained` /
+  `source_id_owned` origin flags, the remaining 30-bit payload holds mod id
+  [14 bits] + source index [16 bits]) encodes event origin:
+  `make_source_id(mod, idx)`, `sid(mod[, idx])`, `mod_id_of<T>()`
   (reads `T::mod_id` or hashes `__PRETTY_FUNCTION__`), plus `mod_id()` /
-  `source_index()` unpackers. `source_id_none == 0` means unset.
+  `source_index()` unpackers — none of them ever set the origin flags.
+  `identity_of(src)` strips the flags (use it whenever comparing ids),
+  `with_origin(src, bits)` adds them, `is_owned_source`/`is_chained_source`
+  read them. Providers stamp the flags once at registration through the
+  source_* family (one code 10, `value` = register/unregister/owned, payload
+  `source_info {source_id, device*}`): input_manager ORs the origin bits into
+  `source_info.source_id` — the id itself is the in/out answer channel — and
+  the sender reads them straight back. A device tagged as ours *after*
+  registration gets the bit later via the same family's `source_owned`
+  (value 2, `source_id` prefilled with the owned bit). `source_id_none == 0`
+  means unset.
+  Because the flags live in the id, `drop_self`/`drop_owned`/`from_chained`
+  are pure event predicates and do not require `input_manager` in the pipeline.
 - Mods that need a *service* rather than a shared condition talk to it with a
   `required_control_event` carrying a payload pointer: build with `ev + &arg`
   (non-const only), read back with `payload<ev>(tag)` — see the `io_*` family
@@ -390,3 +404,9 @@ clang-format). Regenerate with that script instead of editing.
 - API reference: Doxygen generated from the `///` comments in the `.ixx` files.
   Build with `cmake --build <build> --target docs`, or run
   `FS8_DOC_OUTPUT=<dir> doxygen Doxyfile` from the repo root.
+
+## Performance
+
+- Be mindful of hot-paths in pipeline (mostly mod's operator()(ctx) or similarly invoked overloads)
+- Use [[unlikely]] and [[likely]]
+- Simplicity over over-engineering

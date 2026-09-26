@@ -69,6 +69,20 @@ export namespace fs8 {
                     return action;
                 }
                 case devices_changed.code: mark_dirty(); return next; // also catches connected/disconnected (merged code)
+                case source_registered.code:                          // whole family (code 10)
+                    // Only the `owned` op concerns us: a device we already
+                    // registered became owned afterwards (own_device arrived
+                    // late) — stamp the origin bits into the cached id so
+                    // future events carry it. Register/unregister are our own
+                    // sends (and input_manager's answer rides the payload we
+                    // read back after the broadcast), so don't claim them:
+                    // a pipeline without input_manager must still trip the
+                    // required warning.
+                    if (tag != source_owned) {
+                        return drop_event;
+                    }
+                    stamp_owned(payload<source_owned>(tag).source_id);
+                    return next;
                 default: return drop_event;
             }
         }
@@ -88,6 +102,10 @@ export namespace fs8 {
         context_action            do_start() noexcept;
         std::optional<event_type> do_pop(context_action& action) noexcept;
         void                      mark_dirty() noexcept;
+
+        /// `source_owned`: OR the origin bits carried by `source_id` into the
+        /// cached id whose identity part matches it.
+        void stamp_owned(std::uint32_t source_id) noexcept;
 
         std::array<owned_query, 16>  owned_queries{}; // consteval-copyable part
         std::size_t                  queries_count = 0;

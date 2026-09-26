@@ -47,10 +47,11 @@ evdev::evdev(std::filesystem::path const& file) noexcept {
 }
 
 evdev::evdev(evdev&& inp) noexcept
-    : dev{std::exchange(inp.dev, nullptr)}, status{std::exchange(inp.status, evdev_status::unknown)}
+  : dev{std::exchange(inp.dev, nullptr)},
+    status{std::exchange(inp.status, evdev_status::unknown)}
 #ifndef NDEBUG
-      ,
-      pipe_read_fd_{std::exchange(inp.pipe_read_fd_, -1)}
+    ,
+    pipe_read_fd_{std::exchange(inp.pipe_read_fd_, -1)}
 #endif
 {
 }

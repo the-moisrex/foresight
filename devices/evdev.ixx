@@ -262,9 +262,18 @@ namespace fs8 {
     /// Release all held keys on a device by sending EV_KEY release events.
     export void release_all_keys(evdev& dev) noexcept;
 
-    /// Payload for `source_registered`: a mod-assigned source_id and the live
-    /// device it maps to.
-    export struct [[nodiscard]] source_registration {
+    /// Payload for the `source_*` control-event family (code 10, see
+    /// main/event.ixx): a mod-assigned source_id plus the device it maps to.
+    ///
+    /// In/out convention — the origin bits inside `source_id` are the answer
+    /// channel:
+    /// - register: the sender passes the identity part; input_manager ORs the
+    ///   `source_id_owned` / `source_id_chained` origin bits in (one sysname
+    ///   lookup / phys check each) and the sender reads them back.
+    /// - unregister: `source_id` is the identity part; `device` is nullptr —
+    ///   the device may already be dead.
+    /// - owned: `source_id` arrives prefilled with the owned bit.
+    export struct [[nodiscard]] source_info {
         uint32_t source_id = 0;
         evdev*   device    = nullptr;
     };
@@ -287,12 +296,12 @@ namespace fs8 {
     }
 
     export template <control_event CEvent>
-        requires(source_registered == CEvent)
-    [[nodiscard]] constexpr source_registration payload(control_event const& event) noexcept {
+        requires(source_registered == CEvent || source_unregistered == CEvent || source_owned == CEvent)
+    [[nodiscard]] constexpr source_info& payload(control_event const& event) noexcept {
         if (event.payload == nullptr) [[unlikely]] {
             std::terminate();
         }
-        return *static_cast<source_registration*>(event.payload);
+        return *static_cast<source_info*>(event.payload);
     }
 
     export template <control_event CEvent>
