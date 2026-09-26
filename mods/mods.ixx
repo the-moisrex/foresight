@@ -9,6 +9,7 @@ export import fs8.event;
 
 // Mods:
 export import :abs2rel;
+export import :pen2touch;
 export import :autocomplete;
 export import :benchmark;
 export import :capture;

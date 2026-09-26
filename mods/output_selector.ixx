@@ -126,7 +126,7 @@ namespace fs8 {
     ///
     /// auto const parsed = args(argc, argv);
     /// parsed.exit_if_needed();
-    /// fs8::output_flags.configure(output, parsed);
+    /// fs8::output_flags.configure(pipeline.mod(output), parsed);
     /// ```
     struct [[nodiscard]] output_flag_group {
         consteval explicit output_flag_group(std::uint8_t const sel = 0) noexcept : default_selected_(sel) {}

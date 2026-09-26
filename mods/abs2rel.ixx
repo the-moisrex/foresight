@@ -46,41 +46,6 @@ export namespace fs8 {
         }
     } pressure2mouse_clicks;
 
-    constexpr struct [[nodiscard]] basic_pen2touch {
-        using code_type = event_type::code_type;
-
-        template <Context CtxT>
-        void operator()(CtxT& ctx, special_event const& tag) const noexcept {
-            if (tag.code != start.code) {
-                return;
-            }
-            if constexpr (has_mod<basic_keys_state, CtxT>) {
-                auto const& keys = ctx.mod(keys_state);
-                for (code_type const tool :
-                     std::initializer_list<code_type>{
-                       BTN_TOOL_PEN,
-                       BTN_TOOL_RUBBER,
-                       BTN_TOOL_BRUSH,
-                       BTN_TOOL_PENCIL,
-                       BTN_TOOL_AIRBRUSH,
-                       // BTN_TOOL_FINGER,
-                       BTN_TOOL_MOUSE,
-                       BTN_TOOL_LENS})
-                {
-                    if (keys.is_pressed(tool)) {
-                        // Release the tools
-                        std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 0});
-                        std::ignore = ctx.fork_emit(syn());
-                        std::ignore = ctx.fork_emit(event_type{EV_KEY, BTN_TOOL_FINGER, 0});
-                        std::ignore = ctx.fork_emit(syn());
-                    }
-                }
-            }
-        }
-
-        context_action operator()(event_type& event) const noexcept;
-    } pen2touch;
-
     constexpr struct [[nodiscard]] basic_pen2mice : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 

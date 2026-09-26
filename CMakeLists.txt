@@ -100,6 +100,7 @@ target_sources(${LIB_NAME}
         main/new.cxx
         main/systemd.cxx
         mods/abs2rel.cxx
+        mods/pen2touch.cxx
         mods/autocomplete.cxx
         mods/capture.cxx
         mods/capture_format.cxx
@@ -161,6 +162,7 @@ target_sources(${LIB_NAME}
         main/translate.ixx
         main/utils.ixx
         mods/abs2rel.ixx
+        mods/pen2touch.ixx
         mods/autocomplete.ixx
         mods/benchmark.ixx
         mods/capture.ixx

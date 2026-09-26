@@ -51,34 +51,6 @@ context_action fs8::basic_pressure2mouse_clicks::operator()(event_type& event) n
     return next;
 }
 
-// For more information:
-// https://www.kernel.org/doc/Documentation/input/multi-touch-protocol.txt
-context_action fs8::basic_pen2touch::operator()(event_type& event) const noexcept {
-    using enum context_action;
-    if (event.type() != EV_KEY) {
-        return next;
-    }
-
-    switch (event.code()) {
-        case BTN_TOUCH: {
-            // BTN_TOUCH is the click; the rest, are which click
-            break;
-        }
-
-        case BTN_TOOL_PEN:
-        case BTN_TOOL_BRUSH:
-        case BTN_TOOL_PENCIL:
-        case BTN_TOOL_AIRBRUSH:
-        // case BTN_TOOL_FINGER:
-        case BTN_TOOL_MOUSE:
-        case BTN_TOOL_LENS:
-        case BTN_TOOL_RUBBER: event.code(BTN_TOOL_FINGER); return next;
-
-        default: break;
-    }
-    return next;
-}
-
 void fs8::basic_pen2mice::operator()(event_type& event) noexcept {
     if (event.type() != EV_KEY) {
         return;
