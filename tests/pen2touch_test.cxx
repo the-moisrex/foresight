@@ -8,6 +8,7 @@
 #include <vector>
 import dynamic_scoping;
 import fs8.devices.evdev;
+import fs8.devices.queries;
 import fs8.mods;
 
 using namespace fs8;
@@ -15,9 +16,7 @@ using namespace fs8;
 namespace {
 
     /// Collect all events that match a given type+code, ignoring SYN_REPORT.
-    std::vector<event_type> collect(std::span<event_type const> const events,
-                                    std::uint16_t const               type,
-                                    std::uint16_t const               code) {
+    std::vector<event_type> collect(std::span<event_type const> const events, std::uint16_t const type, std::uint16_t const code) {
         std::vector<event_type> out;
         for (auto const& event : events) {
             if (event.type() == type && event.code() == code) {
@@ -28,8 +27,9 @@ namespace {
     }
 
     /// Build an in-memory tablet-like source device: pen tool, stylus
-    /// button, position/pressure/tilt axes, and the DIRECT property —
-    /// everything the profile broadcast is supposed to get rid of.
+    /// buttons, a BTN_LEFT (some pens expose one), position/pressure/tilt
+    /// axes, and the DIRECT property — everything the profile broadcast is
+    /// supposed to get rid of.
     fs8::evdev make_tablet_template() {
         auto src = fs8::evdev{libevdev_new(), fs8::evdev_status::success};
         src.device_name("Pen2Touch Test Tablet");
@@ -38,6 +38,9 @@ namespace {
         src.enable_event_code(EV_KEY, BTN_TOUCH);
         src.enable_event_code(EV_KEY, BTN_TOOL_PEN);
         src.enable_event_code(EV_KEY, BTN_STYLUS);
+        src.enable_event_code(EV_KEY, BTN_STYLUS2);
+        src.enable_event_code(EV_KEY, BTN_STYLUS3);
+        src.enable_event_code(EV_KEY, BTN_LEFT);
         static constexpr input_absinfo x_info{.minimum = 0, .maximum = 32'767, .resolution = 100};
         static constexpr input_absinfo y_info{.minimum = 0, .maximum = 32'767, .resolution = 100};
         static constexpr input_absinfo pressure_info{.minimum = 0, .maximum = 8191};
@@ -50,7 +53,51 @@ namespace {
         return src;
     }
 
-    /// Count events matching a given type+code.
+    /// Assert that `created` is a single-finger multitouch touchpad: what
+    /// `profile_device` must turn any tablet clone into before uinput
+    /// creates it. Kept range-agnostic where possible so it also works for
+    /// clones of a real tablet (whose axis ranges we don't know).
+    void expect_touchpad_caps(fs8::evdev const& created) {
+        // Fixed virtual identity: never masquerade as (quirk-matched) hardware.
+        EXPECT_EQ(created.device_name(), "Foresight Virtual Touchpad");
+        // Touchpad keys: fingers yes, pen tools no.
+        EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_TOUCH));
+        EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_TOOL_FINGER));
+        EXPECT_FALSE(created.has_event_code(EV_KEY, BTN_TOOL_PEN));
+        EXPECT_FALSE(created.has_event_code(EV_KEY, BTN_STYLUS));
+        EXPECT_FALSE(created.has_event_code(EV_KEY, BTN_STYLUS2));
+        EXPECT_FALSE(created.has_event_code(EV_KEY, BTN_STYLUS3));
+        // Barrel buttons are regular mouse buttons.  BTN_LEFT is the pen
+        // tip press; advertising it also flips libinput's tap-to-click
+        // default off (tp_tap_default), which is what keeps hover enter/
+        // leave from firing spurious taps.
+        EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_RIGHT));
+        EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_MIDDLE));
+        EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_SIDE));
+        EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_LEFT));
+        EXPECT_FALSE(created.has_property(INPUT_PROP_BUTTONPAD));
+        // Tilt is gone, MT is in.
+        EXPECT_FALSE(created.has_event_code(EV_ABS, ABS_TILT_X));
+        EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_SLOT));
+        EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_TRACKING_ID));
+        EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_POSITION_X));
+        EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_POSITION_Y));
+        // No ABS_MT_PRESSURE: advertising it makes libinput switch to
+        // pressure-based touch detection, whose begin threshold (12% of
+        // range) and palm threshold (~130) pen pressure cannot satisfy.
+        EXPECT_FALSE(created.has_event_code(EV_ABS, ABS_MT_PRESSURE));
+
+        // MT absinfo: bounded tracking ids (profile constant), position
+        // copied from the source axis (non-empty range).
+        ASSERT_NE(created.abs_info(ABS_MT_TRACKING_ID), nullptr);
+        EXPECT_EQ(created.abs_info(ABS_MT_TRACKING_ID)->minimum, 0);
+        EXPECT_EQ(created.abs_info(ABS_MT_TRACKING_ID)->maximum, 65'535);
+        ASSERT_NE(created.abs_info(ABS_MT_POSITION_X), nullptr);
+        EXPECT_GT(created.abs_info(ABS_MT_POSITION_X)->maximum, 0);
+
+        EXPECT_TRUE(created.has_property(INPUT_PROP_POINTER));
+        EXPECT_FALSE(created.has_property(INPUT_PROP_DIRECT));
+    }
 
 } // namespace
 
@@ -63,7 +110,7 @@ TEST(Pen2TouchTest, RenamesPenToolToFinger) {
       context
       | emit_all[{
         {EV_KEY, BTN_TOOL_PEN, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_SYN,   SYN_REPORT, 0},
     }]
       | pen2touch
       | record;
@@ -71,11 +118,13 @@ TEST(Pen2TouchTest, RenamesPenToolToFinger) {
 
     pipeline();
 
-    auto const events = col.without_syn();
-    ASSERT_GE(events.size(), 1U);
-    EXPECT_EQ(events[0].type(), EV_KEY);
-    EXPECT_EQ(events[0].code(), BTN_TOOL_FINGER);
-    EXPECT_EQ(events[0].value(), 1);
+    // The tool press also opens the hover contact (see
+    // ToolPressBeginsContact), so the renamed key is no longer the first
+    // recorded event — look it up instead.
+    auto const finger = collect(col.events(), EV_KEY, BTN_TOOL_FINGER);
+    ASSERT_EQ(finger.size(), 1U);
+    EXPECT_EQ(finger[0].value(), 1);
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_TOOL_PEN).empty());
 }
 
 TEST(Pen2TouchTest, RenamesRubberToolToFinger) {
@@ -83,7 +132,7 @@ TEST(Pen2TouchTest, RenamesRubberToolToFinger) {
       context
       | emit_all[{
         {EV_KEY, BTN_TOOL_RUBBER, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_SYN,      SYN_REPORT, 0},
     }]
       | pen2touch
       | record;
@@ -91,78 +140,99 @@ TEST(Pen2TouchTest, RenamesRubberToolToFinger) {
 
     pipeline();
 
-    auto const events = col.without_syn();
-    ASSERT_GE(events.size(), 1U);
-    EXPECT_EQ(events[0].code(), BTN_TOOL_FINGER);
+    auto const finger = collect(col.events(), EV_KEY, BTN_TOOL_FINGER);
+    ASSERT_EQ(finger.size(), 1U);
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_TOOL_RUBBER).empty());
 }
 
 TEST(Pen2TouchTest, RenamesAllPenToolVariants) {
     // Each pipeline is consteval, so we test each tool variant individually.
     {
         auto pipeline =
-          context | emit_all[{{EV_KEY, BTN_TOOL_BRUSH, 1}, {EV_SYN, SYN_REPORT, 0}}]
-          | pen2touch | record;
+          context
+          | emit_all[{
+            {EV_KEY, BTN_TOOL_BRUSH, 1},
+            {EV_SYN,     SYN_REPORT, 0}
+        }]
+          | pen2touch
+          | record;
         pipeline();
-        auto const events = pipeline.mod<basic_record>().without_syn();
-        ASSERT_GE(events.size(), 1U);
-        EXPECT_EQ(events[0].code(), BTN_TOOL_FINGER);
+        auto const finger = collect(pipeline.mod<basic_record>().events(), EV_KEY, BTN_TOOL_FINGER);
+        ASSERT_EQ(finger.size(), 1U);
     }
     {
         auto pipeline =
-          context | emit_all[{{EV_KEY, BTN_TOOL_PENCIL, 1}, {EV_SYN, SYN_REPORT, 0}}]
-          | pen2touch | record;
+          context
+          | emit_all[{
+            {EV_KEY, BTN_TOOL_PENCIL, 1},
+            {EV_SYN,      SYN_REPORT, 0}
+        }]
+          | pen2touch
+          | record;
         pipeline();
-        auto const events = pipeline.mod<basic_record>().without_syn();
-        ASSERT_GE(events.size(), 1U);
-        EXPECT_EQ(events[0].code(), BTN_TOOL_FINGER);
+        auto const finger = collect(pipeline.mod<basic_record>().events(), EV_KEY, BTN_TOOL_FINGER);
+        ASSERT_EQ(finger.size(), 1U);
     }
     {
         auto pipeline =
-          context | emit_all[{{EV_KEY, BTN_TOOL_AIRBRUSH, 1}, {EV_SYN, SYN_REPORT, 0}}]
-          | pen2touch | record;
+          context
+          | emit_all[{
+            {EV_KEY, BTN_TOOL_AIRBRUSH, 1},
+            {EV_SYN,        SYN_REPORT, 0}
+        }]
+          | pen2touch
+          | record;
         pipeline();
-        auto const events = pipeline.mod<basic_record>().without_syn();
-        ASSERT_GE(events.size(), 1U);
-        EXPECT_EQ(events[0].code(), BTN_TOOL_FINGER);
+        auto const finger = collect(pipeline.mod<basic_record>().events(), EV_KEY, BTN_TOOL_FINGER);
+        ASSERT_EQ(finger.size(), 1U);
     }
     {
         auto pipeline =
-          context | emit_all[{{EV_KEY, BTN_TOOL_MOUSE, 1}, {EV_SYN, SYN_REPORT, 0}}]
-          | pen2touch | record;
+          context
+          | emit_all[{
+            {EV_KEY, BTN_TOOL_MOUSE, 1},
+            {EV_SYN,     SYN_REPORT, 0}
+        }]
+          | pen2touch
+          | record;
         pipeline();
-        auto const events = pipeline.mod<basic_record>().without_syn();
-        ASSERT_GE(events.size(), 1U);
-        EXPECT_EQ(events[0].code(), BTN_TOOL_FINGER);
+        auto const finger = collect(pipeline.mod<basic_record>().events(), EV_KEY, BTN_TOOL_FINGER);
+        ASSERT_EQ(finger.size(), 1U);
     }
     {
         auto pipeline =
-          context | emit_all[{{EV_KEY, BTN_TOOL_LENS, 1}, {EV_SYN, SYN_REPORT, 0}}]
-          | pen2touch | record;
+          context
+          | emit_all[{
+            {EV_KEY, BTN_TOOL_LENS, 1},
+            {EV_SYN,    SYN_REPORT, 0}
+        }]
+          | pen2touch
+          | record;
         pipeline();
-        auto const events = pipeline.mod<basic_record>().without_syn();
-        ASSERT_GE(events.size(), 1U);
-        EXPECT_EQ(events[0].code(), BTN_TOOL_FINGER);
+        auto const finger = collect(pipeline.mod<basic_record>().events(), EV_KEY, BTN_TOOL_FINGER);
+        ASSERT_EQ(finger.size(), 1U);
     }
 }
 
 // ---------------------------------------------------------------------------
-// Touch-down: BTN_TOUCH=1 emits MT contact start
+// Contact begin on tip press (tablets without BTN_TOOL_*: the tip alone
+// drives the contact — see ToolPressBeginsContact for the proximity path)
 // ---------------------------------------------------------------------------
 
 TEST(Pen2TouchTest, TouchDownEmitsTrackingId) {
     auto pipeline =
       context
       | emit_all[{
-        {EV_KEY, BTN_TOOL_PEN, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY, BTN_TOOL_PEN,    1},
+        {EV_SYN,   SYN_REPORT,    0},
         // Position before touch
-        {EV_ABS, ABS_X, 1000},
-        {EV_ABS, ABS_Y, 2000},
-        {EV_ABS, ABS_PRESSURE, 50},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_ABS,        ABS_X, 1000},
+        {EV_ABS,        ABS_Y, 2000},
+        {EV_ABS, ABS_PRESSURE,   50},
+        {EV_SYN,   SYN_REPORT,    0},
         // Touch down
-        {EV_KEY, BTN_TOUCH, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY,    BTN_TOUCH,    1},
+        {EV_SYN,   SYN_REPORT,    0},
     }]
       | pen2touch
       | record;
@@ -180,7 +250,7 @@ TEST(Pen2TouchTest, TouchDownEmitsSlot) {
     auto pipeline =
       context
       | emit_all[{
-        {EV_KEY, BTN_TOUCH, 1},
+        {EV_KEY,  BTN_TOUCH, 1},
         {EV_SYN, SYN_REPORT, 0},
     }]
       | pen2touch
@@ -198,11 +268,11 @@ TEST(Pen2TouchTest, TouchDownEmitsPosition) {
     auto pipeline =
       context
       | emit_all[{
-        {EV_ABS, ABS_X, 1500},
-        {EV_ABS, ABS_Y, 2500},
-        {EV_SYN, SYN_REPORT, 0},
-        {EV_KEY, BTN_TOUCH, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_ABS,      ABS_X, 1500},
+        {EV_ABS,      ABS_Y, 2500},
+        {EV_SYN, SYN_REPORT,    0},
+        {EV_KEY,  BTN_TOUCH,    1},
+        {EV_SYN, SYN_REPORT,    0},
     }]
       | pen2touch
       | record;
@@ -218,14 +288,14 @@ TEST(Pen2TouchTest, TouchDownEmitsPosition) {
     EXPECT_EQ(pos_y[0].value(), 2500);
 }
 
-TEST(Pen2TouchTest, TouchDownEmitsPressure) {
+TEST(Pen2TouchTest, TouchDownKeepsPressureLegacyOnly) {
     auto pipeline =
       context
       | emit_all[{
         {EV_ABS, ABS_PRESSURE, 42},
-        {EV_SYN, SYN_REPORT, 0},
-        {EV_KEY, BTN_TOUCH, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_SYN,   SYN_REPORT,  0},
+        {EV_KEY,    BTN_TOUCH,  1},
+        {EV_SYN,   SYN_REPORT,  0},
     }]
       | pen2touch
       | record;
@@ -233,13 +303,19 @@ TEST(Pen2TouchTest, TouchDownEmitsPressure) {
 
     pipeline();
 
-    auto const mt_pressure = collect(col.events(), EV_ABS, ABS_MT_PRESSURE);
-    ASSERT_FALSE(mt_pressure.empty());
-    EXPECT_EQ(mt_pressure[0].value(), 42);
+    // Pressure stays on the legacy axis only: mirroring it into
+    // ABS_MT_PRESSURE would flip libinput into pressure-based touch
+    // detection, where pen pressure reads as palm or never reaches the
+    // begin threshold.
+    EXPECT_TRUE(collect(col.events(), EV_ABS, ABS_MT_PRESSURE).empty());
+    auto const legacy = collect(col.events(), EV_ABS, ABS_PRESSURE);
+    ASSERT_EQ(legacy.size(), 1U);
+    EXPECT_EQ(legacy[0].value(), 42);
 }
 
 // ---------------------------------------------------------------------------
-// Movement: ABS_X/Y while touching emits MT_POSITION_X/Y
+// Movement: ABS_X/Y while the contact is open (hover or touch) emits
+// MT_POSITION_X/Y
 // ---------------------------------------------------------------------------
 
 TEST(Pen2TouchTest, MovementEmitsMTPosition) {
@@ -247,15 +323,15 @@ TEST(Pen2TouchTest, MovementEmitsMTPosition) {
       context
       | emit_all[{
         // Touch down
-        {EV_ABS, ABS_X, 1000},
-        {EV_ABS, ABS_Y, 2000},
-        {EV_SYN, SYN_REPORT, 0},
-        {EV_KEY, BTN_TOUCH, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_ABS,      ABS_X, 1000},
+        {EV_ABS,      ABS_Y, 2000},
+        {EV_SYN, SYN_REPORT,    0},
+        {EV_KEY,  BTN_TOUCH,    1},
+        {EV_SYN, SYN_REPORT,    0},
         // Movement
-        {EV_ABS, ABS_X, 1100},
-        {EV_ABS, ABS_Y, 2100},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_ABS,      ABS_X, 1100},
+        {EV_ABS,      ABS_Y, 2100},
+        {EV_SYN, SYN_REPORT,    0},
     }]
       | pen2touch
       | record;
@@ -273,17 +349,18 @@ TEST(Pen2TouchTest, MovementEmitsMTPosition) {
 }
 
 // ---------------------------------------------------------------------------
-// Touch-up: BTN_TOUCH=0 emits tracking ID -1
+// Contact end on tip lift (tool-less tablets: without a BTN_TOOL_* the tip
+// is the only end signal)
 // ---------------------------------------------------------------------------
 
 TEST(Pen2TouchTest, TouchUpEmitsTrackingIdMinus1) {
     auto pipeline =
       context
       | emit_all[{
-        {EV_KEY, BTN_TOUCH, 1},
+        {EV_KEY,  BTN_TOUCH, 1},
         {EV_SYN, SYN_REPORT, 0},
         // Touch up
-        {EV_KEY, BTN_TOUCH, 0},
+        {EV_KEY,  BTN_TOUCH, 0},
         {EV_SYN, SYN_REPORT, 0},
     }]
       | pen2touch
@@ -300,6 +377,73 @@ TEST(Pen2TouchTest, TouchUpEmitsTrackingIdMinus1) {
 }
 
 // ---------------------------------------------------------------------------
+// Tip press: source BTN_TOUCH becomes the physical left button, and the
+// contact (proximity) stays open across tip press/release
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, TipPressMapsToBtnLeft) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN, 1},
+        {EV_SYN,   SYN_REPORT, 0},
+        {EV_KEY,    BTN_TOUCH, 1},
+        {EV_SYN,   SYN_REPORT, 0},
+        {EV_KEY,    BTN_TOUCH, 0},
+        {EV_SYN,   SYN_REPORT, 0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // The tip is the touchpad's left button — the raw BTN_TOUCH must not
+    // leak: the output BTN_TOUCH only carries the contact flag, which
+    // rises once at proximity and never dips with the tip cycle.
+    auto const left = collect(col.events(), EV_KEY, BTN_LEFT);
+    ASSERT_EQ(left.size(), 2U);
+    EXPECT_EQ(left[0].value(), 1);
+    EXPECT_EQ(left[1].value(), 0);
+    auto const touch = collect(col.events(), EV_KEY, BTN_TOUCH);
+    ASSERT_EQ(touch.size(), 1U);
+    EXPECT_EQ(touch[0].value(), 1);
+
+    // Hovering continues after the tip lifts: exactly one contact begin,
+    // no contact end.
+    auto const tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(tid.size(), 1U);
+    EXPECT_GE(tid[0].value(), 0);
+}
+
+TEST(Pen2TouchTest, TipWithoutToolStillMapsToBtnLeft) {
+    // Tablets that never send BTN_TOOL_* rely on the tip alone; the same
+    // remap must apply.
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY,  BTN_TOUCH, 1},
+        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY,  BTN_TOUCH, 0},
+        {EV_SYN, SYN_REPORT, 0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    auto const left = collect(col.events(), EV_KEY, BTN_LEFT);
+    ASSERT_EQ(left.size(), 2U);
+    EXPECT_EQ(left[0].value(), 1);
+    EXPECT_EQ(left[1].value(), 0);
+    auto const tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(tid.size(), 2U);
+    EXPECT_GE(tid[0].value(), 0);
+    EXPECT_EQ(tid[1].value(), -1);
+}
+
+// ---------------------------------------------------------------------------
 // Multiple contacts: tracking IDs increment
 // ---------------------------------------------------------------------------
 
@@ -308,14 +452,14 @@ TEST(Pen2TouchTest, TrackingIdsIncrement) {
       context
       | emit_all[{
         // First contact
-        {EV_KEY, BTN_TOUCH, 1},
+        {EV_KEY,  BTN_TOUCH, 1},
         {EV_SYN, SYN_REPORT, 0},
-        {EV_KEY, BTN_TOUCH, 0},
+        {EV_KEY,  BTN_TOUCH, 0},
         {EV_SYN, SYN_REPORT, 0},
         // Second contact
-        {EV_KEY, BTN_TOUCH, 1},
+        {EV_KEY,  BTN_TOUCH, 1},
         {EV_SYN, SYN_REPORT, 0},
-        {EV_KEY, BTN_TOUCH, 0},
+        {EV_KEY,  BTN_TOUCH, 0},
         {EV_SYN, SYN_REPORT, 0},
     }]
       | pen2touch
@@ -338,19 +482,25 @@ TEST(Pen2TouchTest, TrackingIdsIncrement) {
 }
 
 // ---------------------------------------------------------------------------
-// Stylus buttons are dropped
+// Barrel buttons map to regular mouse buttons
 // ---------------------------------------------------------------------------
 
-TEST(Pen2TouchTest, StylusButtonsDropped) {
+TEST(Pen2TouchTest, StylusButtonsMapToMouseButtons) {
     auto pipeline =
       context
       | emit_all[{
-        {EV_KEY, BTN_STYLUS, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY,  BTN_STYLUS, 1},
+        {EV_SYN,  SYN_REPORT, 0},
         {EV_KEY, BTN_STYLUS2, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_SYN,  SYN_REPORT, 0},
         {EV_KEY, BTN_STYLUS3, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_SYN,  SYN_REPORT, 0},
+        {EV_KEY,  BTN_STYLUS, 0},
+        {EV_SYN,  SYN_REPORT, 0},
+        {EV_KEY, BTN_STYLUS2, 0},
+        {EV_SYN,  SYN_REPORT, 0},
+        {EV_KEY, BTN_STYLUS3, 0},
+        {EV_SYN,  SYN_REPORT, 0},
     }]
       | pen2touch
       | record;
@@ -358,9 +508,21 @@ TEST(Pen2TouchTest, StylusButtonsDropped) {
 
     pipeline();
 
-    auto const keys = col.without_syn();
-    // All stylus buttons should be dropped; only SYN events remain
-    for (auto const& event : keys) {
+    auto const right  = collect(col.events(), EV_KEY, BTN_RIGHT);
+    auto const middle = collect(col.events(), EV_KEY, BTN_MIDDLE);
+    auto const side   = collect(col.events(), EV_KEY, BTN_SIDE);
+    ASSERT_EQ(right.size(), 2U);
+    ASSERT_EQ(middle.size(), 2U);
+    ASSERT_EQ(side.size(), 2U);
+    EXPECT_EQ(right[0].value(), 1);
+    EXPECT_EQ(right[1].value(), 0);
+    EXPECT_EQ(middle[0].value(), 1);
+    EXPECT_EQ(middle[1].value(), 0);
+    EXPECT_EQ(side[0].value(), 1);
+    EXPECT_EQ(side[1].value(), 0);
+
+    // The stylus codes themselves must never leak through.
+    for (auto const& event : col.without_syn()) {
         if (event.type() == EV_KEY) {
             EXPECT_NE(event.code(), BTN_STYLUS);
             EXPECT_NE(event.code(), BTN_STYLUS2);
@@ -377,10 +539,10 @@ TEST(Pen2TouchTest, TiltAndWidthDropped) {
     auto pipeline =
       context
       | emit_all[{
-        {EV_ABS, ABS_TILT_X, 10},
-        {EV_ABS, ABS_TILT_Y, 20},
-        {EV_ABS, ABS_TOOL_WIDTH, 5},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_ABS,     ABS_TILT_X, 10},
+        {EV_ABS,     ABS_TILT_Y, 20},
+        {EV_ABS, ABS_TOOL_WIDTH,  5},
+        {EV_SYN,     SYN_REPORT,  0},
     }]
       | pen2touch
       | record;
@@ -401,7 +563,7 @@ TEST(Pen2TouchTest, DistancePassesThrough) {
       context
       | emit_all[{
         {EV_ABS, ABS_DISTANCE, 30},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_SYN,   SYN_REPORT,  0},
     }]
       | pen2touch
       | record;
@@ -424,10 +586,10 @@ TEST(Pen2TouchTest, LegacyAxesRetained) {
     auto pipeline =
       context
       | emit_all[{
-        {EV_ABS, ABS_X, 1000},
-        {EV_ABS, ABS_Y, 2000},
-        {EV_ABS, ABS_PRESSURE, 50},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_ABS,        ABS_X, 1000},
+        {EV_ABS,        ABS_Y, 2000},
+        {EV_ABS, ABS_PRESSURE,   50},
+        {EV_SYN,   SYN_REPORT,    0},
     }]
       | pen2touch
       | record;
@@ -476,26 +638,26 @@ TEST(Pen2TouchTest, FullLifecycle) {
       context
       | emit_all[{
         // Tool detected
-        {EV_KEY, BTN_TOOL_PEN, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY, BTN_TOOL_PEN,   1},
+        {EV_SYN,   SYN_REPORT,   0},
         // Position + pressure
-        {EV_ABS, ABS_X, 500},
-        {EV_ABS, ABS_Y, 600},
-        {EV_ABS, ABS_PRESSURE, 30},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_ABS,        ABS_X, 500},
+        {EV_ABS,        ABS_Y, 600},
+        {EV_ABS, ABS_PRESSURE,  30},
+        {EV_SYN,   SYN_REPORT,   0},
         // Touch down
-        {EV_KEY, BTN_TOUCH, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY,    BTN_TOUCH,   1},
+        {EV_SYN,   SYN_REPORT,   0},
         // Movement
-        {EV_ABS, ABS_X, 510},
-        {EV_ABS, ABS_Y, 620},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_ABS,        ABS_X, 510},
+        {EV_ABS,        ABS_Y, 620},
+        {EV_SYN,   SYN_REPORT,   0},
         // Touch up
-        {EV_KEY, BTN_TOUCH, 0},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY,    BTN_TOUCH,   0},
+        {EV_SYN,   SYN_REPORT,   0},
         // Tool released
-        {EV_KEY, BTN_TOOL_PEN, 0},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY, BTN_TOOL_PEN,   0},
+        {EV_SYN,   SYN_REPORT,   0},
     }]
       | pen2touch
       | record;
@@ -524,10 +686,12 @@ TEST(Pen2TouchTest, FullLifecycle) {
     EXPECT_EQ(pos_x[1].value(), 510);
     EXPECT_EQ(pos_y[1].value(), 620);
 
-    // Check MT pressure
-    auto const mt_pressure = collect(col.events(), EV_ABS, ABS_MT_PRESSURE);
-    ASSERT_FALSE(mt_pressure.empty());
-    EXPECT_EQ(mt_pressure[0].value(), 30);
+    // Pressure is never mirrored into ABS_MT_PRESSURE; the legacy axis
+    // still carries it.
+    EXPECT_TRUE(collect(col.events(), EV_ABS, ABS_MT_PRESSURE).empty());
+    auto const abs_p = collect(col.events(), EV_ABS, ABS_PRESSURE);
+    ASSERT_EQ(abs_p.size(), 1U);
+    EXPECT_EQ(abs_p[0].value(), 30);
 
     // Check MT slot is always 0
     auto const slots = collect(col.events(), EV_ABS, ABS_MT_SLOT);
@@ -537,17 +701,18 @@ TEST(Pen2TouchTest, FullLifecycle) {
 }
 
 // ---------------------------------------------------------------------------
-// No touch events: no MT events emitted
+// Hover: tool proximity alone opens the MT contact (the cursor only moves
+// while libinput sees a contact, so hovering must look like a touch-down)
 // ---------------------------------------------------------------------------
 
-TEST(Pen2TouchTest, NoTouchDownNoMTEvents) {
+TEST(Pen2TouchTest, ToolPressBeginsContact) {
     auto pipeline =
       context
       | emit_all[{
-        {EV_KEY, BTN_TOOL_PEN, 1},
-        {EV_ABS, ABS_X, 1000},
-        {EV_ABS, ABS_Y, 2000},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY, BTN_TOOL_PEN,    1},
+        {EV_ABS,        ABS_X, 1000},
+        {EV_ABS,        ABS_Y, 2000},
+        {EV_SYN,   SYN_REPORT,    0},
     }]
       | pen2touch
       | record;
@@ -555,11 +720,51 @@ TEST(Pen2TouchTest, NoTouchDownNoMTEvents) {
 
     pipeline();
 
-    // Without BTN_TOUCH=1, no MT tracking ID or position should appear
+    // The contact opens on proximity, not on BTN_TOUCH — and the output
+    // BTN_TOUCH must rise with it: libinput keeps a tracking-id contact in
+    // TOUCH_HOVERING (no motion) until it sees BTN_TOUCH.
     auto const tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
-    EXPECT_TRUE(tid.empty());
+    ASSERT_EQ(tid.size(), 1U);
+    EXPECT_GE(tid[0].value(), 0);
+    auto const touch = collect(col.events(), EV_KEY, BTN_TOUCH);
+    ASSERT_EQ(touch.size(), 1U);
+    EXPECT_EQ(touch[0].value(), 1);
+}
+
+TEST(Pen2TouchTest, HoverMovementEmitsMTPosition) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        // Hovering: position moves without any BTN_TOUCH.
+        {EV_ABS,        ABS_X, 1000},
+        {EV_ABS,        ABS_Y, 2000},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1100},
+        {EV_ABS,        ABS_Y, 2100},
+        {EV_SYN,   SYN_REPORT,    0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // Hover motion is the cursor motion: every ABS_X/Y while the pen is in
+    // proximity must be mirrored into the MT slot.
     auto const pos_x = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
-    EXPECT_TRUE(pos_x.empty());
+    auto const pos_y = collect(col.events(), EV_ABS, ABS_MT_POSITION_Y);
+    ASSERT_EQ(pos_x.size(), 2U);
+    ASSERT_EQ(pos_y.size(), 2U);
+    EXPECT_EQ(pos_x[0].value(), 1000);
+    EXPECT_EQ(pos_x[1].value(), 1100);
+    EXPECT_EQ(pos_y[0].value(), 2000);
+    EXPECT_EQ(pos_y[1].value(), 2100);
+    // No tip press: the contact must stay open (no TRACKING_ID -1).
+    for (auto const& event : collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID)) {
+        EXPECT_GE(event.value(), 0);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -625,6 +830,66 @@ TEST(Pen2TouchTest, ToggleOffReleasesContact) {
 }
 
 // ---------------------------------------------------------------------------
+// toggle_off releases a held barrel button (no keys_state required)
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, ToggleOffReleasesHeldBarrelButton) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_STYLUS, 1},
+        {EV_SYN, SYN_REPORT, 0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline(); // press only; the pipeline exits with the button still held
+
+    // Cleaning up must release the mapped mouse button, or consumers keep
+    // seeing a stuck right-click.
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(dynamic_context->broadcast(toggle_off), context_action::next);
+
+    auto const right = collect(col.events(), EV_KEY, BTN_RIGHT);
+    ASSERT_GE(right.size(), 2U);
+    EXPECT_EQ(right[0].value(), 1);
+    EXPECT_EQ(right[1].value(), 0);
+}
+
+// ---------------------------------------------------------------------------
+// toggle_off releases a held tip press (no stuck left button)
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, ToggleOffReleasesHeldTip) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN, 1},
+        {EV_SYN,   SYN_REPORT, 0},
+        {EV_KEY,    BTN_TOUCH, 1},
+        {EV_SYN,   SYN_REPORT, 0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline(); // proximity + tip down; the pipeline exits mid-press
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(dynamic_context->broadcast(toggle_off), context_action::next);
+
+    auto const left = collect(col.events(), EV_KEY, BTN_LEFT);
+    ASSERT_GE(left.size(), 2U);
+    EXPECT_EQ(left[0].value(), 1);
+    EXPECT_EQ(left[1].value(), 0);
+    // The hover contact goes down with it, frame closed by its own SYN.
+    auto const tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_GE(tid.size(), 2U);
+    EXPECT_EQ(tid[1].value(), -1);
+}
+
+// ---------------------------------------------------------------------------
 // Tool leaving mid-contact ends the contact
 // ---------------------------------------------------------------------------
 
@@ -659,6 +924,12 @@ TEST(Pen2TouchTest, ToolOutEndsContact) {
     ASSERT_GE(touch.size(), 2U);
     EXPECT_EQ(touch[0].value(), 1);
     EXPECT_EQ(touch[1].value(), 0);
+
+    // ...and the tip press that can never arrive: release BTN_LEFT too.
+    auto const left = collect(col.events(), EV_KEY, BTN_LEFT);
+    ASSERT_EQ(left.size(), 2U);
+    EXPECT_EQ(left[0].value(), 1);
+    EXPECT_EQ(left[1].value(), 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -682,11 +953,12 @@ TEST(Pen2TouchTest, ProfileDeviceReshapesTabletTemplate) {
     // Touchpad parts are there.
     EXPECT_TRUE(tmpl.has_event_code(EV_KEY, BTN_TOUCH));
     EXPECT_TRUE(tmpl.has_event_code(EV_KEY, BTN_TOOL_FINGER));
+    EXPECT_TRUE(tmpl.has_event_code(EV_KEY, BTN_LEFT));
     EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_SLOT));
     EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_TRACKING_ID));
     EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_POSITION_X));
     EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_POSITION_Y));
-    EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_PRESSURE));
+    EXPECT_FALSE(tmpl.has_event_code(EV_ABS, ABS_MT_PRESSURE));
     EXPECT_TRUE(tmpl.has_property(INPUT_PROP_POINTER));
 
     // Legacy axes keep the source ranges (values pass through 1:1).
@@ -702,6 +974,58 @@ TEST(Pen2TouchTest, ProfileDeviceReshapesTabletTemplate) {
     EXPECT_EQ(tmpl.abs_info(ABS_MT_POSITION_X)->resolution, 100);
     ASSERT_NE(tmpl.abs_info(ABS_MT_SLOT), nullptr);
     EXPECT_EQ(tmpl.abs_info(ABS_MT_SLOT)->maximum, 0); // single contact
+}
+
+TEST(Pen2TouchTest, ProfileDeviceStripsSourceMtPressure) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+    // A source tablet that advertises MT pressure itself must not leak
+    // it into the virtual touchpad profile.
+    static constexpr input_absinfo mt_pressure_info{.minimum = 0, .maximum = 8191};
+    tmpl.abs_info(ABS_MT_PRESSURE, mt_pressure_info);
+    ASSERT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_PRESSURE));
+
+    auto          pipeline = context | pen2touch | record;
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+
+    EXPECT_FALSE(tmpl.has_event_code(EV_ABS, ABS_MT_PRESSURE));
+}
+
+TEST(Pen2TouchTest, ProfileDeviceSetsVirtualTouchpadName) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+    ASSERT_EQ(tmpl.device_name(), "Pen2Touch Test Tablet");
+
+    auto          pipeline = context | pen2touch | record;
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+
+    // A fixed name: the clone must not inherit the tablet's name (which
+    // would masquerade as hardware and could match libinput quirks).
+    EXPECT_EQ(tmpl.device_name(), "Foresight Virtual Touchpad");
+}
+
+TEST(Pen2TouchTest, ProfileDeviceAdvertisesBarrelButtons) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+    ASSERT_TRUE(tmpl.has_event_code(EV_KEY, BTN_LEFT));
+
+    auto          pipeline = context | pen2touch | record;
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+
+    // The stylus buttons become regular mouse buttons; BTN_LEFT stays on
+    // because it is the pen tip press — and its presence flips libinput's
+    // tap-to-click default off, so hover enter/leave can't fake a tap.
+    EXPECT_TRUE(tmpl.has_event_code(EV_KEY, BTN_RIGHT));
+    EXPECT_TRUE(tmpl.has_event_code(EV_KEY, BTN_MIDDLE));
+    EXPECT_TRUE(tmpl.has_event_code(EV_KEY, BTN_SIDE));
+    EXPECT_TRUE(tmpl.has_event_code(EV_KEY, BTN_LEFT));
+    EXPECT_FALSE(tmpl.has_event_code(EV_KEY, BTN_STYLUS));
+    EXPECT_FALSE(tmpl.has_event_code(EV_KEY, BTN_STYLUS2));
+    EXPECT_FALSE(tmpl.has_event_code(EV_KEY, BTN_STYLUS3));
+    EXPECT_FALSE(tmpl.has_property(INPUT_PROP_BUTTONPAD));
 }
 
 TEST(Pen2TouchTest, ProfileDeviceIgnoredWithoutMod) {
@@ -748,26 +1072,475 @@ TEST(Pen2TouchTest, FinalizeDeviceCreatesTouchpad) {
     fs8::evdev created{vdev.devnode()};
     ASSERT_TRUE(created.is_ok()) << vdev.devnode();
 
-    // Touchpad keys: fingers yes, pen tools no.
-    EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_TOUCH));
-    EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_TOOL_FINGER));
-    EXPECT_FALSE(created.has_event_code(EV_KEY, BTN_TOOL_PEN));
-    EXPECT_FALSE(created.has_event_code(EV_KEY, BTN_STYLUS));
-    // Tilt is gone, MT is in.
-    EXPECT_FALSE(created.has_event_code(EV_ABS, ABS_TILT_X));
-    EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_SLOT));
-    EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_TRACKING_ID));
-    EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_POSITION_X));
-    EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_POSITION_Y));
-    EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_PRESSURE));
+    expect_touchpad_caps(created);
 
-    ASSERT_NE(created.abs_info(ABS_MT_TRACKING_ID), nullptr);
-    EXPECT_EQ(created.abs_info(ABS_MT_TRACKING_ID)->maximum, 65'535);
+    // The synthetic source's axis ranges are copied verbatim into MT.
     ASSERT_NE(created.abs_info(ABS_MT_POSITION_X), nullptr);
     EXPECT_EQ(created.abs_info(ABS_MT_POSITION_X)->maximum, 32'767);
 
-    EXPECT_TRUE(created.has_property(INPUT_PROP_POINTER));
-    EXPECT_FALSE(created.has_property(INPUT_PROP_DIRECT));
-
     vdev.close();
+}
+
+// ---------------------------------------------------------------------------
+// App path: output_selector(start) -> tracked_devices -> finalize_device ->
+// profile_device broadcast through the full app mod tuple.  This is what
+// `pen2touch -o uinput` runs on startup; none of the tests above reach it.
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, AppStartProfilesUinputDevice) {
+    auto const access = fs8::verify_access_to_uinput();
+    if (access != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(access);
+    }
+
+    // The app's pipeline minus `singleton` (a system-wide lock, irrelevant
+    // here) and `intercept`: uinput's context overload clones the first
+    // tracked device unconditionally, so the query layer adds nothing to
+    // this path and intercept would only require real hardware.
+    static constinit auto pipeline = context | io_manager | input_manager | keys_state | pen2touch | drop_adjacent_syns | sieve | output;
+
+    pipeline.mod(output).set_selected(1); // uinput
+
+    // `im.add` announces the device through dynamic_context, which must be
+    // bound even outside run_loop.
+    dynamic_scope scope{dynamic_context, pipeline};
+    pipeline.mod<basic_input_manager>().add(make_tablet_template());
+
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    auto& uin = pipeline.mod(output).output<1>();
+    ASSERT_TRUE(uin.is_ok());
+    if (!fs8::test::wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Virtual touchpad did not become openable.";
+    }
+
+    fs8::evdev created{uin.devnode()};
+    ASSERT_TRUE(created.is_ok()) << uin.devnode();
+    expect_touchpad_caps(created);
+
+    // The synthetic source's axis ranges are copied verbatim into MT.
+    ASSERT_NE(created.abs_info(ABS_MT_POSITION_X), nullptr);
+    EXPECT_EQ(created.abs_info(ABS_MT_POSITION_X)->maximum, 32'767);
+
+    uin.close();
+}
+
+TEST(Pen2TouchTest, AppEventFlowWritesTouchpadEventsToKernel) {
+    auto const access = fs8::verify_access_to_uinput();
+    if (access != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(access);
+    }
+
+    // Same app shape as AppStartProfilesUinputDevice, with `record` behind
+    // `output`: output_selector returns drop_event when the kernel rejects a
+    // write, and invoke_mods stops at the first non-next mod, so record only
+    // ever sees events the uinput device actually accepted.
+    static constinit auto pipeline =
+      context | io_manager | input_manager | keys_state | pen2touch | drop_adjacent_syns | sieve | output | record;
+
+    pipeline.mod(output).set_selected(1); // uinput
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    pipeline.mod<basic_input_manager>().add(make_tablet_template());
+
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    auto& uin = pipeline.mod(output).output<1>();
+    ASSERT_TRUE(uin.is_ok());
+    if (!fs8::test::wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Virtual touchpad did not become openable.";
+    }
+
+    auto& col = pipeline.mod<basic_record>();
+    col.clear();
+
+    // Feed a full pen frame sequence by hand instead of run_loop: no
+    // next_event providers are involved, so io_manager never polls.
+    auto const push = [&](event_type const& inp_event, std::string_view const what) {
+        pipeline.event(inp_event);
+        EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next) << what;
+    };
+
+    push({EV_KEY, BTN_TOOL_PEN, 1}, "BTN_TOOL_PEN=1");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_ABS, ABS_X, 1000}, "ABS_X=1000");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_ABS, ABS_Y, 2000}, "ABS_Y=2000");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_KEY, BTN_TOUCH, 1}, "BTN_TOUCH=1");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_ABS, ABS_X, 1500}, "ABS_X=1500 while touching");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_KEY, BTN_TOUCH, 0}, "BTN_TOUCH=0");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_KEY, BTN_TOOL_PEN, 0}, "BTN_TOOL_PEN=0");
+
+    // The tool became BTN_TOOL_FINGER before reaching record.
+    auto const finger = collect(col.events(), EV_KEY, BTN_TOOL_FINGER);
+    ASSERT_GE(finger.size(), 2U);
+    EXPECT_EQ(finger[0].value(), 1);
+    EXPECT_EQ(finger[1].value(), 0);
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_TOOL_PEN).empty());
+
+    // One contact: tracking id start, then end.
+    auto const tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_GE(tid.size(), 2U);
+    EXPECT_GE(tid[0].value(), 0);
+    EXPECT_EQ(tid[1].value(), -1);
+
+    // MT position: begin_contact forks the cached position, then the move
+    // while touching forks the new one — the kernel only accepted those
+    // because profile_device advertised ABS_MT_POSITION_X.
+    auto const pos_x = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_GE(pos_x.size(), 2U) << "ABS_MT_POSITION_X never reached the kernel (profile missing?)";
+    EXPECT_EQ(pos_x.back().value(), 1500);
+
+    // Legacy axes pass through unchanged.
+    auto const abs_x = collect(col.events(), EV_ABS, ABS_X);
+    ASSERT_FALSE(abs_x.empty());
+    EXPECT_EQ(abs_x[0].value(), 1000);
+
+    // The tip press reached the kernel as BTN_LEFT (the profile
+    // advertises it), never as raw BTN_TOUCH.
+    auto const left = collect(col.events(), EV_KEY, BTN_LEFT);
+    ASSERT_EQ(left.size(), 2U);
+    EXPECT_EQ(left[0].value(), 1);
+    EXPECT_EQ(left[1].value(), 0);
+
+    uin.close();
+}
+
+TEST(Pen2TouchTest, RealTabletThroughInterceptProfilesDevice) {
+    auto const access = fs8::verify_access_to_uinput();
+    if (access != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(access);
+    }
+
+    // Exactly the app's pipeline minus `singleton`.  `pen2touch -o uinput`
+    // with no positional argument contributes no second query (an empty
+    // parsed_args range yields no queries), so `tablet | required` alone is
+    // what the live run uses.
+    static constinit auto pipeline =
+      context | io_manager | input_manager | intercept[tablet | required] | keys_state | pen2touch | drop_adjacent_syns | sieve | output;
+
+    pipeline.mod(output).set_selected(1); // uinput
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    auto const    res = pipeline(start);
+    if (res != context_action::next) {
+        // No tablet matched (or no input hardware at all): uinput's context
+        // overload reports `recovery` when the device list is empty.
+        GTEST_SKIP() << "start did not produce a device: " << to_string(res);
+    }
+
+    auto& uin = pipeline.mod(output).output<1>();
+    ASSERT_TRUE(uin.is_ok());
+    if (!fs8::test::wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Virtual touchpad did not become openable.";
+    }
+
+    fs8::evdev created{uin.devnode()};
+    ASSERT_TRUE(created.is_ok()) << uin.devnode();
+    expect_touchpad_caps(created);
+
+    uin.close();
+}
+
+// ---------------------------------------------------------------------------
+// App path: the source tablet vanishes mid-contact — the kernel must see a
+// full release, and the replacement tablet's contact must still get through.
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, AppDeviceSwitchReleasesStaleContact) {
+    auto const access = fs8::verify_access_to_uinput();
+    if (access != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(access);
+    }
+
+    static constinit auto pipeline =
+      context | io_manager | input_manager | keys_state | pen2touch | drop_adjacent_syns | sieve | output | record;
+
+    pipeline.mod(output).set_selected(1); // uinput
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    pipeline.mod<basic_input_manager>().add(make_tablet_template());
+
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    auto& uin = pipeline.mod(output).output<1>();
+    ASSERT_TRUE(uin.is_ok());
+    if (!fs8::test::wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Virtual touchpad did not become openable.";
+    }
+
+    auto& col = pipeline.mod<basic_record>();
+    col.clear();
+
+    auto const push = [&](event_type const& inp_event, std::string_view const what) {
+        pipeline.event(inp_event);
+        EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next) << what;
+    };
+
+    // Open a contact on tablet A.
+    push({EV_KEY, BTN_TOOL_PEN, 1}, "BTN_TOOL_PEN=1");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_ABS, ABS_X, 1000}, "ABS_X=1000");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_ABS, ABS_Y, 2000}, "ABS_Y=2000");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_KEY, BTN_TOUCH, 1}, "BTN_TOUCH=1");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    ASSERT_FALSE(collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID).empty()) << "contact never opened";
+
+    // Tablet A disappears.
+    col.clear();
+    std::uint32_t dead_source = 0xDEAD'BEEF;
+    EXPECT_EQ(dynamic_context->broadcast(device_disconnected + &dead_source), context_action::next);
+
+    // The kernel must see a complete release frame for the stale contact.
+    auto const released_tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(released_tid.size(), 1U) << "stale contact was not released";
+    EXPECT_EQ(released_tid[0].value(), -1);
+    auto const released_touch = collect(col.events(), EV_KEY, BTN_TOUCH);
+    ASSERT_EQ(released_touch.size(), 1U);
+    EXPECT_EQ(released_touch[0].value(), 0);
+    // The tip was down when the tablet vanished; it must be released too.
+    auto const released_left = collect(col.events(), EV_KEY, BTN_LEFT);
+    ASSERT_EQ(released_left.size(), 1U);
+    EXPECT_EQ(released_left[0].value(), 0);
+    EXPECT_TRUE(col.any([](event_type const& e) noexcept {
+        return e.code() == BTN_TOOL_FINGER && e.value() == 0;
+    }));
+    ASSERT_FALSE(col.empty());
+    EXPECT_EQ(col.back().type(), EV_SYN);
+
+    // Tablet B takes over: its contact must reach the kernel too.
+    col.clear();
+    pipeline.mod<basic_input_manager>().add(make_tablet_template());
+    push({EV_KEY, BTN_TOOL_PEN, 1}, "tablet B: BTN_TOOL_PEN=1");
+    push({EV_SYN, SYN_REPORT, 0}, "tablet B: syn");
+    push({EV_ABS, ABS_X, 700}, "tablet B: ABS_X=700");
+    push({EV_SYN, SYN_REPORT, 0}, "tablet B: syn");
+    push({EV_ABS, ABS_Y, 800}, "tablet B: ABS_Y=800");
+    push({EV_SYN, SYN_REPORT, 0}, "tablet B: syn");
+    push({EV_KEY, BTN_TOUCH, 1}, "tablet B: BTN_TOUCH=1");
+    push({EV_SYN, SYN_REPORT, 0}, "tablet B: syn");
+
+    auto const new_tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(new_tid.size(), 1U) << "the second tablet's contact never reached the kernel";
+    EXPECT_GE(new_tid[0].value(), 0);
+    auto const new_pos = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_FALSE(new_pos.empty());
+    EXPECT_EQ(new_pos[0].value(), 700);
+
+    uin.close();
+}
+
+// ---------------------------------------------------------------------------
+// App path: toggle_off mid-contact writes a complete release to the kernel.
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, AppToggleOffWritesReleaseToKernel) {
+    auto const access = fs8::verify_access_to_uinput();
+    if (access != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(access);
+    }
+
+    static constinit auto pipeline =
+      context | io_manager | input_manager | keys_state | pen2touch | drop_adjacent_syns | sieve | output | record;
+
+    pipeline.mod(output).set_selected(1); // uinput
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    pipeline.mod<basic_input_manager>().add(make_tablet_template());
+
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    auto& uin = pipeline.mod(output).output<1>();
+    ASSERT_TRUE(uin.is_ok());
+    if (!fs8::test::wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Virtual touchpad did not become openable.";
+    }
+
+    auto& col = pipeline.mod<basic_record>();
+    col.clear();
+
+    auto const push = [&](event_type const& inp_event, std::string_view const what) {
+        pipeline.event(inp_event);
+        EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next) << what;
+    };
+
+    // Open a contact.
+    push({EV_KEY, BTN_TOOL_PEN, 1}, "BTN_TOOL_PEN=1");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_ABS, ABS_X, 1000}, "ABS_X=1000");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_ABS, ABS_Y, 2000}, "ABS_Y=2000");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_KEY, BTN_TOUCH, 1}, "BTN_TOUCH=1");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    ASSERT_FALSE(collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID).empty()) << "contact never opened";
+
+    // Disable the mod mid-contact.
+    col.clear();
+    EXPECT_EQ(dynamic_context->broadcast(toggle_off), context_action::next);
+
+    // The kernel must see the full release: contact, tool and a frame end.
+    auto const released_tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(released_tid.size(), 1U) << "stale contact was not released";
+    EXPECT_EQ(released_tid[0].value(), -1);
+    auto const released_touch = collect(col.events(), EV_KEY, BTN_TOUCH);
+    ASSERT_EQ(released_touch.size(), 1U);
+    EXPECT_EQ(released_touch[0].value(), 0);
+    // The tip was down when the mod was disabled; release it as well.
+    auto const released_left = collect(col.events(), EV_KEY, BTN_LEFT);
+    ASSERT_EQ(released_left.size(), 1U);
+    EXPECT_EQ(released_left[0].value(), 0);
+    EXPECT_TRUE(col.any([](event_type const& e) noexcept {
+        return e.code() == BTN_TOOL_FINGER && e.value() == 0;
+    }));
+    ASSERT_FALSE(col.empty());
+    EXPECT_EQ(col.back().type(), EV_SYN);
+
+    // Re-enabled: a fresh contact works again.
+    col.clear();
+    push({EV_KEY, BTN_TOOL_PEN, 1}, "BTN_TOOL_PEN=1 again");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_KEY, BTN_TOUCH, 1}, "BTN_TOUCH=1 again");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+
+    auto const reopened_tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(reopened_tid.size(), 1U) << "contact did not reopen after toggle_on";
+    EXPECT_GE(reopened_tid[0].value(), 0);
+
+    uin.close();
+}
+
+// ---------------------------------------------------------------------------
+// App path: a pipeline restart (start tag) mid-contact releases the stale
+// contact instead of silently forgetting it.
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, AppRestartReleasesStaleContact) {
+    auto const access = fs8::verify_access_to_uinput();
+    if (access != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(access);
+    }
+
+    static constinit auto pipeline =
+      context | io_manager | input_manager | keys_state | pen2touch | drop_adjacent_syns | sieve | output | record;
+
+    pipeline.mod(output).set_selected(1); // uinput
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    pipeline.mod<basic_input_manager>().add(make_tablet_template());
+
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    auto& uin = pipeline.mod(output).output<1>();
+    ASSERT_TRUE(uin.is_ok());
+    if (!fs8::test::wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "Virtual touchpad did not become openable.";
+    }
+
+    auto& col = pipeline.mod<basic_record>();
+    col.clear();
+
+    auto const push = [&](event_type const& inp_event, std::string_view const what) {
+        pipeline.event(inp_event);
+        EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next) << what;
+    };
+
+    // Open a contact, then restart the pipeline underneath it.
+    push({EV_KEY, BTN_TOOL_PEN, 1}, "BTN_TOOL_PEN=1");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_ABS, ABS_X, 1000}, "ABS_X=1000");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_ABS, ABS_Y, 2000}, "ABS_Y=2000");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_KEY, BTN_TOUCH, 1}, "BTN_TOUCH=1");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    ASSERT_FALSE(collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID).empty()) << "contact never opened";
+
+    col.clear();
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    // The kernel must see the full release written during start.
+    auto const released_tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(released_tid.size(), 1U) << "stale contact was not released on restart";
+    EXPECT_EQ(released_tid[0].value(), -1);
+    auto const released_touch = collect(col.events(), EV_KEY, BTN_TOUCH);
+    ASSERT_EQ(released_touch.size(), 1U);
+    EXPECT_EQ(released_touch[0].value(), 0);
+    // The tip was down at restart time; release it as well.
+    auto const released_left = collect(col.events(), EV_KEY, BTN_LEFT);
+    ASSERT_EQ(released_left.size(), 1U);
+    EXPECT_EQ(released_left[0].value(), 0);
+    EXPECT_TRUE(col.any([](event_type const& e) noexcept {
+        return e.code() == BTN_TOOL_FINGER && e.value() == 0;
+    }));
+    ASSERT_FALSE(col.empty());
+    EXPECT_EQ(col.back().type(), EV_SYN);
+
+    // A fresh contact after the restart works.
+    col.clear();
+    push({EV_KEY, BTN_TOOL_PEN, 1}, "BTN_TOOL_PEN=1 after restart");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_ABS, ABS_X, 700}, "ABS_X=700 after restart");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_ABS, ABS_Y, 800}, "ABS_Y=800 after restart");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+    push({EV_KEY, BTN_TOUCH, 1}, "BTN_TOUCH=1 after restart");
+    push({EV_SYN, SYN_REPORT, 0}, "syn");
+
+    auto const new_tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(new_tid.size(), 1U) << "contact did not reopen after restart";
+    EXPECT_GE(new_tid[0].value(), 0);
+    auto const new_pos = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_FALSE(new_pos.empty());
+    EXPECT_EQ(new_pos[0].value(), 700);
+
+    uin.close();
+}
+
+// ---------------------------------------------------------------------------
+// Unknown control tags: dropped without side effects
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, UnknownControlTagDropsWithoutSideEffects) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY,  BTN_TOUCH, 1},
+        {EV_SYN, SYN_REPORT, 0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline(); // touch-down only; emit_all exhausts and the pipeline exits
+
+    dynamic_scope scope{dynamic_context, pipeline};
+
+    // An unhandled control tag must neither be claimed nor disturb the
+    // open contact.
+    auto const before = col.size();
+    EXPECT_EQ(dynamic_context->broadcast(idle), context_action::drop_event);
+    EXPECT_EQ(col.size(), before);
+    auto const open_tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(open_tid.size(), 1U);
+    EXPECT_GE(open_tid[0].value(), 0);
+
+    // A handled tag still works right after it.
+    EXPECT_EQ(dynamic_context->broadcast(toggle_off), context_action::next);
+    auto const tid = collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(tid.size(), 2U);
+    EXPECT_GE(tid[0].value(), 0);
+    EXPECT_EQ(tid[1].value(), -1);
 }

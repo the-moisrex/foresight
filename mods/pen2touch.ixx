@@ -1,17 +1,9 @@
 // Created by moisrex on 9/17/26.
 
-module;
-#include <cstdint>
-#include <initializer_list>
-#include <linux/input-event-codes.h>
-#include <linux/input.h>
-#include <utility>
 export module fs8.mods:pen2touch;
-import :keys_state;
 import fs8.context;
-import fs8.devices.evdev;
 import fs8.event;
-import fs8.traits;
+import fs8.pimpl;
 
 export namespace fs8 {
 
@@ -32,22 +24,48 @@ export namespace fs8 {
     ///   ABS_MT_TRACKING_ID     (non-negative starts a contact, -1 ends it)
     ///   ABS_MT_POSITION_X
     ///   ABS_MT_POSITION_Y
-    ///   ABS_MT_PRESSURE
+    ///
+    /// The MT contact opens when the pen enters proximity (BTN_TOOL_*) and
+    /// closes when it leaves, so a hovering pen already moves the cursor.
+    /// The output BTN_TOUCH therefore tracks the contact ("pen is near"),
+    /// not the tip: libinput keeps a tracking-id contact in TOUCH_HOVERING
+    /// (no motion) until it sees BTN_TOUCH, so passing the source tip state
+    /// through would leave the cursor glued in place for the whole hover.
+    ///
+    /// The source tip press (BTN_TOUCH) instead becomes the physical left
+    /// button BTN_LEFT: pressing the tip is the left click, and
+    /// advertising BTN_LEFT flips libinput's tap-to-click default off, so
+    /// hover enter/leave can never fire a spurious tap.  Tablets that
+    /// never send BTN_TOOL_* fall back to the tip alone for the contact
+    /// lifecycle.
     ///
     /// The legacy ABS_X / ABS_Y / ABS_PRESSURE events are retained because
     /// real touchpads commonly expose both the legacy single-touch interface
-    /// and the Type-B MT interface.
+    /// and the Type-B MT interface.  Pressure is deliberately *not* mirrored
+    /// into ABS_MT_PRESSURE: advertising it makes libinput switch to
+    /// pressure-based touch detection (begin at 12% of the axis range) while
+    /// treating any pressure above its palm threshold (~130) as a palm —
+    /// pen pressure satisfies neither bound, so contacts would be ignored.
     ///
-    /// Stylus buttons (BTN_STYLUS / BTN_STYLUS2 / BTN_STYLUS3), tilt
-    /// (ABS_TILT_X / ABS_TILT_Y), and tool width (ABS_TOOL_WIDTH) are
-    /// dropped because they have no touchpad equivalent.
+    /// The barrel buttons (BTN_STYLUS / BTN_STYLUS2 / BTN_STYLUS3) are
+    /// remapped onto regular mouse buttons (BTN_RIGHT / BTN_MIDDLE /
+    /// BTN_SIDE), which the `profile_device` answer advertises on the
+    /// virtual device alongside BTN_LEFT.  Tilt (ABS_TILT_X / ABS_TILT_Y)
+    /// and tool width (ABS_TOOL_WIDTH) are dropped because they have no
+    /// touchpad equivalent.
     ///
     /// The mod also answers the `profile_device` control event: when the
     /// pipeline's `uinput` is about to create the virtual device, this mod
     /// reshapes the template (a clone of the tablet) into a multitouch
     /// touchpad — stripping the tablet tool buttons/axes, enabling the MT
-    /// slots with proper absinfo, and fixing the input properties — so
-    /// libinput sees a touchpad instead of a second tablet.
+    /// slots with proper absinfo, advertising the remapped barrel buttons,
+    /// fixing the input properties, and giving the device the fixed name
+    /// "Foresight Virtual Touchpad" — so libinput sees a touchpad instead
+    /// of a second tablet.
+    ///
+    /// All per-instance state (the contact lifecycle, cached coordinates,
+    /// held buttons) lives behind the pimpl idiom in `pen2touch.cxx`, and
+    /// synthesized events are forked through `dynamic_context`.
     ///
     /// Place this *before* any mod that would consume ABS_X/ABS_Y (such as
     /// abs2rel) or *instead of* abs2rel when touchpad-style output is
@@ -59,256 +77,19 @@ export namespace fs8 {
     ///   | pen2touch
     ///   | output
     /// @endcode
-    constexpr struct [[nodiscard]] basic_pen2touch : consteval_copyable {
-        using consteval_copyable::consteval_copyable;
+    constexpr struct [[nodiscard]] basic_pen2touch : pimpl_idiom<basic_pen2touch> {
+        using pimpl_idiom::pimpl_idiom;
 
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
-      private:
-        /// Current tracking ID.  Non-negative means a contact is active;
-        /// -1 means no contact.
-        value_type tracking_id_ = -1;
+        /// Handle lifecycle tags (start, toggle_off, device_disconnected,
+        /// profile_device); releases are forked through `dynamic_context`,
+        /// which the pipeline binds while it runs.
+        context_action operator()(control_event const& tag) noexcept;
 
-        /// Last-seen raw coordinates and pressure, cached so we can emit
-        /// them alongside the MT equivalents.
-        value_type x_        = 0;
-        value_type y_        = 0;
-        value_type pressure_ = 0;
-
-        /// Whether the pen tool is in proximity (BTN_TOOL_* == 1).
-        bool tool_active_ = false;
-
-        /// Whether the pen is touching the surface (BTN_TOUCH == 1).
-        bool touching_ = false;
-
-        /// Whether we have received at least one ABS_X / ABS_Y / ABS_PRESSURE
-        /// since the last touch-down, so we know the values are valid.
-        bool have_x_        = false;
-        bool have_y_        = false;
-        bool have_pressure_ = false;
-
-        /// Slot reported in MT events; always 0 for a single-contact device.
-        static constexpr value_type mt_slot = 0;
-
-        /// Monotonically increasing tracking ID generator.  Bounded by the
-        /// advertised ABS_MT_TRACKING_ID range (0..65535) so the kernel never
-        /// clamps or rejects an id.
-        [[nodiscard]] value_type next_tracking_id() noexcept;
-
-        /// Reset all internal state (called on start / toggle_off).
-        void reset() noexcept;
-
-        /// Emit a single event through the pipeline (downstream mods see it).
-        template <Context CtxT>
-        static void emit(CtxT& ctx, code_type const type, code_type const code, value_type const value) noexcept {
-            std::ignore = ctx.fork_emit(event_type{type, code, value});
-        }
-
-        /// Begin a new MT contact (ABS_MT_TRACKING_ID >= 0).
-        template <Context CtxT>
-        void begin_contact(CtxT& ctx) noexcept {
-            if (touching_) {
-                return;
-            }
-            touching_ = true;
-
-            value_type const id = next_tracking_id();
-
-            emit(ctx, EV_ABS, ABS_MT_SLOT, mt_slot);
-            emit(ctx, EV_ABS, ABS_MT_TRACKING_ID, id);
-
-            if (have_x_) {
-                emit(ctx, EV_ABS, ABS_MT_POSITION_X, x_);
-            }
-            if (have_y_) {
-                emit(ctx, EV_ABS, ABS_MT_POSITION_Y, y_);
-            }
-            if (have_pressure_) {
-                emit(ctx, EV_ABS, ABS_MT_PRESSURE, pressure_);
-            }
-        }
-
-        /// End the current MT contact (ABS_MT_TRACKING_ID = -1).
-        template <Context CtxT>
-        void end_contact(CtxT& ctx) noexcept {
-            if (!touching_) {
-                return;
-            }
-            // Select the slot first: every MT event belongs to the currently
-            // selected slot.
-            emit(ctx, EV_ABS, ABS_MT_SLOT, mt_slot);
-            emit(ctx, EV_ABS, ABS_MT_TRACKING_ID, -1);
-            touching_      = false;
-            have_x_        = false;
-            have_y_        = false;
-            have_pressure_ = false;
-        }
-
-        /// Pick the source axis' absinfo when it exists, otherwise fall back
-        /// to `fallback` (used when the template has no source device to
-        /// copy the ranges from).
-        [[nodiscard]] static input_absinfo absinfo_from(evdev const& tmpl, code_type const source, input_absinfo const& fallback) noexcept;
-
-        /// Reshape the not-yet-created virtual device so it advertises as a
-        /// single-contact multitouch touchpad instead of a tablet clone.
-        /// Called through the `profile_device` control event from uinput's
-        /// finalize_device, before the template hits /dev/uinput.
-        static void profile_template(evdev& tmpl) noexcept;
-
-      public:
-        /// Handle lifecycle tags (start, toggle_off).
-        template <Context CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
-            using enum context_action;
-
-            switch (tag.code) {
-                case start.code: {
-                    reset();
-                    // If a pen tool was left active from a previous run,
-                    // release it so consumers don't see a stuck contact.
-                    if constexpr (has_mod<basic_keys_state, CtxT>) {
-                        auto const& keys = ctx.mod(keys_state);
-                        for (code_type const tool :
-                             std::initializer_list<code_type>{
-                               BTN_TOOL_PEN,
-                               BTN_TOOL_RUBBER,
-                               BTN_TOOL_BRUSH,
-                               BTN_TOOL_PENCIL,
-                               BTN_TOOL_AIRBRUSH,
-                               BTN_TOOL_MOUSE,
-                               BTN_TOOL_LENS})
-                        {
-                            if (keys.is_pressed(tool)) {
-                                std::ignore = ctx.fork_emit(event_type{EV_KEY, tool, 0});
-                                std::ignore = ctx.fork_emit(syn());
-                                std::ignore = ctx.fork_emit(event_type{EV_KEY, BTN_TOOL_FINGER, 0});
-                                std::ignore = ctx.fork_emit(syn());
-                            }
-                        }
-                    }
-                    return next;
-                }
-                case toggle_off.code:
-                    // If the mod is disabled mid-contact, clean up so we
-                    // don't leak a stale tracking ID.  end_contact needs no
-                    // pipeline mod, so this works with or without
-                    // keys_state.
-                    end_contact(ctx);
-                    reset();
-                    return next;
-
-                case profile_device.code:
-                    // uinput is about to create the virtual device: turn the
-                    // tablet clone into a multitouch touchpad.
-                    profile_template(payload<profile_device>(tag));
-                    return next;
-
-                default: return drop_event;
-            }
-        }
-
-        /// Translate a single input event.
-        template <Context CtxT>
-        context_action operator()(CtxT& ctx) noexcept {
-            using enum context_action;
-
-            auto& event = ctx.event();
-
-            switch (event.type()) {
-                // ── Keys ──────────────────────────────────────────────────
-                case EV_KEY:
-                    switch (event.code()) {
-                        // Tablet proximity / tool state -> touchpad finger state.
-                        //
-                        // BTN_TOOL_FINGER is independent of BTN_TOUCH, so a
-                        // hovering pen can legitimately produce
-                        // BTN_TOOL_FINGER=1, BTN_TOUCH=0 just as a
-                        // hover-capable touch device can.
-                        case BTN_TOOL_PEN:
-                        case BTN_TOOL_RUBBER:
-                        case BTN_TOOL_BRUSH:
-                        case BTN_TOOL_PENCIL:
-                        case BTN_TOOL_AIRBRUSH:
-                        case BTN_TOOL_MOUSE:
-                        case BTN_TOOL_LENS:
-                            tool_active_ = event.value() != 0;
-                            if (!tool_active_ && touching_) {
-                                // The tool vanished mid-contact; the tablet
-                                // may never send BTN_TOUCH=0 afterwards, so
-                                // close the contact ourselves.
-                                emit(ctx, EV_KEY, BTN_TOUCH, 0);
-                                end_contact(ctx);
-                            }
-                            event.code(BTN_TOOL_FINGER);
-                            return next;
-
-                        // BTN_TOUCH is the actual contact boundary.  Keep the
-                        // original event because it is also part of the legacy
-                        // single-touch interface.
-                        case BTN_TOUCH:
-                            if (event.value() != 0) {
-                                begin_contact(ctx);
-                            } else {
-                                end_contact(ctx);
-                            }
-                            return next;
-
-                        // Stylus buttons have no touchpad equivalent.
-                        case BTN_STYLUS:
-                        case BTN_STYLUS2:
-                        case BTN_STYLUS3: return drop_event;
-
-                        default: return next;
-                    }
-
-                // ── Absolute axes ─────────────────────────────────────────
-                case EV_ABS:
-                    switch (event.code()) {
-                        case ABS_X:
-                            x_      = event.value();
-                            have_x_ = true;
-                            if (touching_) {
-                                emit(ctx, EV_ABS, ABS_MT_POSITION_X, x_);
-                            }
-                            return next;
-
-                        case ABS_Y:
-                            y_      = event.value();
-                            have_y_ = true;
-                            if (touching_) {
-                                emit(ctx, EV_ABS, ABS_MT_POSITION_Y, y_);
-                            }
-                            return next;
-
-                        case ABS_PRESSURE:
-                            pressure_      = event.value();
-                            have_pressure_ = true;
-                            if (touching_) {
-                                emit(ctx, EV_ABS, ABS_MT_PRESSURE, pressure_);
-                            }
-                            return next;
-
-                        // Tablet-specific properties not representable on a
-                        // touchpad.
-                        case ABS_TILT_X:
-                        case ABS_TILT_Y:
-                        case ABS_TOOL_WIDTH: return drop_event;
-
-                        // Tablet proximity distance: keep it (useful for
-                        // hover-aware touchpad consumers).
-                        case ABS_DISTANCE: return next;
-
-                        default: return next;
-                    }
-
-                // The original SYN_REPORT must survive; the forked MT events
-                // above belong to the same synchronization frame.
-                case EV_SYN: return next;
-
-                default: return next;
-            }
-        }
+        /// Translate a single input event; all state lives in the impl.
+        context_action operator()(event_type& event) noexcept;
     } pen2touch;
 
     static_assert(Modifier<basic_pen2touch>);

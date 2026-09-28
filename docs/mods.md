@@ -219,17 +219,31 @@ Translate a pen tablet's buttons/tools into mouse clicks.
 ### `pen2touch`
 
 Convert pen events into a single-contact Type-B multitouch stream:
-`BTN_TOOL_*` is renamed to `BTN_TOOL_FINGER`, `BTN_TOUCH` opens/closes an
-`ABS_MT_TRACKING_ID` contact, and `ABS_X`/`ABS_Y`/`ABS_PRESSURE` are mirrored
-into `ABS_MT_POSITION_X`/`Y`/`ABS_MT_PRESSURE` (the legacy axes are kept).
-Stylus buttons, tilt, and tool width are dropped.
+`BTN_TOOL_*` is renamed to `BTN_TOOL_FINGER` and opens/closes an
+`ABS_MT_TRACKING_ID` contact — the contact follows *proximity*, so a hovering
+pen already moves the cursor, and the output `BTN_TOUCH` flags that contact
+(libinput keeps a tracking-id slot in a non-motion "hovering" state until it
+sees `BTN_TOUCH`).  `ABS_X`/`ABS_Y` are mirrored into
+`ABS_MT_POSITION_X`/`Y` while the contact is open (the legacy axes, including
+`ABS_PRESSURE`, are kept).  `ABS_MT_PRESSURE` is intentionally *not* exposed:
+advertising it makes libinput switch to pressure-based touch detection, where
+pen pressure either reads as a palm or never reaches the begin threshold, so
+no contact would ever move the pointer.
+
+The source tip press (`BTN_TOUCH`) becomes `BTN_LEFT`: pressing the tip is
+the left click, and advertising `BTN_LEFT` flips libinput's tap-to-click
+default off, so hover enter/leave cannot fire spurious taps.  The barrel
+buttons are remapped onto mouse buttons (`BTN_STYLUS` -> `BTN_RIGHT`,
+`BTN_STYLUS2` -> `BTN_MIDDLE`, `BTN_STYLUS3` -> `BTN_SIDE`); tilt and tool
+width are dropped.
 
 The mod also answers the `profile_device` control event: when the pipeline's
 `uinput` creates the virtual device, `pen2touch` reshapes the device template
 (a clone of the tablet) into a multitouch touchpad — strips the tablet
-tool buttons/axes, enables the MT slots with proper absinfo, and sets
-`INPUT_PROP_POINTER` — so libinput sees a touchpad instead of a second
-tablet.
+tool buttons/axes, enables the MT slots with proper absinfo, advertises
+`BTN_LEFT` and the remapped barrel buttons, sets `INPUT_PROP_POINTER`,
+and renames the device to "Foresight Virtual Touchpad" so the clone does not
+masquerade as (quirk-matched) hardware.
 
 ```cpp
 intercept[tablet | required] | pen2touch | output
