@@ -114,6 +114,27 @@ namespace {
         return false;
     }
 
+    /// Pointer to the tracked device with the given sysname (e.g. "event5"),
+    /// or nullptr. Stable: device storage is a list.
+    [[nodiscard]] evdev const* find_sysname(basic_input_manager const& im, std::string_view const sysname) noexcept {
+        for (evdev const& dev : im.devices()) {
+            if (device_sysname(dev) == sysname) {
+                return &dev;
+            }
+        }
+        return nullptr;
+    }
+
+    /// True when a fresh fd can grab `devnode` at all (some environments
+    /// refuse EVIOCGRAB); grabs and releases, leaving no grab behind.
+    [[nodiscard]] bool grabs_work_on(std::string_view const devnode) noexcept {
+        evdev fresh{std::filesystem::path{devnode}};
+        if (!fresh.is_ok()) {
+            return false;
+        }
+        return test_grab(fresh);
+    }
+
 } // namespace
 
 /// A mod that tallies the push-model notifications from input_manager.
@@ -555,4 +576,98 @@ TEST(InputManager, CapsScoringPrefersFullKeyboardOverPartial) {
 
     EXPECT_EQ(full_score, 100) << "A full device must match at 100%.";
     EXPECT_GT(full_score, partial_score) << "The full device must score higher than the partial one.";
+}
+
+TEST(InputManager, RetroactiveGrabOnEnumerateAfterPlainClaim) {
+    if (verify_access_to_uinput() != uinput_access_result::available) {
+        GTEST_SKIP() << "No /dev/uinput access.";
+    }
+
+    basic_uinput uin;
+    uin.set_device(LIBEVDEV_UINPUT_OPEN_MANAGED, "Foresight Grab Enum");
+    if (!uin.is_ok()) {
+        GTEST_SKIP() << "Cannot create a virtual uinput device.";
+    }
+    if (!test::wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "The virtual device node was never openable.";
+    }
+    if (!grabs_work_on(uin.devnode())) {
+        uin.close();
+        GTEST_SKIP() << "EVIOCGRAB is refused in this environment.";
+    }
+
+    static constinit auto grab_pipeline = context | io_manager | input_manager;
+    auto&                 im            = grab_pipeline.mod<basic_input_manager>();
+
+    // The first query claims the device while opening it, without grabbing;
+    // the grabbing query must still get its grab during enumeration.
+    test_query_provider plain(query + attr::input_subsystem + attr::event_sysname + attr::name["Foresight Grab Enum*"]);
+    test_query_provider grabbing((query + attr::input_subsystem + attr::event_sysname + attr::name["Foresight Grab Enum*"]) | grab);
+    im.add_query_provider(provider_handle(plain));
+    im.add_query_provider(provider_handle(grabbing));
+    if (grab_pipeline(start) != context_action::next) {
+        uin.close();
+        GTEST_SKIP() << "Cannot start the pipeline.";
+    }
+
+    evdev const* const dev = find_sysname(im, test::sysname_of(uin.devnode()));
+    ASSERT_NE(dev, nullptr) << "The virtual device was not enumerated.";
+    EXPECT_TRUE(is_grabbed(dev->grab())) << "A grab query matching an already-claimed device must grab it retroactively.";
+
+    uin.close();
+}
+
+TEST(InputManager, RetroactiveGrabOnHotplugAfterPlainClaim) {
+    if (verify_access_to_uinput() != uinput_access_result::available) {
+        GTEST_SKIP() << "No /dev/uinput access.";
+    }
+    udev_queue queue(udev::instance().native());
+    if (!queue.is_active()) {
+        GTEST_SKIP() << "udev daemon is not active.";
+    }
+
+    static constinit auto grab_pipeline = context | io_manager | input_manager;
+    auto&                 io            = grab_pipeline.mod<basic_io_manager>();
+    auto&                 im            = grab_pipeline.mod<basic_input_manager>();
+
+    // Plain query first so it opens the device; the grab query then has to
+    // win its grab even though it did not open anything.
+    test_query_provider plain(query + attr::input_subsystem + attr::event_sysname + attr::name["Foresight Grab Hot*"]);
+    test_query_provider grabbing((query + attr::input_subsystem + attr::event_sysname + attr::name["Foresight Grab Hot*"]) | grab);
+    im.add_query_provider(provider_handle(plain));
+    im.add_query_provider(provider_handle(grabbing));
+    if (grab_pipeline(start) != context_action::next) {
+        GTEST_SKIP() << "Cannot start the pipeline.";
+    }
+
+    // Drain any stale udev events left over from a prior run before sampling.
+    pump_for(io, 100);
+
+    basic_uinput uin;
+    uin.set_device(LIBEVDEV_UINPUT_OPEN_MANAGED, "Foresight Grab Hot");
+    if (!uin.is_ok()) {
+        GTEST_SKIP() << "Cannot create a virtual uinput device.";
+    }
+    if (!test::wait_for_openable(uin.devnode(), 3000)) {
+        uin.close();
+        GTEST_SKIP() << "The virtual device node was never openable.";
+    }
+    if (!grabs_work_on(uin.devnode())) {
+        uin.close();
+        GTEST_SKIP() << "EVIOCGRAB is refused in this environment.";
+    }
+
+    auto const our_sysname = test::sysname_of(uin.devnode());
+    EXPECT_TRUE(pump_until(io,
+                           5000,
+                           [&] {
+                               return has_sysname(im, our_sysname);
+                           }))
+      << "Hotplug add was not registered.";
+    evdev const* const dev = find_sysname(im, our_sysname);
+    ASSERT_NE(dev, nullptr) << "The virtual device was not tracked.";
+    EXPECT_TRUE(is_grabbed(dev->grab())) << "A grab query must grab a device an earlier query opened without grabbing.";
+
+    uin.close();
 }

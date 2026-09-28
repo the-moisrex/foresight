@@ -578,6 +578,29 @@ TEST(TaggedQueries, SingleQueryPipeStillWorks) {
     EXPECT_TRUE(q.fail_on_no_match);
 }
 
+TEST(FallbackQueries, EmptyRangeYieldsFallbackQuery) {
+    std::array<std::string_view, 0> strs{};
+    auto                            queries = (strs | fallback[keyboard] | required) | std::ranges::to<std::vector<owned_query>>();
+    ASSERT_EQ(queries.size(), 1U);
+    EXPECT_EQ(queries[0].value(), static_cast<device_query>(keyboard | required));
+}
+
+TEST(FallbackQueries, NonEmptyRangeIgnoresFallback) {
+    std::array<std::string_view, 2> strs{"keyboard", "name=event0"};
+    auto                            queries = (strs | fallback[tablet] | grab) | std::ranges::to<std::vector<owned_query>>();
+    ASSERT_EQ(queries.size(), 2U);
+    EXPECT_EQ(queries[0].value().caps, caps_of("keyboard"));
+    EXPECT_TRUE(queries[0].value().grab);
+    EXPECT_TRUE(queries[1].value().grab);
+}
+
+TEST(FallbackQueries, FallbackComposesWithElementTags) {
+    std::array<std::string_view, 0> strs{};
+    auto queries = (strs | fallback[tablet] | grab[true] | required) | std::ranges::to<std::vector<owned_query>>();
+    ASSERT_EQ(queries.size(), 1U);
+    EXPECT_EQ(queries[0].value(), static_cast<device_query>(tablet | grab | required));
+}
+
 TEST(FindDevices, OverQueriesYieldsOkDevices) {
     std::array<std::string_view, 1> strs{"keyboard"};
     int                             count = 0;

@@ -419,6 +419,20 @@ export namespace fs8 {
         }
     } required;
 
+    /// Range-level tag: when the piped range yields no queries at all, yield
+    /// this query instead.  Pipe it directly after the range, before the
+    /// element-wise tags (grab, required, ...) so they reach the fallback too.
+    constexpr struct [[nodiscard]] fallback_tag {
+        owned_query value{};
+
+        template <std::size_t N>
+        constexpr fallback_tag operator[](basic_device_query<N> const& inp_query) const noexcept {
+            fallback_tag res;
+            res.value.set(inp_query);
+            return res;
+        }
+    } fallback;
+
     template <typename T>
     concept QueryTag = std::invocable<T, device_query&>;
 
@@ -488,19 +502,42 @@ export namespace fs8 {
                 tag(q);
                 result.set(q);
                 return result;
-            } else if constexpr (std::same_as<T, owned_query>) {
+            } else if constexpr (std::same_as<std::remove_cvref_t<T>, owned_query>) {
                 owned_query  result{elem};
                 device_query q = result;
                 tag(q);
                 result.set(q);
                 return result;
             } else {
-                static_assert(is_query<T>, "Only query ranges and string ranges can be piped into a query tag.");
+                static_assert(is_query<std::remove_cvref_t<T>>, "Only query ranges and string ranges can be piped into a query tag.");
                 device_query result = elem;
                 tag(result);
                 return result;
             }
         });
+    }
+
+    // Pipe: <range of strings or queries> | fallback[query]  →  owned queries.
+    // Materializes eagerly; an empty range yields only the fallback query.
+    // Element-wise tags piped afterwards apply to either source.
+    template <std::ranges::viewable_range R>
+        requires(!is_query<std::remove_cvref_t<R>>)
+    [[nodiscard]] constexpr auto operator|(R&& rng, fallback_tag tag) {
+        std::vector<owned_query> out;
+        for (auto&& elem : rng) {
+            if constexpr (std::convertible_to<std::remove_cvref_t<decltype(elem)>, std::string_view>) {
+                out.emplace_back(std::string_view{elem});
+            } else if constexpr (std::same_as<std::remove_cvref_t<decltype(elem)>, owned_query>) {
+                out.push_back(elem);
+            } else {
+                static_assert(is_query<std::remove_cvref_t<decltype(elem)>>, "Only query ranges and string ranges can carry a fallback.");
+                out.emplace_back().set(elem);
+            }
+        }
+        if (out.empty()) {
+            out.push_back(tag.value);
+        }
+        return out;
     }
 
     template <std::size_t N1, std::size_t N2>

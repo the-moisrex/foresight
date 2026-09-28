@@ -15,6 +15,9 @@ import fs8.devices.queries;
 import :io_manager;
 import fs8.pimpl;
 
+// Suppress std::inplace_vector deprecation warning (GCC 16 stdlib issue, not our code).
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 export namespace fs8 {
 
     /**

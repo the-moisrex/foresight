@@ -74,6 +74,19 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         }
     }
 
+    /// Ask for the grab a query demands.  Grabbing is per-query, so a
+    /// device can end up tracked by an earlier query without the flag and
+    /// must be grabbed retroactively when a grab query matches it too.
+    void grab_or_log(evdev& dev) noexcept {
+        if (dev.grab() == grab_state::grabbing) {
+            return;
+        }
+        dev.grab_input(true);
+        if (dev.grab() != grab_state::grabbing) [[unlikely]] {
+            log("Grabbing failed for device: {}", dev.device_name());
+        }
+    }
+
     /// Devices are identified by their udev sysname (derived from the fd),
     /// which is the last component of their syspath; only nodes with a devnode
     /// are ever tracked, so the two are equivalent.
@@ -167,24 +180,30 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         }
 
         if (has_sysname(name)) {
-            return; // already tracked; do not duplicate
+            // Already tracked; do not duplicate — but honour a grab query
+            // that matches it (it may have been registered after the device
+            // was claimed by a non-grabbing query).
+            apply_grab_queries(event_dev);
+            return;
         }
 
         if (is_self_created_sysname(name)) {
             return; // our own uinput device; never drain it back in
         }
 
-        bool added = false;
+        bool   added     = false;
+        evdev* added_dev = nullptr;
         for (auto& provider : providers) {
-            if (added) [[unlikely]] {
-                break; // first matching query wins
-            }
             for (device_query const cur_query : provider()) {
-                if (added) [[unlikely]] {
-                    break;
-                }
-                // log("DEBUG matching {}", to_string(cur_query));
                 if (!matches(event_dev, cur_query)) {
+                    continue;
+                }
+                if (added) {
+                    // First matching query opens the device; later queries
+                    // only get to demand a grab of the result.
+                    if (cur_query.grab) {
+                        grab_or_log(*added_dev);
+                    }
                     continue;
                 }
                 auto edev = open_device(cur_query, event_dev);
@@ -193,8 +212,28 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                     continue;
                 }
                 devs.emplace_back(std::move(edev));
-                added = true;
-                announce_connected(devs.back());
+                added     = true;
+                added_dev = std::addressof(devs.back());
+                announce_connected(*added_dev);
+            }
+        }
+    }
+
+    /// A tracked device may still need grabbing when udev replays an
+    /// add/change for it: the grab query may match but was not the one that
+    /// opened (or currently tracks) the device.
+    void apply_grab_queries(udev_device const& event_dev) noexcept {
+        for (auto& provider : providers) {
+            for (device_query const cur_query : provider()) {
+                if (!cur_query.grab || !matches(event_dev, cur_query)) {
+                    continue;
+                }
+                for (auto& dev : devs) {
+                    if (device_sysname(dev) == event_dev.sysname()) {
+                        grab_or_log(dev);
+                        return;
+                    }
+                }
             }
         }
     }
@@ -239,6 +278,11 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                     for (auto& existing : devs) {
                         if (matches(existing, cur_query)) {
                             found = true;
+                            if (cur_query.grab) {
+                                // Claimed earlier by a query without the
+                                // grab flag; honour this one.
+                                grab_or_log(existing);
+                            }
                             break;
                         }
                     }
