@@ -1,10 +1,13 @@
 #include "./common/test_helpers.hpp"
 #include "./common/tests_common_pch.hpp"
 
+#include <array>
+#include <chrono>
 #include <cstdint>
 #include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
 #include <span>
+#include <sys/time.h>
 #include <vector>
 import dynamic_scoping;
 import fs8.devices.evdev;
@@ -14,6 +17,7 @@ import fs8.mods;
 using namespace fs8;
 
 namespace {
+    using namespace std::chrono_literals; // NOLINT(*-using-namespace)
 
     /// Collect all events that match a given type+code, ignoring SYN_REPORT.
     std::vector<event_type> collect(std::span<event_type const> const events, std::uint16_t const type, std::uint16_t const code) {
@@ -21,6 +25,67 @@ namespace {
         for (auto const& event : events) {
             if (event.type() == type && event.code() == code) {
                 out.push_back(event);
+            }
+        }
+        return out;
+    }
+
+    /// An event carrying an explicit microsecond timestamp, so tests can
+    /// control how much "wall time" passes between press and release.
+    consteval event_type timed_ev(
+      event_type::type_type const     type,
+      event_type::code_type const     code,
+      event_type::value_type const    value,
+      std::chrono::microseconds const us) {
+        event_type ev{type, code, value};
+        timeval    t{};
+        t.tv_sec  = static_cast<time_t>(us.count() / 1'000'000);
+        t.tv_usec = static_cast<suseconds_t>(us.count() % 1'000'000);
+        ev.time(t);
+        return ev;
+    }
+
+    /// A `load_event` provider (like `emit_all`) that feeds pre-timestamped
+    /// events instead of stamping them with the current time.
+    template <std::size_t N>
+    struct timed_sequence {
+        std::array<event_type, N> events{};
+        std::size_t               index = 0;
+
+        explicit constexpr timed_sequence(std::array<event_type, N> evs) noexcept : events{evs} {}
+
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
+            using enum context_action;
+            if (tag.code != load_event.code) {
+                return drop_event;
+            }
+            if (index == N) {
+                return exit;
+            }
+            ctx.event() = events[index++];
+            return next;
+        }
+    };
+
+    /// A recorded event tagged with the MT slot that was selected when it
+    /// was emitted (slot resets to 0 when no ABS_MT_SLOT event precedes it).
+    struct slot_event {
+        int        slot;
+        event_type event;
+    };
+
+    /// Collect events of a given type+code together with their MT slot.
+    std::vector<slot_event> collect_slotted(std::span<event_type const> const events, std::uint16_t const type, std::uint16_t const code) {
+        std::vector<slot_event> out;
+        int                     slot = 0;
+        for (auto const& event : events) {
+            if (event.type() == EV_ABS && event.code() == ABS_MT_SLOT) {
+                slot = event.value();
+                continue;
+            }
+            if (event.type() == type && event.code() == code) {
+                out.push_back({slot, event});
             }
         }
         return out;
@@ -63,6 +128,10 @@ namespace {
         // Touchpad keys: fingers yes, pen tools no.
         EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_TOUCH));
         EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_TOOL_FINGER));
+        // Two contacts need the legacy two-finger key: libinput derives
+        // its expected finger count from BTN_TOOL_* and keeps a second
+        // contact hovering (inert) while only BTN_TOOL_FINGER is set.
+        EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_TOOL_DOUBLETAP));
         EXPECT_FALSE(created.has_event_code(EV_KEY, BTN_TOOL_PEN));
         EXPECT_FALSE(created.has_event_code(EV_KEY, BTN_STYLUS));
         EXPECT_FALSE(created.has_event_code(EV_KEY, BTN_STYLUS2));
@@ -86,6 +155,9 @@ namespace {
         // pressure-based touch detection, whose begin threshold (12% of
         // range) and palm threshold (~130) pen pressure cannot satisfy.
         EXPECT_FALSE(created.has_event_code(EV_ABS, ABS_MT_PRESSURE));
+        // Two contacts: the pen contact plus the synthetic scroll finger.
+        ASSERT_NE(created.abs_info(ABS_MT_SLOT), nullptr);
+        EXPECT_GE(created.abs_info(ABS_MT_SLOT)->maximum, 1);
 
         // MT absinfo: bounded tracking ids (profile constant), position
         // copied from the source axis (non-empty range).
@@ -837,8 +909,8 @@ TEST(Pen2TouchTest, ToggleOffReleasesHeldBarrelButton) {
     auto pipeline =
       context
       | emit_all[{
-        {EV_KEY, BTN_STYLUS, 1},
-        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY, BTN_STYLUS3, 1},
+        {EV_SYN,  SYN_REPORT, 0},
     }]
       | pen2touch
       | record;
@@ -847,14 +919,16 @@ TEST(Pen2TouchTest, ToggleOffReleasesHeldBarrelButton) {
     pipeline(); // press only; the pipeline exits with the button still held
 
     // Cleaning up must release the mapped mouse button, or consumers keep
-    // seeing a stuck right-click.
+    // seeing a stuck side button.  (BTN_STYLUS / BTN_STYLUS2 are buffered
+    // scroll triggers — they never hold a button down, so there is
+    // nothing for cleanup to release.)
     dynamic_scope scope{dynamic_context, pipeline};
     EXPECT_EQ(dynamic_context->broadcast(toggle_off), context_action::next);
 
-    auto const right = collect(col.events(), EV_KEY, BTN_RIGHT);
-    ASSERT_GE(right.size(), 2U);
-    EXPECT_EQ(right[0].value(), 1);
-    EXPECT_EQ(right[1].value(), 0);
+    auto const side = collect(col.events(), EV_KEY, BTN_SIDE);
+    ASSERT_GE(side.size(), 2U);
+    EXPECT_EQ(side[0].value(), 1);
+    EXPECT_EQ(side[1].value(), 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -973,7 +1047,7 @@ TEST(Pen2TouchTest, ProfileDeviceReshapesTabletTemplate) {
     EXPECT_EQ(tmpl.abs_info(ABS_MT_POSITION_X)->maximum, 32'767);
     EXPECT_EQ(tmpl.abs_info(ABS_MT_POSITION_X)->resolution, 100);
     ASSERT_NE(tmpl.abs_info(ABS_MT_SLOT), nullptr);
-    EXPECT_EQ(tmpl.abs_info(ABS_MT_SLOT)->maximum, 0); // single contact
+    EXPECT_GE(tmpl.abs_info(ABS_MT_SLOT)->maximum, 1); // pen contact + scroll finger
 }
 
 TEST(Pen2TouchTest, ProfileDeviceStripsSourceMtPressure) {
@@ -1124,6 +1198,23 @@ TEST(Pen2TouchTest, AppStartProfilesUinputDevice) {
     EXPECT_EQ(created.abs_info(ABS_MT_POSITION_X)->maximum, 32'767);
 
     uin.close();
+}
+
+TEST(Pen2TouchTest, StartWithPressedToolIsSilentOnFirstRun) {
+    auto  pipeline = context | input_manager | keys_state | pen2touch | record;
+    auto& col      = pipeline.mod<basic_record>();
+
+    // The pen is already in proximity before the pipeline starts, so
+    // keys_state seeds BTN_TOOL_PEN as pressed.
+    pipeline.mod<basic_keys_state>()(event_type{EV_KEY, BTN_TOOL_PEN, 1});
+
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    // pen2touch has never run before: there is no contact of ours to
+    // release, and emitting during start would race the mods further
+    // down the pipeline (the output's uinput does not exist yet — it is
+    // created when the output's own start runs, after ours).
+    EXPECT_TRUE(col.events().empty()) << "forked " << col.events().size() << " events during start";
 }
 
 TEST(Pen2TouchTest, AppEventFlowWritesTouchpadEventsToKernel) {
@@ -1543,4 +1634,513 @@ TEST(Pen2TouchTest, UnknownControlTagDropsWithoutSideEffects) {
     ASSERT_EQ(tid.size(), 2U);
     EXPECT_GE(tid[0].value(), 0);
     EXPECT_EQ(tid[1].value(), -1);
+}
+
+// ---------------------------------------------------------------------------
+// Two-finger scroll: holding the barrel button (or capslock) opens a second
+// contact next to the pen contact, which libinput reads as a scroll gesture.
+// A quick tap still clicks.
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, Stylus2QuickTapEmitsMiddleClick) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_STYLUS2, 1},
+        {EV_SYN,  SYN_REPORT, 0},
+        {EV_KEY, BTN_STYLUS2, 0},
+        {EV_SYN,  SYN_REPORT, 0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    auto const middle = collect(col.events(), EV_KEY, BTN_MIDDLE);
+    ASSERT_EQ(middle.size(), 2U);
+    EXPECT_EQ(middle[0].value(), 1);
+    EXPECT_EQ(middle[1].value(), 0);
+
+    // The barrel code itself must never leak, and a tap must not open a
+    // scroll contact.
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_STYLUS2).empty());
+    for (auto const& slot : collect(col.events(), EV_ABS, ABS_MT_SLOT)) {
+        EXPECT_EQ(slot.value(), 0);
+    }
+}
+
+TEST(Pen2TouchTest, Stylus2HoldScrollsInSecondSlot) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,  0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, BTN_STYLUS2,   1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_ABS,     ABS_X, 1200, 20ms),
+        timed_ev(EV_ABS,     ABS_Y, 1400, 20ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 20ms),
+        timed_ev(EV_KEY, BTN_STYLUS2,   0, 300ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 300ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // The hold became a scroll, not a middle click.
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_MIDDLE).empty());
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_STYLUS2).empty());
+
+    // Slot 0 is the pen contact; slot 1 opens on engage and lifts on
+    // release, with a tracking id distinct from the pen's.
+    auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(tracking.size(), 3U);
+    EXPECT_EQ(tracking[0].slot, 0);
+    EXPECT_GE(tracking[0].event.value(), 0);
+    EXPECT_EQ(tracking[1].slot, 1);
+    EXPECT_GE(tracking[1].event.value(), 0);
+    EXPECT_NE(tracking[1].event.value(), tracking[0].event.value());
+    EXPECT_EQ(tracking[2].slot, 1);
+    EXPECT_EQ(tracking[2].event.value(), -1);
+
+    // The scroll finger sits a fixed offset away from the pen contact and
+    // follows its moves (default offset: range/8 of 32767 = 4095).
+    static constexpr event_type::value_type offset = 32'767 / 8;
+    auto const                              pos_x  = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(pos_x.size(), 4U);
+    EXPECT_EQ(pos_x[0].slot, 0);
+    EXPECT_EQ(pos_x[0].event.value(), 1000);
+    EXPECT_EQ(pos_x[1].slot, 1);
+    EXPECT_EQ(pos_x[1].event.value(), 1000 + offset);
+    EXPECT_EQ(pos_x[2].slot, 0);
+    EXPECT_EQ(pos_x[2].event.value(), 1200);
+    EXPECT_EQ(pos_x[3].slot, 1);
+    EXPECT_EQ(pos_x[3].event.value(), 1200 + offset);
+    auto const pos_y = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_Y);
+    ASSERT_EQ(pos_y.size(), 4U);
+    EXPECT_EQ(pos_y[1].slot, 1);
+    EXPECT_EQ(pos_y[1].event.value(), 1000); // only X is offset; Y mirrors
+    EXPECT_EQ(pos_y[3].slot, 1);
+    EXPECT_EQ(pos_y[3].event.value(), 1400);
+}
+
+TEST(Pen2TouchTest, Stylus2HoldWithoutMovementIsSilent) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,  0, 0us),
+        timed_ev(EV_KEY, BTN_STYLUS2, 1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,  0, 10ms),
+        timed_ev(EV_KEY, BTN_STYLUS2, 0, 400ms),
+        timed_ev(EV_SYN, SYN_REPORT,  0, 400ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // Too long for a tap: no click, and the scroll contact opened and
+    // closed again.
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_MIDDLE).empty());
+    auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(tracking.size(), 3U);
+    EXPECT_EQ(tracking[1].slot, 1);
+    EXPECT_GE(tracking[1].event.value(), 0);
+    EXPECT_EQ(tracking[2].slot, 1);
+    EXPECT_EQ(tracking[2].event.value(), -1);
+}
+
+TEST(Pen2TouchTest, StylusQuickTapEmitsRightClick) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_STYLUS, 1},
+        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY, BTN_STYLUS, 0},
+        {EV_SYN, SYN_REPORT, 0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    auto const right = collect(col.events(), EV_KEY, BTN_RIGHT);
+    ASSERT_EQ(right.size(), 2U);
+    EXPECT_EQ(right[0].value(), 1);
+    EXPECT_EQ(right[1].value(), 0);
+
+    // The barrel code itself must never leak, and a tap must not open a
+    // scroll contact.
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_STYLUS).empty());
+    for (auto const& slot : collect(col.events(), EV_ABS, ABS_MT_SLOT)) {
+        EXPECT_EQ(slot.value(), 0);
+    }
+}
+
+// libinput diffs physical button state across frames
+// (tp_post_physical_buttons): a press and its release inside one frame
+// net to no change and are dropped, so the tap click must span two
+// frames — SYN_REPORT between press and release.
+TEST(Pen2TouchTest, QuickTapClickSpansTwoFrames) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_STYLUS, 1},
+        {EV_SYN, SYN_REPORT, 0},
+        {EV_KEY, BTN_STYLUS, 0},
+        {EV_SYN, SYN_REPORT, 0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    auto const right = collect(col.events(), EV_KEY, BTN_RIGHT);
+    ASSERT_EQ(right.size(), 2U);
+    bool syn_between = false;
+    bool seen_press  = false;
+    for (auto const& e : col.events()) {
+        if (e.type() == EV_KEY && e.code() == BTN_RIGHT && e.value() == 1) {
+            seen_press = true;
+        } else if (seen_press && e.type() == EV_SYN && e.code() == SYN_REPORT) {
+            syn_between = true;
+        } else if (e.type() == EV_KEY && e.code() == BTN_RIGHT && e.value() == 0) {
+            break;
+        }
+    }
+    EXPECT_TRUE(syn_between);
+}
+
+// A second contact must be announced through the legacy two-finger key:
+// libinput counts BTN_TOOL_* to decide how many hovering slots to wake
+// (tp_fake_finger_count), so exactly one of BTN_TOOL_FINGER /
+// BTN_TOOL_DOUBLETAP may be lit at any frame boundary — with only
+// BTN_TOOL_FINGER set, the scroll finger stays TOUCH_HOVERING forever
+// and never produces a scroll gesture.
+TEST(Pen2TouchTest, ScrollAnnouncesDoubletapToolKey) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,  0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, BTN_STYLUS,    1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_ABS,     ABS_X, 1200, 20ms),
+        timed_ev(EV_ABS,     ABS_Y, 1400, 20ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 20ms),
+        timed_ev(EV_KEY, BTN_STYLUS,    0, 300ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 300ms),
+        timed_ev(EV_KEY, BTN_TOOL_PEN,  0, 400ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 400ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    auto const finger = collect(col.events(), EV_KEY, BTN_TOOL_FINGER);
+    ASSERT_EQ(finger.size(), 4U);
+    EXPECT_EQ(finger[0].value(), 1);    // proximity: one finger
+    EXPECT_EQ(finger[1].value(), 0);    // scroll engage: two fingers
+    EXPECT_EQ(finger[2].value(), 1);    // scroll end: back to one
+    EXPECT_EQ(finger[3].value(), 0);    // tool leaves
+    auto const doubletap = collect(col.events(), EV_KEY, BTN_TOOL_DOUBLETAP);
+    ASSERT_EQ(doubletap.size(), 2U);
+    EXPECT_EQ(doubletap[0].value(), 1); // scroll engage
+    EXPECT_EQ(doubletap[1].value(), 0); // scroll end
+
+    // Never both tool keys lit at a frame boundary — libinput logs a
+    // kernel bug for that ("Invalid fake finger state").
+    unsigned lit_finger = 0, lit_doubletap = 0;
+    for (auto const& e : col.events()) {
+        if (e.type() == EV_KEY && e.code() == BTN_TOOL_FINGER) {
+            lit_finger = static_cast<unsigned>(e.value());
+        } else if (e.type() == EV_KEY && e.code() == BTN_TOOL_DOUBLETAP) {
+            lit_doubletap = static_cast<unsigned>(e.value());
+        } else if (e.type() == EV_SYN && e.code() == SYN_REPORT) {
+            EXPECT_FALSE(lit_finger != 0 && lit_doubletap != 0);
+        }
+    }
+}
+
+TEST(Pen2TouchTest, StylusHoldScrollsInSecondSlot) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,  0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, BTN_STYLUS,    1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_ABS,     ABS_X, 1200, 20ms),
+        timed_ev(EV_ABS,     ABS_Y, 1400, 20ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 20ms),
+        timed_ev(EV_KEY, BTN_STYLUS,    0, 300ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 300ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // The hold became a scroll, not a right click.
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_RIGHT).empty());
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_STYLUS).empty());
+
+    // Slot 0 is the pen contact; slot 1 opens on engage and lifts on
+    // release, with a tracking id distinct from the pen's.
+    auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(tracking.size(), 3U);
+    EXPECT_EQ(tracking[0].slot, 0);
+    EXPECT_GE(tracking[0].event.value(), 0);
+    EXPECT_EQ(tracking[1].slot, 1);
+    EXPECT_GE(tracking[1].event.value(), 0);
+    EXPECT_NE(tracking[1].event.value(), tracking[0].event.value());
+    EXPECT_EQ(tracking[2].slot, 1);
+    EXPECT_EQ(tracking[2].event.value(), -1);
+
+    // The scroll finger sits a fixed offset away from the pen contact and
+    // follows its moves (default offset: range/8 of 32767 = 4095).
+    static constexpr event_type::value_type offset = 32'767 / 8;
+    auto const                              pos_x  = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(pos_x.size(), 4U);
+    EXPECT_EQ(pos_x[0].slot, 0);
+    EXPECT_EQ(pos_x[0].event.value(), 1000);
+    EXPECT_EQ(pos_x[1].slot, 1);
+    EXPECT_EQ(pos_x[1].event.value(), 1000 + offset);
+    EXPECT_EQ(pos_x[2].slot, 0);
+    EXPECT_EQ(pos_x[2].event.value(), 1200);
+    EXPECT_EQ(pos_x[3].slot, 1);
+    EXPECT_EQ(pos_x[3].event.value(), 1200 + offset);
+    auto const pos_y = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_Y);
+    ASSERT_EQ(pos_y.size(), 4U);
+    EXPECT_EQ(pos_y[1].slot, 1);
+    EXPECT_EQ(pos_y[1].event.value(), 1000); // only X is offset; Y mirrors
+    EXPECT_EQ(pos_y[3].slot, 1);
+    EXPECT_EQ(pos_y[3].event.value(), 1400);
+}
+
+TEST(Pen2TouchTest, StylusHoldWithMovementNeverClicks) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,  0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, BTN_STYLUS,    1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_ABS,     ABS_X, 1300, 30ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 30ms),
+        timed_ev(EV_KEY, BTN_STYLUS,    0, 80ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 80ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // Movement marks the hold as used: even a release inside the tap
+    // window must not click, and the scroll contact opened and closed.
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_RIGHT).empty());
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_STYLUS).empty());
+    auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(tracking.size(), 3U);
+    EXPECT_EQ(tracking[1].slot, 1);
+    EXPECT_GE(tracking[1].event.value(), 0);
+    EXPECT_EQ(tracking[2].slot, 1);
+    EXPECT_EQ(tracking[2].event.value(), -1);
+}
+
+TEST(Pen2TouchTest, TipAlreadyDownLiftsOnScrollEngage) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,   0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY,    BTN_TOUCH,  1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, BTN_STYLUS2,   1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_ABS, ABS_X, 1200, 20ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 20ms),
+        timed_ev(EV_KEY,    BTN_TOUCH,  0, 30ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 30ms),
+        timed_ev(EV_KEY, BTN_STYLUS2,   0, 300ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 300ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // The tip drag is lifted when the scroll engages, and its release
+    // while scrolling stays swallowed (no extra BTN_LEFT, no click).
+    auto const left = collect(col.events(), EV_KEY, BTN_LEFT);
+    ASSERT_EQ(left.size(), 2U);
+    EXPECT_EQ(left[0].value(), 1);
+    EXPECT_EQ(left[1].value(), 0);
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_MIDDLE).empty());
+}
+
+TEST(Pen2TouchTest, TipPressSuppressedDuringScroll) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,   0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, BTN_STYLUS2,   1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_KEY,    BTN_TOUCH,  1, 20ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 20ms),
+        timed_ev(EV_ABS, ABS_X, 1200, 30ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 30ms),
+        timed_ev(EV_KEY,    BTN_TOUCH,  0, 40ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 40ms),
+        timed_ev(EV_KEY, BTN_STYLUS2,   0, 300ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 300ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // The tip can never start a click while the scroll trigger is held.
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_LEFT).empty());
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_MIDDLE).empty());
+}
+
+TEST(Pen2TouchTest, ToolGoneLiftsScrollFinger) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,   0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, BTN_STYLUS2,   1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_KEY, BTN_TOOL_PEN,  0, 20ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 20ms),
+        timed_ev(EV_KEY, BTN_STYLUS2,   0, 400ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 400ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // Both contacts die with the tool: no stuck scroll finger.
+    auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(tracking.size(), 4U);
+    EXPECT_EQ(tracking[1].slot, 1);
+    EXPECT_GE(tracking[1].event.value(), 0);
+    EXPECT_EQ(tracking[2].slot, 1);
+    EXPECT_EQ(tracking[2].event.value(), -1);
+    EXPECT_EQ(tracking[3].slot, 0);
+    EXPECT_EQ(tracking[3].event.value(), -1);
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_MIDDLE).empty());
+}
+
+TEST(Pen2TouchTest, CapsLockEngagesScroll) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1000},
+        {EV_ABS,        ABS_Y, 1000},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY, KEY_CAPSLOCK,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY, KEY_CAPSLOCK,    0},
+        {EV_SYN,   SYN_REPORT,    0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // Capslock opens and closes the scroll finger...
+    auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(tracking.size(), 3U);
+    EXPECT_EQ(tracking[1].slot, 1);
+    EXPECT_GE(tracking[1].event.value(), 0);
+    EXPECT_EQ(tracking[2].slot, 1);
+    EXPECT_EQ(tracking[2].event.value(), -1);
+    // ...while the key itself passes through untouched (on_held downstream
+    // owns the swallow/LED logic).
+    auto const caps = collect(col.events(), EV_KEY, KEY_CAPSLOCK);
+    ASSERT_EQ(caps.size(), 2U);
+    EXPECT_EQ(caps[0].value(), 1);
+    EXPECT_EQ(caps[1].value(), 0);
+}
+
+TEST(Pen2TouchTest, ScrollOffsetFollowsProfiledAxisRange) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+    static constexpr input_absinfo narrow_x{.minimum = 0, .maximum = 999};
+    tmpl.abs_info(ABS_X, narrow_x);
+
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN,   1},
+        {EV_SYN,   SYN_REPORT,   0},
+        {EV_ABS,        ABS_X, 800},
+        {EV_ABS,        ABS_Y, 800},
+        {EV_SYN,   SYN_REPORT,   0},
+        {EV_KEY,  BTN_STYLUS2,   1},
+        {EV_SYN,   SYN_REPORT,   0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    // uinput broadcasts this before creating the device; the mod records
+    // the profiled axis range to size the scroll-finger offset.
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
+
+    pipeline();
+
+    // offset = (999 - 0) / 8 = 124, not the unprofiled default 4095.
+    auto const pos_x = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(pos_x.size(), 2U);
+    EXPECT_EQ(pos_x[0].slot, 0);
+    EXPECT_EQ(pos_x[0].event.value(), 800);
+    EXPECT_EQ(pos_x[1].slot, 1);
+    EXPECT_EQ(pos_x[1].event.value(), 800 + 999 / 8);
 }

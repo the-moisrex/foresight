@@ -16,11 +16,14 @@ export namespace fs8 {
     ///   ABS_X / ABS_Y
     ///   ABS_PRESSURE
     ///
-    /// This mod converts the tool identity to BTN_TOOL_FINGER and mirrors
-    /// the tablet's absolute position/pressure into the Type-B multitouch
-    /// protocol:
+    /// This mod converts the tool identity to BTN_TOOL_FINGER — flipped
+    /// to BTN_TOOL_DOUBLETAP while the scroll finger is open, since
+    /// libinput derives its expected finger count from BTN_TOOL_* and
+    /// leaves further contacts in the non-motion hovering state — and
+    /// mirrors the tablet's absolute position/pressure into the Type-B
+    /// multitouch protocol:
     ///
-    ///   ABS_MT_SLOT            (always 0 for a single-contact device)
+    ///   ABS_MT_SLOT            (slot 0: the contact; slot 1: the scroll finger)
     ///   ABS_MT_TRACKING_ID     (non-negative starts a contact, -1 ends it)
     ///   ABS_MT_POSITION_X
     ///   ABS_MT_POSITION_Y
@@ -47,12 +50,20 @@ export namespace fs8 {
     /// treating any pressure above its palm threshold (~130) as a palm —
     /// pen pressure satisfies neither bound, so contacts would be ignored.
     ///
-    /// The barrel buttons (BTN_STYLUS / BTN_STYLUS2 / BTN_STYLUS3) are
-    /// remapped onto regular mouse buttons (BTN_RIGHT / BTN_MIDDLE /
-    /// BTN_SIDE), which the `profile_device` answer advertises on the
-    /// virtual device alongside BTN_LEFT.  Tilt (ABS_TILT_X / ABS_TILT_Y)
-    /// and tool width (ABS_TOOL_WIDTH) are dropped because they have no
-    /// touchpad equivalent.
+    /// BTN_STYLUS3 is remapped onto the side mouse button, which the
+    /// `profile_device` answer advertises on the virtual device
+    /// alongside BTN_LEFT.  BTN_STYLUS, BTN_STYLUS2 (the barrel
+    /// buttons; many pens only report BTN_STYLUS) and KEY_CAPSLOCK act
+    /// as a *scroll trigger* instead: while any is held, a second MT
+    /// contact (slot 1) mirrors the pen contact one eighth of the axis
+    /// away, which libinput reads as a two-finger scroll — the cursor
+    /// freezes, the tip click is suppressed, and motion keeps scrolling
+    /// (including libinput's inertial scrolling) until the hold ends.  A
+    /// quick tap of a barrel button (<200 ms without movement) still
+    /// emits its real mouse click (BTN_RIGHT for BTN_STYLUS, BTN_MIDDLE
+    /// for BTN_STYLUS2).  Tilt (ABS_TILT_X / ABS_TILT_Y) and tool width
+    /// (ABS_TOOL_WIDTH) are dropped because they have no touchpad
+    /// equivalent.
     ///
     /// The mod also answers the `profile_device` control event: when the
     /// pipeline's `uinput` is about to create the virtual device, this mod

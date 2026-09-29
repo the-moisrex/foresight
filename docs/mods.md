@@ -219,7 +219,10 @@ Translate a pen tablet's buttons/tools into mouse clicks.
 ### `pen2touch`
 
 Convert pen events into a single-contact Type-B multitouch stream:
-`BTN_TOOL_*` is renamed to `BTN_TOOL_FINGER` and opens/closes an
+`BTN_TOOL_*` is renamed to `BTN_TOOL_FINGER` (flipped to
+`BTN_TOOL_DOUBLETAP` while the scroll finger is open — libinput derives its
+expected finger count from `BTN_TOOL_*` and keeps further contacts in the
+non-motion hovering state otherwise) and opens/closes an
 `ABS_MT_TRACKING_ID` contact — the contact follows *proximity*, so a hovering
 pen already moves the cursor, and the output `BTN_TOUCH` flags that contact
 (libinput keeps a tracking-id slot in a non-motion "hovering" state until it
@@ -232,9 +235,11 @@ no contact would ever move the pointer.
 
 The source tip press (`BTN_TOUCH`) becomes `BTN_LEFT`: pressing the tip is
 the left click, and advertising `BTN_LEFT` flips libinput's tap-to-click
-default off, so hover enter/leave cannot fire spurious taps.  The barrel
-buttons are remapped onto mouse buttons (`BTN_STYLUS` -> `BTN_RIGHT`,
-`BTN_STYLUS2` -> `BTN_MIDDLE`, `BTN_STYLUS3` -> `BTN_SIDE`); tilt and tool
+default off, so hover enter/leave cannot fire spurious taps.  `BTN_STYLUS3`
+is remapped onto `BTN_SIDE`; `BTN_STYLUS`, `BTN_STYLUS2` and `KEY_CAPSLOCK`
+are scroll triggers — holding one opens a second contact that libinput reads
+as a two-finger scroll, while a quick tap of a barrel button still clicks
+(`BTN_STYLUS` -> `BTN_RIGHT`, `BTN_STYLUS2` -> `BTN_MIDDLE`); tilt and tool
 width are dropped.
 
 The mod also answers the `profile_device` control event: when the pipeline's
