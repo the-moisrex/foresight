@@ -65,11 +65,12 @@ export namespace fs8 {
     /// (ABS_TOOL_WIDTH) are dropped because they have no touchpad
     /// equivalent.
     ///
-    /// Cursor speed is a parameter: `pen2touch[1.5f]` scales every
-    /// absolute motion delta by 1.5 — the first sample of each stroke
-    /// anchors the mapping, the result is clamped to the advertised
-    /// axis range, and the scroll gesture speeds up proportionally.
-    /// Apps can override it at runtime with
+    /// Cursor speed is a parameter: `pen2touch[1.5f]` divides the axis
+    /// resolution of the profiled touchpad by 1.5, which makes libinput
+    /// turn every motion delta into 1.5x the pointer/scroll travel.
+    /// Coordinates pass through raw — the mapping is one-to-one at any
+    /// factor, so no wall or drift can appear mid-tablet.  Apps can
+    /// override it at runtime with
     /// `pipeline.mod(pen2touch).speed(...)` before the pipeline runs.
     ///
     /// The mod also answers the `profile_device` control event: when the
@@ -103,10 +104,11 @@ export namespace fs8 {
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
 
-        /// Scale cursor speed by `factor`: absolute motion deltas are
-        /// multiplied by it (the first sample of each stroke anchors
-        /// the mapping; values are clamped to the advertised axis
-        /// range).  1.0 is the identity.
+        /// Scale cursor speed by `factor`: at `profile_device` time the
+        /// axis resolution is divided by it, which is the divisor
+        /// libinput derives pointer/scroll motion from — the emitted
+        /// coordinates themselves never change.  Requires the source
+        /// axes to advertise a resolution; 1.0 is the identity.
         constexpr explicit basic_pen2touch(float const speed) noexcept : speed_{speed} {}
 
         /// Build a variant with a different speed factor: `pen2touch[1.5f]`.
@@ -130,7 +132,8 @@ export namespace fs8 {
         context_action operator()(event_type& event) noexcept;
 
       private:
-        /// Motion multiplier handed to the impl at init time.
+        /// Motion factor; `profile_device` divides the axis resolution
+        /// by it when it reshapes the template.
         float speed_ = 1.0f;
     } pen2touch;
 

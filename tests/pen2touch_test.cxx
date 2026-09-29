@@ -2146,72 +2146,95 @@ TEST(Pen2TouchTest, ScrollOffsetFollowsProfiledAxisRange) {
 }
 
 // ---------------------------------------------------------------------------
-// Speed parameter: pen2touch[factor] and the runtime speed() setter
+// Speed parameter: pen2touch[factor] and the runtime speed() setter.
+// The factor divides the profiled axis resolution libinput derives
+// pointer/scroll motion from; coordinates always pass through raw.
 // ---------------------------------------------------------------------------
 
-TEST(Pen2TouchTest, SpeedParameterScalesMotion) {
+TEST(Pen2TouchTest, SpeedScalesProfiledResolution) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto pipeline = context | pen2touch[2.0f] | record;
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
+
+    // Factor 2 -> half the resolution -> libinput doubles the motion.
+    // Ranges and coordinates stay put: no wall, no drift.
+    for (auto const code : {ABS_MT_POSITION_X, ABS_MT_POSITION_Y, ABS_X, ABS_Y}) {
+        auto const* info = tmpl.abs_info(static_cast<fs8::evdev::code_type>(code));
+        ASSERT_NE(info, nullptr) << "code " << code;
+        EXPECT_EQ(info->resolution, 50) << "code " << code;
+        EXPECT_EQ(info->minimum, 0) << "code " << code;
+        EXPECT_EQ(info->maximum, 32'767) << "code " << code;
+    }
+}
+
+TEST(Pen2TouchTest, SpeedKeepsCoordinatesRaw) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
     auto pipeline =
       context
       | emit_all[{
-        {EV_KEY, BTN_TOOL_PEN,    1},
-        {EV_SYN,   SYN_REPORT,    0},
-        {EV_ABS,        ABS_X, 1000},
-        {EV_SYN,   SYN_REPORT,    0},
-        {EV_ABS,        ABS_X, 1500},
-        {EV_SYN,   SYN_REPORT,    0},
-        {EV_ABS,        ABS_Y, 2000},
-        {EV_SYN,   SYN_REPORT,    0},
-        {EV_ABS,        ABS_Y, 2600},
-        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY, BTN_TOOL_PEN,      1},
+        {EV_SYN,   SYN_REPORT,      0},
+        {EV_ABS,        ABS_X,    100},
+        {EV_SYN,   SYN_REPORT,      0},
+        {EV_ABS,        ABS_X, 20'000},
+        {EV_SYN,   SYN_REPORT,      0},
+        {EV_ABS,        ABS_X, 32'000},
+        {EV_SYN,   SYN_REPORT,      0},
     }]
-      | pen2touch[2.0f]
+      | pen2touch[10.0f]
       | record;
     auto& col = pipeline.mod<basic_record>();
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
 
     pipeline();
 
-    // The first sample anchors the mapping, every following delta is
-    // doubled, and the legacy pass-through carries the scaled value too.
+    // A factor of 10 must not move a single unit of the stream: the
+    // delta scaling and the mid-tablet wall clamp are gone, the factor
+    // lives in the profiled resolution alone.
     auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
-    ASSERT_EQ(mtx.size(), 2U);
-    EXPECT_EQ(mtx[0].value(), 1000);
-    EXPECT_EQ(mtx[1].value(), 2000);
-    auto const mty = collect(col.events(), EV_ABS, ABS_MT_POSITION_Y);
-    ASSERT_EQ(mty.size(), 2U);
-    EXPECT_EQ(mty[0].value(), 2000);
-    EXPECT_EQ(mty[1].value(), 3200);
-    auto const legacy_x = collect(col.events(), EV_ABS, ABS_X);
-    ASSERT_EQ(legacy_x.size(), 2U);
-    EXPECT_EQ(legacy_x[0].value(), 1000);
-    EXPECT_EQ(legacy_x[1].value(), 2000);
+    ASSERT_EQ(mtx.size(), 3U);
+    EXPECT_EQ(mtx[0].value(), 100);
+    EXPECT_EQ(mtx[1].value(), 20'000);
+    EXPECT_EQ(mtx[2].value(), 32'000);
+    auto const legacy = collect(col.events(), EV_ABS, ABS_X);
+    ASSERT_EQ(legacy.size(), 3U);
+    EXPECT_EQ(legacy[0].value(), 100);
+    EXPECT_EQ(legacy[1].value(), 20'000);
+    EXPECT_EQ(legacy[2].value(), 32'000);
 }
 
-TEST(Pen2TouchTest, SpeedRuntimeSetterScalesMotion) {
-    auto pipeline =
-      context
-      | emit_all[{
-        {EV_KEY, BTN_TOOL_PEN,    1},
-        {EV_SYN,   SYN_REPORT,    0},
-        {EV_ABS,        ABS_X, 1000},
-        {EV_SYN,   SYN_REPORT,    0},
-        {EV_ABS,        ABS_X, 1500},
-        {EV_SYN,   SYN_REPORT,    0},
-    }]
-      | pen2touch
-      | record;
-    auto& col = pipeline.mod<basic_record>();
+TEST(Pen2TouchTest, SpeedRuntimeSetterScalesProfiledResolution) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto pipeline = context | pen2touch | record;
 
     // Apps configure the constinit pipeline before running it.
-    pipeline.mod(pen2touch).speed(2.0f);
-    pipeline();
+    pipeline.mod(pen2touch).speed(3.0f);
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
 
-    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
-    ASSERT_EQ(mtx.size(), 2U);
-    EXPECT_EQ(mtx[0].value(), 1000);
-    EXPECT_EQ(mtx[1].value(), 2000);
+    auto const* info = tmpl.abs_info(ABS_MT_POSITION_X);
+    ASSERT_NE(info, nullptr);
+    EXPECT_EQ(info->resolution, 33); // lround(100 / 3)
+    auto const* legacy = tmpl.abs_info(ABS_X);
+    ASSERT_NE(legacy, nullptr);
+    EXPECT_EQ(legacy->resolution, 33);
 }
 
-TEST(Pen2TouchTest, SpeedReanchorsAfterContactClose) {
+TEST(Pen2TouchTest, SamePositionSameOutputAcrossStrokes) {
     auto pipeline =
       context
       | emit_all[{
@@ -2225,7 +2248,7 @@ TEST(Pen2TouchTest, SpeedReanchorsAfterContactClose) {
         {EV_SYN,   SYN_REPORT,    0},
         {EV_KEY, BTN_TOOL_PEN,    1},
         {EV_SYN,   SYN_REPORT,    0},
-        {EV_ABS,        ABS_X, 1600},
+        {EV_ABS,        ABS_X, 1500},
         {EV_SYN,   SYN_REPORT,    0},
     }]
       | pen2touch[2.0f]
@@ -2234,43 +2257,26 @@ TEST(Pen2TouchTest, SpeedReanchorsAfterContactClose) {
 
     pipeline();
 
-    // Leaving proximity closes the contact: the next stroke re-anchors
-    // at its own first sample instead of scaling against the old one.
+    // The output depends on the source position only — never on where
+    // the stroke started or which factor is configured.
     auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
     ASSERT_EQ(mtx.size(), 3U);
     EXPECT_EQ(mtx[0].value(), 1000);
-    EXPECT_EQ(mtx[1].value(), 2000);
-    EXPECT_EQ(mtx[2].value(), 1600);
+    EXPECT_EQ(mtx[1].value(), 1500);
+    EXPECT_EQ(mtx[2].value(), 1500);
 }
 
-TEST(Pen2TouchTest, SpeedClampsToAxisRange) {
-    auto pipeline =
-      context
-      | emit_all[{
-        {EV_KEY, BTN_TOOL_PEN,      1},
-        {EV_SYN,   SYN_REPORT,      0},
-        {EV_ABS,        ABS_X,   1000},
-        {EV_SYN,   SYN_REPORT,      0},
-        {EV_ABS,        ABS_X,   5000},
-        {EV_SYN,   SYN_REPORT,      0},
-        {EV_ABS,        ABS_Y, 30'000},
-        {EV_SYN,   SYN_REPORT,      0},
-        {EV_ABS,        ABS_Y, 31'000},
-        {EV_SYN,   SYN_REPORT,      0},
-    }]
-      | pen2touch[10.0f]
-      | record;
-    auto& col = pipeline.mod<basic_record>();
+TEST(Pen2TouchTest, DefaultSpeedLeavesProfileAlone) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
 
-    pipeline();
+    auto pipeline = context | pen2touch | record;
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
 
-    // Scaled deltas never leave the advertised 0..32767 axis range.
-    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
-    ASSERT_EQ(mtx.size(), 2U);
-    EXPECT_EQ(mtx[0].value(), 1000);
-    EXPECT_EQ(mtx[1].value(), 32'767);
-    auto const mty = collect(col.events(), EV_ABS, ABS_MT_POSITION_Y);
-    ASSERT_EQ(mty.size(), 2U);
-    EXPECT_EQ(mty[0].value(), 30'000);
-    EXPECT_EQ(mty[1].value(), 32'767);
+    auto const* info = tmpl.abs_info(ABS_MT_POSITION_X);
+    ASSERT_NE(info, nullptr);
+    EXPECT_EQ(info->resolution, 100);
 }

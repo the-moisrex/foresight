@@ -233,11 +233,13 @@ advertising it makes libinput switch to pressure-based touch detection, where
 pen pressure either reads as a palm or never reaches the begin threshold, so
 no contact would ever move the pointer.
 
-Cursor speed is a parameter: `pen2touch[1.5f]` multiplies every absolute
-motion delta by 1.5 — the first sample of each stroke anchors the mapping,
-values are clamped to the advertised axis range, and scrolling speeds up
-proportionally.  Apps can also set it at runtime on a built pipeline
-(`pipeline.mod(pen2touch).speed(...)`); the `pen2touch` app exposes the
+Cursor speed is a parameter: `pen2touch[1.5f]` divides the axis resolution of
+the profiled touchpad by 1.5, which is the divisor libinput turns motion deltas
+into pointer/scroll travel with — so the cursor (and the scroll gesture) moves
+1.5x while the emitted coordinates stay raw and the mapping remains one-to-one
+at any factor.  Source axes that advertise no resolution are left untouched (the
+factor has no effect on them).  Apps can also set it at runtime on a built
+pipeline (`pipeline.mod(pen2touch).speed(...)`); the `pen2touch` app exposes the
 same knob as `--speed <factor>`.
 
 The source tip press (`BTN_TOUCH`) becomes `BTN_LEFT`: pressing the tip is

@@ -14,9 +14,9 @@ export namespace fs8 {
 
     /// Describes a single command-line flag.
     struct [[nodiscard]] flag {
-        std::string_view name;  // e.g. "--grab"
-        std::string_view alias; // e.g. "-g"; may be empty
-        std::string_view help;  // one-line description
+        std::string_view name;    // e.g. "--grab"
+        std::string_view alias{}; // e.g. "-g"; may be empty
+        std::string_view help;    // one-line description
         bool             takes_value = false;
     };
 
