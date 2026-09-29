@@ -384,8 +384,12 @@ export namespace fs8 {
         }
     } tilt_speed;
 
-    /// Freeze movement while the tilt is changing faster than `threshold`
+    /// Freeze movement while the tilt changes by at least `threshold`
     /// (the "hand is stretching, not moving the cursor" case).
+    ///
+    /// The decision is made once per tilt-state version: the movement event
+    /// carrying a tilt change is held, later events pass until the tilt
+    /// changes again.
     ///
     /// In `tilt_rel` domain movement events are zeroed; in `tilt_abs` domain
     /// the emitted `ABS_X`/`ABS_Y` is held so `abs2rel` sees a zero delta.
@@ -396,6 +400,7 @@ export namespace fs8 {
         tilt_domain_fn   domain_   = tilt_rel;
         float            threshold = 0.15F;
         tilt_scale_state scale{};
+        std::uint32_t    cached_version_ = 0U;
 
       public:
         template <typename... Args>
@@ -426,7 +431,12 @@ export namespace fs8 {
             if (!axis.valid) {
                 return next;
             }
-            bool const frozen = ctx.mod(tilt_state).is_changing(threshold);
+            auto const& state  = ctx.mod(tilt_state);
+            bool        frozen = false;
+            if (cached_version_ != state.version()) {
+                frozen          = state.is_changing(threshold);
+                cached_version_ = state.version();
+            }
             return tilt_detail::apply_freeze(ctx.event(), axis, scale, frozen);
         }
     } tilt_freeze;

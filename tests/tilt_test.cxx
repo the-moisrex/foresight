@@ -399,6 +399,33 @@ TEST(TiltFreezeTest, FreezesWhileTiltChanges) {
     EXPECT_EQ(xs[1].value(), 10);
 }
 
+TEST(TiltFreezeTest, UnfreezesWithoutNewTiltEvent) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_ABS, ABS_TILT_X, 9000},
+        {EV_SYN, SYN_REPORT,    0},
+        {EV_REL,      REL_X,   10},
+        {EV_SYN, SYN_REPORT,    0},
+        // no further tilt events: the freeze must not latch forever
+        {EV_REL,      REL_X,   10},
+        {EV_SYN, SYN_REPORT,    0},
+        {EV_REL,      REL_X,   10},
+        {EV_SYN, SYN_REPORT,    0},
+    }]
+      | tilt_state
+      | tilt_freeze[0.5F]
+      | record;
+
+    pipeline();
+
+    auto const xs = axis_events(pipeline.mod<basic_record>(), EV_REL, REL_X);
+    ASSERT_EQ(xs.size(), 3U);
+    EXPECT_EQ(xs[0].value(), 0);  // frozen: the frame carrying the tilt change
+    EXPECT_EQ(xs[1].value(), 10); // passes: no new tilt event
+    EXPECT_EQ(xs[2].value(), 10);
+}
+
 TEST(TiltFreezeTest, AbsDomainHoldsWhileChanging) {
     auto pipeline =
       context
@@ -407,10 +434,12 @@ TEST(TiltFreezeTest, AbsDomainHoldsWhileChanging) {
         {EV_SYN, SYN_REPORT,    0},
         {EV_ABS,      ABS_X, 1000},
         {EV_SYN, SYN_REPORT,    0},
+        // tilt actually changes (5000/9000 >= threshold): re-freezes
+        {EV_ABS, ABS_TILT_X, 4000},
+        {EV_SYN, SYN_REPORT,    0},
         {EV_ABS,      ABS_X, 1100},
         {EV_SYN, SYN_REPORT,    0},
-        {EV_ABS, ABS_TILT_X, 9000}, // same tilt: change drops, unfreezes
-        {EV_SYN, SYN_REPORT,    0},
+        // no further tilt change: passes through
         {EV_ABS,      ABS_X, 1200},
         {EV_SYN, SYN_REPORT,    0},
     }]

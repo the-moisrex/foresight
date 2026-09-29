@@ -1,4 +1,5 @@
 #include <charconv>
+#include <cmath>
 #include <stdexcept>
 import fs8;
 
@@ -30,8 +31,7 @@ scrolls: a second contact appears next to the pen contact and libinput
 reads it as a two-finger scroll (including inertial scrolling), while
 the tip click is suppressed.  A quick tap of the barrel button is
 still a click: BTN_STYLUS -> right, BTN_STYLUS2 -> middle.
-Tilt scales the pen speed and freezes motion while the hand is
-repositioning; very fast left clicks are ignored.
+Very fast left clicks are ignored.
 
 Arguments:
     -h | --help               Print help.
@@ -59,9 +59,6 @@ int main(int const argc, char const* const* argv) try {
       | input_manager
       | intercept
       | keys_state
-      | tilt_state[tilt_base_options{.recenter_time = 3.0F}]
-      | tilt_speed[tilt_abs]
-      | tilt_freeze[tilt_abs, 0.2F]
       | pen2touch
       | drop_msc_scan
       | drop_fast_left_clicks
@@ -76,8 +73,8 @@ int main(int const argc, char const* const* argv) try {
     if (auto const speed = parsed.flag_value("--speed"); speed.has_value()) {
         float factor         = 1.0f;
         auto const [end, ec] = std::from_chars(speed->data(), speed->data() + speed->size(), factor);
-        if (ec != std::errc{} || end != speed->data() + speed->size() || factor <= 0.0f) {
-            log("pen2touch: invalid --speed value '{}', using 1.0", *speed);
+        if (ec != std::errc{} || end != speed->data() + speed->size() || !std::isfinite(factor) || factor <= 0.0f) {
+            fs8::log("pen2touch: invalid --speed value '{}', using 1.0", *speed);
         } else {
             pipeline.mod(pen2touch).speed(factor);
         }
