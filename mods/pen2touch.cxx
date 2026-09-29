@@ -1,6 +1,7 @@
 // Created by moisrex on 9/17/26.
 
 module;
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <initializer_list>
@@ -136,6 +137,10 @@ template <>
 struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     using event_type = fs8::event_type;
 
+    /// The mod hands over its compile-time / runtime-set speed factor
+    /// when the impl is allocated at start.
+    explicit impl(float const speed) noexcept : speed_{speed} {}
+
     /// Fork one event to the downstream mods through the pipeline's
     /// currently bound dynamic context.
     static void emit(code_type const type, code_type const code, value_type const value) noexcept {
@@ -146,10 +151,24 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     /// -1 means no contact.
     value_type tracking_id_ = -1;
 
-    /// Last-seen raw coordinates, cached so we can emit them alongside
-    /// the MT equivalents.
+    /// Current output coordinates: the speed-scaled source position,
+    /// emitted both as the MT mirror and the legacy pass-through.
     value_type x_ = 0;
     value_type y_ = 0;
+
+    /// Previous *source* coordinates: the delta anchor the speed
+    /// factor multiplies against.  Re-seeded with x_/y_ whenever a
+    /// stroke starts (see have_x_/have_y_).
+    value_type x_raw_ = 0;
+    value_type y_raw_ = 0;
+
+    /// Sub-unit remainder of the scaled delta, so fractional speed
+    /// factors do not shed pixels over time.
+    float x_eps_ = 0.0f;
+    float y_eps_ = 0.0f;
+
+    /// Motion multiplier; 1.0 is the identity.
+    float speed_ = 1.0f;
 
     /// Whether the pen tool is in proximity (BTN_TOOL_* == 1).
     bool tool_active_ = false;
@@ -229,12 +248,16 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     /// owns the swallow/LED behavior; this only mirrors the hold).
     bool caps_held_ = false;
 
-    /// Scroll-finger geometry: its X sits one eighth of the axis away
-    /// from the pen contact.  Defaults match the unprofiled fallback
-    /// range; `profile_device` overwrites them with the real axis.
+    /// Advertised axis range: clamps the speed-scaled coordinates and,
+    /// for X, sizes the scroll finger's offset (it sits one eighth of
+    /// the axis away from the pen contact).  Defaults match the
+    /// unprofiled fallback range; `profile_device` overwrites them with
+    /// the real axis.
+    value_type axis_min_x_      = 0;
+    value_type axis_max_x_      = 32'767;
+    value_type axis_min_y_      = 0;
+    value_type axis_max_y_      = 32'767;
     value_type scroll_offset_x_ = 32'767 / 8;
-    value_type scroll_min_x_    = 0;
-    value_type scroll_max_x_    = 32'767;
 
     /// Monotonically increasing tracking ID generator.  Bounded by the
     /// advertised ABS_MT_TRACKING_ID range (0..65535) so the kernel never
@@ -255,6 +278,10 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         tracking_id_ = -1;
         x_           = 0;
         y_           = 0;
+        x_raw_       = 0;
+        y_raw_       = 0;
+        x_eps_       = 0.0f;
+        y_eps_       = 0.0f;
         tool_active_ = false;
         touching_    = false;
         tip_down_    = false;
@@ -310,11 +337,11 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     /// so it stays inside the advertised range.
     [[nodiscard]] value_type scroll_x() const noexcept {
         value_type const right = x_ + scroll_offset_x_;
-        if (right <= scroll_max_x_) {
+        if (right <= axis_max_x_) {
             return right;
         }
         value_type const left = x_ - scroll_offset_x_;
-        if (left >= scroll_min_x_) {
+        if (left >= axis_min_x_) {
             return left;
         }
         return x_;
@@ -597,12 +624,27 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
         // ── Absolute axes ─────────────────────────────────────────
         case EV_ABS:
             switch (event.code()) {
-                case ABS_X:
-                    if (x_ != event.value()) {
+                case ABS_X: {
+                    auto const raw = event.value();
+                    if (raw != x_raw_) {
                         mark_triggers_used();
                     }
-                    x_      = event.value();
+                    if (!have_x_) {
+                        // First sample of the stroke: anchor the speed
+                        // mapping at the raw position so the contact
+                        // opens where the pen actually is.
+                        x_     = raw;
+                        x_raw_ = raw;
+                        x_eps_ = 0.0f;
+                    } else {
+                        float const scaled    = static_cast<float>(raw - x_raw_) * speed_ + x_eps_;
+                        auto const  truncated = static_cast<value_type>(scaled);
+                        x_eps_                = scaled - static_cast<float>(truncated);
+                        x_raw_                = raw;
+                        x_                    = std::clamp(x_ + truncated, axis_min_x_, axis_max_x_);
+                    }
                     have_x_ = true;
+                    event.value(x_);
                     if (touching_) {
                         emit(EV_ABS, ABS_MT_POSITION_X, x_);
                     }
@@ -612,13 +654,26 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
                         emit(EV_ABS, ABS_MT_SLOT, mt_slot);
                     }
                     return next;
+                }
 
-                case ABS_Y:
-                    if (y_ != event.value()) {
+                case ABS_Y: {
+                    auto const raw = event.value();
+                    if (raw != y_raw_) {
                         mark_triggers_used();
                     }
-                    y_      = event.value();
+                    if (!have_y_) {
+                        y_     = raw;
+                        y_raw_ = raw;
+                        y_eps_ = 0.0f;
+                    } else {
+                        float const scaled    = static_cast<float>(raw - y_raw_) * speed_ + y_eps_;
+                        auto const  truncated = static_cast<value_type>(scaled);
+                        y_eps_                = scaled - static_cast<float>(truncated);
+                        y_raw_                = raw;
+                        y_                    = std::clamp(y_ + truncated, axis_min_y_, axis_max_y_);
+                    }
                     have_y_ = true;
+                    event.value(y_);
                     if (touching_) {
                         emit(EV_ABS, ABS_MT_POSITION_Y, y_);
                     }
@@ -628,6 +683,7 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
                         emit(EV_ABS, ABS_MT_SLOT, mt_slot);
                     }
                     return next;
+                }
 
                 // Legacy pressure passes through untouched; it is
                 // deliberately not mirrored into ABS_MT_PRESSURE
@@ -658,7 +714,7 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
 
 fs8::context_action basic_pen2touch::operator()(event_type& event) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
-        init_impl();
+        init_impl(speed_);
     }
     return pimpl->handle(event);
 }
@@ -669,16 +725,21 @@ fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexce
         case profile_device.code: {
             // uinput is about to create the virtual device: turn the
             // tablet clone into a multitouch touchpad and remember the
-            // axis range, which sizes the scroll finger's offset.
+            // axis range, which clamps scaled coordinates and sizes the
+            // scroll finger's offset.
             if (pimpl.get() == nullptr) [[unlikely]] {
-                init_impl();
+                init_impl(speed_);
             }
             auto& tmpl = payload<profile_device>(tag);
             profile_template(tmpl);
             if (auto const* info = tmpl.abs_info(ABS_MT_POSITION_X); info != nullptr) {
-                pimpl->scroll_min_x_    = info->minimum;
-                pimpl->scroll_max_x_    = info->maximum;
+                pimpl->axis_min_x_      = info->minimum;
+                pimpl->axis_max_x_      = info->maximum;
                 pimpl->scroll_offset_x_ = (info->maximum - info->minimum) / 8;
+            }
+            if (auto const* info = tmpl.abs_info(ABS_MT_POSITION_Y); info != nullptr) {
+                pimpl->axis_min_y_ = info->minimum;
+                pimpl->axis_max_y_ = info->maximum;
             }
             return next;
         }

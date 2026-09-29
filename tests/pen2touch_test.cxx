@@ -2144,3 +2144,133 @@ TEST(Pen2TouchTest, ScrollOffsetFollowsProfiledAxisRange) {
     EXPECT_EQ(pos_x[1].slot, 1);
     EXPECT_EQ(pos_x[1].event.value(), 800 + 999 / 8);
 }
+
+// ---------------------------------------------------------------------------
+// Speed parameter: pen2touch[factor] and the runtime speed() setter
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, SpeedParameterScalesMotion) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1000},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1500},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_Y, 2000},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_Y, 2600},
+        {EV_SYN,   SYN_REPORT,    0},
+    }]
+      | pen2touch[2.0f]
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // The first sample anchors the mapping, every following delta is
+    // doubled, and the legacy pass-through carries the scaled value too.
+    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(mtx.size(), 2U);
+    EXPECT_EQ(mtx[0].value(), 1000);
+    EXPECT_EQ(mtx[1].value(), 2000);
+    auto const mty = collect(col.events(), EV_ABS, ABS_MT_POSITION_Y);
+    ASSERT_EQ(mty.size(), 2U);
+    EXPECT_EQ(mty[0].value(), 2000);
+    EXPECT_EQ(mty[1].value(), 3200);
+    auto const legacy_x = collect(col.events(), EV_ABS, ABS_X);
+    ASSERT_EQ(legacy_x.size(), 2U);
+    EXPECT_EQ(legacy_x[0].value(), 1000);
+    EXPECT_EQ(legacy_x[1].value(), 2000);
+}
+
+TEST(Pen2TouchTest, SpeedRuntimeSetterScalesMotion) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1000},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1500},
+        {EV_SYN,   SYN_REPORT,    0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    // Apps configure the constinit pipeline before running it.
+    pipeline.mod(pen2touch).speed(2.0f);
+    pipeline();
+
+    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(mtx.size(), 2U);
+    EXPECT_EQ(mtx[0].value(), 1000);
+    EXPECT_EQ(mtx[1].value(), 2000);
+}
+
+TEST(Pen2TouchTest, SpeedReanchorsAfterContactClose) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1000},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1500},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY, BTN_TOOL_PEN,    0},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY, BTN_TOOL_PEN,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1600},
+        {EV_SYN,   SYN_REPORT,    0},
+    }]
+      | pen2touch[2.0f]
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // Leaving proximity closes the contact: the next stroke re-anchors
+    // at its own first sample instead of scaling against the old one.
+    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(mtx.size(), 3U);
+    EXPECT_EQ(mtx[0].value(), 1000);
+    EXPECT_EQ(mtx[1].value(), 2000);
+    EXPECT_EQ(mtx[2].value(), 1600);
+}
+
+TEST(Pen2TouchTest, SpeedClampsToAxisRange) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN,      1},
+        {EV_SYN,   SYN_REPORT,      0},
+        {EV_ABS,        ABS_X,   1000},
+        {EV_SYN,   SYN_REPORT,      0},
+        {EV_ABS,        ABS_X,   5000},
+        {EV_SYN,   SYN_REPORT,      0},
+        {EV_ABS,        ABS_Y, 30'000},
+        {EV_SYN,   SYN_REPORT,      0},
+        {EV_ABS,        ABS_Y, 31'000},
+        {EV_SYN,   SYN_REPORT,      0},
+    }]
+      | pen2touch[10.0f]
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // Scaled deltas never leave the advertised 0..32767 axis range.
+    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(mtx.size(), 2U);
+    EXPECT_EQ(mtx[0].value(), 1000);
+    EXPECT_EQ(mtx[1].value(), 32'767);
+    auto const mty = collect(col.events(), EV_ABS, ABS_MT_POSITION_Y);
+    ASSERT_EQ(mty.size(), 2U);
+    EXPECT_EQ(mty[0].value(), 30'000);
+    EXPECT_EQ(mty[1].value(), 32'767);
+}

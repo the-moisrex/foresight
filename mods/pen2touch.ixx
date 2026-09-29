@@ -65,6 +65,13 @@ export namespace fs8 {
     /// (ABS_TOOL_WIDTH) are dropped because they have no touchpad
     /// equivalent.
     ///
+    /// Cursor speed is a parameter: `pen2touch[1.5f]` scales every
+    /// absolute motion delta by 1.5 — the first sample of each stroke
+    /// anchors the mapping, the result is clamped to the advertised
+    /// axis range, and the scroll gesture speeds up proportionally.
+    /// Apps can override it at runtime with
+    /// `pipeline.mod(pen2touch).speed(...)` before the pipeline runs.
+    ///
     /// The mod also answers the `profile_device` control event: when the
     /// pipeline's `uinput` is about to create the virtual device, this mod
     /// reshapes the template (a clone of the tablet) into a multitouch
@@ -85,14 +92,34 @@ export namespace fs8 {
     /// @par Example
     /// @code
     ///   | intercept[tablet | required | grab]
-    ///   | pen2touch
+    ///   | pen2touch          // default: 1:1 mapping
     ///   | output
+    ///
+    ///   | pen2touch[1.5f]    // cursor speed 1.5x
     /// @endcode
     constexpr struct [[nodiscard]] basic_pen2touch : pimpl_idiom<basic_pen2touch> {
         using pimpl_idiom::pimpl_idiom;
 
         using code_type  = event_type::code_type;
         using value_type = event_type::value_type;
+
+        /// Scale cursor speed by `factor`: absolute motion deltas are
+        /// multiplied by it (the first sample of each stroke anchors
+        /// the mapping; values are clamped to the advertised axis
+        /// range).  1.0 is the identity.
+        constexpr explicit basic_pen2touch(float const speed) noexcept : speed_{speed} {}
+
+        /// Build a variant with a different speed factor: `pen2touch[1.5f]`.
+        consteval basic_pen2touch operator[](float const speed) const noexcept {
+            return basic_pen2touch{speed};
+        }
+
+        /// Set the speed factor at runtime — apps call this on the
+        /// built pipeline before `pipeline()`:
+        /// `pipeline.mod(pen2touch).speed(1.5f)`.
+        constexpr void speed(float const factor) noexcept {
+            speed_ = factor;
+        }
 
         /// Handle lifecycle tags (start, toggle_off, device_disconnected,
         /// profile_device); releases are forked through `dynamic_context`,
@@ -101,6 +128,10 @@ export namespace fs8 {
 
         /// Translate a single input event; all state lives in the impl.
         context_action operator()(event_type& event) noexcept;
+
+      private:
+        /// Motion multiplier handed to the impl at init time.
+        float speed_ = 1.0f;
     } pen2touch;
 
     static_assert(Modifier<basic_pen2touch>);

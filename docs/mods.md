@@ -233,6 +233,13 @@ advertising it makes libinput switch to pressure-based touch detection, where
 pen pressure either reads as a palm or never reaches the begin threshold, so
 no contact would ever move the pointer.
 
+Cursor speed is a parameter: `pen2touch[1.5f]` multiplies every absolute
+motion delta by 1.5 — the first sample of each stroke anchors the mapping,
+values are clamped to the advertised axis range, and scrolling speeds up
+proportionally.  Apps can also set it at runtime on a built pipeline
+(`pipeline.mod(pen2touch).speed(...)`); the `pen2touch` app exposes the
+same knob as `--speed <factor>`.
+
 The source tip press (`BTN_TOUCH`) becomes `BTN_LEFT`: pressing the tip is
 the left click, and advertising `BTN_LEFT` flips libinput's tap-to-click
 default off, so hover enter/leave cannot fire spurious taps.  `BTN_STYLUS3`

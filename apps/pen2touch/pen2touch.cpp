@@ -1,3 +1,4 @@
+#include <charconv>
 #include <stdexcept>
 import fs8;
 
@@ -36,6 +37,7 @@ Arguments:
     -h | --help               Print help.
     -g | --grab               Grab the device exclusively.
     -o | --output             Output selection: stdout, uinput, evtest, live-view (default: stdout)
+    --speed <factor>          Cursor speed multiplier for the touchpad output (default: 1.0).
 
 Positionals:
     pen_device                The drawing tablet/pen query (defaults to the tablet query when omitted).
@@ -44,7 +46,8 @@ Device queries are device names, paths (e.g. /dev/input/event1), or udev
 terms (e.g. "name=event0", "tablet").
 )TEXT")
     .add_flags(fs8::output_flags)
-    .add_flag({.name = "--grab", .alias = "-g", .help = "grab the device exclusively"});
+    .add_flag({.name = "--grab", .alias = "-g", .help = "grab the device exclusively"})
+    .add_flag({.name = "--speed", .help = "cursor speed multiplier (default: 1.0)", .takes_value = true});
 
 int main(int const argc, char const* const* argv) try {
     using namespace fs8;
@@ -70,6 +73,15 @@ int main(int const argc, char const* const* argv) try {
     parsed.exit_if_needed();
     pipeline.mod(intercept).add(parsed | fallback[tablet] | grab[parsed.has_flag("--grab")] | required);
     output_flags.configure(pipeline.mod(output), parsed);
+    if (auto const speed = parsed.flag_value("--speed"); speed.has_value()) {
+        float factor         = 1.0f;
+        auto const [end, ec] = std::from_chars(speed->data(), speed->data() + speed->size(), factor);
+        if (ec != std::errc{} || end != speed->data() + speed->size() || factor <= 0.0f) {
+            log("pen2touch: invalid --speed value '{}', using 1.0", *speed);
+        } else {
+            pipeline.mod(pen2touch).speed(factor);
+        }
+    }
     pipeline();
 
     return 0;
