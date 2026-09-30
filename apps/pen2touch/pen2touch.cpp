@@ -30,11 +30,19 @@ becomes a mouse button: BTN_STYLUS3 -> side.
 
 Holding a barrel button (BTN_STYLUS / BTN_STYLUS2) or Caps Lock
 scrolls: a second contact appears next to the pen contact and libinput
-reads it as a two-finger scroll (including inertial scrolling), while
-a left click can never start.  A quick tap of the barrel button is
-still a click: BTN_STYLUS -> right, BTN_STYLUS2 -> middle, and
-clicking the tip while scrolling sends a middle click.
+reads it as a two-finger scroll (including inertial scrolling), with
+horizontal scrolling following the pen -- the finger mirrors the pen's
+motion -- while a left click can never start.  A quick tap of the
+barrel button is still a click: BTN_STYLUS -> right, BTN_STYLUS2 ->
+middle, and clicking the tip while scrolling sends a middle click.
 Very fast left clicks are ignored.
+
+Fast pen motion is divided by libinput's own touchpad-acceleration
+gain, so the cursor keeps the pen's speed instead of receiving
+libinput's fast-motion boost; the scroll gesture itself passes
+through untouched.  Pass --native-accel to hand the raw stream to
+libinput instead (a non-default compositor accel-speed setting
+changes the gain the compensation relies on anyway).
 
 Caps Lock scrolling needs --keyboard: the keyboard is grabbed
 exclusively and typing is re-emitted through a virtual keyboard, so a
@@ -45,6 +53,8 @@ Arguments:
     -g | --grab               Grab the device exclusively.
     -o | --output             Output selection: stdout, uinput, evtest, live-view (default: stdout)
     --speed <factor>          Cursor speed multiplier for the touchpad output (default: 1.0).
+    --native-accel            Do not compensate libinput's fast-motion acceleration;
+                              libinput accelerates the raw stream itself (default: off).
     --keyboard <query>        Open this keyboard for CapsLock-hold scrolling (e.g. "keyboard",
                               "name=event3").  Grabbed exclusively; fails if no device matches.
 
@@ -57,6 +67,7 @@ terms (e.g. "name=event0", "tablet").
     .add_flags(fs8::output_flags)
     .add_flag({.name = "--grab", .alias = "-g", .help = "grab the device exclusively"})
     .add_flag({.name = "--speed", .help = "cursor speed multiplier (default: 1.0)", .takes_value = true})
+    .add_flag({.name = "--native-accel", .help = "let libinput accelerate fast motion (no compensation)"})
     .add_flag({.name = "--keyboard", .help = "keyboard query for CapsLock-hold scrolling", .takes_value = true});
 
 int main(int const argc, char const* const* argv) try {
@@ -106,6 +117,9 @@ int main(int const argc, char const* const* argv) try {
             pipeline.mod(pen2touch).speed(factor);
         }
     }
+    // Compensate libinput's fast-motion boost by default;
+    // --native-accel is the escape hatch back to the raw stream.
+    pipeline.mod(pen2touch).accel_compensation(!parsed.has_flag("--native-accel"));
     pipeline();
 
     return 0;

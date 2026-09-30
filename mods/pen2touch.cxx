@@ -135,6 +135,21 @@ namespace {
     }
 } // namespace
 
+double fs8::touchpad_accel_gain(double const speed, double const last) noexcept {
+    auto const curve = [](double const v) noexcept -> double {
+        if (v < 6.0) {
+            return 0.1 * v + 0.3;
+        }
+        if (v < 130.0) {
+            return 0.9;
+        }
+        double const capped = v < 520.0 ? v : 520.0;
+        return 0.0025 * (capped / 130.0) * (capped - 130.0) + 0.9;
+    };
+    double const averaged = (curve(speed) + curve(last) + 4.0 * curve((speed + last) * 0.5)) / 6.0;
+    return averaged / 0.9;
+}
+
 template <>
 struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     using event_type = fs8::event_type;
@@ -246,6 +261,50 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     value_type scroll_min_x_    = 0;
     value_type scroll_max_x_    = 32'767;
 
+    /// The X position the scroll-finger open mirrored around: the pen
+    /// coordinate at the moment slot 1 appeared (or at the first X seen
+    /// while it is open, when it opened before any position arrived).
+    /// The mirror equals the raw value here, so flipping X never kicks
+    /// a delta into a running gesture.
+    value_type scroll_anchor_x_     = 0;
+    bool       scroll_anchor_valid_ = false;
+
+    /// The current event's timestamp, sampled at the top of every
+    /// `handle` — all compensation timing is read from it.
+    std::chrono::microseconds now_{};
+
+    /// Motion held back until the frame's SYN_REPORT, where
+    /// compensation divides it by libinput's own gain (see
+    /// `accel_compensation`).  Only the pointer path holds motion
+    /// back: two-finger frames bypass libinput's pointer accelerator,
+    /// so they are never deferred.
+    double comp_dx_ = 0;
+    double comp_dy_ = 0;
+
+    /// When the last compensated frame was flushed, and the velocity
+    /// it ended on — the previous-frame half of the simpsons average
+    /// libinput's gain runs over (libinput feeds the tracker the
+    /// deltas it received, i.e. our emitted ones).
+    std::chrono::microseconds comp_last_syn_{};
+    double                    comp_last_vel_ = 0;
+
+    /// The first flush of a contact is reported raw: libinput
+    /// baselines on a fresh touch before any gain applies to it.
+    bool comp_first_flush_ = true;
+
+    /// Slot 0's last emitted position, so a compensated frame moves
+    /// the contact incrementally from where libinput saw it.
+    value_type emitted_x_ = 0;
+    value_type emitted_y_ = 0;
+
+    /// The profiled virtual device's axis resolution (units/mm), the
+    /// scale libinput derives mm/s velocity from.  Read after the
+    /// speed factor has divided it (the factor rides on the
+    /// resolution); 0 = nothing to scale against, compensation stays
+    /// off.  Configuration, survives `reset`.
+    double res_x_ = 0;
+    double res_y_ = 0;
+
     /// Monotonically increasing tracking ID generator.  Bounded by the
     /// advertised ABS_MT_TRACKING_ID range (0..65535) so the kernel never
     /// clamps or rejects an id.
@@ -275,11 +334,22 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         barrel_held_.fill(false);
         scroll_active_       = false;
         scroll_id_           = -1;
+        scroll_anchor_x_     = 0;
+        scroll_anchor_valid_ = false;
         pending_tap_release_ = 0;
         for (auto& trigger : triggers_) {
             trigger = {};
         }
-        caps_held_ = false;
+        caps_held_        = false;
+        now_              = {};
+        comp_dx_          = 0;
+        comp_dy_          = 0;
+        comp_last_syn_    = {};
+        comp_last_vel_    = 0;
+        comp_first_flush_ = true;
+        emitted_x_        = 0;
+        emitted_y_        = 0;
+        // res_x_/res_y_ are configuration (the profiled device), not state.
     }
 
     /// Begin a new MT contact (ABS_MT_TRACKING_ID >= 0).
@@ -289,6 +359,15 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         }
         touching_ = true;
 
+        // A fresh contact is a fresh compensation context: libinput
+        // restarts its trackers on touch begin, and the opening
+        // frame reaches it raw.
+        comp_dx_          = 0;
+        comp_dy_          = 0;
+        comp_last_syn_    = now_;
+        comp_last_vel_    = 0;
+        comp_first_flush_ = true;
+
         value_type const id = next_tracking_id();
 
         emit(EV_ABS, ABS_MT_SLOT, mt_slot);
@@ -296,9 +375,11 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
 
         if (have_x_) {
             emit(EV_ABS, ABS_MT_POSITION_X, x_);
+            emitted_x_ = x_;
         }
         if (have_y_) {
             emit(EV_ABS, ABS_MT_POSITION_Y, y_);
+            emitted_y_ = y_;
         }
     }
 
@@ -314,6 +395,8 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         touching_ = false;
         have_x_   = false;
         have_y_   = false;
+        comp_dx_  = 0;
+        comp_dy_  = 0;
     }
 
     /// X position of the synthetic scroll finger: the pen contact's X
@@ -331,17 +414,35 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         return x_;
     }
 
+    /// Mirror an X position around the engage anchor.  libinput derives
+    /// the scroll delta from the *average* of both contacts' motion, so
+    /// horizontal scroll only changes direction when both slots mirror
+    /// together; at the anchor the mirror equals the raw value, so the
+    /// flip never injects a delta of its own.  Values may leave the
+    /// advertised range this way — scroll is delta-based and the kernel
+    /// does not clamp injected ABS events.
+    [[nodiscard]] value_type mirrored_x(value_type const x) const noexcept {
+        return 2 * scroll_anchor_x_ - x;
+    }
+
     /// Open the synthetic scroll contact next to the pen contact.
     void begin_scroll_finger() noexcept {
         if (scroll_id_ >= 0 || !scroll_active_ || !touching_) {
             return;
         }
-        scroll_id_ = next_tracking_id();
+        // Any motion held back for the pointer path belongs to this
+        // frame, not to the gesture: hand it over raw before the
+        // mirror opens (the gesture itself feeds libinput's constant
+        // scroll filter, never the pointer accelerator).
+        flush_raw_pending();
+        scroll_id_           = next_tracking_id();
+        scroll_anchor_x_     = x_;
+        scroll_anchor_valid_ = have_x_;
 
         emit(EV_ABS, ABS_MT_SLOT, scroll_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, scroll_id_);
         if (have_x_) {
-            emit(EV_ABS, ABS_MT_POSITION_X, scroll_x());
+            emit(EV_ABS, ABS_MT_POSITION_X, mirrored_x(scroll_x()));
         }
         if (have_y_) {
             emit(EV_ABS, ABS_MT_POSITION_Y, y_);
@@ -357,18 +458,48 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     }
 
     /// Lift the synthetic scroll contact (no-op when it is already up).
-    void end_scroll_finger() noexcept {
+    /// `rebase` additionally snaps the pen contact back to its real X
+    /// through a fresh tracking id (see `rebase_pen_contact`); contact
+    /// teardown passes false — the contact dies anyway.
+    void end_scroll_finger(bool const rebase) noexcept {
         if (scroll_id_ < 0) {
             return;
         }
         emit(EV_ABS, ABS_MT_SLOT, scroll_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, -1);
         emit(EV_ABS, ABS_MT_SLOT, mt_slot);
-        scroll_id_ = -1;
+        scroll_id_     = -1;
+        // The gesture rode libinput's constant scroll filter; the
+        // pointer accelerator's frame history ends with it.
+        comp_last_vel_ = 0;
         // Back to one contact (or none): FINGER again only while the
         // tool is still near, and never keep DOUBLETAP lit.
         emit(EV_KEY, BTN_TOOL_FINGER, tool_active_ ? 1 : 0);
         emit(EV_KEY, BTN_TOOL_DOUBLETAP, 0);
+        if (rebase) {
+            rebase_pen_contact();
+        }
+    }
+
+    /// Hand the pen contact a fresh tracking id (announced with its
+    /// real X) when the mirror would otherwise snap back at scroll end:
+    /// the id change makes libinput baseline on the current point
+    /// instead of reading the jump as pointer motion.  Only X is
+    /// re-emitted — Y never changed representation, and the slot keeps
+    /// its stored values across the id change.  No-op when the pen
+    /// never left the anchor — there is no jump to hide.
+    void rebase_pen_contact() noexcept {
+        bool const jump      = scroll_anchor_valid_ && touching_ && x_ != scroll_anchor_x_;
+        scroll_anchor_valid_ = false;
+        if (!jump) {
+            return;
+        }
+        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+        emit(EV_ABS, ABS_MT_TRACKING_ID, -1);
+        emit(EV_ABS, ABS_MT_TRACKING_ID, next_tracking_id());
+        emit(EV_ABS, ABS_MT_POSITION_X, x_);
+        emitted_x_     = x_;   // the slot holds the real position now
+        comp_last_syn_ = now_; // libinput restarts its trackers on the id change
     }
 
     /// Movement while a barrel button is held turns that hold into a
@@ -391,7 +522,9 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         }
         scroll_active_ = want;
         if (!scroll_active_) {
-            end_scroll_finger();
+            // The gesture is over but the contact stays: snap the pen
+            // back to its real position without a visible jump.
+            end_scroll_finger(true);
             return;
         }
         if (left_down_) {
@@ -423,7 +556,7 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         if (!touching_) {
             return;
         }
-        end_scroll_finger();
+        end_scroll_finger(false);
         emit(EV_KEY, BTN_TOUCH, 0);
         end_contact();
     }
@@ -462,7 +595,7 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
             return;
         }
         if (touching_) {
-            end_scroll_finger();
+            end_scroll_finger(false);
             emit(EV_KEY, BTN_TOUCH, 0);
             end_contact();
         }
@@ -475,12 +608,120 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         emit(EV_SYN, SYN_REPORT, 0);
     }
 
-    /// Translate a single input event.
-    fs8::context_action handle(event_type& event) noexcept;
+    /// Is this motion frame held back for compensation?  Only the
+    /// pointer path benefits: two-finger frames feed libinput's
+    /// constant scroll filter, and axes without a profiled
+    /// resolution leave us no mm/s to work with.
+    [[nodiscard]] bool comp_defer(bool const accel_comp) const noexcept {
+        return accel_comp && scroll_id_ < 0 && touching_ && res_x_ > 0 && res_y_ > 0;
+    }
+
+    /// Frame speed in mm/s the way libinput's two-entry tracker reads
+    /// it: the delta over the profiled axis resolution, per elapsed
+    /// time — clamped to libinput's 1 s motion timeout, and +1 µs
+    /// guards a zero dt.  Reads the *emitted* position history, like
+    /// libinput's own trackers.
+    [[nodiscard]] double velocity(double const dx, double const dy) const noexcept {
+        auto const dt = std::clamp(now_ - comp_last_syn_, std::chrono::microseconds::zero(), std::chrono::microseconds{1'000'000});
+        return std::hypot(dx / res_x_, dy / res_y_) * 1e6 / (static_cast<double>(dt.count()) + 1.0);
+    }
+
+    /// The divisor that cancels libinput's own acceleration: solve
+    /// `gain(v / d, last) == d`, the scale at which the gain libinput
+    /// applies to our emitted frame multiplies back to the pen's
+    /// motion.  Bisection — the direct fixed-point iteration
+    /// oscillates around the root — over [1, 6], which brackets it
+    /// since the gain curve tops out at ~5.34.  At or below the
+    /// deceleration floor (gain <= 1) libinput already slows the
+    /// frame: leave it alone.
+    [[nodiscard]] static double accel_divisor(double const v_raw, double const last) noexcept {
+        if (fs8::touchpad_accel_gain(v_raw, last) <= 1.0) {
+            return 1.0;
+        }
+        double lo = 1.0;
+        double hi = 6.0;
+        for (int i = 0; i < 45; ++i) {
+            double const mid = (lo + hi) * 0.5;
+            if (fs8::touchpad_accel_gain(v_raw / mid, last) > mid) {
+                lo = mid;
+            } else {
+                hi = mid;
+            }
+        }
+        return (lo + hi) * 0.5;
+    }
+
+    /// Hand held-back motion over untouched — the absolute position
+    /// an uncompensated stream would have reported.  Used for the
+    /// contact's baseline frame and for the frame that opens the
+    /// scroll finger.
+    void flush_raw_pending() noexcept {
+        if (comp_dx_ == 0 && comp_dy_ == 0) {
+            return;
+        }
+        double const dx  = comp_dx_;
+        double const dy  = comp_dy_;
+        comp_dx_         = 0;
+        comp_dy_         = 0;
+        double const vel = velocity(dx, dy); // before the syn below moves it
+        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+        if (dx != 0 && have_x_) {
+            emit(EV_ABS, ABS_MT_POSITION_X, x_);
+            emitted_x_ = x_;
+        }
+        if (dy != 0 && have_y_) {
+            emit(EV_ABS, ABS_MT_POSITION_Y, y_);
+            emitted_y_ = y_;
+        }
+        comp_last_vel_ = vel;
+        comp_last_syn_ = now_;
+    }
+
+    /// Consume the frame's held-back motion at its SYN_REPORT: the
+    /// frame boundary is where libinput reads a contact's position,
+    /// so dividing there is indistinguishable from a slower pen.
+    void flush_accel() noexcept {
+        if (comp_dx_ == 0 && comp_dy_ == 0) {
+            return;
+        }
+        if (comp_first_flush_) {
+            comp_first_flush_ = false;
+            flush_raw_pending();
+            return;
+        }
+        double const dx      = comp_dx_;
+        double const dy      = comp_dy_;
+        comp_dx_             = 0;
+        comp_dy_             = 0;
+        double const divisor = accel_divisor(velocity(dx, dy), comp_last_vel_);
+        auto const   out_dx  = static_cast<value_type>(std::llround(dx / divisor));
+        auto const   out_dy  = static_cast<value_type>(std::llround(dy / divisor));
+        if (out_dx == 0 && out_dy == 0) {
+            return;
+        }
+        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+        if (out_dx != 0) {
+            emitted_x_ = static_cast<value_type>(emitted_x_ + out_dx);
+            emit(EV_ABS, ABS_MT_POSITION_X, emitted_x_);
+        }
+        if (out_dy != 0) {
+            emitted_y_ = static_cast<value_type>(emitted_y_ + out_dy);
+            emit(EV_ABS, ABS_MT_POSITION_Y, emitted_y_);
+        }
+        comp_last_vel_ = velocity(out_dx, out_dy); // before the syn below moves it
+        comp_last_syn_ = now_;
+    }
+
+    /// Translate a single input event.  `accel_comp` is the mod's
+    /// runtime switch (`accel_compensation`), re-read per event so an
+    /// app can flip it on the built pipeline before the run starts.
+    fs8::context_action handle(event_type& event, bool accel_comp) noexcept;
 };
 
-fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_type& event) noexcept {
+fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_type& event, bool const accel_comp) noexcept {
     using enum fs8::context_action;
+
+    now_ = event.micro_time();
 
     // Deliver a deferred tap release first so it lands in a later
     // frame than its press (normally the source SYN follows right
@@ -644,30 +885,56 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
         // ── Absolute axes ─────────────────────────────────────────
         case EV_ABS:
             switch (event.code()) {
-                case ABS_X:
+                case ABS_X: {
                     if (x_ != event.value()) {
                         mark_triggers_used();
                     }
-                    x_      = event.value();
-                    have_x_ = true;
+                    auto const previous = x_;
+                    x_                  = event.value();
+                    have_x_             = true;
+                    if (scroll_id_ >= 0 && !scroll_anchor_valid_) {
+                        // The finger opened before any position arrived:
+                        // this first X becomes the anchor, which mirrors
+                        // it onto itself.
+                        scroll_anchor_x_     = x_;
+                        scroll_anchor_valid_ = true;
+                    }
+                    if (comp_defer(accel_comp)) {
+                        // Held back to the frame boundary, where the
+                        // SYN below divides it by libinput's gain.
+                        comp_dx_ += static_cast<double>(x_ - previous);
+                        return next;
+                    }
+                    comp_dx_                  = 0;
+                    bool const       mirrored = scroll_id_ >= 0 && scroll_anchor_valid_;
+                    value_type const out      = mirrored ? mirrored_x(x_) : x_;
                     if (touching_) {
-                        emit(EV_ABS, ABS_MT_POSITION_X, x_);
+                        emit(EV_ABS, ABS_MT_POSITION_X, out);
+                        emitted_x_ = out;
                     }
                     if (scroll_id_ >= 0) {
                         emit(EV_ABS, ABS_MT_SLOT, scroll_slot);
-                        emit(EV_ABS, ABS_MT_POSITION_X, scroll_x());
+                        emit(EV_ABS, ABS_MT_POSITION_X, mirrored ? mirrored_x(scroll_x()) : scroll_x());
                         emit(EV_ABS, ABS_MT_SLOT, mt_slot);
                     }
                     return next;
+                }
 
-                case ABS_Y:
+                case ABS_Y: {
                     if (y_ != event.value()) {
                         mark_triggers_used();
                     }
-                    y_      = event.value();
-                    have_y_ = true;
+                    auto const previous = y_;
+                    y_                  = event.value();
+                    have_y_             = true;
+                    if (comp_defer(accel_comp)) {
+                        comp_dy_ += static_cast<double>(y_ - previous);
+                        return next;
+                    }
+                    comp_dy_ = 0;
                     if (touching_) {
                         emit(EV_ABS, ABS_MT_POSITION_Y, y_);
+                        emitted_y_ = y_;
                     }
                     if (scroll_id_ >= 0) {
                         emit(EV_ABS, ABS_MT_SLOT, scroll_slot);
@@ -675,6 +942,7 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
                         emit(EV_ABS, ABS_MT_SLOT, mt_slot);
                     }
                     return next;
+                }
 
                 // Legacy pressure passes through untouched; it is
                 // deliberately not mirrored into ABS_MT_PRESSURE
@@ -696,8 +964,18 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
             }
 
         // The original SYN_REPORT must survive; the forked MT events
-        // above belong to the same synchronization frame.
-        case EV_SYN: return next;
+        // above belong to the same synchronization frame.  It is also
+        // where the frame closes: libinput reads a contact's position
+        // at SYN_REPORT, so held-back motion is divided by the gain
+        // there (nothing is ever held back with the switch off).
+        case EV_SYN:
+            if (accel_comp) {
+                flush_accel();
+            } else {
+                comp_dx_ = 0;
+                comp_dy_ = 0;
+            }
+            return next;
 
         default: return next;
     }
@@ -707,7 +985,7 @@ fs8::context_action basic_pen2touch::operator()(event_type& event) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
     }
-    return pimpl->handle(event);
+    return pimpl->handle(event, accel_comp_);
 }
 
 fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexcept {
@@ -748,6 +1026,16 @@ fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexce
                         tmpl.abs_info(typed_code, updated);
                     }
                 }
+            }
+            // The acceleration compensation works in mm/s: remember the
+            // resolution libinput will advertise (post-speed-scaling —
+            // the factor rides on the resolution).  0 = no scale to
+            // convert through, the mod stays raw.
+            if (auto const* info = tmpl.abs_info(ABS_MT_POSITION_X); info != nullptr) {
+                pimpl->res_x_ = static_cast<double>(info->resolution);
+            }
+            if (auto const* info = tmpl.abs_info(ABS_MT_POSITION_Y); info != nullptr) {
+                pimpl->res_y_ = static_cast<double>(info->resolution);
             }
             return next;
         }

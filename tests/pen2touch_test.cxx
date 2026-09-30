@@ -3,6 +3,7 @@
 
 #include <array>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <libevdev/libevdev.h>
 #include <linux/input-event-codes.h>
@@ -1757,9 +1758,11 @@ TEST(Pen2TouchTest, Stylus2HoldScrollsInSecondSlot) {
     EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_STYLUS2).empty());
 
     // Slot 0 is the pen contact; slot 1 opens on engage and lifts on
-    // release, with a tracking id distinct from the pen's.
+    // release, with a tracking id distinct from the pen's.  The pen
+    // moved while mirrored (1000 -> 1200), so slot 0 is also lifted and
+    // reopened under a fresh id when the scroll ends.
     auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
-    ASSERT_EQ(tracking.size(), 3U);
+    ASSERT_EQ(tracking.size(), 5U);
     EXPECT_EQ(tracking[0].slot, 0);
     EXPECT_GE(tracking[0].event.value(), 0);
     EXPECT_EQ(tracking[1].slot, 1);
@@ -1767,24 +1770,33 @@ TEST(Pen2TouchTest, Stylus2HoldScrollsInSecondSlot) {
     EXPECT_NE(tracking[1].event.value(), tracking[0].event.value());
     EXPECT_EQ(tracking[2].slot, 1);
     EXPECT_EQ(tracking[2].event.value(), -1);
+    EXPECT_EQ(tracking[3].slot, 0);
+    EXPECT_EQ(tracking[3].event.value(), -1);
+    EXPECT_EQ(tracking[4].slot, 0);
+    EXPECT_GE(tracking[4].event.value(), 0);
+    EXPECT_NE(tracking[4].event.value(), tracking[0].event.value());
 
-    // The scroll finger sits a fixed offset away from the pen contact and
-    // follows its moves (default offset: range/8 of 32767 = 4095).
+    // The scroll finger sits a fixed offset away from the pen contact
+    // (default offset: range/8 of 32767 = 4095), both mirrored around
+    // the engage position (1000) while the gesture runs, and slot 0
+    // carries the real position again in the rebase frame.
     static constexpr event_type::value_type offset = 32'767 / 8;
     auto const                              pos_x  = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_X);
-    ASSERT_EQ(pos_x.size(), 4U);
+    ASSERT_EQ(pos_x.size(), 5U);
     EXPECT_EQ(pos_x[0].slot, 0);
     EXPECT_EQ(pos_x[0].event.value(), 1000);
     EXPECT_EQ(pos_x[1].slot, 1);
-    EXPECT_EQ(pos_x[1].event.value(), 1000 + offset);
+    EXPECT_EQ(pos_x[1].event.value(), 2 * 1000 - (1000 + offset));
     EXPECT_EQ(pos_x[2].slot, 0);
-    EXPECT_EQ(pos_x[2].event.value(), 1200);
+    EXPECT_EQ(pos_x[2].event.value(), 2 * 1000 - 1200);
     EXPECT_EQ(pos_x[3].slot, 1);
-    EXPECT_EQ(pos_x[3].event.value(), 1200 + offset);
+    EXPECT_EQ(pos_x[3].event.value(), 2 * 1000 - (1200 + offset));
+    EXPECT_EQ(pos_x[4].slot, 0);
+    EXPECT_EQ(pos_x[4].event.value(), 1200); // rebase frame: back to real
     auto const pos_y = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_Y);
     ASSERT_EQ(pos_y.size(), 4U);
     EXPECT_EQ(pos_y[1].slot, 1);
-    EXPECT_EQ(pos_y[1].event.value(), 1000); // only X is offset; Y mirrors
+    EXPECT_EQ(pos_y[1].event.value(), 1000); // only X is mirrored; Y mirrors
     EXPECT_EQ(pos_y[3].slot, 1);
     EXPECT_EQ(pos_y[3].event.value(), 1400);
 }
@@ -1964,9 +1976,11 @@ TEST(Pen2TouchTest, StylusHoldScrollsInSecondSlot) {
     EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_STYLUS).empty());
 
     // Slot 0 is the pen contact; slot 1 opens on engage and lifts on
-    // release, with a tracking id distinct from the pen's.
+    // release, with a tracking id distinct from the pen's.  The pen
+    // moved while mirrored (1000 -> 1200), so slot 0 is also lifted and
+    // reopened under a fresh id when the scroll ends.
     auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
-    ASSERT_EQ(tracking.size(), 3U);
+    ASSERT_EQ(tracking.size(), 5U);
     EXPECT_EQ(tracking[0].slot, 0);
     EXPECT_GE(tracking[0].event.value(), 0);
     EXPECT_EQ(tracking[1].slot, 1);
@@ -1974,24 +1988,33 @@ TEST(Pen2TouchTest, StylusHoldScrollsInSecondSlot) {
     EXPECT_NE(tracking[1].event.value(), tracking[0].event.value());
     EXPECT_EQ(tracking[2].slot, 1);
     EXPECT_EQ(tracking[2].event.value(), -1);
+    EXPECT_EQ(tracking[3].slot, 0);
+    EXPECT_EQ(tracking[3].event.value(), -1);
+    EXPECT_EQ(tracking[4].slot, 0);
+    EXPECT_GE(tracking[4].event.value(), 0);
+    EXPECT_NE(tracking[4].event.value(), tracking[0].event.value());
 
-    // The scroll finger sits a fixed offset away from the pen contact and
-    // follows its moves (default offset: range/8 of 32767 = 4095).
+    // The scroll finger sits a fixed offset away from the pen contact
+    // (default offset: range/8 of 32767 = 4095), both mirrored around
+    // the engage position (1000) while the gesture runs, and slot 0
+    // carries the real position again in the rebase frame.
     static constexpr event_type::value_type offset = 32'767 / 8;
     auto const                              pos_x  = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_X);
-    ASSERT_EQ(pos_x.size(), 4U);
+    ASSERT_EQ(pos_x.size(), 5U);
     EXPECT_EQ(pos_x[0].slot, 0);
     EXPECT_EQ(pos_x[0].event.value(), 1000);
     EXPECT_EQ(pos_x[1].slot, 1);
-    EXPECT_EQ(pos_x[1].event.value(), 1000 + offset);
+    EXPECT_EQ(pos_x[1].event.value(), 2 * 1000 - (1000 + offset));
     EXPECT_EQ(pos_x[2].slot, 0);
-    EXPECT_EQ(pos_x[2].event.value(), 1200);
+    EXPECT_EQ(pos_x[2].event.value(), 2 * 1000 - 1200);
     EXPECT_EQ(pos_x[3].slot, 1);
-    EXPECT_EQ(pos_x[3].event.value(), 1200 + offset);
+    EXPECT_EQ(pos_x[3].event.value(), 2 * 1000 - (1200 + offset));
+    EXPECT_EQ(pos_x[4].slot, 0);
+    EXPECT_EQ(pos_x[4].event.value(), 1200); // rebase frame: back to real
     auto const pos_y = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_Y);
     ASSERT_EQ(pos_y.size(), 4U);
     EXPECT_EQ(pos_y[1].slot, 1);
-    EXPECT_EQ(pos_y[1].event.value(), 1000); // only X is offset; Y mirrors
+    EXPECT_EQ(pos_y[1].event.value(), 1000); // only X is mirrored; Y mirrors
     EXPECT_EQ(pos_y[3].slot, 1);
     EXPECT_EQ(pos_y[3].event.value(), 1400);
 }
@@ -2019,15 +2042,20 @@ TEST(Pen2TouchTest, StylusHoldWithMovementNeverClicks) {
     pipeline();
 
     // Movement marks the hold as used: even a release inside the tap
-    // window must not click, and the scroll contact opened and closed.
+    // window must not click, and the scroll contact opened and closed
+    // (slot 0 rebases afterwards because the pen moved while mirrored).
     EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_RIGHT).empty());
     EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_STYLUS).empty());
     auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
-    ASSERT_EQ(tracking.size(), 3U);
+    ASSERT_EQ(tracking.size(), 5U);
     EXPECT_EQ(tracking[1].slot, 1);
     EXPECT_GE(tracking[1].event.value(), 0);
     EXPECT_EQ(tracking[2].slot, 1);
     EXPECT_EQ(tracking[2].event.value(), -1);
+    EXPECT_EQ(tracking[3].slot, 0);
+    EXPECT_EQ(tracking[3].event.value(), -1);
+    EXPECT_EQ(tracking[4].slot, 0);
+    EXPECT_GE(tracking[4].event.value(), 0);
 }
 
 TEST(Pen2TouchTest, TipAlreadyDownLiftsOnScrollEngage) {
@@ -2167,6 +2195,124 @@ TEST(Pen2TouchTest, ToolGoneLiftsScrollFinger) {
     EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_MIDDLE).empty());
 }
 
+// ---------------------------------------------------------------------------
+// Horizontal scroll direction: libinput computes the two-finger scroll
+// delta from the *average* of both contacts' motion, so flipping X means
+// mirroring both slots around the engage position while the scroll
+// finger is open.  The mirror is continuous at the anchor (mirrored ==
+// real there), so it never kicks a delta into the gesture; when the
+// scroll ends with the pen somewhere else, slot 0 is rebased through a
+// fresh tracking id so the jump back to reality never moves the cursor.
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, ScrollXDirectionIsFlipped) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,  0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, BTN_STYLUS2,   1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_ABS,     ABS_X, 1200, 20ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 20ms),
+        timed_ev(EV_ABS,     ABS_X, 1400, 30ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 30ms),
+        timed_ev(EV_KEY, BTN_STYLUS2,   0, 300ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 300ms),
+        timed_ev(EV_ABS,     ABS_X, 1600, 320ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 320ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // Anchor is the engage position (1000, offset = 32767/8 = 4095):
+    // every X emitted while slot 1 is open is its mirror (2*1000 - v),
+    // the rebase frame carries the real position again, and after the
+    // scroll ends the raw stream resumes untouched.
+    static constexpr event_type::value_type offset = 32'767 / 8;
+    auto const                              pos_x  = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(pos_x.size(), 8U);
+    EXPECT_EQ(pos_x[0].slot, 0);
+    EXPECT_EQ(pos_x[0].event.value(), 1000); // raw, before the scroll
+    EXPECT_EQ(pos_x[1].slot, 1);
+    EXPECT_EQ(pos_x[1].event.value(), 2 * 1000 - (1000 + offset));
+    EXPECT_EQ(pos_x[2].slot, 0);
+    EXPECT_EQ(pos_x[2].event.value(), 2 * 1000 - 1200); // pen right -> contact left
+    EXPECT_EQ(pos_x[3].slot, 1);
+    EXPECT_EQ(pos_x[3].event.value(), 2 * 1000 - (1200 + offset));
+    EXPECT_EQ(pos_x[4].slot, 0);
+    EXPECT_EQ(pos_x[4].event.value(), 2 * 1000 - 1400);
+    EXPECT_EQ(pos_x[5].slot, 1);
+    EXPECT_EQ(pos_x[5].event.value(), 2 * 1000 - (1400 + offset));
+    EXPECT_EQ(pos_x[6].slot, 0);
+    EXPECT_EQ(pos_x[6].event.value(), 1400); // rebase frame: back to real
+    EXPECT_EQ(pos_x[7].slot, 0);
+    EXPECT_EQ(pos_x[7].event.value(), 1600); // scroll over: raw again
+
+    // The legacy axis is not part of the gesture; it stays raw.
+    auto const legacy = collect(col.events(), EV_ABS, ABS_X);
+    ASSERT_EQ(legacy.size(), 4U);
+    EXPECT_EQ(legacy[0].value(), 1000);
+    EXPECT_EQ(legacy[1].value(), 1200);
+    EXPECT_EQ(legacy[2].value(), 1400);
+    EXPECT_EQ(legacy[3].value(), 1600);
+}
+
+TEST(Pen2TouchTest, ScrollEndRebasesPenContactWithoutJump) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,  0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, BTN_STYLUS2,   1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_ABS,     ABS_X, 1300, 20ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 20ms),
+        timed_ev(EV_KEY, BTN_STYLUS2,   0, 300ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 300ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // The pen moved while mirrored (1000 -> 1300), so ending the scroll
+    // lifts slot 0 and reopens it under a fresh tracking id in the same
+    // frame: libinput rebaselines on the id change instead of reading
+    // the mirror's jump (700 -> 1300) as pointer motion.
+    auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(tracking.size(), 5U);
+    EXPECT_EQ(tracking[0].slot, 0);
+    EXPECT_GE(tracking[0].event.value(), 0);
+    EXPECT_EQ(tracking[1].slot, 1);
+    EXPECT_GE(tracking[1].event.value(), 0);
+    EXPECT_EQ(tracking[2].slot, 1);
+    EXPECT_EQ(tracking[2].event.value(), -1);
+    EXPECT_EQ(tracking[3].slot, 0);
+    EXPECT_EQ(tracking[3].event.value(), -1);
+    EXPECT_EQ(tracking[4].slot, 0);
+    EXPECT_GE(tracking[4].event.value(), 0);
+    EXPECT_NE(tracking[4].event.value(), tracking[0].event.value());
+
+    // The rebase frame carries the real position...
+    auto const pos_x = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(pos_x.size(), 5U);
+    EXPECT_EQ(pos_x[4].slot, 0);
+    EXPECT_EQ(pos_x[4].event.value(), 1300);
+    // ...and a static pen needs no rebase at all (CapsLockEngagesScroll
+    // keeps tracking.size() == 3).
+}
+
 TEST(Pen2TouchTest, CapsLockEngagesScroll) {
     auto pipeline =
       context
@@ -2230,14 +2376,21 @@ TEST(Pen2TouchTest, CapsLockHoldIsSwallowedByOnHeld) {
 
     // The key itself is gone: a hold is a modifier, not a caps toggle.
     EXPECT_TRUE(collect(col.events(), EV_KEY, KEY_CAPSLOCK).empty());
-    // ...but pen2touch still engaged the scroll and the move passed.
+    // ...but pen2touch still engaged the scroll and the move passed
+    // (the contact rebases at caps release because the pen moved while
+    // mirrored).
     auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
-    ASSERT_EQ(tracking.size(), 3U);
+    ASSERT_EQ(tracking.size(), 5U);
     EXPECT_EQ(tracking[1].slot, 1);
+    EXPECT_EQ(tracking[2].slot, 1);
     EXPECT_EQ(tracking[2].event.value(), -1);
+    EXPECT_EQ(tracking[3].slot, 0);
+    EXPECT_EQ(tracking[3].event.value(), -1);
+    EXPECT_EQ(tracking[4].slot, 0);
+    EXPECT_GE(tracking[4].event.value(), 0);
     auto const pos_x = collect(col.events(), EV_ABS, ABS_X);
     ASSERT_FALSE(pos_x.empty());
-    EXPECT_EQ(pos_x.back().value(), 1500);
+    EXPECT_EQ(pos_x.back().value(), 1500); // legacy axis stays raw
 }
 
 // A quick tap must still toggle caps: on_held buffers the press and
@@ -2354,13 +2507,15 @@ TEST(Pen2TouchTest, ScrollOffsetFollowsProfiledAxisRange) {
 
     pipeline();
 
-    // offset = (999 - 0) / 8 = 124, not the unprofiled default 4095.
+    // offset = (999 - 0) / 8 = 124, not the unprofiled default 4095;
+    // while the gesture runs the finger mirrors to the far side of the
+    // pen (800 - 124), same distance.
     auto const pos_x = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_X);
     ASSERT_EQ(pos_x.size(), 2U);
     EXPECT_EQ(pos_x[0].slot, 0);
     EXPECT_EQ(pos_x[0].event.value(), 800);
     EXPECT_EQ(pos_x[1].slot, 1);
-    EXPECT_EQ(pos_x[1].event.value(), 800 + 999 / 8);
+    EXPECT_EQ(pos_x[1].event.value(), 800 - 999 / 8);
 }
 
 // ---------------------------------------------------------------------------
@@ -2497,4 +2652,260 @@ TEST(Pen2TouchTest, DefaultSpeedLeavesProfileAlone) {
     auto const* info = tmpl.abs_info(ABS_MT_POSITION_X);
     ASSERT_NE(info, nullptr);
     EXPECT_EQ(info->resolution, 100);
+}
+
+// ---------------------------------------------------------------------------
+// Fast-motion acceleration compensation: accel_compensation() divides
+// each frame by libinput's own touchpad gain at the frame SYN, so the
+// cursor keeps the pen's speed instead of getting the fast-motion boost.
+// Opt-in (off by default), raw while the scroll finger is open.
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, AccelCompOffByDefault) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_ABS,     ABS_X, 1000,   0us),
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1,   0us),
+        timed_ev(EV_SYN,   SYN_REPORT, 0,   0us),
+        timed_ev(EV_ABS,     ABS_X, 1416, 16ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 16ms),
+        timed_ev(EV_ABS,     ABS_X, 1832, 32ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 32ms),
+        timed_ev(EV_ABS,     ABS_X, 2248, 48ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 48ms),
+        timed_ev(EV_ABS,     ABS_X, 2664, 64ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 64ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
+
+    pipeline();
+
+    // Nobody turned compensation on: every frame passes through raw.
+    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(mtx.size(), 5U);
+    EXPECT_EQ(mtx[0].value(), 1000);
+    EXPECT_EQ(mtx[1].value(), 1416);
+    EXPECT_EQ(mtx[2].value(), 1832);
+    EXPECT_EQ(mtx[3].value(), 2248);
+    EXPECT_EQ(mtx[4].value(), 2664);
+}
+
+TEST(Pen2TouchTest, FastMotionIsCompensated) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_ABS,     ABS_X, 1000,   0us),
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1,   0us),
+        timed_ev(EV_SYN,   SYN_REPORT, 0,   0us),
+        timed_ev(EV_ABS,     ABS_X, 1416, 16ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 16ms),
+        timed_ev(EV_ABS,     ABS_X, 1832, 32ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 32ms),
+        timed_ev(EV_ABS,     ABS_X, 2248, 48ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 48ms),
+        timed_ev(EV_ABS,     ABS_X, 2664, 64ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 64ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+    pipeline.mod(pen2touch).accel_compensation(true);
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
+
+    pipeline();
+
+    // 416-unit frames at 60 Hz are ~260 mm/s: libinput's gain averages
+    // 1.44-1.72 over these frames, so the emitted positions must lag
+    // the raw stream by that factor.  The contact-open frame and the
+    // first frame after it stay raw — the baseline libinput itself
+    // reports untouched when a touch begins.
+    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(mtx.size(), 5U);
+    EXPECT_EQ(mtx[0].value(), 1000); // contact opens on the seeded position
+    EXPECT_EQ(mtx[1].value(), 1416); // first frame: baseline, raw
+    EXPECT_EQ(mtx[2].value(), 1705); // 1416 + 289 (divisor ~1.437)
+    EXPECT_EQ(mtx[3].value(), 2035); // + 330 (divisor ~1.262)
+    EXPECT_EQ(mtx[4].value(), 2352); // + 317 (divisor ~1.312)
+    EXPECT_LE(mtx[2].value() - mtx[1].value(), 416 / 1.4);
+}
+
+TEST(Pen2TouchTest, CompensationRoundTripsThroughLibinputGain) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_ABS,     ABS_X, 1000,   0us),
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1,   0us),
+        timed_ev(EV_SYN,   SYN_REPORT, 0,   0us),
+        timed_ev(EV_ABS,     ABS_X, 1416, 16ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 16ms),
+        timed_ev(EV_ABS,     ABS_X, 1832, 32ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 32ms),
+        timed_ev(EV_ABS,     ABS_X, 2248, 48ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 48ms),
+        timed_ev(EV_ABS,     ABS_X, 2664, 64ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 64ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+    pipeline.mod(pen2touch).accel_compensation(true);
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
+
+    pipeline();
+
+    // The point of the compensation: feeding the emitted stream back
+    // through libinput's gain must reproduce the pen's motion.  Per
+    // frame: emitted delta * gain(emitted velocity, previous velocity)
+    // ~= raw delta, within the emission rounding (half a unit times the
+    // gain) plus the recompute-from-rounded shift (one unit).
+    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(mtx.size(), 5U);
+    ASSERT_EQ(mtx[0].value(), 1000);
+    ASSERT_EQ(mtx[1].value(), 1416);
+
+    auto const* info = tmpl.abs_info(ABS_MT_POSITION_X);
+    ASSERT_NE(info, nullptr);
+    auto const frame_v =
+      [res = static_cast<double>(info->resolution)](event_type::value_type const delta, std::chrono::microseconds const dt) noexcept {
+          return static_cast<double>(delta) / res * 1e6 / (static_cast<double>(dt.count()) + 1.0);
+      };
+
+    // The baseline frame reached libinput raw: its velocity is what
+    // the next frame's simpsons average pairs with.
+    double last_v = frame_v(416, 16ms);
+    for (std::size_t i = 2; i < mtx.size(); ++i) {
+        auto const out = mtx[i].value() - mtx[i - 1].value();
+        ASSERT_GT(out, 0);
+        double const v    = frame_v(out, 16ms);
+        double const gain = std::max(touchpad_accel_gain(v, last_v), 1.0);
+        EXPECT_LE(std::abs(static_cast<double>(out) * gain - 416.0), gain / 2.0 + 1.0) << "frame " << i;
+        last_v = v;
+    }
+}
+
+TEST(Pen2TouchTest, CompensationSkipsDuringScroll) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_ABS,     ABS_X, 1000,   0us),
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1,   0us),
+        timed_ev(EV_SYN,   SYN_REPORT, 0,   0us),
+        timed_ev(EV_ABS,     ABS_X, 1416, 16ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 16ms),
+        timed_ev(EV_ABS,     ABS_X, 1832, 32ms),
+        timed_ev(EV_KEY, BTN_STYLUS2,   1, 32ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 32ms),
+        timed_ev(EV_ABS,     ABS_X, 2248, 48ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 48ms),
+        timed_ev(EV_KEY, BTN_STYLUS2,   0, 300ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 300ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+    pipeline.mod(pen2touch).accel_compensation(true);
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
+
+    pipeline();
+
+    // The scroll finger shares the frame with the pen motion: while it
+    // is open the stream must stay raw (libinput feeds two-finger
+    // motion through its constant scroll filter, not the pointer
+    // accelerator), and the frame that opens it hands its deferred
+    // motion over untouched before the mirror starts.
+    static constexpr event_type::value_type offset = 32'767 / 8;
+    auto const                              pos_x  = collect_slotted(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(pos_x.size(), 7U);
+    EXPECT_EQ(pos_x[0].slot, 0);
+    EXPECT_EQ(pos_x[0].event.value(), 1000);                       // contact opens
+    EXPECT_EQ(pos_x[1].slot, 0);
+    EXPECT_EQ(pos_x[1].event.value(), 1416);                       // baseline frame, raw
+    EXPECT_EQ(pos_x[2].slot, 0);
+    EXPECT_EQ(pos_x[2].event.value(), 1832);                       // deferred motion, flushed raw before the finger opens
+    EXPECT_EQ(pos_x[3].slot, 1);
+    EXPECT_EQ(pos_x[3].event.value(), 2 * 1832 - (1832 + offset)); // mirror at the anchor
+    EXPECT_EQ(pos_x[4].slot, 0);
+    EXPECT_EQ(pos_x[4].event.value(), 2 * 1832 - 2248);            // raw (mirrored), no divisor
+    EXPECT_EQ(pos_x[5].slot, 1);
+    EXPECT_EQ(pos_x[5].event.value(), 2 * 1832 - (2248 + offset));
+    EXPECT_EQ(pos_x[6].slot, 0);
+    EXPECT_EQ(pos_x[6].event.value(), 2248); // rebase frame: back to the real position
+
+    // The legacy axis is not part of the gesture; it stays raw.
+    auto const legacy = collect(col.events(), EV_ABS, ABS_X);
+    ASSERT_EQ(legacy.size(), 4U);
+    EXPECT_EQ(legacy[0].value(), 1000);
+    EXPECT_EQ(legacy[1].value(), 1416);
+    EXPECT_EQ(legacy[2].value(), 1832);
+    EXPECT_EQ(legacy[3].value(), 2248);
+}
+
+TEST(Pen2TouchTest, SlowMotionStaysRaw) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_ABS,     ABS_X, 1000,   0us),
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1,   0us),
+        timed_ev(EV_SYN,   SYN_REPORT, 0,   0us),
+        timed_ev(EV_ABS,     ABS_X, 1004, 16ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 16ms),
+        timed_ev(EV_ABS,     ABS_X, 1008, 32ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 32ms),
+        timed_ev(EV_ABS,     ABS_X, 1012, 48ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 48ms),
+        timed_ev(EV_ABS,     ABS_X, 1016, 64ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 64ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+    pipeline.mod(pen2touch).accel_compensation(true);
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
+
+    pipeline();
+
+    // ~2.5 mm/s sits deep in libinput's deceleration zone (gain 0.61):
+    // compensation clamps at 1 and never touches slow frames, so the
+    // stream must be bit-for-bit raw.
+    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(mtx.size(), 5U);
+    EXPECT_EQ(mtx[0].value(), 1000);
+    EXPECT_EQ(mtx[1].value(), 1004);
+    EXPECT_EQ(mtx[2].value(), 1008);
+    EXPECT_EQ(mtx[3].value(), 1012);
+    EXPECT_EQ(mtx[4].value(), 1016);
 }

@@ -7,6 +7,23 @@ import fs8.pimpl;
 
 export namespace fs8 {
 
+    /// libinput's adaptive touchpad acceleration as the factor it
+    /// multiplies a motion delta by, relative to its unaccelerated
+    /// path (1.0 = plateau / no boost, >1 = fast-motion boost).
+    ///
+    /// Mirrors `touchpad_accel_profile_linear` (double incline with a
+    /// plateau: linear ramp to 6 mm/s, 0.9 baseline to a 130 mm/s
+    /// threshold, quadratic incline capped at 4x the threshold) as
+    /// averaged by `calculate_acceleration_simpsons` over the current
+    /// and previous frame's velocity — with libinput's default
+    /// two-entry tracker, velocity is the instantaneous frame speed.
+    /// `speed` and `last` are in mm/s (frame delta divided by the
+    /// device's advertised axis resolution); `last` is 0 on the first
+    /// frame of a contact.  Compensating means dividing by the result;
+    /// callers clamp to >= 1 so libinput's slow-motion deceleration
+    /// is left alone.
+    [[nodiscard]] double touchpad_accel_gain(double speed, double last) noexcept;
+
     /// Convert a single stylus contact into a Linux Type-B multitouch contact.
     ///
     /// The source tablet reports:
@@ -61,7 +78,14 @@ export namespace fs8 {
     /// (including libinput's inertial scrolling) until the hold ends.  A
     /// quick tap of a barrel button (<200 ms without movement) still
     /// emits its real mouse click (BTN_RIGHT for BTN_STYLUS, BTN_MIDDLE
-    /// for BTN_STYLUS2).  Tilt (ABS_TILT_X / ABS_TILT_Y) and tool width
+    /// for BTN_STYLUS2).  While that gesture runs, *both* contacts' X
+    /// mirror around the engage position: libinput derives the scroll
+    /// delta from the average of both contacts' motion, so flipping one
+    /// side only would cancel out — this makes horizontal scroll follow
+    /// the pen's direction instead of running it backwards.  Ending the
+    /// scroll with the pen somewhere else rebases slot 0 through a fresh
+    /// tracking id, so the jump back to the real position never reaches
+    /// the cursor.  Tilt (ABS_TILT_X / ABS_TILT_Y) and tool width
     /// (ABS_TOOL_WIDTH) are dropped because they have no touchpad
     /// equivalent.
     ///
@@ -123,6 +147,21 @@ export namespace fs8 {
             speed_ = factor;
         }
 
+        /// Divide fast frames by libinput's own adaptive-acceleration
+        /// gain (`touchpad_accel_gain`) so the cursor keeps the pen's
+        /// speed instead of libinput's fast-motion boost.  Opt-in:
+        /// off by default, apps turn it on unless the user passes
+        /// their `--native-accel` escape hatch (non-default compositor
+        /// accel-speed settings change the gain and defeat this).
+        /// Motion is held to the frame's SYN_REPORT and divided there —
+        /// libinput reads a contact's position only at the frame
+        /// boundary — and passes through untouched while the scroll
+        /// finger is open (two-finger frames never reach libinput's
+        /// pointer accelerator).
+        constexpr void accel_compensation(bool const on) noexcept {
+            accel_comp_ = on;
+        }
+
         /// Handle lifecycle tags (start, toggle_off, device_disconnected,
         /// profile_device); releases are forked through `dynamic_context`,
         /// which the pipeline binds while it runs.
@@ -135,6 +174,10 @@ export namespace fs8 {
         /// Motion factor; `profile_device` divides the axis resolution
         /// by it when it reshapes the template.
         float speed_ = 1.0f;
+
+        /// Whether to compensate libinput's fast-motion acceleration
+        /// (see `accel_compensation`); consumed per event in `handle`.
+        bool accel_comp_ = false;
     } pen2touch;
 
     static_assert(Modifier<basic_pen2touch>);
