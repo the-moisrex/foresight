@@ -964,6 +964,40 @@ TEST(Pen2TouchTest, ToggleOffReleasesHeldTip) {
 }
 
 // ---------------------------------------------------------------------------
+// toggle_off releases a tip-as-middle click held during a scroll
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, ToggleOffReleasesHeldMiddleClick) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1000},
+        {EV_ABS,        ABS_Y, 1000},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY,  BTN_STYLUS2,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY,    BTN_TOUCH,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline(); // scroll engaged + tip as middle; exits with the click held
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(dynamic_context->broadcast(toggle_off), context_action::next);
+
+    auto const middle = collect(col.events(), EV_KEY, BTN_MIDDLE);
+    ASSERT_GE(middle.size(), 2U);
+    EXPECT_EQ(middle[0].value(), 1);
+    EXPECT_EQ(middle[1].value(), 0);
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_LEFT).empty());
+}
+
+// ---------------------------------------------------------------------------
 // Tool leaving mid-contact ends the contact
 // ---------------------------------------------------------------------------
 
@@ -1114,6 +1148,31 @@ TEST(Pen2TouchTest, ProfileDeviceIgnoredWithoutMod) {
     // alone (and must not log a "required event not handled" warning).
     EXPECT_TRUE(tmpl.has_event_code(EV_KEY, BTN_TOOL_PEN));
     EXPECT_TRUE(tmpl.has_property(INPUT_PROP_DIRECT));
+    EXPECT_FALSE(tmpl.has_event_code(EV_ABS, ABS_MT_SLOT));
+    EXPECT_FALSE(tmpl.has_property(INPUT_PROP_POINTER));
+}
+
+TEST(Pen2TouchTest, ProfileDeviceIgnoresKeyboardTemplate) {
+    // The keyboard-route virtual device is cloned from a real keyboard:
+    // reshaping it into a touchpad would break typing.  A tablet always
+    // has ABS_X, a keyboard never does — that is the discriminator.
+    auto tmpl = fs8::evdev{libevdev_new(), fs8::evdev_status::success};
+    tmpl.device_name("Pen2Touch Test Keyboard");
+    libevdev_set_id_bustype(tmpl.device_ptr(), BUS_USB);
+    tmpl.enable_event_type(EV_SYN);
+    tmpl.enable_event_code(EV_KEY, KEY_A);
+    tmpl.enable_event_code(EV_KEY, KEY_CAPSLOCK);
+    tmpl.enable_event_code(EV_KEY, BTN_0);
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto          pipeline = context | pen2touch | record;
+    dynamic_scope scope{dynamic_context, pipeline};
+    EXPECT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+
+    EXPECT_EQ(tmpl.device_name(), "Pen2Touch Test Keyboard");
+    EXPECT_TRUE(tmpl.has_event_code(EV_KEY, KEY_A));
+    EXPECT_FALSE(tmpl.has_event_code(EV_KEY, BTN_TOUCH));
+    EXPECT_FALSE(tmpl.has_event_code(EV_KEY, BTN_TOOL_FINGER));
     EXPECT_FALSE(tmpl.has_event_code(EV_ABS, ABS_MT_SLOT));
     EXPECT_FALSE(tmpl.has_property(INPUT_PROP_POINTER));
 }
@@ -2006,7 +2065,7 @@ TEST(Pen2TouchTest, TipAlreadyDownLiftsOnScrollEngage) {
     EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_MIDDLE).empty());
 }
 
-TEST(Pen2TouchTest, TipPressSuppressedDuringScroll) {
+TEST(Pen2TouchTest, TipClickDuringScrollEmitsMiddle) {
     auto pipeline =
       context
       | timed_sequence{std::array{
@@ -2032,9 +2091,46 @@ TEST(Pen2TouchTest, TipPressSuppressedDuringScroll) {
 
     pipeline();
 
-    // The tip can never start a click while the scroll trigger is held.
+    // The tip can never start a left click while the scroll trigger is
+    // held; clicking it mid-scroll is a middle click instead.
     EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_LEFT).empty());
-    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_MIDDLE).empty());
+    auto const middle = collect(col.events(), EV_KEY, BTN_MIDDLE);
+    ASSERT_EQ(middle.size(), 2U);
+    EXPECT_EQ(middle[0].value(), 1);
+    EXPECT_EQ(middle[1].value(), 0);
+}
+
+TEST(Pen2TouchTest, TipMiddleReleasesAfterScrollEnds) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,   0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, BTN_STYLUS2,   1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_KEY,    BTN_TOUCH,  1, 20ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 20ms),
+        // The scroll ends while the tip is still down: the release must
+        // still lift the middle button it pressed.
+        timed_ev(EV_KEY, BTN_STYLUS2,   0, 300ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 300ms),
+        timed_ev(EV_KEY,    BTN_TOUCH,  0, 400ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 400ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_LEFT).empty());
+    auto const middle = collect(col.events(), EV_KEY, BTN_MIDDLE);
+    ASSERT_EQ(middle.size(), 2U);
+    EXPECT_EQ(middle[0].value(), 1);
+    EXPECT_EQ(middle[1].value(), 0);
 }
 
 TEST(Pen2TouchTest, ToolGoneLiftsScrollFinger) {
@@ -2104,6 +2200,128 @@ TEST(Pen2TouchTest, CapsLockEngagesScroll) {
     ASSERT_EQ(caps.size(), 2U);
     EXPECT_EQ(caps[0].value(), 1);
     EXPECT_EQ(caps[1].value(), 0);
+}
+
+// The app composition: pen2touch sees the key first (scroll trigger),
+// then on_held owns the swallow/tap-re-emit.  A hold past the threshold
+// never reaches the output, while the scroll finger keeps working.
+TEST(Pen2TouchTest, CapsLockHoldIsSwallowedByOnHeld) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,   0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, KEY_CAPSLOCK,  1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_ABS,     ABS_X, 1500, 50ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 50ms),
+        timed_ev(EV_KEY, KEY_CAPSLOCK,  0, 400ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 400ms),
+    }}
+      | pen2touch
+      | on_held[KEY_CAPSLOCK, context]
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // The key itself is gone: a hold is a modifier, not a caps toggle.
+    EXPECT_TRUE(collect(col.events(), EV_KEY, KEY_CAPSLOCK).empty());
+    // ...but pen2touch still engaged the scroll and the move passed.
+    auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    ASSERT_EQ(tracking.size(), 3U);
+    EXPECT_EQ(tracking[1].slot, 1);
+    EXPECT_EQ(tracking[2].event.value(), -1);
+    auto const pos_x = collect(col.events(), EV_ABS, ABS_X);
+    ASSERT_FALSE(pos_x.empty());
+    EXPECT_EQ(pos_x.back().value(), 1500);
+}
+
+// A quick tap must still toggle caps: on_held buffers the press and
+// re-emits a real press+release on release.
+TEST(Pen2TouchTest, CapsLockQuickTapReemitsThroughOnHeld) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,   0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 0us),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 0us),
+        timed_ev(EV_KEY, KEY_CAPSLOCK,  1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_KEY, KEY_CAPSLOCK,  0, 50ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 50ms),
+    }}
+      | pen2touch
+      | on_held[KEY_CAPSLOCK, context]
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    auto const caps = collect(col.events(), EV_KEY, KEY_CAPSLOCK);
+    ASSERT_EQ(caps.size(), 2U);
+    EXPECT_EQ(caps[0].value(), 1);
+    EXPECT_EQ(caps[1].value(), 0);
+}
+
+// ---------------------------------------------------------------------------
+// The app's router: pen/touch codes fall through to the top-level output,
+// keyboard codes are consumed by the keyboard route (uinput in the app,
+// record here).  Later routes win shared codes, so the keyboard route
+// must be listed second.
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, RouterSplitsKeyboardAndTouch) {
+    static constexpr auto all_keys      = caps_range<EV_KEY, 0, KEY_MAX + 1>();
+    static constexpr auto distance_cap  = cap(EV_ABS, ABS_DISTANCE);
+    static constexpr auto no_btn_zero   = cap(EV_KEY, BTN_0);
+    static constexpr auto touch_caps    = caps::tablet + caps::mt_abs_axes + all_keys + distance_cap;
+    static constexpr auto keyboard_caps = caps::keyboard - no_btn_zero;
+
+    // Static: `record[...]` is consteval, so the sinks' addresses must
+    // be constants (same trick as HoldModTest's global sinks).
+    static auto top_out = std::vector<event_type>{};
+    static auto kb_out  = std::vector<event_type>{};
+    top_out.clear();
+    kb_out.clear();
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, KEY_CAPSLOCK,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY,        KEY_A,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY,     BTN_LEFT,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY,        BTN_0,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1000},
+        {EV_SYN,   SYN_REPORT,    0},
+    }]
+      | router[touch_caps >> context, keyboard_caps >> (context | enforce_key_state | record[kb_out] | drop_event)]
+      | record[top_out];
+    pipeline();
+
+    // Keyboard codes went to the keyboard route and stopped there.
+    auto const kb_caps = collect(kb_out, EV_KEY, KEY_CAPSLOCK);
+    ASSERT_EQ(kb_caps.size(), 1U);
+    EXPECT_EQ(kb_caps[0].value(), 1);
+    EXPECT_EQ(collect(kb_out, EV_KEY, KEY_A).size(), 1U);
+    EXPECT_TRUE(collect(kb_out, EV_KEY, BTN_LEFT).empty());
+    EXPECT_TRUE(collect(kb_out, EV_KEY, BTN_0).empty());
+
+    // Touch codes fall through the empty touch route to the top-level
+    // output; keyboard codes must never leak there.
+    EXPECT_EQ(collect(top_out, EV_KEY, BTN_LEFT).size(), 1U);
+    EXPECT_EQ(collect(top_out, EV_KEY, BTN_0).size(), 1U); // BTN_0 stays on the touch route
+    EXPECT_EQ(collect(top_out, EV_ABS, ABS_X).size(), 1U);
+    EXPECT_TRUE(collect(top_out, EV_KEY, KEY_CAPSLOCK).empty());
+    EXPECT_TRUE(collect(top_out, EV_KEY, KEY_A).empty());
 }
 
 TEST(Pen2TouchTest, ScrollOffsetFollowsProfiledAxisRange) {

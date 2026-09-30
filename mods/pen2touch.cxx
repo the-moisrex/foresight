@@ -170,6 +170,13 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     /// with no left button out there.
     bool left_down_ = false;
 
+    /// Whether BTN_MIDDLE is currently *emitted* by the tip: clicking
+    /// the tip while a scroll is active becomes a middle click (the tip
+    /// can never start a left drag mid-scroll).  The release must track
+    /// this, not the scroll state, so it lifts the right button even
+    /// after the scroll has ended.
+    bool middle_down_ = false;
+
     /// Whether we have received at least one ABS_X / ABS_Y since the
     /// last touch-down, so we know the values are valid.
     bool have_x_ = false;
@@ -262,6 +269,7 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         touching_    = false;
         tip_down_    = false;
         left_down_   = false;
+        middle_down_ = false;
         have_x_      = false;
         have_y_      = false;
         barrel_held_.fill(false);
@@ -424,7 +432,7 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     /// barrel buttons) as a self-contained event frame.  Used when the
     /// pipeline is restarted, disabled, or loses its source device
     /// mid-contact: consumers must never see a stuck tracking ID, a
-    /// held BTN_TOOL_FINGER, a held left button, or a held
+    /// held BTN_TOOL_FINGER, a held left/middle button, or a held
     /// right-click.
     void release_stale_state() noexcept {
         bool any = touching_ || tool_active_ || tip_down_ || scroll_id_ >= 0;
@@ -443,6 +451,12 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         if (left_down_) {
             emit(EV_KEY, BTN_LEFT, 0);
             left_down_ = false;
+            any        = true;
+        }
+        if (middle_down_) {
+            emit(EV_KEY, BTN_MIDDLE, 0);
+            middle_down_ = false;
+            any          = true;
         }
         if (!any) {
             return;
@@ -505,6 +519,10 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
                             emit(EV_KEY, BTN_LEFT, 0);
                             left_down_ = false;
                         }
+                        if (middle_down_) {
+                            emit(EV_KEY, BTN_MIDDLE, 0);
+                            middle_down_ = false;
+                        }
                         tip_down_ = false;
                         close_contact();
                     }
@@ -521,7 +539,9 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
                 // through.  The tip also doubles as the
                 // contact-begin/end signal on tablets that never
                 // send BTN_TOOL_*.  While a scroll trigger is held
-                // the click is suppressed entirely.
+                // the tip becomes a middle click instead — it can
+                // never start a left drag mid-scroll, but it should
+                // not be dead either.
                 case BTN_TOUCH: {
                     tip_down_ = event.value() != 0;
                     if (tip_down_) {
@@ -529,10 +549,34 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
                     } else if (!tool_active_) {
                         close_contact();
                     }
-                    if (scroll_active_) {
+                    if (tip_down_) {
+                        if (scroll_active_) {
+                            // A repeated press while already down stays
+                            // dropped, like the old suppression.
+                            if (middle_down_) {
+                                return drop_event;
+                            }
+                            middle_down_ = true;
+                            event.code(BTN_MIDDLE);
+                            return next;
+                        }
+                        left_down_ = true;
+                        event.code(BTN_LEFT);
+                        return next;
+                    }
+                    // Release whichever button the press actually
+                    // emitted; a press that was suppressed (the scroll
+                    // started after it and ended before this release)
+                    // has nothing to lift.
+                    if (middle_down_) {
+                        middle_down_ = false;
+                        event.code(BTN_MIDDLE);
+                        return next;
+                    }
+                    if (!left_down_) {
                         return drop_event;
                     }
-                    left_down_ = tip_down_;
+                    left_down_ = false;
                     event.code(BTN_LEFT);
                     return next;
                 }
@@ -670,13 +714,19 @@ fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexce
     using enum fs8::context_action;
     switch (tag.code) {
         case profile_device.code: {
+            auto& tmpl = payload<profile_device>(tag);
+            // Only a pen source gets reshaped.  The keyboard-route virtual
+            // device has no ABS_X: turning it into a touchpad would break
+            // typing, so it keeps whatever profile it was built with.
+            if (!tmpl.has_event_code(EV_ABS, ABS_X)) {
+                return next;
+            }
             // uinput is about to create the virtual device: turn the
             // tablet clone into a multitouch touchpad and remember the
             // axis range, which sizes the scroll finger's offset.
             if (pimpl.get() == nullptr) [[unlikely]] {
                 init_impl();
             }
-            auto& tmpl = payload<profile_device>(tag);
             profile_template(tmpl);
             if (auto const* info = tmpl.abs_info(ABS_MT_POSITION_X); info != nullptr) {
                 pimpl->scroll_min_x_    = info->minimum;
