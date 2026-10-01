@@ -88,10 +88,10 @@ namespace {
         // ── Multitouch absinfo ─────────────────────────────────────
         // Two contacts: slot 0 is the pen, slot 1 the synthetic scroll
         // finger (a few spare slots keep the kernel from clamping).
-        static constexpr input_absinfo slot_info{.minimum = 0, .maximum = 4};
-        static constexpr input_absinfo tracking_info{.minimum = 0, .maximum = 65'535};
-        static constexpr input_absinfo xy_fallback{.minimum = 0, .maximum = 32'767};
-        static constexpr input_absinfo pressure_fallback{.minimum = 0, .maximum = 1023};
+        static constexpr input_absinfo slot_info{.value = 0, .minimum = 0, .maximum = 4, .fuzz = 0, .flat = 0, .resolution = 0};
+        static constexpr input_absinfo tracking_info{.value = 0, .minimum = 0, .maximum = 65'535, .fuzz = 0, .flat = 0, .resolution = 0};
+        static constexpr input_absinfo xy_fallback{.value = 0, .minimum = 0, .maximum = 32'767, .fuzz = 0, .flat = 0, .resolution = 0};
+        static constexpr input_absinfo pressure_fallback{.value = 0, .minimum = 0, .maximum = 1023, .fuzz = 0, .flat = 0, .resolution = 0};
 
         // Position mirrors the source axis one-to-one, so copy the range when
         // the source is part of the template.
@@ -133,10 +133,11 @@ namespace {
         }
         tmpl.enable_property(INPUT_PROP_POINTER);
     }
-} // namespace
 
-double fs8::touchpad_accel_gain(double const speed, double const last) noexcept {
-    auto const curve = [](double const v) noexcept -> double {
+    /// libinput's `touchpad_accel_profile_linear` shape: a linear ramp to
+    /// 6 mm/s, the 0.9 plateau up to 130 mm/s, then a quadratic incline
+    /// capped at 4x the threshold.
+    [[nodiscard]] double accel_curve(double const v) noexcept {
         if (v < 6.0) {
             return 0.1 * v + 0.3;
         }
@@ -145,19 +146,31 @@ double fs8::touchpad_accel_gain(double const speed, double const last) noexcept 
         }
         double const capped = v < 520.0 ? v : 520.0;
         return 0.0025 * (capped / 130.0) * (capped - 130.0) + 0.9;
-    };
-    double const averaged = (curve(speed) + curve(last) + 4.0 * curve((speed + last) * 0.5)) / 6.0;
-    return averaged / 0.9;
+    }
+
+    /// The simpsons average of `accel_curve` over `last`..`speed`
+    /// normalized by the plateau.  `curve_last` is precomputed by the
+    /// caller: it does not depend on `speed`, so a caller iterating on
+    /// `speed` (the bisection in `accel_divisor`) evaluates the curve
+    /// twice per step instead of three times.
+    [[nodiscard]] double accel_gain(double const speed, double const last, double const curve_last) noexcept {
+        double const averaged = (accel_curve(speed) + curve_last + 4.0 * accel_curve((speed + last) * 0.5)) / 6.0;
+        return averaged / 0.9;
+    }
+} // namespace
+
+double fs8::touchpad_accel_gain(double const speed, double const last) noexcept {
+    return accel_gain(speed, last, accel_curve(last));
 }
 
 template <>
-struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
-    using event_type = fs8::event_type;
+struct fs8::pimpl_idiom<basic_pen2touch>::impl {
+    using event_type = event_type;
 
     /// Fork one event to the downstream mods through the pipeline's
     /// currently bound dynamic context.
     static void emit(code_type const type, code_type const code, value_type const value) noexcept {
-        std::ignore = fs8::dynamic_context.fork_emit(event_type{type, code, value});
+        std::ignore = dynamic_context.fork_emit(event_type{type, code, value});
     }
 
     /// Current tracking ID.  Non-negative means a contact is active;
@@ -226,6 +239,23 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     static constexpr value_type mt_slot     = 0;
     static constexpr value_type scroll_slot = 1;
 
+    /// The slot the output currently has selected, or -1 when we never
+    /// selected one (fresh pimpl, or after `reset` — the virtual
+    /// device's kernel-side selection survives a restart, so forget it
+    /// too and re-select defensively).
+    value_type selected_slot_ = -1;
+
+    /// Select `s` for the MT events that follow, emitting ABS_MT_SLOT
+    /// only when it differs from the last selection: re-selecting the
+    /// current slot is a no-op for consumers but still costs a
+    /// `fork_emit` walk plus a `write()` syscall per frame.
+    void select_slot(value_type const s) noexcept {
+        if (selected_slot_ != s) {
+            emit(EV_ABS, ABS_MT_SLOT, s);
+            selected_slot_ = s;
+        }
+    }
+
     /// Scroll mode: while active a second contact (slot 1) mirrors the
     /// pen contact, which libinput reads as a two-finger scroll.
     bool scroll_active_ = false;
@@ -245,6 +275,12 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     };
 
     std::array<trigger_state, 3> triggers_{};
+
+    /// Whether any trigger barrel button is down right now.  Movement
+    /// marks every held trigger as used on each moved axis, so this
+    /// keeps the common (nothing held) case a single predicted branch
+    /// instead of a three-entry scan per axis event.
+    bool any_trigger_held_ = false;
 
     /// How long a barrel button must stay down before its release stops
     /// counting as a tap (the same 200 ms window `on_held` uses).
@@ -340,6 +376,7 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         for (auto& trigger : triggers_) {
             trigger = {};
         }
+        any_trigger_held_ = false;
         caps_held_        = false;
         now_              = {};
         comp_dx_          = 0;
@@ -349,6 +386,9 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         comp_first_flush_ = true;
         emitted_x_        = 0;
         emitted_y_        = 0;
+        // The virtual device keeps its kernel-side slot selection across a
+        // restart; forget ours too so the next contact re-selects it.
+        selected_slot_    = -1;
         // res_x_/res_y_ are configuration (the profiled device), not state.
     }
 
@@ -370,7 +410,7 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
 
         value_type const id = next_tracking_id();
 
-        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+        select_slot(mt_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, id);
 
         if (have_x_) {
@@ -388,9 +428,9 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         if (!touching_) {
             return;
         }
-        // Select the slot first: every MT event belongs to the currently
-        // selected slot.
-        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+        // Every MT event belongs to the currently selected slot; lift on
+        // slot 0 (the re-select only emits when it is not already there).
+        select_slot(mt_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, -1);
         touching_ = false;
         have_x_   = false;
@@ -439,7 +479,7 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         scroll_anchor_x_     = x_;
         scroll_anchor_valid_ = have_x_;
 
-        emit(EV_ABS, ABS_MT_SLOT, scroll_slot);
+        select_slot(scroll_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, scroll_id_);
         if (have_x_) {
             emit(EV_ABS, ABS_MT_POSITION_X, mirrored_x(scroll_x()));
@@ -448,7 +488,7 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
             emit(EV_ABS, ABS_MT_POSITION_Y, y_);
         }
         // Leave the pen's slot selected for whatever comes next.
-        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+        select_slot(mt_slot);
         // Two contacts: light the legacy two-finger key and drop the
         // one-finger key.  libinput resolves the tool keys once per
         // frame, so only the frame-final state matters — exactly one of
@@ -465,9 +505,9 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         if (scroll_id_ < 0) {
             return;
         }
-        emit(EV_ABS, ABS_MT_SLOT, scroll_slot);
+        select_slot(scroll_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, -1);
-        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+        select_slot(mt_slot);
         scroll_id_     = -1;
         // The gesture rode libinput's constant scroll filter; the
         // pointer accelerator's frame history ends with it.
@@ -494,7 +534,7 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         if (!jump) {
             return;
         }
-        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+        select_slot(mt_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, -1);
         emit(EV_ABS, ABS_MT_TRACKING_ID, next_tracking_id());
         emit(EV_ABS, ABS_MT_POSITION_X, x_);
@@ -505,6 +545,9 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     /// Movement while a barrel button is held turns that hold into a
     /// scroll: its release will never click.
     void mark_triggers_used() noexcept {
+        if (!any_trigger_held_) [[likely]] {
+            return;
+        }
         for (auto& trigger : triggers_) {
             if (trigger.held) {
                 trigger.used = true;
@@ -634,15 +677,22 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     /// since the gain curve tops out at ~5.34.  At or below the
     /// deceleration floor (gain <= 1) libinput already slows the
     /// frame: leave it alone.
+    ///
+    /// Twenty steps shrink the bracket to 5 / 2^20 ~= 4.8e-6, orders
+    /// of magnitude below the integer rounding the result feeds, and
+    /// `curve(last)` is hoisted out of the loop (it is invariant in
+    /// `mid`), so a compensated frame costs ~40 curve evaluations
+    /// instead of ~135.
     [[nodiscard]] static double accel_divisor(double const v_raw, double const last) noexcept {
-        if (fs8::touchpad_accel_gain(v_raw, last) <= 1.0) {
+        double const curve_last = accel_curve(last);
+        if (accel_gain(v_raw, last, curve_last) <= 1.0) {
             return 1.0;
         }
         double lo = 1.0;
         double hi = 6.0;
-        for (int i = 0; i < 45; ++i) {
+        for (int i = 0; i < 20; ++i) {
             double const mid = (lo + hi) * 0.5;
-            if (fs8::touchpad_accel_gain(v_raw / mid, last) > mid) {
+            if (accel_gain(v_raw / mid, last, curve_last) > mid) {
                 lo = mid;
             } else {
                 hi = mid;
@@ -664,7 +714,7 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         comp_dx_         = 0;
         comp_dy_         = 0;
         double const vel = velocity(dx, dy); // before the syn below moves it
-        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+        select_slot(mt_slot);
         if (dx != 0 && have_x_) {
             emit(EV_ABS, ABS_MT_POSITION_X, x_);
             emitted_x_ = x_;
@@ -699,7 +749,7 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
         if (out_dx == 0 && out_dy == 0) {
             return;
         }
-        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+        select_slot(mt_slot);
         if (out_dx != 0) {
             emitted_x_ = static_cast<value_type>(emitted_x_ + out_dx);
             emit(EV_ABS, ABS_MT_POSITION_X, emitted_x_);
@@ -715,11 +765,11 @@ struct fs8::pimpl_idiom<fs8::basic_pen2touch>::impl {
     /// Translate a single input event.  `accel_comp` is the mod's
     /// runtime switch (`accel_compensation`), re-read per event so an
     /// app can flip it on the built pipeline before the run starts.
-    fs8::context_action handle(event_type& event, bool accel_comp) noexcept;
+    context_action handle(event_type& event, bool accel_comp) noexcept;
 };
 
-fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_type& event, bool const accel_comp) noexcept {
-    using enum fs8::context_action;
+fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& event, bool const accel_comp) noexcept {
+    using enum context_action;
 
     now_ = event.micro_time();
 
@@ -848,6 +898,7 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
                             trigger.held       = true;
                             trigger.used       = false;
                             trigger.press_time = event.micro_time();
+                            any_trigger_held_  = true;
                         }
                         update_scroll();
                         return drop_event;
@@ -855,7 +906,11 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
                     if (!trigger.held) {
                         return drop_event;
                     }
-                    trigger.held   = false;
+                    trigger.held      = false;
+                    any_trigger_held_ = false;
+                    for (auto const& held_trigger : triggers_) {
+                        any_trigger_held_ = any_trigger_held_ || held_trigger.held;
+                    }
                     bool const tap = !trigger.used && (event.micro_time() - trigger.press_time < tap_window);
                     update_scroll();
                     if (tap) {
@@ -886,6 +941,14 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
         case EV_ABS:
             switch (event.code()) {
                 case ABS_X: {
+                    if (have_x_ && event.value() == x_) {
+                        // Nothing moved: no trigger to mark, no anchor to
+                        // seed, no position to mirror, and a deferred
+                        // delta of zero would not change.  Sources that
+                        // resend every axis each frame (synthetic,
+                        // replayed, captured) hit this on every packet.
+                        return next;
+                    }
                     if (x_ != event.value()) {
                         mark_triggers_used();
                     }
@@ -913,14 +976,18 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
                         emitted_x_ = out;
                     }
                     if (scroll_id_ >= 0) {
-                        emit(EV_ABS, ABS_MT_SLOT, scroll_slot);
+                        select_slot(scroll_slot);
                         emit(EV_ABS, ABS_MT_POSITION_X, mirrored ? mirrored_x(scroll_x()) : scroll_x());
-                        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+                        select_slot(mt_slot);
                     }
                     return next;
                 }
 
                 case ABS_Y: {
+                    if (have_y_ && event.value() == y_) {
+                        // See ABS_X: an unchanged axis is pure overhead.
+                        return next;
+                    }
                     if (y_ != event.value()) {
                         mark_triggers_used();
                     }
@@ -937,9 +1004,9 @@ fs8::context_action fs8::pimpl_idiom<fs8::basic_pen2touch>::impl::handle(event_t
                         emitted_y_ = y_;
                     }
                     if (scroll_id_ >= 0) {
-                        emit(EV_ABS, ABS_MT_SLOT, scroll_slot);
+                        select_slot(scroll_slot);
                         emit(EV_ABS, ABS_MT_POSITION_Y, y_);
-                        emit(EV_ABS, ABS_MT_SLOT, mt_slot);
+                        select_slot(mt_slot);
                     }
                     return next;
                 }

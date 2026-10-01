@@ -107,10 +107,10 @@ namespace {
         src.enable_event_code(EV_KEY, BTN_STYLUS2);
         src.enable_event_code(EV_KEY, BTN_STYLUS3);
         src.enable_event_code(EV_KEY, BTN_LEFT);
-        static constexpr input_absinfo x_info{.minimum = 0, .maximum = 32'767, .resolution = 100};
-        static constexpr input_absinfo y_info{.minimum = 0, .maximum = 32'767, .resolution = 100};
-        static constexpr input_absinfo pressure_info{.minimum = 0, .maximum = 8191};
-        static constexpr input_absinfo tilt_info{.minimum = -900, .maximum = 900};
+        static constexpr input_absinfo x_info{.value = 0, .minimum = 0, .maximum = 32'767, .fuzz = 0, .flat = 0, .resolution = 100};
+        static constexpr input_absinfo y_info{.value = 0, .minimum = 0, .maximum = 32'767, .fuzz = 0, .flat = 0, .resolution = 100};
+        static constexpr input_absinfo pressure_info{.value = 0, .minimum = 0, .maximum = 8191, .fuzz = 0, .flat = 0, .resolution = 0};
+        static constexpr input_absinfo tilt_info{.value = 0, .minimum = -900, .maximum = 900, .fuzz = 0, .flat = 0, .resolution = 0};
         src.abs_info(ABS_X, x_info);
         src.abs_info(ABS_Y, y_info);
         src.abs_info(ABS_PRESSURE, pressure_info);
@@ -841,10 +841,12 @@ TEST(Pen2TouchTest, HoverMovementEmitsMTPosition) {
 }
 
 // ---------------------------------------------------------------------------
-// Touch-up selects the slot before writing the tracking ID
+// Touch-up lifts the contact on slot 0: the stream is walked the way a
+// consumer reads it (the selected slot changes only via ABS_MT_SLOT), so
+// a re-select that was skipped as redundant must not shift the lift.
 // ---------------------------------------------------------------------------
 
-TEST(Pen2TouchTest, TouchUpSelectsSlotBeforeTrackingId) {
+TEST(Pen2TouchTest, TouchUpLiftsContactOnSlotZero) {
     auto pipeline =
       context
       | emit_all[{
@@ -859,19 +861,25 @@ TEST(Pen2TouchTest, TouchUpSelectsSlotBeforeTrackingId) {
 
     pipeline();
 
-    auto const  events    = col.events();
-    std::size_t end_index = events.size();
-    for (std::size_t i = 0; i < events.size(); ++i) {
-        if (events[i].type() == EV_ABS && events[i].code() == ABS_MT_TRACKING_ID && events[i].value() == -1) {
-            end_index = i;
+    int slot           = 0; // the kernel's default selection
+    int contact_starts = 0;
+    int contact_ends   = 0;
+    for (auto const& event : col.events()) {
+        if (event.type() == EV_ABS && event.code() == ABS_MT_SLOT) {
+            slot = event.value();
+            continue;
+        }
+        if (event.type() == EV_ABS && event.code() == ABS_MT_TRACKING_ID) {
+            EXPECT_EQ(slot, 0) << "contact id written to the wrong slot";
+            if (event.value() == -1) {
+                ++contact_ends;
+            } else {
+                ++contact_starts;
+            }
         }
     }
-    ASSERT_LT(end_index, events.size()) << "no contact end emitted";
-    ASSERT_GT(end_index, 0U);
-    auto const& prev = events[end_index - 1];
-    EXPECT_EQ(prev.type(), EV_ABS);
-    EXPECT_EQ(prev.code(), ABS_MT_SLOT);
-    EXPECT_EQ(prev.value(), 0);
+    EXPECT_EQ(contact_starts, 1) << "no contact start emitted";
+    EXPECT_EQ(contact_ends, 1) << "no contact end emitted";
 }
 
 // ---------------------------------------------------------------------------
@@ -1090,7 +1098,7 @@ TEST(Pen2TouchTest, ProfileDeviceStripsSourceMtPressure) {
     ASSERT_TRUE(tmpl.is_ok());
     // A source tablet that advertises MT pressure itself must not leak
     // it into the virtual touchpad profile.
-    static constexpr input_absinfo mt_pressure_info{.minimum = 0, .maximum = 8191};
+    static constexpr input_absinfo mt_pressure_info{.value = 0, .minimum = 0, .maximum = 8191, .fuzz = 0, .flat = 0, .resolution = 0};
     tmpl.abs_info(ABS_MT_PRESSURE, mt_pressure_info);
     ASSERT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_PRESSURE));
 
@@ -1948,6 +1956,43 @@ TEST(Pen2TouchTest, ScrollAnnouncesDoubletapToolKey) {
     }
 }
 
+TEST(Pen2TouchTest, ScrollKeepsLegacyAbsThroughSieve) {
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+        timed_ev(EV_SYN, SYN_REPORT,  0, 0us),
+        timed_ev(EV_ABS,     ABS_X, 1000, 1ms),
+        timed_ev(EV_ABS,     ABS_Y, 1000, 1ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 1ms),
+        timed_ev(EV_KEY, BTN_STYLUS2,   1, 10ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 10ms),
+        timed_ev(EV_ABS,     ABS_X, 1200, 20ms),
+        timed_ev(EV_ABS,     ABS_Y, 1400, 20ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 20ms),
+        timed_ev(EV_KEY, BTN_STYLUS2,   0, 300ms),
+        timed_ev(EV_SYN, SYN_REPORT,    0, 300ms),
+    }}
+      | pen2touch
+      | sieve
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    // The scroll engage swapped BTN_TOOL_FINGER for BTN_TOOL_DOUBLETAP
+    // (the handoff), but the legacy axes of a held tool must still pass
+    // the sieve instead of being logged as orphan ABS.
+    auto const abs_x = collect(col.events(), EV_ABS, ABS_X);
+    ASSERT_EQ(abs_x.size(), 2U);
+    EXPECT_EQ(abs_x[0].value(), 1000);
+    EXPECT_EQ(abs_x[1].value(), 1200);
+    auto const abs_y = collect(col.events(), EV_ABS, ABS_Y);
+    ASSERT_EQ(abs_y.size(), 2U);
+    EXPECT_EQ(abs_y[0].value(), 1000);
+    EXPECT_EQ(abs_y[1].value(), 1400);
+}
+
 TEST(Pen2TouchTest, StylusHoldScrollsInSecondSlot) {
     auto pipeline =
       context
@@ -2480,7 +2525,7 @@ TEST(Pen2TouchTest, RouterSplitsKeyboardAndTouch) {
 TEST(Pen2TouchTest, ScrollOffsetFollowsProfiledAxisRange) {
     auto tmpl = make_tablet_template();
     ASSERT_TRUE(tmpl.is_ok());
-    static constexpr input_absinfo narrow_x{.minimum = 0, .maximum = 999};
+    static constexpr input_absinfo narrow_x{.value = 0, .minimum = 0, .maximum = 999, .fuzz = 0, .flat = 0, .resolution = 0};
     tmpl.abs_info(ABS_X, narrow_x);
 
     auto pipeline =
@@ -2908,4 +2953,320 @@ TEST(Pen2TouchTest, SlowMotionStaysRaw) {
     EXPECT_EQ(mtx[2].value(), 1008);
     EXPECT_EQ(mtx[3].value(), 1012);
     EXPECT_EQ(mtx[4].value(), 1016);
+}
+
+// ---------------------------------------------------------------------------
+// from_query + the CapsLock LED mode gates
+// ---------------------------------------------------------------------------
+
+namespace {
+    /// Caps-only pen query: the in-memory test devices have no udev record
+    /// (no sysname/properties), so only evdev capabilities are checked.
+    constexpr auto tablet_caps_query = device_query{.caps = view(caps::tablet)};
+
+    /// A keyboard-shaped test device: must never match the pen query.
+    fs8::evdev make_keyboard_template() {
+        auto src = fs8::evdev{libevdev_new(), fs8::evdev_status::success};
+        src.device_name("Pen2Touch Test Keyboard");
+        libevdev_set_id_bustype(src.device_ptr(), BUS_USB);
+        src.enable_event_type(EV_SYN);
+        src.enable_event_code(EV_KEY, KEY_A);
+        src.enable_event_code(EV_KEY, KEY_CAPSLOCK);
+        return src;
+    }
+
+    /// An event stamped with a device source, the way `intercept` would.
+    event_type from_source(
+      std::uint32_t const          source,
+      event_type::type_type const  type,
+      event_type::code_type const  code,
+      event_type::value_type const value) {
+        event_type ev{type, code, value};
+        ev.source(source);
+        return ev;
+    }
+
+    /// Find the two test devices inside a started input_manager.
+    /// Answers {keyboard_dev, pen_dev}; nullptrs when either is missing.
+    std::array<evdev*, 2> find_test_devices(basic_input_manager& im) noexcept {
+        evdev* keyboard_dev = nullptr;
+        evdev* pen_dev      = nullptr;
+        for (auto& dev : im.devices()) {
+            if (dev.device_name() == "Pen2Touch Test Keyboard") {
+                keyboard_dev = &dev;
+            } else if (dev.device_name() == "Pen2Touch Test Tablet") {
+                pen_dev = &dev;
+            }
+        }
+        return {keyboard_dev, pen_dev};
+    }
+
+    /// Register the two test devices as sources 0 (keyboard) and 1 (pen),
+    /// the way `intercept` would after watching them: broadcast the
+    /// `source_registered` control event so every observer (input_manager,
+    /// but also a `from_query` sitting in an `on` condition) learns the
+    /// id -> device mapping.  Call after start, with a dynamic_scope bound.
+    /// Answers {keyboard_source, pen_source}; source_id_none on failure.
+    std::array<std::uint32_t, 2> register_test_sources(basic_input_manager& im) noexcept {
+        auto const [keyboard_dev, pen_dev] = find_test_devices(im);
+        if (keyboard_dev == nullptr || pen_dev == nullptr) {
+            return {source_id_none, source_id_none};
+        }
+        source_info keyboard_info{sid(intercept, 0), keyboard_dev};
+        source_info pen_info{sid(intercept, 1), pen_dev};
+        std::ignore = dynamic_context.broadcast(source_registered + &keyboard_info);
+        std::ignore = dynamic_context.broadcast(source_registered + &pen_info);
+        return {identity_of(keyboard_info.source_id), identity_of(pen_info.source_id)};
+    }
+
+    /// The app's mode gates (minus intercept/startup/router): LED off (the
+    /// default) converts through pen2touch; CapsLock LED on routes the pen
+    /// device to a raw tablet clone instead.
+    auto make_mode_pipeline() {
+        return context
+               | io_manager
+               | input_manager
+               | led_state
+               | keys_state
+               | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL], pen2touch]
+               | on[(!pressed[KEY_CAPSLOCK]) & led_on[LED_CAPSL] & from_query[tablet_caps_query],
+                    context | uinput.no_profile_broadcast() | drop_event]
+               | record;
+    }
+} // namespace
+
+TEST(Pen2TouchTest, FromQueryMatchesOnlyPenDevice) {
+    auto  pipeline = context | io_manager | input_manager | record;
+    auto& im       = pipeline.mod<basic_input_manager>();
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    im.add(make_keyboard_template());
+    im.add(make_tablet_template());
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    auto const [keyboard_dev, pen_dev] = find_test_devices(im);
+    ASSERT_NE(keyboard_dev, nullptr);
+    ASSERT_NE(pen_dev, nullptr);
+
+    source_info keyboard_info{sid(intercept, 0), keyboard_dev};
+    source_info pen_info{sid(intercept, 1), pen_dev};
+
+    // This `from_query` lives outside the pipeline, so it is fed the very
+    // control events `intercept` would broadcast.  Instances inside an `on`
+    // condition get them through the condition notification instead.
+    auto fq = from_query[tablet_caps_query];
+    fq(source_registered + &keyboard_info);
+    fq(source_registered + &pen_info);
+
+    auto const keyboard_source = identity_of(keyboard_info.source_id);
+    auto const pen_source      = identity_of(pen_info.source_id);
+    ASSERT_NE(pen_source, source_id_none);
+
+    pipeline.event(from_source(pen_source, EV_ABS, ABS_X, 100));
+    EXPECT_TRUE(fq(pipeline)) << "the pen device must match the pen query";
+
+    // Origin bits are stripped before the lookup.
+    pipeline.event(from_source(with_origin(pen_source, source_id_owned), EV_ABS, ABS_X, 100));
+    EXPECT_TRUE(fq(pipeline));
+
+    pipeline.event(from_source(keyboard_source, EV_KEY, KEY_A, 1));
+    EXPECT_FALSE(fq(pipeline)) << "the keyboard must not match the pen query";
+
+    pipeline.event(event_type{EV_ABS, ABS_X, 100});
+    EXPECT_FALSE(fq(pipeline)) << "emitted (sourceless) events match no device";
+
+    // A dropped source must no longer answer for its events.
+    source_info unreg{pen_source, nullptr};
+    fq(source_unregistered + &unreg);
+    pipeline.event(from_source(pen_source, EV_ABS, ABS_X, 100));
+    EXPECT_FALSE(fq(pipeline)) << "an unregistered source must not match";
+}
+
+TEST(Pen2TouchTest, CapsLedOnSendsPenToRawTablet) {
+    auto const access = fs8::verify_access_to_uinput();
+    if (access != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(access);
+    }
+
+    auto  pipeline = make_mode_pipeline();
+    auto& im       = pipeline.mod<basic_input_manager>();
+    auto& col      = pipeline.mod<basic_record>();
+    auto  raws     = pipeline.rmods<basic_uinput>();
+    ASSERT_FALSE(raws.empty());
+    auto& raw = raws[0].get();
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    im.add(make_keyboard_template());
+    im.add(make_tablet_template());
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    // The branch's virtual tablet is created at start even while the gate
+    // is off (the LED has not been turned on yet).
+    EXPECT_TRUE(raw.is_ok()) << "the raw tablet must exist before the gate ever fires";
+
+    auto const [keyboard_source, pen_source] = register_test_sources(im);
+    ASSERT_NE(pen_source, source_id_none);
+    col.clear();
+
+    auto const push = [&](event_type const& inp_event) {
+        pipeline.event(inp_event);
+        auto const action = invoke_mods(pipeline, pipeline.get_mods());
+        EXPECT_TRUE(action == context_action::next || action == context_action::drop_event);
+    };
+
+    // The desktop toggles CapsLock on: pen mode.
+    push(from_source(keyboard_source, EV_LED, LED_CAPSL, 1));
+    EXPECT_TRUE(pipeline.mod(led_state).is_on(LED_CAPSL));
+
+    // A pen frame: the branch owns it and hands it to the raw tablet...
+    push(from_source(pen_source, EV_KEY, BTN_TOOL_PEN, 1));
+    push(from_source(pen_source, EV_ABS, ABS_X, 1000));
+    push(from_source(pen_source, EV_SYN, SYN_REPORT, 0));
+    // ...while typing keeps flowing through the same pipeline.
+    push(from_source(keyboard_source, EV_KEY, KEY_A, 1));
+    push(from_source(keyboard_source, EV_SYN, SYN_REPORT, 0));
+
+    // Nothing pen-shaped ever reaches the record: the branch drops what it
+    // routes, and pen2touch stayed off (no multitouch either).
+    EXPECT_TRUE(collect(col.events(), EV_ABS, ABS_X).empty());
+    EXPECT_TRUE(collect(col.events(), EV_KEY, BTN_TOOL_PEN).empty());
+    EXPECT_TRUE(collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID).empty()) << "pen2touch must stay off in pen mode";
+    EXPECT_EQ(collect(col.events(), EV_KEY, KEY_A).size(), 1U);
+}
+
+TEST(Pen2TouchTest, CapsHoldInPenModeStillConverts) {
+    auto const access = fs8::verify_access_to_uinput();
+    if (access != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(access);
+    }
+
+    auto  pipeline = make_mode_pipeline();
+    auto& im       = pipeline.mod<basic_input_manager>();
+    auto& col      = pipeline.mod<basic_record>();
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    im.add(make_keyboard_template());
+    im.add(make_tablet_template());
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    auto const [keyboard_source, pen_source] = register_test_sources(im);
+    ASSERT_NE(pen_source, source_id_none);
+    col.clear();
+
+    auto const push = [&](event_type const& inp_event) {
+        pipeline.event(inp_event);
+        auto const action = invoke_mods(pipeline, pipeline.get_mods());
+        EXPECT_TRUE(action == context_action::next || action == context_action::drop_event);
+    };
+
+    // Pen mode: LED on.
+    push(from_source(keyboard_source, EV_LED, LED_CAPSL, 1));
+
+    // Holding CapsLock arms pen2touch's scroll trigger, exactly like
+    // pen2mice's `pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL]` gate.
+    push(from_source(keyboard_source, EV_KEY, KEY_CAPSLOCK, 1));
+
+    // A pen frame while holding: the touch conversion must win over the
+    // raw branch (the branch is gated on `!pressed`).
+    push(from_source(pen_source, EV_KEY, BTN_TOOL_PEN, 1));
+    push(from_source(pen_source, EV_ABS, ABS_X, 1000));
+    push(from_source(pen_source, EV_ABS, ABS_Y, 1000));
+    push(from_source(pen_source, EV_SYN, SYN_REPORT, 0));
+    push(from_source(pen_source, EV_KEY, BTN_TOUCH, 1));
+    push(from_source(pen_source, EV_SYN, SYN_REPORT, 0));
+
+    EXPECT_FALSE(collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID).empty()) << "pen events must convert while CapsLock is held in pen mode";
+    EXPECT_FALSE(collect(col.events(), EV_KEY, BTN_TOOL_FINGER).empty());
+
+    // Releasing CapsLock (LED still on) returns to pen mode: the pen is
+    // routed away again instead of being converted.
+    push(from_source(keyboard_source, EV_KEY, KEY_CAPSLOCK, 0));
+    auto const before = col.size();
+    push(from_source(pen_source, EV_ABS, ABS_X, 2000));
+    push(from_source(pen_source, EV_SYN, SYN_REPORT, 0));
+    EXPECT_EQ(col.size(), before) << "the released pen frame must be swallowed by the raw branch";
+}
+
+TEST(Pen2TouchTest, CapsLedOffKeepsTouchConversion) {
+    auto const access = fs8::verify_access_to_uinput();
+    if (access != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(access);
+    }
+
+    auto  pipeline = make_mode_pipeline();
+    auto& im       = pipeline.mod<basic_input_manager>();
+    auto& col      = pipeline.mod<basic_record>();
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    im.add(make_keyboard_template());
+    im.add(make_tablet_template());
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    auto const [keyboard_source, pen_source] = register_test_sources(im);
+    ASSERT_NE(pen_source, source_id_none);
+    col.clear();
+
+    auto const push = [&](event_type const& inp_event) {
+        pipeline.event(inp_event);
+        auto const action = invoke_mods(pipeline, pipeline.get_mods());
+        EXPECT_TRUE(action == context_action::next || action == context_action::drop_event);
+    };
+
+    // Touch mode, forced explicitly: led_state seeds from the real
+    // keyboards input_manager enumerates, so the LED may start on.
+    push(from_source(keyboard_source, EV_LED, LED_CAPSL, 0));
+
+    // The default state (LED off, CapsLock not held) is touch mode: the
+    // pen converts through pen2touch and reaches the record.
+    push(from_source(pen_source, EV_KEY, BTN_TOOL_PEN, 1));
+    push(from_source(pen_source, EV_ABS, ABS_X, 1000));
+    push(from_source(pen_source, EV_ABS, ABS_Y, 1000));
+    push(from_source(pen_source, EV_SYN, SYN_REPORT, 0));
+
+    EXPECT_FALSE(collect(col.events(), EV_ABS, ABS_MT_TRACKING_ID).empty()) << "touch mode must convert";
+    EXPECT_FALSE(collect(col.events(), EV_ABS, ABS_X).empty()) << "legacy axes pass through";
+
+    // The keyboard is never stolen by the raw branch.
+    push(from_source(keyboard_source, EV_KEY, KEY_A, 1));
+    EXPECT_EQ(collect(col.events(), EV_KEY, KEY_A).size(), 1U);
+}
+
+// ---------------------------------------------------------------------------
+// no_profile_broadcast: the raw tablet clone keeps its tablet capabilities
+// ---------------------------------------------------------------------------
+
+TEST(Pen2TouchTest, RawTabletSkipsProfileBroadcast) {
+    auto const access = fs8::verify_access_to_uinput();
+    if (access != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(access);
+    }
+
+    auto src = make_tablet_template();
+    ASSERT_TRUE(src.is_ok());
+
+    fs8::basic_uinput vdev = uinput.no_profile_broadcast();
+    {
+        // pen2touch is in the pipeline and would normally turn any tablet
+        // clone into a touchpad.
+        auto          pipeline = context | pen2touch | record;
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_TRUE(fs8::finalize_device(vdev, src, {}));
+    }
+    ASSERT_TRUE(vdev.is_ok());
+    if (!fs8::test::wait_for_openable(vdev.devnode(), 3000)) {
+        vdev.close();
+        GTEST_SKIP() << "Virtual tablet did not become openable.";
+    }
+
+    fs8::evdev created{vdev.devnode()};
+    ASSERT_TRUE(created.is_ok()) << vdev.devnode();
+
+    EXPECT_EQ(created.device_name(), "Pen2Touch Test Tablet (Virtual)");
+    EXPECT_TRUE(created.has_event_code(EV_KEY, BTN_TOOL_PEN));
+    EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_X));
+    EXPECT_TRUE(created.has_property(INPUT_PROP_DIRECT));
+    EXPECT_FALSE(created.has_event_code(EV_ABS, ABS_MT_SLOT)) << "profile_device must not reshape the raw tablet";
+    EXPECT_FALSE(created.has_property(INPUT_PROP_POINTER));
+
+    vdev.close();
 }
