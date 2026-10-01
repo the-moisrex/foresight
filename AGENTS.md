@@ -17,7 +17,7 @@ All library code lives behind C++26 modules; the directory layout mirrors the
 | `lib/`      | `fs8.lib.*` — `mod_parser` (key/modifier-tag parsing), `xkb`, `xkb.how2type`, `xkb.event2unicode`, `evtest`. |
 | `main/`     | The `fs8` umbrella (`keyboard`, `translate`, `log`), plus `fs8.context`, `fs8.event`, `fs8.cli`, `fs8.utils` (re-exports `fs8.cli`), `fs8.log`, `fs8.systemd`, `fs8.scaffold`. The `foresight` CLI entry is `main/main.cxx`. |
 | `mods/`     | The `fs8.mods` umbrella and its partitions `fs8.mods:<name>` (one per pipeline mod), plus the `fs8.context:vars` partition. |
-| `tests/`    | GoogleTest suites (built in Debug only).                                |
+| `tests/`    | GoogleTest suites (built in Debug only). `tests/common/` holds header-only helpers plus test-only modules (`fs8.test.*`, e.g. `fs8.test.fake_keyboard`) registered in `tests/CMakeLists.txt` — **not** in the root `CMakeLists.txt`. |
 | `tools/`    | Codegen: `update.sh` + `gen-keys.awk` (regenerate `inputs-event-codes`). |
 | `utils/`    | `fs8.pimpl`, `fs8.traits`, `fs8.hash`, `fs8.strings`, `fs8.nullable_indirect`, `fs8.easings`, `dynamic_scoping`. |
 
@@ -46,6 +46,7 @@ cmake --build --preset debug-gcc
 - There is **no CI that compiles or runs the C++** (`.github/workflows/docs.yml`
   only builds docs) — verify locally after changes.
 - Prefer running the individual tests, and run the full tests at the end.
+- Re-running a suite in a loop does not fixes them nor helps the diagnosis.
 
 ## The pipeline and mods (core concept)
 
@@ -75,6 +76,7 @@ the next batch, and each event is pushed through the mod tuple.
 ### Invocation
 
 A mod can be invoked in several forms depending on what it accepts:
+
 - `mod(ctx)` — sees the whole context (event + sibling mods).
 - `mod(event)` — only needs the current event.
 - `mod(ctx, tag)` — a *tag* request (see below).
@@ -97,8 +99,9 @@ Tags are constexpr sentinels passed as the last argument:
 ### Mod catalog
 
 **Event providers** (put events into the pipeline):
+
 | Mod | What it does | Needs in pipeline |
-|-----|--------------|-------------------|
+| ----- | -------------- | ------------------- |
 | `intercept` | Query-driven provider; reads kernel devices matching `device_query`es and feeds their events in. | `input_manager` (`io_manager` optional: wakes the pipeline instead of polling) |
 | `io_manager` | poll()-based fd readiness; watches fds, wakes the pipeline via `load_event`. | — |
 | `input_manager` | Owns/monitors devices: resolves queries, hotplug, "which device did this event come from?". | — |
@@ -106,16 +109,18 @@ Tags are constexpr sentinels passed as the last argument:
 | `emit_all` | Plays back a fixed event array (a `load_event` provider). | — |
 
 **Output** (write/synthesize events):
+
 | Mod | What it does |
-|-----|--------------|
+| ----- | -------------- |
 | `output` | Writes events to an fd (stdout by default). An `OutputModifier`. |
 | `uinput` | Creates virtual devices under `/dev/uinput`. |
 | `router` | Routes events to outputs by capability, e.g. `router[caps::mouse >> uinput]`. |
 | `emit` / `schedule_emit` | Synthesize events (`emit[press(...)]`); `press`, `keypress`, `down`, `up`, `turn_led_on/off` are the helpers. |
 
 **Transformers** (change events):
+
 | Mod | What it does |
-|-----|--------------|
+| ----- | -------------- |
 | `replace` / `put` | Rewrite one key/chord into another sequence. |
 | `abs2rel`, `pen2mice`, `pressure2mouse_clicks` | Convert drawing-tablet absolute events into relative mouse events / clicks. |
 | `pen2touch` | Convert drawing-tablet pen events into a Type-B multitouch touchpad stream (also reshapes the `uinput` device via `profile_device`). |
@@ -130,8 +135,9 @@ Tags are constexpr sentinels passed as the last argument:
 | `autocomplete` | Watch typed patterns and complete them (`PREFIX<TAG>COMPLETION`). | — |
 
 **Conditions and control flow** (usable inside `on[...]`/`once[...]`):
+
 | Mod | What it does | Needs in pipeline |
-|-----|--------------|-------------------|
+| ----- | -------------- | ------------------- |
 | `on`, `once` | Run actions while/once when a condition is true. | — |
 | `held` | True while a key/chord is held; `held[key, decider]` gates it. | — |
 | `hold_mod` | Run a mod while modifier keys are held (`hold_mod[KEY_CAPSLOCK, BTN_MIDDLE, mouse_to_scroll]`); quick taps re-emit as a real press+release, holds/swallowed keys don't. | — |
@@ -141,13 +147,14 @@ Tags are constexpr sentinels passed as the last argument:
 | `swipe_left/right/up/down` | Swipe detection. | `swipe_detector` |
 | `longtime_released`, `limit_mouse_travel` | Time / distance gates. | — |
 | `led_on`, `led_off` | Keyboard LED state conditions. | `led_state` |
-| `op` (`&`, `|`, `!`), `always_enable`, `always_disable` | Boolean combinators. | — |
+| `op` (`&`, ` | `,`!`),`always_enable`,`always_disable` | Boolean combinators. | — |
 | `modes` / `switch_mode` | Vim-like modes/layers. | — |
 | `run` (`lambda`) | Wrap arbitrary functions as mods/callbacks. | — |
 
 **State** (tracked by the pipeline):
+
 | Mod | What it does |
-|-----|--------------|
+| ----- | -------------- |
 | `keys_state` | Current state of every key (+ `led_state`, `led_toggle`). |
 | `mouse_state` / `mouse_history` | Current/previous mouse positions. |
 | `quantifier` / `mice_quantifier` | Threshold-step accumulation for movement. |
@@ -328,8 +335,8 @@ auto val = parsed.flag_value("--timeout"); // std::optional<std::string_view>
 
 ### Small utilities (`utils/`)
 
-| Module (`import`)          | What's in it |
-|----------------------------|--------------|
+| Module (`import`) | What's in it |
+| ---------------------------- | -------------- |
 | `fs8.traits` (`utils/traits.ixx`) | `consteval_copyable`, `pretty_type_name`, string helpers |
 | `fs8.strings` (`utils/strings.ixx`) | `operator+(string_view) -> string`, `is_surrogate`, `is_empty`, `iequals` |
 | `fs8.hash` (`utils/hash.ixx`) | `ci_hash` (constexpr case-insensitive FNV-1a), FNV constants, runtime `fnv1a_init`/`fnv1a_hash` |
@@ -353,6 +360,12 @@ auto val = parsed.flag_value("--timeout"); // std::optional<std::string_view>
 6. Handle lifecycle tags by inspecting `tag.code` in
    `operator()(control_event const&)`; return `next`/`drop_event` for ordinary
    events. All invocations must be `noexcept` (custom `log` etc. included).
+7. Prefer using `operator()(event_type const&)` or `operator()(event_type&)`
+   as opposed to the equivalant `operator()(Context auto& ctx)` so we can easily
+   move the implementation into cxx file instead of forcing ourselves to put it
+   in the interface/header file.
+8. Prefer putting algorithms and dependencies into implementation files and not
+   clutter the header files.
 
 ## C++26 modules (the big gotcha)
 
@@ -361,6 +374,7 @@ implementation units. Module names use the `fs8.*` namespace (`fs8.mods`,
 `fs8.devices.*`, `fs8.context`, ...).
 
 Umbrella / re-export modules:
+
 - `fs8` (`main/main.ixx`) — exports `fs8.keyboard`, `fs8.translate`, `fs8.log`.
 - `fs8.mods` (`mods/mods.ixx`) — re-exports the context/event/capabilities
   plumbing, the state/utility mods, and **every pipeline mod**.
@@ -373,7 +387,9 @@ Partitions: `mods/context_vars.ixx` is a **module partition** of `fs8.context`
 `io/liburing.ixx` is not a module — it only includes liburing's headers.
 
 **Adding a module requires registering the files in the root `CMakeLists.txt`
-in two places**, or the build silently omits them:
+in two places**, or the build silently omits them (test-only modules are the
+exception: they are registered in `tests/CMakeLists.txt`):
+
 1. `target_sources(... PRIVATE ...)` for the `.cxx`,
 2. the `PUBLIC FILE_SET foresight TYPE CXX_MODULES FILES` list for the `.ixx`.
 
