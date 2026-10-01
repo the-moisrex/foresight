@@ -481,11 +481,14 @@ export namespace fs8 {
     /// Dispatch a control_event into a condition-gated sub-pipeline.
     /// - start: check condition, then forward
     /// - next_event: invoke first mod (provider)
-    /// - everything else: forward unconditionally
+    /// - everything else: notify the condition, then forward unconditionally.
+    ///   The condition only *observes* (it learns about source/device
+    ///   registrations and the like); only an exiting action stops the forward.
     template <typename CondT, typename... Funcs, Context CtxT>
-    context_action invoke_conditioned_sub_pipeline(CondT &cond, std::tuple<Funcs...> &funcs, CtxT &ctx, control_event const &tag) noexcept {
+    context_action
+    invoke_conditioned_sub_pipeline(CondT &cond, std::tuple<Funcs...> &funcs, CtxT &ctx, control_event const &event) noexcept {
         using enum context_action;
-        switch (tag.code) {
+        switch (event.code) {
             case start.code: {
                 if (auto const action = invoke_mod(cond, ctx, start); !action) [[unlikely]] {
                     return action;
@@ -498,7 +501,12 @@ export namespace fs8 {
                 }
                 return drop_event;
             }
-            default: return invoke_sub_pipeline(ctx, funcs, tag);
+            default: {
+                if (auto const action = invoke_mod(cond, ctx, event); is_exiting(action)) [[unlikely]] {
+                    return action;
+                }
+                return invoke_sub_pipeline(ctx, funcs, event);
+            }
         }
     }
 
