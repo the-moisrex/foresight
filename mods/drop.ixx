@@ -4,6 +4,7 @@ module;
 #include <array>
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <linux/input-event-codes.h>
 #include <utility>
 export module fs8.mods:drop;
@@ -422,20 +423,19 @@ export namespace fs8 {
     } drop_pen_out_of_bounds;
 
     /// Ignore ABS_X/ABS_Y position events arriving before any BTN_TOOL_* has
-    /// been pressed.  A tool press (value 1) on any BTN_TOOL_* arms position
-    /// tracking; a tool release (value 0) disarms it.
+    /// been pressed.  Every BTN_TOOL_* press (value 1) arms position tracking
+    /// and its release (value 0) disarms it; tracking stays armed while any
+    /// tool is still held.  The codes are a 16-bit mask over
+    /// `[BTN_TOOL_PEN, BTN_TOOL_QUADTAP]`, skipping the non-tool codes
+    /// (BTN_STYLUS3/BTN_TOUCH/BTN_STYLUS/BTN_STYLUS2) in the middle.
     constexpr struct [[nodiscard]] basic_drop_orphan_abs : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
       private:
-        bool tool_active = false;
+        std::uint16_t tools_held = 0;
 
       public:
-        constexpr void operator()(control_event const& tag) noexcept {
-            if (tag.code == start.code) {
-                tool_active = false;
-            }
-        }
+        void operator()(control_event const& tag) noexcept;
 
         context_action operator()(event_type const& event) noexcept;
     } drop_orphan_abs;

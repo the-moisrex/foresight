@@ -3,6 +3,7 @@
 module;
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <linux/input-event-codes.h>
 #include <utility>
 module fs8.mods;
@@ -207,24 +208,61 @@ context_action fs8::basic_drop_pen_out_of_bounds::operator()(event_type const& e
 
 // --- drop_orphan_abs ---
 
+void fs8::basic_drop_orphan_abs::operator()(control_event const& tag) noexcept {
+    if (tag.code == start.code) {
+        tools_held = 0;
+    }
+}
+
 context_action fs8::basic_drop_orphan_abs::operator()(event_type const& event) noexcept {
     using enum context_action;
+
     if (event.type() == EV_KEY) {
-        switch (event.code()) {
-            case BTN_TOOL_PEN:
-            case BTN_TOOL_RUBBER:
-            case BTN_TOOL_BRUSH:
-            case BTN_TOOL_PENCIL:
-            case BTN_TOOL_AIRBRUSH:
-            case BTN_TOOL_FINGER:
-            case BTN_TOOL_MOUSE:
-            case BTN_TOOL_LENS: tool_active = (event.value() == 1); break;
-            default: break;
+        // Map each event code in the BTN_TOOL_PEN..BTN_TOOL_QUADTAP range
+        // to the corresponding bit in tools_held. Entries for the
+        // BTN_STYLUS*/BTN_TOUCH codes in the range are intentionally zero:
+        // those are not tool codes and must not affect tools_held.
+        static constexpr std::array<std::uint16_t, BTN_TOOL_QUADTAP - BTN_TOOL_PEN + 1> tool_bits = {
+          1u << 0,  // BTN_TOOL_PEN
+          1u << 1,  // BTN_TOOL_RUBBER
+          1u << 2,  // BTN_TOOL_BRUSH
+          1u << 3,  // BTN_TOOL_PENCIL
+          1u << 4,  // BTN_TOOL_AIRBRUSH
+          1u << 5,  // BTN_TOOL_FINGER
+          1u << 6,  // BTN_TOOL_MOUSE
+          1u << 7,  // BTN_TOOL_LENS
+          1u << 8,  // BTN_TOOL_QUINTTAP
+          0,        // BTN_STYLUS3
+          0,        // BTN_TOUCH
+          0,        // BTN_STYLUS
+          0,        // BTN_STYLUS2
+          1u << 9,  // BTN_TOOL_DOUBLETAP
+          1u << 10, // BTN_TOOL_TRIPLETAP
+          1u << 11, // BTN_TOOL_QUADTAP
+        };
+
+        auto const code = event.code();
+
+        if (code >= BTN_TOOL_PEN && code <= BTN_TOOL_QUADTAP) {
+            auto const bit = tool_bits[code - BTN_TOOL_PEN];
+
+            if (bit != 0) {
+                if (event.value() == 1) {
+                    tools_held |= bit;
+                } else if (event.value() == 0) {
+                    tools_held &= static_cast<std::uint16_t>(~bit);
+                }
+            }
         }
     }
-    if (!tool_active && event.type() == EV_ABS && (event.code() == ABS_X || event.code() == ABS_Y)) [[unlikely]] {
+
+    // Absolute position events without an active tool are orphaned.
+    // In particular, ignore X/Y motion that arrives after the tool has
+    // already left the proximity/active state.
+    if (tools_held == 0 && event.type() == EV_ABS && (event.code() == ABS_X || event.code() == ABS_Y)) [[unlikely]] {
         return drop_event;
     }
+
     return next;
 }
 
