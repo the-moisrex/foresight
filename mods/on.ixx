@@ -41,6 +41,10 @@ namespace fs8 {
         requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
     struct [[nodiscard]] or_op;
 
+    export template <typename Func>
+        requires(std::is_nothrow_copy_constructible_v<Func>)
+    struct [[nodiscard]] not_op;
+
     export template <typename... Funcs>
         requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
     struct [[nodiscard]] and_op : consteval_copyable {
@@ -80,6 +84,12 @@ namespace fs8 {
                   return (invoke_cond(cond, ctx) && ...);
               },
               funcs);
+        }
+
+        /// Fetch a sub-condition by type, e.g. to reconfigure it at runtime.
+        template <typename T>
+        [[nodiscard]] constexpr T& get() noexcept {
+            return std::get<T>(funcs);
         }
     };
 
@@ -137,6 +147,29 @@ namespace fs8 {
         consteval auto operator|(Func func) const noexcept {
             return or_op<T, std::remove_cvref_t<Func>>{static_cast<T const&>(*this), func};
         }
+
+        consteval auto operator!() const noexcept {
+            return not_op<T>{static_cast<T const&>(*this)};
+        }
+    };
+
+    /// Boolean negation of a condition: `!cond`.
+    export template <typename Func>
+        requires(std::is_nothrow_copy_constructible_v<Func>)
+    struct [[nodiscard]] not_op : consteval_copyable, operator_adaptor<not_op<Func>> {
+        using consteval_copyable::consteval_copyable;
+
+        constexpr not_op() noexcept = default;
+
+        explicit constexpr not_op(Func const& inp_func) noexcept : func{inp_func} {}
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
+            return !invoke_cond(func, ctx);
+        }
+
+      private:
+        std::remove_cvref_t<Func> func;
     };
 
     /**
@@ -165,6 +198,11 @@ namespace fs8 {
         explicit constexpr basic_on(InpCond&& inp_cond, std::tuple<Funcs...> const& inp_funcs) noexcept
           : cond{std::forward<InpCond>(inp_cond)},
             funcs{inp_funcs} {}
+
+        /// The condition itself, e.g. to reconfigure a stateful condition at runtime.
+        [[nodiscard]] constexpr CondT& condition() noexcept {
+            return cond;
+        }
 
         template <typename NCondT, typename... NFuncs>
             requires(sizeof...(NFuncs)
@@ -467,7 +505,8 @@ namespace fs8 {
                               "All but the last argument must be key codes.");
                 return basic_held_gate<CondT>{
                   std::array<code_type, N - 1>{static_cast<code_type>(std::get<I>(std::tuple<Args&...>{args...}))...},
-                  cond};
+                  cond,
+                };
             }(std::make_index_sequence<N - 1>{});
         }
 
@@ -477,7 +516,7 @@ namespace fs8 {
                 return context_action::drop_event;
             }
             if (!pattern.empty()) {
-                count = fs8::parse_key_tags(pattern, codes);
+                count = parse_key_tags(pattern, codes);
             }
             return context_action::next;
         }
