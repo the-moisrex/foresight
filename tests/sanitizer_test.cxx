@@ -386,3 +386,60 @@ TEST(SanitizerTest, DisabledOrphanAbsCheckPassesEventsThrough) {
     auto const& col = pipeline.mod<basic_record>();
     EXPECT_EQ(col.size(), 2U);
 }
+
+TEST(SanitizerTest, KeepsAbsWhileAnotherToolKeyStillHeld) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    // The scroll handoff lights BTN_TOOL_DOUBLETAP while dropping
+    // BTN_TOOL_FINGER; a tool is still held, so ABS stays armed.
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+                      timed_ev(EV_ABS, ABS_X, 500, 1ms),
+                      timed_ev(EV_KEY, BTN_TOOL_DOUBLETAP, 1, 2ms),
+                      timed_ev(EV_KEY, BTN_TOOL_FINGER, 0, 3ms),
+                      timed_ev(EV_ABS, ABS_X, 510, 4ms),
+                      timed_ev(EV_KEY, BTN_TOOL_PEN, 0, 5ms),
+                      timed_ev(EV_KEY, BTN_TOOL_DOUBLETAP, 0, 6ms),
+                      timed_ev(EV_ABS, ABS_X, 520, 7ms),
+                    }}
+                  | on_fail[drop_orphan_abs, log_diagnostics]
+                  | record;
+
+    pipeline();
+
+    // Only the last ABS_X (every tool released) is an orphan.
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 7U);
+    EXPECT_EQ(col[4].type(), EV_ABS);
+    EXPECT_EQ(col[4].code(), ABS_X);
+    EXPECT_EQ(col[4].value(), 510);
+    EXPECT_EQ(col[6].type(), EV_KEY);
+    EXPECT_EQ(col[6].code(), BTN_TOOL_DOUBLETAP);
+}
+
+TEST(SanitizerTest, KeepsAbsWhenOnlySomeToolsReleased) {
+    using namespace fs8; // NOLINT(*-build-using-namespace)
+
+    // Two tools held at once: releasing one of them must not disarm
+    // position tracking while the other is still down.
+    auto pipeline = context
+                  | timed_sequence{std::array{
+                      timed_ev(EV_KEY, BTN_TOOL_PEN, 1, 0us),
+                      timed_ev(EV_KEY, BTN_TOOL_RUBBER, 1, 1ms),
+                      timed_ev(EV_KEY, BTN_TOOL_PEN, 0, 2ms),
+                      timed_ev(EV_ABS, ABS_X, 510, 3ms),
+                      timed_ev(EV_KEY, BTN_TOOL_RUBBER, 0, 4ms),
+                      timed_ev(EV_ABS, ABS_X, 520, 5ms),
+                    }}
+                  | on_fail[drop_orphan_abs, log_diagnostics]
+                  | record;
+
+    pipeline();
+
+    auto const& col = pipeline.mod<basic_record>();
+    ASSERT_EQ(col.size(), 5U);
+    EXPECT_EQ(col[3].type(), EV_ABS);
+    EXPECT_EQ(col[3].code(), ABS_X);
+    EXPECT_EQ(col[3].value(), 510);
+}
