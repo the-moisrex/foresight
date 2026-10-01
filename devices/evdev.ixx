@@ -233,10 +233,13 @@ namespace fs8 {
 #ifndef NDEBUG
         int pipe_read_fd_ = -1;
 #endif
+        /// `test_grab` puts the pre-probe status back after a failed probe.
+        friend bool test_grab(evdev&) noexcept;
     };
 
     /// Check if a freshly-opened device can be grabbed without disrupting a grab
-    /// this process already holds. Restores the original grab state afterwards.
+    /// this process already holds. Restores the original grab state and status
+    /// afterwards.
     export [[nodiscard]] bool test_grab(evdev& dev) noexcept;
 
     /// Check if a device is usable as a source for a virtual device without

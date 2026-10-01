@@ -536,26 +536,38 @@ bool evdev::send_event(event_type::type_type const  type,
 }
 
 /// Check if a freshly-opened device can be grabbed without disrupting a grab
-/// this process already holds. Restores the original grab state afterwards.
+/// this process already holds. Restores the original grab state and status
+/// afterwards.
 bool fs8::test_grab(evdev& dev) noexcept {
-    auto const was_grabbed = dev.get_status() == evdev_status::success_grabbed;
-    dev.grab_input(true);
-    if (dev.get_status() == evdev_status::grab_failure) {
+    using enum evdev_status;
+
+    auto const before = dev.get_status();
+    if (before == success_grabbed) {
+        return true;
+    }
+    if (before != success) {
         return false;
     }
-    dev.grab_input(false);
-    if (was_grabbed) {
-        dev.grab_input(true);
+
+    dev.grab_input(true);
+
+    if (dev.get_status() != success_grabbed) [[unlikely]] {
+        // The probe failed. Restore the pre-probe status so a failed probe
+        // doesn't poison an otherwise valid device.
+        dev.status = before;
+        return false;
     }
-    return dev.get_status() == evdev_status::success;
+
+    dev.grab_input(false);
+
+    // From an ungrabbed valid device, a successful probe must leave us
+    // ungrabbed. A failed ungrab is a real failure to restore the state.
+    return dev.get_status() == success;
 }
 
 /// Check if a device is usable as a source for a virtual device without
 /// disrupting a grab that this process already holds.
 bool fs8::is_usable(evdev& dev) noexcept {
-    if (dev.get_status() == evdev_status::success_grabbed) {
-        return true; // already grabbed by us; just copy from it
-    }
     return test_grab(dev);
 }
 
