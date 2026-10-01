@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 import fs8.mods;
+import fs8.cli;
 
 using namespace fs8;
 
@@ -228,7 +229,7 @@ TEST(OutputSelector, WorksInPipeline) {
       | record[captured_events];
 
     // Modify the pipeline's copy of output_switch after consteval construction
-    auto &sel = pipeline.mod(output);
+    auto& sel = pipeline.mod(output);
     sel.set_selected(0);
     sel.output<0>().set_output(pipe_fds[1]);
 
@@ -259,4 +260,50 @@ TEST(OutputSelector, WorksInPipeline) {
 
 TEST(OutputSelector, OutputSwitchGlobalVariable) {
     EXPECT_EQ(output.selected(), 0);
+}
+
+// ---------------------------------------------------------------------------
+// output_flag_group: the --output flag's help must advertise the group's
+// own default selection, not the hardcoded stdout one.
+// ---------------------------------------------------------------------------
+
+TEST(OutputSelector, FlagGroupHelpReflectsDefaultSelection) {
+    EXPECT_TRUE(output_flags.get_flag().help.ends_with("(default: stdout)."));
+    EXPECT_TRUE(output_flags["uinput"].get_flag().help.ends_with("(default: uinput)."));
+    EXPECT_TRUE(output_flags["evtest"].get_flag().help.ends_with("(default: evtest)."));
+    EXPECT_TRUE(output_flags["live-view"].get_flag().help.ends_with("(default: live-view)."));
+}
+
+TEST(OutputSelector, HelpListsTheGroupDefault) {
+    static constexpr auto args   = arguments.add_flags(output_flags["uinput"]);
+    char const* const     argv[] = {"prog", "--help"};
+    auto const            parsed = args(2, argv);
+    EXPECT_TRUE(parsed.help());
+
+    testing::internal::CaptureStdout();
+    parsed.print_help();
+    auto const out = testing::internal::GetCapturedStdout();
+    EXPECT_NE(out.find("(default: uinput)"), std::string::npos) << out;
+}
+
+TEST(OutputSelector, ConfigureAppliesGroupDefault) {
+    static constexpr auto args   = arguments.add_flags(output_flags["uinput"]);
+    char const* const     argv[] = {"prog"};
+    auto const            parsed = args(1, argv);
+
+    output_selector sel{};
+    output_flags["uinput"].configure(sel, parsed);
+    EXPECT_EQ(sel.selected(), 1);
+
+    // An explicit --output still wins over the group default.
+    char const* const argv2[] = {"prog", "--output", "evtest"};
+    auto const        parsed2 = args(3, argv2);
+    output_selector   sel2{};
+    output_flags["uinput"].configure(sel2, parsed2);
+    EXPECT_EQ(sel2.selected(), 2);
+
+    // The stdout group keeps its own default.
+    output_selector sel3{};
+    output_flags.configure(sel3, parsed);
+    EXPECT_EQ(sel3.selected(), 0);
 }

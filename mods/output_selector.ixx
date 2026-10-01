@@ -115,21 +115,25 @@ namespace fs8 {
     ///
     /// Provides the `--output`/`-o` flag definition and knows how to apply
     /// it to an `output_selector`.  Register the flag with `arguments`
-    /// via `add_flags()`, then call `configure()` after parsing.
+    /// via `add_flags()`, then call `configure()` after parsing.  The
+    /// flag's help text advertises the group's default selection, so
+    /// `add_flags(output_flags["uinput"])` documents uinput as the default.
     ///
     /// Usage:
     /// ```cpp
     /// static constexpr auto args =
     ///   fs8::arguments["Mouse"]
     ///     .positional("mouse_device")
-    ///     .add_flags(fs8::output_flags);
+    ///     .add_flags(fs8::output_flags["uinput"]);
     ///
     /// auto const parsed = args(argc, argv);
     /// parsed.exit_if_needed();
-    /// fs8::output_flags.configure(pipeline.mod(output), parsed);
+    /// fs8::output_flags["uinput"].configure(pipeline.mod(output), parsed);
     /// ```
     struct [[nodiscard]] output_flag_group {
-        consteval explicit output_flag_group(std::uint8_t const sel = 0) noexcept : default_selected_(sel) {}
+        consteval explicit output_flag_group(std::uint8_t const sel = 0) noexcept : default_selected_(sel) {
+            flag_ = flag{.name = "--output", .alias = "-o", .help = help_for(sel), .takes_value = true};
+        }
 
         consteval output_flag_group operator[](std::uint8_t const sel) const noexcept {
             return output_flag_group{sel};
@@ -164,13 +168,20 @@ namespace fs8 {
 
       private:
         std::uint8_t default_selected_ = 0;
+        flag         flag_{};
 
-        static constexpr flag flag_{
-          .name        = "--output",
-          .alias       = "-o",
-          .help        = "Output: stdout, uinput, evtest, live-view (default: stdout).",
-          .takes_value = true,
+        /// One help line per default selection; static storage so the
+        /// `string_view` inside `flag_` never dangles.
+        static constexpr std::string_view help_texts_[] = {
+          "Output: stdout, uinput, evtest, live-view (default: stdout).",
+          "Output: stdout, uinput, evtest, live-view (default: uinput).",
+          "Output: stdout, uinput, evtest, live-view (default: evtest).",
+          "Output: stdout, uinput, evtest, live-view (default: live-view).",
         };
+
+        [[nodiscard]] static consteval std::string_view help_for(std::uint8_t const sel) noexcept {
+            return help_texts_[sel < sizeof(help_texts_) / sizeof(help_texts_[0]) ? sel : 0U];
+        }
 
         [[nodiscard]] static constexpr std::uint8_t index_of(std::string_view const name) noexcept {
             if (name == "stdout") {
