@@ -6,7 +6,9 @@ module;
 #include <chrono>
 #include <cstdint>
 #include <functional>
+#include <iterator>
 #include <list>
+#include <memory>
 #include <ranges>
 #include <string>
 #include <string_view>
@@ -77,9 +79,21 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
         if (name.empty()) [[unlikely]] {
             return;
         }
-        std::erase_if(devs, [&](evdev const& dev) noexcept {
-            return device_sysname(dev) == name;
-        });
+        // Drop source_map entries pointing at the doomed devices *while the
+        // list nodes are still alive*: events drained before the removal are
+        // processed after it, and device_of() must never resolve them to a
+        // freed evdev (it is the fast path behind is_owned/is_chained).
+        for (auto it = devs.begin(); it != devs.end();) {
+            if (device_sysname(*it) != name) {
+                ++it;
+                continue;
+            }
+            evdev* const dying = std::addressof(*it);
+            for (auto src = source_map.begin(); src != source_map.end();) {
+                src = src->second == dying ? source_map.erase(src) : std::next(src);
+            }
+            it = devs.erase(it);
+        }
         next_generation(devices_generation);
     }
 
@@ -307,6 +321,7 @@ struct fs8::pimpl_idiom<basic_input_manager>::impl {
                 break;
             }
             devs.emplace_back(std::move(edev));
+            next_generation(devices_generation);
             auto const id = ci_hash(std::string_view{device_sysname(devs.back())});
             notify_listeners(id, device_change::connected);
             --remaining;

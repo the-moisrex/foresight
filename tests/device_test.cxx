@@ -447,3 +447,28 @@ TEST(DeviceTest, DropSelfDropsOwnedDeviceEvents) {
     // All events came back from our own device, so `drop_self` dropped them.
     EXPECT_TRUE(col.empty());
 }
+
+TEST(DeviceTest, SysnameCacheTracksFdLifetime) {
+    auto first  = test::make_fake_keyboard();
+    auto second = test::make_fake_keyboard();
+
+    auto const first_sysname  = device_sysname(first.dev);
+    auto const second_sysname = device_sysname(second.dev);
+    ASSERT_FALSE(first_sysname.empty());
+    ASSERT_FALSE(second_sysname.empty());
+    ASSERT_NE(first_sysname, second_sysname);
+
+    // A move must carry the cached identity together with the fd.
+    evdev moved{std::move(second.dev)};
+    EXPECT_EQ(device_sysname(moved), second_sysname);
+    EXPECT_TRUE(device_sysname(second.dev).empty());
+
+    // Move-assignment onto a device whose cache is populated must replace
+    // it, not keep the old sysname.
+    first.dev = std::move(moved);
+    EXPECT_EQ(device_sysname(first.dev), second_sysname);
+
+    // close() invalidates the cache.
+    first.dev.close();
+    EXPECT_TRUE(device_sysname(first.dev).empty());
+}

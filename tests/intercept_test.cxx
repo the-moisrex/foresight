@@ -146,3 +146,80 @@ TEST(Interceptor, HotpluggedDeviceGetsWatchedWithoutStaleEvent) {
     uin.close();
     uin2.close();
 }
+
+TEST(Interceptor, DestroyingWatchedDeviceIsSafe) {
+    if (!input_available()) {
+        GTEST_SKIP() << "No /dev/uinput access or udev daemon is not active.";
+    }
+
+    static constinit auto pipeline = context | io_manager | intercept[keyboard] | input_manager;
+
+    auto& io = pipeline.mod<basic_io_manager>();
+    auto& im = pipeline.mod<basic_input_manager>();
+
+    EXPECT_EQ(pipeline(start), context_action::next);
+
+    auto const baseline = std::ranges::distance(im.devices());
+
+    basic_uinput uin;
+    udev_monitor probe;
+    if (!create_uinput_keyboard(uin, probe)) {
+        GTEST_SKIP() << "Cannot create a virtual uinput keyboard.";
+    }
+
+    EXPECT_EQ(io(load_event), context_action::drop_event);
+    if (std::ranges::distance(im.devices()) <= baseline) {
+        uin.close();
+        GTEST_SKIP() << "The uinput keyboard was not enumerated.";
+    }
+
+    int const watched_fd = std::ranges::next(im.devices().begin(), static_cast<std::ptrdiff_t>(baseline))->native_handle();
+
+    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
+    ASSERT_TRUE(io.is_watched(watched_fd));
+
+    // Destroy the watched device.  The udev "remove" (which frees the evdev
+    // the interceptor caches) and the device fd's POLLERR/POLLHUP arrive in
+    // the same poll batch, and input_manager's handler is dispatched first —
+    // so the interceptor must not dereference its cached pointer.
+    uin.close();
+
+    if (!test::wait_for_event(probe.file_descriptor(), 5000)) {
+        GTEST_SKIP() << "udev did not deliver the remove event.";
+    }
+    EXPECT_EQ(io(load_event), context_action::drop_event);
+
+    // Drain any events that were already queued; reconciliation happens in
+    // next_event and must evict the dead watch instead of touching it.
+    int drained = 0;
+    while (invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event) == context_action::next) {
+        ASSERT_LT(++drained, 100) << "the interceptor kept fabricating events";
+        ASSERT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
+    }
+
+    EXPECT_EQ(std::ranges::distance(im.devices()), baseline) << "The removed device is still tracked.";
+    EXPECT_FALSE(io.is_watched(watched_fd)) << "The dead watch was not evicted.";
+
+    // A replacement device must still get watched (the kernel reuses the
+    // just-freed fd number, so the new device must not be skipped as dead).
+    basic_uinput uin2;
+    udev_monitor probe2;
+    if (!create_uinput_keyboard(uin2, probe2)) {
+        GTEST_SKIP() << "Cannot create a second virtual uinput keyboard.";
+    }
+
+    EXPECT_EQ(io(load_event), context_action::drop_event);
+    if (std::ranges::distance(im.devices()) <= baseline) {
+        GTEST_SKIP() << "The second uinput keyboard was not enumerated.";
+    }
+    int const second_fd = std::ranges::next(im.devices().begin(), static_cast<std::ptrdiff_t>(baseline))->native_handle();
+
+    drained = 0;
+    while (!io.is_watched(second_fd) && invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event) == context_action::next) {
+        ASSERT_LT(++drained, 100) << "the interceptor kept fabricating events";
+        ASSERT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
+    }
+    EXPECT_TRUE(io.is_watched(second_fd)) << "A fresh device was skipped because of a stale dead-fd entry.";
+
+    uin2.close();
+}

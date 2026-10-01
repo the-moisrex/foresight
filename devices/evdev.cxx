@@ -53,7 +53,8 @@ evdev::evdev(evdev&& inp) noexcept
     ,
     pipe_read_fd_{std::exchange(inp.pipe_read_fd_, -1)}
 #endif
-{
+    ,
+    sysname_cache_{std::exchange(inp.sysname_cache_, {})} {
 }
 
 evdev& evdev::operator=(evdev&& other) noexcept {
@@ -64,6 +65,7 @@ evdev& evdev::operator=(evdev&& other) noexcept {
 #ifndef NDEBUG
         pipe_read_fd_ = std::exchange(other.pipe_read_fd_, -1);
 #endif
+        sysname_cache_ = std::exchange(other.sysname_cache_, {});
     }
     return *this;
 }
@@ -73,6 +75,10 @@ evdev::~evdev() noexcept {
 }
 
 void evdev::close() noexcept {
+    // The fd is going away, so its sysname is no longer valid.  Every fd
+    // change (set_file(), reassignment, destruction) reaches this function,
+    // which is what makes the lazy cache in device_sysname() safe.
+    sysname_cache_.clear();
 #ifndef NDEBUG
     if (pipe_read_fd_ >= 0) {
         ::close(pipe_read_fd_);
@@ -555,6 +561,9 @@ std::string fs8::device_sysname(evdev const& dev) noexcept try {
     if (fd < 0) [[unlikely]] {
         return {};
     }
+    if (!dev.sysname_cache_.empty()) [[likely]] {
+        return dev.sysname_cache_;
+    }
     char       buf[PATH_MAX]{};
     auto const n = ::readlink(("/proc/self/fd/" + std::to_string(fd)).c_str(), buf, sizeof(buf) - 1);
     if (n <= 0) [[unlikely]] {
@@ -569,7 +578,8 @@ std::string fs8::device_sysname(evdev const& dev) noexcept try {
     if (path.ends_with(deleted)) {
         path.remove_suffix(deleted.size());
     }
-    return std::string{path};
+    dev.sysname_cache_ = std::string{path};
+    return dev.sysname_cache_;
 } catch (...) {
     return {};
 }

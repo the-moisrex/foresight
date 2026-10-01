@@ -226,6 +226,17 @@ namespace fs8 {
 #ifndef NDEBUG
         int pipe_read_fd_ = -1;
 #endif
+        // Cached result of device_sysname(), which is otherwise a readlink()
+        // syscall per call.  Empty means "not computed yet (or the readlink
+        // failed)"; the first successful computation fills it and it stays for
+        // the lifetime of the current fd.  Invariant: every fd change funnels
+        // through close() (set_file() closes first), which clears the cache —
+        // there is no dup()/libevdev_change_fd() path in this codebase.  The
+        // input pipeline is single-threaded, so the lazy mutable fill needs
+        // no synchronisation.
+        mutable std::string sysname_cache_{};
+
+        friend std::string device_sysname(evdev const&) noexcept;
     };
 
     /// Check if a freshly-opened device can be grabbed without disrupting a grab
@@ -242,6 +253,8 @@ namespace fs8 {
     export [[nodiscard]] uint8_t score_caps(evdev& dev, dev_caps_view caps) noexcept;
 
     /// sysname of an open device (e.g. "event10"), derived from its fd.
+    /// Cached inside the evdev after the first successful computation;
+    /// returns an empty string once the fd is closed.
     export [[nodiscard]] std::string device_sysname(evdev const& dev) noexcept;
 
     /// Make an independent deep copy of a device so it can be reshaped
