@@ -45,6 +45,40 @@ namespace fs8 {
         requires(std::is_nothrow_copy_constructible_v<Func>)
     struct [[nodiscard]] not_op;
 
+    namespace detail {
+        /// Forward a control_event to every leaf of a compound condition so its
+        /// members can observe it (`from_query` learning a source registration,
+        /// `held` parsing its pattern at start, ...).  Leaves never gate: only
+        /// an exiting action propagates, everything else stays `next`.
+        export template <typename CtxT, typename... Leaves>
+        context_action forward_control_events(CtxT& ctx, control_event const& event, std::tuple<Leaves...>& leaves) noexcept {
+            using enum context_action;
+            auto result = next;
+            // clang-format off
+#if __cpp_expansion_statements < 202506L
+            // clang-format on
+            std::apply(
+              [&](auto&... leaf) noexcept {
+                  (([&] noexcept {
+                       if (auto const res = invoke_mod(leaf, ctx, event); is_exiting(res)) {
+                           result = res;
+                       }
+                   }()),
+                   ...);
+              },
+              leaves);
+            return result;
+#else
+            template for (auto& leaf : leaves) {
+                if (auto const res = invoke_mod(leaf, ctx, event); is_exiting(res)) [[unlikely]] {
+                    result = res;
+                }
+            }
+            return result;
+#endif
+        }
+    } // namespace detail
+
     export template <typename... Funcs>
         requires(std::is_nothrow_copy_constructible_v<Funcs> && ...)
     struct [[nodiscard]] and_op : consteval_copyable {
@@ -84,6 +118,12 @@ namespace fs8 {
                   return (invoke_cond(cond, ctx) && ...);
               },
               funcs);
+        }
+
+        /// Forward a control_event to every leaf (see detail::forward_tag).
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
+            return detail::forward_control_events(ctx, tag, funcs);
         }
 
         /// Fetch a sub-condition by type, e.g. to reconfigure it at runtime.
@@ -134,6 +174,12 @@ namespace fs8 {
               },
               funcs);
         }
+
+        /// Forward a control_event to every leaf (see detail::forward_tag).
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
+            return detail::forward_control_events(ctx, tag, funcs);
+        }
     };
 
     export template <typename T>
@@ -166,6 +212,16 @@ namespace fs8 {
         template <Context CtxT>
         [[nodiscard]] constexpr bool operator()(CtxT& ctx) noexcept {
             return !invoke_cond(func, ctx);
+        }
+
+        /// Forward a control_event to the negated condition; it only observes.
+        template <Context CtxT>
+        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
+            using enum context_action;
+            if (auto const res = invoke_mod(func, ctx, tag); is_exiting(res)) [[unlikely]] {
+                return res;
+            }
+            return next;
         }
 
       private:

@@ -9,9 +9,12 @@ export module fs8.mods:device;
 import fs8.context;
 import fs8.event;
 import fs8.traits;
+import fs8.devices.evdev;
+import fs8.devices.queries;
 import :inout;
 import :scheduler;
 import :idle_detector;
+import :on;
 
 export namespace fs8 {
 
@@ -206,5 +209,57 @@ export namespace fs8 {
     };
 
     constexpr basic_only_device<0> only_device;
+
+    /// Condition: the event's device matches the given query, e.g.
+    /// `on[from_query[tablet_query], ...]` gates on "the event came from the
+    /// pen device".
+    ///
+    /// The id -> device table is fed by the `source_*` control-event family
+    /// (code 10) that providers broadcast when they register a source, so this
+    /// mod is a pure observer: it needs neither `input_manager` nor any other
+    /// sibling mod in the pipeline.  Query answers are computed once at
+    /// registration; the hot path is an identity strip plus a table scan.
+    constexpr struct [[nodiscard]] basic_from_query : consteval_copyable, operator_adaptor<basic_from_query> {
+        using consteval_copyable::consteval_copyable;
+
+        constexpr basic_from_query() noexcept = default;
+
+        /// Consteval builder: `from_query[device_query{...}]`.
+        [[nodiscard]] consteval basic_from_query operator[](device_query const& inp_query) const noexcept {
+            basic_from_query res;
+            res.query_.set(inp_query);
+            return res;
+        }
+
+        /// Reconfigure at runtime (e.g. once the CLI parsed the query) and
+        /// re-answer every source we already know about.  The id -> device
+        /// mappings are kept: only the answers change.
+        void set(device_query const& inp_query) noexcept;
+
+        /// Observe the `source_*` family (code 10; `value` picks the op).
+        /// Returning void makes this transparent to `invoke_mod`, so a
+        /// pipeline without `input_manager` still trips the required-event
+        /// warning for unclaimed registrations.
+        void operator()(control_event const& tag) noexcept;
+
+        [[nodiscard]] bool operator()(event_type const& event) const noexcept;
+
+      private:
+        struct source_entry {
+            std::uint32_t id      = source_id_none;
+            evdev const*  dev     = nullptr;
+            bool          matched = false;
+        };
+
+        // The cold half (set/operator()(control_event)/match/upsert/remove)
+        // lives in device.cxx; only the per-event lookup below stays inline.
+        [[nodiscard]] bool match(evdev const& dev) const noexcept;
+        void               upsert(std::uint32_t id, evdev const* dev) noexcept;
+        void               remove(std::uint32_t id) noexcept;
+
+        owned_query                                       query_{};
+        std::array<source_entry, tracked_device_capacity> sources_{};
+        std::size_t                                       next_ = 0;
+    } from_query;
 
 } // namespace fs8
