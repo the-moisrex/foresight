@@ -1,3 +1,4 @@
+#include "./common/test_helpers.hpp"
 #include "./common/tests_common_pch.hpp"
 
 #include <array>
@@ -9,8 +10,10 @@
 #include <span>
 #include <thread>
 
+import dynamic_scoping;
 import fs8.mods;
 import fs8.devices.queries;
+import fs8.test.fake_keyboard;
 
 TEST(Uinput, CheckAvailablity) {
     auto const res = fs8::verify_access_to_uinput();
@@ -199,4 +202,57 @@ TEST(Uinput, VirtualDeviceHasStandardMarkersAndChaining) {
 
     vdev_a.close();
     vdev_b.close();
+}
+
+TEST(Uinput, SetQueryPicksMatchingDeviceFromInputManager) {
+    auto const res = fs8::verify_access_to_uinput();
+    if (res != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(res);
+    }
+
+    // The query path only considers devices it can grab, so the source has
+    // to be a real one.  Hold the grab ourselves: it keeps other processes
+    // (pen2mice.service) from claiming the tablet mid-test and makes
+    // is_usable() deterministically true.
+    auto synth = synthetic_from_caps(fs8::caps::tablet);
+    synth.device_name("Query Tablet");
+    fs8::basic_uinput src_dev;
+    ASSERT_TRUE(fs8::finalize_device(src_dev, synth, {}));
+    ASSERT_TRUE(src_dev.is_ok());
+    if (!fs8::test::wait_for_openable(src_dev.devnode(), 3000)) {
+        src_dev.close();
+        GTEST_SKIP() << "Source tablet did not become openable.";
+    }
+    fs8::evdev src_evdev{src_dev.devnode()};
+    ASSERT_TRUE(src_evdev.is_ok()) << src_dev.devnode();
+    src_evdev.grab_input(true);
+    if (src_evdev.get_status() != fs8::evdev_status::success_grabbed) {
+        src_evdev = {};
+        src_dev.close();
+        GTEST_SKIP() << "Source tablet is already grabbed by another process.";
+    }
+
+    // The keyboard is tracked first: the query must walk past it.
+    auto fake = fs8::test::make_fake_keyboard();
+
+    auto               pipeline = fs8::context | fs8::io_manager | fs8::input_manager | fs8::uinput;
+    fs8::dynamic_scope scope{fs8::dynamic_context, pipeline};
+    auto&              im = pipeline.mod<fs8::basic_input_manager>();
+    im.add(std::move(fake.dev));
+    im.add(std::move(src_evdev));
+
+    pipeline.mod(fs8::uinput).set_query(fs8::device_query{.caps = fs8::view(fs8::caps::tablet)});
+    ASSERT_EQ(pipeline(fs8::start), fs8::context_action::next);
+
+    auto const syspath = std::filesystem::path{pipeline.mod(fs8::uinput).syspath()};
+    EXPECT_EQ(read_sysfs_file(syspath / "name"), "Query Tablet (Virtual)")
+      << "the query must pick the matching tablet, not the first tracked device";
+
+    // The clone is announced as ours through we_own_device: input_manager
+    // must know it and never re-offer it as a candidate.
+    EXPECT_TRUE(im.is_owned_sysname(sysname_of(pipeline.mod(fs8::uinput).devnode())))
+      << "the query-matched virtual device must be announced to input_manager";
+
+    pipeline.mod(fs8::uinput).close();
+    src_dev.close();
 }

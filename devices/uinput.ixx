@@ -3,7 +3,6 @@
 module;
 #include <filesystem>
 #include <libevdev/libevdev-uinput.h>
-#include <ranges>
 #include <string_view>
 #include <system_error>
 export module fs8.mods:uinput;
@@ -192,124 +191,15 @@ export namespace fs8 {
         bool set_device_from(device_query const& inp_query) noexcept;
 
         /// Set the caps on start
-        bool operator()(dev_caps_view caps_view, control_event const& tag) noexcept;
-
-        /// Set the device on start
-        bool operator()([[maybe_unused]] Context auto&, dev_caps_view const caps_view, [[maybe_unused]] control_event const& tag) noexcept {
-            return operator()(caps_view, start);
-        }
+        bool operator()(dev_caps_view caps_view, control_event const& event) noexcept;
 
         /// Set the device based on the query on start
-        bool operator()(device_query const& inp_query, control_event const& tag) noexcept;
+        bool operator()(device_query const& inp_query, control_event const& event) noexcept;
 
-        /// Set the device based on the query on start, preferring the devices
-        /// known to the input_manager when it's available in the pipeline.
-        template <typename CtxT>
-            requires requires(CtxT& ctx) { ctx.mod(input_manager).devices(); }
-        bool operator()(CtxT& ctx, device_query const& inp_query, control_event const& tag) noexcept {
-            if (tag.code != start.code) {
-                return true;
-            }
-            if (is_ok()) {
-                log("uinput: already initialized");
-                return true;
-            }
-            // Prefer the devices the input_manager already knows about (they're
-            // already open and matched against queries); fall back to a fresh
-            // udev enumeration otherwise.
-            auto snap = tracked_devices(ctx);
-            if (!snap) [[unlikely]] {
-                return false;
-            }
-            for (evdev* cur_dev : snap) {
-                if (!matches(*cur_dev, inp_query) || !is_usable(*cur_dev)) {
-                    continue;
-                }
-                log("uinput: matched device '{}', finalizing...", cur_dev->device_name());
-                return finalize_device(*this, *cur_dev, inp_query.caps);
-            }
-            log("uinput: no matching device in input_manager, trying set_device_from");
-            if (set_device_from(inp_query)) {
-                auto node_str = devnode();
-                if (ctx.broadcast(we_own_device + &node_str) != context_action::next) [[unlikely]] {
-                    log("uinput: we need to tell input manager that we own some device.");
-                    return false;
-                }
-                return true;
-            }
-            log("uinput: set_device_from failed");
-            return false;
-        }
-
-        /// Find the device if possible on start
-        /// The first device in the input_manager, we automatically find it, and use that one
-        template <std::ranges::range R>
-            requires std::convertible_to<std::ranges::range_value_t<R>, evdev>
-        bool operator()(R&& devs, control_event const& tag) noexcept {
-            if (tag.code != start.code) {
-                return true;
-            }
-            if (is_ok()) {
-                return true;
-            }
-            for (auto const& cur_dev : devs) {
-                // Don't intercept the one that's being grabbed.
-                // if (cur_dev.grab() == grab_state::grabbing_by_others) {
-                //     continue;
-                // }
-
-                // Route through finalize_device so the device gets the
-                // standard virtual markers (name/phys/BUS_VIRTUAL) and the
-                // profile_device broadcast like every other creation path.
-                if (!finalize_device(*this, cur_dev, dev_caps_view{})) [[unlikely]] {
-                    log("  Failed to set device: {}", cur_dev.device_name());
-                }
-                break;
-            }
-            return is_ok();
-        }
-
-        /// Find the device if possible on start
-        /// The first device in the input_manager, we automatically find it, and use that one
-        template <Context CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
-            using enum context_action;
-            if (tag.code != start.code) {
-                return drop_event;
-            }
-            if (is_ok()) {
-                return next;
-            }
-            if (auto const res = verify_access_to_uinput(); res != uinput_access_result::available) [[unlikely]] {
-                log("Uinput init error: {}", to_string(res));
-                return exit;
-            }
-            auto snap = tracked_devices(ctx);
-            if (!snap) [[unlikely]] {
-                return snap.action();
-            }
-            bool matched = false;
-            for (evdev* cur_dev : snap) {
-                if (matched) {
-                    break;
-                }
-                // Route through finalize_device: standard virtual markers +
-                // profile_device broadcast (see finalize_device).
-                matched = finalize_device(*this, *cur_dev, dev_caps_view{});
-                if (!matched) [[unlikely]] {
-                    log("  Failed to set device: {}", cur_dev->device_name());
-                }
-            }
-            if (matched && is_ok()) {
-                auto node_str = devnode();
-                if (ctx.broadcast(we_own_device + &node_str) != next) [[unlikely]] {
-                    log("uinput: we need to tell input manager that we own device, but it's not there.");
-                    return exit;
-                }
-                return next;
-            }
-            return recovery;
-        }
+        /// Clone the source device on `start`: the device matched by the
+        /// configured query (`set_query`), or the first device tracked by the
+        /// input_manager; falls back to a fresh udev enumeration for queries.
+        context_action operator()(control_event const& tag) noexcept;
 
         context_action operator()(event_type const& event) noexcept;
 
@@ -324,10 +214,30 @@ export namespace fs8 {
             self_created_ = value;
         }
 
+        /// Pick the source device from this query on start, preferring the
+        /// devices the input_manager already knows about.
+        void set_query(device_query const& inp_query) noexcept {
+            source_query_.set(inp_query);
+            has_query_ = true;
+        }
+
+        /// Like `uinput`, but without the `profile_device` broadcast when the
+        /// device is created: for raw passthrough clones that must keep their
+        /// exact capabilities (the pen-mode tablet clone must not be
+        /// reshaped into a touchpad by pen2touch).
+        [[nodiscard]] consteval basic_uinput no_profile_broadcast() const noexcept {
+            basic_uinput res{*this};
+            res.profile_broadcast_ = false;
+            return res;
+        }
+
         friend bool finalize_device(basic_uinput& self, evdev const& best, dev_caps_view caps_view) noexcept;
 
       private:
-        bool self_created_ = true;
+        bool        self_created_      = true;
+        bool        has_query_         = false;
+        bool        profile_broadcast_ = true;
+        owned_query source_query_{};
     } uinput;
 
     static_assert(OutputModifier<basic_uinput>, "Must be an output modifier.");

@@ -80,7 +80,9 @@ namespace fs8 {
               outputs_);
         }
 
-        /// Forward start_tag to the selected output if it accepts (CtxT&, control_event).
+        /// Forward start_tag to the selected output, preferring the
+        /// context-aware calling convention and falling back to a plain
+        /// `operator()(control_event)`.
         template <typename CtxT>
         context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
             if (tag.code != start.code) {
@@ -90,6 +92,8 @@ namespace fs8 {
               [&](auto& out) -> context_action {
                   if constexpr (requires { out(ctx, start); }) {
                       return out(ctx, start);
+                  } else if constexpr (requires { out(start); }) {
+                      return out(start);
                   } else {
                       return context_action::next;
                   }

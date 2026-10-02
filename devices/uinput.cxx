@@ -461,6 +461,59 @@ namespace {
         return true;
     }
 
+    /// Shared start path for every entry point: clone a source device,
+    /// preferring the ones the input_manager already tracks (open and already
+    /// matched), optionally falling back to a fresh udev enumeration.
+    ///
+    /// `q == nullptr` is the bare path: first tracked device only. It never
+    /// falls back to udev, so a pipeline without an input_manager keeps
+    /// failing instead of cloning a random device.
+    [[nodiscard]] fs8::context_action run_start(
+      basic_uinput&                  self,
+      fs8::device_query const* const q,
+      fs8::dev_caps_view const       caps,
+      bool const                     allow_udev_fallback) noexcept {
+        using enum fs8::context_action;
+        if (self.is_ok()) {
+            return next;
+        }
+        if (auto const res = fs8::verify_access_to_uinput(); res != uinput_access_result::available) [[unlikely]] {
+            fs8::log("Uinput init error: {}", fs8::to_string(res));
+            return exit;
+        }
+        if (fs8::dynamic_context.bound()) {
+            auto snap = tracked_devices(fs8::dynamic_context);
+            if (!snap) [[unlikely]] {
+                return snap.action();
+            }
+            for (fs8::evdev* cur_dev : snap) {
+                if (!cur_dev->is_ok()) [[unlikely]] {
+                    fs8::log("uinput: skipping tracked device '{}' (status: {})",
+                             cur_dev->device_name(),
+                             fs8::to_string(cur_dev->get_status()));
+                    continue;
+                }
+                if (q != nullptr && (!fs8::matches(*cur_dev, *q) || !fs8::is_usable(*cur_dev))) {
+                    continue;
+                }
+                fs8::log("uinput: matched device '{}', finalizing...", cur_dev->device_name());
+                if (fs8::finalize_device(self, *cur_dev, caps)) {
+                    return next;
+                }
+                fs8::log("  Failed to set device: {}", cur_dev->device_name());
+            }
+        }
+        if (allow_udev_fallback && q != nullptr) {
+            fs8::log("uinput: no matching device in input_manager, trying set_device_from");
+            if (self.set_device_from(*q)) {
+                return next;
+            }
+            fs8::log("uinput: set_device_from failed");
+            return recovery;
+        }
+        return recovery;
+    }
+
 } // namespace
 
 /// Copy a matching device into a virtual (uinput) device, applying caps.
@@ -509,7 +562,9 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
         // Offer the template before it becomes a real device so mods can
         // reshape it (e.g. pen2touch turning the tablet clone into a
         // multitouch touchpad).  General event: unhandled is fine.
-        if (dynamic_context.bound()) {
+        // Skipped for `no_profile_broadcast()` outputs: their clone must
+        // keep its capabilities verbatim (raw tablet passthrough).
+        if (self.profile_broadcast_ && dynamic_context.bound()) {
             if (auto const res = dynamic_context->broadcast(profile_device + &clone); is_exiting(res)) [[unlikely]] {
                 log("  profile_device broadcast aborted virtual-device creation.");
                 return false;
@@ -534,7 +589,7 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
         if (!append_caps(device_template, caps_view)) [[unlikely]] {
             return false;
         }
-        if (dynamic_context.bound()) {
+        if (self.profile_broadcast_ && dynamic_context.bound()) {
             if (auto const res = dynamic_context->broadcast(profile_device + &device_template); is_exiting(res)) [[unlikely]] {
                 log("  profile_device broadcast aborted virtual-device creation.");
                 return false;
@@ -546,12 +601,14 @@ bool fs8::finalize_device(basic_uinput& self, evdev const& best, dev_caps_view c
             log("  Error: {}", self.error().message());
             return false;
         }
+    }
+    // Tell the input_manager the virtual device is ours, so it never offers it
+    // back as a source candidate (feedback loop).  Best-effort: a pipeline
+    // without an input_manager simply skips the handshake.
+    if (self.self_created_ && dynamic_context.bound()) {
         auto dev_str = self.devnode();
-        if (dynamic_context.bound()) {
-            if (dynamic_context->broadcast(we_own_device + &dev_str) != context_action::next) [[unlikely]] {
-                log("  No one to tell we own this tool.");
-                return false;
-            }
+        if (auto const res = dynamic_context->broadcast(we_own_device + &dev_str); res != context_action::next) [[unlikely]] {
+            log("  we_own_device was not handled; input_manager will not know we own '{}'.", dev_str);
         }
     }
     return true;
@@ -797,12 +854,36 @@ bool basic_uinput::init(device_query const& inp_query) noexcept {
     return set_device_from(inp_query);
 }
 
-bool basic_uinput::operator()(dev_caps_view const caps_view, [[maybe_unused]] control_event const& tag) noexcept {
-    return init(caps_view);
+bool basic_uinput::operator()(dev_caps_view const caps_view, control_event const& event) noexcept {
+    if (event.code != start.code) {
+        return true;
+    }
+    // Constrain the search to the input subsystem (caps alone don't say where
+    // to look), matching set_device_from(caps_view).
+    std::array<query_term, 1> fields = {subsystem("input")};
+    device_query const        inp_query{.fields = std::span<query_term const>{fields}, .caps = caps_view};
+    return run_start(*this, &inp_query, caps_view, true) == context_action::next;
 }
 
-bool basic_uinput::operator()(device_query const& inp_query, [[maybe_unused]] control_event const& tag) noexcept {
-    return init(inp_query);
+bool basic_uinput::operator()(device_query const& inp_query, control_event const& event) noexcept {
+    if (event.code != start.code) {
+        return true;
+    }
+    return run_start(*this, &inp_query, inp_query.caps, true) == context_action::next;
+}
+
+fs8::context_action basic_uinput::operator()(control_event const& event) noexcept {
+    using enum context_action;
+    if (event.code != start.code) {
+        return drop_event;
+    }
+    if (has_query_) {
+        // A query was configured (set_query): clone the first tracked device
+        // matching it instead of blindly taking the first one.
+        device_query const q = source_query_.value();
+        return run_start(*this, &q, q.caps, true);
+    }
+    return run_start(*this, nullptr, dev_caps_view{}, false);
 }
 
 fs8::context_action basic_uinput::operator()(event_type const& event) noexcept {

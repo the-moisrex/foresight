@@ -3063,23 +3063,23 @@ TEST(Pen2TouchTest, FromQueryMatchesOnlyPenDevice) {
     ASSERT_NE(pen_source, source_id_none);
 
     pipeline.event(from_source(pen_source, EV_ABS, ABS_X, 100));
-    EXPECT_TRUE(fq(pipeline)) << "the pen device must match the pen query";
+    EXPECT_TRUE(fq(pipeline.event())) << "the pen device must match the pen query";
 
     // Origin bits are stripped before the lookup.
     pipeline.event(from_source(with_origin(pen_source, source_id_owned), EV_ABS, ABS_X, 100));
-    EXPECT_TRUE(fq(pipeline));
+    EXPECT_TRUE(fq(pipeline.event()));
 
     pipeline.event(from_source(keyboard_source, EV_KEY, KEY_A, 1));
-    EXPECT_FALSE(fq(pipeline)) << "the keyboard must not match the pen query";
+    EXPECT_FALSE(fq(pipeline.event())) << "the keyboard must not match the pen query";
 
     pipeline.event(event_type{EV_ABS, ABS_X, 100});
-    EXPECT_FALSE(fq(pipeline)) << "emitted (sourceless) events match no device";
+    EXPECT_FALSE(fq(pipeline.event())) << "emitted (sourceless) events match no device";
 
     // A dropped source must no longer answer for its events.
     source_info unreg{pen_source, nullptr};
     fq(source_unregistered + &unreg);
     pipeline.event(from_source(pen_source, EV_ABS, ABS_X, 100));
-    EXPECT_FALSE(fq(pipeline)) << "an unregistered source must not match";
+    EXPECT_FALSE(fq(pipeline.event())) << "an unregistered source must not match";
 }
 
 TEST(Pen2TouchTest, CapsLedOnSendsPenToRawTablet) {
