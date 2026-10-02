@@ -1,0 +1,43 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build dev image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          tags: foresight-dev:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Restore CPM download cache
+        uses: actions/cache@v4
+        with:
+          path: .cpm-cache
+          key: cpm-${{ hashFiles('cmake/packages/*.cmake', 'cmake/CPM.cmake') }}
+          restore-keys: cpm-
+
+      - name: Build and run tests
+        run: ./tools/container-test.sh --engine docker --cpm-cache .cpm-cache
+
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-logs
+          path: |
+            build-debug-gcc/Testing/**
+            build-debug-gcc/tests/Testing/**
+          if-no-files-found: ignore

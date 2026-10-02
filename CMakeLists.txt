@@ -300,6 +300,10 @@ install(EXPORT ${LIB_NAME}-targets
 
 if (NOT FORESIGHT_LIBRARY_ONLY)
     if (IS_DEBUG)
+        # Needed at the top level so the root CTestTestfile.cmake is generated
+        # and `ctest --preset <preset>` (which runs in the binary dir root)
+        # discovers the tests/ subdirectory.
+        enable_testing()
         add_subdirectory(tests)
     endif ()
     add_subdirectory(apps)

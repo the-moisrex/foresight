@@ -1,0 +1,10 @@
+.git
+.idea
+.vscode
+build-*/
+build/
+cmake-build-*/
+site/
+*.autosave
+*.swp
+*~

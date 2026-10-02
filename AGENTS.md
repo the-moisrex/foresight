@@ -34,17 +34,23 @@ cmake --build --preset debug-gcc
 
 - Tests are GoogleTest and are **only built in Debug** (the root CMakeLists.txt
   guards `add_subdirectory(tests)` on `IS_DEBUG`).
-- `enable_testing()` is called from `tests/CMakeLists.txt` (a subdir), so no
-  root `CTestTestfile.cmake` is generated. Run ctest from the tests dir:
-  `ctest --test-dir build-debug-gcc/tests`. (The docs' `cmake --test --preset`
-  is a typo; that flag doesn't exist.)
+- `enable_testing()` is called at the top level (Debug only), so
+  `ctest --preset debug-gcc` works from the repo root;
+  `ctest --test-dir build-debug-gcc/tests` also works.
 - Each `tests/*_test.cxx` also builds a dedicated target `test-<file>` (e.g.
   `test-bash`, `test-io-manager`), plus a combined `foresight-tests`. Run one
   suite with `./build-debug-gcc/tests/test-bash` or
-  `ctest --test-dir build-debug-gcc/tests -R test-bash`.
+  `ctest --preset debug-gcc -R test-bash`.
 - `cmake --workflow --preset debug-gcc` = configure + build + test.
-- There is **no CI that compiles or runs the C++** (`.github/workflows/docs.yml`
-  only builds docs) — verify locally after changes.
+- Containerized runs: `tools/container-test.sh` builds the root
+  `Dockerfile` (Arch toolchain) with podman/docker and runs configure+build+
+  ctest inside it; `--device` runs the container rootful (`sudo podman`/docker)
+  with `--net=host` + live `/run/udev`, `/dev/input`, `/dev/uinput` so the
+  device tests run instead of skipping (rootless containers cannot hear kernel
+  uevents). The host udev database is bind-mounted read-only in normal mode.
+- CI: `.github/workflows/tests.yml` builds the image and runs
+  `tools/container-test.sh` (debug-gcc) on PRs; `.github/workflows/docs.yml`
+  only builds docs. Still verify locally after changes.
 - Prefer running the individual tests, and run the full tests at the end.
 
 ## The pipeline and mods (core concept)

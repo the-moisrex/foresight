@@ -44,8 +44,34 @@ The build produces:
 Tests are built in Debug configurations and run through CTest:
 
 ```bash
-cmake --test --preset debug-gcc
+ctest --preset debug-gcc
 ```
+
+### Running tests in a container
+
+A Dockerfile at the repository root builds an Arch-based image with the full
+toolchain, and `tools/container-test.sh` drives it (podman is used when
+available, docker otherwise):
+
+```bash
+tools/container-test.sh                 # configure + build + ctest (debug-gcc)
+tools/container-test.sh --device        # also run the uinput/udev device tests
+tools/container-test.sh -- -R test-bash # pass extra arguments to ctest
+```
+
+The source tree and the build directory are bind-mounted at their host paths,
+so builds are incremental across runs; CPM downloads are kept in a named
+volume. The host udev database is exposed read-only, which is enough for the
+tests that enumerate devices by their udev properties.
+
+`--device` additionally runs the container **rootful** (`sudo podman`, or
+docker), because only a rootful container can receive kernel uevents and open
+`/dev/input` nodes: it shares the host network namespace and bind-mounts the
+host's live `/run/udev`, `/dev/input` and `/dev/uinput`. Without `--device`
+those device-level tests `GTEST_SKIP` by design.
+
+The same script runs in CI (`.github/workflows/tests.yml`) with the
+`--engine docker --cpm-cache .cpm-cache` options.
 
 ## Building the docs
 
