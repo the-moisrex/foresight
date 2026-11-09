@@ -112,10 +112,10 @@ void basic_interceptor::stamp_owned(std::uint32_t const source_id) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         return;
     }
-    auto const key = source_id & source_id_payload_mask;
+    auto const cur_key = source_id & source_id_payload_mask;
     for (std::size_t i = 0; i < pimpl->watched_count; ++i) {
         auto& entry = pimpl->watched[i];
-        if ((entry.id & source_id_payload_mask) == key) {
+        if ((entry.id & source_id_payload_mask) == cur_key) {
             entry.id |= source_id & ~source_id_payload_mask;
             return;
         }

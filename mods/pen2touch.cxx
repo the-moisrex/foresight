@@ -1105,19 +1105,19 @@ fs8::context_action basic_pen2touch::operator()(event_type& event) noexcept {
     return pimpl->handle(event, accel_comp_);
 }
 
-void basic_pen2touch::scroll_hold(bool const on) noexcept {
+void basic_pen2touch::scroll_hold(bool const on_val) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
     }
-    if (pimpl->scroll_hold_ == on) {
+    if (pimpl->scroll_hold_ == on_val) {
         return;
     }
-    pimpl->scroll_hold_ = on;
+    pimpl->scroll_hold_ = on_val;
     pimpl->update_scroll();
 }
 
 fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexcept {
-    using enum fs8::context_action;
+    using enum context_action;
     switch (tag.code) {
         case profile_device.code: {
             auto& tmpl = payload<profile_device>(tag);
@@ -1187,6 +1187,23 @@ fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexce
                 return drop_event;
             }
             break;
+
+        case scroll_on.code: {
+            // scroll_on and scroll_off share this code; tag.value
+            // (1 = on, 0 = off) discriminates.  Same effect as
+            // scroll_hold(), so any mod or pipeline can toggle the
+            // scroll state without reaching into the concrete mod
+            // type.
+            bool const on_val = (tag.value != 0);
+            if (pimpl.get() == nullptr) [[unlikely]] {
+                init_impl();
+            }
+            if (pimpl->scroll_hold_ != on_val) {
+                pimpl->scroll_hold_ = on_val;
+                pimpl->update_scroll();
+            }
+            return next;
+        }
 
         case start.code:
         case toggle_off.code:

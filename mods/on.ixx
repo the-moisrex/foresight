@@ -267,8 +267,8 @@ namespace fs8 {
                      && !detail::is_tag_type<NCondT>
                      && ((!Context<NFuncs> && !detail::is_tag_type<NFuncs>) && ...))
         consteval auto operator[](NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
-            return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{std::forward<NCondT>(n_cond),
-                                                                                         std::forward<NFuncs>(n_funcs)...};
+            return basic_on<to_mod_t<NCondT>, to_mod_t<NFuncs>...>{to_mod(std::forward<NCondT>(n_cond)),
+                                                                   to_mod(std::forward<NFuncs>(n_funcs))...};
         }
 
         template <typename NCondT, Context CtxT>
@@ -276,7 +276,7 @@ namespace fs8 {
         consteval auto operator[](NCondT&& n_cond, CtxT&& ctx) const noexcept {
             return std::apply(
               [&]<typename... ModT>(ModT&... mods) constexpr noexcept {
-                  return basic_on<std::remove_cvref_t<NCondT>, std::remove_cvref_t<ModT>...>{std::forward<NCondT>(n_cond), mods...};
+                  return basic_on<to_mod_t<NCondT>, std::remove_cvref_t<ModT>...>{to_mod(std::forward<NCondT>(n_cond)), mods...};
               },
               ctx.get_mods());
         }
@@ -343,9 +343,8 @@ namespace fs8 {
         template <typename NCondT, typename... NFuncs>
             requires(sizeof...(NFuncs) >= 1 && !Context<NCondT> && (!Context<NFuncs> && ...))
         consteval auto operator[](NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
-            return basic_once<std::remove_cvref_t<NCondT>, std::remove_cvref_t<NFuncs>...>{
-              std::forward<NCondT>(n_cond),
-              std::forward<NFuncs>(n_funcs)...};
+            return basic_once<to_mod_t<NCondT>, to_mod_t<NFuncs>...>{to_mod(std::forward<NCondT>(n_cond)),
+                                                                     to_mod(std::forward<NFuncs>(n_funcs))...};
         }
 
         template <typename NCondT, Context CtxT>
@@ -353,7 +352,7 @@ namespace fs8 {
         consteval auto operator[](NCondT&& n_cond, CtxT&& ctx) const noexcept {
             return std::apply(
               [&]<typename... ModT>(ModT&... mods) constexpr noexcept {
-                  return basic_once<std::remove_cvref_t<NCondT>, std::remove_cvref_t<ModT>...>{std::forward<NCondT>(n_cond), mods...};
+                  return basic_once<to_mod_t<NCondT>, std::remove_cvref_t<ModT>...>{to_mod(std::forward<NCondT>(n_cond)), mods...};
               },
               ctx.get_mods());
         }
@@ -543,7 +542,7 @@ namespace fs8 {
         template <typename CondT>
             requires(!std::convertible_to<CondT, code_type> && !detail::is_tag_type<CondT> && !Context<CondT>)
         consteval auto operator[](std::string_view const inp_pattern, CondT const& inp_cond) const noexcept {
-            return basic_held_gate<std::remove_cvref_t<CondT>>{inp_pattern, inp_cond};
+            return basic_held_gate<to_mod_t<std::remove_cvref_t<CondT>>>{inp_pattern, to_mod(inp_cond)};
         }
 
         /// Gate form (code form): last argument is the decider, the rest are key codes.
@@ -554,7 +553,7 @@ namespace fs8 {
                      && !std::convertible_to<std::tuple_element_t<sizeof...(Args) - 1, std::tuple<Args...>>, code_type>)
         consteval auto operator[](Args&&... args) const noexcept {
             constexpr std::size_t N    = sizeof...(Args);
-            auto const&           cond = std::get<N - 1>(std::tuple<Args&...>{args...});
+            auto const&           cond = to_mod(std::get<N - 1>(std::tuple<Args&...>{args...}));
             using CondT                = std::remove_cvref_t<decltype(cond)>;
             return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
                 static_assert((std::convertible_to<std::tuple_element_t<I, std::tuple<Args...>>, code_type> && ...),
@@ -783,7 +782,7 @@ namespace fs8 {
                      && !std::convertible_to<std::tuple_element_t<sizeof...(Args) - 1, std::tuple<Args...>>, code_type>)
         consteval auto operator[](Args&&... args) const noexcept {
             constexpr std::size_t M       = sizeof...(Args);
-            auto const&           the_mod = std::get<M - 1>(std::tuple<Args&...>{args...});
+            auto const&           the_mod = to_mod(std::get<M - 1>(std::tuple<Args&...>{args...}));
             using NewModT                 = std::remove_cvref_t<decltype(the_mod)>;
             return [&]<std::size_t... I>(std::index_sequence<I...>) constexpr noexcept {
                 static_assert((std::convertible_to<std::tuple_element_t<I, std::tuple<Args...>>, code_type> && ...),
@@ -924,7 +923,7 @@ namespace fs8 {
         template <typename InpFuncT>
             requires(!Context<InpFuncT> && !detail::is_tag_type<InpFuncT>)
         consteval auto operator[](InpFuncT&& inp_func, std::chrono::microseconds const inp_dur = default_delay) const noexcept {
-            return basic_longtime_released<std::remove_cvref_t<InpFuncT>>{std::forward<InpFuncT>(inp_func), inp_dur};
+            return basic_longtime_released<to_mod_t<InpFuncT>>{to_mod(std::forward<InpFuncT>(inp_func)), inp_dur};
         }
 
         template <Context CtxT>
@@ -978,12 +977,12 @@ namespace fs8 {
 
         template <typename InpCondT>
         consteval auto operator[](InpCondT&& inp_cond, value_type const x, value_type const y) const noexcept {
-            return basic_limit_mouse_travel<std::remove_cvref_t<InpCondT>>{std::forward<InpCondT>(inp_cond), x, y};
+            return basic_limit_mouse_travel<to_mod_t<InpCondT>>{to_mod(std::forward<InpCondT>(inp_cond)), x, y};
         }
 
         template <typename InpCondT>
         consteval auto operator[](InpCondT&& inp_cond, value_type const both) const noexcept {
-            return basic_limit_mouse_travel<std::remove_cvref_t<InpCondT>>{std::forward<InpCondT>(inp_cond), both, both};
+            return basic_limit_mouse_travel<to_mod_t<InpCondT>>{to_mod(std::forward<InpCondT>(inp_cond)), both, both};
         }
 
         [[nodiscard]] constexpr bool operator()(Context auto& ctx) noexcept {

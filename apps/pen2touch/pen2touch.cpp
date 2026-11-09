@@ -124,14 +124,8 @@ int main(int const argc, char const* const* argv) try {
       // scroll_hold().  Kept outside the mode gate below so releasing
       // CapsLock while the raw-tablet branch owns the pen still
       // disarms the scroll.
-      | on[pressed[KEY_CAPSLOCK], run{[](auto& ctx) noexcept {
-               ctx.template rmods<basic_pen2touch>()[0].get().scroll_hold(true);
-               return context_action::next;
-           }}]
-      | on[(!pressed[KEY_CAPSLOCK]), run{[](auto& ctx) noexcept {
-               ctx.template rmods<basic_pen2touch>()[0].get().scroll_hold(false);
-               return context_action::next;
-           }}]
+      | on[pressed[KEY_CAPSLOCK], scroll_on]
+      | on[(!pressed[KEY_CAPSLOCK]), scroll_off]
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL], pen2touch]
       | pen_branch
       | on_held[KEY_CAPSLOCK, context]

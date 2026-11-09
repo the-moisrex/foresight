@@ -1256,4 +1256,13 @@ namespace fs8 {
         return ctx.event().value();
     }
 
+    /// Default `to_mod`
+    export template <typename T>
+    [[nodiscard]] constexpr decltype(auto) to_mod(T&& obj) noexcept {
+        return std::forward<T>(obj);
+    }
+
+    export template <typename T>
+    using to_mod_t = std::remove_cvref_t<decltype(to_mod(std::declval<T>()))>;
+
 } // namespace fs8

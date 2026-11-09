@@ -179,12 +179,16 @@ export namespace fs8 {
         /// The pipeline drives it — the app uses pen2mice-style
         /// `on[pressed[KEY_CAPSLOCK], run{…}]` / `on[!pressed[…], …]`
         /// gates — so the mod itself never watches keyboard keys.
-        /// Idempotent.
-        void scroll_hold(bool on) noexcept;
+        /// Idempotent.  The same state can also be toggled through the
+        /// generic `scroll_on` / `scroll_off` control events
+        /// (`main/event.ixx`), so any mod or pipeline can flip it
+        /// without reaching into the concrete mod type.
+        void scroll_hold(bool on_val) noexcept;
 
         /// Handle lifecycle tags (start, toggle_off, device_disconnected,
-        /// profile_device); releases are forked through `dynamic_context`,
-        /// which the pipeline binds while it runs.
+        /// profile_device, scroll_on/scroll_off); releases are forked
+        /// through `dynamic_context`, which the pipeline binds while it
+        /// runs.
         context_action operator()(control_event const& tag) noexcept;
 
         /// Translate a single input event; all state lives in the impl.

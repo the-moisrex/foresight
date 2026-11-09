@@ -253,5 +253,61 @@ namespace fs8 {
 
     export constexpr basic_emit_all<> emit_all;
 
+    /// Emit a lifecycle `control_event` into the pipeline.
+    ///
+    /// Usage — as the action of `on[...]` / `once[...]`:
+    ///
+    /// @code
+    ///   | on[pressed[KEY_CAPSLOCK], emit_control[scroll_on]]
+    ///   | on[!pressed[KEY_CAPSLOCK], emit_control[scroll_off]]
+    /// @endcode
+    ///
+    /// Forked via `ctx.fork_emit`, so every mod downstream of this
+    /// one sees it as an `event_type` whose type is
+    /// `general_control_event` — routed to each mod's
+    /// `operator()(control_event const&)` overload.  Lets an app flip
+    /// lifecycle state without reaching into the concrete mod type
+    /// through `rmods<T>()`.
+    ///
+    /// @note Payload-less events only: `control_event.payload` is a
+    /// `void*` that `fork_emit` cannot carry.  Payload-carrying
+    /// events (`profile_device`, `io_*`) need a dedicated
+    /// `fork_control(control_event)` on the dynamic context.
+    ///
+    /// @note Forked events travel the same path as regular events, so
+    /// an `on[...]` gate between `emit_control` and its target still
+    /// filters them.  Place `emit_control` so the event can reach
+    /// every mod that must see it.
+    export constexpr struct [[nodiscard]] basic_emit_control : consteval_copyable {
+        using consteval_copyable::consteval_copyable;
+
+      private:
+        /// The event to emit.  Defaults to `null_event` (inert).
+        control_event event = null_event;
+
+      public:
+        explicit constexpr basic_emit_control(control_event inp_event) noexcept : event{std::move(inp_event)} {}
+
+        basic_emit_control() noexcept                                     = default;
+        basic_emit_control(basic_emit_control const&) noexcept            = default;
+        basic_emit_control& operator=(basic_emit_control const&) noexcept = default;
+        basic_emit_control& operator=(basic_emit_control&&) noexcept      = default;
+        ~basic_emit_control() noexcept                                    = default;
+
+        consteval basic_emit_control operator[](control_event const& ev) const noexcept {
+            return basic_emit_control{ev};
+        }
+
+        template <Context CtxT>
+        [[nodiscard]] constexpr context_action operator()(CtxT& ctx) noexcept {
+            std::ignore = ctx.fork_emit(event.type, event.code, event.value);
+            return context_action::next;
+        }
+    } emit_control;
+
+    /// Convert to mod
+    constexpr basic_emit_control to_mod(control_event event) noexcept {
+        return basic_emit_control{std::move(event)};
+    }
 
 } // namespace fs8

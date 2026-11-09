@@ -465,18 +465,18 @@ fs8::evdev const* basic_input_manager::device_of(std::uint32_t const id) const n
     }
     // The identity part of the id: origin bits (owned/chained) are flags,
     // not identity.
-    auto const key = identity_of(id);
-    if (key == source_id_none) [[unlikely]] {
+    auto const cur_key = identity_of(id);
+    if (cur_key == source_id_none) [[unlikely]] {
         return nullptr;
     }
     // Fast path: check the source_id map (set by provider mods like intercept).
-    if (auto const it = pimpl->source_map.find(key); it != pimpl->source_map.end()) {
+    if (auto const it = pimpl->source_map.find(cur_key); it != pimpl->source_map.end()) {
         return it->second.device;
     }
     // Fallback: check by ci_hash(sysname) for ids that were never registered
     // (identity-compare: the legacy hash's top bits are meaningless flags).
     for (evdev const& dev : pimpl->devs) {
-        if (identity_of(source_id_of(dev)) == key) {
+        if (identity_of(source_id_of(dev)) == cur_key) {
             return &dev;
         }
     }

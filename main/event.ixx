@@ -585,6 +585,11 @@ export namespace fs8 {
     constexpr control_event io_idle_timeout{.type = required_control_event, .code = 14, .value = 2};
     constexpr control_event io_idle_callback{.type = required_control_event, .code = 14, .value = 3};
 
+
+    // Ask pen2touch/pen2mice/... to emit scroll events instead of their normal events.
+    constexpr control_event scroll_on{.type = required_control_event, .code = 15, .value = 1};
+    constexpr control_event scroll_off{.type = required_control_event, .code = 15, .value = 0};
+
     [[nodiscard]] std::string_view to_string(control_event const& event) noexcept;
 
     [[nodiscard]] constexpr bool operator==(control_event const& lhs, control_event const& rhs) noexcept {
