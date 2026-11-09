@@ -17,7 +17,9 @@ Converts a drawing tablet's pen input into multitouch (touchpad) events
 using the Linux Type-B multitouch protocol.
 
 The output virtual device ("Foresight Virtual Touchpad") exposes
-ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_X/Y, BTN_TOUCH, and
+ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_X/Y, ABS_MT_TOUCH_MAJOR
+(a constant 2 mm tip size, so libinput never reads the contact as a
+palm), BTN_TOUCH, and
 BTN_TOOL_FINGER / BTN_TOOL_DOUBLETAP (the latter while the scroll finger
 is open) so that libinput / Wayland / X.Org see a multitouch
 touchpad.  The contact opens while the pen is in proximity, so
@@ -104,9 +106,9 @@ int main(int const argc, char const* const* argv) try {
     // Mode gates (pen2mice's `pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL]`
     // split): LED off (the default) converts through pen2touch; LED on
     // routes the pen device to the raw clone instead.  Holding CapsLock
-    // in pen mode converts again, which arms the scroll trigger.
-    // from_query[tablet] is a placeholder: the parsed pen query replaces it
-    // below via condition().get<basic_from_query>().set(pen_query).
+    // in pen mode converts again.  from_query[tablet] is a placeholder:
+    // the parsed pen query replaces it below via
+    // condition().get<basic_from_query>().set(pen_query).
     static constexpr auto pen_branch =
       on[(!pressed[KEY_CAPSLOCK]) & led_on[LED_CAPSL] & from_query[tablet], context | raw_tablet | drop_event];
     static constinit auto pipeline =
@@ -118,6 +120,18 @@ int main(int const argc, char const* const* argv) try {
       | intercept
       | led_state
       | keys_state
+      // pen2mice-style: the pipeline owns CapsLock, the mod only obeys
+      // scroll_hold().  Kept outside the mode gate below so releasing
+      // CapsLock while the raw-tablet branch owns the pen still
+      // disarms the scroll.
+      | on[pressed[KEY_CAPSLOCK], run{[](auto& ctx) noexcept {
+               ctx.template rmods<basic_pen2touch>()[0].get().scroll_hold(true);
+               return context_action::next;
+           }}]
+      | on[(!pressed[KEY_CAPSLOCK]), run{[](auto& ctx) noexcept {
+               ctx.template rmods<basic_pen2touch>()[0].get().scroll_hold(false);
+               return context_action::next;
+           }}]
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL], pen2touch]
       | pen_branch
       | on_held[KEY_CAPSLOCK, context]

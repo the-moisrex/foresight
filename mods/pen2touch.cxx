@@ -99,6 +99,21 @@ namespace {
         tmpl.abs_info(ABS_MT_TRACKING_ID, tracking_info);
         tmpl.abs_info(ABS_MT_POSITION_X, absinfo_from(tmpl, ABS_X, xy_fallback));
         tmpl.abs_info(ABS_MT_POSITION_Y, absinfo_from(tmpl, ABS_Y, xy_fallback));
+        // Contact size: the tip as a small finger.  libinput only
+        // treats a contact as a palm when its major axis exceeds its
+        // size threshold, so a constant ~2 mm (emitted at contact
+        // open) keeps the pen out of the palm path while still
+        // advertising the axis real touchpads expose.  Range covers
+        // up to 30 mm; the value itself is recomputed in
+        // `profile_device` once the speed factor has rescaled the
+        // resolution the units are counted in.
+        auto major_info  = absinfo_from(tmpl, ABS_MT_POSITION_X, xy_fallback);
+        major_info.value = 0;
+        if (major_info.resolution > 0) {
+            major_info.maximum =
+              static_cast<decltype(major_info.maximum)>(std::min(30L * major_info.resolution, static_cast<long>(major_info.maximum)));
+        }
+        tmpl.abs_info(ABS_MT_TOUCH_MAJOR, major_info);
         // ABS_MT_PRESSURE must stay off: a multitouch device advertising it
         // makes libinput switch to pressure-based touch detection (begin at 12%
         // of the range) and treat pressure above its palm threshold (~130) as a
@@ -286,9 +301,10 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// counting as a tap (the same 200 ms window `on_held` uses).
     static constexpr std::chrono::milliseconds tap_window{200};
 
-    /// Capslock hold — the second scroll trigger (on_held downstream
-    /// owns the swallow/LED behavior; this only mirrors the hold).
-    bool caps_held_ = false;
+    /// Pipeline-side scroll hold, set by `basic_pen2touch::scroll_hold`
+    /// (the app's CapsLock gates, outside the mod); OR-combined with
+    /// the barrel triggers in `update_scroll`.
+    bool scroll_hold_ = false;
 
     /// Scroll-finger geometry: its X sits one eighth of the axis away
     /// from the pen contact.  Defaults match the unprofiled fallback
@@ -317,6 +333,12 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     double comp_dx_ = 0;
     double comp_dy_ = 0;
 
+    /// Sub-unit remainder of the last divided frame, carried into the
+    /// next one: rounding it away would make the emitted contact fall
+    /// behind the pen a little more on every compensated frame.
+    double comp_frac_x_ = 0;
+    double comp_frac_y_ = 0;
+
     /// When the last compensated frame was flushed, and the velocity
     /// it ended on — the previous-frame half of the simpsons average
     /// libinput's gain runs over (libinput feeds the tracker the
@@ -332,6 +354,13 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// the contact incrementally from where libinput saw it.
     value_type emitted_x_ = 0;
     value_type emitted_y_ = 0;
+
+    /// Constant contact size (ABS_MT_TOUCH_MAJOR) in axis units: 2 mm
+    /// through the profiled resolution, so libinput reads the same
+    /// physical size at any speed factor.  0 until the template is
+    /// profiled — which also means the axis is not advertised.
+    /// Configuration, survives `reset`.
+    value_type touch_major_ = 0;
 
     /// The profiled virtual device's axis resolution (units/mm), the
     /// scale libinput derives mm/s velocity from.  Read after the
@@ -377,10 +406,12 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
             trigger = {};
         }
         any_trigger_held_ = false;
-        caps_held_        = false;
+        scroll_hold_      = false;
         now_              = {};
         comp_dx_          = 0;
         comp_dy_          = 0;
+        comp_frac_x_      = 0;
+        comp_frac_y_      = 0;
         comp_last_syn_    = {};
         comp_last_vel_    = 0;
         comp_first_flush_ = true;
@@ -404,6 +435,8 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         // frame reaches it raw.
         comp_dx_          = 0;
         comp_dy_          = 0;
+        comp_frac_x_      = 0;
+        comp_frac_y_      = 0;
         comp_last_syn_    = now_;
         comp_last_vel_    = 0;
         comp_first_flush_ = true;
@@ -421,6 +454,12 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
             emit(EV_ABS, ABS_MT_POSITION_Y, y_);
             emitted_y_ = y_;
         }
+        // The kernel slot remembers the last size across contacts, so
+        // one emit at open is enough; 0 (never profiled) means the
+        // axis does not exist on this device.
+        if (touch_major_ > 0) {
+            emit(EV_ABS, ABS_MT_TOUCH_MAJOR, touch_major_);
+        }
     }
 
     /// End the current MT contact (ABS_MT_TRACKING_ID = -1).
@@ -433,8 +472,12 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         select_slot(mt_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, -1);
         touching_ = false;
-        have_x_   = false;
-        have_y_   = false;
+        // have_x_/have_y_ deliberately survive: x_ is still the pen's
+        // last known position.  Clearing them would leave the next
+        // contact's open frame without a position, so the kernel slot
+        // would keep whatever an earlier contact emitted (possibly a
+        // compensated, lagging value) and libinput would baseline the
+        // new contact on that stale point.
         comp_dx_  = 0;
         comp_dy_  = 0;
     }
@@ -559,7 +602,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// drag (the tip click is suppressed for as long as the hold lasts)
     /// and opens the scroll finger; releasing it just lifts the finger.
     void update_scroll() noexcept {
-        bool const want = caps_held_ || triggers_[barrel_index(BTN_STYLUS)].held || triggers_[barrel_index(BTN_STYLUS2)].held;
+        bool const want = scroll_hold_ || triggers_[barrel_index(BTN_STYLUS)].held || triggers_[barrel_index(BTN_STYLUS2)].held;
         if (want == scroll_active_) {
             return;
         }
@@ -717,11 +760,13 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         select_slot(mt_slot);
         if (dx != 0 && have_x_) {
             emit(EV_ABS, ABS_MT_POSITION_X, x_);
-            emitted_x_ = x_;
+            emitted_x_   = x_;
+            comp_frac_x_ = 0; // raw resync: nothing left to carry
         }
         if (dy != 0 && have_y_) {
             emit(EV_ABS, ABS_MT_POSITION_Y, y_);
-            emitted_y_ = y_;
+            emitted_y_   = y_;
+            comp_frac_y_ = 0;
         }
         comp_last_vel_ = vel;
         comp_last_syn_ = now_;
@@ -739,25 +784,36 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
             flush_raw_pending();
             return;
         }
-        double const dx      = comp_dx_;
-        double const dy      = comp_dy_;
-        comp_dx_             = 0;
-        comp_dy_             = 0;
-        double const divisor = accel_divisor(velocity(dx, dy), comp_last_vel_);
-        auto const   out_dx  = static_cast<value_type>(std::llround(dx / divisor));
-        auto const   out_dy  = static_cast<value_type>(std::llround(dy / divisor));
-        if (out_dx == 0 && out_dy == 0) {
-            return;
+        double const dx       = comp_dx_;
+        double const dy       = comp_dy_;
+        comp_dx_              = 0;
+        comp_dy_              = 0;
+        double const divisor  = accel_divisor(velocity(dx, dy), comp_last_vel_);
+        // The sub-unit remainder of the division rides on to the next
+        // frame instead of rounding away: dropping it would make the
+        // emitted contact fall behind the pen on every compensated
+        // frame — the stall that reads back as a lurch.
+        double const scaled_x = comp_frac_x_ + dx / divisor;
+        double const scaled_y = comp_frac_y_ + dy / divisor;
+        auto const   out_dx   = static_cast<value_type>(std::llround(scaled_x));
+        auto const   out_dy   = static_cast<value_type>(std::llround(scaled_y));
+        comp_frac_x_          = scaled_x - static_cast<double>(out_dx);
+        comp_frac_y_          = scaled_y - static_cast<double>(out_dy);
+        if (out_dx != 0 || out_dy != 0) {
+            select_slot(mt_slot);
+            if (out_dx != 0) {
+                emitted_x_ = static_cast<value_type>(emitted_x_ + out_dx);
+                emit(EV_ABS, ABS_MT_POSITION_X, emitted_x_);
+            }
+            if (out_dy != 0) {
+                emitted_y_ = static_cast<value_type>(emitted_y_ + out_dy);
+                emit(EV_ABS, ABS_MT_POSITION_Y, emitted_y_);
+            }
         }
-        select_slot(mt_slot);
-        if (out_dx != 0) {
-            emitted_x_ = static_cast<value_type>(emitted_x_ + out_dx);
-            emit(EV_ABS, ABS_MT_POSITION_X, emitted_x_);
-        }
-        if (out_dy != 0) {
-            emitted_y_ = static_cast<value_type>(emitted_y_ + out_dy);
-            emit(EV_ABS, ABS_MT_POSITION_Y, emitted_y_);
-        }
+        // Refresh the tracker even when the frame emitted nothing:
+        // time passed, and a stale `last` velocity / SYN stamp would
+        // let the next frame divide against ancient history and keep
+        // dropping slight motion after a flick.
         comp_last_vel_ = velocity(out_dx, out_dy); // before the syn below moves it
         comp_last_syn_ = now_;
     }
@@ -926,14 +982,6 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                     return drop_event;
                 }
 
-                // Capslock is the other scroll trigger; on_held
-                // downstream owns the swallow/LED behavior, so the key
-                // itself passes through untouched.
-                case KEY_CAPSLOCK:
-                    caps_held_ = event.value() != 0;
-                    update_scroll();
-                    return next;
-
                 default: return next;
             }
 
@@ -969,6 +1017,7 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                         return next;
                     }
                     comp_dx_                  = 0;
+                    comp_frac_x_              = 0; // direct emit resyncs the slot
                     bool const       mirrored = scroll_id_ >= 0 && scroll_anchor_valid_;
                     value_type const out      = mirrored ? mirrored_x(x_) : x_;
                     if (touching_) {
@@ -998,7 +1047,8 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                         comp_dy_ += static_cast<double>(y_ - previous);
                         return next;
                     }
-                    comp_dy_ = 0;
+                    comp_dy_     = 0;
+                    comp_frac_y_ = 0; // direct emit resyncs the slot
                     if (touching_) {
                         emit(EV_ABS, ABS_MT_POSITION_Y, y_);
                         emitted_y_ = y_;
@@ -1055,6 +1105,17 @@ fs8::context_action basic_pen2touch::operator()(event_type& event) noexcept {
     return pimpl->handle(event, accel_comp_);
 }
 
+void basic_pen2touch::scroll_hold(bool const on) noexcept {
+    if (pimpl.get() == nullptr) [[unlikely]] {
+        init_impl();
+    }
+    if (pimpl->scroll_hold_ == on) {
+        return;
+    }
+    pimpl->scroll_hold_ = on;
+    pimpl->update_scroll();
+}
+
 fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexcept {
     using enum fs8::context_action;
     switch (tag.code) {
@@ -1084,7 +1145,7 @@ fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexce
             // coordinate stream stays raw (no wall, no drift).  Axes
             // without a resolution are left to libinput's own fallback.
             if (speed_ > 0.0F && speed_ != 1.0F) {
-                for (auto const code : {ABS_MT_POSITION_X, ABS_MT_POSITION_Y, ABS_X, ABS_Y}) {
+                for (auto const code : {ABS_MT_POSITION_X, ABS_MT_POSITION_Y, ABS_MT_TOUCH_MAJOR, ABS_X, ABS_Y}) {
                     auto const typed_code = static_cast<code_type>(code);
                     if (auto const* info = tmpl.abs_info(typed_code); info != nullptr && info->resolution != 0) {
                         auto       updated = *info;
@@ -1103,6 +1164,17 @@ fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexce
             }
             if (auto const* info = tmpl.abs_info(ABS_MT_POSITION_Y); info != nullptr) {
                 pimpl->res_y_ = static_cast<double>(info->resolution);
+            }
+            // The constant contact size in (post-speed) axis units: 2 mm
+            // counted through the resolution libinput will advertise, so
+            // the physical size is the same at every speed factor.
+            if (pimpl->res_x_ > 0) {
+                pimpl->touch_major_ = static_cast<value_type>(std::lround(2.0 * pimpl->res_x_));
+                if (auto const* info = tmpl.abs_info(ABS_MT_TOUCH_MAJOR); info != nullptr) {
+                    auto updated  = *info;
+                    updated.value = static_cast<decltype(updated.value)>(pimpl->touch_major_);
+                    tmpl.abs_info(ABS_MT_TOUCH_MAJOR, updated);
+                }
             }
             return next;
         }

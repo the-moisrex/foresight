@@ -231,7 +231,11 @@ sees `BTN_TOUCH`).  `ABS_X`/`ABS_Y` are mirrored into
 `ABS_PRESSURE`, are kept).  `ABS_MT_PRESSURE` is intentionally *not* exposed:
 advertising it makes libinput switch to pressure-based touch detection, where
 pen pressure either reads as a palm or never reaches the begin threshold, so
-no contact would ever move the pointer.
+no contact would ever move the pointer.  Every contact opens on the pen's
+last known position (the kernel slot is re-seeded at each open, so a re-touch
+never baselines libinput on a stale point) and carries a constant
+`ABS_MT_TOUCH_MAJOR` of 2 mm — finger-sized, so the palm heuristics never
+claim the pen.
 
 Cursor speed is a parameter: `pen2touch[1.5f]` divides the axis resolution of
 the profiled touchpad by 1.5, which is the divisor libinput turns motion deltas
@@ -245,16 +249,28 @@ same knob as `--speed <factor>`.
 The source tip press (`BTN_TOUCH`) becomes `BTN_LEFT`: pressing the tip is
 the left click, and advertising `BTN_LEFT` flips libinput's tap-to-click
 default off, so hover enter/leave cannot fire spurious taps.  `BTN_STYLUS3`
-is remapped onto `BTN_SIDE`; `BTN_STYLUS`, `BTN_STYLUS2` and `KEY_CAPSLOCK`
-are scroll triggers — holding one opens a second contact that libinput reads
+is remapped onto `BTN_SIDE`; `BTN_STYLUS` and `BTN_STYLUS2` are scroll
+triggers — holding one opens a second contact that libinput reads
 as a two-finger scroll, while a quick tap of a barrel button still clicks
 (`BTN_STYLUS` -> `BTN_RIGHT`, `BTN_STYLUS2` -> `BTN_MIDDLE`); tilt and tool
-width are dropped.
+width are dropped (the contact size goes out as `ABS_MT_TOUCH_MAJOR`).
+
+A keyboard key can join the same gesture without the mod watching keys:
+the pipeline drives the mod's `scroll_hold()`.  The `pen2touch` app uses
+pen2mice-style gates, kept outside the mode gate so a CapsLock release
+still disarms the scroll while the raw-tablet branch owns the pen:
+
+```cpp
+| keys_state
+| on[pressed[KEY_CAPSLOCK],    run{ ... scroll_hold(true)  ... }]
+| on[(!pressed[KEY_CAPSLOCK]), run{ ... scroll_hold(false) ... }]
+```
 
 The mod also answers the `profile_device` control event: when the pipeline's
 `uinput` creates the virtual device, `pen2touch` reshapes the device template
 (a clone of the tablet) into a multitouch touchpad — strips the tablet
-tool buttons/axes, enables the MT slots with proper absinfo, advertises
+tool buttons/axes, enables the MT slots with proper absinfo (contact-size
+axis included, counted in the profiled resolution), advertises
 `BTN_LEFT` and the remapped barrel buttons, sets `INPUT_PROP_POINTER`,
 and renames the device to "Foresight Virtual Touchpad" so the clone does not
 masquerade as (quirk-matched) hardware.

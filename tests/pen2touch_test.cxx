@@ -152,6 +152,8 @@ namespace {
         EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_TRACKING_ID));
         EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_POSITION_X));
         EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_POSITION_Y));
+        // A contact size axis: the pen tip as a small constant finger.
+        EXPECT_TRUE(created.has_event_code(EV_ABS, ABS_MT_TOUCH_MAJOR));
         // No ABS_MT_PRESSURE: advertising it makes libinput switch to
         // pressure-based touch detection, whose begin threshold (12% of
         // range) and palm threshold (~130) pen pressure cannot satisfy.
@@ -171,6 +173,19 @@ namespace {
         EXPECT_TRUE(created.has_property(INPUT_PROP_POINTER));
         EXPECT_FALSE(created.has_property(INPUT_PROP_DIRECT));
     }
+
+    // pen2mice-style: the pipeline owns CapsLock and drives the mod's
+    // scroll_hold(); the mod itself never watches keyboard keys.  The
+    // gates sit outside any mode gate so a release still disarms the
+    // scroll while the raw-tablet branch owns the pen.
+    constexpr auto caps_scroll_engage  = on[pressed[KEY_CAPSLOCK], run{[](auto& ctx) noexcept {
+                                               ctx.template rmods<basic_pen2touch>()[0].get().scroll_hold(true);
+                                               return context_action::next;
+                                            }}];
+    constexpr auto caps_scroll_release = on[(!pressed[KEY_CAPSLOCK]), run{[](auto& ctx) noexcept {
+                                                ctx.template rmods<basic_pen2touch>()[0].get().scroll_hold(false);
+                                                return context_action::next;
+                                            }}];
 
 } // namespace
 
@@ -1075,6 +1090,7 @@ TEST(Pen2TouchTest, ProfileDeviceReshapesTabletTemplate) {
     EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_TRACKING_ID));
     EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_POSITION_X));
     EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_POSITION_Y));
+    EXPECT_TRUE(tmpl.has_event_code(EV_ABS, ABS_MT_TOUCH_MAJOR));
     EXPECT_FALSE(tmpl.has_event_code(EV_ABS, ABS_MT_PRESSURE));
     EXPECT_TRUE(tmpl.has_property(INPUT_PROP_POINTER));
 
@@ -1091,6 +1107,13 @@ TEST(Pen2TouchTest, ProfileDeviceReshapesTabletTemplate) {
     EXPECT_EQ(tmpl.abs_info(ABS_MT_POSITION_X)->resolution, 100);
     ASSERT_NE(tmpl.abs_info(ABS_MT_SLOT), nullptr);
     EXPECT_GE(tmpl.abs_info(ABS_MT_SLOT)->maximum, 1); // pen contact + scroll finger
+
+    // The contact size axis rides the position axis' units: a 2 mm
+    // constant (2 * 100 units/mm), well below libinput's palm bound.
+    ASSERT_NE(tmpl.abs_info(ABS_MT_TOUCH_MAJOR), nullptr);
+    EXPECT_EQ(tmpl.abs_info(ABS_MT_TOUCH_MAJOR)->resolution, 100);
+    EXPECT_EQ(tmpl.abs_info(ABS_MT_TOUCH_MAJOR)->value, 200);
+    EXPECT_LE(tmpl.abs_info(ABS_MT_TOUCH_MAJOR)->value, tmpl.abs_info(ABS_MT_TOUCH_MAJOR)->maximum);
 }
 
 TEST(Pen2TouchTest, ProfileDeviceStripsSourceMtPressure) {
@@ -2372,30 +2395,35 @@ TEST(Pen2TouchTest, CapsLockEngagesScroll) {
         {EV_KEY, KEY_CAPSLOCK,    0},
         {EV_SYN,   SYN_REPORT,    0},
     }]
+      | keys_state
+      | caps_scroll_engage
+      | caps_scroll_release
       | pen2touch
       | record;
     auto& col = pipeline.mod<basic_record>();
 
     pipeline();
 
-    // Capslock opens and closes the scroll finger...
+    // The pipeline gates open and close the scroll finger...
     auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
     ASSERT_EQ(tracking.size(), 3U);
     EXPECT_EQ(tracking[1].slot, 1);
     EXPECT_GE(tracking[1].event.value(), 0);
     EXPECT_EQ(tracking[2].slot, 1);
     EXPECT_EQ(tracking[2].event.value(), -1);
-    // ...while the key itself passes through untouched (on_held downstream
-    // owns the swallow/LED logic).
+    // ...while the key itself passes through untouched (the gates only
+    // mirror it into scroll_hold(), on_held downstream owns the
+    // swallow/LED logic).
     auto const caps = collect(col.events(), EV_KEY, KEY_CAPSLOCK);
     ASSERT_EQ(caps.size(), 2U);
     EXPECT_EQ(caps[0].value(), 1);
     EXPECT_EQ(caps[1].value(), 0);
 }
 
-// The app composition: pen2touch sees the key first (scroll trigger),
-// then on_held owns the swallow/tap-re-emit.  A hold past the threshold
-// never reaches the output, while the scroll finger keeps working.
+// The app composition: the pipeline gates mirror CapsLock into
+// scroll_hold(), then on_held owns the swallow/tap-re-emit.  A hold past
+// the threshold never reaches the output, while the scroll finger keeps
+// working.
 TEST(Pen2TouchTest, CapsLockHoldIsSwallowedByOnHeld) {
     auto pipeline =
       context
@@ -2412,6 +2440,9 @@ TEST(Pen2TouchTest, CapsLockHoldIsSwallowedByOnHeld) {
         timed_ev(EV_KEY, KEY_CAPSLOCK,  0, 400ms),
         timed_ev(EV_SYN, SYN_REPORT,    0, 400ms),
     }}
+      | keys_state
+      | caps_scroll_engage
+      | caps_scroll_release
       | pen2touch
       | on_held[KEY_CAPSLOCK, context]
       | record;
@@ -2454,6 +2485,9 @@ TEST(Pen2TouchTest, CapsLockQuickTapReemitsThroughOnHeld) {
         timed_ev(EV_KEY, KEY_CAPSLOCK,  0, 50ms),
         timed_ev(EV_SYN, SYN_REPORT,    0, 50ms),
     }}
+      | keys_state
+      | caps_scroll_engage
+      | caps_scroll_release
       | pen2touch
       | on_held[KEY_CAPSLOCK, context]
       | record;
@@ -2461,6 +2495,39 @@ TEST(Pen2TouchTest, CapsLockQuickTapReemitsThroughOnHeld) {
 
     pipeline();
 
+    auto const caps = collect(col.events(), EV_KEY, KEY_CAPSLOCK);
+    ASSERT_EQ(caps.size(), 2U);
+    EXPECT_EQ(caps[0].value(), 1);
+    EXPECT_EQ(caps[1].value(), 0);
+}
+
+// The bare mod never watches keyboard keys: CapsLock must pass through
+// and no scroll finger may ever open — only the pipeline gates (absent
+// here) arm scroll_hold().
+TEST(Pen2TouchTest, PenAloneIgnoresCapsLock) {
+    auto pipeline =
+      context
+      | emit_all[{
+        {EV_KEY, BTN_TOOL_PEN,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_ABS,        ABS_X, 1000},
+        {EV_ABS,        ABS_Y, 1000},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY, KEY_CAPSLOCK,    1},
+        {EV_SYN,   SYN_REPORT,    0},
+        {EV_KEY, KEY_CAPSLOCK,    0},
+        {EV_SYN,   SYN_REPORT,    0},
+    }]
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+
+    pipeline();
+
+    auto const tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    for (auto const& entry : tracking) {
+        EXPECT_NE(entry.slot, 1) << "the bare mod must not open a scroll finger for CapsLock";
+    }
     auto const caps = collect(col.events(), EV_KEY, KEY_CAPSLOCK);
     ASSERT_EQ(caps.size(), 2U);
     EXPECT_EQ(caps[0].value(), 1);
@@ -2955,6 +3022,148 @@ TEST(Pen2TouchTest, SlowMotionStaysRaw) {
     EXPECT_EQ(mtx[4].value(), 1016);
 }
 
+TEST(Pen2TouchTest, SlightMotionAfterFlickIsNotLost) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_ABS,     ABS_X, 1000,   0us),
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1,   0us),
+        timed_ev(EV_SYN,   SYN_REPORT, 0,   0us),
+        timed_ev(EV_ABS,     ABS_X, 1416, 16ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 16ms),
+        timed_ev(EV_ABS,     ABS_X, 4416, 32ms), // flick: +3000 in a single frame
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 32ms),
+        timed_ev(EV_ABS,     ABS_X, 4417, 48ms), // then barely-moving frames
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 48ms),
+        timed_ev(EV_ABS,     ABS_X, 4418, 64ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 64ms),
+        timed_ev(EV_ABS,     ABS_X, 4419, 80ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 80ms),
+        timed_ev(EV_ABS,     ABS_X, 4420, 96ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 96ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+    pipeline.mod(pen2touch).accel_compensation(true);
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
+
+    pipeline();
+
+    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_GE(mtx.size(), 5U);
+    EXPECT_EQ(mtx[0].value(), 1000);
+    EXPECT_EQ(mtx[1].value(), 1416);
+    EXPECT_GT(mtx[2].value(), mtx[1].value()); // flick divides
+    EXPECT_LT(mtx[2].value() - mtx[1].value(), 3000);
+    // The flick's division remainder and the four +1 frames must all
+    // reach the output: at least three units of the four the pen
+    // actually moved.  Before the remainder carried across frames and
+    // the tracker refreshed on empty frames, every one of those
+    // frames rounded to out == 0 and was dropped for good — the
+    // cursor stalled while the pen kept creeping.
+    EXPECT_GE(mtx.back().value() - mtx[2].value(), 3);
+}
+
+TEST(Pen2TouchTest, ReTouchOpensAtCurrentPosition) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_ABS,     ABS_X, 1000,   0us),
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1,   0us),
+        timed_ev(EV_SYN,   SYN_REPORT, 0,   0us),
+        timed_ev(EV_ABS,     ABS_X, 1416, 16ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 16ms),
+        timed_ev(EV_ABS,     ABS_X, 4416, 32ms), // flick: emitted lags the raw x_
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 32ms),
+        timed_ev(EV_KEY, BTN_TOOL_PEN,   0, 48ms), // lift — no ABS_X in between
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 48ms),
+        timed_ev(EV_KEY, BTN_TOOL_PEN,   1, 64ms), // re-touch at the same spot
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 64ms),
+        timed_ev(EV_ABS,     ABS_X, 4516, 80ms), // first motion after re-touch
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 80ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+    pipeline.mod(pen2touch).accel_compensation(true);
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
+
+    pipeline();
+
+    // The flick left the kernel slot on a compensated (lagging) value
+    // while the pen's raw x_ ran ahead.  The re-touch must re-seed the
+    // slot with the pen's last known position in its open frame —
+    // otherwise libinput baselines the new contact on the stale slot
+    // value and reads the next true motion as a jump from it.
+    auto const mtx = collect(col.events(), EV_ABS, ABS_MT_POSITION_X);
+    ASSERT_EQ(mtx.size(), 5U);
+    EXPECT_EQ(mtx[0].value(), 1000);
+    EXPECT_EQ(mtx[1].value(), 1416);
+    EXPECT_GT(mtx[2].value(), mtx[1].value());       // flick divided: slot now lags x_
+    EXPECT_LT(mtx[2].value(), 4416);
+    EXPECT_EQ(mtx[3].value(), 4416);                 // open frame: the real position
+    EXPECT_EQ(mtx[4].value() - mtx[3].value(), 100); // exactly the pen's motion
+}
+
+TEST(Pen2TouchTest, TouchMajorAdvertisedAndConstant) {
+    auto tmpl = make_tablet_template();
+    ASSERT_TRUE(tmpl.is_ok());
+
+    auto pipeline =
+      context
+      | timed_sequence{std::array{
+        timed_ev(EV_ABS,     ABS_X, 1000,   0us),
+        timed_ev(EV_KEY, BTN_TOOL_PEN, 1,   0us),
+        timed_ev(EV_SYN,   SYN_REPORT, 0,   0us),
+        timed_ev(EV_ABS,     ABS_X, 1416, 16ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 16ms),
+        timed_ev(EV_KEY, BTN_TOOL_PEN,   0, 32ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 32ms),
+        timed_ev(EV_KEY, BTN_TOOL_PEN,   1, 48ms),
+        timed_ev(EV_SYN,   SYN_REPORT, 0, 48ms),
+    }}
+      | pen2touch
+      | record;
+    auto& col = pipeline.mod<basic_record>();
+    pipeline.mod(pen2touch).speed(5.0f);
+    {
+        dynamic_scope scope{dynamic_context, pipeline};
+        ASSERT_EQ(dynamic_context->broadcast(profile_device + &tmpl), context_action::next);
+    }
+
+    pipeline();
+
+    // The axis is advertised with the profile: its resolution rides
+    // the speed factor like the position axes' does.
+    ASSERT_NE(tmpl.abs_info(ABS_MT_POSITION_X), nullptr);
+    ASSERT_NE(tmpl.abs_info(ABS_MT_TOUCH_MAJOR), nullptr);
+    EXPECT_EQ(tmpl.abs_info(ABS_MT_POSITION_X)->resolution, 20); // 100 / speed 5
+    EXPECT_EQ(tmpl.abs_info(ABS_MT_TOUCH_MAJOR)->resolution, 20);
+    EXPECT_LE(tmpl.abs_info(ABS_MT_TOUCH_MAJOR)->value, tmpl.abs_info(ABS_MT_TOUCH_MAJOR)->maximum);
+
+    // A constant 2 mm through the post-speed resolution, emitted once
+    // per contact open (the kernel slot remembers it afterwards) and
+    // independent of motion: the size libinput's palm heuristic reads.
+    EXPECT_EQ(tmpl.abs_info(ABS_MT_TOUCH_MAJOR)->value, 40); // 2 mm * 20 units/mm
+    auto const majors = collect(col.events(), EV_ABS, ABS_MT_TOUCH_MAJOR);
+    ASSERT_EQ(majors.size(), 2U);                            // one per contact
+    EXPECT_EQ(majors[0].value(), 40);
+    EXPECT_EQ(majors[1].value(), 40);
+}
+
 // ---------------------------------------------------------------------------
 // from_query + the CapsLock LED mode gates
 // ---------------------------------------------------------------------------
@@ -3028,6 +3237,8 @@ namespace {
                | input_manager
                | led_state
                | keys_state
+               | caps_scroll_engage
+               | caps_scroll_release
                | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL], pen2touch]
                | on[(!pressed[KEY_CAPSLOCK]) & led_on[LED_CAPSL] & from_query[tablet_caps_query],
                     context | uinput.no_profile_broadcast() | drop_event]
@@ -3234,6 +3445,83 @@ TEST(Pen2TouchTest, CapsLedOffKeepsTouchConversion) {
 // ---------------------------------------------------------------------------
 // no_profile_broadcast: the raw tablet clone keeps its tablet capabilities
 // ---------------------------------------------------------------------------
+
+// Releasing CapsLock while the mode gate has the pen routed to the raw
+// tablet (LED on) must still disarm the scroll: the gates live outside
+// the mode gate, so the mod learns about the release even though it
+// sees none of the pen events around it.  The old mod-internal caps
+// handling missed exactly this release and left the scroll finger
+// stuck open.
+TEST(Pen2TouchTest, RawModeCapsReleaseDoesNotStickScroll) {
+    auto const access = fs8::verify_access_to_uinput();
+    if (access != fs8::uinput_access_result::available) {
+        GTEST_SKIP() << "uinput is not available: " << to_string(access);
+    }
+
+    auto  pipeline = make_mode_pipeline();
+    auto& im       = pipeline.mod<basic_input_manager>();
+    auto& col      = pipeline.mod<basic_record>();
+
+    dynamic_scope scope{dynamic_context, pipeline};
+    im.add(make_keyboard_template());
+    im.add(make_tablet_template());
+    ASSERT_EQ(pipeline(start), context_action::next);
+
+    auto const [keyboard_source, pen_source] = register_test_sources(im);
+    ASSERT_NE(pen_source, source_id_none);
+    col.clear();
+
+    auto const push = [&](event_type const& inp_event) {
+        pipeline.event(inp_event);
+        auto const action = invoke_mods(pipeline, pipeline.get_mods());
+        EXPECT_TRUE(action == context_action::next || action == context_action::drop_event);
+    };
+
+    // Raw mode: LED on.
+    push(from_source(keyboard_source, EV_LED, LED_CAPSL, 1));
+
+    // CapsLock down: the gates arm the scroll and pen2touch converts
+    // (`pressed` wins the mode gate).
+    push(from_source(keyboard_source, EV_KEY, KEY_CAPSLOCK, 1));
+    push(from_source(pen_source, EV_KEY, BTN_TOOL_PEN, 1));
+    push(from_source(pen_source, EV_ABS, ABS_X, 1000));
+    push(from_source(pen_source, EV_ABS, ABS_Y, 1000));
+    push(from_source(pen_source, EV_SYN, SYN_REPORT, 0));
+    push(from_source(pen_source, EV_KEY, BTN_TOUCH, 1));
+    push(from_source(pen_source, EV_SYN, SYN_REPORT, 0));
+
+    auto const during = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    EXPECT_TRUE(std::ranges::any_of(during,
+                                    [](slot_event const& e) {
+                                        return e.slot == 1 && e.event.value() >= 0;
+                                    }))
+      << "the hold must open the scroll finger";
+
+    // CapsLock up while the raw branch owns the pen again: the mode
+    // gate below closes for the upcoming pen frames, but the release
+    // gates outside it still disarm the scroll.
+    push(from_source(keyboard_source, EV_KEY, KEY_CAPSLOCK, 0));
+
+    // Back to pen mode; fresh frames keep converting, and the scroll
+    // finger must not reopen.
+    push(from_source(keyboard_source, EV_LED, LED_CAPSL, 0));
+    push(from_source(pen_source, EV_ABS, ABS_X, 2000));
+    push(from_source(pen_source, EV_SYN, SYN_REPORT, 0));
+
+    auto const  tracking = collect_slotted(col.events(), EV_ABS, ABS_MT_TRACKING_ID);
+    std::size_t opens    = 0;
+    for (auto const& entry : tracking) {
+        if (entry.slot == 1 && entry.event.value() >= 0) {
+            ++opens;
+        }
+    }
+    EXPECT_EQ(opens, 1U) << "exactly one scroll contact: opened during the hold";
+    auto const last_slot1 = std::find_if(tracking.rbegin(), tracking.rend(), [](slot_event const& e) {
+        return e.slot == 1;
+    });
+    ASSERT_NE(last_slot1, tracking.rend());
+    EXPECT_EQ(last_slot1->event.value(), -1) << "the release must close it even though the mode gate was closed";
+}
 
 TEST(Pen2TouchTest, RawTabletSkipsProfileBroadcast) {
     auto const access = fs8::verify_access_to_uinput();

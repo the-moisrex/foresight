@@ -803,7 +803,10 @@ export namespace fs8 {
 
         /// Run the remaining mods from each fork stack frame, walking up to the root.
         context_action fork_emit() noexcept {
-            auto const     saved_depth = fork_depth_;
+            auto const saved_depth     = fork_depth_;
+            // Nested enter_sub_pipeline calls during the walk reuse the slot we
+            // are about to re-expose, so keep our frame's contents to put back.
+            auto const     saved_frame = fork_stack_[saved_depth];
             context_action res         = context_action::next;
             for (;;) {
                 auto &frame     = current_frame();
@@ -816,7 +819,8 @@ export namespace fs8 {
                 }
                 frame.fork_index = saved_idx;
                 if (res != context_action::next || fork_depth_ == 0) {
-                    fork_depth_ = saved_depth;
+                    fork_stack_[saved_depth] = saved_frame;
+                    fork_depth_              = saved_depth;
                     return res;
                 }
                 --fork_depth_;

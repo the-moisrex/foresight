@@ -44,9 +44,12 @@ export namespace fs8 {
     ///   ABS_MT_TRACKING_ID     (non-negative starts a contact, -1 ends it)
     ///   ABS_MT_POSITION_X
     ///   ABS_MT_POSITION_Y
+    ///   ABS_MT_TOUCH_MAJOR     (constant 2 mm tip size, at contact open)
     ///
     /// The MT contact opens when the pen enters proximity (BTN_TOOL_*) and
     /// closes when it leaves, so a hovering pen already moves the cursor.
+    /// Every open re-seeds the slot with the pen's last known position, so
+    /// a re-touch never baselines libinput on a stale slot value.
     /// The output BTN_TOUCH therefore tracks the contact ("pen is near"),
     /// not the tip: libinput keeps a tracking-id contact in TOUCH_HOVERING
     /// (no motion) until it sees BTN_TOUCH, so passing the source tip state
@@ -70,8 +73,8 @@ export namespace fs8 {
     /// BTN_STYLUS3 is remapped onto the side mouse button, which the
     /// `profile_device` answer advertises on the virtual device
     /// alongside BTN_LEFT.  BTN_STYLUS, BTN_STYLUS2 (the barrel
-    /// buttons; many pens only report BTN_STYLUS) and KEY_CAPSLOCK act
-    /// as a *scroll trigger* instead: while any is held, a second MT
+    /// buttons; many pens only report BTN_STYLUS) act as a *scroll
+    /// trigger* instead: while any is held, a second MT
     /// contact (slot 1) mirrors the pen contact one eighth of the axis
     /// away, which libinput reads as a two-finger scroll — the cursor
     /// freezes, the tip click is suppressed, and motion keeps scrolling
@@ -85,9 +88,14 @@ export namespace fs8 {
     /// the pen's direction instead of running it backwards.  Ending the
     /// scroll with the pen somewhere else rebases slot 0 through a fresh
     /// tracking id, so the jump back to the real position never reaches
-    /// the cursor.  Tilt (ABS_TILT_X / ABS_TILT_Y) and tool width
+    /// the cursor.  A keyboard key (the app's CapsLock hold) joins the
+    /// same gesture through `scroll_hold()`: the pipeline drives that
+    /// with pen2mice-style `on[pressed[...]]` gates, never the mod
+    /// itself.  Tilt (ABS_TILT_X / ABS_TILT_Y) and tool width
     /// (ABS_TOOL_WIDTH) are dropped because they have no touchpad
-    /// equivalent.
+    /// equivalent — the contact size is advertised instead as a
+    /// constant 2 mm ABS_MT_TOUCH_MAJOR, finger-sized enough that
+    /// libinput's palm heuristic never claims the pen.
     ///
     /// Cursor speed is a parameter: `pen2touch[1.5f]` divides the axis
     /// resolution of the profiled touchpad by 1.5, which makes libinput
@@ -101,7 +109,8 @@ export namespace fs8 {
     /// pipeline's `uinput` is about to create the virtual device, this mod
     /// reshapes the template (a clone of the tablet) into a multitouch
     /// touchpad — stripping the tablet tool buttons/axes, enabling the MT
-    /// slots with proper absinfo, advertising the remapped barrel buttons,
+    /// slots with proper absinfo (contact-size axis included, counted in
+    /// the profiled resolution), advertising the remapped barrel buttons,
     /// fixing the input properties, and giving the device the fixed name
     /// "Foresight Virtual Touchpad" — so libinput sees a touchpad instead
     /// of a second tablet.
@@ -157,10 +166,21 @@ export namespace fs8 {
         /// libinput reads a contact's position only at the frame
         /// boundary — and passes through untouched while the scroll
         /// finger is open (two-finger frames never reach libinput's
-        /// pointer accelerator).
+        /// pointer accelerator).  The division's sub-unit remainder
+        /// rides to the next frame and the velocity tracker refreshes
+        /// even when a frame emits nothing, so compensation delays
+        /// motion but never drops it.
         constexpr void accel_compensation(bool const on) noexcept {
             accel_comp_ = on;
         }
+
+        /// Pipeline-side scroll hold: while `on`, the scroll finger
+        /// stays engaged together with the internal barrel triggers.
+        /// The pipeline drives it — the app uses pen2mice-style
+        /// `on[pressed[KEY_CAPSLOCK], run{…}]` / `on[!pressed[…], …]`
+        /// gates — so the mod itself never watches keyboard keys.
+        /// Idempotent.
+        void scroll_hold(bool on) noexcept;
 
         /// Handle lifecycle tags (start, toggle_off, device_disconnected,
         /// profile_device); releases are forked through `dynamic_context`,

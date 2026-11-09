@@ -234,19 +234,32 @@ TEST(DeviceTest, InterceptMarksDeviceSource) {
 
     EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::drop_event);
 
+    // The pipeline also watches live system keyboards (other foresight
+    // apps' virtual clones included), which may emit their own events
+    // while this test runs — drain until our pipe's KEY_A shows up.
     fake.inject_key_down(KEY_A);
     EXPECT_EQ(io(load_event), context_action::drop_event);
-    EXPECT_EQ(invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event), context_action::next);
-    EXPECT_EQ(invoke_mods(pipeline, pipeline.get_mods()), context_action::next);
-
-    ASSERT_FALSE(col.empty());
-    auto const source = col.front().source();
-    EXPECT_EQ(col.front().type(), EV_KEY);
-    EXPECT_EQ(col.front().code(), KEY_A);
+    event_type first_ev{};
+    for (int i = 0; i < 8; ++i) {
+        if (invoke_first_mod_of(pipeline, pipeline.get_mods(), next_event) != context_action::next) {
+            break;
+        }
+        if (invoke_mods(pipeline, pipeline.get_mods()) != context_action::next) {
+            break;
+        }
+        if (!col.empty()) {
+            first_ev = col.back();
+        }
+        if (first_ev.type() == EV_KEY && first_ev.code() == KEY_A && im.fd_of(first_ev.source()) == expected_fd) {
+            break;
+        }
+    }
+    ASSERT_EQ(first_ev.type(), EV_KEY);
+    ASSERT_EQ(first_ev.code(), KEY_A);
+    auto const source = first_ev.source();
     // A plain device is neither stdin/self nor owned/chained.
     EXPECT_NE(source, source_id_none);
     EXPECT_NE(source, sid(from_input));
-    EXPECT_NE(source, source_id_none);
     EXPECT_NE(im.device_of(source), nullptr);
     EXPECT_EQ(im.fd_of(source), expected_fd);
     EXPECT_FALSE(im.is_owned(source));
