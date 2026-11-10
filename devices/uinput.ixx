@@ -199,7 +199,7 @@ export namespace fs8 {
         /// Clone the source device on `start`: the device matched by the
         /// configured query (`set_query`), or the first device tracked by the
         /// input_manager; falls back to a fresh udev enumeration for queries.
-        context_action operator()(control_event const& tag) noexcept;
+        context_action operator()(control_event const& event) noexcept;
 
         context_action operator()(event_type const& event) noexcept;
 

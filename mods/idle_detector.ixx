@@ -111,10 +111,10 @@ export namespace fs8 {
         /// `io_manager` simply has no idle source (the framework logs the
         /// unhandled control event) instead of failing to compile.
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& event) noexcept {
             using enum context_action;
 
-            switch (tag.code) {
+            switch (event.code) {
                 case start.code: {
                     auto timeout = idle_period_;
                     if (auto const res = ctx.broadcast(io_idle_timeout + &timeout); is_exiting(res)) [[unlikely]] {

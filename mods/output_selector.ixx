@@ -84,8 +84,8 @@ namespace fs8 {
         /// context-aware calling convention and falling back to a plain
         /// `operator()(control_event)`.
         template <typename CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
-            if (tag.code != start.code) {
+        context_action operator()(CtxT& ctx, control_event const& cevent) noexcept {
+            if (cevent.code != start.code) {
                 return context_action::drop_event;
             }
             return std::visit(

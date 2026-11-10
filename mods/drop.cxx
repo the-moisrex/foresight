@@ -119,8 +119,8 @@ context_action fs8::basic_drop_caps::operator()(event_type const& event) const n
     return context_action::next;
 }
 
-void fs8::basic_drop_start_moves::operator()(control_event const& tag) noexcept {
-    if (tag.code == toggle_on.code && tag.value == 1) {
+void fs8::basic_drop_start_moves::operator()(control_event const& event) noexcept {
+    if (event.code == toggle_on.code && event.value == 1) {
         emitted_count = 0;
     }
 }
@@ -208,8 +208,8 @@ context_action fs8::basic_drop_pen_out_of_bounds::operator()(event_type const& e
 
 // --- drop_orphan_abs ---
 
-void fs8::basic_drop_orphan_abs::operator()(control_event const& tag) noexcept {
-    if (tag.code == start.code) {
+void fs8::basic_drop_orphan_abs::operator()(control_event const& event) noexcept {
+    if (event.code == start.code) {
         tools_held = 0;
     }
 }

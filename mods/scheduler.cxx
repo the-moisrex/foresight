@@ -96,9 +96,9 @@ context_action basic_scheduler::operator()(io_fd const& fd) noexcept try {
     return context_action::next;
 }
 
-context_action basic_scheduler::operator()(event_type& event, control_event const& tag) noexcept {
+context_action basic_scheduler::operator()(event_type& event, control_event const& cevent) noexcept {
     using enum context_action;
-    if (tag.code != next_event.code) {
+    if (cevent.code != next_event.code) {
         return drop_event;
     }
 

@@ -20,12 +20,12 @@ void basic_from_query::set(device_query const& inp_query) noexcept {
     }
 }
 
-void basic_from_query::operator()(control_event const& tag) noexcept {
-    if (tag.code != source_registered.code || tag.payload == nullptr) [[unlikely]] {
+void basic_from_query::operator()(control_event const& event) noexcept {
+    if (event.code != source_registered.code || event.payload == nullptr) [[unlikely]] {
         return;
     }
-    auto const& info = payload<source_registered>(tag);
-    switch (tag.value) {
+    auto const& info = payload<source_registered>(event);
+    switch (event.value) {
         case source_registered.value: upsert(identity_of(info.source_id), info.device); return;
         case source_unregistered.value: remove(identity_of(info.source_id)); return;
         default: return; // source_owned: the id is unchanged, nothing to map

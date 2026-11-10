@@ -240,7 +240,7 @@ export namespace fs8 {
         /// Returning void makes this transparent to `invoke_mod`, so a
         /// pipeline without `input_manager` still trips the required-event
         /// warning for unclaimed registrations.
-        void operator()(control_event const& tag) noexcept;
+        void operator()(control_event const& event) noexcept;
 
         [[nodiscard]] bool operator()(event_type const& event) const noexcept;
 

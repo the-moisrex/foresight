@@ -216,15 +216,15 @@ void basic_replay::set_file(std::string_view path) noexcept {
     pimpl->file_path = std::string{path};
 }
 
-context_action basic_replay::operator()(event_type& event, control_event const& tag) noexcept {
+context_action basic_replay::operator()(event_type& event, control_event const& cevent) noexcept {
     using enum context_action;
-    if (tag.code == fs8::start.code) {
+    if (cevent.code == fs8::start.code) {
         if (pimpl.get() == nullptr) [[unlikely]] {
             init_impl();
         }
         return pimpl->handle_start();
     }
-    if (tag.code != load_event.code) {
+    if (cevent.code != load_event.code) {
         return drop_event;
     }
     if (pimpl.get() == nullptr || pimpl->fd < 0) {

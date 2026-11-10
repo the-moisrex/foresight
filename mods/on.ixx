@@ -122,8 +122,8 @@ namespace fs8 {
 
         /// Forward a control_event to every leaf (see detail::forward_tag).
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
-            return detail::forward_control_events(ctx, tag, funcs);
+        context_action operator()(CtxT& ctx, control_event const& cevent) noexcept {
+            return detail::forward_control_events(ctx, cevent, funcs);
         }
 
         /// Fetch a sub-condition by type, e.g. to reconfigure it at runtime.
@@ -177,8 +177,8 @@ namespace fs8 {
 
         /// Forward a control_event to every leaf (see detail::forward_tag).
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
-            return detail::forward_control_events(ctx, tag, funcs);
+        context_action operator()(CtxT& ctx, control_event const& cevent) noexcept {
+            return detail::forward_control_events(ctx, cevent, funcs);
         }
     };
 
@@ -216,9 +216,9 @@ namespace fs8 {
 
         /// Forward a control_event to the negated condition; it only observes.
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& cevent) noexcept {
             using enum context_action;
-            if (auto const res = invoke_mod(func, ctx, tag); is_exiting(res)) [[unlikely]] {
+            if (auto const res = invoke_mod(func, ctx, cevent); is_exiting(res)) [[unlikely]] {
                 return res;
             }
             return next;
@@ -278,8 +278,8 @@ namespace fs8 {
         }
 
         /// Handle control events (start, next_event, etc.)
-        context_action operator()(Context auto& ctx, control_event const& tag) noexcept {
-            return invoke_conditioned_sub_pipeline(cond, funcs, ctx, tag);
+        context_action operator()(Context auto& ctx, control_event const& cevent) noexcept {
+            return invoke_conditioned_sub_pipeline(cond, funcs, ctx, cevent);
         }
 
         context_action operator()(Context auto& ctx) noexcept {
@@ -354,8 +354,8 @@ namespace fs8 {
         }
 
         /// Handle control events (start, next_event, etc.)
-        context_action operator()(Context auto& ctx, control_event const& tag) noexcept {
-            return invoke_conditioned_sub_pipeline(cond, funcs, ctx, tag);
+        context_action operator()(Context auto& ctx, control_event const& cevent) noexcept {
+            return invoke_conditioned_sub_pipeline(cond, funcs, ctx, cevent);
         }
 
         context_action operator()(Context auto& ctx) noexcept {
@@ -562,8 +562,8 @@ namespace fs8 {
         }
 
         /// Resolve the pattern string into key codes when the pipeline starts.
-        context_action operator()(control_event const& tag) noexcept {
-            if (tag.code != start.code) {
+        context_action operator()(control_event const& cevent) noexcept {
+            if (cevent.code != start.code) {
                 return context_action::drop_event;
             }
             if (!pattern.empty()) {
@@ -620,8 +620,8 @@ namespace fs8 {
         }
 
         /// Resolve the pattern string into key codes when the pipeline starts.
-        context_action operator()(control_event const& tag) noexcept {
-            if (tag.code != start.code) {
+        context_action operator()(control_event const& cevent) noexcept {
+            if (cevent.code != start.code) {
                 return context_action::drop_event;
             }
             if (!pattern.empty()) {

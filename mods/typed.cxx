@@ -243,8 +243,8 @@ bool basic_search_engine::matches(std::uint32_t const state, std::uint16_t const
     return (mask >> trigger_id & 0b1U) != 0u;
 }
 
-fs8::context_action basic_search_engine::operator()(control_event const &tag) noexcept try {
-    if (tag.code != start.code) {
+fs8::context_action basic_search_engine::operator()(control_event const &cevent) noexcept try {
+    if (cevent.code != start.code) {
         return fs8::context_action::drop_event;
     }
     if (pimpl.get() == nullptr) [[unlikely]] {

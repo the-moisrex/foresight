@@ -88,9 +88,9 @@ export namespace fs8 {
 
         /// Seed existing devices at start and on every hotplug connect.
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& event) noexcept {
             using enum context_action;
-            switch (tag.code) {
+            switch (event.code) {
                 case start.code: {
                     auto snap = tracked_devices(ctx);
                     if (!snap) [[unlikely]] {
@@ -102,8 +102,8 @@ export namespace fs8 {
                     return next;
                 }
                 case devices_changed.code:
-                    if (tag == device_connected) {
-                        seed_from_device(payload<device_connected>(tag));
+                    if (event == device_connected) {
+                        seed_from_device(payload<device_connected>(event));
                         return next;
                     }
                     return drop_event;
@@ -157,8 +157,8 @@ export namespace fs8 {
         /// current CapsLock LED) so the mode indicator is correct at startup.
         /// Must run after the devices are open (i.e. after `input_manager`).
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
-            if (tag.code != start.code) {
+        context_action operator()(CtxT& ctx, control_event const& cevent) noexcept {
+            if (cevent.code != start.code) {
                 return context_action::drop_event;
             }
             return seed(ctx);

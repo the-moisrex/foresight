@@ -38,9 +38,9 @@ struct [[nodiscard]] scroll_feeder : fs8::consteval_copyable {
     std::span<event_type const> events{};
     std::size_t                 index = 0;
 
-    context_action operator()(event_type& event, control_event const& tag) noexcept {
+    context_action operator()(event_type& event, control_event const& cevent) noexcept {
         using enum context_action;
-        if (tag.code != next_event.code) {
+        if (cevent.code != next_event.code) {
             return drop_event;
         }
         if (index >= events.size()) {

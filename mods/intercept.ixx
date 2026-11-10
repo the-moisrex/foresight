@@ -56,9 +56,9 @@ export namespace fs8 {
 
         /// Forward queries/devices to input_manager; ensure it started.
         template <Context ContextT>
-        context_action operator()(ContextT& ctx, control_event const& tag) noexcept {
+        context_action operator()(ContextT& ctx, control_event const& event) noexcept {
             using enum context_action;
-            switch (tag.code) {
+            switch (event.code) {
                 case start.code: return do_start();
                 case next_event.code: {
                     context_action action = drop_event;
@@ -78,10 +78,10 @@ export namespace fs8 {
                     // read back after the broadcast), so don't claim them:
                     // a pipeline without input_manager must still trip the
                     // required warning.
-                    if (tag != source_owned) {
+                    if (event != source_owned) {
                         return drop_event;
                     }
-                    stamp_owned(payload<source_owned>(tag).source_id);
+                    stamp_owned(payload<source_owned>(event).source_id);
                     return next;
                 default: return drop_event;
             }

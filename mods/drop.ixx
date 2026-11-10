@@ -251,7 +251,7 @@ export namespace fs8 {
             return basic_drop_start_moves{inp_time_threshold};
         }
 
-        void           operator()(control_event const& tag) noexcept;
+        void           operator()(control_event const& event) noexcept;
         context_action operator()(event_type const& event) noexcept;
     } drop_start_moves;
 
@@ -333,8 +333,8 @@ export namespace fs8 {
         std::array<bool, max_keys>   pressed{};
 
       public:
-        constexpr void operator()(control_event const& tag) noexcept {
-            if (tag.code == start.code) {
+        constexpr void operator()(control_event const& cevent) noexcept {
+            if (cevent.code == start.code) {
                 pressed = {};
             }
         }
@@ -400,8 +400,8 @@ export namespace fs8 {
 
         template <typename CtxT>
             requires has_mod<basic_input_manager, CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
-            if (tag.code != start.code) {
+        context_action operator()(CtxT& ctx, control_event const& event) noexcept {
+            if (event.code != start.code) {
                 return context_action::drop_event;
             }
             auto snap = tracked_devices(ctx);
@@ -435,7 +435,7 @@ export namespace fs8 {
         std::uint16_t tools_held = 0;
 
       public:
-        void operator()(control_event const& tag) noexcept;
+        void operator()(control_event const& event) noexcept;
 
         context_action operator()(event_type const& event) noexcept;
     } drop_orphan_abs;

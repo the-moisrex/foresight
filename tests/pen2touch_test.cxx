@@ -56,9 +56,9 @@ namespace {
         explicit constexpr timed_sequence(std::array<event_type, N> evs) noexcept : events{evs} {}
 
         template <Context CtxT>
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& cevent) noexcept {
             using enum context_action;
-            if (tag.code != load_event.code) {
+            if (cevent.code != load_event.code) {
                 return drop_event;
             }
             if (index == N) {

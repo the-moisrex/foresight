@@ -222,7 +222,7 @@ import fs8.pimpl;
 export namespace fs8 {
     constexpr struct [[nodiscard]] basic_foo : pimpl_idiom<basic_foo> {
         using pimpl_idiom::pimpl_idiom;
-        context_action operator()(control_event const& tag) noexcept;
+        context_action operator()(control_event const& cevent) noexcept;
     } foo;
 }
 

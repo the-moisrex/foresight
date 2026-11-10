@@ -56,7 +56,7 @@ export namespace fs8 {
       public:
         constexpr explicit basic_from_input(int const inp_fd) noexcept : file_descriptor{inp_fd} {}
 
-        context_action operator()(event_type& event, control_event const& tag) noexcept;
+        context_action operator()(event_type& event, control_event const& cevent) noexcept;
 
       private:
         context_action do_start() noexcept;
@@ -110,9 +110,9 @@ export namespace fs8 {
             file_descriptor = inp_fd;
         }
 
-        context_action operator()(event_type& event, control_event const& tag) noexcept try {
+        context_action operator()(event_type& event, control_event const& cevent) noexcept try {
             using enum context_action;
-            if (tag.code != load_event.code) {
+            if (cevent.code != load_event.code) {
                 return drop_event;
             }
             // Try to parse existing lines in the buffer first.

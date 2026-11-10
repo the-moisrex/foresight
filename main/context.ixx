@@ -1245,6 +1245,8 @@ namespace fs8 {
     }
 
     /// Default `to_mod`
+    /// A simple utility that helps for example to convert control events into mods automatically.
+    /// This is designed if you need to be able to convert something automatically to a mod, you override this.
     export template <typename T>
     [[nodiscard]] constexpr decltype(auto) to_mod(T&& obj) noexcept {
         return std::forward<T>(obj);

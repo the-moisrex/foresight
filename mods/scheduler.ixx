@@ -81,7 +81,7 @@ namespace fs8 {
         context_action operator()(io_fd const& fd) noexcept;
 
         /// next_event provider: call the first due callback, emit its events.
-        context_action operator()(event_type& event, control_event const& tag) noexcept;
+        context_action operator()(event_type& event, control_event const& cevent) noexcept;
 
         /// Register the timer fd with io_manager.  Pipelines without an
         /// `io_manager` keep working: the timerfd is dropped and `next_event`

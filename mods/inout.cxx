@@ -34,9 +34,9 @@ struct fs8::pimpl_idiom<fs8::basic_from_input>::impl {
     bool                   eof = false;
 };
 
-context_action fs8::basic_from_input::operator()(event_type& event, control_event const& tag) noexcept {
+context_action fs8::basic_from_input::operator()(event_type& event, control_event const& cevent) noexcept {
     using enum context_action;
-    switch (tag.code) {
+    switch (cevent.code) {
         case start.code: return do_start();
         case next_event.code: return poll_driven ? do_pop(event) : drop_event;
         case load_event.code:

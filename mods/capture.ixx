@@ -76,9 +76,9 @@ export namespace fs8 {
         // ── Pipeline interface ───────────────────────────────────────────────
 
         /// receives control events (standalone use, no pipeline context needed).
-        context_action operator()(control_event const& tag) noexcept {
+        context_action operator()(control_event const& event) noexcept {
             using enum context_action;
-            switch (tag.code) {
+            switch (event.code) {
                 case start.code:
                     ensure_state();
                     if (!open_file()) [[unlikely]] {
@@ -104,8 +104,8 @@ export namespace fs8 {
 
         /// receives control events from the context (pipeline use).
         template <Context CtxT>
-        context_action operator()(CtxT&, control_event const& tag) noexcept {
-            return operator()(tag);
+        context_action operator()(CtxT&, control_event const& event) noexcept {
+            return operator()(event);
         }
 
         context_action operator()(event_type const& event) noexcept {

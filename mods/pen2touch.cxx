@@ -1116,11 +1116,11 @@ void basic_pen2touch::scroll_hold(bool const on_val) noexcept {
     pimpl->update_scroll();
 }
 
-fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexcept {
+fs8::context_action basic_pen2touch::operator()(control_event const& cevent) noexcept {
     using enum context_action;
-    switch (tag.code) {
+    switch (cevent.code) {
         case profile_device.code: {
-            auto& tmpl = payload<profile_device>(tag);
+            auto& tmpl = payload<profile_device>(cevent);
             // Only a pen source gets reshaped.  The keyboard-route virtual
             // device has no ABS_X: turning it into a touchpad would break
             // typing, so it keeps whatever profile it was built with.
@@ -1183,7 +1183,7 @@ fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexce
             // The source tablet vanished: it may never send the matching
             // BTN_TOUCH=0, so close what we hold ourselves.  Any other
             // device change is irrelevant to us.
-            if (tag != device_disconnected) {
+            if (cevent != device_disconnected) {
                 return drop_event;
             }
             break;
@@ -1194,7 +1194,7 @@ fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexce
             // scroll_hold(), so any mod or pipeline can toggle the
             // scroll state without reaching into the concrete mod
             // type.
-            bool const on_val = (tag.value != 0);
+            bool const on_val = (cevent.value != 0);
             if (pimpl.get() == nullptr) [[unlikely]] {
                 init_impl();
             }
@@ -1224,7 +1224,7 @@ fs8::context_action basic_pen2touch::operator()(control_event const& tag) noexce
     }
     pimpl->release_stale_state();
     pimpl->reset();
-    if (tag.code != start.code) {
+    if (cevent.code != start.code) {
         return next;
     }
     // If a pen tool was left active from a previous run, release it so

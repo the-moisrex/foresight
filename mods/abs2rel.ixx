@@ -112,11 +112,11 @@ export namespace fs8 {
             }
         }
 
-        void operator()(control_event const& tag) noexcept;
+        void operator()(control_event const& event) noexcept;
 
         template <Context CtxT>
-        void operator()(CtxT& ctx, control_event const& tag) noexcept {
-            switch (tag.code) {
+        void operator()(CtxT& ctx, control_event const& event) noexcept {
+            switch (event.code) {
                 case start.code: {
                     init_state();
                     if constexpr (has_mod<basic_input_manager, CtxT>) {

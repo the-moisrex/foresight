@@ -46,7 +46,7 @@ export namespace fs8 {
 
         template <Context CtxT>
             requires((invokable_mod<Mods, CtxT, control_event> || ...))
-        context_action operator()(CtxT& ctx, control_event const& tag) noexcept {
+        context_action operator()(CtxT& ctx, control_event const& event) noexcept {
             using enum context_action;
             // clang-format off
 #if __cpp_expansion_statements < 202506L
@@ -54,13 +54,13 @@ export namespace fs8 {
             context_action result = next;
             std::apply(
               [&](auto&... mods) {
-                  std::ignore = ((result = invoke_mod(mods, ctx, tag), result == next) && ...);
+                  std::ignore = ((result = invoke_mod(mods, ctx, event), result == next) && ...);
               },
               mods_);
             return result;
 #else
             template for (auto& mod : mods_) {
-                if (auto const res = invoke_mod(mod, ctx, tag); res != next) [[unlikely]] {
+                if (auto const res = invoke_mod(mod, ctx, event); res != next) [[unlikely]] {
                     return res;
                 }
             }

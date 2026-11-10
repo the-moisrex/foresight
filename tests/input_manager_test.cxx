@@ -139,13 +139,13 @@ namespace {
 
 /// A mod that tallies the push-model notifications from input_manager.
 constexpr struct [[nodiscard]] change_counter {
-    constexpr context_action operator()(control_event const& tag) const noexcept {
+    constexpr context_action operator()(control_event const& cevent) const noexcept {
         using enum context_action;
-        if (tag == devices_changed) {
+        if (cevent == devices_changed) {
             ++devices_changed_count;
             return next;
         }
-        if (tag == device_connected) {
+        if (cevent == device_connected) {
             ++device_connected_count;
             return next;
         }

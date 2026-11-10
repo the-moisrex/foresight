@@ -288,8 +288,8 @@ void basic_momentum_base::cancel_momentum_tick() noexcept {
     }
 }
 
-context_action basic_momentum_base::operator()(control_event const& tag) noexcept {
-    if (tag.code != start.code) {
+context_action basic_momentum_base::operator()(control_event const& cevent) noexcept {
+    if (cevent.code != start.code) {
         return context_action::drop_event;
     }
     if (pimpl.get() == nullptr) {

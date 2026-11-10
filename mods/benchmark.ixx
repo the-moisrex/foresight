@@ -223,9 +223,9 @@ namespace fs8 {
             name_filter{inp_filter} {}
 
         /// Handle lifecycle events (toggle_on / toggle_off) transparently.
-        context_action operator()(control_event const& tag) noexcept {
+        context_action operator()(control_event const& event) noexcept {
             using enum context_action;
-            return is_lifecycle_event(tag) ? next : drop_event;
+            return is_lifecycle_event(event) ? next : drop_event;
         }
 
         context_action operator()(Context auto& ctx) noexcept {

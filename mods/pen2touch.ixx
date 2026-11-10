@@ -189,7 +189,7 @@ export namespace fs8 {
         /// profile_device, scroll_on/scroll_off); releases are forked
         /// through `dynamic_context`, which the pipeline binds while it
         /// runs.
-        context_action operator()(control_event const& tag) noexcept;
+        context_action operator()(control_event const& cevent) noexcept;
 
         /// Translate a single input event; all state lives in the impl.
         context_action operator()(event_type& event) noexcept;
