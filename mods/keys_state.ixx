@@ -115,7 +115,7 @@ export namespace fs8 {
     template <typename ModT = void>
     struct [[nodiscard]] basic_mod_updater {
         template <typename InpModT>
-            requires(!ContextSignature<InpModT>)
+            requires(!PipelinePayload<InpModT>)
         consteval auto operator[]([[maybe_unused]] InpModT&&) const noexcept {
             return basic_mod_updater<InpModT>{};
         }

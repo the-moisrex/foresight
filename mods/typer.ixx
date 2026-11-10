@@ -74,7 +74,7 @@ namespace fs8 {
         }
 
         template <typename T>
-            requires(!std::is_array_v<std::remove_cvref_t<T>> && !ContextSignature<T>) // no strings, no tags, no pipeline contexts
+            requires(!std::is_array_v<std::remove_cvref_t<T>> && !PipelinePayload<T>) // no strings, no tags, no pipeline contexts
         consteval auto operator()(T&& getter) const noexcept {
             return basic_type_string<std::remove_cvref_t<T>>{std::forward<T>(getter)};
         }

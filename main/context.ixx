@@ -1253,7 +1253,8 @@ namespace fs8 {
     export template <typename T>
     using to_mod_t = std::remove_cvref_t<decltype(to_mod(std::declval<T>()))>;
 
+    /// Anything that the official pipeline can accept as arguments (context, event, control event)
     export template <typename T>
-    concept ContextSignature = Context<std::remove_cvref_t<T>> || Event<T>;
+    concept PipelinePayload = Context<std::remove_cvref_t<T>> || Event<T>;
 
 } // namespace fs8
