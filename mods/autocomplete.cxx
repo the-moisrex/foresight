@@ -89,7 +89,7 @@ fs8::context_action fs8::basic_autocomplete::on_start() noexcept try {
     pimpl->prefix       = to_u32(prefix_sv);
     pimpl->completion   = completion_sv;
 
-    if (auto_mode && pimpl->prefix.empty()) {
+    if (m_auto_mode && pimpl->prefix.empty()) {
         log("autocomplete: auto mode requires a non-empty prefix in '{}'.", pattern);
         return context_action::next;
     }
@@ -127,12 +127,12 @@ fs8::context_action fs8::basic_autocomplete::on_event(event_type const&         
     }
 
     // trigger mode: complete when the trigger key is pressed after the prefix
-    if (!auto_mode && ke.code == pimpl->trigger_code) {
+    if (!m_auto_mode && ke.code == pimpl->trigger_code) {
         if (pimpl->prefix.empty() || pimpl->buffer.ends_with(pimpl->prefix)) {
             inp_emit(pimpl->completion);
             pimpl->buffer  = pimpl->prefix;
             pimpl->buffer += to_u32(pimpl->completion);
-            return pass_trigger ? next : drop_event;
+            return m_pass_trigger ? next : drop_event;
         }
     }
 
@@ -149,7 +149,7 @@ fs8::context_action fs8::basic_autocomplete::on_event(event_type const&         
     pimpl->buffer += code;
 
     // auto mode: complete as soon as the prefix is fully typed
-    if (auto_mode && !pimpl->prefix.empty() && pimpl->buffer.ends_with(pimpl->prefix)) {
+    if (m_auto_mode && !pimpl->prefix.empty() && pimpl->buffer.ends_with(pimpl->prefix)) {
         inp_emit(pimpl->completion);
         pimpl->buffer  = pimpl->prefix;
         pimpl->buffer += to_u32(pimpl->completion);

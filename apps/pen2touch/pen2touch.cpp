@@ -120,12 +120,8 @@ int main(int const argc, char const* const* argv) try {
       | intercept
       | led_state
       | keys_state
-      // pen2mice-style: the pipeline owns CapsLock, the mod only obeys
-      // scroll_hold().  Kept outside the mode gate below so releasing
-      // CapsLock while the raw-tablet branch owns the pen still
-      // disarms the scroll.
       | on[pressed[KEY_CAPSLOCK], scroll_on]
-      | on[(!pressed[KEY_CAPSLOCK]), scroll_off]
+      | on[!pressed[KEY_CAPSLOCK], scroll_off]
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL], pen2touch]
       | pen_branch
       | on_held[KEY_CAPSLOCK, context]
@@ -133,7 +129,7 @@ int main(int const argc, char const* const* argv) try {
       | drop_fast_left_clicks
       | drop_adjacent_syns
       | sieve
-      | router[touch_caps >> context, keyboard_caps >> (context | enforce_key_state | uinput | drop_event)]
+      | router[touch_caps >> context, keyboard_caps >> (context | enforce_key_state | uinput)]
       | output;
 
     auto const parsed = args(argc, argv);

@@ -13,22 +13,6 @@ import fs8.pimpl;
 
 namespace fs8 {
 
-    /// Option: in auto mode, the trigger tag in the pattern is treated as a pure separator
-    /// and the completion is emitted as soon as the prefix is typed (no key press needed).
-    export struct [[nodiscard]] basic_auto_mode_tag {
-        /// Sentinel marker — prevents this type from being consumed by
-        /// generic `operator[]` overloads.
-        static constexpr bool is_tag = true;
-    } auto_mode;
-
-    /// Option: when the trigger key fires the completion, also let the trigger keypress
-    /// through to the application instead of swallowing it.
-    export struct [[nodiscard]] basic_pass_trigger_tag {
-        /// Sentinel marker — prevents this type from being consumed by
-        /// generic `operator[]` overloads.
-        static constexpr bool is_tag = true;
-    } pass_trigger;
-
     /**
      * Watches the user's typing and auto-completes a pattern of the form
      * `PREFIX<TAG>COMPLETION`, e.g. `"test@<tab>gmail.com"`.
@@ -47,8 +31,8 @@ namespace fs8 {
       private:
         std::string_view pattern;        // pattern string
         xkb::basic_state keyboard_state; // the state of the modifier keys and what not
-        bool             auto_mode    = false;
-        bool             pass_trigger = false;
+        bool             m_auto_mode    = false;
+        bool             m_pass_trigger = false;
 
         /// Parse the pattern and initialize the search state.
         context_action on_start() noexcept;
@@ -69,16 +53,16 @@ namespace fs8 {
         }
 
         /// Emit the completion automatically once the prefix is fully typed.
-        consteval basic_autocomplete operator[](basic_auto_mode_tag) const noexcept {
-            auto new_mod      = basic_autocomplete{pattern};
-            new_mod.auto_mode = true;
+        consteval basic_autocomplete auto_mode(bool const value = true) const noexcept {
+            auto new_mod       = basic_autocomplete{pattern};
+            new_mod.m_auto_mode = value;
             return new_mod;
         }
 
         /// Don't swallow the trigger keypress when a completion fires.
-        consteval basic_autocomplete operator[](basic_pass_trigger_tag) const noexcept {
-            auto new_mod         = basic_autocomplete{pattern};
-            new_mod.pass_trigger = true;
+        consteval basic_autocomplete pass_trigger(bool const value = true) const noexcept {
+            auto new_mod          = basic_autocomplete{pattern};
+            new_mod.m_pass_trigger = value;
             return new_mod;
         }
 

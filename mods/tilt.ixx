@@ -344,7 +344,7 @@ export namespace fs8 {
 
       public:
         template <typename... Args>
-            requires((!detail::is_tag_type<std::decay_t<Args>>) && ...)
+            requires(!ContextSignature<Args> && ...)
         consteval basic_tilt_speed operator[](Args&&... args) const noexcept {
             basic_tilt_speed res{*this};
             auto const       assign = [&res]<typename ArgT>(ArgT&& arg) constexpr noexcept {
@@ -404,7 +404,7 @@ export namespace fs8 {
 
       public:
         template <typename... Args>
-            requires((!detail::is_tag_type<std::decay_t<Args>>) && ...)
+            requires(!ContextSignature<Args> && ...)
         consteval basic_tilt_freeze operator[](Args&&... args) const noexcept {
             basic_tilt_freeze res{*this};
             auto const        assign = [&res]<typename ArgT>(ArgT&& arg) constexpr noexcept {
@@ -454,7 +454,7 @@ export namespace fs8 {
 
       public:
         template <typename... Args>
-            requires((!detail::is_tag_type<std::decay_t<Args>>) && ...)
+            requires(!ContextSignature<Args> && ...)
         consteval basic_tilt_push operator[](Args&&... args) const noexcept {
             basic_tilt_push res{*this};
             auto const      assign = [&res]<typename ArgT>(ArgT&& arg) constexpr noexcept {

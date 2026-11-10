@@ -115,7 +115,7 @@ export namespace fs8 {
     template <typename ModT = void>
     struct [[nodiscard]] basic_mod_updater {
         template <typename InpModT>
-            requires(!Context<std::remove_cvref_t<InpModT>> && !detail::is_tag_type<std::remove_cvref_t<InpModT>>)
+            requires(!ContextSignature<InpModT>)
         consteval auto operator[]([[maybe_unused]] InpModT&&) const noexcept {
             return basic_mod_updater<InpModT>{};
         }

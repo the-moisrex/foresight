@@ -163,18 +163,6 @@ export namespace fs8 {
     namespace detail {
         template <typename... Args>
         constexpr bool args_contain_control_event = (std::same_as<std::remove_cvref_t<Args>, control_event> || ...);
-
-        /// True if T has a `static constexpr bool is_tag = true` member, or is `control_event`.
-        /// Used to exclude sentinel types (get_variables_tag, auto_mode_tag,
-        /// pass_trigger_tag) and `control_event` from generic operator[] overloads.
-        template <typename T, typename = void>
-        inline constexpr bool is_tag_type = false;
-
-        template <typename T>
-        inline constexpr bool is_tag_type<T, std::void_t<decltype(std::remove_cvref_t<T>::is_tag)>> = std::remove_cvref_t<T>::is_tag;
-
-        template <>
-        inline constexpr bool is_tag_type<control_event, void> = true;
     } // namespace detail
 
     /// Concept for pipeline lifecycle tags. All lifecycle events are
@@ -1264,5 +1252,8 @@ namespace fs8 {
 
     export template <typename T>
     using to_mod_t = std::remove_cvref_t<decltype(to_mod(std::declval<T>()))>;
+
+    export template <typename T>
+    concept ContextSignature = Context<std::remove_cvref_t<T>> || Event<T>;
 
 } // namespace fs8

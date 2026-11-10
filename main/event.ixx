@@ -670,4 +670,7 @@ export namespace fs8 {
         return rhs == lhs;
     }
 
+    template <typename T>
+    concept Event = std::same_as<std::remove_cvref_t<T>, control_event> || std::same_as<std::remove_cvref_t<T>, event_type>;
+
 } // namespace fs8
