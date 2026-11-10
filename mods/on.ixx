@@ -260,15 +260,14 @@ namespace fs8 {
             return cond;
         }
 
-        template <typename NCondT, typename... NFuncs>
-            requires(sizeof...(NFuncs) >= 1 && !PipelinePayload<NCondT> && (!PipelinePayload<NFuncs> && ...))
+        template <Modable NCondT, Modable... NFuncs>
+            requires(sizeof...(NFuncs) >= 1)
         consteval auto operator[](NCondT&& n_cond, NFuncs&&... n_funcs) const noexcept {
             return basic_on<to_mod_t<NCondT>, to_mod_t<NFuncs>...>{to_mod(std::forward<NCondT>(n_cond)),
                                                                    to_mod(std::forward<NFuncs>(n_funcs))...};
         }
 
-        template <typename NCondT, Context CtxT>
-            requires(!PipelinePayload<NCondT>)
+        template <Modable NCondT, Context CtxT>
         consteval auto operator[](NCondT&& n_cond, CtxT&& ctx) const noexcept {
             return std::apply(
               [&]<typename... ModT>(ModT&... mods) constexpr noexcept {
@@ -535,8 +534,8 @@ namespace fs8 {
         }
 
         /// Gate form: a decider decides whether the tracked key(s) are emitted or dropped.
-        template <typename CondT>
-            requires(!std::convertible_to<CondT, code_type> && !PipelinePayload<CondT>)
+        template <Modable CondT>
+            requires(!std::convertible_to<CondT, code_type>)
         consteval auto operator[](std::string_view const inp_pattern, CondT const& inp_cond) const noexcept {
             return basic_held_gate<to_mod_t<std::remove_cvref_t<CondT>>>{inp_pattern, to_mod(inp_cond)};
         }
@@ -916,8 +915,7 @@ namespace fs8 {
 
         // todo: initialize the dur with repetition delay of the keyboard
 
-        template <typename InpFuncT>
-            requires(!PipelinePayload<InpFuncT>)
+        template <Modable InpFuncT>
         consteval auto operator[](InpFuncT&& inp_func, std::chrono::microseconds const inp_dur = default_delay) const noexcept {
             return basic_longtime_released<to_mod_t<InpFuncT>>{to_mod(std::forward<InpFuncT>(inp_func)), inp_dur};
         }

@@ -1248,7 +1248,7 @@ namespace fs8 {
     /// A simple utility that helps for example to convert control events into mods automatically.
     /// This is designed if you need to be able to convert something automatically to a mod, you override this.
     export template <typename T>
-    [[nodiscard]] constexpr decltype(auto) to_mod(T&& obj) noexcept {
+    [[nodiscard]] constexpr decltype(auto) to_mod(T &&obj) noexcept {
         return std::forward<T>(obj);
     }
 
@@ -1257,6 +1257,13 @@ namespace fs8 {
 
     /// Anything that the official pipeline can accept as arguments (context, event, control event)
     export template <typename T>
-    concept PipelinePayload = Context<std::remove_cvref_t<T>> || Event<T>;
+    concept PipelinePayload = Context<std::remove_cvref_t<T>> || Event<T> || requires {
+        // todo: remove get_variables_tag and then remove this:
+        std::remove_cvref_t<T>::is_tag;
+    };
+
+    /// Convertible to Mod
+    export template <typename T>
+    concept Modable = Modifier<to_mod_t<T>> && !Context<std::remove_cvref_t<T>>;
 
 } // namespace fs8
