@@ -587,8 +587,35 @@ export namespace fs8 {
 
 
     // Ask pen2touch/pen2mice/... to emit scroll events instead of their normal events.
-    constexpr control_event scroll_on{.type = required_control_event, .code = 15, .value = 1};
-    constexpr control_event scroll_off{.type = required_control_event, .code = 15, .value = 0};
+    constexpr control_event scroll_mode{.code = 15, .value = 0};
+    constexpr control_event scroll_on{.code = 15, .value = 1};
+    constexpr control_event scroll_off{.code = 15, .value = 0};
+
+    constexpr void turn_on(control_event& event) noexcept {
+        switch (event.code) {
+            case scroll_mode.code: event.value = scroll_on.value; break;
+            default: break;
+        }
+    }
+
+    constexpr void turn_off(control_event& event) noexcept {
+        switch (event.code) {
+            case scroll_mode.code: event.value = scroll_off.value; break;
+            default: break;
+        }
+    }
+
+    constexpr void toggle(control_event& event) noexcept {
+        event.value = event.value == 1 ? 0 : 1;
+    }
+
+    /// Toggle lhs, if rhs is on
+    constexpr control_event toggle(control_event lhs, control_event const& rhs) noexcept {
+        if (rhs.value == 1) {
+            toggle(lhs);
+        }
+        return lhs;
+    }
 
     [[nodiscard]] std::string_view to_string(control_event const& event) noexcept;
 

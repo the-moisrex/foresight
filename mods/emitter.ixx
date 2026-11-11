@@ -299,14 +299,16 @@ namespace fs8 {
         }
 
         template <Context CtxT>
-        [[nodiscard]] constexpr context_action operator()(CtxT& ctx) noexcept {
-            std::ignore = ctx.fork_emit(event.type, event.code, event.value);
+        [[nodiscard]] constexpr context_action operator()(CtxT& ctx, control_event const& cevent) noexcept {
+            if (cevent.code == toggle_on.code) {
+                return ctx.broadcast(toggle(event, cevent));
+            }
             return context_action::next;
         }
     } emit_control;
 
     /// Convert to mod
-    constexpr basic_emit_control to_mod(control_event event) noexcept {
+    export constexpr basic_emit_control to_mod(control_event event) noexcept {
         return basic_emit_control{std::move(event)};
     }
 

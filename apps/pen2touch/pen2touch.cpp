@@ -120,8 +120,7 @@ int main(int const argc, char const* const* argv) try {
       | intercept
       | led_state
       | keys_state
-      | on[pressed[KEY_CAPSLOCK], scroll_on]
-      | on[!pressed[KEY_CAPSLOCK], scroll_off]
+      | on[pressed[KEY_CAPSLOCK], scroll_mode]
       | on[pressed[KEY_CAPSLOCK] | led_off[LED_CAPSL], pen2touch]
       | pen_branch
       | on_held[KEY_CAPSLOCK, context]

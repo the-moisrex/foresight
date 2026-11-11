@@ -237,6 +237,9 @@ namespace fs8 {
     struct [[nodiscard]] basic_on : consteval_copyable {
         using consteval_copyable::consteval_copyable;
 
+        static_assert(std::same_as<to_mod_t<CondT>, CondT>, "Modification must happen beforehand.");
+        static_assert((std::same_as<to_mod_t<Funcs>, Funcs> && ...), "Modification must happen beforehand.");
+
       private:
         [[no_unique_address]] CondT                cond;
         [[no_unique_address]] std::tuple<Funcs...> funcs;
