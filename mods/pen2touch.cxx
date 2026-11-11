@@ -229,7 +229,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// physical buttons across frames, so press and release must not
     /// share one frame (a same-frame pair nets to no change and is
     /// dropped).  0 = nothing pending.
-    code_type pending_tap_release_ = 0;
+    code_type pending_tap_release = 0;
 
     /// The mouse buttons the BTN_STYLUS* codes are remapped to.
     static constexpr std::array<code_type, 3> barrel_buttons{BTN_RIGHT, BTN_MIDDLE, BTN_SIDE};
@@ -318,8 +318,9 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// while it is open, when it opened before any position arrived).
     /// The mirror equals the raw value here, so flipping X never kicks
     /// a delta into a running gesture.
-    value_type scroll_anchor_x     = 0;
-    bool       scroll_anchor_valid = false;
+    ///
+    /// A scroll finger cannot be opened unless a valid X coordinate is already present
+    value_type scroll_anchor_x = 0;
 
     /// The current event's timestamp, sampled at the top of every
     /// `handle` — all compensation timing is read from it.
@@ -374,7 +375,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// advertised ABS_MT_TRACKING_ID range (0..65535) so the kernel never
     /// clamps or rejects an id.
     [[nodiscard]] value_type next_tracking_id() noexcept {
-        if (tracking_id >= 65'535) {
+        if (tracking_id >= 65'535) [[unlikely]] {
             tracking_id = 0;
         } else {
             ++tracking_id;
@@ -400,8 +401,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         scroll_active        = false;
         scroll_id            = -1;
         scroll_anchor_x      = 0;
-        scroll_anchor_valid  = false;
-        pending_tap_release_ = 0;
+        pending_tap_release = 0;
         for (auto& trigger : triggers) {
             trigger = {};
         }
@@ -510,7 +510,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
 
     /// Open the synthetic scroll contact next to the pen contact.
     void begin_scroll_finger() noexcept {
-        if (scroll_id >= 0 || !scroll_active || !touching) {
+        if (scroll_id >= 0 || !scroll_active || !touching || !have_x) {
             return;
         }
         // Any motion held back for the pointer path belongs to this
@@ -518,9 +518,8 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         // mirror opens (the gesture itself feeds libinput's constant
         // scroll filter, never the pointer accelerator).
         flush_raw_pending();
-        scroll_id           = next_tracking_id();
-        scroll_anchor_x     = x;
-        scroll_anchor_valid = have_x;
+        scroll_id       = next_tracking_id();
+        scroll_anchor_x = x;
 
         select_slot(scroll_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, scroll_id);
@@ -572,9 +571,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// its stored values across the id change.  No-op when the pen
     /// never left the anchor — there is no jump to hide.
     void rebase_pen_contact() noexcept {
-        bool const jump     = scroll_anchor_valid && touching && x != scroll_anchor_x;
-        scroll_anchor_valid = false;
-        if (!jump) {
+        if (!touching || x == scroll_anchor_x) {
             return;
         }
         select_slot(mt_slot);
@@ -655,9 +652,9 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// right-click.
     void release_stale_state() noexcept {
         bool any = touching || tool_active || tip_down || scroll_id >= 0;
-        if (pending_tap_release_ != 0) {
-            emit(EV_KEY, pending_tap_release_, 0);
-            pending_tap_release_ = 0;
+        if (pending_tap_release != 0) {
+            emit(EV_KEY, pending_tap_release, 0);
+            pending_tap_release = 0;
             any                  = true;
         }
         for (std::size_t i = 0; i < barrel_held.size(); ++i) {
@@ -832,9 +829,9 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
     // Deliver a deferred tap release first so it lands in a later
     // frame than its press (normally the source SYN follows right
     // after and closes the frame for us).
-    if (pending_tap_release_ != 0) {
-        emit(EV_KEY, pending_tap_release_, 0);
-        pending_tap_release_ = 0;
+    if (pending_tap_release != 0) {
+        emit(EV_KEY, pending_tap_release, 0);
+        pending_tap_release = 0;
     }
 
     switch (event.type()) {
@@ -977,7 +974,7 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                         // release on the next event.
                         emit(EV_KEY, barrel_buttons[barrel_index(event.code())], 1);
                         emit(EV_SYN, SYN_REPORT, 0);
-                        pending_tap_release_ = barrel_buttons[barrel_index(event.code())];
+                        pending_tap_release = barrel_buttons[barrel_index(event.code())];
                     }
                     return drop_event;
                 }
@@ -1003,12 +1000,11 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                     auto const previous = x;
                     x                   = event.value();
                     have_x              = true;
-                    if (scroll_id >= 0 && !scroll_anchor_valid) {
+                    if (scroll_id >= 0) {
                         // The finger opened before any position arrived:
                         // this first X becomes the anchor, which mirrors
                         // it onto itself.
-                        scroll_anchor_x     = x;
-                        scroll_anchor_valid = true;
+                        scroll_anchor_x = x;
                     }
                     if (comp_defer(accel_comp)) {
                         // Held back to the frame boundary, where the
@@ -1018,7 +1014,7 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                     }
                     comp_dx                   = 0;
                     comp_frac_x               = 0; // direct emit resyncs the slot
-                    bool const       mirrored = scroll_id >= 0 && scroll_anchor_valid;
+                    bool const       mirrored = scroll_id >= 0;
                     value_type const out      = mirrored ? mirrored_x(x) : x;
                     if (touching) {
                         emit(EV_ABS, ABS_MT_POSITION_X, out);
