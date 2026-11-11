@@ -190,40 +190,40 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
 
     /// Current tracking ID.  Non-negative means a contact is active;
     /// -1 means no contact.
-    value_type tracking_id_ = -1;
+    value_type tracking_id = -1;
 
     /// Last-seen raw coordinates, cached so we can emit them alongside
     /// the MT equivalents.
-    value_type x_ = 0;
-    value_type y_ = 0;
+    value_type x = 0;
+    value_type y = 0;
 
     /// Whether the pen tool is in proximity (BTN_TOOL_* == 1).
-    bool tool_active_ = false;
+    bool tool_active = false;
 
     /// Whether the MT contact is open.  Follows the tool (proximity),
     /// not the tip: hovering already moves the cursor.
-    bool touching_ = false;
+    bool touching = false;
 
     /// Whether the pen tip is pressed (source BTN_TOUCH == 1); the
     /// virtual device's BTN_LEFT follows this state.
-    bool tip_down_ = false;
+    bool tip_down = false;
 
     /// Whether BTN_LEFT is currently *emitted*.  Differs from the tip
     /// while a scroll hold suppresses the click: the tip can be down
     /// with no left button out there.
-    bool left_down_ = false;
+    bool left_down = false;
 
     /// Whether BTN_MIDDLE is currently *emitted* by the tip: clicking
     /// the tip while a scroll is active becomes a middle click (the tip
     /// can never start a left drag mid-scroll).  The release must track
     /// this, not the scroll state, so it lifts the right button even
     /// after the scroll has ended.
-    bool middle_down_ = false;
+    bool middle_down = false;
 
     /// Whether we have received at least one ABS_X / ABS_Y since the
     /// last touch-down, so we know the values are valid.
-    bool have_x_ = false;
-    bool have_y_ = false;
+    bool have_x = false;
+    bool have_y = false;
 
     /// A tap's button code waiting for its release: libinput diffs
     /// physical buttons across frames, so press and release must not
@@ -247,7 +247,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
 
     /// Which mapped buttons are currently held, so cleanup can release
     /// a press whose release event never arrived.
-    std::array<bool, 3> barrel_held_{};
+    std::array<bool, 3> barrel_held{};
 
     /// Slot reported in MT events; slot 0 is the pen contact, slot 1
     /// the synthetic scroll finger.
@@ -258,25 +258,25 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// selected one (fresh pimpl, or after `reset` — the virtual
     /// device's kernel-side selection survives a restart, so forget it
     /// too and re-select defensively).
-    value_type selected_slot_ = -1;
+    value_type selected_slot = -1;
 
     /// Select `s` for the MT events that follow, emitting ABS_MT_SLOT
     /// only when it differs from the last selection: re-selecting the
     /// current slot is a no-op for consumers but still costs a
     /// `fork_emit` walk plus a `write()` syscall per frame.
     void select_slot(value_type const s) noexcept {
-        if (selected_slot_ != s) {
+        if (selected_slot != s) {
             emit(EV_ABS, ABS_MT_SLOT, s);
-            selected_slot_ = s;
+            selected_slot = s;
         }
     }
 
     /// Scroll mode: while active a second contact (slot 1) mirrors the
     /// pen contact, which libinput reads as a two-finger scroll.
-    bool scroll_active_ = false;
+    bool scroll_active = false;
 
     /// The synthetic scroll contact's tracking id (-1 = lifted).
-    value_type scroll_id_ = -1;
+    value_type scroll_id = -1;
 
     /// A barrel button buffered for the tap-vs-scroll decision, indexed
     /// like `barrel_held_`.  Nothing is emitted until release: a quick
@@ -289,13 +289,13 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         std::chrono::microseconds press_time = {};
     };
 
-    std::array<trigger_state, 3> triggers_{};
+    std::array<trigger_state, 3> triggers{};
 
     /// Whether any trigger barrel button is down right now.  Movement
     /// marks every held trigger as used on each moved axis, so this
     /// keeps the common (nothing held) case a single predicted branch
     /// instead of a three-entry scan per axis event.
-    bool any_trigger_held_ = false;
+    bool any_trigger_held = false;
 
     /// How long a barrel button must stay down before its release stops
     /// counting as a tap (the same 200 ms window `on_held` uses).
@@ -304,197 +304,197 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// Pipeline-side scroll hold, set by `basic_pen2touch::scroll_hold`
     /// (the app's CapsLock gates, outside the mod); OR-combined with
     /// the barrel triggers in `update_scroll`.
-    bool scroll_hold_ = false;
+    bool scroll_hold = false;
 
     /// Scroll-finger geometry: its X sits one eighth of the axis away
     /// from the pen contact.  Defaults match the unprofiled fallback
     /// range; `profile_device` overwrites them with the real axis.
-    value_type scroll_offset_x_ = 32'767 / 8;
-    value_type scroll_min_x_    = 0;
-    value_type scroll_max_x_    = 32'767;
+    value_type scroll_offset_x = 32'767 / 8;
+    value_type scroll_min_x    = 0;
+    value_type scroll_max_x    = 32'767;
 
     /// The X position the scroll-finger open mirrored around: the pen
     /// coordinate at the moment slot 1 appeared (or at the first X seen
     /// while it is open, when it opened before any position arrived).
     /// The mirror equals the raw value here, so flipping X never kicks
     /// a delta into a running gesture.
-    value_type scroll_anchor_x_     = 0;
-    bool       scroll_anchor_valid_ = false;
+    value_type scroll_anchor_x     = 0;
+    bool       scroll_anchor_valid = false;
 
     /// The current event's timestamp, sampled at the top of every
     /// `handle` — all compensation timing is read from it.
-    std::chrono::microseconds now_{};
+    std::chrono::microseconds now{};
 
     /// Motion held back until the frame's SYN_REPORT, where
     /// compensation divides it by libinput's own gain (see
     /// `accel_compensation`).  Only the pointer path holds motion
     /// back: two-finger frames bypass libinput's pointer accelerator,
     /// so they are never deferred.
-    double comp_dx_ = 0;
-    double comp_dy_ = 0;
+    double comp_dx = 0;
+    double comp_dy = 0;
 
     /// Sub-unit remainder of the last divided frame, carried into the
     /// next one: rounding it away would make the emitted contact fall
     /// behind the pen a little more on every compensated frame.
-    double comp_frac_x_ = 0;
-    double comp_frac_y_ = 0;
+    double comp_frac_x = 0;
+    double comp_frac_y = 0;
 
     /// When the last compensated frame was flushed, and the velocity
     /// it ended on — the previous-frame half of the simpsons average
     /// libinput's gain runs over (libinput feeds the tracker the
     /// deltas it received, i.e. our emitted ones).
-    std::chrono::microseconds comp_last_syn_{};
-    double                    comp_last_vel_ = 0;
+    std::chrono::microseconds comp_last_syn{};
+    double                    comp_last_vel = 0;
 
     /// The first flush of a contact is reported raw: libinput
     /// baselines on a fresh touch before any gain applies to it.
-    bool comp_first_flush_ = true;
+    bool comp_first_flush = true;
 
     /// Slot 0's last emitted position, so a compensated frame moves
     /// the contact incrementally from where libinput saw it.
-    value_type emitted_x_ = 0;
-    value_type emitted_y_ = 0;
+    value_type emitted_x = 0;
+    value_type emitted_y = 0;
 
     /// Constant contact size (ABS_MT_TOUCH_MAJOR) in axis units: 2 mm
     /// through the profiled resolution, so libinput reads the same
     /// physical size at any speed factor.  0 until the template is
     /// profiled — which also means the axis is not advertised.
     /// Configuration, survives `reset`.
-    value_type touch_major_ = 0;
+    value_type touch_major = 0;
 
     /// The profiled virtual device's axis resolution (units/mm), the
     /// scale libinput derives mm/s velocity from.  Read after the
     /// speed factor has divided it (the factor rides on the
     /// resolution); 0 = nothing to scale against, compensation stays
     /// off.  Configuration, survives `reset`.
-    double res_x_ = 0;
-    double res_y_ = 0;
+    double res_x = 0;
+    double res_y = 0;
 
     /// Monotonically increasing tracking ID generator.  Bounded by the
     /// advertised ABS_MT_TRACKING_ID range (0..65535) so the kernel never
     /// clamps or rejects an id.
     [[nodiscard]] value_type next_tracking_id() noexcept {
-        if (tracking_id_ >= 65'535) {
-            tracking_id_ = 0;
+        if (tracking_id >= 65'535) {
+            tracking_id = 0;
         } else {
-            ++tracking_id_;
+            ++tracking_id;
         }
-        return tracking_id_;
+        return tracking_id;
     }
 
     /// Reset all internal state (called on start / toggle_off /
     /// device_disconnected).  The profiled scroll geometry is
     /// configuration, not per-run state, and survives.
     void reset() noexcept {
-        tracking_id_ = -1;
-        x_           = 0;
-        y_           = 0;
-        tool_active_ = false;
-        touching_    = false;
-        tip_down_    = false;
-        left_down_   = false;
-        middle_down_ = false;
-        have_x_      = false;
-        have_y_      = false;
-        barrel_held_.fill(false);
-        scroll_active_       = false;
-        scroll_id_           = -1;
-        scroll_anchor_x_     = 0;
-        scroll_anchor_valid_ = false;
+        tracking_id = -1;
+        x           = 0;
+        y           = 0;
+        tool_active = false;
+        touching    = false;
+        tip_down    = false;
+        left_down   = false;
+        middle_down = false;
+        have_x      = false;
+        have_y      = false;
+        barrel_held.fill(false);
+        scroll_active        = false;
+        scroll_id            = -1;
+        scroll_anchor_x      = 0;
+        scroll_anchor_valid  = false;
         pending_tap_release_ = 0;
-        for (auto& trigger : triggers_) {
+        for (auto& trigger : triggers) {
             trigger = {};
         }
-        any_trigger_held_ = false;
-        scroll_hold_      = false;
-        now_              = {};
-        comp_dx_          = 0;
-        comp_dy_          = 0;
-        comp_frac_x_      = 0;
-        comp_frac_y_      = 0;
-        comp_last_syn_    = {};
-        comp_last_vel_    = 0;
-        comp_first_flush_ = true;
-        emitted_x_        = 0;
-        emitted_y_        = 0;
+        any_trigger_held = false;
+        scroll_hold      = false;
+        now              = {};
+        comp_dx          = 0;
+        comp_dy          = 0;
+        comp_frac_x      = 0;
+        comp_frac_y      = 0;
+        comp_last_syn    = {};
+        comp_last_vel    = 0;
+        comp_first_flush = true;
+        emitted_x        = 0;
+        emitted_y        = 0;
         // The virtual device keeps its kernel-side slot selection across a
         // restart; forget ours too so the next contact re-selects it.
-        selected_slot_    = -1;
+        selected_slot    = -1;
         // res_x_/res_y_ are configuration (the profiled device), not state.
     }
 
     /// Begin a new MT contact (ABS_MT_TRACKING_ID >= 0).
     void begin_contact() noexcept {
-        if (touching_) {
+        if (touching) {
             return;
         }
-        touching_ = true;
+        touching = true;
 
         // A fresh contact is a fresh compensation context: libinput
         // restarts its trackers on touch begin, and the opening
         // frame reaches it raw.
-        comp_dx_          = 0;
-        comp_dy_          = 0;
-        comp_frac_x_      = 0;
-        comp_frac_y_      = 0;
-        comp_last_syn_    = now_;
-        comp_last_vel_    = 0;
-        comp_first_flush_ = true;
+        comp_dx          = 0;
+        comp_dy          = 0;
+        comp_frac_x      = 0;
+        comp_frac_y      = 0;
+        comp_last_syn    = now;
+        comp_last_vel    = 0;
+        comp_first_flush = true;
 
         value_type const id = next_tracking_id();
 
         select_slot(mt_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, id);
 
-        if (have_x_) {
-            emit(EV_ABS, ABS_MT_POSITION_X, x_);
-            emitted_x_ = x_;
+        if (have_x) {
+            emit(EV_ABS, ABS_MT_POSITION_X, x);
+            emitted_x = x;
         }
-        if (have_y_) {
-            emit(EV_ABS, ABS_MT_POSITION_Y, y_);
-            emitted_y_ = y_;
+        if (have_y) {
+            emit(EV_ABS, ABS_MT_POSITION_Y, y);
+            emitted_y = y;
         }
         // The kernel slot remembers the last size across contacts, so
         // one emit at open is enough; 0 (never profiled) means the
         // axis does not exist on this device.
-        if (touch_major_ > 0) {
-            emit(EV_ABS, ABS_MT_TOUCH_MAJOR, touch_major_);
+        if (touch_major > 0) {
+            emit(EV_ABS, ABS_MT_TOUCH_MAJOR, touch_major);
         }
     }
 
     /// End the current MT contact (ABS_MT_TRACKING_ID = -1).
     void end_contact() noexcept {
-        if (!touching_) {
+        if (!touching) {
             return;
         }
         // Every MT event belongs to the currently selected slot; lift on
         // slot 0 (the re-select only emits when it is not already there).
         select_slot(mt_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, -1);
-        touching_ = false;
+        touching = false;
         // have_x_/have_y_ deliberately survive: x_ is still the pen's
         // last known position.  Clearing them would leave the next
         // contact's open frame without a position, so the kernel slot
         // would keep whatever an earlier contact emitted (possibly a
         // compensated, lagging value) and libinput would baseline the
         // new contact on that stale point.
-        comp_dx_  = 0;
-        comp_dy_  = 0;
+        comp_dx  = 0;
+        comp_dy  = 0;
     }
 
     /// X position of the synthetic scroll finger: the pen contact's X
     /// pushed one eighth of the axis to the side, flipped near the edge
     /// so it stays inside the advertised range.
     [[nodiscard]] value_type scroll_x() const noexcept {
-        value_type const right = x_ + scroll_offset_x_;
-        if (right <= scroll_max_x_) {
+        value_type const right = x + scroll_offset_x;
+        if (right <= scroll_max_x) {
             return right;
         }
-        value_type const left = x_ - scroll_offset_x_;
-        if (left >= scroll_min_x_) {
+        value_type const left = x - scroll_offset_x;
+        if (left >= scroll_min_x) {
             return left;
         }
-        return x_;
+        return x;
     }
 
     /// Mirror an X position around the engage anchor.  libinput derives
@@ -505,12 +505,12 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// advertised range this way — scroll is delta-based and the kernel
     /// does not clamp injected ABS events.
     [[nodiscard]] value_type mirrored_x(value_type const x) const noexcept {
-        return 2 * scroll_anchor_x_ - x;
+        return 2 * scroll_anchor_x - x;
     }
 
     /// Open the synthetic scroll contact next to the pen contact.
     void begin_scroll_finger() noexcept {
-        if (scroll_id_ >= 0 || !scroll_active_ || !touching_) {
+        if (scroll_id >= 0 || !scroll_active || !touching) {
             return;
         }
         // Any motion held back for the pointer path belongs to this
@@ -518,17 +518,17 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         // mirror opens (the gesture itself feeds libinput's constant
         // scroll filter, never the pointer accelerator).
         flush_raw_pending();
-        scroll_id_           = next_tracking_id();
-        scroll_anchor_x_     = x_;
-        scroll_anchor_valid_ = have_x_;
+        scroll_id           = next_tracking_id();
+        scroll_anchor_x     = x;
+        scroll_anchor_valid = have_x;
 
         select_slot(scroll_slot);
-        emit(EV_ABS, ABS_MT_TRACKING_ID, scroll_id_);
-        if (have_x_) {
+        emit(EV_ABS, ABS_MT_TRACKING_ID, scroll_id);
+        if (have_x) {
             emit(EV_ABS, ABS_MT_POSITION_X, mirrored_x(scroll_x()));
         }
-        if (have_y_) {
-            emit(EV_ABS, ABS_MT_POSITION_Y, y_);
+        if (have_y) {
+            emit(EV_ABS, ABS_MT_POSITION_Y, y);
         }
         // Leave the pen's slot selected for whatever comes next.
         select_slot(mt_slot);
@@ -545,19 +545,19 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// through a fresh tracking id (see `rebase_pen_contact`); contact
     /// teardown passes false — the contact dies anyway.
     void end_scroll_finger(bool const rebase) noexcept {
-        if (scroll_id_ < 0) {
+        if (scroll_id < 0) {
             return;
         }
         select_slot(scroll_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, -1);
         select_slot(mt_slot);
-        scroll_id_     = -1;
+        scroll_id     = -1;
         // The gesture rode libinput's constant scroll filter; the
         // pointer accelerator's frame history ends with it.
-        comp_last_vel_ = 0;
+        comp_last_vel = 0;
         // Back to one contact (or none): FINGER again only while the
         // tool is still near, and never keep DOUBLETAP lit.
-        emit(EV_KEY, BTN_TOOL_FINGER, tool_active_ ? 1 : 0);
+        emit(EV_KEY, BTN_TOOL_FINGER, tool_active ? 1 : 0);
         emit(EV_KEY, BTN_TOOL_DOUBLETAP, 0);
         if (rebase) {
             rebase_pen_contact();
@@ -572,26 +572,26 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// its stored values across the id change.  No-op when the pen
     /// never left the anchor — there is no jump to hide.
     void rebase_pen_contact() noexcept {
-        bool const jump      = scroll_anchor_valid_ && touching_ && x_ != scroll_anchor_x_;
-        scroll_anchor_valid_ = false;
+        bool const jump     = scroll_anchor_valid && touching && x != scroll_anchor_x;
+        scroll_anchor_valid = false;
         if (!jump) {
             return;
         }
         select_slot(mt_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, -1);
         emit(EV_ABS, ABS_MT_TRACKING_ID, next_tracking_id());
-        emit(EV_ABS, ABS_MT_POSITION_X, x_);
-        emitted_x_     = x_;   // the slot holds the real position now
-        comp_last_syn_ = now_; // libinput restarts its trackers on the id change
+        emit(EV_ABS, ABS_MT_POSITION_X, x);
+        emitted_x     = x;   // the slot holds the real position now
+        comp_last_syn = now; // libinput restarts its trackers on the id change
     }
 
     /// Movement while a barrel button is held turns that hold into a
     /// scroll: its release will never click.
     void mark_triggers_used() noexcept {
-        if (!any_trigger_held_) [[likely]] {
+        if (!any_trigger_held) [[likely]] {
             return;
         }
-        for (auto& trigger : triggers_) {
+        for (auto& trigger : triggers) {
             if (trigger.held) {
                 trigger.used = true;
             }
@@ -602,22 +602,22 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// drag (the tip click is suppressed for as long as the hold lasts)
     /// and opens the scroll finger; releasing it just lifts the finger.
     void update_scroll() noexcept {
-        bool const want = scroll_hold_ || triggers_[barrel_index(BTN_STYLUS)].held || triggers_[barrel_index(BTN_STYLUS2)].held;
-        if (want == scroll_active_) {
+        bool const want = scroll_hold || triggers[barrel_index(BTN_STYLUS)].held || triggers[barrel_index(BTN_STYLUS2)].held;
+        if (want == scroll_active) {
             return;
         }
-        scroll_active_ = want;
-        if (!scroll_active_) {
+        scroll_active = want;
+        if (!scroll_active) {
             // The gesture is over but the contact stays: snap the pen
             // back to its real position without a visible jump.
             end_scroll_finger(true);
             return;
         }
-        if (left_down_) {
+        if (left_down) {
             emit(EV_KEY, BTN_LEFT, 0);
-            left_down_ = false;
+            left_down = false;
         }
-        if (touching_) {
+        if (touching) {
             begin_scroll_finger();
         }
     }
@@ -626,11 +626,11 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// BTN_TOUCH=1.  libinput needs both: the tracking id alone only
     /// yields a TOUCH_HOVERING slot that never moves the cursor.
     void open_contact() noexcept {
-        if (touching_) {
+        if (touching) {
             return;
         }
         begin_contact();
-        if (scroll_active_) {
+        if (scroll_active) {
             begin_scroll_finger();
         }
         emit(EV_KEY, BTN_TOUCH, 1);
@@ -639,7 +639,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// Close the MT contact (if open), dropping the output BTN_TOUCH
     /// first so libinput hovers the slot before the tracking id dies.
     void close_contact() noexcept {
-        if (!touching_) {
+        if (!touching) {
             return;
         }
         end_scroll_finger(false);
@@ -654,38 +654,38 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// held BTN_TOOL_FINGER, a held left/middle button, or a held
     /// right-click.
     void release_stale_state() noexcept {
-        bool any = touching_ || tool_active_ || tip_down_ || scroll_id_ >= 0;
+        bool any = touching || tool_active || tip_down || scroll_id >= 0;
         if (pending_tap_release_ != 0) {
             emit(EV_KEY, pending_tap_release_, 0);
             pending_tap_release_ = 0;
             any                  = true;
         }
-        for (std::size_t i = 0; i < barrel_held_.size(); ++i) {
-            if (barrel_held_[i]) {
+        for (std::size_t i = 0; i < barrel_held.size(); ++i) {
+            if (barrel_held[i]) {
                 emit(EV_KEY, barrel_buttons[i], 0);
-                barrel_held_[i] = false;
-                any             = true;
+                barrel_held[i] = false;
+                any            = true;
             }
         }
-        if (left_down_) {
+        if (left_down) {
             emit(EV_KEY, BTN_LEFT, 0);
-            left_down_ = false;
-            any        = true;
+            left_down = false;
+            any       = true;
         }
-        if (middle_down_) {
+        if (middle_down) {
             emit(EV_KEY, BTN_MIDDLE, 0);
-            middle_down_ = false;
-            any          = true;
+            middle_down = false;
+            any         = true;
         }
         if (!any) {
             return;
         }
-        if (touching_) {
+        if (touching) {
             end_scroll_finger(false);
             emit(EV_KEY, BTN_TOUCH, 0);
             end_contact();
         }
-        if (tool_active_) {
+        if (tool_active) {
             emit(EV_KEY, BTN_TOOL_FINGER, 0);
         }
         // Control events carry no frame of their own, so close the one
@@ -699,7 +699,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// constant scroll filter, and axes without a profiled
     /// resolution leave us no mm/s to work with.
     [[nodiscard]] bool comp_defer(bool const accel_comp) const noexcept {
-        return accel_comp && scroll_id_ < 0 && touching_ && res_x_ > 0 && res_y_ > 0;
+        return accel_comp && scroll_id < 0 && touching && res_x > 0 && res_y > 0;
     }
 
     /// Frame speed in mm/s the way libinput's two-entry tracker reads
@@ -708,8 +708,8 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// guards a zero dt.  Reads the *emitted* position history, like
     /// libinput's own trackers.
     [[nodiscard]] double velocity(double const dx, double const dy) const noexcept {
-        auto const dt = std::clamp(now_ - comp_last_syn_, std::chrono::microseconds::zero(), std::chrono::microseconds{1'000'000});
-        return std::hypot(dx / res_x_, dy / res_y_) * 1e6 / (static_cast<double>(dt.count()) + 1.0);
+        auto const dt = std::clamp(now - comp_last_syn, std::chrono::microseconds::zero(), std::chrono::microseconds{1'000'000});
+        return std::hypot(dx / res_x, dy / res_y) * 1e6 / (static_cast<double>(dt.count()) + 1.0);
     }
 
     /// The divisor that cancels libinput's own acceleration: solve
@@ -749,73 +749,73 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// contact's baseline frame and for the frame that opens the
     /// scroll finger.
     void flush_raw_pending() noexcept {
-        if (comp_dx_ == 0 && comp_dy_ == 0) {
+        if (comp_dx == 0 && comp_dy == 0) {
             return;
         }
-        double const dx  = comp_dx_;
-        double const dy  = comp_dy_;
-        comp_dx_         = 0;
-        comp_dy_         = 0;
+        double const dx  = comp_dx;
+        double const dy  = comp_dy;
+        comp_dx          = 0;
+        comp_dy          = 0;
         double const vel = velocity(dx, dy); // before the syn below moves it
         select_slot(mt_slot);
-        if (dx != 0 && have_x_) {
-            emit(EV_ABS, ABS_MT_POSITION_X, x_);
-            emitted_x_   = x_;
-            comp_frac_x_ = 0; // raw resync: nothing left to carry
+        if (dx != 0 && have_x) {
+            emit(EV_ABS, ABS_MT_POSITION_X, x);
+            emitted_x   = x;
+            comp_frac_x = 0; // raw resync: nothing left to carry
         }
-        if (dy != 0 && have_y_) {
-            emit(EV_ABS, ABS_MT_POSITION_Y, y_);
-            emitted_y_   = y_;
-            comp_frac_y_ = 0;
+        if (dy != 0 && have_y) {
+            emit(EV_ABS, ABS_MT_POSITION_Y, y);
+            emitted_y   = y;
+            comp_frac_y = 0;
         }
-        comp_last_vel_ = vel;
-        comp_last_syn_ = now_;
+        comp_last_vel = vel;
+        comp_last_syn = now;
     }
 
     /// Consume the frame's held-back motion at its SYN_REPORT: the
     /// frame boundary is where libinput reads a contact's position,
     /// so dividing there is indistinguishable from a slower pen.
     void flush_accel() noexcept {
-        if (comp_dx_ == 0 && comp_dy_ == 0) {
+        if (comp_dx == 0 && comp_dy == 0) {
             return;
         }
-        if (comp_first_flush_) {
-            comp_first_flush_ = false;
+        if (comp_first_flush) {
+            comp_first_flush = false;
             flush_raw_pending();
             return;
         }
-        double const dx       = comp_dx_;
-        double const dy       = comp_dy_;
-        comp_dx_              = 0;
-        comp_dy_              = 0;
-        double const divisor  = accel_divisor(velocity(dx, dy), comp_last_vel_);
+        double const dx       = comp_dx;
+        double const dy       = comp_dy;
+        comp_dx               = 0;
+        comp_dy               = 0;
+        double const divisor  = accel_divisor(velocity(dx, dy), comp_last_vel);
         // The sub-unit remainder of the division rides on to the next
         // frame instead of rounding away: dropping it would make the
         // emitted contact fall behind the pen on every compensated
         // frame — the stall that reads back as a lurch.
-        double const scaled_x = comp_frac_x_ + dx / divisor;
-        double const scaled_y = comp_frac_y_ + dy / divisor;
+        double const scaled_x = comp_frac_x + dx / divisor;
+        double const scaled_y = comp_frac_y + dy / divisor;
         auto const   out_dx   = static_cast<value_type>(std::llround(scaled_x));
         auto const   out_dy   = static_cast<value_type>(std::llround(scaled_y));
-        comp_frac_x_          = scaled_x - static_cast<double>(out_dx);
-        comp_frac_y_          = scaled_y - static_cast<double>(out_dy);
+        comp_frac_x           = scaled_x - static_cast<double>(out_dx);
+        comp_frac_y           = scaled_y - static_cast<double>(out_dy);
         if (out_dx != 0 || out_dy != 0) {
             select_slot(mt_slot);
             if (out_dx != 0) {
-                emitted_x_ = static_cast<value_type>(emitted_x_ + out_dx);
-                emit(EV_ABS, ABS_MT_POSITION_X, emitted_x_);
+                emitted_x = static_cast<value_type>(emitted_x + out_dx);
+                emit(EV_ABS, ABS_MT_POSITION_X, emitted_x);
             }
             if (out_dy != 0) {
-                emitted_y_ = static_cast<value_type>(emitted_y_ + out_dy);
-                emit(EV_ABS, ABS_MT_POSITION_Y, emitted_y_);
+                emitted_y = static_cast<value_type>(emitted_y + out_dy);
+                emit(EV_ABS, ABS_MT_POSITION_Y, emitted_y);
             }
         }
         // Refresh the tracker even when the frame emitted nothing:
         // time passed, and a stale `last` velocity / SYN stamp would
         // let the next frame divide against ancient history and keep
         // dropping slight motion after a flick.
-        comp_last_vel_ = velocity(out_dx, out_dy); // before the syn below moves it
-        comp_last_syn_ = now_;
+        comp_last_vel = velocity(out_dx, out_dy); // before the syn below moves it
+        comp_last_syn = now;
     }
 
     /// Translate a single input event.  `accel_comp` is the mod's
@@ -827,7 +827,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
 fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& event, bool const accel_comp) noexcept {
     using enum context_action;
 
-    now_ = event.micro_time();
+    now = event.micro_time();
 
     // Deliver a deferred tap release first so it lands in a later
     // frame than its press (normally the source SYN follows right
@@ -854,30 +854,30 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                 case BTN_TOOL_AIRBRUSH:
                 case BTN_TOOL_MOUSE:
                 case BTN_TOOL_LENS:
-                    tool_active_ = event.value() != 0;
-                    if (tool_active_) {
+                    tool_active = event.value() != 0;
+                    if (tool_active) {
                         open_contact();
                     } else {
                         // The tip cannot stay down once the tool is
                         // gone; the tablet may never send
                         // BTN_TOUCH=0 afterwards, so release it
                         // ourselves.
-                        if (left_down_) {
+                        if (left_down) {
                             emit(EV_KEY, BTN_LEFT, 0);
-                            left_down_ = false;
+                            left_down = false;
                         }
-                        if (middle_down_) {
+                        if (middle_down) {
                             emit(EV_KEY, BTN_MIDDLE, 0);
-                            middle_down_ = false;
+                            middle_down = false;
                         }
-                        tip_down_ = false;
+                        tip_down = false;
                         close_contact();
                     }
                     // Rename to the tool key of the *current* contact
                     // count: while the scroll finger is open the frame
                     // must end on DOUBLETAP, not FINGER (contact open
                     // above may already have flipped them).
-                    event.code(scroll_id_ >= 0 ? BTN_TOOL_DOUBLETAP : BTN_TOOL_FINGER);
+                    event.code(scroll_id >= 0 ? BTN_TOOL_DOUBLETAP : BTN_TOOL_FINGER);
                     return next;
 
                 // The source tip press is the physical left button.
@@ -890,24 +890,24 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                 // never start a left drag mid-scroll, but it should
                 // not be dead either.
                 case BTN_TOUCH: {
-                    tip_down_ = event.value() != 0;
-                    if (tip_down_) {
+                    tip_down = event.value() != 0;
+                    if (tip_down) {
                         open_contact();
-                    } else if (!tool_active_) {
+                    } else if (!tool_active) {
                         close_contact();
                     }
-                    if (tip_down_) {
-                        if (scroll_active_) {
+                    if (tip_down) {
+                        if (scroll_active) {
                             // A repeated press while already down stays
                             // dropped, like the old suppression.
-                            if (middle_down_) {
+                            if (middle_down) {
                                 return drop_event;
                             }
-                            middle_down_ = true;
+                            middle_down = true;
                             event.code(BTN_MIDDLE);
                             return next;
                         }
-                        left_down_ = true;
+                        left_down = true;
                         event.code(BTN_LEFT);
                         return next;
                     }
@@ -915,15 +915,15 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                     // emitted; a press that was suppressed (the scroll
                     // started after it and ended before this release)
                     // has nothing to lift.
-                    if (middle_down_) {
-                        middle_down_ = false;
+                    if (middle_down) {
+                        middle_down = false;
                         event.code(BTN_MIDDLE);
                         return next;
                     }
-                    if (!left_down_) {
+                    if (!left_down) {
                         return drop_event;
                     }
-                    left_down_ = false;
+                    left_down = false;
                     event.code(BTN_LEFT);
                     return next;
                 }
@@ -933,8 +933,8 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                 // device).  Track the hold so cleanup can release a
                 // press whose release event never arrived.
                 case BTN_STYLUS3: {
-                    auto const index    = barrel_index(event.code());
-                    barrel_held_[index] = event.value() != 0;
+                    auto const index   = barrel_index(event.code());
+                    barrel_held[index] = event.value() != 0;
                     event.code(barrel_buttons[index]);
                     return next;
                 }
@@ -948,13 +948,13 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                 // pens (including single-button ones) only report it.
                 case BTN_STYLUS:
                 case BTN_STYLUS2: {
-                    auto& trigger = triggers_[barrel_index(event.code())];
+                    auto& trigger = triggers[barrel_index(event.code())];
                     if (event.value() != 0) {
                         if (!trigger.held) {
                             trigger.held       = true;
                             trigger.used       = false;
                             trigger.press_time = event.micro_time();
-                            any_trigger_held_  = true;
+                            any_trigger_held   = true;
                         }
                         update_scroll();
                         return drop_event;
@@ -962,10 +962,10 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                     if (!trigger.held) {
                         return drop_event;
                     }
-                    trigger.held      = false;
-                    any_trigger_held_ = false;
-                    for (auto const& held_trigger : triggers_) {
-                        any_trigger_held_ = any_trigger_held_ || held_trigger.held;
+                    trigger.held     = false;
+                    any_trigger_held = false;
+                    for (auto const& held_trigger : triggers) {
+                        any_trigger_held = any_trigger_held || held_trigger.held;
                     }
                     bool const tap = !trigger.used && (event.micro_time() - trigger.press_time < tap_window);
                     update_scroll();
@@ -989,7 +989,7 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
         case EV_ABS:
             switch (event.code()) {
                 case ABS_X: {
-                    if (have_x_ && event.value() == x_) {
+                    if (have_x && event.value() == x) {
                         // Nothing moved: no trigger to mark, no anchor to
                         // seed, no position to mirror, and a deferred
                         // delta of zero would not change.  Sources that
@@ -997,34 +997,34 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                         // replayed, captured) hit this on every packet.
                         return next;
                     }
-                    if (x_ != event.value()) {
+                    if (x != event.value()) {
                         mark_triggers_used();
                     }
-                    auto const previous = x_;
-                    x_                  = event.value();
-                    have_x_             = true;
-                    if (scroll_id_ >= 0 && !scroll_anchor_valid_) {
+                    auto const previous = x;
+                    x                   = event.value();
+                    have_x              = true;
+                    if (scroll_id >= 0 && !scroll_anchor_valid) {
                         // The finger opened before any position arrived:
                         // this first X becomes the anchor, which mirrors
                         // it onto itself.
-                        scroll_anchor_x_     = x_;
-                        scroll_anchor_valid_ = true;
+                        scroll_anchor_x     = x;
+                        scroll_anchor_valid = true;
                     }
                     if (comp_defer(accel_comp)) {
                         // Held back to the frame boundary, where the
                         // SYN below divides it by libinput's gain.
-                        comp_dx_ += static_cast<double>(x_ - previous);
+                        comp_dx += static_cast<double>(x - previous);
                         return next;
                     }
-                    comp_dx_                  = 0;
-                    comp_frac_x_              = 0; // direct emit resyncs the slot
-                    bool const       mirrored = scroll_id_ >= 0 && scroll_anchor_valid_;
-                    value_type const out      = mirrored ? mirrored_x(x_) : x_;
-                    if (touching_) {
+                    comp_dx                   = 0;
+                    comp_frac_x               = 0; // direct emit resyncs the slot
+                    bool const       mirrored = scroll_id >= 0 && scroll_anchor_valid;
+                    value_type const out      = mirrored ? mirrored_x(x) : x;
+                    if (touching) {
                         emit(EV_ABS, ABS_MT_POSITION_X, out);
-                        emitted_x_ = out;
+                        emitted_x = out;
                     }
-                    if (scroll_id_ >= 0) {
+                    if (scroll_id >= 0) {
                         select_slot(scroll_slot);
                         emit(EV_ABS, ABS_MT_POSITION_X, mirrored ? mirrored_x(scroll_x()) : scroll_x());
                         select_slot(mt_slot);
@@ -1033,29 +1033,29 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                 }
 
                 case ABS_Y: {
-                    if (have_y_ && event.value() == y_) {
+                    if (have_y && event.value() == y) {
                         // See ABS_X: an unchanged axis is pure overhead.
                         return next;
                     }
-                    if (y_ != event.value()) {
+                    if (y != event.value()) {
                         mark_triggers_used();
                     }
-                    auto const previous = y_;
-                    y_                  = event.value();
-                    have_y_             = true;
+                    auto const previous = y;
+                    y                   = event.value();
+                    have_y              = true;
                     if (comp_defer(accel_comp)) {
-                        comp_dy_ += static_cast<double>(y_ - previous);
+                        comp_dy += static_cast<double>(y - previous);
                         return next;
                     }
-                    comp_dy_     = 0;
-                    comp_frac_y_ = 0; // direct emit resyncs the slot
-                    if (touching_) {
-                        emit(EV_ABS, ABS_MT_POSITION_Y, y_);
-                        emitted_y_ = y_;
+                    comp_dy     = 0;
+                    comp_frac_y = 0; // direct emit resyncs the slot
+                    if (touching) {
+                        emit(EV_ABS, ABS_MT_POSITION_Y, y);
+                        emitted_y = y;
                     }
-                    if (scroll_id_ >= 0) {
+                    if (scroll_id >= 0) {
                         select_slot(scroll_slot);
-                        emit(EV_ABS, ABS_MT_POSITION_Y, y_);
+                        emit(EV_ABS, ABS_MT_POSITION_Y, y);
                         select_slot(mt_slot);
                     }
                     return next;
@@ -1089,8 +1089,8 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
             if (accel_comp) {
                 flush_accel();
             } else {
-                comp_dx_ = 0;
-                comp_dy_ = 0;
+                comp_dx = 0;
+                comp_dy = 0;
             }
             return next;
 
@@ -1109,10 +1109,10 @@ void basic_pen2touch::scroll_hold(bool const on_val) noexcept {
     if (pimpl.get() == nullptr) [[unlikely]] {
         init_impl();
     }
-    if (pimpl->scroll_hold_ == on_val) {
+    if (pimpl->scroll_hold == on_val) {
         return;
     }
-    pimpl->scroll_hold_ = on_val;
+    pimpl->scroll_hold = on_val;
     pimpl->update_scroll();
 }
 
@@ -1135,9 +1135,9 @@ fs8::context_action basic_pen2touch::operator()(control_event const& cevent) noe
             }
             profile_template(tmpl);
             if (auto const* info = tmpl.abs_info(ABS_MT_POSITION_X); info != nullptr) {
-                pimpl->scroll_min_x_    = info->minimum;
-                pimpl->scroll_max_x_    = info->maximum;
-                pimpl->scroll_offset_x_ = (info->maximum - info->minimum) / 8;
+                pimpl->scroll_min_x    = info->minimum;
+                pimpl->scroll_max_x    = info->maximum;
+                pimpl->scroll_offset_x = (info->maximum - info->minimum) / 8;
             }
             // The speed factor rides on the axis resolution: libinput
             // derives pointer/scroll motion from delta/resolution, so
@@ -1160,19 +1160,19 @@ fs8::context_action basic_pen2touch::operator()(control_event const& cevent) noe
             // the factor rides on the resolution).  0 = no scale to
             // convert through, the mod stays raw.
             if (auto const* info = tmpl.abs_info(ABS_MT_POSITION_X); info != nullptr) {
-                pimpl->res_x_ = static_cast<double>(info->resolution);
+                pimpl->res_x = static_cast<double>(info->resolution);
             }
             if (auto const* info = tmpl.abs_info(ABS_MT_POSITION_Y); info != nullptr) {
-                pimpl->res_y_ = static_cast<double>(info->resolution);
+                pimpl->res_y = static_cast<double>(info->resolution);
             }
             // The constant contact size in (post-speed) axis units: 2 mm
             // counted through the resolution libinput will advertise, so
             // the physical size is the same at every speed factor.
-            if (pimpl->res_x_ > 0) {
-                pimpl->touch_major_ = static_cast<value_type>(std::lround(2.0 * pimpl->res_x_));
+            if (pimpl->res_x > 0) {
+                pimpl->touch_major = static_cast<value_type>(std::lround(2.0 * pimpl->res_x));
                 if (auto const* info = tmpl.abs_info(ABS_MT_TOUCH_MAJOR); info != nullptr) {
                     auto updated  = *info;
-                    updated.value = static_cast<decltype(updated.value)>(pimpl->touch_major_);
+                    updated.value = static_cast<decltype(updated.value)>(pimpl->touch_major);
                     tmpl.abs_info(ABS_MT_TOUCH_MAJOR, updated);
                 }
             }
@@ -1198,8 +1198,8 @@ fs8::context_action basic_pen2touch::operator()(control_event const& cevent) noe
             if (pimpl.get() == nullptr) [[unlikely]] {
                 init_impl();
             }
-            if (pimpl->scroll_hold_ != on_val) {
-                pimpl->scroll_hold_ = on_val;
+            if (pimpl->scroll_hold != on_val) {
+                pimpl->scroll_hold = on_val;
                 pimpl->update_scroll();
             }
             return next;
