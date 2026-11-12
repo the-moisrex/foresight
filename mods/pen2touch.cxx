@@ -245,10 +245,6 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         }
     }
 
-    /// Whether BTN_SIDE (remapped from BTN_STYLUS3) is currently held,
-    /// so cleanup can release it if its release event never arrived.
-    bool side_held = false;
-
     /// Slot reported in MT events; slot 0 is the pen contact, slot 1
     /// the synthetic scroll finger.
     static constexpr value_type mt_slot     = 0;
@@ -393,7 +389,6 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         middle_down         = false;
         have_x              = false;
         have_y              = false;
-        side_held           = false;
         scroll_active       = false;
         scroll_id           = -1;
         scroll_anchor_x     = 0;
@@ -652,11 +647,6 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
             emit(EV_KEY, pending_tap_release, 0);
             pending_tap_release = 0;
             any                 = true;
-        }
-        if (side_held) [[unlikely]] {
-            emit(EV_KEY, BTN_SIDE, 0);
-            side_held = false;
-            any       = true;
         }
         if (left_down) {
             emit(EV_KEY, BTN_LEFT, 0);
@@ -928,7 +918,6 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                 // device).  Track the hold so cleanup can release a
                 // press whose release event never arrived.
                 case BTN_STYLUS3: {
-                    side_held = event.value() != 0;
                     event.code(BTN_SIDE);
                     return next;
                 }
