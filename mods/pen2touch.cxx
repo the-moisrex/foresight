@@ -245,9 +245,9 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         }
     }
 
-    /// Which mapped buttons are currently held, so cleanup can release
-    /// a press whose release event never arrived.
-    std::array<bool, 3> barrel_held{};
+    /// Whether BTN_SIDE (remapped from BTN_STYLUS3) is currently held,
+    /// so cleanup can release it if its release event never arrived.
+    bool side_held = false;
 
     /// Slot reported in MT events; slot 0 is the pen contact, slot 1
     /// the synthetic scroll finger.
@@ -278,8 +278,8 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// The synthetic scroll contact's tracking id (-1 = lifted).
     value_type scroll_id = -1;
 
-    /// A barrel button buffered for the tap-vs-scroll decision, indexed
-    /// like `barrel_held_`.  Nothing is emitted until release: a quick
+    /// A barrel button buffered for the tap-vs-scroll decision.
+    /// Nothing is emitted until release: a quick
     /// unused tap clicks, a hold (or a hold with movement) scrolls.
     /// BTN_STYLUS and BTN_STYLUS2 both trigger (many pens only report
     /// BTN_STYLUS); BTN_STYLUS3 passes through immediately.
@@ -387,20 +387,20 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// device_disconnected).  The profiled scroll geometry is
     /// configuration, not per-run state, and survives.
     void reset() noexcept {
-        tracking_id = -1;
-        x           = 0;
-        y           = 0;
-        tool_active = false;
-        touching    = false;
-        tip_down    = false;
-        left_down   = false;
-        middle_down = false;
-        have_x      = false;
-        have_y      = false;
-        barrel_held.fill(false);
-        scroll_active        = false;
-        scroll_id            = -1;
-        scroll_anchor_x      = 0;
+        tracking_id         = -1;
+        x                   = 0;
+        y                   = 0;
+        tool_active         = false;
+        touching            = false;
+        tip_down            = false;
+        left_down           = false;
+        middle_down         = false;
+        have_x              = false;
+        have_y              = false;
+        side_held           = false;
+        scroll_active       = false;
+        scroll_id           = -1;
+        scroll_anchor_x     = 0;
         pending_tap_release = 0;
         for (auto& trigger : triggers) {
             trigger = {};
@@ -655,21 +655,19 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         if (pending_tap_release != 0) {
             emit(EV_KEY, pending_tap_release, 0);
             pending_tap_release = 0;
-            any                  = true;
+            any                 = true;
         }
-        for (std::size_t i = 0; i < barrel_held.size(); ++i) {
-            if (barrel_held[i]) {
-                emit(EV_KEY, barrel_buttons[i], 0);
-                barrel_held[i] = false;
-                any            = true;
-            }
+        if (side_held) [[unlikely]] {
+            emit(EV_KEY, BTN_SIDE, 0);
+            side_held = false;
+            any       = true;
         }
         if (left_down) {
             emit(EV_KEY, BTN_LEFT, 0);
             left_down = false;
             any       = true;
         }
-        if (middle_down) {
+        if (middle_down) [[unlikely]] {
             emit(EV_KEY, BTN_MIDDLE, 0);
             middle_down = false;
             any         = true;
@@ -930,9 +928,8 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                 // device).  Track the hold so cleanup can release a
                 // press whose release event never arrived.
                 case BTN_STYLUS3: {
-                    auto const index   = barrel_index(event.code());
-                    barrel_held[index] = event.value() != 0;
-                    event.code(barrel_buttons[index]);
+                    side_held = event.value() != 0;
+                    event.code(BTN_SIDE);
                     return next;
                 }
 
