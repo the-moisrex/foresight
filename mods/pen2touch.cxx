@@ -345,11 +345,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// libinput's gain runs over (libinput feeds the tracker the
     /// deltas it received, i.e. our emitted ones).
     std::chrono::microseconds comp_last_syn{};
-    double                    comp_last_vel = 0;
-
-    /// The first flush of a contact is reported raw: libinput
-    /// baselines on a fresh touch before any gain applies to it.
-    bool comp_first_flush = true;
+    double                    comp_last_vel = -1; // first compensated flush pending
 
     /// Slot 0's last emitted position, so a compensated frame moves
     /// the contact incrementally from where libinput saw it.
@@ -413,8 +409,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         comp_frac_x      = 0;
         comp_frac_y      = 0;
         comp_last_syn    = {};
-        comp_last_vel    = 0;
-        comp_first_flush = true;
+        comp_last_vel    = -1.0;
         emitted_x        = 0;
         emitted_y        = 0;
         // The virtual device keeps its kernel-side slot selection across a
@@ -433,13 +428,12 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         // A fresh contact is a fresh compensation context: libinput
         // restarts its trackers on touch begin, and the opening
         // frame reaches it raw.
-        comp_dx          = 0;
-        comp_dy          = 0;
-        comp_frac_x      = 0;
-        comp_frac_y      = 0;
-        comp_last_syn    = now;
-        comp_last_vel    = 0;
-        comp_first_flush = true;
+        comp_dx       = 0;
+        comp_dy       = 0;
+        comp_frac_x   = 0;
+        comp_frac_y   = 0;
+        comp_last_syn = now;
+        comp_last_vel = -1.0;
 
         value_type const id = next_tracking_id();
 
@@ -550,10 +544,12 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         select_slot(scroll_slot);
         emit(EV_ABS, ABS_MT_TRACKING_ID, -1);
         select_slot(mt_slot);
-        scroll_id     = -1;
+        scroll_id = -1;
         // The gesture rode libinput's constant scroll filter; the
         // pointer accelerator's frame history ends with it.
-        comp_last_vel = 0;
+        if (comp_last_vel >= 0.0) {
+            comp_last_vel = 0;
+        }
         // Back to one contact (or none): FINGER again only while the
         // tool is still near, and never keep DOUBLETAP lit.
         emit(EV_KEY, BTN_TOOL_FINGER, tool_active ? 1 : 0);
@@ -763,7 +759,12 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
             emitted_y   = y;
             comp_frac_y = 0;
         }
-        comp_last_vel = vel;
+        // A raw flush (e.g. before opening the scroll finger) must not
+        // consume the first-compensated-flush sentinel.  The next
+        // pointer-path frame still needs to be emitted raw.
+        if (comp_last_vel >= 0.0) {
+            comp_last_vel = vel;
+        }
         comp_last_syn = now;
     }
 
@@ -774,8 +775,7 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         if (comp_dx == 0 && comp_dy == 0) {
             return;
         }
-        if (comp_first_flush) {
-            comp_first_flush = false;
+        if (comp_last_vel < 0.0) {
             flush_raw_pending();
             return;
         }
