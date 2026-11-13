@@ -276,12 +276,6 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
 
     std::array<trigger_state, 3> triggers{};
 
-    /// Whether any trigger barrel button is down right now.  Movement
-    /// marks every held trigger as used on each moved axis, so this
-    /// keeps the common (nothing held) case a single predicted branch
-    /// instead of a three-entry scan per axis event.
-    bool any_trigger_held = false;
-
     /// How long a barrel button must stay down before its release stops
     /// counting as a tap (the same 200 ms window `on_held` uses).
     static constexpr std::chrono::milliseconds tap_window{200};
@@ -385,7 +379,6 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         for (auto& trigger : triggers) {
             trigger = {};
         }
-        any_trigger_held = false;
         scroll_hold      = false;
         now              = {};
         comp_dx          = 0;
@@ -562,9 +555,6 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     /// Movement while a barrel button is held turns that hold into a
     /// scroll: its release will never click.
     void mark_triggers_used() noexcept {
-        if (!any_trigger_held) [[likely]] {
-            return;
-        }
         for (auto& trigger : triggers) {
             if (trigger.held) {
                 trigger.used = true;
@@ -923,7 +913,6 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                             trigger.held       = true;
                             trigger.used       = false;
                             trigger.press_time = event.micro_time();
-                            any_trigger_held   = true;
                         }
                         update_scroll();
                         return drop_event;
@@ -932,10 +921,6 @@ fs8::context_action fs8::pimpl_idiom<basic_pen2touch>::impl::handle(event_type& 
                         return drop_event;
                     }
                     trigger.held     = false;
-                    any_trigger_held = false;
-                    for (auto const& held_trigger : triggers) {
-                        any_trigger_held = any_trigger_held || held_trigger.held;
-                    }
                     bool const tap = !trigger.used && (event.micro_time() - trigger.press_time < tap_window);
                     update_scroll();
                     if (tap) {
