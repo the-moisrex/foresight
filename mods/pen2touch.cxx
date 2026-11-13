@@ -250,21 +250,10 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
     static constexpr value_type mt_slot     = 0;
     static constexpr value_type scroll_slot = 1;
 
-    /// The slot the output currently has selected, or -1 when we never
-    /// selected one (fresh pimpl, or after `reset` — the virtual
-    /// device's kernel-side selection survives a restart, so forget it
-    /// too and re-select defensively).
-    value_type selected_slot = -1;
-
-    /// Select `s` for the MT events that follow, emitting ABS_MT_SLOT
-    /// only when it differs from the last selection: re-selecting the
-    /// current slot is a no-op for consumers but still costs a
-    /// `fork_emit` walk plus a `write()` syscall per frame.
+    /// Select `s` for subsequent MT events.  Always emit the selection:
+    /// the virtual device's selected slot can survive a pipeline restart.
     void select_slot(value_type const s) noexcept {
-        if (selected_slot != s) {
-            emit(EV_ABS, ABS_MT_SLOT, s);
-            selected_slot = s;
-        }
+        emit(EV_ABS, ABS_MT_SLOT, s);
     }
 
     /// Scroll mode: while active a second contact (slot 1) mirrors the
@@ -407,9 +396,6 @@ struct fs8::pimpl_idiom<basic_pen2touch>::impl {
         comp_last_vel    = -1.0;
         emitted_x        = 0;
         emitted_y        = 0;
-        // The virtual device keeps its kernel-side slot selection across a
-        // restart; forget ours too so the next contact re-selects it.
-        selected_slot    = -1;
         // res_x_/res_y_ are configuration (the profiled device), not state.
     }
 
